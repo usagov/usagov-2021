@@ -7,7 +7,7 @@ use Drupal\paragraphs\Entity\Paragraph;
 
 class ElectedOfficialsLabels {
 
-  use mapOverridesTrait;
+  use MapOverridesTrait;
 
   /**
    * Merges customized labels with defaults for the current languages.

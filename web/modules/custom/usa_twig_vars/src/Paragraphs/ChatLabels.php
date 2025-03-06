@@ -7,7 +7,7 @@ use Drupal\paragraphs\Entity\Paragraph;
 
 class ChatLabels {
 
-  use mapOverridesTrait;
+  use MapOverridesTrait;
 
   /**
    * Merges customized labels with defaults for the current languages.
@@ -40,4 +40,5 @@ class ChatLabels {
       default => throw new \InvalidArgumentException("Unrecognized language argument"),
     };
   }
+
 }
