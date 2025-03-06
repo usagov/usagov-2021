@@ -459,6 +459,12 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
       $variables['results_page_url'] = \Drupal::request()->getSchemeAndHttpHost()
         . $variables['content']['field_sirf_results_page'][0]['#url']->toString();
       break;
+
+    case 'online_chat_form':
+      $labelMaker = new \Drupal\usa_twig_vars\Paragraphs\ChatLabels();
+      $chatLabels = $labelMaker->getLabels($paragraph, $lang);
+      $variables['chatLabels'] = $chatLabels;
+      break;
   }
 }
 
