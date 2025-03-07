@@ -1,0 +1,121 @@
+uuid: 05c94ff2-f51f-450d-afb0-623c1097816b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.site_issue_report_form.field_sirf_all_required_label
+    - field.field.paragraph.site_issue_report_form.field_sirf_char_limit_msg
+    - field.field.paragraph.site_issue_report_form.field_sirf_description_error
+    - field.field.paragraph.site_issue_report_form.field_sirf_description_label
+    - field.field.paragraph.site_issue_report_form.field_sirf_email_error
+    - field.field.paragraph.site_issue_report_form.field_sirf_error_heading
+    - field.field.paragraph.site_issue_report_form.field_sirf_lower_text
+    - field.field.paragraph.site_issue_report_form.field_sirf_name_error
+    - field.field.paragraph.site_issue_report_form.field_sirf_results_page
+    - field.field.paragraph.site_issue_report_form.field_sirf_submit_button
+    - field.field.paragraph.site_issue_report_form.field_sirf_your_email_label
+    - field.field.paragraph.site_issue_report_form.field_sirf_your_name_label
+    - paragraphs.paragraphs_type.site_issue_report_form
+  module:
+    - text
+id: paragraph.site_issue_report_form.default
+targetEntityType: paragraph
+bundle: site_issue_report_form
+mode: default
+content:
+  field_sirf_all_required_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_sirf_char_limit_msg:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_sirf_description_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_sirf_description_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_sirf_email_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_sirf_error_heading:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_sirf_lower_text:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_sirf_name_error:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_sirf_results_page:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_sirf_submit_button:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_sirf_your_email_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_sirf_your_name_label:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 8
+    region: content
+hidden: {  }
