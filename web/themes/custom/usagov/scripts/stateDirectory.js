@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
   "use strict";
-  var docLang = [document.documentElement.lang];
+  var docLang = String(document.documentElement.lang);
 
   // hidden label for a11y
   const hiddenLabel = docLang === "es" ? "Elija o escriba el estado o territorio:" : "Select or type your state or territory:";
