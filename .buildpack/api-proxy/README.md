@@ -2,7 +2,7 @@
 
 ## 📌 Overview
 
-This project is a **Flask-based API Proxy** designed to securely **relay API requests** while **hiding API credentials** from users. It enables a **client** to send API queries via the proxy, ensuring credentials remain **server-side only**, meaning, **ONLY on the api-proxy buildpack, NOT the client, ever has credentials**.
+This project is a **Flask-based API Proxy** designed to securely **relay API requests** while **obfuscating API credentials** from users. It enables a **client** to send API queries via the proxy, ensuring credentials remain **server-side only**, meaning, **ONLY on the api-proxy buildpack, NOT the client, ever has credentials**.
 
 The **proxy application** intercepts API calls and appends the required API key **before forwarding requests**--through the egress proxy--to the external API (e.g., `NASA.gov`). It is deployed using **Cloud Foundry** on **Cloud.gov**.
 
@@ -49,7 +49,7 @@ To deploy the API Proxy, run:
 bin/cloudgov/deploy-api-proxy
 ```
 
-- It **deploys the api-proxy**, **creates routes**, **maps routes**, **creates the key store**, **sets network policies**, and **sets up proxy environment variables**.
+It **deploys the api-proxy**, **creates routes**, **maps routes**, **creates the key store**, **sets network policies**, and **sets up proxy environment variables**.
 
 **NOTE**: This step is part of a standard CircleCi deployment and will usually not need to be done manually.
 
@@ -122,5 +122,5 @@ This request:
 
 In a case where an api call requires more complex rules that what are covered by the base application, you can add an extension on a per domain basis.
 
-1. Create or duplicate a file in the `extensions` directory and rename it [api domain name].py.  Note that the this is the domain name *without* http(s)://.
+1. Create or duplicate a file in the `extensions` directory and rename it [api domain name].py.  Note that the this is the domain name **without** `http(s)://`.
 2. This script is loaded dynamically whenever the app detects that a file with the api domain name is in the directory.  You have access to all of the variables from the script, and no returns are required as the extension is loaded in place.
