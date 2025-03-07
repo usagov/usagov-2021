@@ -1,0 +1,19 @@
+uuid: 6ccf1b71-2e41-4a21-aaea-9211d3392146
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_required_instr
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_required_instr
+field_name: field_ceo_required_instr
+entity_type: paragraph
+bundle: ceo_form
+label: 'Required Fields Instruction'
+description: 'Instructions at top of form.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,24 @@
+uuid: 88c0fbfb-23b7-4a74-9df0-d9b9caa28e84
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_results_instructions
+    - filter.format.uswds
+    - paragraphs.paragraphs_type.ceo_results
+  module:
+    - text
+id: paragraph.ceo_results.field_ceo_results_instructions
+field_name: field_ceo_results_instructions
+entity_type: paragraph
+bundle: ceo_results
+label: 'Results instructions'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text_long

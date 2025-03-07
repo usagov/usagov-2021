@@ -110,6 +110,21 @@ COPY src-waf/cert-watcher.sh /cert-watcher.sh
 
 COPY motd /etc/motd
 
+# Set environment variables
+ENV ZLIB_VERSION=1.3.1
+ENV ZLIB_SRC_URL=http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz
+RUN wget ${ZLIB_SRC_URL} && \
+    tar -xvzf zlib-${ZLIB_VERSION}.tar.gz && \
+    cd zlib-${ZLIB_VERSION} && \
+    ./configure --prefix=/usr/local && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && \
+    rm -rf zlib-${ZLIB_VERSION}* && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/zlib.conf && \
+    ldconfig && \
+    dpkg --remove --force-depends zlib1g
+
 RUN echo    "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
