@@ -1,0 +1,24 @@
+uuid: 83eba7c8-02d2-407b-9a8a-4c6a3a166b32
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_lower_text
+    - filter.format.uswds
+    - paragraphs.paragraphs_type.site_issue_report_form
+  module:
+    - text
+id: paragraph.site_issue_report_form.field_sirf_lower_text
+field_name: field_sirf_lower_text
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'Lower text'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text_long
