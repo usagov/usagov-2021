@@ -1,4 +1,4 @@
-{% set chatID = paragraph.field_chat_id.value %}
+{% set chatID = paragraph.field_chat_id.value|escape('js') %}
 {% set sfParams1 = paragraph.field_chat_salesform_p1.value %}
 {% set sfParams2 = paragraph.field_chat_salesform_p2.value %}
 
@@ -35,7 +35,7 @@
 </script>
 <script type="text/javascript" src="https://la1-c1-ttd.salesforceliveagent.com/content/g/js/36.0/deployment.js"></script>
 <script type="text/javascript">
-  liveagent.init('https://la1-c1-ttd.salesforceliveagent.com/chat', '{{ sfParams1 }}', '{{ sfParams2 }}');
+  liveagent.init('https://la1-c1-ttd.salesforceliveagent.com/chat', '{{ sfParams1|escape('js') }}', '{{ sfParams2|escape('js') }}');
   liveagent.setChatWindowHeight(605);
   liveagent.setChatWindowWidth(385);
 </script>

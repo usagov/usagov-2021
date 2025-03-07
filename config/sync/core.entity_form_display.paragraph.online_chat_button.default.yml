@@ -8,6 +8,8 @@ dependencies:
     - field.field.paragraph.online_chat_button.field_chat_offline
     - field.field.paragraph.online_chat_button.field_chat_online
     - field.field.paragraph.online_chat_button.field_chat_online_footer
+    - field.field.paragraph.online_chat_button.field_chat_salesform_p1
+    - field.field.paragraph.online_chat_button.field_chat_salesform_p2
     - paragraphs.paragraphs_type.online_chat_button
   module:
     - field_group
@@ -37,7 +39,7 @@ third_party_settings:
       label: Offline
       region: content
       parent_name: ''
-      weight: 5
+      weight: 2
       format_type: fieldset
       format_settings:
         classes: ''
@@ -45,6 +47,23 @@ third_party_settings:
         id: ''
         label_as_html: false
         description: ''
+        required_fields: true
+    group_integration:
+      children:
+        - field_chat_id
+        - field_chat_salesform_p1
+        - field_chat_salesform_p2
+      label: Integration
+      region: content
+      parent_name: ''
+      weight: 3
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: true
+        description: "Thee parameters are used for the the liveagent init call: \r\n\r\n<code>liveagent.init('https://la1-c1-ttd.salesforceliveagent.com/chat', 'PARAM1', 'PARAM2');</code>"
         required_fields: true
 id: paragraph.online_chat_button.default
 targetEntityType: paragraph
@@ -89,6 +108,22 @@ content:
     region: content
     settings:
       rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_chat_salesform_p1:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_chat_salesform_p2:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
       placeholder: ''
     third_party_settings: {  }
 hidden:
