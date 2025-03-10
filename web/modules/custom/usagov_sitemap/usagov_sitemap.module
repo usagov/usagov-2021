@@ -4,12 +4,12 @@
  * Alter the generated link data before the sitemap is saved.
  * This hook gets invoked for every sitemap chunk generated.
  *
- * @param array &$links
+ * @param array<string, mixed> &$links
  *   Array containing multilingual links generated for each path to be indexed
  *
  * @param string|null $sitemap_variant
  */
-function usagov_sitemap_simple_sitemap_links_alter(array &$links, $sitemap_variant) {
+function usagov_sitemap_simple_sitemap_links_alter(array &$links, $sitemap_variant): void {
 
   foreach ($links as $key => $link) {
     /**
