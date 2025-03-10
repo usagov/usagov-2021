@@ -43,7 +43,8 @@ class UnpubCommand extends DrushCommands {
       $term->set('status', 0); // Unpublish the term.
       try {
         $term->save();
-      } catch (EntityStorageException $e) {
+      }
+      catch (EntityStorageException $e) {
         \Drupal::logger('custom_module')->error('Error unpublishing term ID: @id, Error: @error', [
           '@id' => $term->id(),
           '@error' => $e->getMessage(),
