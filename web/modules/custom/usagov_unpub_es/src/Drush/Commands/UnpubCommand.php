@@ -17,11 +17,11 @@ class UnpubCommand extends DrushCommands {
    */
   public function unpubspanish() {
 
-    $this->unpubspanish_nodes();
-    $this->unpubspanish_taxonomy();
+    $this->unpubSpanishNodes();
+    $this->unpubSpanishTaxonomy();
   }
 
-  public function unpubspanish_taxonomy() {
+  public function unpubSpanishTaxonomy() {
 
     // Get all taxonomy term IDs where the language is Spanish.
     $query = \Drupal::entityQuery('taxonomy_term')
@@ -54,7 +54,7 @@ class UnpubCommand extends DrushCommands {
     print "Unpublished {$count} Spanish taxonomy-terms.\n";
   }
 
-  public function unpubspanish_nodes() {
+  public function unpubSpanishNodes() {
 
     // Get all Spanish Node-IDs
     $database = Database::getConnection();
@@ -88,4 +88,5 @@ class UnpubCommand extends DrushCommands {
     }
 
   }
+
 }
