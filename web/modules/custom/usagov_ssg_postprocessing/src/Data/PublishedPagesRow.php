@@ -4,12 +4,14 @@ namespace Drupal\usagov_ssg_postprocessing\Data;
 
 use Drupal\Core\Language\Language;
 use Drupal\Core\Url;
-use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**
  * Data structure describing the columns of the Published Pages CSV
+ *
+ * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
  */
 final class PublishedPagesRow {
 
@@ -45,19 +47,17 @@ final class PublishedPagesRow {
     public readonly string $pageLanguage,
   ) {}
 
-  private static function getTaxLevel1(Language $language): string {
-    return match ($language->getId()) {
-      'es' => "USAGov Español",
-      'en' => "USAGov English",
-      default => "USAGov English",
-    };
-  }
-
+  /**
+   * @param array<mixed> $data
+   */
   private static function getHierarchy(array $data): int {
     $texts = array_filter($data, fn($key) => str_starts_with($key, 'Taxonomy_URL_'), ARRAY_FILTER_USE_KEY);
     return count(array_unique($texts));
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function toArray(): array {
     $array = [
       $this->hierarchy,
@@ -90,7 +90,10 @@ final class PublishedPagesRow {
     return $array;
   }
 
-  public static function datalayerForNode(array $data, Node $node, string $baseURL): self {
+  /**
+   * @param TaxonomyBreadcrumb $data
+   */
+  public static function datalayerForNode(array $data, NodeInterface $node, string $baseURL): self {
     $title = $node->getTitle();
 
     // Federal Agency nodes tack on the acronym because the original implementation
@@ -120,7 +123,7 @@ final class PublishedPagesRow {
     }
 
     $toggleURL = NULL;
-    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]?->target_id) {
+    if (isset($node->field_language_toggle[0]) && $node->field_language_toggle[0]->target_id) {
       if ($data['homepageTest'] === 'homepage' && $data['language'] === 'en') {
         $toggleURL = $baseURL . TaxonomyDatalayerBuilder::HOME_URL_ES;
       }
@@ -166,6 +169,9 @@ final class PublishedPagesRow {
     );
   }
 
+  /**
+   * @param TaxonomyBreadcrumb $data
+   */
   public static function datalayerForWizard(array $data, Term $term, string $baseURL): self {
     if ($heading = $term->get('field_heading')->getValue()) {
       $title = $heading[0]['value'];

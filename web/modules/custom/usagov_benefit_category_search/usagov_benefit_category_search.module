@@ -12,8 +12,10 @@ use Drupal\views\ViewExecutable;
 
 /**
  * Alters basic page forms to add our custom validators.
+ *
+ * @param array<string, mixed> $form
  */
-function usagov_benefit_category_search_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
+function usagov_benefit_category_search_form_node_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   if ($form_id === 'node_basic_page_edit_form' || $form_id === 'node_basic_page_form') {
     $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_page';
   }
@@ -21,8 +23,10 @@ function usagov_benefit_category_search_form_node_form_alter(&$form, FormStateIn
 
 /**
  * Runs custom validations on basic page forms for some page types.
+ *
+ * @param array<string, mixed> $form
  */
-function usagov_benefit_category_search__validate_basic_page($form, FormStateInterface $form_state): void {
+function usagov_benefit_category_search__validate_basic_page(array $form, FormStateInterface $form_state): void {
   $page_type_id = $form_state->getValue('field_page_type');
   if (!$page_type_id) {
     return;
@@ -82,14 +86,18 @@ function usagov_benefit_category_search_validate_category_search_page(FormStateI
 
 /**
  * Attach filtering script and validator for benefit category term forms.
+ *
+ * @param array<string, mixed> $form
  */
-function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(&$form, FormStateInterface $form_state, string $form_id): void {
+function usagov_benefit_category_search_form_taxonomy_term_benefits_category_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   $form['#attached']['library'][] = 'usagov_benefit_category_search/lifeEventRefLanguageFilter';
   $form['#validate'][] = 'usagov_benefit_category_search__validate_basic_category';
 }
 
 /**
  * Checks that selected life events match the category language.
+ *
+ * @param array<string, mixed> $form
  */
 function usagov_benefit_category_search__validate_basic_category(array $form, FormStateInterface $form_state): void {
   $langcode = $form_state->getValue("langcode")[0]['value'];
@@ -111,6 +119,8 @@ function usagov_benefit_category_search__validate_basic_category(array $form, Fo
 
 /**
  * Implements hook_preprocess_node().
+ *
+ * @param array<string, mixed> $vars
  */
 function usagov_benefit_category_search_preprocess_node(array &$vars): void {
   // Off by default.
@@ -136,6 +146,8 @@ function usagov_benefit_category_search_preprocess_node(array &$vars): void {
 
 /**
  * Implements hook_preprocess_html().
+ *
+ * @param array<string, mixed> $vars
  */
 function usagov_benefit_category_search_preprocess_html(array &$vars): void {
   $node = \Drupal::routeMatch()->getParameter('node');
@@ -173,12 +185,14 @@ function usagov_benefit_category_search_views_pre_render(ViewExecutable $view): 
 
 /**
  * Implements hook_local_tasks_alter().
+ *
+ * @param array<string, mixed> $data
  */
 function usagov_benefit_category_search_menu_local_tasks_alter(
-  &$data,
-  $route_name,
+  array &$data,
+  string $route_name,
   RefinableCacheableDependencyInterface &$cacheability,
-) {
+): void {
   if ($route_name !== 'entity.node.canonical') {
     return;
   }
@@ -195,7 +209,8 @@ function usagov_benefit_category_search_menu_local_tasks_alter(
 
   $view = match($node->language()->getId()) {
     'en' => 'view.manage_benefits_search_sort.page_en',
-    'es' => 'view.manage_benefits_search_sort.page_es'
+    'es' => 'view.manage_benefits_search_sort.page_es',
+    default => 'view.manage_benefits_search_sort.page_en',
   };
 
   $userCurrent = \Drupal::currentUser();
@@ -203,7 +218,7 @@ function usagov_benefit_category_search_menu_local_tasks_alter(
   $data['tabs'][0]['usagov_benefit_category_search.manage_sort'] = [
     '#access' => $url->access($userCurrent),
     '#theme' => 'menu_local_task',
-    '#acive' => FALSE,
+    '#active' => FALSE,
     '#link' => [
       'title' => 'Sort Results',
       'url' => $url,

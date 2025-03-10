@@ -21,9 +21,7 @@
 		<button class="usa-menu-btn">Menú</button>
 		<div class="usa-nav__secondary">
 			<span class="usa-nav__secondary-links">
-				<span id="top-phone" class="usa-nav__secondary-item">
-					<a href="/es/llamenos" style="white-space: nowrap;">Llámenos al 1-844-USAGOV1</a>
-				</span>
+        {{ page.top_nav }}
 			</span>
 			<!-- Search Bar -->
 			{% embed 'usagov:searchbar' with {
@@ -37,7 +35,7 @@
 				input_id:"search-field-small",
 				input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
 				placeholder_string:"Busque en este sitio...",
-				button_classes:"usa-button usagov-button",
+				button_classes:"usa-button",
 				alt_string:"Buscar",
 			} %}
 			{% endembed %}

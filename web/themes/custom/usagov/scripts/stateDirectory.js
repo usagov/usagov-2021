@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
   "use strict";
-  var docLang = [document.documentElement.lang];
+  var docLang = String(document.documentElement.lang);
 
   // hidden label for a11y
   const hiddenLabel = docLang === "es" ? "Elija o escriba el estado o territorio:" : "Select or type your state or territory:";
@@ -39,7 +39,7 @@ jQuery(document).ready(function ($) {
   // add the submit button
   const sumBtn = docLang === "es" ? "Ir" : "Go";
   $("#submitAfter").append(
-    `<button class="usa-button sd-go-btn usa-button--secondary" type="submit">${sumBtn}</button>`
+    `<button class="usa-button sd-go-btn" type="submit">${sumBtn}</button>`
   );
   var goButton = $(".sd-go-btn");
 

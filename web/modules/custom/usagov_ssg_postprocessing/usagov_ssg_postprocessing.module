@@ -4,18 +4,23 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Implements hook_entity_view_alter().
+ * Implements hook_entity_view_alter()
  *
  * From Drupal.org -> "If a module wishes to act on the rendered HTML of the
  * ntity rather than the structured content array, it may use this hook to add
  * a #post_render callback."
+ *
+ * @param array<string, mixed> $build
 */
-function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+function usagov_ssg_postprocessing_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display): void {
   usagov_ssg_postprocessing_remove_shortlink($build);
   usagov_ssg_postprocessing_modify_canonical_link($build);
 }
 
-function usagov_ssg_postprocessing_remove_shortlink(array &$attachments) {
+/**
+ * @param array<string, mixed> $attachments
+ */
+function usagov_ssg_postprocessing_remove_shortlink(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -27,12 +32,15 @@ function usagov_ssg_postprocessing_remove_shortlink(array &$attachments) {
   }
 }
 
-function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments) {
+/**
+ * @param array<string, mixed> $attachments
+ */
+function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
   }
   if (\Drupal::service('path.matcher')->isFrontPage()) {
-    foreach ($attachments['#attached']['html_head_link'] as $key => $value) {
+    foreach ($attachments['#attached']['html_head_link'] as $value) {
       if (isset($value[0]['rel']) && $value[0]['rel'] == 'canonical') {
         $href = $attachments['#attached']['html_head_link'][0][0]['href'];
         if (str_ends_with($href, '/node/1')) {
@@ -44,10 +52,12 @@ function usagov_ssg_postprocessing_modify_canonical_link(array &$attachments) {
 }
 
 /**
- * Implements hook_page_attachments_alter.
- * We just want to add / to the alternate links on the home pages.
+ * Implements hook_page_attachments_alter
+ *
+ * @param array<string, mixed> &$attachments
+ * We just want to add / to the alternate links on the home pages
  */
-function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments) {
+function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments): void {
   if (!isset($attachments['#attached']['html_head_link'])) {
     return;
   }
@@ -70,29 +80,31 @@ function usagov_ssg_postprocessing_page_attachments_alter(array &$attachments) {
 /**
 * Static Site Generation Toggle State Form ID
 */
-function usagov_ssg_postprocessing_get_static_state_form_id() {
+function usagov_ssg_postprocessing_get_static_state_form_id(): string {
   return 'toggle_static_site_generation_form';
 }
 
 /**
 * Static Site Generation Toggle State Form Button Name
 */
-function usagov_ssg_postprocessing_get_static_state_button_name() {
+function usagov_ssg_postprocessing_get_static_state_button_name(): string {
   return 'confirm_toggle';
 }
 
 /**
  * Toggle State variable name for sset/sget/sdel
  */
-function usagov_ssg_postprocessing_get_static_state_var() {
+function usagov_ssg_postprocessing_get_static_state_var(): string {
   return 'usagov.tome_run_disabled';
 }
 
 /**
-  * Implements hook_form_alter().
-  * Static Site Generation form text updates.
-  */
-function usagov_ssg_postprocessing_form_alter(&$form, &$form_state, $form_id) {
+ * Implements hook_form_alter().
+ *
+ * @param array<string, mixed> $form
+ * Static Site Generation form text updates.
+ */
+function usagov_ssg_postprocessing_form_alter(mixed &$form, mixed &$form_state, string $form_id): void {
   if ($form_id == usagov_ssg_postprocessing_get_static_state_form_id()) {
     $toggle_state = \Drupal::state()->get(usagov_ssg_postprocessing_get_static_state_var()) ? 1 : 0;
     $form_state->setValue(usagov_ssg_postprocessing_get_static_state_button_name(), $toggle_state ? TRUE : FALSE);

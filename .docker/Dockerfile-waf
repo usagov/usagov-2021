@@ -1,73 +1,131 @@
-FROM owasp/modsecurity-crs@sha256:94c67e36f8c48553b4e51378579f6afc818a5d9d2e0c6e09cf846913ee9fac31
+ARG NGINX_VERSION="1.27.3"
+FROM nginx:${NGINX_VERSION}
 
 LABEL maintainer="USA.gov Web Ops"
 
-ARG RELEASE=3.3.2
-
 ARG GITBRANCH
-ENV GITBRANCH ${GITBRANCH:-none}
+ENV GITBRANCH=${GITBRANCH:-none}
 
 ARG GITCOMMIT
-ENV GITCOMMIT ${GITCOMMIT:-none}
+ENV GITCOMMIT=${GITCOMMIT:-none}
 
 ARG GITTAG
-ENV GITTAG ${GITTAG:-none}
+ENV GITTAG=${GITTAG:-none}
 
 ENV APP_NAME=USAGov \
-    PARANOIA=2 \
     ANOMALY_INBOUND=5 \
     ANOMALY_OUTBOUND=4 \
-    NGINX_KEEPALIVE_TIMEOUT=60s \
     ERRORLOG=/var/log/nginx/error.log \
     LOGLEVEL=warn \
-    USER=nginx \
-    PORT=80 \
-    SERVERNAME=locahost \
-    WORKER_CONNECTIONS=1024 \
     MODSEC_DEFAULT_PHASE1_ACTION="phase:1,pass,log,tag:'\${MODSEC_TAG}'" \
     MODSEC_DEFAULT_PHASE2_ACTION="phase:2,pass,log,tag:'\${MODSEC_TAG}'" \
-    MODSEC_RULE_ENGINE=on \
+    MODSEC_PCRE_MATCH_LIMIT=500000 \
+    MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000 \
     MODSEC_REQ_BODY_ACCESS=on \
     MODSEC_REQ_BODY_LIMIT=13107200 \
     MODSEC_REQ_BODY_NOFILES_LIMIT=131072 \
     MODSEC_RESP_BODY_ACCESS=on \
     MODSEC_RESP_BODY_LIMIT=1048576 \
-    MODSEC_PCRE_MATCH_LIMIT=500000 \
-    MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000
+    MODSEC_RULE_ENGINE=on \
+    MODSECURITY_ENGINE_VERSION="3.0.13" \
+    MODSECURITY_NGINX_VERSION="1.0.3" \
+    MODSECURITY_CRS_VERSION="4.10.0" \
+    NGINX_KEEPALIVE_TIMEOUT=60s \
+    PARANOIA=2 \
+    PORT=80 \
+    SERVERNAME=localhost \
+    USER=nginx \
+    WORKER_CONNECTIONS=1024
+
+RUN apt-get update && \
+    apt-get install -y \
+    autoconf \
+    automake \
+    build-essential \
+    dh-autoreconf \
+    dpkg-dev \
+    flex \
+    gcc \
+    inotify-tools \
+    libexpat1-dev \
+    libgeoip-dev \
+    liblmdb-dev \
+    liblua5.3-dev \
+    libmodsecurity-dev \
+    libmodsecurity3 \
+    libpcre2-dev \
+    libpcre3 \
+    libpcre3-dev \
+    libssl-dev \
+    libtool \
+    libyajl-dev \
+    locales \
+    lua5.3-dev \
+    make \
+    pkg-config \
+    procps \
+    wget \
+    zlib1g-dev
+
+RUN set -eux; \
+    mkdir /var/log/modsecurity && \
+    touch /var/log/modsecurity/modsec_audit.log;
+
+RUN cd /tmp \
+    && wget https://github.com/owasp-modsecurity/ModSecurity-nginx/releases/download/v${MODSECURITY_NGINX_VERSION}/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && tar -xvf modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && rm modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}.tar.gz \
+    && mkdir -p /opt/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} \
+    && mv modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}/* /opt/modsecurity-nginx-v${MODSECURITY_NGINX_VERSION}/ \
+    && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+    && tar -xvf nginx-${NGINX_VERSION}.tar.gz \
+    && rm nginx-${NGINX_VERSION}.tar.gz \
+    && mkdir -p /opt/nginx-${NGINX_VERSION} \
+    && mv nginx-${NGINX_VERSION}/* /opt/nginx-${NGINX_VERSION}/ \
+    && cd /opt/nginx-${NGINX_VERSION} \
+    && ARGS=$(nginx -V 2>&1 | grep -oP '(?<=configure arguments: ).*?(?=--with-cc-opt)') \
+    && ./configure --add-dynamic-module=../modsecurity-nginx-v${MODSECURITY_NGINX_VERSION} --with-compat $ARGS \
+    && make modules \
+    && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
+
+RUN cd /tmp \
+    && wget https://github.com/coreruleset/coreruleset/releases/download/v${MODSECURITY_CRS_VERSION}/coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz  \
+    && tar -xvf coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && rm coreruleset-${MODSECURITY_CRS_VERSION}-minimal.tar.gz \
+    && mkdir -p /etc/modsecurity.d/modsecurity-crs \
+    && mv coreruleset-${MODSECURITY_CRS_VERSION}/* /etc/modsecurity.d/modsecurity-crs/ \
+    && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
+    && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
 COPY src-waf/docker-entrypoint-waf.sh /
 COPY src-waf/etc/ /etc/
 COPY src-waf/opt/ /opt/
 RUN rm -rf /opt/owasp-crs/tests;
 
-RUN apk upgrade --update && \
-    apk add vim \
-      nano \
-      bash \
-      jq \
-      inotify-tools \
-      gettext \
-      curl \
-      sed
-
-# hadolint ignore=DL3008,SC2016
-RUN set -eux; \
-    apk add --no-cache \
-    ca-certificates;
-# \    ln -sv /opt/owasp-crs /etc/modsecurity.d;
-
-RUN set -eux; \
-    mkdir /var/log/modsecurity && \
-    touch /var/log/modsecurity/modsec_audit.log;
-
 COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
 COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
 COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+
 COPY src-waf/cert-watcher.sh /cert-watcher.sh
 
 COPY motd /etc/motd
 
-RUN echo "    built:" $(date) >> /etc/motd \
+# Set environment variables
+ENV ZLIB_VERSION=1.3.1
+ENV ZLIB_SRC_URL=http://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz
+RUN wget ${ZLIB_SRC_URL} && \
+    tar -xvzf zlib-${ZLIB_VERSION}.tar.gz && \
+    cd zlib-${ZLIB_VERSION} && \
+    ./configure --prefix=/usr/local && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && \
+    rm -rf zlib-${ZLIB_VERSION}* && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/zlib.conf && \
+    ldconfig && \
+    dpkg --remove --force-depends zlib1g
+
+RUN echo    "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \

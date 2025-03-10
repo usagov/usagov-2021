@@ -4,7 +4,11 @@ namespace Drupal\usagov_wizard;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
+/**
+ * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
+ */
 class WizardDataLayer {
 
   public function __construct(
@@ -13,7 +17,11 @@ class WizardDataLayer {
   ) {
   }
 
-  public function getData(array $data = []): array {
+  /**
+   * @param array{}|TaxonomyBreadcrumb $data
+   * @return TaxonomyBreadcrumb
+   */
+  public function getData(array $data): array {
     $termStorage = $this->typeManager->getStorage('taxonomy_term');
 
     $isStartPage = FALSE;
@@ -37,8 +45,6 @@ class WizardDataLayer {
       $page_type = 'wizard-question';
     }
 
-    // keep the same order
-    unset($data['hasBenefitCategory']);
     // make any changes need to $event->datalayer array
     $data['taxonomyID'] = $this->term->id();
     $data['contentType'] = $this->term->bundle();
@@ -50,6 +56,8 @@ class WizardDataLayer {
 
     $rootTerm = NULL;
     $parents = [];
+    $raw = [];
+
     if (
       $this->term->hasField('parent')
       && !$this->term->get('parent')->isEmpty()
@@ -84,7 +92,7 @@ class WizardDataLayer {
     }
 
     $count = count($raw);
-
+    $urls = [];
     $i = 0;
     foreach ($raw as $url => $text) {
       $i++;

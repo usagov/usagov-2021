@@ -2,7 +2,7 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Site\Settings;
@@ -63,7 +63,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\CollectPathsEvent $event
    *   The collect paths event.
    */
-  public function excludeDirectories(CollectPathsEvent $event) {
+  public function excludeDirectories(CollectPathsEvent $event): void {
     $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
@@ -79,7 +79,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $entity_id = $path_parts[3];
 
         $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
-        if (!$entity | (!$entity instanceof ContentEntityInterface) || !$entity->hasTranslation($langcode)) {
+        // ContentEntityBase interface require the getTranslation()/hasTranslation() methods
+        if (!$entity || (!$entity instanceof ContentEntityBase) || !$entity->hasTranslation($langcode)) {
           continue;
         }
         $entity = $entity->getTranslation($langcode);
@@ -116,10 +117,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   /**
    * Returns per-site excluded directory paths.
    *
-   * @return array
+   * @return array<mixed>
    *   An array of excluded paths.
    */
-  public static function getExcludedDirectories() {
+  public static function getExcludedDirectories(): array {
     $excluded_paths = [];
     $site_paths = Settings::get('usagov_tome_static_path_exclude_directories', []);
     if (is_array($site_paths)) {
@@ -137,7 +138,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\ModifyHtmlEvent $event
    *   The event.
    */
-  public function modifyHtml(ModifyHtmlEvent $event) {
+  public function modifyHtml(ModifyHtmlEvent $event): void {
     $html = $event->getHtml();
     $html5 = new HTML5();
 
@@ -232,6 +233,9 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
   }
 
+  /**
+   * @return string[]
+   */
   private function getLetters(ViewExecutable $view): array {
     $view->execute();
     $letters = [];

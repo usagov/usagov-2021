@@ -15,8 +15,30 @@ use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @phpstan-type MenuLinkContentArray array{
+ *    attributes?: \Drupal\Core\Template\Attribute[],
+ *    below?: array<string, mixed>,
+ *    in_active_trail?: bool|null,
+ *    is_collapsed?: bool,
+ *    is_expandied?: bool,
+ *    original_link?: \Drupal\menu_link_content\Plugin\Menu\MenuLinkContent,
+ *    title: string,
+ *    url: \Drupal\Core\Url|string
+ * }
+ * @phpstan-type MenuLinkContentObject object{
+ *    active: bool,
+ *    below: array<string, mixed>,
+ *    current: bool,
+ *    title: string,
+ *    url: string
+ * }
+ */
 abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
+  /**
+   * @param array<string, mixed> $configuration
+   */
   public function __construct(
     array $configuration,
     string $plugin_id,
@@ -33,6 +55,8 @@ abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPl
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $configuration
    */
   public static function create(
     ContainerInterface $container,
@@ -56,7 +80,9 @@ abstract class AbstractMenuBlock extends BlockBase implements ContainerFactoryPl
   /**
    * Get the menu items for the path of crumbs passed.
    *
-   * @return array
+   * @param string[] $crumbs
+   *   menu_link_content UUIDs
+   * @return array<string, mixed>
    *   A renderable array.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException

@@ -2,34 +2,34 @@
 
 /**
  * @file
- * Use proprocess for html twig.
+ * Use preprocess for html twig.
  */
 
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\node\Entity\Node;
-use Drupal\taxonomy\Entity\Term;
 
 /**
- * Description message.
+ * @param array<string, mixed> &$page
  *
- * @param mixed $variables
- *   Self described.
- * @param mixed $hook
- *   Self described.
+ * Implement hook_page_attachments()
  */
-
-function usagov_top_navigation_menu_page_attachments(array &$page) {
+function usagov_top_navigation_menu_page_attachments(array &$page): void {
   $page['#attached']['library'][] = 'usagov_top_navigation_menu/usagov_top_navigation_menu_js';
 
   $top_nav_menu = usagov_top_navigation_menu_get_top_nav();
   $page['#attached']['drupalSettings']['top_nav_menu'] = $top_nav_menu;
 }
 
-function usagov_top_navigation_menu_get_top_nav() {
+/**
+ * returns an array of associative arrays; both keys and values are strings.
+ * @return array<array<string, string>>
+ */
+function usagov_top_navigation_menu_get_top_nav(): array {
   $menu_parameters = new MenuTreeParameters();
   $menu_lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
-  if ($menu_lang == 'es') {
+  if ($menu_lang === 'es') {
     $menu_name = 'top-navigation-es';
   }
   else {
@@ -42,7 +42,7 @@ function usagov_top_navigation_menu_get_top_nav() {
     $menu_path = $item->link->getUrlObject()->toString();
     $menu_id = $item->link->getDescription();
     $menu_item = [$menu_path => $menu_id];
-    array_push($topnav, $menu_item);
+    $topnav[] = $menu_item;
   }
   return $topnav;
 }
@@ -61,8 +61,7 @@ function usagov_top_navigation_menu_get_top_nav() {
  * See the comments in USAGOV-1934 for more details and how this edge-case
  * can come about.
  */
-function usagov_top_navigation_menu_menu_link_content_update($entity) {
-
+function usagov_top_navigation_menu_menu_link_content_update(MenuLinkContentInterface $entity): void {
   // This function may potentially trigger a save on a menu-item.
   // We protect against recursive infinity-loops here.
   static $stopLoop = FALSE;
@@ -81,7 +80,7 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
 
   // Get the UUID for that Node ID
   $node = Node::load($nid);
-  if (empty($node)) {
+  if ($node === NULL) {
     return;
   }
   $uuid = $node->uuid();
@@ -103,7 +102,6 @@ function usagov_top_navigation_menu_menu_link_content_update($entity) {
 
   // The $results SHOULD be empty, but if not, that means there is a duplicate
   if (!empty($results)) {
-
     $message = "Notice: It seems you have stumbled on an edge-case in our system we are aware of and are ";
     $message .= "trying to debug. We would like for you to now (1) check if a duplicate menu items for your ";
     $message .= "page was created, and (2) if it was, please E-Mail the development team and dale.frey@gsa.gov ";

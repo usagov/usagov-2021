@@ -25,7 +25,7 @@ applications:
 - name: waf
   docker:
     image: gsatts/usagov-2021:waf-latest
-  disk_quota: 1G
+  disk_quota: 2G
   memory: 256M
   services:
     - secrets
@@ -34,8 +34,8 @@ applications:
     APP_NAME: nginx
     BLOCKED_NAME: USAGov
     IP_ALLOWED: |
-      # allow 50.81.160.164;  # comment out as this points to someone's house using Mediacom Communications as their ISP? `nslookup` says 50-81-160-164.client.mchsi.com
-      # allow 100.36.151.190; # comment out as this points to someone's house in DC? `nslookup` says pool-100-36-151-190.washdc.fios.verizon.net
+      # IPv4 addresses and CIDR blocks go here. Put IPv6 addresses in the IPV6_ALLOWED section.
+      # Both groups are validated by startup code; separating them makes the validation easier. 
 
       # AWS EC2 Instances on the west-coast? Why do we have these? (see ticket USAGOV-1103)
       allow 52.222.122.97/32;
@@ -106,6 +106,28 @@ applications:
       allow 52.3.16.30;
       allow 52.22.251.194;
       allow 52.70.135.185;
+
+    IPV6_ALLOWED: |
+      # GSA IPv6 blocks and addresses:
+      2607:6540:2000:800::/64
+      2607:6540:2700:800::/64
+      2620:0:150:3447:5d77:841e:bc01:5bf4
+      2620:0:150:3447:8fca:87e5:da51:4b7b
+      2620:0:150:3447:daad:6c9f:fb78:b689
+      2620:0:150:3447:faf0:b47d:a67d:5bad
+      2620:0:150:3447:6df7:3fdc:64b4:1b83
+      2620:0:150:3447:1196:7f61:5aab:fd8f
+      2620:0:150:3447:2f92:e6a1:efaa:fb98
+      2620:0:150:3447:2772:3f17:a0eb:8566
+      2620:0:150:4029:896d:2ddc:8450:efe9
+      2620:0:150:4029:de4b:dd85:31cc:6f55
+      2620:0:150:4029:a5df:d6e0:fc6c:e16b
+      2620:0:150:4029:da15:7695:c137:7767
+      2620:0:150:4029:a5bc:cc3f:55f9:6458
+      2620:0:150:4029:b8c7:f0d0:941e:de07
+      2620:0:150:4029:c9cc:5ce:ec04:eb30
+      2620:0:150:4029:f30c:dc1f:6722:b47b
+
 - name: cron
   docker:
     image: gsatts/usagov-2021:cron

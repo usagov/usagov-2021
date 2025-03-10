@@ -153,8 +153,9 @@ if [ -f "/etc/php83/conf.d/newrelic.ini" ]; then
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
         /etc/php83/conf.d/newrelic.ini
   fi
-  if [ "NoProxy" = "${PROXYROUTE:NoProxy}" ]; then
-      # TODO: what to do here? PROXYROUTE should be set!
+
+  if [ "NoProxy" = "${PROXYROUTE:-NoProxy}" ]; then
+    # This is only expected to be the situation on local dev.
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
@@ -167,23 +168,6 @@ if [ -f "/etc/php83/conf.d/newrelic.ini" ]; then
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
       -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$PROXYROUTE\"|" \
       /etc/php83/conf.d/newrelic.ini
-  fi
-fi
-
-echo "Checking for .git file to identify local installation; \"fatal: not a git repository\" is expected elsewhere"
-git config --global --add safe.directory /var/www
-if [[ $(git rev-parse --is-inside-work-tree) ]]; then
-  # Find the php.ini file
-  PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')
-
-  # Check if opcache is already disabled
-  if grep -q 'opcache\.enable\s*=\s*0' "$PHP_INI"; then
-    echo "OPCache is already disabled."
-  else
-    echo "Disabling OPCache..."
-    sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
-    sed -i 's/^opcache\.enable_cli\s*=.*/opcache.enable_cli=0/' "$PHP_INI"
-    echo "OPCache disabled."
   fi
 fi
 
@@ -224,7 +208,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     drush updatedb --no-cache-clear -y
     drush cim -y || drush cim -y
     drush cim -y
-    echo "Notice: If a TXNDATA error is seen above this line, we believe it is likley NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
+    echo "Notice: If a TXNDATA error is seen above this line, we believe it is likely NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
 
     drush php-eval "node_access_rebuild();" -y
 

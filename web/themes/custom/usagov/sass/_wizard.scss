@@ -39,7 +39,7 @@
     }
 
     h1, h2, h3, h4 {
-      font-family: Merriweather Web,Georgia,Cambria,Times New Roman,Times,serif;
+      @include u-font-family('serif');
     }
 
     .usagov-wizard--content-step-indicator {
@@ -48,7 +48,6 @@
     }
 
     h2 {
-      font-size: 2rem;
       line-height: 120%;
     }
 
