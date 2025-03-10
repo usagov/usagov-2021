@@ -15,7 +15,8 @@
 	<div class="navbar-right">
     {% block translation %}
       {% set translation = node.field_language_toggle[0].value %}
-      {% if translation %}
+    	{% if translation and translation.entity.status.value == "1" %}
+
 
         {% if node.nid[0].value|render == "1" %}
           {% set translation_url = "/es" %}
