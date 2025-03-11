@@ -254,7 +254,7 @@ function makeNoise() {
 function restartApp() {
     echo "Restarting $appName";
     cf target -s $appSpace -o gsa-tts-usagov > /dev/null 2>&1;
-    cf restart $appName;
+    cf restart $appName --strategy rolling;
 }
 function maybeRestageApp() {
     if [ "$needsRestage" = "1" ]; then
@@ -263,13 +263,13 @@ function maybeRestageApp() {
         if [ "$1" = "1" ]; then
             echo "Restaging $appName with http_proxy empty";
             setHTTPProxy 0;
-            cf restage $appName;
+            cf restage $appName --strategy rolling;
             echo "Restarting $appName with http_proxy set";
             setHTTPProxy 1;
-            cf restart $appName;
+            cf restart $appName --strategy rolling;
         elif [ "$1" = "0" ]; then
             echo "Restaging $appName with http_proxy set";
-            cf restage $appName;
+            cf restage $appName --strategy rolling;
         else
             echo "ERROR: Invalid HTTPProxy value [$1]";
         fi
@@ -283,15 +283,15 @@ function restageApp() {
     if [ "$1" = "1" ]; then
         echo "Restaging $appName with http_proxy empty";
         setHTTPProxy 0;
-        cf restage $appName;
+        cf restage $appName --strategy rolling;
         echo "Restarting $appName with http_proxy set";
         setHTTPProxy 1;
-        cf restart $appName;
+        cf restart $appName --strategy rolling;
     elif [ "$1" = "0" ]; then
         echo "Restaging $appName with http_proxy set";
-        cf restage $appName;
+        cf restage $appName --strategy rolling;
     else
-        cf restage $appName;
+        cf restage $appName --strategy rolling;
         echo "ERROR: Invalid HTTPProxy value [$1]";
     fi
 }
