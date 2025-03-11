@@ -166,4 +166,8 @@ content:
       display_label: true
     third_party_settings: {  }
 hidden:
+  publish_on: true
+  publish_state: true
   simple_sitemap: true
+  unpublish_on: true
+  unpublish_state: true
