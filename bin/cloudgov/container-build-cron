@@ -34,7 +34,9 @@ docker build --force-rm \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG
 
+export DOCKER_CONTENT_TRUST=0
 docker run -d --name ${APPNAME} --rm $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
 
 if [ -n "$CONTAINERTAG2" ]
 then
