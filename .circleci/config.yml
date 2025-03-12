@@ -903,7 +903,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2308-cron-container-start-for-scan
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -914,7 +913,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2308-cron-container-start-for-scan
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -923,7 +921,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2308-cron-container-start-for-scan
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -939,7 +936,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2308-cron-container-start-for-scan
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
