@@ -34,6 +34,8 @@ docker build --force-rm \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG
 
+docker run -d --name ${APPNAME} --rm $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG
+
 if [ -n "$CONTAINERTAG2" ]
 then
      echo "docker tag $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2"
