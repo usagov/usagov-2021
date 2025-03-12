@@ -1,0 +1,21 @@
+uuid: 1a814f6f-8107-40fa-9509-b433c752a77f
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_ceo_compose_about_label
+field_name: field_ceo_compose_about_label
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,19 @@
+uuid: c7622570-d345-41e1-9497-261f576fde92
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_char_limit_msg
+    - paragraphs.paragraphs_type.site_issue_report_form
+id: paragraph.site_issue_report_form.field_sirf_char_limit_msg
+field_name: field_sirf_char_limit_msg
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'Character limit message'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

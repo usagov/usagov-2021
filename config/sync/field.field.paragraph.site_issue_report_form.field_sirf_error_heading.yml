@@ -1,0 +1,19 @@
+uuid: 98882877-9a17-4902-bcd1-49bb5efa49aa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_error_heading
+    - paragraphs.paragraphs_type.site_issue_report_form
+id: paragraph.site_issue_report_form.field_sirf_error_heading
+field_name: field_sirf_error_heading
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'Error heading'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

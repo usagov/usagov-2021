@@ -1,0 +1,19 @@
+uuid: 356a89ac-8326-485d-9aa6-5115c8f96f08
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_city_error
+    - paragraphs.paragraphs_type.ceo_form
+id: paragraph.ceo_form.field_ceo_city_error
+field_name: field_ceo_city_error
+entity_type: paragraph
+bundle: ceo_form
+label: 'City Error'
+description: 'Error shown if a user does not enter a city.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
