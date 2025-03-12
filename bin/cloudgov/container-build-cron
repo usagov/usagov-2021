@@ -34,6 +34,7 @@ docker build --force-rm \
      --build-arg GITCOMMIT=$GITCOMMIT \
      --build-arg GITTAG=$GITTAG
 
+echo "Running ${DOCKERUSER}/${DOCKERREPO}:$APPNAME-${CONTAINERTAG} ${CONTAINERTAG2}"
 export DOCKER_CONTENT_TRUST=0
 docker run -d --name ${APPNAME} --rm $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG
 export DOCKER_CONTENT_TRUST=1
