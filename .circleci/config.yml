@@ -807,6 +807,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2309-vunerability-update-newrelic
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -817,6 +818,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2309-vunerability-update-newrelic
       - approve-dev-deployment:
           type: approval
           requires:
@@ -825,6 +827,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2309-vunerability-update-newrelic
       - approve-dr-deployment:
           type: approval
           requires:
@@ -840,6 +843,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2309-vunerability-update-newrelic
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
