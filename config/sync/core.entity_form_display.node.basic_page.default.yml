@@ -50,6 +50,8 @@ dependencies:
     - link
     - media_library
     - path
+    - scheduler
+    - scheduler_content_moderation_integration
     - text
 third_party_settings:
   field_group:
@@ -802,6 +804,23 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  publish_on:
+    type: datetime_timestamp_no_default
+    weight: 52
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  publish_state:
+    type: scheduler_moderation
+    weight: 53
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  scheduler_settings:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   simple_sitemap:
     weight: 11
     region: content
@@ -852,3 +871,5 @@ content:
 hidden:
   field_is_navigation_page: true
   menu_entity_index: true
+  unpublish_on: true
+  unpublish_state: true
