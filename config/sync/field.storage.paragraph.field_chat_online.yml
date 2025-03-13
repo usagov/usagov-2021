@@ -1,0 +1,19 @@
+uuid: 2e84769b-854c-4cff-a24e-a891504d1ba2
+langcode: es
+status: true
+dependencies:
+  module:
+    - paragraphs
+    - text
+id: paragraph.field_chat_online
+field_name: field_chat_online
+entity_type: paragraph
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
