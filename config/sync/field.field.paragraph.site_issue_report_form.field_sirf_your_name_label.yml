@@ -1,0 +1,19 @@
+uuid: f039991c-dffe-432b-8220-5b63c60b3c2d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_your_name_label
+    - paragraphs.paragraphs_type.site_issue_report_form
+id: paragraph.site_issue_report_form.field_sirf_your_name_label
+field_name: field_sirf_your_name_label
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'Your name label'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

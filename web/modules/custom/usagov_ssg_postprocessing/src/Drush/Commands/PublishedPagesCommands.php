@@ -270,8 +270,8 @@ final class PublishedPagesCommands extends DrushCommands {
   }
 
   /**
-   * @param array<mixed> $data
-   * @return array<mixed>
+   * @param TaxonomyBreadcrumb $data
+   * @return TaxonomyBreadcrumb
    */
   private function alterDatalayer(array $data): array {
     // Let other modules add to the datalayer payload.
