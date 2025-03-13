@@ -1,0 +1,24 @@
+uuid: 43c7976f-0519-4215-8ff2-c05a4a4d2d44
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_chat_online_footer
+    - filter.format.uswds
+    - paragraphs.paragraphs_type.online_chat_button
+  module:
+    - text
+id: paragraph.online_chat_button.field_chat_online_footer
+field_name: field_chat_online_footer
+entity_type: paragraph
+bundle: online_chat_button
+label: 'Chat online footer'
+description: 'Content displayed below the chat button.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text_long

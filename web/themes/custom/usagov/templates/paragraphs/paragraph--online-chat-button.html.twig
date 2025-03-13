@@ -1,0 +1,41 @@
+{% set chatID = paragraph.field_chat_id.value|escape('js') %}
+{% set sfParams1 = paragraph.field_chat_salesform_p1.value %}
+{% set sfParams2 = paragraph.field_chat_salesform_p2.value %}
+
+<div id="liveagent_button_online_{{ chatID }}">
+  {{ elements.field_chat_online|field_value }}
+  <button id="chat-button"
+          href="javascript://Chat"
+          onclick="liveagent.startChat('{{ chatID }}')"
+          class="usa-button"
+    >{{ chatLabels['chat-button'] }}
+  </button><br />
+  <br />&nbsp;
+  {{ elements.field_chat_online_footer|field_value }}
+</div>
+
+<div id="liveagent_button_offline_{{ chatID }}"><!-- Offline Chat Content -->
+  <header>
+    {{ elements.field_chat_offline|field_value }}
+  </header>
+</div>
+
+{# Is this needed since these attributes are set to the same values? #}
+<script type="text/javascript">
+  document.getElementById("chat-button").setAttribute("onclick", "liveagent.startChat('{{ chatID }}')");
+  document.getElementById("chat-button").setAttribute("href", "javascript://Chat");
+</script>
+
+<script type="text/javascript">
+  if (!window._laq) { window._laq = []; }
+  window._laq.push(function () {
+    liveagent.showWhenOnline('{{ chatID }}', document.getElementById('liveagent_button_online_{{ chatID }}'));
+    liveagent.showWhenOffline('{{ chatID }}', document.getElementById('liveagent_button_offline_{{ chatID }}'));
+  });
+</script>
+<script type="text/javascript" src="https://la1-c1-ttd.salesforceliveagent.com/content/g/js/36.0/deployment.js"></script>
+<script type="text/javascript">
+  liveagent.init('https://la1-c1-ttd.salesforceliveagent.com/chat', '{{ sfParams1|escape('js') }}', '{{ sfParams2|escape('js') }}');
+  liveagent.setChatWindowHeight(605);
+  liveagent.setChatWindowWidth(385);
+</script>

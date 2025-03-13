@@ -1,0 +1,19 @@
+uuid: 17f3d46e-473a-459a-8e1a-3425d5a474c9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_chat_salesform_p1
+    - paragraphs.paragraphs_type.online_chat_button
+id: paragraph.online_chat_button.field_chat_salesform_p1
+field_name: field_chat_salesform_p1
+entity_type: paragraph
+bundle: online_chat_button
+label: 'Salesform parameter 1'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
