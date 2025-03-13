@@ -1,7 +1,7 @@
 # gitignore template for Drupal 8 projects
 #
 # earlier versions of Drupal are tracked in `community/PHP/`
-
+/ollama/*
 /s3/*
 !/s3/.keep
 /storage

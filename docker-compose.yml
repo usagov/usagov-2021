@@ -1,4 +1,14 @@
 services:
+  ollama-backend:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+    restart: always
+    container_name: ollama-backend
+    networks:
+      - gsa-gov
   cms:
     container_name: cms
     image: gsatts/usagov-2021:cms-latest
