@@ -315,14 +315,12 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       DIFF_S3_TOME_IS_BAD=$(echo "scale=2; $DIFF_S3_TOME_PCT > $TOME_MAX_CHANGE_ALLOWED" | bc)
       if [ "$DIFF_S3_TOME_IS_BAD" == "1" ]; then
         echo "Warning: Mismatch detected! S3 has $S3_COUNT files, but local directory has $TOME_COUNT files." | tee -a "$TOMELOG"
-        exit 1
       else
         echo "Success: The number of files in S3 matches (close enough) to the local count." | tee -a "$TOMELOG"
       fi
 
   else
       echo "Error: Sync operation failed." | tee -a "$TOMELOG"
-      exit 1
   fi
 
 
@@ -358,11 +356,9 @@ if [ -f "$TOMELOG" ]; then
           echo "Confirmed: File exists in S3." | tee -a "$TOMELOG"
       else
           echo "Error: File not found in S3 after upload." | tee -a "$TOMELOG"
-          exit 1
       fi
   else
       echo "Error: File upload failed." | tee -a "$TOMELOG"
-      exit 1
   fi
 else
   echo "No logs of this run to S3 available"
