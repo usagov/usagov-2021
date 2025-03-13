@@ -1,0 +1,24 @@
+uuid: 84fbd9b0-b8eb-489a-aa4c-22b556c86e54
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_chat_offline
+    - filter.format.uswds
+    - paragraphs.paragraphs_type.online_chat_button
+  module:
+    - text
+id: paragraph.online_chat_button.field_chat_offline
+field_name: field_chat_offline
+entity_type: paragraph
+bundle: online_chat_button
+label: 'Chat offline instructions'
+description: 'Content to display when the chat is not available.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - uswds
+field_type: text_long

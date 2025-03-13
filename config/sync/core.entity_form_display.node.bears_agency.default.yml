@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.bears_agency.field_b_summary
     - field.field.node.bears_agency.field_language_toggle
     - node.type.bears_agency
+    - workflows.workflow.basic_workflow
   module:
     - content_moderation
     - path
@@ -121,4 +122,8 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  publish_on: true
+  publish_state: true
+  unpublish_on: true
+  unpublish_state: true
