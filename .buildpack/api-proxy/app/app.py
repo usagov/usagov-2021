@@ -106,7 +106,6 @@ def proxy_request():
 @app.route("/", methods=["CONNECT"])
 def handle_connect():
     """Handles CONNECT requests to prevent misuse as a forward proxy."""
-
     logger.warning("Received a CONNECT request. This is not a forward proxy.")
     return Response(
         "CONNECT method is not supported. Use direct HTTPS requests.", status=405
