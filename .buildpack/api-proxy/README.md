@@ -63,7 +63,7 @@ For each api you wish to communicate with, you must add the domain to the egress
 
 You **MUST** push a key to the key store on the space the api-proxy lives on with the following data for the API you wish to call:
 
-- `NAME` - API Key Name
+- `NAME` - Arbitrary API Key Name
 - `DOMAIN` - Base API Domain
 - `API_KEY` - Secret API Key
 - `OPTIONS` - Optional data for complex API calls

@@ -51,9 +51,13 @@ else:
     logger.error("No credentials found in VCAP_SERVICES")
     KEY_STORAGE = {}
 
-@app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE"])
+@app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 def proxy_request():
     """Universal API Proxy that securely forwards requests with API key injection."""
+
+    if not KEY_STORAGE:
+        logger.error("API Proxy misconfigured, no keys found in api-key-storage service.")
+        return jsonify({"error": "API Proxy misconfigured. Rejecting request."}), 500
 
     params = request.args.to_dict()
 
@@ -90,10 +94,6 @@ def proxy_request():
             return jsonify(response.json()), response.status_code
         except requests.RequestException as e:
             error_message = str(e)
-            if API_DOMAIN in error_message:
-                DOMAIN_SPLIT = API_DOMAIN.split("//")[1]
-                obfuscated_domain = DOMAIN_SPLIT[:1] + "*" * (len(DOMAIN_SPLIT) - 4) + DOMAIN_SPLIT[-1:]
-                error_message = error_message.replace(DOMAIN_SPLIT, obfuscated_domain)
             if API_KEY in error_message:
                 obfuscated_api_key = API_KEY[:1] + "*" * (len(API_KEY) - 4) + API_KEY[-1:]
                 error_message = error_message.replace(API_KEY, obfuscated_api_key)
@@ -106,6 +106,7 @@ def proxy_request():
 @app.route("/", methods=["CONNECT"])
 def handle_connect():
     """Handles CONNECT requests to prevent misuse as a forward proxy."""
+
     logger.warning("Received a CONNECT request. This is not a forward proxy.")
     return Response(
         "CONNECT method is not supported. Use direct HTTPS requests.", status=405

@@ -24,11 +24,6 @@ ORG=$(cf target | awk '/org:/ {print $2}')
 SPACE=$(cf target | awk '/space:/ {print $2}')
 APP="api-proxy"
 
-cf unset-env $APP HTTPS_PROXY
-cf unset-env $APP HTTP_PROXY
-cf unset-env $APP https_proxy
-cf unset-env $APP http_proxy
-
 # We will use $ORG and $SPACE to get unique host names. Sandbox space names have dots, so remove those.
 SPACE_NODOT=${SPACE//\./-}
 
@@ -60,11 +55,11 @@ fi
 
 # Bind key storage service to the API Proxy
 echo "🔗 Binding Key Storage Service to API Proxy..."
-if cf bind-service $APP key-storage > /dev/null 2>&1; then
+if cf bind-service $APP api-key-storage > /dev/null 2>&1; then
   cf restart $APP
-  echo "✅ Key Storage Service bound successfully."
+  echo "✅ API Key Storage Service bound successfully."
 else
-  echo "❌ Failed to bind Key Storage Service to API Proxy."
+  echo "❌ Failed to bind API Key Storage Service to API Proxy."
   exit 1
 fi
 
@@ -118,14 +113,6 @@ fi
 # Bind shared egress group
 echo "🔗 Binding $APP to shared egress..."
 $SCRIPT_DIR/setup-egress-for-apps $APP
-
-PROXYROUTE=$(cf env $app | grep PROXYROUTE | awk '{print $2}')
-if [ -n "$PROXYROUTE" ]; then
-  cf set-env $APP HTTPS_PROXY $PROXYROUTE
-  cf set-env $APP HTTP_PROXY $PROXYROUTE
-  cf set-env $APP https_proxy $PROXYROUTE
-  cf set-env $APP http_proxy $PROXYROUTE
-fi
 
 # Restart to pick up new environment variables
 echo "🔄 Restarting $APP to pick up proxy environment variables..."
