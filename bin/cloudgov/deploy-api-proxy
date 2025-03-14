@@ -24,11 +24,6 @@ ORG=$(cf target | awk '/org:/ {print $2}')
 SPACE=$(cf target | awk '/space:/ {print $2}')
 APP="api-proxy"
 
-cf unset-env $APP HTTPS_PROXY
-cf unset-env $APP HTTP_PROXY
-cf unset-env $APP https_proxy
-cf unset-env $APP http_proxy
-
 # We will use $ORG and $SPACE to get unique host names. Sandbox space names have dots, so remove those.
 SPACE_NODOT=${SPACE//\./-}
 
@@ -118,9 +113,5 @@ fi
 # Bind shared egress group
 echo "🔗 Binding $APP to shared egress..."
 $SCRIPT_DIR/setup-egress-for-apps $APP
-
-# Restart to pick up new environment variables
-echo "🔄 Restarting $APP to pick up proxy environment variables..."
-cf restart $APP
 
 echo "🎉 Deployment completed successfully!"
