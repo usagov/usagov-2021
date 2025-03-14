@@ -37,10 +37,10 @@ echo "✅ Deploying $APP..."
 # Deploy key storage service
 {
   echo "🔑 Configuring Key Storage Service."
-  if service_exists "key-storage" ; then
+  if service_exists "api-key-storage" ; then
     echo "✅ Storage already created."
   else
-    yes '' | cf create-user-provided-service key-storage -p "{}"
+    yes '' | cf create-user-provided-service api-key-storage -p "{}"
   fi
 }
 
