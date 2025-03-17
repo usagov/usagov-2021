@@ -97,7 +97,7 @@ def proxy_request():
                 sanitized = {k: bleach.clean(str(v)) for k, v in sanitized.items()}
             elif isinstance(sanitized, list):
                 sanitized = [bleach.clean(str(item)) for item in sanitized]
-            return jsonify(sanitized), response.status_code
+            return jsonify(sanitized), bleach.clean(response.status_code)
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
