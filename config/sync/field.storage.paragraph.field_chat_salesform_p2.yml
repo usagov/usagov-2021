@@ -1,0 +1,21 @@
+uuid: 12b5f417-70c6-4928-8673-f3e635e3f5b9
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_chat_salesform_p2
+field_name: field_chat_salesform_p2
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
