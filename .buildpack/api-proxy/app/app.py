@@ -8,6 +8,7 @@ injecting credentials while preventing client exposure.
 import logging
 import os
 
+import html
 import json
 import requests
 import requests_cache
@@ -93,9 +94,9 @@ def proxy_request():
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
-                sanitized = {k: str(v).replace('<', '&lt;').replace('>', '&gt;') for k, v in sanitized.items()}
+                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
             elif isinstance(sanitized, list):
-                sanitized = [str(item).replace('<', '&lt;').replace('>', '&gt;') for item in sanitized]
+                sanitized = [html.escape(str(item)) for item in sanitized]
             return jsonify(sanitized), response.status_code
         except requests.RequestException as e:
             error_message = str(e)
