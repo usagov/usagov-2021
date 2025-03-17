@@ -1,6 +1,6 @@
+bleach
 flask
 Flask-Limiter
+gunicorn  # For production server handling
 requests
 requests-cache
-gunicorn  # For production server handling
-

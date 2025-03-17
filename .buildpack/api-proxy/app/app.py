@@ -8,13 +8,13 @@ injecting credentials while preventing client exposure.
 import logging
 import os
 
-import html
+import bleach
 import json
 import requests
 import requests_cache
 from urllib.parse import unquote
-from flask import Flask, Response, jsonify, request
 
+from flask import Flask, Response, jsonify, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -94,9 +94,9 @@ def proxy_request():
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
-                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
+                sanitized = {k: bleach.clean(str(v)) for k, v in sanitized.items()}
             elif isinstance(sanitized, list):
-                sanitized = [html.escape(str(item)) for item in sanitized]
+                sanitized = [bleach.clean(str(item)) for item in sanitized]
             return jsonify(sanitized), response.status_code
         except requests.RequestException as e:
             error_message = str(e)
