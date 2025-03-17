@@ -208,11 +208,11 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 # Determine the system architecture and select the appropriate S6 overlay
 RUN export ARCH=`uname -m` && \
     if [ "$ARCH" = "aarch64" ]; then \
-        echo "Downloading curl -s https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.3/s6-overlay-aarch64.tar.gz"; \
-        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.3/s6-overlay-aarch64.tar.gz; \
+        echo "Downloading curl -s https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz"; \
+        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz; \
     elif [ "$ARCH" = "x86_64" ]; then \
-        echo "Downloading: https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.3/s6-overlay-amd64.tar.gz"; \
-        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.3/s6-overlay-amd64.tar.gz; \
+        echo "Downloading: https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz"; \
+        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz; \
     else \
         echo "Unsupported architecture: $ARCH" && exit 1; \
     fi \
