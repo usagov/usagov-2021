@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityStorageException;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drush\Commands\DrushCommands;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class UnpubCommand extends DrushCommands {
 
@@ -19,6 +20,12 @@ class UnpubCommand extends DrushCommands {
 
     $this->unpubSpanishNodes();
     $this->unpubSpanishTaxonomy();
+
+    // Unpublish the Spanish front page
+    $node = Node::load(1);
+    $translation = $node->getTranslation('es');
+    $translation->setUnpublished();
+    $translation->save();
   }
 
   public function unpubSpanishTaxonomy() {
@@ -28,15 +35,18 @@ class UnpubCommand extends DrushCommands {
       ->condition('langcode', 'es')
       ->condition('status', 1)
       ->accessCheck(FALSE);
-
     $term_ids = $query->execute();
-
     if (empty($term_ids)) {
       return;
     }
 
-    $count = count($terms);
+    // Get the count of entities
+    $count = count($term_ids);
     print "Going to unpublish {$count} Spanish taxonomy-terms.\n";
+
+    // Initialize the progress bar
+    $progressBar = new ProgressBar($this->output(), $count);
+    $progressBar->start();
 
     $terms = Term::loadMultiple($term_ids);
     foreach ($terms as $term) {
@@ -50,27 +60,34 @@ class UnpubCommand extends DrushCommands {
           '@error' => $e->getMessage(),
         ]);
       }
+      $progressBar->advance();
     }
 
+    $progressBar->finish();
     print "Unpublished {$count} Spanish taxonomy-terms.\n";
   }
 
   public function unpubSpanishNodes() {
 
     // Get all Spanish Node-IDs
-    $database = Database::getConnection();
-    $query = $database->select('node_field_data', 'n');
-    $query->fields('n', ['nid']);
-    $query->condition('n.langcode', 'es', '=');
-    $nids = $query->execute()->fetchCol();
+    $nids = \Drupal::entityQuery('node')->condition('langcode', 'es')->accessCheck(TRUE)->execute();
 
     // Calculate total, and verbose info
     $total = count($nids);
     print "Going to un-publish {$total} nodes.\n";
 
+    // Initialize the progress bar
+    $progressBar = new ProgressBar($this->output(), $total);
+    $progressBar->start();
+
     // Un-publish each node
     $index = 0;
     foreach ($nids as $nid) {
+
+      // Dont unpublish the front page
+      if (intval($nid) === 1) {
+        continue;
+      }
 
       $node = Node::load($nid);
 
@@ -85,9 +102,10 @@ class UnpubCommand extends DrushCommands {
       $node->save();
       $index++;
 
-      print "Un-published node {$index} of {$total} \r";
+      $progressBar->advance();
     }
 
+    $progressBar->finish();
   }
 
 }
