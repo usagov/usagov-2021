@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# grab the cloudgov space we are hosted in
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+
+# only the 1st instance within cloud formation should actually do anything on cron
+if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
+
+  # Use unique uri per environment - default to prod
+  if [ "${APP_SPACE}" = "dev" ]; then
+    URI="https://cms-dev.usa.gov"
+  elif [ "${APP_SPACE}" = "dr" ]; then
+    URI="https://cms-dr.usa.gov"
+  elif [ "${APP_SPACE}" = "stage" ]; then
+    URI="https://cms-stage.usa.gov"
+  elif [ "${APP_SPACE}" = "local" ]; then
+    URI="https://localhost"
+  else
+    URI="https://www.usa.gov"
+  fi
+
+  curl -k "$URI/scheduler/cron/718cf9b513dabbab39d4"
+
+fi;
