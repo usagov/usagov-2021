@@ -8,7 +8,7 @@ injecting credentials while preventing client exposure.
 import logging
 import os
 
-import bleach
+import html
 import json
 import requests
 import requests_cache
@@ -94,10 +94,10 @@ def proxy_request():
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
-                sanitized = {k: bleach.clean(str(v)) for k, v in sanitized.items()}
+                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
             elif isinstance(sanitized, list):
-                sanitized = [bleach.clean(str(item)) for item in sanitized]
-            return jsonify(sanitized), bleach.clean(response.status_code)
+                sanitized = [html.escape(str(item)) for item in sanitized]
+            return jsonify(sanitized), html.escape(response.status_code)
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
