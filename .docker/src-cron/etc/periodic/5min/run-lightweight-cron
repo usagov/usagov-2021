@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
@@ -21,4 +21,4 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
 
   curl -k "$URI/scheduler/cron/718cf9b513dabbab39d4"
 
-fi;
+fi
