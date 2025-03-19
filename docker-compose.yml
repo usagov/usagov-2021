@@ -4,9 +4,19 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ./ollama:/root/.ollama
+      - ./chatbot/services/ollama:/root/.ollama
     restart: always
     container_name: ollama-backend
+    networks:
+      - gsa-gov
+  chromadb:
+    image: chromadb/chroma:0.6.3
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chatbot/services/chroma:/chroma/chroma
+    restart: always
     networks:
       - gsa-gov
   cms:
