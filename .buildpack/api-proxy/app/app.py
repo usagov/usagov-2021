@@ -8,8 +8,8 @@ injecting credentials while preventing client exposure.
 import logging
 import os
 
-import html
 import json
+import nh3
 import requests
 import requests_cache
 from urllib.parse import unquote
@@ -63,9 +63,12 @@ def proxy_request():
     params = request.args.to_dict()
 
     if params["keyname"] in KEY_STORAGE.keys():
+        # sanitize endpoint
+        API_PATH = nh3.clean(params["endpoint"])
+
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
+        API_ENDPOINT = unquote(API_DOMAIN + API_PATH)
 
         method = request.method
         headers = {"Content-Type": "application/json"}
@@ -94,10 +97,10 @@ def proxy_request():
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
-                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
+                sanitized = {k: nh3.clean(str(v)) for k, v in sanitized.items()}
             elif isinstance(sanitized, list):
-                sanitized = [html.escape(str(item)) for item in sanitized]
-            return jsonify(sanitized), html.escape(response.status_code)
+                sanitized = [nh3.clean(str(item)) for item in sanitized]
+            return jsonify(sanitized), nh3.clean(response.status_code)
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
