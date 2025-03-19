@@ -80,10 +80,10 @@ specific_error_messages:
   AiSetupFailureException: ''
   AiRequestErrorException: ''
 llm_provider: ollama
-llm_model: 'mistral:latest'
+llm_model: 'llama3.2:latest'
 llm_configuration:
   max_tokens: 1024
-  temperature: 1.0
+  temperature: 0.0
   frequency_penalty: 0
   presence_penalty: 0
   top_p: 1.0
