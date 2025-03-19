@@ -8,8 +8,8 @@ injecting credentials while preventing client exposure.
 import logging
 import os
 
-import json
 import html
+import json
 import requests
 import requests_cache
 from urllib.parse import unquote
@@ -61,14 +61,12 @@ def proxy_request():
         return jsonify({"error": "API Proxy misconfigured. Rejecting request."}), 500
 
     params = request.args.to_dict()
+    params = [html.escape(str(item)) for item in params]
 
     if params["keyname"] in KEY_STORAGE.keys():
-        # sanitize endpoint
-        API_PATH = html.escape(params["endpoint"])
-
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = unquote(API_DOMAIN + API_PATH)
+        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
 
         method = request.method
         headers = {"Content-Type": "application/json"}
