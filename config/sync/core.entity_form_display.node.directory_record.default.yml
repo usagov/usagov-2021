@@ -36,6 +36,8 @@ dependencies:
     - field_group
     - link
     - path
+    - scheduler
+    - scheduler_content_moderation_integration
     - telephone
     - text
 third_party_settings:
@@ -303,6 +305,23 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  publish_on:
+    type: datetime_timestamp_no_default
+    weight: 52
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  publish_state:
+    type: scheduler_moderation
+    weight: 53
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  scheduler_settings:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   simple_sitemap:
     weight: 10
     region: content
@@ -353,3 +372,5 @@ content:
 hidden:
   feeds_item: true
   menu_entity_index: true
+  unpublish_on: true
+  unpublish_state: true

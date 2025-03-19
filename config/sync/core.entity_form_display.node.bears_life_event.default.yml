@@ -17,6 +17,7 @@ dependencies:
     - field.field.node.bears_life_event.field_short_description
     - field.field.node.bears_life_event.field_summary
     - node.type.bears_life_event
+    - workflows.workflow.basic_workflow
   module:
     - allowed_formats
     - content_moderation
@@ -215,3 +216,7 @@ content:
     third_party_settings: {  }
 hidden:
   menu_entity_index: true
+  publish_on: true
+  publish_state: true
+  unpublish_on: true
+  unpublish_state: true
