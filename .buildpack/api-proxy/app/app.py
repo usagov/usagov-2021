@@ -102,8 +102,7 @@ def proxy_request():
                 sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
             elif isinstance(sanitized, list):
                 sanitized = [html.escape(str(item)) for item in sanitized]
-            return jsonify(sanitized), html.escape(response.status_code)
-            return jsonify(response.json()), response.status_code
+            return jsonify(sanitized), html.escape(str(response.status_code))
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
