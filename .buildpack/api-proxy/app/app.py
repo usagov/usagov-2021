@@ -66,8 +66,8 @@ def proxy_request():
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
-        API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        params["endpoint"] = ""
+        # API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
+        API_DOMAIN = ""
         API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
 
         # if not urlparse(API_ENDPOINT):
