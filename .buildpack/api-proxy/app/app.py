@@ -10,6 +10,7 @@ import os
 
 import html
 import json
+import re
 import requests
 import requests_cache
 from urllib.parse import unquote
@@ -66,7 +67,10 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = urlparse(unquote(API_DOMAIN + params["endpoint"]))
+        if not urlparse(params["endpoint"]):
+            logger.error("Invalid API path provided: %s", params["endpoint"])
+            return jsonify({"error": "Invalid API path provided."}), 400
+        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
 
         method = request.method
         headers = {"Content-Type": "application/json"}
