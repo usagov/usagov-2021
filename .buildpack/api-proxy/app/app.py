@@ -13,6 +13,7 @@ import json
 import requests
 import requests_cache
 from urllib.parse import unquote
+from urllib.parse import urlparse
 
 from flask import Flask, Response, jsonify, request
 from flask_limiter import Limiter
@@ -61,12 +62,11 @@ def proxy_request():
         return jsonify({"error": "API Proxy misconfigured. Rejecting request."}), 500
 
     params = request.args.to_dict()
-    params = [html.escape(str(item)) for item in params]
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
+        API_ENDPOINT = urlparse(unquote(API_DOMAIN + params["endpoint"]))
 
         method = request.method
         headers = {"Content-Type": "application/json"}
