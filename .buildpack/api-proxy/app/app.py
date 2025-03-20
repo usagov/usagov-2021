@@ -67,29 +67,18 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
+        # API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
+        API_ENDPOINT = ""
 
-        if not urlparse(API_ENDPOINT):
-            logger.error("Invalid API path provided: %s", API_ENDPOINT)
-            return jsonify({"error": "Invalid API path provided."}), 400
+        # if not urlparse(API_ENDPOINT):
+        #     logger.error("Invalid API path provided: %s", API_ENDPOINT)
+        #     return jsonify({"error": "Invalid API path provided."}), 400
 
         method = request.method
         headers = {"Content-Type": "application/json"}
 
         # Inject API key into query parameters
         params["api_key"] = API_KEY
-
-        # Dynamically validate query parameters
-        sanitized_params = {}
-        for key, value in params.items():
-            # Reject keys or values with suspicious patterns
-            if re.search(r"[^\w\-\.]", key):  # Allow only alphanumeric, dashes, and dots in keys
-                logger.error("Invalid parameter key: %s", key)
-                return jsonify({"error": f"Invalid parameter key: {key}"}), 400
-            if not isinstance(value, str) or len(value) > 1000:  # Limit value length to 1000 characters
-                logger.error("Invalid parameter value for key %s", key)
-                return jsonify({"error": f"Invalid parameter value for key: {key}"}), 400
-            sanitized_params[key] = value
 
         # Handle request body for POST/PUT
         data = request.get_json() if method in ["POST", "PUT"] else None
@@ -105,10 +94,10 @@ def proxy_request():
         del params["endpoint"]
         del params["keyname"]
 
-        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, sanitized_params)
+        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
 
         try:
-            response = requests.request(method, API_ENDPOINT, params=sanitized_params, json=data, headers=headers, timeout=10)
+            response = requests.request(method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10)
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
