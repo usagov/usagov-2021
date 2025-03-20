@@ -97,12 +97,13 @@ def proxy_request():
         try:
             response = requests.request(method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10)
             logger.info("API response status: %s", response.status_code)
-            sanitized = response.json()
-            if isinstance(sanitized, dict):
-                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
-            elif isinstance(sanitized, list):
-                sanitized = [html.escape(str(item)) for item in sanitized]
-            return jsonify(sanitized), html.escape(response.status_code)
+            # sanitized = response.json()
+            # if isinstance(sanitized, dict):
+            #     sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
+            # elif isinstance(sanitized, list):
+            #     sanitized = [html.escape(str(item)) for item in sanitized]
+            # return jsonify(sanitized), html.escape(response.status_code)
+            return jsonify(response.json()), response.status_code
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
