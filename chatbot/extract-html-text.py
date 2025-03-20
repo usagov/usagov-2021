@@ -5,6 +5,7 @@ of text for each relevant html element
 """
 
 import os
+import sys
 import re
 from bs4 import BeautifulSoup
 from pathlib import Path
