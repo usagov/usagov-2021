@@ -66,13 +66,14 @@ def proxy_request():
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
-        # API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_DOMAIN = ""
+        API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
         API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
 
-        # if not urlparse(API_ENDPOINT):
-        #     logger.error("Invalid API path provided: %s", API_ENDPOINT)
-        #     return jsonify({"error": "Invalid API path provided."}), 400
+        # Validate the API endpoint
+        PARSED_API_ENDPOINT = urlparse(API_ENDPOINT)
+        if not PARSED_API_ENDPOINT.scheme or not PARSED_API_ENDPOINT.netloc:
+            logger.error("Invalid API path provided: %s", API_ENDPOINT)
+            return jsonify({"error": "Invalid API path provided."}), 400
 
         method = request.method
         headers = {"Content-Type": "application/json"}
