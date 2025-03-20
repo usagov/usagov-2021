@@ -41,17 +41,20 @@ for html_file in html_files:
     output_file = os.path.join(OUTPUT_PATH, page_path + '.dat')
 
     items_written = 0
+    check_duplicates = []
     with open(output_file, 'w', encoding='utf-8') as ofile:
         soup = BeautifulSoup(html_content, 'html.parser')
 
         for div in soup.find_all('div', class_=CSS_CLASSES):
             for item in div.find_all(['p', 'span', 'a']):
                 text = item.get_text()
-                if text not in SKIP_TEXT:
-                    text = re.sub(r"\s+|\r+|\n+|\t+", " ", text)
-                    text = " ".join(text.split())
-                    print(text, file=ofile)
-                    items_written += 1
+                if text not in check_duplicates:
+                    check_duplicates.append(text)
+                    if text not in SKIP_TEXT:
+                        text = re.sub(r"\s+|\r+|\n+|\t+", " ", text)
+                        text = " ".join(text.split())
+                        print(text, file=ofile)
+                        items_written += 1
 
     if items_written == 0:
         os.remove(output_file)

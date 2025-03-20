@@ -50,7 +50,7 @@ def getembedding(chunks):
 
 
 chromaclient = chromadb.HttpClient(host="localhost", port=8000)
-textdocspath = "output"
+textdocspath = "./chatbot/output"
 text_data = readtextfiles(textdocspath)
 
 collection = chromaclient.get_or_create_collection(name="buildragwithpython", metadata={"hnsw:space": "cosine"})
