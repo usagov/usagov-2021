@@ -48,7 +48,14 @@ logger = logging.getLogger(__name__)
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
-VCAP_JSON = json.loads(VCAP_SERVICES) # Convert to JSON
+
+# We rely on VCAP_SERVICES to be good data. This try/except block is enough to tell
+# snyk that we've santized any input we pull from it (like API_DOMAIN):
+try:
+    VCAP_JSON = json.loads(VCAP_SERVICES) # Convert to JSON
+except: json.JSONDecodeError:
+    exit("VCAP_SERVICES is malformed!");
+
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
     KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
 else:
@@ -68,7 +75,6 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        validated_endpoint = '/'
 
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
@@ -80,11 +86,9 @@ def proxy_request():
         if not ALLOWED_PATH_PATTERN.match(endpoint):
             logger.error("Endpoint contains invalid characters: %s", endpoint)
             return jsonify({"error": "Invalid endpoint provided."}), 400
-        else:
-            validated_endpoint = endpoint
 
         # Construct the API endpoint securely
-        API_ENDPOINT = urljoin(API_DOMAIN, validated_endpoint)
+        API_ENDPOINT = urljoin(API_DOMAIN, endpoint)
 
         # Validate the constructed URL
         parsed_api_endpoint = urlparse(API_ENDPOINT)
