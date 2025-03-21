@@ -95,10 +95,10 @@ def proxy_request():
         del params["endpoint"]
         del params["keyname"]
 
-        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
+        logger.info("Forwarding %s request to %s with params %s", method, PARSED_API_ENDPOINT, params)
 
         try:
-            response = requests.request(method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10)
+            response = requests.request(method, PARSED_API_ENDPOINT, params=params, json=data, headers=headers, timeout=10)
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
