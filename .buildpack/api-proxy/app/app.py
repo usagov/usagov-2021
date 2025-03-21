@@ -75,6 +75,12 @@ def proxy_request():
             logger.error("Endpoint contains a scheme or '//', which is not allowed: %s", endpoint)
             return jsonify({"error": "Invalid endpoint provided."}), 400
 
+        # Restrict endpoint to safe characters (alphanumeric, slashes, underscores, dots, hyphens)
+        ALLOWED_PATH_PATTERN = re.compile(r'^[a-zA-Z0-9/_.-]+$')
+        if not ALLOWED_PATH_PATTERN.match(endpoint):
+            logger.error("Endpoint contains invalid characters: %s", endpoint)
+            return jsonify({"error": "Invalid endpoint provided."}), 400
+
         # Construct the API endpoint securely
         API_ENDPOINT = urljoin(API_DOMAIN, endpoint)
 
@@ -113,7 +119,15 @@ def proxy_request():
         logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
 
         try:
-            response = requests.request(method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10, allow_redirects=False)
+            response = requests.request(
+                method,
+                API_ENDPOINT,
+                params=params,
+                json=data,
+                headers=headers,
+                timeout=10,
+                allow_redirects=False
+            )
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
