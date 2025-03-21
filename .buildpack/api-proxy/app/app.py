@@ -15,6 +15,7 @@ import requests
 import requests_cache
 from urllib.parse import unquote
 from urllib.parse import urlparse
+from urllib.parse import urljoin
 
 from flask import Flask, Response, jsonify, request
 from flask_limiter import Limiter
@@ -67,13 +68,27 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        API_ENDPOINT = unquote(API_DOMAIN + params["endpoint"])
+        endpoint = params["endpoint"]
 
-        # Validate the API endpoint
-        PARSED_API_ENDPOINT = urlparse(API_ENDPOINT)
-        if not PARSED_API_ENDPOINT.scheme or not PARSED_API_ENDPOINT.netloc:
+        # Validate endpoint doesn't contain a scheme or protocol-relative marker
+        if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
+            logger.error("Endpoint contains a scheme or '//', which is not allowed: %s", endpoint)
+            return jsonify({"error": "Invalid endpoint provided."}), 400
+
+        # Construct the API endpoint securely
+        API_ENDPOINT = urljoin(API_DOMAIN, endpoint)
+
+        # Validate the constructed URL
+        parsed_api_endpoint = urlparse(API_ENDPOINT)
+        if not parsed_api_endpoint.scheme or not parsed_api_endpoint.netloc:
             logger.error("Invalid API path provided: %s", API_ENDPOINT)
             return jsonify({"error": "Invalid API path provided."}), 400
+
+        # Ensure the domain hasn't changed to prevent injection
+        parsed_domain = urlparse(API_DOMAIN)
+        if parsed_api_endpoint.netloc != parsed_domain.netloc:
+            logger.error("Endpoint netloc does not match domain netloc: %s != %s", parsed_api_endpoint.netloc, parsed_domain.netloc)
+            return jsonify({"error": "Invalid endpoint provided."}), 400
 
         method = request.method
         headers = {"Content-Type": "application/json"}
@@ -95,10 +110,10 @@ def proxy_request():
         del params["endpoint"]
         del params["keyname"]
 
-        logger.info("Forwarding %s request to %s with params %s", method, PARSED_API_ENDPOINT, params)
+        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
 
         try:
-            response = requests.request(method, PARSED_API_ENDPOINT, params=params, json=data, headers=headers, timeout=10)
+            response = requests.request(method, API_ENDPOINT, params=params, json=data, headers=headers, timeout=10, allow_redirects=False)
             logger.info("API response status: %s", response.status_code)
             sanitized = response.json()
             if isinstance(sanitized, dict):
