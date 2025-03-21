@@ -68,7 +68,7 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
-        endpoint = params["endpoint"]
+        validated_endpoint = '/'
 
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
@@ -80,9 +80,11 @@ def proxy_request():
         if not ALLOWED_PATH_PATTERN.match(endpoint):
             logger.error("Endpoint contains invalid characters: %s", endpoint)
             return jsonify({"error": "Invalid endpoint provided."}), 400
+        else:
+            validated_endpoint = endpoint
 
         # Construct the API endpoint securely
-        API_ENDPOINT = urljoin(API_DOMAIN, endpoint)
+        API_ENDPOINT = urljoin(API_DOMAIN, validated_endpoint)
 
         # Validate the constructed URL
         parsed_api_endpoint = urlparse(API_ENDPOINT)
