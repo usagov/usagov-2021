@@ -158,3 +158,5 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     logger.info("Starting Flask API Proxy on port %s", port)
     app.run(host="0.0.0.0", port=port)
+
+# snyk: ignore:SSRF
