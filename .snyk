@@ -1,5 +1,0 @@
-ignore:
-  SNYK-UNMANAGED-PYTHON-8685115:
-    - '.buildpack/api-proxy/app/app.py':
-        reason: "Static analysis is not sensitive enough to recognize that the endpoint parameter is properly validated."
-        expires: "2024-12-31T23:59:59Z"

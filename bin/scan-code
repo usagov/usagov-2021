@@ -23,4 +23,4 @@ docker run --disable-content-trust -it --rm \
     -v "$(pwd)/web/themes/custom:/app/web/themes/custom" \
     -v "$(pwd)/.buildpack:/app/.buildpack" \
     -v "/tmp/nosuchdir:/app/web/modules/custom/usagov_directories/utility" \
-  snyk/snyk:php snyk code test --severity-threshold=$THRESHOLD --policy-path=/.snyk
+  snyk/snyk:php snyk code test --severity-threshold=$THRESHOLD
