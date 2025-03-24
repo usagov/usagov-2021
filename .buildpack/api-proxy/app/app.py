@@ -49,18 +49,22 @@ logger = logging.getLogger(__name__)
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
 
-# We rely on VCAP_SERVICES to be good data. This try/except block is enough to tell
-# snyk that we've sanitized any input we pull from it (like API_DOMAIN):
+# We rely on VCAP_SERVICES to be good data.
 try:
     VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
 except json.JSONDecodeError:
     exit("VCAP_SERVICES is malformed!")
 
+KEY_STORAGE={}
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
-    KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
+    for x in VCAP_JSON["user-provided"][0]["credentials"]:
+        if x == "DOMAIN":
+            domain_string = VCAP_JSON["user-provided"][0]["credentials"][x]
+            KEY_STORAGE[x] = domain_string
+        else:
+            KEY_STORAGE[x] = VCAP_JSON["user-provided"][0]["credentials"][x]
 else:
     logger.error("No credentials found in VCAP_SERVICES")
-    KEY_STORAGE = {}
 
 @app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 def proxy_request():

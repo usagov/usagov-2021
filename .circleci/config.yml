@@ -829,6 +829,7 @@ workflows:
                 - stage
                 - prod
                 - USAGOV-2220-api-proxy-python
+                - USAGOV-2220-akf
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -840,6 +841,7 @@ workflows:
                 - stage
                 - prod
                 - USAGOV-2220-api-proxy-python
+                - USAGOV-2220-akf
       - approve-dev-deployment:
           type: approval
           requires:
@@ -849,6 +851,7 @@ workflows:
               only:
               - dev
               - USAGOV-2220-api-proxy-python
+              - USAGOV-2220-akf
       - approve-dr-deployment:
           type: approval
           requires:
