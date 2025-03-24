@@ -52,9 +52,9 @@ VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
 # We rely on VCAP_SERVICES to be good data. This try/except block is enough to tell
 # snyk that we've santized any input we pull from it (like API_DOMAIN):
 try:
-    VCAP_JSON = json.loads(VCAP_SERVICES) # Convert to JSON
-except: json.JSONDecodeError:
-    exit("VCAP_SERVICES is malformed!");
+    VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
+except json.JSONDecodeError:
+    exit("VCAP_SERVICES is malformed!")
 
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
     KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
@@ -75,6 +75,7 @@ def proxy_request():
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
+        endpoint = params["endpoint"]
 
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
