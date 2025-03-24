@@ -791,6 +791,12 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 #
 
 $settings['config_sync_directory'] = '/var/www/config/sync';
+
+/**
+ * Chatbot config
+ */
+$settings['ai_assistant_advanced_mode_enabled'] = TRUE;
+
 /**
  * Stock tome_static exclusion variable. Does not traverse directories.
  */

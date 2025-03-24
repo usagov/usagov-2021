@@ -1,0 +1,32 @@
+uuid: 0c171660-9b6c-4021-8468-b042f60dde05
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_chatbot
+  theme:
+    - usagov
+id: usagov_aichatbot
+theme: usagov
+region: header_top
+weight: 0
+provider: null
+plugin: ai_chatbot_block
+settings:
+  id: ai_chatbot_block
+  label: 'USAGov Chatbot'
+  label_display: visible
+  provider: ai_chatbot
+  ai_assistant: usagov_chatbot
+  bot_name: 'Generic Chatbot'
+  bot_image: /core/misc/druplicon.png
+  use_username: 1
+  default_username: User
+  use_avatar: 1
+  default_avatar: /core/misc/favicon.ico
+  first_message: 'Hello! How can I help you today?'
+  stream: 1
+  toggle_state: remember
+  output_type: markdown
+  show_structured_results: false
+visibility: {  }

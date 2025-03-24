@@ -20,6 +20,8 @@
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
         "drupal/admin_toolbar": "^3.5",
+        "drupal/ai": "^1.0",
+        "drupal/ai_provider_ollama": "^1.0@beta",
         "drupal/allowed_formats": "^3.0",
         "drupal/autologout": "^2.0",
         "drupal/ckeditor_media_resize": "^1.0@beta",
@@ -62,6 +64,7 @@
         "drupal/samlauth": "^3.9",
         "drupal/scheduler": "^2.2",
         "drupal/scheduler_content_moderation_integration": "^3.0",
+        "drupal/search_api": "^1.38",
         "drupal/simple_sitemap": "^4.1",
         "drupal/simplify_menu": "^3.1",
         "drupal/sortableviews": "^1.3",
@@ -93,12 +96,13 @@
         "sort-packages": true,
         "allow-plugins": {
             "composer/installers": true,
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
             "drupal/console-extend-plugin": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
-            "wikimedia/composer-merge-plugin": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "extra": {

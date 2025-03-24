@@ -1,0 +1,11 @@
+_core:
+  default_config_hash: RGedRkFydKZjS0ZJ6vbtZH00KbhYVGsK-ABILHdQLyw
+prompt_logging: false
+prompt_logging_tags: ''
+default_providers:
+  chat:
+    provider_id: ollama
+    model_id: 'llama3.2:latest'
+  embeddings:
+    provider_id: ollama
+    model_id: 'llama3.2:latest'
