@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
 
 # We rely on VCAP_SERVICES to be good data. This try/except block is enough to tell
-# snyk that we've santized any input we pull from it (like API_DOMAIN):
+# snyk that we've sanitized any input we pull from it (like API_DOMAIN):
 try:
     VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
 except json.JSONDecodeError:
@@ -76,6 +76,12 @@ def proxy_request():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
         endpoint = params["endpoint"]
+
+        # Validate API_DOMAIN to ensure it is a valid URL
+        parsed_domain = urlparse(API_DOMAIN)
+        if parsed_domain.scheme and parsed_domain.netloc:
+            logger.error("Invalid API domain provided: %s", API_DOMAIN)
+            return jsonify({"error": "Invalid API domain provided."}), 400
 
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
