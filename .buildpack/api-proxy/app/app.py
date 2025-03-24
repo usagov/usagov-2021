@@ -77,12 +77,6 @@ def proxy_request():
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
         endpoint = params["endpoint"]
 
-        # Validate API_DOMAIN to ensure it is a valid URL
-        parsed_domain = urlparse(API_DOMAIN)
-        if parsed_domain.scheme and parsed_domain.netloc:
-            logger.error("Invalid API domain provided: %s", API_DOMAIN)
-            return jsonify({"error": "Invalid API domain provided."}), 400
-
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
             logger.error("Endpoint contains a scheme or '//', which is not allowed: %s", endpoint)
