@@ -242,7 +242,7 @@ commands:
             cf target -s shared-egress -o gsa-tts-usagov
             . ./bin/cloudgov/get-s3-access key-value
             mkdir /tmp/results || true
-            echo "$REPORTER_DIGEST" > /tmp/results/reporter_digest
+            echo -n "$REPORTER_DIGEST" > /tmp/results/reporter_digest
             aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
       - run:
           name: Push Reporter Container to Docker Hub
@@ -257,7 +257,9 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-reporter << pipeline.number >>
+            export RDIG=`cat /tmp/results/reporter_digest`
+            echo RDIG is $RDIG
+            ./bin/cloudgov/deploy-reporter << pipeline.number >> $RDIG
 
   deploy-cloudgov-cron:
     parameters:
@@ -608,6 +610,17 @@ jobs:
             echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
             cat /tmp/results/scan-cron-container-cis.log
             exit 0
+      - run:
+          name: Stop containers now that Benchmarks are done
+          when: always
+          command: |
+            echo "Current running containers are:"
+            docker ps
+            echo "Stopping all containers ..."
+            docker stop $(docker ps -q)
+            echo "Current running containers are:"
+            docker ps
+            echo "done."
       - run:
           name: Push Cron Container to Docker Hub
           no_output_timeout: 30m

@@ -315,6 +315,9 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       DIFF_S3_TOME_IS_BAD=$(echo "scale=2; $DIFF_S3_TOME_PCT > $TOME_MAX_CHANGE_ALLOWED" | bc)
       if [ "$DIFF_S3_TOME_IS_BAD" == "1" ]; then
         echo "Warning: Mismatch detected! S3 has $S3_COUNT files, but local directory has $TOME_COUNT files." | tee -a "$TOMELOG"
+        aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" > /var/www/web/modules/custom/usagov_ssg_postprocessing/files/s3-files.txt
+        find $RENDER_DIR -type f 2>&1 | uniq > /var/www/web/modules/custom/usagov_ssg_postprocessing/files/tome-files.txt
+        php -f $SCRIPT_PATH/tome-sync-comparison.php
       else
         echo "Success: The number of files in S3 matches (close enough) to the local count." | tee -a "$TOMELOG"
       fi
