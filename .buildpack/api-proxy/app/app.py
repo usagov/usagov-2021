@@ -13,7 +13,6 @@ import json
 import re
 import requests
 import requests_cache
-from urllib.parse import unquote
 from urllib.parse import urlparse
 from urllib.parse import urljoin
 import validators
