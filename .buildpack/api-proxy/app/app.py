@@ -16,6 +16,7 @@ import requests_cache
 from urllib.parse import unquote
 from urllib.parse import urlparse
 from urllib.parse import urljoin
+import validators
 
 from flask import Flask, Response, jsonify, request
 from flask_limiter import Limiter
@@ -48,13 +49,7 @@ logger = logging.getLogger(__name__)
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
-
-# We rely on VCAP_SERVICES to be good data. This try/except block is enough to tell
-# snyk that we've sanitized any input we pull from it (like API_DOMAIN):
-try:
-    VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
-except json.JSONDecodeError:
-    exit("VCAP_SERVICES is malformed!")
+VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
 
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
     KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
@@ -76,6 +71,11 @@ def proxy_request():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
         API_DOMAIN = KEY_STORAGE[params["keyname"]]["DOMAIN"]
         endpoint = params["endpoint"]
+
+        # Validate API_DOMAIN to make static analysis happy (we do trust this value)
+        if not validators.url(API_DOMAIN):
+            logger.error("Domain for '%s' failed validation: '%s'", params["keyname"], API_DOMAIN)
+            return jsonify({"error": "Invalid domain for %s.", params["keyname"]}), 400
 
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
