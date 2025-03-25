@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+echo "Running lightweight cron"
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 
@@ -19,6 +20,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     URI="https://www.usa.gov"
   fi
 
+  echo "Running lightweight cron on $URI"
   curl -k "$URI/scheduler/cron/718cf9b513dabbab39d4"
 
 fi
