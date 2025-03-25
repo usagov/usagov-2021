@@ -75,7 +75,7 @@ def proxy_request():
         # Validate API_DOMAIN to make static analysis happy (we do trust this value)
         if not validators.url(API_DOMAIN):
             logger.error("Domain for '%s' failed validation: '%s'", params["keyname"], API_DOMAIN)
-            return jsonify({"error": "Invalid domain for %s.", params["keyname"]}), 400
+            return jsonify({"error": "Invalid domain from env"}), 400
 
         # Validate endpoint doesn't contain a scheme or protocol-relative marker
         if endpoint.startswith("http://") or endpoint.startswith("https://") or endpoint.startswith("//"):
