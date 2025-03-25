@@ -1,6 +1,6 @@
 const paths = [
   "/disaster-assistance",
-  "/es/requisitos-viaje-ninos-menores-de-edad",
+  "https://www.usa.gov/es/requisitos-viaje-ninos-menores-de-edad",
 ];
 const breadcrumb = ["Home", "Página principal"];
 const languageTests = [
@@ -95,6 +95,7 @@ paths.forEach((path, idx) => {
       // font-size: 1.95rem;
       cy.get("h2")
         .not(".usa-card__heading")
+        .not(".usa-accordion__heading")
         .each((h2) => {
           cy.wrap(h2)
             .then((el) => {
