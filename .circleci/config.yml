@@ -868,6 +868,7 @@ workflows:
               only:
               - dev
               - USAGOV-2220-api-proxy-python
+              - USAGOV-2220-akf
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
