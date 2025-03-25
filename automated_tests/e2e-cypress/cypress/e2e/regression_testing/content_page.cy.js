@@ -1,6 +1,6 @@
 const paths = [
   "/disaster-assistance",
-  "https://www.usa.gov/es/requisitos-viaje-ninos-menores-de-edad",
+  "/requisitos-viaje-ninos-menores-de-edad",
 ];
 const breadcrumb = ["Home", "Página principal"];
 const languageTests = [
