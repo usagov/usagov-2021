@@ -19,17 +19,19 @@ enumerate=1
 MESSAGE="Known false positive(s):"
 if [ $THRESHOLD = "low" ] || [ $THRESHOLD = "medium" ] || [ $THRESHOLD = "high" ]; then
   # add false positives for low level here
-elif [ $THRESHOLD = "medium" ] || [ $THRESHOLD = "high" ]; then
+fi
+
+if [ $THRESHOLD = "medium" ] || [ $THRESHOLD = "high" ]; then
   # add false positives for medium level here
   MESSAGE+="$enumerate) [Medium] Server-Side Request Forgery (SSRF)
     Path: .buildpack/api-proxy/app/app.py
-    Info: Unsanitized input from an HTTP parameter flows into requests.request, where it is used as an URL to perform a request. This may result in a Server Side Request Forgery vulnerability.
+    Info: Unsanitized input from an HTTP parameter flows into requests.request, where it is used as a URL to perform a request. This may result in a Server Side Request Forgery vulnerability.
   "
   enumerate=$((enumerate+1))
-elif [ $THRESHOLD = "high" ]; then
+fi
+
+if [ $THRESHOLD = "high" ]; then
   # add false positives for high level here
-else
-  # add unspecified false positives  here
 fi
 
 echo "\e[1m$MESSAGE"
