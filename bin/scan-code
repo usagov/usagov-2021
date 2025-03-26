@@ -15,6 +15,12 @@ fi
 
 THRESHOLD=${1:-low}
 
+echo "Known false positive(s):
+ 1) [Medium] Server-Side Request Forgery (SSRF)
+    Path: .buildpack/api-proxy/app/app.py
+    Info: Unsanitized input from an HTTP parameter flows into requests.request, where it is used as an URL to perform a request. This may result in a Server Side Request Forgery vulnerability.
+"
+
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
 docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
