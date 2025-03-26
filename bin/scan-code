@@ -28,6 +28,8 @@ elif [ $THRESHOLD = "medium" ] || [ $THRESHOLD = "high" ]; then
   enumerate=$((enumerate+1))
 elif [ $THRESHOLD = "high" ]; then
   # add false positives for high level here
+else
+  # add unspecified false positives  here
 fi
 
 echo "\e[1m$MESSAGE"
