@@ -183,6 +183,12 @@ generate_cert_json()
       yes '' | cf create-user-provided-service secauthsecrets -p "$CERT_JSON"
     fi
   fi
+
+  if service_exists "cron-secrets" ; then
+    echo "cron-secrets service already created"
+  else
+    cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+  fi
 }
 
 ## DONE
