@@ -1,0 +1,8 @@
+name: 'USAGov Chatbot'
+type: module
+core_version_requirement: ^10
+description: 'Module to make changes to the UI of the USAGov Chatbot.'
+dependencies:
+  - ai
+  - ai_chatbot
+  - ai_assistant_api
