@@ -15,27 +15,11 @@ fi
 
 THRESHOLD=${1:-low}
 
-enumerate=1
-MESSAGE="Known false positive(s):"
-if [ "$THRESHOLD" = "low" ] || [ "$THRESHOLD" = "medium" ] || [ "$THRESHOLD" = "high" ]; then
-  # add false positives for low level here
-fi
-
-if [ "$THRESHOLD" = "medium" ] || [ "$THRESHOLD" = "high" ]; then
-  # add false positives for medium level here
-  MESSAGE="$MESSAGE
-$enumerate) [Medium] Server-Side Request Forgery (SSRF)
-    Path: .buildpack/api-proxy/app/app.py
-    Info: Unsanitized input from an HTTP parameter flows into requests.request, where it is used as a URL to perform a request. This may result in a Server Side Request Forgery vulnerability.
-    "
-  enumerate=$((enumerate+1))
-fi
-
-if [ "$THRESHOLD" = "high" ]; then
-  # add false positives for high level here
-fi
-
-echo "\e[1m$MESSAGE"
+echo "\e[1mKnown false positive(s):
+  1) [Medium] Server-Side Request Forgery (SSRF)
+     Path: .buildpack/api-proxy/app/app.py
+     Info: Unsanitized input from an HTTP parameter flows into requests.request, where it is used as a URL to perform a request. This may result in a Server Side Request Forgery vulnerability.
+  "
 
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
 docker run --disable-content-trust -it --rm \
