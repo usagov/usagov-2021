@@ -3,6 +3,8 @@
 echo "Running lightweight cron"
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
+CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
 
 # only the 1st instance within cloud formation should actually do anything on cron
 if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
@@ -20,7 +22,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     URI="https://www.usa.gov"
   fi
 
-  echo "Running lightweight cron on $URI"
-  curl -k "$URI/scheduler/cron/718cf9b513dabbab39d4"
+  echo "Running lightweight cron on $URI with key $CRON_KEY"
+  curl -k "$URI/scheduler/cron/$CRON_KEY"
 
 fi
