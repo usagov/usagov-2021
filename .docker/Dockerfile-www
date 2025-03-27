@@ -35,6 +35,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     ca-certificates \
     curl \
     gettext \
+    git \
     inotify-tools \
     jq \
     moreutils \
