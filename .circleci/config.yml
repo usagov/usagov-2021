@@ -820,6 +820,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2267-cache-headers
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -830,6 +831,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2267-cache-headers
       - approve-dev-deployment:
           type: approval
           requires:
@@ -838,6 +840,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2267-cache-headers
       - approve-dr-deployment:
           type: approval
           requires:
@@ -853,6 +856,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2267-cache-headers
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
