@@ -1,7 +1,7 @@
-#__import__('pysqlite3')
+# pylint: disable=missing-module-docstring, invalid-name, wrong-import-position, line-too-long
 import sys
-#sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-import chromadb, ollama
+import chromadb
+import ollama
 
 chromaclient = chromadb.HttpClient(host="localhost", port=8000)
 collection = chromaclient.get_or_create_collection(name="buildragwithpython")
@@ -15,7 +15,6 @@ prompt = (
 
     # Things not to tell the AI:
     # f"Please provide as verbose an answer as is possible, using the resources provided. " <-- this lead to flowery, antiquated language
-    #
 
     # Things to tell the AI to avoid:
     f"Please avoid saying things similar to 'not enough data' and 'there is no further information'"
@@ -23,10 +22,9 @@ prompt = (
     f"outside of the resources provided. "
 
     # Things to tell the AI to do:
-    f"Please keep the answer factual, and avoid superlatives or unnecessary adjectives. "
+    f"Please keep the answer factual, and avoid superlatives or unnecessary adjectives."
 
     # Finally, give it our resources:
-    #
     f"Do not provide any data, or make any suggestions unless it comes from the "
     f"following resources: {relateddocs}."
 

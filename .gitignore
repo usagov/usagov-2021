@@ -2,7 +2,10 @@
 #
 # earlier versions of Drupal are tracked in `community/PHP/`
 /chatbot/services/*
+!/chatbot/services/.gitkeep
 /chatbot/output/*
+!/chatbot/output/.gitkeep
+
 /s3/*
 !/s3/.keep
 /storage

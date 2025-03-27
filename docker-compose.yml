@@ -10,7 +10,7 @@ services:
     networks:
       - gsa-gov
   chromadb:
-    image: chromadb/chroma:0.6.3
+    image: chromadb/chroma:0.6.2
     container_name: chromadb
     ports:
       - "8000:8000"
