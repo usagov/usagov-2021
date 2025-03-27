@@ -5,9 +5,6 @@ import ollama
 chromaclient = chromadb.HttpClient(host="localhost", port=8000)
 collection = chromaclient.get_or_create_collection(name="buildragwithpython")
 
-
-# app =  Flask(__name__)
-
 app = Flask(__name__)
 
 @app.route("/v1/chat/completions", methods=["POST"])
@@ -48,9 +45,14 @@ def chatbotQuestion():
 
     RAGoutput = ollama.generate(model="llama3.2", prompt=prompt, stream=False, options={"temperature": 0})
 
-    response = make_response(RAGoutput['response'])
-    response.headers['Content-Type'] = 'text/plain'
-    return response
+    response = {
+        "data": {
+            "html": RAGoutput['response'],
+            "overwrite": True
+        }
+    }
+
+    return jsonify(response)
 
     # return jsonify({"response": RAGoutput['response']})
 
