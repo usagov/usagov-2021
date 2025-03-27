@@ -22,7 +22,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     URI="https://www.usa.gov"
   fi
 
-  echo "Running lightweight cron on $URI with key $CRON_KEY"
+  echo "Running lightweight cron on $URI/scheduler/cron/$CRON_KEY"
   curl -k "$URI/scheduler/cron/$CRON_KEY"
 
 fi

@@ -169,6 +169,39 @@ services:
     networks:
       - gsa-gov
 
+  cron:
+    container_name: cron
+    image: gsatts/usagov-2021:cron
+    mem_limit: 128m
+    storage_opt:
+      size: 4G
+    command: ["sh", "-c", "while :; do echo 'Cron running'; sleep 60; done"]
+    networks:
+      - gsa-gov
+    depends_on:
+      - minio
+    environment:
+      HEALTHCHECK_TYPE: process
+      NO_ROUTE: true
+      VCAP_SERVICES: >
+        { "s3": [{
+            "name": "storage",
+            "credentials": {
+              "access_key_id": "minioadmin",
+              "secret_access_key": "miniopass",
+              "region": "us-west-1",
+              "bucket": "local",
+              "fips_endpoint": "minio:9000",
+              "endpoint": "minio:9000"
+            }
+          }],
+          "user-provided": [{
+            "name": "secrets",
+            "credentials": {
+              "CRON_KEY": "SECRET",
+            }
+          }]
+        }
 
 volumes:
   database_data:
