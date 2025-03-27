@@ -44,6 +44,30 @@ applications:
       # GSA CIDR Block
       allow 159.142.0.0/16;
 
+      # ZScaler "edge" addresses; sometimes GSA linux clients come through on these
+      allow 159.142.0.128/27;
+      allow 159.142.71.0/28;
+      allow 136.226.4.0/23;
+      allow 136.226.6.0/23;
+      allow 136.226.8.0/23;
+      allow 136.226.10.0/23;
+      allow 136.226.12.0/23;
+      allow 136.226.14.0/23;
+      allow 136.226.16.0/23;
+      allow 136.226.18.0/23;
+      allow 136.226.20.0/23;
+      allow 136.226.22.0/24;
+      allow 165.225.3.0/24;
+      allow 165.225.46.0/24;
+      allow 165.225.48.0/24;
+      allow 2605:4300:1511::/48;
+      allow 2605:4300:1512::/48;
+      allow 2605:4300:1611::/48;
+      allow 2605:4300:1612::/48;
+      allow 2605:4300:1711::/48;
+      allow 2605:4300:2c11::/48;
+      allow 2605:4300:2c12::/48;
+
       # SiteImprove:
       allow 13.58.165.213;
       allow 18.116.191.222;
