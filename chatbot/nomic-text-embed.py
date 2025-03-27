@@ -1,7 +1,4 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, invalid-name, wrong-import-position, line-too-long
-#__import__('pysqlite3')
-#import sys
-#sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import os
 import re
 from ollama import embed
