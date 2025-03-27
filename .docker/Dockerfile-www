@@ -93,6 +93,44 @@ RUN chmod -R +x /etc/periodic \
   && cp /etc/motd /var/www/web/version.txt \
   && echo "PATH=$PATH" > /etc/profile.d/drupal.sh
 
+RUN if pgrep nginx; then pkill nginx; fi
+
+RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
+RUN apk del nginx nginx-mod-http-lua || true
+RUN cd /tmp/ \
+    && git clone --branch v0.10.26 https://github.com/openresty/lua-nginx-module.git \
+    && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
+    && tar -xzvf v0.3.1.tar.gz \
+    && mv ngx_devel_kit-0.3.1 ngx_devel_kit \
+    && wget https://nginx.org/download/nginx-1.27.4.tar.gz \
+    && NGCHECKSUM="3785797d3c8f96b930c11a445c68ce88b584af9645f41b8929a779ef1507b74831fa91e9144f3a56599737517cbf1864954d91e312d12cc59e23e4db72c2c716 *nginx-1.27.4.tar.gz" \
+    && if [ "$(openssl sha512 -r nginx-1.27.4.tar.gz)" = "$NGCHECKSUM" ]; then \
+        echo "nginx tarball checksum verification succeeded!"; \
+    else \
+        echo "nginx tarball checksum verification failed!"; \
+        exit 1; \
+    fi \
+    && tar -xzvf nginx-1.27.4.tar.gz \
+    && cd nginx-1.27.4 \
+    && ./configure \
+        --prefix=/var/lib/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --modules-path=/usr/lib/nginx/modules \
+        --with-compat \
+        --with-http_gzip_static_module \
+        --with-http_ssl_module \
+        --with-http_realip_module \
+        --with-cc-opt="-I/usr/include/luajit-2.1" \
+        --with-ld-opt="-L/usr/lib -lluajit-5.1" \
+        --add-module=/tmp/ngx_devel_kit \
+        --add-module=/tmp/lua-nginx-module \
+    && make
+RUN rm /etc/nginx/modules/10_devel_kit.conf || true
+RUN rm /etc/nginx/modules/30_http_lua.conf || true
+RUN cd /tmp/nginx-1.27.4 \
+    && make install
+
 EXPOSE 80
 
 WORKDIR /var/www
