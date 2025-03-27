@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Running lightweight cron"
+echo "Attempting lightweight cron run..."
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "cron-secrets") | .credentials')
