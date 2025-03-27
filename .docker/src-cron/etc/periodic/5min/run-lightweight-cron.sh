@@ -3,7 +3,7 @@
 echo "Running lightweight cron"
 # grab the cloudgov space we are hosted in
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
-SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
+SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
 CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
 
 # only the 1st instance within cloud formation should actually do anything on cron
