@@ -21,7 +21,7 @@ http {
 
   client_max_body_size 512m;
 
-  # As per USAGOV-1927 need to make sure the following vlaue is greather than the timeout-value in
+  # As per USAGOV-1927 need to make sure the following value is greather than the timeout-value in
   #     .docker/src-www/etc/nginx/nginx.conf
   #     and
   #     .docker/src-cms/etc/nginx/nginx.conf
@@ -38,24 +38,33 @@ http {
   set_real_ip_from 52.222.123.172/32;
   real_ip_recursive on;
 
-  # json_with_cf format for the primary server block (:80).
-  log_format json_with_cf     '{'
-                              ' "logType": "nginx-access", '
-                              ' "remoteHost": "$remote_addr", '
-                              ' "user": "$remote_user", '
-                              ' "time": "$time_local", '
-                              ' "request": "$request", '
-                              ' "status": $status, '
-                              ' "size": $body_bytes_sent, '
-                              ' "referer": "$http_referer", '
-                              ' "userAgent": "$http_user_agent", '
-                              ' "requestTime": $request_time, '
-                              ' "host": "$host", '
-                              ' "forwardedHost": "$cf_forwarded_host", '
-                              ' "requestUri": "$cf_request_uri", '
-                              ' "httpHost": "$http_host", '
-                              ' "forwardedUrl": "$http_x_cf_forwarded_url" '
-                              ' }';
+  # access_log directive is in the primary server block (:80).
+  log_format json_with_cf  '{'
+                              '"logType": "nginx-access", '
+
+                              # This is combined format, except that we use $http_x_cf_forwarded_url in place of $request
+                              ' "message": "$remote_addr - $remote_user [$time_local] '
+                                           '\\"$http_x_cf_forwarded_url\\" $status $body_bytes_sent
+'
+                                           '\\"$http_referer\\" \\"$http_user_agent\\"", '
+                              ' "nginx-access": {'
+                                  ' "remoteHost": "$remote_addr", '
+                                  ' "user": "$remote_user", '
+                                  ' "time_local": "$time_local", '
+                                  ' "time_iso8601": "$time_iso8601", '
+                                  ' "request": "$request", '
+                                  ' "status": $status, '
+                                  ' "size": $body_bytes_sent, '
+                                  ' "referer": "$http_referer", '
+                                  ' "userAgent": "$http_user_agent", '
+                                  ' "requestTime": $request_time, '
+                                  ' "host": "$host", '
+                                  ' "forwardedHost": "$cf_forwarded_host", '
+                                  ' "requestUri": "$cf_request_uri", '
+                                  ' "httpHost": "$http_host", '
+                                  ' "forwardedUrl": "$http_x_cf_forwarded_url" '
+                                  '}'
+                              '}"';
 
   include /etc/nginx/conf.d/*.conf;
 }
