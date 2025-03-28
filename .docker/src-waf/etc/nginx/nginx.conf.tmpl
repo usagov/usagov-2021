@@ -66,8 +66,8 @@ http {
 			       ' "requestUri": "$cf_request_uri", '
 			       # Using "requested" instead of "forwarded" here so we can use the same
 			       # fields in upstream logs; should help us collate them.
-			       ' "requestedUrl": "$http_x_cf_forwarded_url" '
-			       ' "requestedHost": "$cf_forwarded_host", '
+			       ' "requestedUrl": "$http_x_cf_forwarded_url", '
+			       ' "requestedHost": "$cf_forwarded_host"'
                               '}';
 
   include /etc/nginx/conf.d/*.conf;
