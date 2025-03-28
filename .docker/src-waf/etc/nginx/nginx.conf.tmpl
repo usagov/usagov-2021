@@ -39,17 +39,18 @@ http {
   real_ip_recursive on;
 
   # access_log directive is in the primary server block (:80).
-  log_format json_with_cf  '{' # No space between '{' and '"' at the start of this block
-                               # cf: https://github.com/cloud-gov/opensearch-boshrelease/blob/main/src/cf-logstash-filters/src/logstash-filters/snippets/app-logmessage-app.conf
+  # No space between '{' and '"' at the start of the JSON.
+  # cf: https://github.com/cloud-gov/opensearch-boshrelease/blob/main/src/cf-logstash-filters/src/logstash-filters/snippets/app-logmessage-app.conf
+  log_format json_with_cf  '{'
                               '"logType": "nginx-access", '
 
-                              # This is combined format, except that we use $http_x_cf_forwarded_url in place of $request
-			      # It's included for tools that use this format. Both NR and OpenSearch promote it out
-			      # of here and into the "message" field.
+                              # This is combined format, except that we use $http_x_cf_forwarded_url
+                              # in place of $request. It's included for tools that use this format.
+                              # Both NR and OpenSearch promote it out of here and into the "message" field.
                               ' "message": "$remote_addr - $remote_user [$time_local] '
-                                           '\\"$http_x_cf_forwarded_url\\" $status $body_bytes_sent
-'
+                                           '\\"$http_x_cf_forwarded_url\\" $status $body_bytes_sent '
                                            '\\"$http_referer\\" \\"$http_user_agent\\"", '
+
 			       ' "remoteHost": "$remote_addr", '
 			       ' "user": "$remote_user", '
 			       ' "time_local": "$time_local", '
