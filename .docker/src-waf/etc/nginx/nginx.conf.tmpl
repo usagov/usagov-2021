@@ -5,8 +5,8 @@ worker_processes auto;
 
 pid /var/run/nginx.pid;
 
-# Configure default error logger.
-error_log /var/log/nginx/error.log warn;
+# Configure default error logger. access_log directive is in server block for port :80.
+error_log /dev/stderr warn;
 
 events {
     worker_connections 1024;
@@ -38,20 +38,24 @@ http {
   set_real_ip_from 52.222.123.172/32;
   real_ip_recursive on;
 
-  log_format access_json '{"logType": "nginx-access", '
-                         ' "remoteHost": "$remote_addr", '
-                         ' "user": "$remote_user", '
-                         ' "time": "$time_local", '
-                         ' "request": "$request", '
-                         ' "status": $status, '
-                         ' "size": $body_bytes_sent, '
-                         ' "referer": "$http_referer", '
-                         ' "userAgent": "$http_user_agent", '
-                         ' "requestTime": $request_time, '
-			 ' "host": $host, '
-                         ' "httpHost": "$http_host"}';
-
-  access_log /dev/stdout access_json;
+  # json_with_cf format for the primary server block (:80).
+  log_format json_with_cf     '{'
+                              ' "logType": "nginx-access", '
+                              ' "remoteHost": "$remote_addr", '
+                              ' "user": "$remote_user", '
+                              ' "time": "$time_local", '
+                              ' "request": "$request", '
+                              ' "status": $status, '
+                              ' "size": $body_bytes_sent, '
+                              ' "referer": "$http_referer", '
+                              ' "userAgent": "$http_user_agent", '
+                              ' "requestTime": $request_time, '
+                              ' "host": "$host", '
+                              ' "forwardedHost": "$cf_forwarded_host", '
+                              ' "requestUri": "$cf_request_uri", '
+                              ' "httpHost": "$http_host", '
+                              ' "forwardedUrl": "$http_x_cf_forwarded_url" '
+                              ' }';
 
   include /etc/nginx/conf.d/*.conf;
 }
