@@ -650,6 +650,7 @@ a,
 
 // Alignment of recaptcha error message and recaptcha box.
 .recaptcha-container {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .ceo-button-container;
 
   margin-bottom: 1em;
@@ -658,6 +659,7 @@ a,
 
 // Centers the recaptcha error message
 .err-label-captcha {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .usa-error;
 
   text-align: center;
@@ -676,6 +678,7 @@ a,
 }
 
 .issue-button {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .ceo-button;
 
   margin-top: 1.5rem;
@@ -707,7 +710,7 @@ div div.field--name-field-offices-near-you {
 
 // Add padding for feedback button
 button#QSIFeedbackButton-btn {
-  padding: 2px !important;
+  padding: 2px !important; // stylelint-disable-line selector-id-pattern
 }
 
 [href]:focus,
@@ -808,8 +811,7 @@ select:not([disabled]):focus,
 }
 
   .usa-pagination__link {
-    text-decoration-color: color('blue-warm-70v');
-    text-decoration: underline;
+    text-decoration: underline color('blue-warm-70v');
 
     &:hover{
       color: color('blue-warm-70v');

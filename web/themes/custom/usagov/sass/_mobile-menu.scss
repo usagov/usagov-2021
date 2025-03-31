@@ -132,6 +132,7 @@ ul.navigation__items {
   // Make the header sticky for devices with a screen size less than or equal to 1024px.
   .usa-header {
     // For Safari
+    /* stylelint-disable-next-line value-no-vendor-prefix */
     position: -webkit-sticky;
 
     // For other browsers

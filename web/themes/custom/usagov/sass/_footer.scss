@@ -19,6 +19,7 @@
       padding-right: 5vw;
     }
   }
+  @include u-bg('gray-5');
 }
 
 .usa-sign-up__heading {
@@ -99,10 +100,6 @@
   text-decoration: underline;
   outline: 0.25rem solid color('orange-50v');
   outline-offset: -0.25rem;
-}
-
-.usa-footer__primary-section {
-  @include u-bg('gray-5');
 }
 
 .usa-footer__primary-section .usa-list {
@@ -250,10 +247,6 @@
 
 /* ---- Identifier ---- */
 
-.usa-identifier {
-  background-color: color("blue-80v");
-}
-
 .usa-identifier__container {
   max-width: calc(70.25rem + 4rem);
   @media (max-width: 1200px) {
@@ -293,6 +286,7 @@
 /* ---- Identifier---- */
 .usa-identifier {
   padding-bottom: 2rem;
+  background-color: color("blue-80v");
 }
 
 .usa-identifier__required-link.usa-link {
@@ -330,11 +324,9 @@ p.usa-identifier__identity-disclaimer a {
 
 .usa-identifier__required-links-list {
   @media (min-width: 40em) {
-    -moz-column-count: 1;
     column-count: 1;
   }
   @media (min-width: 64em) {
-    -moz-column-count: 4;
     column-count: 4;
   }
 }
