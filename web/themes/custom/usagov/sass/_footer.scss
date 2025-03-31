@@ -38,6 +38,7 @@
   @include u-font('sans', 'md');
   @include u-text('bold');
   @include u-text('gray-90');
+
   text-decoration: none;
   padding: 0;
   line-height: 1.2;
@@ -61,6 +62,7 @@
   width: 100%;
   border: 0;
   @include u-bg('gray-5');
+
   cursor: pointer;
 }
 
@@ -162,6 +164,7 @@
 .usa-footer__secondary-section a.disabled {
   pointer-events: none;
   @include u-text('black');
+
   text-decoration: none;
 }
 
@@ -240,6 +243,7 @@
     height: 32px;
     width: 32px;
     @include u-bg('white');
+
     border-radius: 3px;
   }
 }

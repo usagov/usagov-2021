@@ -126,19 +126,23 @@ To update existing content buttons:
 .usa-button--secondary {
   border: 2px solid $secondary-border;
 }
+
 .usa-button--secondary:hover {
   background-color: $secondary-background;
   border: 2px solid $secondary-border;
 }
+
 .usa-button--secondary.usa-button--big {
   @include u-font-size('sans', 'md');
 }
+
 /****************************************************************************************
   AFTER UPDATING CONTENT BUTTONS, KEEP STYLES FOR .usagov-button
 ****************************************************************************************/
 .usagov-button{
   border: 2px solid $secondary-border;
   @include u-font-size('sans', 'md');
+
   padding: units(2) units(3);
   @include set-text-and-bg("secondary", $context: "Button");
 
@@ -147,6 +151,7 @@ To update existing content buttons:
     border: 2px solid $secondary-border;
   }
 }
+
 /****************************************************************************************
   END OF CONTENT BUTTON UPDATE CODE
 ****************************************************************************************/
@@ -552,6 +557,7 @@ div[class^="QSIUserDefinedHTML"] {
 #pagesurvey-qual-hdr {
   @include u-bg('cyan-10');
   @include u-font('serif', 'lg');
+
   display: block;
   @include u-text('gray-90');
 
@@ -795,6 +801,7 @@ select:not([disabled]):focus,
 
     &:hover{
       @include u-text('gray-90');
+
       background-color:#768FB3;
       border-color: #768FB3;
     }
@@ -902,6 +909,7 @@ input::-webkit-textfield-decoration-container {
   .usa-prose>p.usa-intro {
     @include u-margin(0);
     @include u-font-size('serif', 'md');
+
     max-width: 100%;
   }
 }
@@ -911,6 +919,7 @@ input::-webkit-textfield-decoration-container {
     top: 5vh !important;
     min-height: 80vh !important;
 }
+
 .ui-dialog.ckeditor5-paragraph-embed-modal > .ui-dialog-content {
     height: 80vh !important;
 }

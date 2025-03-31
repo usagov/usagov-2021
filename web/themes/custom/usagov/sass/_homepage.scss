@@ -6,8 +6,10 @@
 
 .usagov-hero-homepage {
   @include u-bg('blue-80v');
+
   background-image: none;
   @include u-text('white');
+
   margin-bottom: 0;
 }
 
@@ -63,12 +65,14 @@
 
   p {
     @include u-font('sans', 'md');
+
     margin: 0;
     line-height: 1.5;
   }
 
   a {
     @include u-text('cyan-30v');
+
     text-decoration: underline;
   }
 }
@@ -111,6 +115,7 @@
 
 .welcome-box {
   @include u-bg('blue-80v');
+
   box-shadow: 0 6px 6px $blue-shadow;
   padding: 30px 28px 35px 30px;
 
@@ -122,6 +127,7 @@
 /* Background */
 .blue-back {
   @include u-bg('blue-80v');
+
   grid-column: 1 / 3;
   grid-row: 3 / 8;
 }
@@ -129,6 +135,7 @@
 /* How do I box */
 .how-box {
   @include u-bg('white');
+
   border-radius: 3px;
   grid-column: 1 / 3;
   grid-row: 2 / 4;
@@ -140,12 +147,13 @@
   h2,
   a {
     @include u-text('gray-90');
+
     margin: 0;
     text-decoration: none;
   }
 
   a {
-    //uswds font-weight mixin
+    // uswds font-weight mixin
     @include u-text('normal');
 
     &:hover {
@@ -181,10 +189,12 @@
 .jump {
   padding: 0;
   @include u-font('sans', 'sm');
+
   text-align: center;
 
   a {
     @include u-text('white');
+
     text-decoration: underline;
     display: inline-block;
     margin-bottom: 10px;
@@ -217,6 +227,7 @@
 /* All Topics Header */
 .all-topics-header {
   @include u-bg('white');
+
   grid-column: 1 / 3;
   grid-row: 9 / 12;
   border-bottom: 10px solid color('red-50');
@@ -225,6 +236,7 @@
     @include u-font('serif', 'xl');
     @include u-text('red-50');
     @include u-text('bold');
+
     margin: 65px 5vw 0;
     max-width: 1124px;
     padding: 0 0 5px 0;
@@ -278,6 +290,7 @@
 .homepage-card {
   display: flex;
   @include u-font-family('sans');
+
   margin: 0;
   padding: 0;
 
@@ -295,6 +308,7 @@
   h2 {
     // uswds font-weight mixin
     @include u-text('bold');
+
     line-height: 1.3;
   }
 }
@@ -326,7 +340,6 @@
 
 /* Mobile devices */
 @media (min-width: 480px) {
-
   .how-box {
     margin-left: auto;
     margin-right: auto;
