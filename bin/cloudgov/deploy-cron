@@ -146,7 +146,11 @@ if service_exists "secrets" ; then
   SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
   CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
 
-  yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+  if service_exists "cron-secrets" ; then
+    yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+  else
+    cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+  fi
 fi
 
 # Enable call center / cfevents  scripts on prod only. (We can manually update this in dev, etc. for testing)
