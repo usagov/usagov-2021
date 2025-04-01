@@ -11,15 +11,15 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
 
   # Use unique uri per environment - default to prod
   if [ "${APP_SPACE}" = "dev" ]; then
-    URI="https://cms-dev.usa.gov"
+    URI="http://cms-dev.usa.gov"
   elif [ "${APP_SPACE}" = "dr" ]; then
-    URI="https://cms-dr.usa.gov"
+    URI="http://cms-dr.usa.gov"
   elif [ "${APP_SPACE}" = "stage" ]; then
-    URI="https://cms-stage.usa.gov"
+    URI="http://cms-stage.usa.gov"
   elif [ "${APP_SPACE}" = "local" ]; then
-    URI="https://localhost"
+    URI="http://localhost"
   else
-    URI="https://www.usa.gov"
+    URI="http://www.usa.gov"
   fi
 
   echo "Running lightweight cron on $URI/scheduler/cron/$CRON_KEY"
