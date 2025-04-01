@@ -1,0 +1,37 @@
+uuid: 0f2f5b74-1a3c-4dd6-8d27-132b5f516222
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_chatbot
+  theme:
+    - usagov
+id: usagov_aideepchatchatbot
+theme: usagov
+region: header_top
+weight: 0
+provider: null
+plugin: ai_deepchat_block
+settings:
+  id: ai_deepchat_block
+  label: 'AI DeepChat Chatbot'
+  label_display: '0'
+  provider: ai_chatbot
+  ai_assistant: usagov_chatbot
+  bot_name: 'USAGov Chatbot'
+  bot_image: /core/misc/druplicon.png
+  use_username: 1
+  default_username: User
+  use_avatar: 1
+  default_avatar: /core/misc/favicon.ico
+  first_message: 'Welcome to USA.gov! How can I help you today?'
+  stream: 1
+  toggle_state: remember
+  width: 400px
+  height: 500px
+  placement: bottom-right
+  show_structured_results: false
+  show_copy_icon: true
+  collapse_minimal: false
+  style_file: chatgpt.yml
+visibility: {  }

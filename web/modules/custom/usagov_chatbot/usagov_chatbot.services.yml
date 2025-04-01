@@ -1,0 +1,7 @@
+services:
+  usagov_chatbot_rag_inject_subscriber:
+    class: '\Drupal\usagov_chatbot\EventSubscriber\RagInjectSubscriber'
+    arguments: []
+    tags:
+      - { name: 'event_subscriber' }
+      

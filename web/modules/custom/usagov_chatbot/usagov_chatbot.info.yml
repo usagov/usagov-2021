@@ -1,0 +1,7 @@
+name: 'USAGov Chatbot Module'
+type: module
+description: 'Manages content extraction, embedding generation, and contextual document retrieval for enhancing chatbot responses with relevant website documentation.'
+core_version_requirement: ^10
+dependencies:
+  - drupal:ai
+  - drupal:ai_assistant_api
