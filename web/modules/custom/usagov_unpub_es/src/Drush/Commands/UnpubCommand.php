@@ -20,16 +20,6 @@ class UnpubCommand extends DrushCommands {
 
     $this->unpubSpanishNodes();
     $this->unpubSpanishTaxonomy();
-
-    // Delete the Spanish front page
-    // Unfortunately we cannot simply unpublished the Spanish version of a node while keeping the English version published.
-    // This is due to our use of the "Content Moderation" module, which overrides Drupal's normal ability to [un]publish individual translations.
-    $node = Node::load(1);
-    if ($node->hasTranslation('es')) {
-      $node->removeTranslation('es');
-    }
-    $node->set('field_language_toggle', NULL);
-    $node->save();
   }
 
   public function unpubSpanishTaxonomy() {
