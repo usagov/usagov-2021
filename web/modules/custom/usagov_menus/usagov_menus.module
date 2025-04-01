@@ -41,15 +41,17 @@ function usagov_menus_theme(array $existing, string $type, string $theme, string
  */
 function usagov_menus_preprocess_usagov_menu_mobile(&$variables): void {
 
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
+  $variables['dirRecordBreadLevel1En'] = TaxonomyDatalayerBuilder::aboutGovtEn();
+
   // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - Spanish
-  $variables['dirRecordBreadLevel1Es'] = 'TEST-1';// TaxonomyDatalayerBuilder::agencyIndexEn();
+  $variables['dirRecordBreadLevel1Es'] = TaxonomyDatalayerBuilder::aboutGovtEs();
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
+  $variables['dirRecordBreadLevel2AgencyEn'] = TaxonomyDatalayerBuilder::agencyIndexEn();
+  $variables['dirRecordBreadLevel2StateEn'] = TaxonomyDatalayerBuilder::stateIndexEn();
 
   // USAGOV-2287: Look up the title for the 2nd level breadcrumb for Directory - Spanish
-  $variables['dirRecordBreadLevel2Es'] = 'TEST-2';// TaxonomyDatalayerBuilder::agencyIndexEn();
-
-  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
-  $variables['dirRecordBreadLevel1En'] = 'TEST-3';// TaxonomyDatalayerBuilder::agencyIndexEn();
-
-  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
-  $variables['dirRecordBreadLevel2En'] = 'TEST-4';// TaxonomyDatalayerBuilder::agencyIndexEn();
+  $variables['dirRecordBreadLevel2AgencyEs'] = TaxonomyDatalayerBuilder::agencyIndexEs();
+  $variables['dirRecordBreadLevel2StateEs'] = TaxonomyDatalayerBuilder::stateIndexEs();
 }
