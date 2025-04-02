@@ -5,6 +5,7 @@ services:
       - "11434:11434"
     volumes:
       - ./chatbot/services/ollama:/root/.ollama
+      - ./chatbot/zscaler_cert:/tmp/zscaler_cert
     restart: always
     container_name: ollama-backend
     networks:
