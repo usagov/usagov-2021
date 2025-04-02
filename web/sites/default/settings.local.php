@@ -3,6 +3,8 @@
 # $settings['tome_static_path_exclude'] = [];
 # $config['admin_toolbar_tools.settings']['hoverintent_functionality'] = TRUE;
 
+$settings['ai_assistant_advanced_mode_enabled'] = TRUE; 
+
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml';
 
 $config['s3fs.settings']['disable_version_sync'] = TRUE;
