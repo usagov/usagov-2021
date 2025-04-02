@@ -110,6 +110,18 @@ cf create-service s3 basic-public-sandbox s3for${APPNAME}
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
 echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+echo "this is a test"
+exit
+
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
     cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}
 else
