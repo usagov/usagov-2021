@@ -120,12 +120,22 @@ echo "this is a test"
 echo "this is a test"
 echo "this is a test"
 echo "this is a test"
-exit
+
 
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
+    echo "CONDITIONAL STATEMENT - A"
+    echo "CONDITIONAL STATEMENT - A"
+    echo "CONDITIONAL STATEMENT - A"
+    echo "CONDITIONAL STATEMENT - A"
+    exit
     cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}
 else
     CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG --docker-username $DOCKERHUB_USERNAME
+    echo "CONDITIONAL STATEMENT - B"
+    echo "CONDITIONAL STATEMENT - B"
+    echo "CONDITIONAL STATEMENT - B"
+    echo "CONDITIONAL STATEMENT - B"
+    exit
 fi
 
 
