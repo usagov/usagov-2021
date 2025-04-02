@@ -49,7 +49,12 @@ function updateCategoryFilter(jQuery){
             extraDetail += otherCheckedCategories > 1 ? "ies" : "y";
         }
 
-        jQuery('#benefits-category-filter-details').html("Showing "+selectedLanguage+" categories"+extraDetail+". <button onclick='showAllCategories()'>Show all categories</button>");
+        let safeLanguage = jQuery('<span>').text(selectedLanguage).html(); // Escapes any HTML
+        let safeExtraDetail = jQuery('<span>').text(extraDetail).html();
+        jQuery('#benefits-category-filter-details').html(
+            "Showing " + safeLanguage + " categories" + safeExtraDetail +
+            '. <button onclick="showAllCategories()">Show all categories</button>'
+        );
     }else{
         jQuery('#edit-field-benefits-category').children().show();
         jQuery('#benefits-category-filter-details').html("Showing all categories. <button onclick='filterCategories()'>Filter categories by selected language</button>");
