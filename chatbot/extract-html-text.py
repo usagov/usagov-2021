@@ -1,3 +1,4 @@
+#pylint: disable=missing-module-docstring, line-too-long, invalid-name
 """
 Parse useful text from USAgov static site html files into files containing
 the relevant data from each html file, without the html stuff - just a line
@@ -5,10 +6,8 @@ of text for each relevant html element
 """
 
 import os
-import sys
 import re
 from bs4 import BeautifulSoup
-from pathlib import Path
 
 SKIP_TEXT = set([
     "Find an office near you:",
@@ -41,7 +40,7 @@ for html_file in html_files:
     page_path = os.path.split(os.path.split(html_file)[0])[1]
     output_file = os.path.join(OUTPUT_PATH, page_path + '.dat')
 
-    items_written = 0
+    num_items_written = 0
     check_duplicates = []
     with open(output_file, 'w', encoding='utf-8') as ofile:
         soup = BeautifulSoup(html_content, 'html.parser')
@@ -55,7 +54,7 @@ for html_file in html_files:
                         text = re.sub(r"\s+|\r+|\n+|\t+", " ", text)
                         text = " ".join(text.split())
                         print(text, file=ofile)
-                        items_written += 1
+                        num_items_written += 1
 
-    if items_written == 0:
+    if num_items_written == 0:
         os.remove(output_file)
