@@ -15,6 +15,7 @@
 
 .usagov-hero__callout {
   @include u-bg('blue-80v');
+
   border: 1px solid color('white');
 
   ul {
@@ -47,6 +48,7 @@
 
 .usagov-card__heading {
   @include u-text('blue-warm-70v');
+
   text-decoration-line: underline;
   text-decoration-thickness: 7px;
   text-decoration-color: $cyan-text-decoration;
@@ -63,6 +65,7 @@
 
   a {
     @include u-text('black');
+
     display: block;
   }
 }
@@ -71,9 +74,11 @@
   .grid-container{
     max-width: 74.25rem;
   }
+
   .usa-card__container{
     margin: 0;
   }
+
   .usa-card, .usa-card:last-child{
     margin-bottom: 0.5rem;
   }
