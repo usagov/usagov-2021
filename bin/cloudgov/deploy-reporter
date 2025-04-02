@@ -110,34 +110,11 @@ cf create-service s3 basic-public-sandbox s3for${APPNAME}
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
 echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-echo "this is a test"
-
-
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    echo "CONDITIONAL STATEMENT - A"
-    echo "CONDITIONAL STATEMENT - A"
-    echo "CONDITIONAL STATEMENT - A"
-    echo "CONDITIONAL STATEMENT - A"
-    exit
-    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}
 else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG --docker-username $DOCKERHUB_USERNAME
-    echo "CONDITIONAL STATEMENT - B"
-    echo "CONDITIONAL STATEMENT - B"
-    echo "CONDITIONAL STATEMENT - B"
-    echo "CONDITIONAL STATEMENT - B"
-    exit
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST} --docker-username $DOCKERHUB_USERNAME
 fi
-
 
 # bind services (ups should be bound already, but just in case)
 echo Binding s3 and user provided service
