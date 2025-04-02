@@ -22,6 +22,7 @@ $usagov-utilities: "text" "bg" "border";
 @function usagov($value-name) {
   @return map-get($usagov-values, $value-name);
 }
+
 /*  USAGE:
  *    .example {
  *      background-color: usagov("coffee");
@@ -39,6 +40,7 @@ $usagov-utilities: "text" "bg" "border";
 @mixin usagov-border($value-name) {
   border-color: usagov($value-name);
 }
+
 /*  USAGE:
  *    .example {
  *      @include usagov-bg("coffee");
