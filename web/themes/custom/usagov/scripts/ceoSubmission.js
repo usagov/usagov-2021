@@ -129,13 +129,18 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
     // If the Address contains any special characters it removes them because the USPS API
     // won't process the address.
     if (streetAddress.includes("<")) {
-        streetAddress = streetAddress.replace('<', '');
+        streetAddress = streetAddress.replace(/</g, '');
+        let streetAddressField = document.getElementById("input-street");
+        streetAddressField.value = streetAddress;
+    }
+    if (streetAddress.includes(">")) {
+        streetAddress = streetAddress.replace(/>/g, '');
         let streetAddressField = document.getElementById("input-street");
         streetAddressField.value = streetAddress;
     }
 
     if (streetAddress.includes("#")) {
-        streetAddress = streetAddress.replace('#', '');
+        streetAddress = streetAddress.replace(/#/g, '');
         let streetAddressField = document.getElementById("input-street");
         streetAddressField.value = streetAddress;
     }
@@ -165,7 +170,7 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         return await responseText;
     }
     catch (error) {
-        return "USPS API not working.";
+        return "USPS API not working. " + error.message;
     }
 }
 
