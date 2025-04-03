@@ -48,8 +48,8 @@ http {
                               # in place of "$request". It's included for tools that use this format.
                               # Both NR and OpenSearch promote it out of here and into the "message" field.
                               ' "message": "$remote_addr - $remote_user [$time_local] '
-                                           '\"$request_method $http_x_cf_forwarded_url $server_protocol\" $status $body_bytes_sent '
-                                           '\"$http_referer\" \"$http_user_agent\"", '
+                                           '\\"$request_method $http_x_cf_forwarded_url $server_protocol\\" $status $body_bytes_sent '
+                                           '\\"$http_referer\\" \\"$http_user_agent\\"", '
 
 			       ' "remoteHost": "$remote_addr", '
 			       ' "user": "$remote_user", '
