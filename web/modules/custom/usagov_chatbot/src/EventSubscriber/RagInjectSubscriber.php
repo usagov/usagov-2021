@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_chatbot\EventSubscriber;
 
+use Drupal;
 use Drupal\ai\Event\PreGenerateResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -33,18 +34,20 @@ class RagInjectSubscriber implements EventSubscriberInterface {
       $user_query = $last_message->getText();
 
       // Call the Python script to fetch relevant context from ChromaDB.
-      // shell_exec('
-      //   python3 -m ensurepip --default pip
-      //   python3 -m pip install ollama
-      //   python3 -m pip install --upgrade chromadb
-      // ');
+      $python_path = 'chatbot_rag.py';
 
-      $related_docs = shell_exec("python3 " . 'modules/custom/usagov_chatbot/chatbot_rag.py ' . escapeshellarg($user_query));
+      // Run the python script.
+      $related_docs = shell_exec("
+        cd modules/custom/usagov_chatbot/src/EventSubscriber/scripts
+        sh ./setup.sh $python_path $user_query
+      ");
+
+      \Drupal::logger('usagov_chatbot')->notice($related_docs);
 
       // Prepend retrieved context to the user query.
       $new_input_text = "Use only the following context:\n\n" . $related_docs . "\n\nUser Query: " . $user_query;
-      $last_message->setText($new_input_text);
 
+      $last_message->setText($new_input_text);
     }
   }
 

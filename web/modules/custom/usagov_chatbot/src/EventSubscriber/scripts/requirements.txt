@@ -1,0 +1,4 @@
+bs4
+ollama
+chromadb
+numpy>=1.21.6,<1.23.0
