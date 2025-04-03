@@ -1,25 +1,25 @@
 services:
-  ollama-backend:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./chatbot/services/ollama:/root/.ollama
-      - ./chatbot/zscaler_cert:/tmp/zscaler_cert
-    restart: always
-    container_name: ollama-backend
-    networks:
-      - gsa-gov
-  chromadb:
-    image: chromadb/chroma:0.6.2
-    container_name: chromadb
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./chatbot/services/chroma:/chroma/chroma
-    restart: always
-    networks:
-      - gsa-gov
+  #ollama-backend:
+  #  image: ollama/ollama
+  #  ports:
+  #    - "11434:11434"
+  #  volumes:
+  #    - ./chatbot/services/ollama:/root/.ollama
+  #    - ./chatbot/zscaler_cert:/tmp/zscaler_cert
+  #  restart: always
+  #  container_name: ollama-backend
+  #  networks:
+  #    - gsa-gov
+  #chromadb:
+  #  image: chromadb/chroma:0.6.2
+  #  container_name: chromadb
+  #  ports:
+  #    - "8000:8000"
+  #  volumes:
+  #    - ./chatbot/services/chroma:/chroma/chroma
+  #  restart: always
+  #  networks:
+  #    - gsa-gov
   cms:
     container_name: cms
     image: gsatts/usagov-2021:cms-latest

@@ -1,9 +1,12 @@
 # pylint: disable=missing-module-docstring, invalid-name, wrong-import-position, line-too-long
 import sys
+import os
 import chromadb
 import ollama
 
-chromaclient = chromadb.HttpClient(host="localhost", port=8000)
+chroma_host = os.environ.get("OLLAMA_HOST", "localhost")
+
+chromaclient = chromadb.HttpClient(host=chroma_host, port=8000)
 collection = chromaclient.get_or_create_collection(name="buildragwithpython")
 
 query = " ".join(sys.argv[1:])
