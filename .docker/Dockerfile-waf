@@ -62,7 +62,6 @@ RUN apt-get update && \
     locales \
     lua5.3-dev \
     make \
-    nano \
     pkg-config \
     procps \
     wget \
