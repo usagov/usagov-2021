@@ -3,6 +3,9 @@ name: Benefits Finder Integration Test
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   tests-chrome:
     runs-on: ubuntu-latest
