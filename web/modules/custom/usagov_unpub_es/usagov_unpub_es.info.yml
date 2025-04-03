@@ -1,0 +1,5 @@
+name: USAgov Spanish Unpublishing Tool
+description: A tool used for unpublishing all Spanish content on the site (USAGOV-2294).
+package: USAgov
+type: module
+core_version_requirement: ^9 || ^10
