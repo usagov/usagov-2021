@@ -105,6 +105,7 @@
   padding: 10px 20px;
   line-height: .9;
   @include u-font-size('sans', '2xs');
+
   margin: 0;
   border: 2px solid transparent;
 
@@ -171,6 +172,7 @@
     @include u-flex("row", "align-end");
 
     bottom: 6rem;
+
     // width: 32rem;
     width: calc(27ch + 3rem + 1rem + 16rem);
   }
@@ -182,6 +184,7 @@
     @include u-flex("row", "align-end");
 
     bottom: 6rem;
+
     // width: 33rem;
     width: calc(27ch + 3rem + 1rem + 17rem);
   }
