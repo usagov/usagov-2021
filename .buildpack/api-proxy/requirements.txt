@@ -1,0 +1,7 @@
+flask
+Flask-Limiter
+gunicorn  # For production server handling
+nh3
+requests
+requests-cache
+validators

@@ -1,0 +1,10 @@
+uuid: b175e275-2a69-4311-afcf-608ff701f756
+langcode: en
+status: true
+dependencies: {  }
+id: ceo_email_contact_official
+label: 'Contact Elected Officials Info.'
+icon_uuid: null
+icon_default: null
+description: 'Block that displays the official who will receive the email.'
+behavior_plugins: {  }
