@@ -828,7 +828,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2111-intermittent-cron-failure
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
@@ -839,7 +838,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2111-intermittent-cron-failure
       - approve-dev-deployment:
           type: approval
           requires:
@@ -848,7 +846,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2111-intermittent-cron-failure
       - approve-dr-deployment:
           type: approval
           requires:
@@ -864,7 +861,6 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2111-intermittent-cron-failure
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -917,6 +913,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2111-intermittent-cron-failure
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -927,6 +924,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2111-intermittent-cron-failure
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -935,6 +933,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2111-intermittent-cron-failure
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -950,6 +949,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2111-intermittent-cron-failure
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
