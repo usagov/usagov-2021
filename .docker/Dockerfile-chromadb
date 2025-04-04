@@ -1,0 +1,8 @@
+FROM chromadb/chroma:0.6.3
+
+COPY ./.docker/zscaler_cert.pem /tmp/zscaler.crt
+COPY ./.docker/zscaler_cert.pem /tmp/zscaler.pem
+# Add the zscaler certificate to the trusted certs only on local builds
+RUN cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates ;
+
+RUN  echo "export REQUESTS_CA_BUNDLE=/tmp/zscaler.pem" >> $HOME/.bashrc
