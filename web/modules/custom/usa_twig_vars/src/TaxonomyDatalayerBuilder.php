@@ -11,6 +11,8 @@ use Drupal\node\NodeInterface;
 /**
  * Builds a datalayer array we can serialize to JSON in our twig template.
  *
+ * PHPStan type aliases are useful for describing arrays, but they're also
+ * indicate places where you need should use a value object instead.
  * @phpstan-type TaxonomyBreadcrumb array{
  *   nodeID?: string,
  *   taxonomyID?: string,
@@ -34,14 +36,29 @@ use Drupal\node\NodeInterface;
  *   hasBenefitCategory?: bool,
  *   benefitCategories?: string
  * }
+ *
+ * @phpstan-type TaxonomyLinks array{
+ *    Taxonomy_Text_1: string,
+ *    Taxonomy_Text_2: string,
+ *    Taxonomy_Text_3: string,
+ *    Taxonomy_Text_4: string,
+ *    Taxonomy_Text_5: string,
+ *    Taxonomy_Text_6: string,
+ *    Taxonomy_URL_1: string,
+ *    Taxonomy_URL_2: string,
+ *    Taxonomy_URL_3: string,
+ *    Taxonomy_URL_4: string,
+ *    Taxonomy_URL_5: string,
+ *    Taxonomy_URL_6: string,
+ * }
  */
 class TaxonomyDatalayerBuilder {
 
-  public const HOME_TITLE_EN = "Home";
-  public const HOME_URL_EN = "/";
+  public const string HOME_TITLE_EN = "Home";
+  public const string HOME_URL_EN = "/";
 
-  public const HOME_TITLE_ES = "Página principal";
-  public const HOME_URL_ES = "/es/";
+  public const string HOME_TITLE_ES = "Página principal";
+  public const string HOME_URL_ES = "/es/";
 
   /**
    * Language code for entity.
@@ -242,9 +259,8 @@ class TaxonomyDatalayerBuilder {
   /**
    * Build Taxonomy entries based on menu breadcrumbs.
    *
-   * @return TaxonomyBreadcrumb
-   *   Breadcrumb info to send.
-   *
+   * @return TaxonomyLinks
+
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function fromBreadcrumb(): array {

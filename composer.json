@@ -30,7 +30,7 @@
         "drupal/content_moderation_notifications": "^3.4",
         "drupal/core-composer-scaffold": "^10",
         "drupal/core-project-message": "^10",
-        "drupal/core-recommended": "^10",
+        "drupal/core-recommended": "^10.4.5",
         "drupal/ctools": "^3.7",
         "drupal/devel": "^5.3",
         "drupal/diff": "^1.0",
@@ -182,10 +182,10 @@
             "vendor/bin/phpcs --standard=.phpcs.xml.dist"
         ],
         "phpcs-changes": [
-            "vendor/bin/phpcs -n --standard=.phpcs.xml.dist `bin/changed-files`"
+            "vendor/bin/phpcs -n --standard=.phpcs.xml.dist --filter=GitModified"
         ],
         "phpcs-changes-strict": [
-            "vendor/bin/phpcs --standard=.phpcs.xml.dist `bin/changed-files`"
+            "vendor/bin/phpcs --standard=.phpcs.xml.dist --filter=GitModified"
         ],
         "php-lint": [
             "vendor/bin/parallel-lint -e php,module,inc,install,test,profile,theme ./web/modules/custom ./web/themes/custom"
