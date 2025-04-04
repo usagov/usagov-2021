@@ -1,4 +1,4 @@
-@use "usagov-variables" as *;
+  @use "usagov-variables" as *;
 @use "uswds-core" as *;
 
 .usa-sidenav {
@@ -34,6 +34,7 @@
       left: 0;
       width: 4px;
       @include u-bg('red-50');
+
       border-radius: 2px;
     }
 
@@ -48,6 +49,7 @@
     &:hover {
       @include u-text('blue-warm-70v');
       @include u-bg('gray-5');
+
       text-decoration: underline;
     }
   }
