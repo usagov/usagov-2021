@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then

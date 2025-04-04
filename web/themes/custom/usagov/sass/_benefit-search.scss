@@ -24,6 +24,7 @@ main[data-pagetype="Benefits Category Search"]{
     border-width: 0;
     margin: 0;
   }
+
   ul > li {
     break-inside: avoid;
   }
@@ -248,8 +249,8 @@ main[data-pagetype="Benefits Category Search"]{
       @include u-margin-bottom('205');
 
       @media (min-width: 700px) {
-        box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.11);
-        border: 2px solid color('cyan-50v');
+        box-shadow: 0 4px 4px 0 rgb(0 0 0 / 11%);
+        border: 2px solid #e0f7fa;
         margin-bottom: 5px;
 
         @include u-padding('205');
