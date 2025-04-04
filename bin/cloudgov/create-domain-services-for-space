@@ -42,22 +42,26 @@ assertCurSpace $SPACE
 
 ORG=$(getOrg)
 
-# -p domain-with-cdn-dedicated-waf -c '{"alarm_notification_email": "usagov-website-alerts@gsa.gov"}'
-CMS_DOMAIN="cms-${SPACE}.usa.gov"
-WWW_DOMAIN="beta-${SPACE}.usa.gov"
-WWW_DOMAIN_PLAN="domain-with-cdn-dedicated-waf"
-if [ ${SPACE} = 'prod' ]; then
-    CMS_DOMAIN="cms.usa.gov"
-    WWW_DOMAIN="www.usa.gov"
-fi
+# We have a consistent domain-naming convention, except for prod:
+case $SPACE in
+    'prod')
+	CMS_DOMAIN="cms.usa.gov"
+	WWW_DOMAIN="www.usa.gov"
+	DOMAINPART="www" ;;
+    *)
+	CMS_DOMAIN="cms-${SPACE}.usa.gov"
+	WWW_DOMAIN="beta-${SPACE}.usa.gov"
+	DOMAINPART="beta-${SPACE}" ;;
+esac
+
 
 # dev and dr are restricted to the GSA network, so a cloudfront CDN isn't appropriate
-if [ ${SPACE} = 'dev' ]; then
-    WWW_DOMAIN_PLAN="domain"
-fi
-if [ ${SPACE} = 'dr' ]; then
-    WWW_DOMAIN_PLAN="domain"
-fi
+case $SPACE in
+    'stage'|'prod')
+	WWW_DOMAIN_PLAN="domain-with-cdn-dedicated-waf" ;;
+    *)
+	WWW_DOMAIN_PLAN="domain" ;;
+esac
 
 echo "Creating domains ${CMS_DOMAIN} and ${WWW_DOMAIN}"
 $echo cf create-domain $ORG $CMS_DOMAIN
@@ -78,7 +82,8 @@ $echo cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tm
 if [ ${WWW_DOMAIN_PLAN} = "domain" ]; then
     domainjson=`printf "{\"domains\": \"%s\"}" ${WWW_DOMAIN}`
 else
-    domainjson=`printf "{\"domains\": \"%s\", \"alarm_notification_email\": \"usagov-website-alerts@gsa.gov\"}" ${WWW_DOMAIN}`
+    EMAIL_DISAMBIGUATOR="${SPACE}-${DOMAINPART}"
+    domainjson=`printf "{\"domains\": \"%s\", \"alarm_notification_email\": \"usagov-website-alerts+${EMAIL_DISAMBIGUATOR}@gsa.gov\"}" ${WWW_DOMAIN}`
 fi
 echo $domainjson > $tmpfile
 echo  cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
