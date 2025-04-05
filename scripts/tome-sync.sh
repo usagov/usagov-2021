@@ -299,12 +299,12 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
 
       # get a count of current AWS files, total and by extension
       echo "S3 dir storage files : count total" | tee -a $TOMELOG
-      S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | wc -l)
+      S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bfiles/styles\/" | wc -l)
       echo "     $S3_COUNT" | tee -a $TOMELOG
 
       # get a count of tome generated files, total and by extension
       echo "Tome generated files : count total" | tee -a $TOMELOG
-      TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | wc -l)
+      TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | grep -v "\bfiles/styles\/" | wc -l)
       echo "      $TOME_COUNT" | tee -a $TOMELOG
 
       # calculate the diff between s3 and tome
