@@ -16,7 +16,7 @@
   "license": "ISC",
   "devDependencies": {
     "@uswds/compile": "^1.1.0",
-    "eslint": "^8.31.0",
+    "eslint": "^9.0.0",
     "prettier": "2.7.1",
     "stylelint": "^14.9.1",
     "stylelint-config-prettier-scss": "^0.0.1",

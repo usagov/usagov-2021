@@ -1,5 +1,10 @@
 name: Prod A11Y Regression Tests
+
 on: workflow_dispatch
+
+permissions:
+  contents: read
+
 jobs:
   run-regression-tests:
     name: run-regression-tests
