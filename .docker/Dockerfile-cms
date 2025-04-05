@@ -120,9 +120,11 @@ ENV GITTAG=${GITTAG:-none}
 
 ARG CONTAINERTAG
 ENV CONTAINERTAG=${CONTAINERTAG:-none}
-
 ARG BUID=1000
 ARG BGID=1000
+
+ARG BUILD_ENV
+ENV BUILD_ENV=${BUILD_ENV:-none}
 
 # Users and dependencies.
 # Note: we used to use adduser and addgroup to set up the nginx user (if not already present).
