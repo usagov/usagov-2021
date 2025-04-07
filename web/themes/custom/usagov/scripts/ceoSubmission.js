@@ -170,7 +170,7 @@ async function addressUSPSValidation(streetAddress, city, state, zipCode) {
         return await responseText;
     }
     catch (error) {
-        return "USPS API not working.";
+        return "USPS API not working. " + error.message;
     }
 }
 
