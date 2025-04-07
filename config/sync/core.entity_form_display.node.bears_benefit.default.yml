@@ -8,12 +8,14 @@ dependencies:
     - field.field.node.bears_benefit.field_b_headline
     - field.field.node.bears_benefit.field_b_initial_elg_length
     - field.field.node.bears_benefit.field_b_life_event_forms
+    - field.field.node.bears_benefit.field_b_life_events
     - field.field.node.bears_benefit.field_b_source_is_english
     - field.field.node.bears_benefit.field_b_source_link
     - field.field.node.bears_benefit.field_b_summary
     - field.field.node.bears_benefit.field_b_tags
     - field.field.node.bears_benefit.field_language_toggle
     - node.type.bears_benefit
+    - workflows.workflow.basic_workflow
   module:
     - content_moderation
     - paragraphs
@@ -190,3 +192,7 @@ content:
 hidden:
   field_b_life_events: true
   menu_entity_index: true
+  publish_on: true
+  publish_state: true
+  unpublish_on: true
+  unpublish_state: true

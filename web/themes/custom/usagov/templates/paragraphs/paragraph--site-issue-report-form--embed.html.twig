@@ -1,0 +1,151 @@
+{% if node.langcode.langcode == "es" %}
+{% set salesforce_record_type = '012U00000001eYr'  %}
+{% else %}
+  {% set salesforce_record_type = '012U00000001eYv'  %}
+{% endif %}
+
+<div>
+  <div
+    id="error-box"
+    class="usa-alert usa-alert--slim usa-alert--error usa-error--alert"
+    tabindex="-1">
+    <div class="usa-alert__body">
+      <h2 class="usa-alert__heading">{{sirf['error-heading'] }}</h2>
+      <li id="alert_error_00NU0000004z90C" class="usa-alert__text usa-error--alert">
+        <a href="#00NU0000004z90C"><span>{{sirf['missing-name'] }}</span></a>
+      </li>
+      <li id="alert_error_email" class="usa-alert__text usa-error--alert">
+        <a href="#email"><span>{{sirf['missing-email'] }}</span></a>
+      </li>
+      <li id="alert_error_description" class="usa-alert__text usa-error--alert">
+        <a href="#description"><span>{{sirf['missing-description'] }}</span></a>
+      </li>
+      {# <li id="alert_error_recaptcha_large" class="usa-alert__text usa-error--alert">
+        <a href="#recaptcha-large-container"><span>Fill out the reCaptcha</span></a>
+      </li>
+      <li id="alert_error_recaptcha_small" class="usa-alert__text usa-error--alert">
+        <a href="#recaptcha-small-container"><span>Fill out the reCaptcha</span></a> #}
+      </li>
+      </ul>
+    </div>
+  </div>
+  <div id="emlfnd" class="padding-1px bg-gray-5">
+    <form
+      action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00DU0000000Leux"
+      class="validate"
+      id="myform"
+      method="post"
+      name="myform"
+      novalidate>
+      <div class="padding-1px bg-gray-5">
+        <div class="maxw-mobile margin-x-auto margin-y-4">
+          <input type=hidden name='captcha_settings' value='{"keyname":"RecaptchaV3","fallback":"true","orgId":"00DU0000000Leux","ts":""}'>
+          <input type="hidden" name="orgid" value="00DU0000000Leux">
+          <input type="hidden" name="retURL" value="{{ results_page_url }}"/>
+          <input name="recordType" type="hidden" value="{{ salesforce_record_type }}"/>
+          <input name="Sender_IP__c" type="hidden" value="192.168.1.1"/>
+          {# remaining hidden inputs are same on English and Spanish #}
+          <input name="Site_Version__c" type="hidden" value="New"/>
+          <input name="Call_Topic__c" type="hidden" value="About USAGov"/>
+          <input name="Case_Topic_Other__c" type="hidden" value="From USAGov Issue Form"/>
+          <input name="Gender__c" type="hidden" value="Unknown"/>
+          <p>
+            <strong>{{sirf['label-all-required'] }}</strong>
+          </p>
+          <div id="error-border">
+            <p class="required">
+              <label id="label_name" class="usa-label" for="00NU0000004z90C">{{sirf['label-your-name'] }}</label>
+              <input
+                aria-required="true"
+                class="usa-input"
+                id="00NU0000004z90C"
+                name="00NU0000004z90C"
+                data-name="First Name"
+                type="text"
+                maxlength="255"
+                size="40"
+                required
+                data-error="Error: {{sirf['missing-name'] }}"
+                data-name="First Name"
+              />
+            </p>
+
+            <p class="required">
+              <label id="label_email" class="usa-label"
+                     for="email">{{sirf['label-your-email'] }}</label>
+              <input
+                aria-required="true"
+                class="usa-input"
+                id="email"
+                name="email"
+                data-name="Email Address"
+                type="email"
+                maxlength="80"
+                size="40"
+                required
+                data-error="Error: {{sirf['missing-email'] }}"
+                data-name="Email Address"
+              />
+            </p>
+
+            <p class="required">
+              <label id="label_description" class="usa-label dscrptn"
+                     for="description">{{sirf['label-your-description'] }}</label>
+              <textarea
+                aria-required="true"
+                aria-describedby="report-issue-box"
+                class="usa-input usa-input-textarea"
+                id="description"
+                name="description"
+                data-name="Description"
+                type="text"
+                cols="40"
+                rows="10"
+                maxlength="1000"
+                required
+                data-error="Error: {{sirf['missing-description'] }}"
+                data-name="Description"
+              ></textarea>
+              <text class="usa-description" id="report-issue-box">{{sirf['label-char-limit'] }}</text>
+            </p>
+
+            <div style="visibility: hidden; z-index: 2" class="_e725ae-textarea_btn _e725ae-anonymous _e725ae-not_focused" data-grammarly-reactid=".0">
+              <div class="_e725ae-transform_wrap" data-grammarly-reactid=".0.0">
+                <div title="Protected by Grammarly" class="_e725ae-status" data-grammarly-reactid=".0.0.0">
+                  &nbsp;
+                </div>
+              </div>
+              <span class="_e725ae-btn_text" data-grammarly-reactid=".0.1">Not signed in</span>
+            </div>
+            <input type="hidden" id="external" name="external" value="1"/>
+          </div>
+          <div class="ceo-button-container">
+            <button class="g-recaptcha usa-button usagov-button issue-button"
+                    data-sitekey="6LfDMNYpAAAAANLxS-UeI2FK7BktwdzKdqRb37MH"
+                    data-callback='onSubmit'
+                    data-action='submit'
+                    onclick="return submitPressed();"
+            >{{ elements.field_sirf_submit_button|field_value }}</button>
+          </div>
+
+          {% if elements.field_sirf_lower_text %}
+            <div>
+            {{ elements.field_sirf_lower_text|field_value }}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<p class="clearfix">&nbsp;</p>
+
+{% if node.langcode.langcode == "es" %}
+  <script src="https://www.google.com/recaptcha/api.js?hl=es"></script>
+{% else %}
+  <script src="https://www.google.com/recaptcha/api.js"></script>
+{% endif %}
+
+{{ attach_library('usagov/reportAProblem') }}
+

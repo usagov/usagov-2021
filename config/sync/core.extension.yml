@@ -73,6 +73,8 @@ module:
   rest: 0
   s3fs: 0
   samlauth: 0
+  scheduler: 0
+  scheduler_content_moderation_integration: 0
   serialization: 0
   settings_tray: 0
   simple_sitemap: 0
@@ -87,6 +89,7 @@ module:
   tome_base: 0
   tome_static: 0
   toolbar: 0
+  twig_field_value: 0
   twig_tweak: 0
   update: 0
   usa_admin_styles: 0

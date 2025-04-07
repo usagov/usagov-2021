@@ -37,6 +37,7 @@ dependencies:
     - field.field.node.basic_page.field_navigation_banner_image
     - field.field.node.basic_page.field_page_intro
     - field.field.node.basic_page.field_page_type
+    - field.field.node.basic_page.field_public_modified
     - field.field.node.basic_page.field_short_description
     - node.type.basic_page
     - workflows.workflow.basic_workflow
@@ -44,10 +45,13 @@ dependencies:
     - allowed_formats
     - conditional_fields
     - content_moderation
+    - datetime
     - field_group
     - link
     - media_library
     - path
+    - scheduler
+    - scheduler_content_moderation_integration
     - text
 third_party_settings:
   field_group:
@@ -118,6 +122,23 @@ third_party_settings:
         id: ''
         description: ''
         required_fields: true
+    group_overrides:
+      children:
+        - field_public_modified
+      label: Overrides
+      region: content
+      parent_name: ''
+      weight: 35
+      format_type: details_sidebar
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        open: true
+        description: ''
+        required_fields: true
+        weight: -10
 id: node.basic_page.default
 targetEntityType: node
 bundle: basic_page
@@ -191,7 +212,7 @@ content:
             selector: ''
   field_benefits_callout_button:
     type: string_textfield
-    weight: 46
+    weight: 47
     region: content
     settings:
       size: 60
@@ -223,7 +244,7 @@ content:
     third_party_settings: {  }
   field_benefits_life_events_descr:
     type: string_textarea
-    weight: 40
+    weight: 48
     region: content
     settings:
       rows: 3
@@ -231,7 +252,7 @@ content:
     third_party_settings: {  }
   field_benefits_life_events_id:
     type: string_textfield
-    weight: 41
+    weight: 49
     region: content
     settings:
       size: 60
@@ -239,7 +260,7 @@ content:
     third_party_settings: {  }
   field_benefits_life_events_title:
     type: string_textfield
-    weight: 39
+    weight: 47
     region: content
     settings:
       size: 60
@@ -247,7 +268,7 @@ content:
     third_party_settings: {  }
   field_benefits_search_descr:
     type: string_textarea
-    weight: 43
+    weight: 51
     region: content
     settings:
       rows: 3
@@ -255,7 +276,7 @@ content:
     third_party_settings: {  }
   field_benefits_search_id:
     type: string_textfield
-    weight: 44
+    weight: 52
     region: content
     settings:
       size: 60
@@ -263,7 +284,7 @@ content:
     third_party_settings: {  }
   field_benefits_search_title:
     type: string_textfield
-    weight: 42
+    weight: 50
     region: content
     settings:
       size: 60
@@ -271,7 +292,7 @@ content:
     third_party_settings: {  }
   field_css_icon:
     type: string_textfield
-    weight: 25
+    weight: 26
     region: content
     settings:
       size: 60
@@ -300,7 +321,7 @@ content:
     third_party_settings: {  }
   field_footer_html:
     type: string_textarea
-    weight: 26
+    weight: 27
     region: content
     settings:
       rows: 5
@@ -308,7 +329,7 @@ content:
     third_party_settings: {  }
   field_for_contact_center_only:
     type: text_textarea
-    weight: 27
+    weight: 22
     region: content
     settings:
       rows: 5
@@ -361,7 +382,7 @@ content:
     third_party_settings: {  }
   field_homepage_banner:
     type: media_library_widget
-    weight: 23
+    weight: 24
     region: content
     settings:
       media_types: {  }
@@ -386,7 +407,7 @@ content:
             selector: ''
   field_homepage_benefits_button:
     type: string_textfield
-    weight: 4
+    weight: 40
     region: content
     settings:
       size: 60
@@ -394,7 +415,7 @@ content:
     third_party_settings: {  }
   field_homepage_benefits_descr:
     type: text_textarea
-    weight: 2
+    weight: 38
     region: content
     settings:
       rows: 3
@@ -405,7 +426,7 @@ content:
         hide_guidelines: '0'
   field_homepage_benefits_ref:
     type: entity_reference_autocomplete
-    weight: 3
+    weight: 39
     region: content
     settings:
       match_operator: CONTAINS
@@ -415,7 +436,7 @@ content:
     third_party_settings: {  }
   field_homepage_benefits_title:
     type: string_textfield
-    weight: 1
+    weight: 37
     region: content
     settings:
       size: 60
@@ -423,7 +444,7 @@ content:
     third_party_settings: {  }
   field_homepage_top_links:
     type: link_default
-    weight: 22
+    weight: 23
     region: content
     settings:
       placeholder_url: ''
@@ -467,7 +488,7 @@ content:
     third_party_settings: {  }
   field_navigation_banner_image:
     type: media_library_widget
-    weight: 24
+    weight: 25
     region: content
     settings:
       media_types: {  }
@@ -502,6 +523,12 @@ content:
   field_page_type:
     type: options_select
     weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_public_modified:
+    type: datetime_default
+    weight: 35
     region: content
     settings: {  }
     third_party_settings: {  }
@@ -777,6 +804,23 @@ content:
     settings:
       display_label: true
     third_party_settings: {  }
+  publish_on:
+    type: datetime_timestamp_no_default
+    weight: 52
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  publish_state:
+    type: scheduler_moderation
+    weight: 53
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  scheduler_settings:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   simple_sitemap:
     weight: 11
     region: content
@@ -827,3 +871,5 @@ content:
 hidden:
   field_is_navigation_page: true
   menu_entity_index: true
+  unpublish_on: true
+  unpublish_state: true

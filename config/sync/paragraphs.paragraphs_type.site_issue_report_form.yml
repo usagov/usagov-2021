@@ -1,0 +1,10 @@
+uuid: 11d06a3c-755a-4d07-9239-6154483d9ee7
+langcode: en
+status: true
+dependencies: {  }
+id: site_issue_report_form
+label: 'Site Issue Report Form'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins: {  }
