@@ -57,7 +57,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/permission_spreadsheet": "^2.1",
         "drupal/redirect": "^1.6",
-        "drupal/redis": "^1.8",
+        "drupal/redis": "^1.9",
         "drupal/remove_http_headers": "^2.0",
         "drupal/s3fs": "^3.3",
         "drupal/samlauth": "^3.9",
