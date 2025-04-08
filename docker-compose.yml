@@ -76,6 +76,7 @@ services:
     depends_on:
       - database
       - minio
+      - cache
 
   database:
     container_name: database

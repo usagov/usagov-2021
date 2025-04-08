@@ -1,5 +1,8 @@
+# Redis version should match what we use in cloud.gov.
 FROM redis:7.0
 
-COPY .docker/src-cache/redis.conf /usr/local/etc/redis.conf
+RUN mkdir /etc/redis && chown redis:redis /etc/redis
+COPY .docker/src-cache/redis.conf /etc/redis/redis.conf
+RUN chown redis:redis /etc/redis/redis.conf
 
-CMD [ "redis-server", "/usr/local/etc/redis.conf" ]
+CMD [ "redis-server", "/etc/redis/redis.conf" ]
