@@ -102,7 +102,7 @@
       <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
         <svg role="img" aria-label={{ alert_status }}>
         {% if alert_status == "info" %}
-          <title>{{translations.info}}</title>
+          <title aria-labelledby="usa-alert--1__heading">{{translations.info}}</title>
         {% endif %}
          {% if alert_status == "warning" %}
            <title>{{translations.warning}}</title>
