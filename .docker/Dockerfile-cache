@@ -1,5 +1,5 @@
 # Redis version should match what we use in cloud.gov.
-FROM redis:7.0
+FROM redis:6.2
 
 RUN mkdir /etc/redis && chown redis:redis /etc/redis
 COPY .docker/src-cache/redis.conf /etc/redis/redis.conf

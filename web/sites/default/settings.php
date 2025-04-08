@@ -909,6 +909,11 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
     }
+    else if ($service['name'] === 'cache-service') {
+      $settings['redis.connection']['host'] = $service['credentials']['host'];
+      $settings['redis.connection']['port'] = $service['credentials']['port'];
+      $settings['redis.connection']['password'] = $service['credentials']['password'];
+    }
   }
 }
 
@@ -923,9 +928,9 @@ $settings['cache']['bins']['data'] = 'cache.backend.php';
 if (extension_loaded('redis')) {
   // Set Redis as the default backend for any cache bin not otherwise specified.
   $settings['cache']['default'] = 'cache.backend.redis';
-  $settings['redis.connection']['host'] = 'cache';
-  $settings['redis.connection']['port'] = '6379';
   $settings['redis.connection']['persistent'] = TRUE;
+
+  // host, port, and password are set above, from $VCAP_SERVICES.
 
   // Use the redis cache tag checksum service.
   $settings['container_yamls'][] = 'modules/contrib/redis/example.services.yml';

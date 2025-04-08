@@ -71,7 +71,20 @@ services:
               "SPKEY": "SPKey",
               "SPCRT": "SPCert"
             }
-          }]
+          }],
+          "aws-elasticache-redis": [
+          {
+            "credentials": {
+              "current_redis_engine_version": "6.2",
+              "host": "cache",
+              "hostname": "cache",
+              "password": "CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV",
+              "port": "6379",
+              "uri": "redis://:CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV@cache:6379"
+            },
+            "name": "cache-service"
+          }
+        ]
         }
     depends_on:
       - database
