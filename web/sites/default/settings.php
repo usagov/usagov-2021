@@ -925,7 +925,7 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
 // Configure redis caching
-if (extension_loaded('redis')) {
+if (FALSE) { // (extension_loaded('redis')) {
   // Set Redis as the default backend for any cache bin not otherwise specified.
   $settings['cache']['default'] = 'cache.backend.redis';
   $settings['redis.connection']['persistent'] = TRUE;
