@@ -10,10 +10,28 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
+    // We will programmatically use the API-Proxy when requested by a Dev
+    if (document.cookie.indexOf('apiMode=') != -1) {
+        var url = '';
+        if (document.cookie.indexOf('apiMode=localhost') != -1) {
+            url += 'http://127.0.0.1:8080/proxy'
+        } else if (document.cookie.indexOf('apiMode=dev') != -1) {
+            url += 'https://api-proxy-dev.app.cloud.gov/proxy'
+        }
+        url += '?keyname=google-civic';
+        url += '&endpoint=civicinfo/v2/representatives';
+        url += '&address=' + address;
+        console.log('The CEO tool is using URL: ' + url);
+        jQuery.get(url, callback);
+        return;
+    }
+
+    console.log('The CEO tool is using legacy behavior.');
     let count=0;
     var timer = window.setInterval(function() {
         count++;
         if (typeof gapi.client !== "undefined") {
+
             window.clearInterval(timer);
             let req = gapi.client.request({
                 "path": "/civicinfo/v2/representatives",

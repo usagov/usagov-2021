@@ -135,12 +135,17 @@ def proxy_request():
                 allow_redirects=False
             )
             logger.info("API response status: %s", response.status_code)
-            sanitized = response.json()
-            if isinstance(sanitized, dict):
-                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
-            elif isinstance(sanitized, list):
-                sanitized = [html.escape(str(item)) for item in sanitized]
-            return jsonify(sanitized), html.escape(str(response.status_code))
+            respHeaders = headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS"
+            }
+            return Response(
+                response.content,
+                status=response.status_code,
+                content_type=response.headers.get("Content-Type", "application/json"),
+                headers=respHeaders
+            )
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
