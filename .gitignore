@@ -50,6 +50,8 @@
 /web/sites/default/*.tar
 /web/sites/default/*.tgz
 /web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
+/web/modules/custom/usagov_ssg_postprocessing/files/s3-files.txt
+/web/modules/custom/usagov_ssg_postprocessing/files/tome-files.txt
 
 # Ignore configuration files that may contain sensitive information
 /web/sites/*.php
@@ -76,6 +78,8 @@
 
 /content/*
 /files/*
+
+#This keeps the directory ignored but allows Git to track only HTML files, which makes git diff work.
 /html/*
 
 env.local

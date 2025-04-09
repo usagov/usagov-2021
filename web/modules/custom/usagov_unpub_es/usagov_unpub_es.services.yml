@@ -1,0 +1,5 @@
+services:
+  usagov_unpub_es.commands:
+    class: 'Drupal\usagov_unpub_es\Drush\Commands\UnpubCommand'
+    tags:
+      - { name: drush.command }
