@@ -1,4 +1,4 @@
 bs4
 ollama
-chromadb
+chromadb==0.6.3
 numpy>=1.21.6,<1.23.0

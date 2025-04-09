@@ -4,4 +4,9 @@ services:
     arguments: []
     tags:
       - { name: 'event_subscriber' }
+
+  logger.usagov_chatbot:
+    class: Drupal\usagov_chatbot\Logger\MyLog
+    tags:
+      - { name: logger }
       
