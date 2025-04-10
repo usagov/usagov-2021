@@ -90,7 +90,7 @@
     <div class="agency-fields">
       <p class="field--name-field-more-information">
       {# {{- fields.nothing.content -}} #}
-        <a href={{- fields.nothing.content|striptags|trim -}} > {{ lang == 'en' ? ' More information about ' : 'Más información sobre ' }} {{ fields.title.content  }}&nbsp; ></a>
+        <a href="{{- fields.nothing.content|striptags|trim -}}" > {{ lang == 'en' ? ' More information about ' : 'Más información sobre ' }} {{ fields.title.content  }}&nbsp; ></a>
       </p>
     </div>
   {% endif %}
