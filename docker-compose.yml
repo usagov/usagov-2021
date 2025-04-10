@@ -82,7 +82,13 @@ services:
               "port": "6379",
               "uri": "redis://:CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV@cache:6379"
             },
-            "name": "cache-service"
+            "name": "cache-service",
+            "tags": [
+                        "redis",
+                        "Elasticache",
+                        "AWS",
+                        "cache-service"
+                ]
           }
         ]
         }

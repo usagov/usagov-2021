@@ -909,7 +909,7 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
     }
-    else if ($service['name'] === 'cache-service') {
+    else if (array_key_exists('tags', $service) && in_array('cache-service', $service['tags'], TRUE)) {
       // $settings['redis.connection']['host'] = $service['credentials']['host'];
       $settings['redis.connection']['host'] = 'tls://' . $service['credentials']['host'];
       $settings['redis.connection']['port'] = $service['credentials']['port'];
