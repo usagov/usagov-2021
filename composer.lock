@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0be112e7ee42119eb7fbb4c477c6b4c",
+    "content-hash": "48d102863198412bc13fa9aff0f8c8a5",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2205,6 +2205,118 @@
             "homepage": "https://www.drupal.org/project/ai_provider_ollama",
             "support": {
                 "source": "https://git.drupalcode.org/project/ai_provider_ollama"
+            }
+        },
+        {
+            "name": "drupal/ai_search",
+            "version": "1.0.5",
+            "require": {
+                "drupal/ai": "*",
+                "drupal/core": "^10.2 || ^11",
+                "drupal/search_api": "*"
+            },
+            "type": "metapackage",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.5",
+                    "datestamp": "1741198584",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "kevinquillen",
+                    "homepage": "https://www.drupal.org/user/317279"
+                },
+                {
+                    "name": "marcus_johansson",
+                    "homepage": "https://www.drupal.org/user/385947"
+                },
+                {
+                    "name": "scott_euser",
+                    "homepage": "https://www.drupal.org/user/3267594"
+                },
+                {
+                    "name": "seogow",
+                    "homepage": "https://www.drupal.org/user/3065779"
+                },
+                {
+                    "name": "wouters_f",
+                    "homepage": "https://www.drupal.org/user/721548"
+                },
+                {
+                    "name": "yautja_cetanu",
+                    "homepage": "https://www.drupal.org/user/626050"
+                }
+            ],
+            "description": "Offers an implementation of the Search API that uses a Vector DB server for indexing content.",
+            "homepage": "https://www.drupal.org/project/ai",
+            "support": {
+                "source": "https://git.drupalcode.org/project/ai"
+            }
+        },
+        {
+            "name": "drupal/ai_vdb_provider_pinecone",
+            "version": "dev-1.0.x",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/ai_vdb_provider_pinecone.git",
+                "reference": "218008f91193982abddafc8891fbf2591bf00b29"
+            },
+            "require": {
+                "drupal/ai": "^1.0.0-beta1",
+                "drupal/ai_search": "*",
+                "drupal/core": "^10.2 || ^11",
+                "drupal/key": "^1.18",
+                "drupal/search_api": "*",
+                "scotteuser/pinecone-php": "^1.0.2"
+            },
+            "require-dev": {
+                "drupal/search_api": "^1.35"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.0.x": "1.0.x-dev"
+                },
+                "drupal": {
+                    "version": "1.0.0-beta1+1-dev",
+                    "datestamp": "1738918627",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Dev releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "marcus_johansson",
+                    "homepage": "https://www.drupal.org/user/385947"
+                },
+                {
+                    "name": "scott_euser",
+                    "homepage": "https://www.drupal.org/user/3267594"
+                },
+                {
+                    "name": "vivek panicker",
+                    "homepage": "https://www.drupal.org/user/3540616"
+                }
+            ],
+            "description": "Pinecone VDB provider implementation for the AI module for Drupal",
+            "homepage": "https://www.drupal.org/project/ai_vdb_provider_pinecone",
+            "support": {
+                "source": "https://git.drupalcode.org/project/ai_vdb_provider_pinecone"
             }
         },
         {
@@ -9750,6 +9862,144 @@
             "time": "2024-11-20T21:13:56+00:00"
         },
         {
+            "name": "saloonphp/saloon",
+            "version": "v3.11.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/saloonphp/saloon.git",
+                "reference": "6edaad4227ddf25efd59caa7f73c005cf860b74b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/6edaad4227ddf25efd59caa7f73c005cf860b74b",
+                "reference": "6edaad4227ddf25efd59caa7f73c005cf860b74b",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.6",
+                "guzzlehttp/promises": "^1.5 || ^2.0",
+                "guzzlehttp/psr7": "^2.0",
+                "php": "^8.1",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.1 || ^2.0"
+            },
+            "conflict": {
+                "sammyjo20/saloon": "*"
+            },
+            "require-dev": {
+                "ext-simplexml": "*",
+                "friendsofphp/php-cs-fixer": "^3.5",
+                "illuminate/collections": "^9.39 || ^10.0",
+                "league/flysystem": "^3.0",
+                "pestphp/pest": "^2.10",
+                "phpstan/phpstan": "^1.11.4",
+                "saloonphp/xml-wrangler": "^1.1",
+                "spatie/ray": "^1.33",
+                "symfony/dom-crawler": "^6.0 || ^7.0",
+                "symfony/var-dumper": "^6.3 || ^7.0"
+            },
+            "suggest": {
+                "illuminate/collections": "Required for the response collect() method.",
+                "saloonphp/xml-wrangler": "Required for the response xmlReader() method.",
+                "symfony/dom-crawler": "Required for the response dom() method.",
+                "symfony/var-dumper": "Required for default debugging drivers."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Saloon\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam Carré",
+                    "email": "29132017+Sammyjo20@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Build beautiful API integrations and SDKs with Saloon",
+            "homepage": "https://github.com/saloonphp/saloon",
+            "keywords": [
+                "api",
+                "api-integrations",
+                "saloon",
+                "sammyjo20",
+                "sdk"
+            ],
+            "support": {
+                "issues": "https://github.com/saloonphp/saloon/issues",
+                "source": "https://github.com/saloonphp/saloon/tree/v3.11.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sammyjo20",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-03-01T18:36:10+00:00"
+        },
+        {
+            "name": "scotteuser/pinecone-php",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scotteuser/pinecone-php.git",
+                "reference": "a211d2bfeed0409a8fd8d7435404416a336f16d0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scotteuser/pinecone-php/zipball/a211d2bfeed0409a8fd8d7435404416a336f16d0",
+                "reference": "a211d2bfeed0409a8fd8d7435404416a336f16d0",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1",
+                "saloonphp/saloon": "^3.6"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.4",
+                "pestphp/pest-plugin-faker": "^2.0",
+                "pestphp/pest-plugin-watch": "^2.0",
+                "phpstan/phpstan": "^1.10",
+                "symfony/var-dumper": "^6.2",
+                "vlucas/phpdotenv": "^5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tests\\": "tests/",
+                    "Probots\\Pinecone\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marcus Pohorely",
+                    "email": "marcus@probots.io"
+                }
+            ],
+            "description": "Unofficial PHP Client for Pinecone Vector Database (pinecone.io)",
+            "homepage": "https://probots.io",
+            "keywords": [
+                "client",
+                "database",
+                "pinecone",
+                "sdk",
+                "vector"
+            ],
+            "support": {
+                "source": "https://github.com/scotteuser/pinecone-php/tree/1.0.2"
+            },
+            "time": "2024-10-02T14:40:16+00:00"
+        },
+        {
             "name": "sebastian/diff",
             "version": "4.0.6",
             "source": {
@@ -13517,6 +13767,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/ai_provider_ollama": 10,
+        "drupal/ai_vdb_provider_pinecone": 20,
         "drupal/ckeditor_media_resize": 10,
         "drupal/conditional_fields": 15,
         "drupal/feeds": 10,
@@ -13529,6 +13780,6 @@
     "platform": {
         "php": ">=8.3"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.1.0"
 }

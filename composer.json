@@ -22,6 +22,7 @@
         "drupal/admin_toolbar": "^3.5",
         "drupal/ai": "^1.0",
         "drupal/ai_provider_ollama": "^1.0@beta",
+        "drupal/ai_vdb_provider_pinecone": "1.0.x-dev@dev",
         "drupal/allowed_formats": "^3.0",
         "drupal/autologout": "^2.0",
         "drupal/ckeditor_media_resize": "^1.0@beta",
