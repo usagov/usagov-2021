@@ -5,10 +5,14 @@ module:
   admin_toolbar: 0
   admin_toolbar_tools: 0
   ai: 0
+  ai_api_explorer: 0
   ai_assistant_api: 0
   ai_chatbot: 0
+  ai_content_suggestions: 0
+  ai_logging: 0
   ai_provider_ollama: 0
   ai_search: 0
+  ai_translate: 0
   ai_vdb_provider_pinecone: 0
   allowed_formats: 0
   autologout: 0
