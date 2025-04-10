@@ -25,16 +25,6 @@ function validateEmail(email) {
 }
 
 /**
- * This function will sanitize an input string by removing any HTML tags in it.
- * @returns {string} A string of text sanitized.
- */
-function stripTags(input) {
-  const div = document.createElement('div');
-  div.innerHTML = input;
-  return div.textContent || div.innerText || '';
-}
-
-/**
  * This function has the objective of checking if the fields (Name, Email, Describe the issue)
  * are valid, and if invalid, makes error messages and error styling visible.
  * @returns {boolean} indicates if all the fields are valid or not.
@@ -66,9 +56,9 @@ function fieldValidation() {
         var label = jQuery(this).find("label");
         label.after(
           '<span id="' +
-            stripTags(errorId) +
+            String(errorId).replace(/<\/?[^>]+(>|$)/g, "") +
             '" class="err-label usa-error" tabindex="-1">' +
-            stripTags(error) +
+            String(error).replace(/<\/?[^>]+(>|$)/g, "") +
             "</span>"
         );
         input.attr("aria-labelledby", label.attr("id") + " " + stripTags(errorId));
