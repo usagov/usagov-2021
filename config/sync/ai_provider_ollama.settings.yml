@@ -1,5 +1,5 @@
 _core:
   default_config_hash: 15BW_RNeS3oVc4z0CgOupqWoCMvBEWAPs5nSwC62RjI
-host_name: 'http://ollama-backend'
+host_name: 'http://3.148.76.99'
 port: 11434
 api_key: null

@@ -1,0 +1,342 @@
+uuid: 7b85cb26-9708-4b29-8266-2be943f91654
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - field.storage.node.field_acronym
+    - field.storage.node.field_b_agency
+    - field.storage.node.field_b_elg_criteria_desc
+    - field.storage.node.field_b_headline
+    - field.storage.node.field_b_search_title
+    - field.storage.node.field_b_source_link
+    - field.storage.node.field_benefits_callout_ref
+    - field.storage.node.field_benefits_category
+    - field.storage.node.field_benefits_life_events_descr
+    - field.storage.node.field_benefits_life_events_title
+    - field.storage.node.field_benefits_search_descr
+    - field.storage.node.field_benefits_search_title
+    - field.storage.node.field_contact_link
+    - field.storage.node.field_district_attorneys
+    - field.storage.node.field_email
+    - field.storage.node.field_english_title
+    - field.storage.node.field_faq_page
+    - field.storage.node.field_government_branch
+    - field.storage.node.field_governor
+    - field.storage.node.field_governor_contact
+    - field.storage.node.field_meta_description
+    - field.storage.node.field_offices_near_you
+    - field.storage.node.field_phone_number
+    - field.storage.node.field_short_description
+    - field.storage.node.field_state_abbr
+    - field.storage.node.field_state_attorney_general
+    - field.storage.node.field_street_1
+    - field.storage.node.field_street_2
+    - field.storage.node.field_street_3
+    - field.storage.node.field_summary
+    - field.storage.node.field_toll_free_number
+    - field.storage.node.field_website
+    - search_api.server.pineconesearchserver
+  module:
+    - node
+id: pineconesearchindex
+name: PineConeSearchIndex
+description: ''
+read_only: false
+field_settings:
+  body:
+    label: Body
+    datasource_id: 'entity:node'
+    property_path: body
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.body
+  field_acronym:
+    label: Acronym
+    datasource_id: 'entity:node'
+    property_path: field_acronym
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_acronym
+  field_b_agency:
+    label: Agency
+    datasource_id: 'entity:node'
+    property_path: field_b_agency
+    type: integer
+    dependencies:
+      config:
+        - field.storage.node.field_b_agency
+  field_b_elg_criteria_desc:
+    label: 'Eligibility Criteria Description'
+    datasource_id: 'entity:node'
+    property_path: field_b_elg_criteria_desc
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_b_elg_criteria_desc
+  field_b_headline:
+    label: Headline
+    datasource_id: 'entity:node'
+    property_path: field_b_headline
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_b_headline
+  field_b_search_title:
+    label: 'Search Title'
+    datasource_id: 'entity:node'
+    property_path: field_b_search_title
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_b_search_title
+  field_b_source_link:
+    label: 'Source Link'
+    datasource_id: 'entity:node'
+    property_path: field_b_source_link
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_b_source_link
+  field_benefits_callout_ref:
+    label: 'Benefits Callout Page'
+    datasource_id: 'entity:node'
+    property_path: field_benefits_callout_ref
+    type: integer
+    dependencies:
+      config:
+        - field.storage.node.field_benefits_callout_ref
+  field_benefits_category:
+    label: 'Benefits Category'
+    datasource_id: 'entity:node'
+    property_path: field_benefits_category
+    type: integer
+    dependencies:
+      config:
+        - field.storage.node.field_benefits_category
+  field_benefits_life_events_descr:
+    label: 'Life Events Description'
+    datasource_id: 'entity:node'
+    property_path: field_benefits_life_events_descr
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_benefits_life_events_descr
+  field_benefits_life_events_title:
+    label: 'Life Events Title'
+    datasource_id: 'entity:node'
+    property_path: field_benefits_life_events_title
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_benefits_life_events_title
+  field_benefits_search_descr:
+    label: 'Category Search Description'
+    datasource_id: 'entity:node'
+    property_path: field_benefits_search_descr
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_benefits_search_descr
+  field_benefits_search_title:
+    label: 'Category Search Title'
+    datasource_id: 'entity:node'
+    property_path: field_benefits_search_title
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_benefits_search_title
+  field_contact_link:
+    label: Contact
+    datasource_id: 'entity:node'
+    property_path: field_contact_link
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_contact_link
+  field_district_attorneys:
+    label: 'District Attorneys'
+    datasource_id: 'entity:node'
+    property_path: field_district_attorneys
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_district_attorneys
+  field_email:
+    label: Email
+    datasource_id: 'entity:node'
+    property_path: field_email
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_email
+  field_english_title:
+    label: 'English Title'
+    datasource_id: 'entity:node'
+    property_path: field_english_title
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_english_title
+  field_faq_page:
+    label: 'FAQ Page'
+    datasource_id: 'entity:node'
+    property_path: field_faq_page
+    type: boolean
+    dependencies:
+      config:
+        - field.storage.node.field_faq_page
+  field_government_branch:
+    label: 'Government Branch'
+    datasource_id: 'entity:node'
+    property_path: field_government_branch
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_government_branch
+  field_governor:
+    label: Governor
+    datasource_id: 'entity:node'
+    property_path: field_governor
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_governor
+  field_governor_contact:
+    label: 'Governor Contact'
+    datasource_id: 'entity:node'
+    property_path: field_governor_contact
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_governor_contact
+  field_meta_description:
+    label: 'Meta Description'
+    datasource_id: 'entity:node'
+    property_path: field_meta_description
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_meta_description
+  field_offices_near_you:
+    label: 'Find an Office Near You'
+    datasource_id: 'entity:node'
+    property_path: field_offices_near_you
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_offices_near_you
+  field_phone_number:
+    label: 'Phone Number'
+    datasource_id: 'entity:node'
+    property_path: field_phone_number
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_phone_number
+  field_short_description:
+    label: 'Short Description'
+    datasource_id: 'entity:node'
+    property_path: field_short_description
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_short_description
+  field_state_abbr:
+    label: State
+    datasource_id: 'entity:node'
+    property_path: field_state_abbr
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_state_abbr
+  field_state_attorney_general:
+    label: 'State Attorney General'
+    datasource_id: 'entity:node'
+    property_path: field_state_attorney_general
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_state_attorney_general
+  field_street_1:
+    label: 'Street 1'
+    datasource_id: 'entity:node'
+    property_path: field_street_1
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_street_1
+  field_street_2:
+    label: 'Street 2'
+    datasource_id: 'entity:node'
+    property_path: field_street_2
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_street_2
+  field_street_3:
+    label: 'Street 3'
+    datasource_id: 'entity:node'
+    property_path: field_street_3
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_street_3
+  field_summary:
+    label: Summary
+    datasource_id: 'entity:node'
+    property_path: field_summary
+    type: text
+    dependencies:
+      config:
+        - field.storage.node.field_summary
+  field_toll_free_number:
+    label: 'Toll-free Number'
+    datasource_id: 'entity:node'
+    property_path: field_toll_free_number
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_toll_free_number
+  field_website:
+    label: Website
+    datasource_id: 'entity:node'
+    property_path: field_website
+    type: string
+    dependencies:
+      config:
+        - field.storage.node.field_website
+  title:
+    label: Title
+    datasource_id: 'entity:node'
+    property_path: title
+    type: string
+    dependencies:
+      module:
+        - node
+datasource_settings:
+  'entity:node':
+    bundles:
+      default: true
+      selected: {  }
+    languages:
+      default: true
+      selected: {  }
+processor_settings:
+  add_url: {  }
+  aggregated_field: {  }
+  custom_value: {  }
+  entity_type: {  }
+  language_with_fallback: {  }
+  rendered_item: {  }
+tracker_settings:
+  default:
+    indexing_order: fifo
+options:
+  cron_limit: 50
+  delete_on_fail: true
+  index_directly: true
+  track_changes_in_references: true
+server: pineconesearchserver

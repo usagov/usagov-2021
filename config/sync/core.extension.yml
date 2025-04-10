@@ -9,6 +9,7 @@ module:
   ai_chatbot: 0
   ai_provider_ollama: 0
   ai_search: 0
+  ai_vdb_provider_pinecone: 0
   allowed_formats: 0
   autologout: 0
   block: 0
@@ -79,9 +80,9 @@ module:
   rest: 0
   s3fs: 0
   samlauth: 0
-  search_api: 0
   scheduler: 0
   scheduler_content_moderation_integration: 0
+  search_api: 0
   serialization: 0
   settings_tray: 0
   simple_sitemap: 0

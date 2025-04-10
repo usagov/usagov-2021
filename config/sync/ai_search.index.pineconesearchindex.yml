@@ -1,0 +1,105 @@
+control_field_max_length: false
+exclude_chunk_from_metadata: false
+indexing_options:
+  field_acronym:
+    indexing_option: contextual_content
+    max: -1
+  field_b_agency:
+    indexing_option: ignore
+    max: -1
+  field_benefits_callout_ref:
+    indexing_option: ignore
+    max: -1
+  field_benefits_category:
+    indexing_option: ignore
+    max: -1
+  body:
+    indexing_option: main_content
+    max: -1
+  field_benefits_search_descr:
+    indexing_option: contextual_content
+    max: -1
+  field_benefits_search_title:
+    indexing_option: contextual_content
+    max: -1
+  field_contact_link:
+    indexing_option: contextual_content
+    max: -1
+  field_district_attorneys:
+    indexing_option: ignore
+    max: -1
+  field_b_elg_criteria_desc:
+    indexing_option: ignore
+    max: -1
+  field_email:
+    indexing_option: contextual_content
+    max: -1
+  field_english_title:
+    indexing_option: contextual_content
+    max: -1
+  field_faq_page:
+    indexing_option: ignore
+    max: -1
+  field_offices_near_you:
+    indexing_option: contextual_content
+    max: -1
+  field_government_branch:
+    indexing_option: contextual_content
+    max: -1
+  field_governor:
+    indexing_option: ignore
+    max: -1
+  field_governor_contact:
+    indexing_option: ignore
+    max: -1
+  field_b_headline:
+    indexing_option: ignore
+    max: -1
+  field_benefits_life_events_descr:
+    indexing_option: ignore
+    max: -1
+  field_benefits_life_events_title:
+    indexing_option: ignore
+    max: -1
+  field_meta_description:
+    indexing_option: ignore
+    max: -1
+  field_phone_number:
+    indexing_option: ignore
+    max: -1
+  field_b_search_title:
+    indexing_option: ignore
+    max: -1
+  field_short_description:
+    indexing_option: contextual_content
+    max: -1
+  field_b_source_link:
+    indexing_option: ignore
+    max: -1
+  field_state_abbr:
+    indexing_option: contextual_content
+    max: -1
+  field_state_attorney_general:
+    indexing_option: ignore
+    max: -1
+  field_street_1:
+    indexing_option: ignore
+    max: -1
+  field_street_2:
+    indexing_option: ignore
+    max: -1
+  field_street_3:
+    indexing_option: ignore
+    max: -1
+  field_summary:
+    indexing_option: contextual_content
+    max: -1
+  title:
+    indexing_option: contextual_content
+    max: -1
+  field_toll_free_number:
+    indexing_option: contextual_content
+    max: -1
+  field_website:
+    indexing_option: contextual_content
+    max: -1

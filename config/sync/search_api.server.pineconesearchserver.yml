@@ -1,0 +1,27 @@
+uuid: 930d047a-4fb2-4bd7-94ce-006fa4cb314e
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_search
+id: pineconesearchserver
+name: PineConeSearchServer
+description: ''
+backend: search_api_ai_search
+backend_config:
+  chat_model: 'ollama__nomic-embed-text:latest'
+  database: pinecone
+  database_settings:
+    database_name: drag
+    collection: drag
+    metric: cosine_similarity
+  embeddings_engine: 'ollama__nomic-embed-text:latest'
+  embeddings_engine_configuration:
+    set_dimensions: false
+    dimensions: 768
+  embedding_strategy: contextual_chunks
+  embedding_strategy_configuration:
+    chunk_size: '500'
+    chunk_min_overlap: '100'
+    contextual_content_max_percentage: '30'
+  embedding_strategy_details: ''
