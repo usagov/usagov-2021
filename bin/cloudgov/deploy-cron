@@ -100,9 +100,9 @@ function cf_push() {
   appspec=$1
   instances=${2:-1} ### Always spawn a single app instance unless told otherwise
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} --docker-image ${appspec}
+    cf push ${APPNAME} --docker-image ${appspec} --strategy rolling
   else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME --strategy rolling
   fi
 }
 
@@ -143,4 +143,4 @@ if [ $SPACE = "prod" ]; then
     cf set-env $APPNAME CFEVENT_RUN "true"
 fi
 
-cf restage $APPNAME
+cf restage $APPNAME --strategy rolling
