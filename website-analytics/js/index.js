@@ -1113,12 +1113,6 @@
 
 function goToPage(){
   var selectElement = document.getElementById("agency-selector").value;
-  selectElement = stripTags(selectElement); //sanitization to prevent XSS
+  selectElement = String(selectElement).replace(/<\/?[^>]+(>|$)/g, ""); //sanitization to prevent XSS
   window.location = optionValue;
-}
-
-function stripTags(input) {
-  const div = document.createElement('div');
-  div.innerHTML = input;
-  return div.textContent || div.innerText || '';
 }
