@@ -117,6 +117,7 @@ if existsCFApp ${APPNAME} ; then
 else
   cf_push $APPSPEC $APPINSTANCES
   $SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+  retval=$?
   if [ $retval != 0 ]; then ## Should retval be set above here?
     echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
     exit 1
