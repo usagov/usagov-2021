@@ -61,7 +61,7 @@ function fieldValidation() {
             String(error).replace(/<\/?[^>]+(>|$)/g, "") +
             "</span>"
         );
-        input.attr("aria-labelledby", label.attr("id") + " " + stripTags(errorId));
+        input.attr("aria-labelledby", label.attr("id") + " " + String(errorId).replace(/<\/?[^>]+(>|$)/g, ""));
       }
 
       // Adds the error outline in the field.
