@@ -929,9 +929,7 @@ $settings['cache']['bins']['data'] = 'cache.backend.php';
 if  (extension_loaded('redis')) {
   // Set Redis as the default backend for any cache bin not otherwise specified.
   $settings['cache']['default'] = 'cache.backend.redis';
-  // $settings['redis.connection']['interface'] = 'PhpRedis';
   $settings['redis.connection']['persistent'] = TRUE;
-  // $settings['redis.connection']['scheme'] = 'tls';
   // $settings['redis.connection']['ssl'] = ['verify_peer' => FALSE, 'cafile' => '/etc/ssl/certs/ca-cert-redis_dev.pem'];
 
   // host, port, and password are set from $VCAP_SERVICES (look for 'cache-service').
