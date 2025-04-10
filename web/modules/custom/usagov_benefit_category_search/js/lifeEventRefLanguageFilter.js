@@ -48,13 +48,8 @@ function updateLifeEventRef(jQuery) {
                   + otherCheckedEvents > 1 ? "s" : "";
     }
 
-    // Sanitize this variable to avoid XSS vulnerabilities.
-    const div = document.createElement('div');
-    div.innerHTML = selectedLanguage;
-    selectedLanguage = (div.textContent || div.innerText || '');
-
     $details.html(
-      "Showing " + selectedLanguage + " life events" + extraDetail
+      "Showing " + String(selectedLanguage).replace(/<\/?[^>]+(>|$)/g, "") + " life events" + extraDetail
       + " <button onclick='updateFilterState(\"false\")'>Show all life events. </button>"
     );
 
