@@ -107,7 +107,7 @@ function cf_push() {
 }
 
 if existsCFApp ${APPNAME} ; then
-  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
+  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
   retval=$?
   if [ $retval != 0 ]; then
     echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
@@ -116,8 +116,9 @@ if existsCFApp ${APPNAME} ; then
   cf_push $APPSPEC $APPINSTANCES
 else
   cf_push $APPSPEC $APPINSTANCES
-  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME}
-  if [ $retval != 0 ]; then
+  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+  retval=$?
+  if [ $retval != 0 ]; then ## Should retval be set above here?
     echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
     exit 1
   fi
