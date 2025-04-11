@@ -14,13 +14,37 @@
   padding: 4px 6px;
 }
 
+#block-usagov-aideepchatchatbot > div {
+  overflow: visible;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header {
+  padding-inline: 16px;
+  background-color: #00BDE3;
+  border-radius: 0;
+  border-width: 2px;
+  border-color: #1B1B1B;
+  outline: none;
+  color: #1B1B1B;
+  justify-content: left;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.ai-deepchat--label > .ai-deepchat--bullet {
+  display: none;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.chat-dropdown > button {
+  color: #1B1B1B;
+  padding-left: 0px;
+  box-shadow: none;
+}
+
 .ai-deepchat--header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.ai-deepchat--header > :nth-child(1),
 .ai-deepchat--header > :nth-child(2),
 .ai-deepchat--header > :nth-child(3) {
   margin-right: 10px;
@@ -29,6 +53,16 @@
 #block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > .toggle-icon {
   margin-left: auto;
 }
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.ai-deepchat--label {
+  padding-inline: 0px;
+  width: max-content;
+}
+
+#chevron {
+  fill: #1B1B1B;
+}
+
 
 .usagov-hero-homepage {
   @include u-bg('blue-80v');
