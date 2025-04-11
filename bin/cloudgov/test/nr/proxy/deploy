@@ -11,7 +11,7 @@ username=F5D1B783-35A4-4252-8DE9-E3D18FB01560
 password=850626D8-ED91-4A9D-9BC4-D41AB99885CF
 
 cf target -o "$proxyOrg" -s "$proxySpace" 2>&1 > /dev/null
-cf push $proxyApp -f ./manifest.yml --vars-file ./manifest-vars.yml --no-start
+cf push $proxyApp -f ./manifest.yml --vars-file ./manifest-vars.yml --strategy rolling
 
 cf create-route apps.internal --hostname $proxyApp
 cf map-route $proxyApp apps.internal --hostname $proxyApp
