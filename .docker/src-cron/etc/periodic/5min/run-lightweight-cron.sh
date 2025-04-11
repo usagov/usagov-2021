@@ -15,7 +15,6 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ]; then
     URI="http://cms-${APP_SPACE}-usagov.apps.internal"
   fi
 
-  echo "Running lightweight cron"
-  curl "$URI/scheduler/cron/$CRON_KEY"
+  curl -s -o /tmp/scheduler_output "$URI/scheduler/cron/$CRON_KEY"
 
 fi
