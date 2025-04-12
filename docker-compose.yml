@@ -80,7 +80,8 @@ services:
               "hostname": "cache",
               "password": "CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV",
               "port": "6379",
-              "uri": "redis://:CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV@cache:6379"
+              "uri": "redis://:CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV@cache:6379",
+              "IS_LOCAL_DEV": 1
             },
             "name": "cache-service",
             "tags": [

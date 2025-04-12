@@ -819,6 +819,7 @@ $IS_CLOUDGOV = FALSE;
 $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $settings['trusted_host_patterns'] = [];
 $space_name = strtolower($cf_application_data['space_name'] ?? '');
+$use_redis = FALSE; // Simple flag for later config block to enable redis.
 
 if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
   $IS_CLOUDGOV = TRUE;
@@ -910,8 +911,13 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.use_s3_for_private'] = TRUE;
     }
     else if (array_key_exists('tags', $service) && in_array('cache-service', $service['tags'], TRUE)) {
-      // $settings['redis.connection']['host'] = $service['credentials']['host'];
-      $settings['redis.connection']['host'] = 'tls://' . $service['credentials']['host'];
+      $use_redis = TRUE;
+      if (array_key_exists('IS_LOCAL_DEV', $service['credentials'])) { 
+        $settings['redis.connection']['host'] = $service['credentials']['host'];
+      }
+      else {      
+        $settings['redis.connection']['host'] = 'tls://' . $service['credentials']['host'];
+      }
       $settings['redis.connection']['port'] = $service['credentials']['port'];
       $settings['redis.connection']['password'] = $service['credentials']['password'];
     }
@@ -926,11 +932,10 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
 // Configure redis caching
-if  (extension_loaded('redis')) {
+if  ($use_redis) {
   // Set Redis as the default backend for any cache bin not otherwise specified.
   $settings['cache']['default'] = 'cache.backend.redis';
   $settings['redis.connection']['persistent'] = TRUE;
-  // $settings['redis.connection']['ssl'] = ['verify_peer' => FALSE, 'cafile' => '/etc/ssl/certs/ca-cert-redis_dev.pem'];
 
   // host, port, and password are set from $VCAP_SERVICES (look for 'cache-service').
 

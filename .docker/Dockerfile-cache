@@ -1,16 +1,8 @@
 # Redis version should match what we use in cloud.gov.
-FROM redis:7.0
-
-RUN apt-get update && \
-    apt-get install -y \
-    ca-certificates 
+FROM redis:6.2
 
 RUN mkdir /etc/redis && chown redis:redis /etc/redis
 COPY .docker/src-cache/redis.conf /etc/redis/redis.conf
-COPY .docker/redis_dev.crt /etc/redis/redis_dev.crt
-COPY .docker/redis_dev.crt /usr/local/share/ca-certificates/redis_dev.crt
-COPY .docker/redis_dev.key /etc/redis/redis_dev.key
 RUN chown redis:redis /etc/redis/*
-RUN update-ca-certificates
 
 CMD [ "redis-server", "/etc/redis/redis.conf" ]

@@ -212,11 +212,10 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
 
 # Determine the system architecture and select the appropriate S6 overlay
 # Also;
-# Add the zscaler certificate and redis_dev certificate to the trusted certs only on local builds
+# Add the zscaler certificate to the trusted certs only on local builds
 # COPY cannot be conditional, but RUN can run conditional code.
 COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
-COPY .docker/redis_dev.crt /tmp/redis_dev.crt
-RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/share/ca-certificates/ ; cp /tmp/redis_dev.crt /usr/local/share/ca-certificates/ ; update-ca-certificates ; fi \
+RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/share/ca-certificates/ ; update-ca-certificates ; fi \
     && export ARCH=`uname -m` && \
     if [ "$ARCH" = "aarch64" ]; then \
         echo "Downloading: wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz;"; \
