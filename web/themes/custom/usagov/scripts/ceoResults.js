@@ -15,7 +15,8 @@ function lookup(address, callback) {
         var url = '';
         if (document.cookie.indexOf('apiMode=localhost') !== -1) {
             url += 'http://127.0.0.1:8080/proxy';
-        } else if (document.cookie.indexOf('apiMode=dev') !== -1)
+        }
+        else if (document.cookie.indexOf('apiMode=dev') !== -1)
         {
             url += 'https://api-proxy-dev.app.cloud.gov/proxy';
         }
