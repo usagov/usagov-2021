@@ -78,6 +78,8 @@
 
 /content/*
 /files/*
+
+#This keeps the directory ignored but allows Git to track only HTML files, which makes git diff work.
 /html/*
 
 env.local
