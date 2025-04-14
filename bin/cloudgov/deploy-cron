@@ -124,12 +124,14 @@ else
   fi
 fi
 
+### Setting up network policy so that cron app can talk to cms directly
+cf add-network-policy cron cms --protocol tcp --port 80
+
 ### These are set for some reason - unset them at deployment
 cf unset-env $APPNAME HTTP_PROXY
 cf unset-env $APPNAME HTTPS_PROXY
 cf unset-env $APPNAME http_proxy
 cf unset-env $APPNAME https_proxy
-
 
 ### Call center env (should we move this to a user-provided credentials service?)
 cf set-env $APPNAME CALL_CENTER_CLIENT_ID $CALL_CENTER_CLIENT_ID
@@ -137,6 +139,20 @@ cf set-env $APPNAME CALL_CENTER_CLIENT_SECRET $CALL_CENTER_CLIENT_SECRET
 cf set-env $APPNAME CALL_CENTER_ENVIRONMENT $CALL_CENTER_ENVIRONMENT
 cf set-env $APPNAME CALL_CENTER_EN_QUEUE_ID $CALL_CENTER_EN_QUEUE_ID
 cf set-env $APPNAME CALL_CENTER_SP_QUEUE_ID $CALL_CENTER_SP_QUEUE_ID
+
+### Syncing lightweight cron key
+echo "Updating lightweight cron key"
+if service_exists "secrets" ; then
+  echo "secrets already created: updating"
+  SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
+  CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
+
+  if service_exists "cron-secrets" ; then
+    yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+  else
+    cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+  fi
+fi
 
 # Enable call center / cfevents  scripts on prod only. (We can manually update this in dev, etc. for testing)
 if [ $SPACE = "prod" ]; then
