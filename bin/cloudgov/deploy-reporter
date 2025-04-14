@@ -109,11 +109,11 @@ cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
-echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}"
+echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image --docker-image ${DOCKERUSER}/${DOCKERREPO}@sha256:${RDIGEST}"
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST}
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@sha256:${RDIGEST}
 else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:${RDIGEST} --docker-username $DOCKERHUB_USERNAME
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@sha256:${RDIGEST} --docker-username $DOCKERHUB_USERNAME
 fi
 
 # bind services (ups should be bound already, but just in case)
