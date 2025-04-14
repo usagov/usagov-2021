@@ -1,0 +1,39 @@
+{{ attach_library('ai_chatbot/deepchat') }}
+
+<div class="{{ current_theme }} ai-deepchat chat-collapsed chat-container {{ settings.placement }}" data-chat-id="bot1">
+
+	<div class="ai-deepchat--header" tabindex="0" role="button" aria-label="Toggle Chat" aria-expanded="false">
+    <div class="chat-dropdown">
+      <button type="button" class="chat-dropdown-button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" id="chevron" class="chevron-icon">
+          <path fill="none" stroke="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+        </svg>
+      </button>
+      <div class="chat-dropdown-content">
+        <a class="clear-history chat-dropdown-link">{{ 'Clear History'|t }}</a>
+      </div>
+    </div>
+
+    <div class="ai-deepchat--label">
+			<span class="ai-deepchat--bullet"></span>
+			{{ settings.label }}
+		</div>
+		<span class="toggle-icon">
+            <svg class="toogle-svg open-chatbot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+            </svg>
+
+            <svg class="toogle-svg close-chatbot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                <path fill="#1b1b1b" d="M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"/>
+            </svg>
+		</span>
+	</div>
+
+	<div class="chat-element chat-collapsed" style="min-width: {{ settings.width }}">
+
+	<deep-chat 
+        {% for key, value in deepchat_settings %}{{ key }}='{{ value|raw }}'{% endfor %}
+    ></deep-chat>
+
+	</div>
+</div>
