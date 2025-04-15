@@ -65,8 +65,7 @@ RUN apt-get update && \
     pkg-config \
     procps \
     wget \
-    zlib1g-dev \
-    nano
+    zlib1g-dev 
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
