@@ -67,22 +67,30 @@ fi
 declare -a new_routes=()
 
 function ensure_route {
-  local domain="$1"
-  if cf routes | awk '{print $2, $3}' | grep -q "^$APP-${SPACE_NODOT} ${domain}$"; then
+  local subdomain="$1"
+  local domain="$2"
+  if cf routes | awk '{print $2, $3}' | grep -q "^${subdomain} ${domain}$"; then
     return 0  # Route already exists, no need to output anything
   else
-    cf create-route "${domain}" --hostname "$APP-${SPACE_NODOT}"
-    cf map-route $APP "${domain}" --hostname "$APP-${SPACE_NODOT}"
-    new_routes+=("$APP-${SPACE_NODOT}.${domain}")
+    cf create-route "${domain}" --hostname "${subdomain}"
+    cf map-route $APP "${domain}" --hostname "${subdomain}"
+    new_routes+=("${subdomain}.${domain}")
   fi
 }
 
-# Ensure routes exist before deployment
+## Ensure routes exist before deployment
 echo "🔄 Checking routes..."
-ensure_route "apps.internal"
+basehost=$APP-${SPACE_NODOT}
+basehostusagov=${basehost}-usagov
+ensure_route "${basehostusagov}" "apps.internal"
 if [[ "$ORG" == "gsa-tts-usagov" ]]; then
-  ensure_route "usa.gov"
-  ensure_route "app.cloud.gov" # TODO: This is temporary for testing purposes, remove for production
+  # in prod, we drop the -space suffix only for the
+  if [[ ${SPACE_NODOT} == "prod" ]]; then
+      ensure_route "${APP}" "usa.gov"
+  else
+      ensure_route "${basehost}" "usa.gov"
+  fi
+  ensure_route "${basehost}" "app.cloud.gov" # TODO: This is temporary for testing purposes, remove for production
 else
   ensure_route "app.cloud.gov"
 fi
