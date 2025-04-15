@@ -821,31 +821,13 @@ workflows:
     jobs:
       - approve-build-and-push-container:
           type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - approve-dev-deployment:
           type: approval
           requires:
             - build-and-push-container
-          filters:
-            branches:
-              only:
-              - dev
       - approve-dr-deployment:
           type: approval
           requires:
@@ -857,10 +839,6 @@ workflows:
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
-          filters:
-            branches:
-              only:
-              - dev
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -913,6 +891,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2314-cron-for-scheduled-publish
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -923,6 +902,7 @@ workflows:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2314-cron-for-scheduled-publish
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -931,6 +911,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2314-cron-for-scheduled-publish
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -946,6 +927,7 @@ workflows:
             branches:
               only:
               - dev
+              - USAGOV-2314-cron-for-scheduled-publish
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
