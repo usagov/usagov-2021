@@ -84,7 +84,7 @@ basehost=$APP-${SPACE_NODOT}
 basehostusagov=${basehost}-usagov
 ensure_route "${basehostusagov}" "apps.internal"
 if [[ "$ORG" == "gsa-tts-usagov" ]]; then
-  # in prod, we drop the -space suffix only for the
+  # in prod, we drop the -space suffix for the "usa.gov" hostname:
   if [[ ${SPACE_NODOT} == "prod" ]]; then
       ensure_route "${APP}" "usa.gov"
   else
