@@ -72,16 +72,16 @@ function pushApp { #appname
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
     else
-      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
     fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-	cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+	    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
     else
-      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
     fi
   fi
 }
