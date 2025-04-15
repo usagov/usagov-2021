@@ -45,6 +45,8 @@ logging.basicConfig(
     level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+if os.getenv("VERBOSE") != "1":
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)  # or CRITICAL to fully silenc
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
@@ -121,8 +123,19 @@ def proxy_request():
         # Remove proxy-specific parameters
         del params["endpoint"]
         del params["keyname"]
+        
+        # Set referer header
+        origin = request.headers.get("Origin")
+        if not origin:
+            origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
+        headers["referer"] = 'https://' + origin + '/'
 
-        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
+        if os.getenv("VERBOSE") == "1":
+            log_msg = f"Forwarding {method} request to {API_ENDPOINT} with params {params} and with headers {headers}"
+            visible_chars = 4
+            masked_key = "*" * (len(API_KEY) - visible_chars) + API_KEY[-visible_chars:]
+            log_msg = log_msg.replace(API_KEY, masked_key)
+            logger.info(log_msg)
 
         try:
             response = requests.request(
@@ -135,11 +148,18 @@ def proxy_request():
                 allow_redirects=False
             )
             logger.info("API response status: %s", response.status_code)
-            respHeaders = headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization",
-                "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS"
-            }
+            # Allow if origin includes 'localhost' or ends with 'usa.gov'.
+            # We have to do this programmatically because *.usa.gov is not supported by the Access-Control-Allow-Origin header.
+            respHeaders = {}
+            origin = request.headers.get("Origin")
+            if not origin:
+                origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
+            if 'localhost' in origin or 'usa.gov' in origin:
+                respHeaders = {
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS"
+                }
             return Response(
                 response.content,
                 status=response.status_code,
