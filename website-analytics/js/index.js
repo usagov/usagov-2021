@@ -1112,7 +1112,7 @@
 })(this);
 
 function goToPage(){
-  var selectElement = document.getElementById("agency-selector").value;
-  selectElement = String(selectElement).replace(/<\/?[^>]+(>|$)/g, ""); //sanitization to prevent XSS
+  var selectElement = document.getElementById("agency-selector");
+  var optionValue = String(selectElement.value).replace(/<\/?[^>]+(>|$)/g, ""); //sanitization to prevent XSS
   window.location = optionValue;
 }
