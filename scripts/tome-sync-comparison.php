@@ -26,7 +26,8 @@ $logLines = explode("\n", file_get_contents($filePathTome));
 foreach ($logLines as $line) {
     $newItem = substr($line, 30);
     $newItem = trim($newItem);
-    if (!empty($newItem)) {
+    // Do not compare files in the ~/files/styles/webp directory as those are all generated images/thumbnails
+    if (!empty($newItem) && strpos($newItem, 'files/styles') === FALSE) {
         $filesInTome[] = $newItem;
     }
 }
@@ -37,7 +38,8 @@ $logLines = explode("\n", file_get_contents($filePathS3));
 foreach ($logLines as $line) {
     $newItem = substr($line, 35);
     $newItem = trim($newItem);
-    if (!empty($newItem)) {
+    // Do not compare files in the ~/files/styles/webp directory as those are all generated images/thumbnails
+    if (!empty($newItem) && strpos($newItem, 'files/styles') === FALSE) {
         $filesInS3[] = $newItem;
     }
 }

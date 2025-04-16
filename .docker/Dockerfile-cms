@@ -120,11 +120,11 @@ ENV GITTAG=${GITTAG:-none}
 
 ARG CONTAINERTAG
 ENV CONTAINERTAG=${CONTAINERTAG:-none}
-
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+ARG BUILD_ENV
+ENV BUILD_ENV=${BUILD_ENV:-none}
 
 # Users and dependencies.
 # Note: we used to use adduser and addgroup to set up the nginx user (if not already present).
@@ -206,13 +206,28 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php83-zip \
       php83-zlib \
       openssl \
-    && mkdir -p /var/www/web/sites/default/files \
-    # s6 supervisor setup
+      && mkdir -p /var/www/web/sites/default/files
+
+# Determine the system architecture and select the appropriate S6 overlay
+# Also;
+# Add the zscaler certificate to the trusted certs only on local builds
+# COPY cannot be conditional, but RUN can run conditional code.
+COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
+RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates ; fi \
+    && export ARCH=`uname -m` && \
+    if [ "$ARCH" = "aarch64" ]; then \
+        echo "Downloading: wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz;"; \
+        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz; \
+    elif [ "$ARCH" = "x86_64" ]; then \
+        echo "Downloading: https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz"; \
+        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi \
     && tar xzf /tmp/s6overlay.tar.gz -C / \
     && rm /tmp/s6overlay.tar.gz \
     && mkdir -p /var/run/s6 \
     && chown -R nginx:nginx /var/run/s6 \
-    # webserver setup
     && mkdir -p /var/www/ \
     && chown -R nginx:nginx /var/www \
     && mkdir -p /var/log/nginx \
@@ -221,7 +236,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && ln -s /dev/stdout /var/log/nginx/access.log \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
-    # php setup
     && ln -s /usr/sbin/php-fpm83 /usr/sbin/php-fpm
 
     # new relic setup
