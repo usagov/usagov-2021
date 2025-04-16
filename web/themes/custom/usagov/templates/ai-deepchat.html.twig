@@ -31,7 +31,97 @@
     <p class="chatbot-time">Today, 5:55pm</p>
     <p class="chatbot-disclaimer">AI chat bots can make mistakes. Please verify<br>important information.</p>
 	<deep-chat 
+
+        avatars='{
+                  "default": {"styles": {"avatar": {"height": "30px", "width": "30px"}}},
+                  "ai": {"src": "/s3/files/2025-04/Favicon_USAGov_-B_-_Trans.png", "styles": {"container": {"marginRight": "8px", "marginTop": "0"}}},
+                  "user": {"src": "/s3/files/2025-04/UserCircle-500x500%20%281%29.png", "styles": {"container": {"marginLeft": "8px", "marginTop": "0"}}}
+                }'
+
+
+        messageStyles='{
+                        "default": {
+                          "shared": {
+                            "innerContainer": {
+                              "margin": "0",
+                              "width": "100%"
+                            },
+                            "bubble": {
+                              "marginTop": "4px",
+                              "marginBottom": "4px",
+                              "borderRadius": "4px"
+                            }
+                          },
+                          "user": {
+                            "bubble": {
+                              "background": "#112f4e"
+                            }
+                          },
+                          "ai": {
+                            "bubble": {
+                              "background": "#E9F6FB"
+                            }  
+                          }
+                        }
+                      }'
+
+        submitButtonStyles='{
+                              "position": "outside-right",
+                              "submit": {
+                                "container": {
+                                    "default": {
+                                      "backgroundColor": "#00BDE3",
+                                      "marginBottom": "0",
+                                      "padding": "6px 5px 4px",
+                                      "marginRight": "0",
+                                      "marginLeft": "8px",
+                                      "border": "2px solid #1B1B1B"
+                                    },
+                                    "hover": {
+                                      "backgroundColor": "#009EC1"
+                                    },
+                                    "click": {
+                                      "backgroundColor": "#009EC1"
+                                    }
+                                  },
+
+                                "text": {
+                                  "content": "Send",
+                                  "styles": {
+                                    "default": {
+                                      "color": "#1B1B1B",
+                                      "fontWeight": "bold"
+                                    }
+                                  }
+                                }
+                              },
+                              "alwaysEnabled": "true"
+                            }'
+
+        textInput= '{
+                      "styles": {
+                        "container": {
+                          "borderRadius": "4px",
+                          "border": "1px solid #000000",
+                          "width": "245px",
+                          "marginLeft": "-50px",
+                          "boxShadow": "none"
+                        },
+                        "text": {
+                          "padding": "10px",
+                          "paddingLeft": "15px",
+                          "paddingRight": "34px"
+                        }
+                      },
+                      "placeholder": {
+                        "text": "Enter a prompt here...",
+                        "style": {
+                          "color": "#757575" 
+                        }
+                      }
+                    }'
         {% for key, value in deepchat_settings %}{{ key }}='{{ value|raw }}'{% endfor %}
+
         history='[{
                     "html": "<div class=\&quot;deep-chat-temporary-message\&quot;><p style=\&quot;margin:0px\&quot;>Here are some common topics:</p><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>Unclaimed money</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>GSA auction</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>Federally seized properties</button></div></div>",
                     "role": "ai"

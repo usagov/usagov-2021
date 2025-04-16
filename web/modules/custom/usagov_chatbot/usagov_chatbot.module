@@ -21,7 +21,7 @@ use Drupal\Core\Url;
  *   The array as its being user for attributes on the Deepchat tag.
  */
 function usagov_chatbot_deepchat_settings(array &$deepchat_settings) {
-  // $deepchat_settings['style'] = 'background-color: #4287f5; font-family: cursive;';
+  $deepchat_settings['style'] = 'border: none;';
 }
 
 /**
