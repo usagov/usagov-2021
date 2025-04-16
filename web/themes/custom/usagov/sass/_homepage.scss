@@ -17,6 +17,59 @@
   display: none;
 }
 
+.chatbot-time {
+  /* Today, 5:55pm */
+  // font-family: 'Source Sans Pro';
+  // font-style: normal;
+  // font-weight: 400;
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  line-height: 150%;
+  text-align: center;
+  color: #1B1B1B;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.chatbot-disclaimer {
+  /* AI chat bots can make mistakes. Please verify important information. */
+
+  // font-family: 'Source Sans Pro';
+  // font-style: normal;
+  // font-weight: 400;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 16px;
+  
+  font-size: 12.8px;
+  line-height: 130%;
+  text-align: center;
+
+  color: #1B1B1B;
+
+
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+
+}
+
+.usagov-chatbot-container {
+  border: 2px solid #1B1B1B;
+  border-top: none;
+
+  // Padding of the chat container
+  padding: 8px 16px;
+}
+
+
 .chatbot-tag {
   color: #1B1B1B;
   background-color: #FFFFFF;
@@ -35,8 +88,10 @@
   padding-inline: 16px;
   background-color: #00BDE3;
   border-radius: 0;
-  border-width: 2px;
-  border-color: #1B1B1B;
+
+  border: 2px solid #1B1B1B;
+  border-bottom: none;
+
   outline: none;
   color: #1B1B1B;
   justify-content: left;

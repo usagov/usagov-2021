@@ -1,7 +1,6 @@
 {{ attach_library('ai_chatbot/deepchat') }}
 
 <div class="{{ current_theme }} ai-deepchat chat-collapsed chat-container {{ settings.placement }}" data-chat-id="bot1">
-
 	<div class="ai-deepchat--header" tabindex="0" role="button" aria-label="Toggle Chat" aria-expanded="false">
     <div class="chat-dropdown">
       <button type="button" class="chat-dropdown-button">
@@ -13,7 +12,6 @@
         <a class="clear-history chat-dropdown-link">{{ 'Clear History'|t }}</a>
       </div>
     </div>
-
     <div class="ai-deepchat--label">
 			<span class="ai-deepchat--bullet"></span>
 			{{ settings.label }}
@@ -29,11 +27,16 @@
 		</span>
 	</div>
 
-	<div class="chat-element chat-collapsed" style="min-width: {{ settings.width }}">
-
+	<div class="chat-element chat-collapsed usagov-chatbot-container" style="min-width: {{ settings.width }}">
+    <p class="chatbot-time">Today, 5:55pm</p>
+    <p class="chatbot-disclaimer">AI chat bots can make mistakes. Please verify<br>important information.</p>
 	<deep-chat 
         {% for key, value in deepchat_settings %}{{ key }}='{{ value|raw }}'{% endfor %}
-    ></deep-chat>
-
+        history='[{
+                    "html": "<div class=\&quot;deep-chat-temporary-message\&quot;><p style=\&quot;margin:0px\&quot;>Here are some common topics:</p><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>Unclaimed money</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>GSA auction</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>Federally seized properties</button></div></div>",
+                    "role": "ai"
+                }]'
+    >
+    </deep-chat>
 	</div>
 </div>
