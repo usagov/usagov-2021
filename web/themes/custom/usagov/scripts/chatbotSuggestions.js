@@ -1,7 +1,8 @@
 (function () {
+    'use strict';
 
     document.querySelector("#chevron > path").setAttribute("fill", "");
-    
+
     const targetSelector = '#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > .toggle-icon';
 
     const toogleWatcher = (selector, callback) => {
@@ -20,9 +21,9 @@
             mutationsList.forEach((mutation) => {
                 if (mutation.attributeName === 'class') {
                     const currentClass = mutation.target.className;
-                    
+
                     const isOpen = currentClass.includes("is-closed");
-                    
+
                     const openChatbotIcon = document.getElementsByClassName("open-chatbot-icon")[0];
                     const closeChatbotIcon = document.getElementsByClassName("close-chatbot-icon")[0];
 
@@ -36,9 +37,9 @@
                     }
 
                 }
-            })
+            });
         })
-        observer.observe(targetNode, { attributes: true });
+        observer.observe(targetNode, {"attributes": true});
     });
 
 })();
@@ -49,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const experimentalTag = document.createElement("button");
     experimentalTag.classList.add("chatbot-tag");
     experimentalTag.innerHTML = 'Experimental';
-    experimentalTag.setAttribute("disabled", "")
+    experimentalTag.setAttribute("disabled", "");
 
-    document.querySelector("#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.ai-deepchat--label").after(experimentalTag);   
+    document.querySelector("#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.ai-deepchat--label").after(experimentalTag);
 
  }, false);

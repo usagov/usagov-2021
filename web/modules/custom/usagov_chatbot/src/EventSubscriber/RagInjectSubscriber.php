@@ -43,10 +43,10 @@ class RagInjectSubscriber implements EventSubscriberInterface {
 
       // Add debug logging.
       \Drupal::logger('content_entity_example')->notice('@type: deleted %title.',
-        array(
+        [
           '@type' => "chatbot",
           '%title' => "Chatbot Log",
-        ));
+        ]);
       // Prepend retrieved context to the user query.
       // $new_input_text = "Use only the following context:\n\n" . $related_docs . "\n\nUser Query: " . $user_query;
 
