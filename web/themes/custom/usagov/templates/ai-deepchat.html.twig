@@ -28,9 +28,10 @@
 	</div>
 
 	<div class="chat-element chat-collapsed usagov-chatbot-container" style="min-width: {{ settings.width }}">
-    <p class="chatbot-time">Today, 5:55pm</p>
+    <p class="chatbot-time">Today, {{ 'now'|date('g:i a') }}</p>
     <p class="chatbot-disclaimer">AI chat bots can make mistakes. Please verify<br>important information.</p>
-	<deep-chat 
+    
+	  <deep-chat 
 
         avatars='{
                   "default": {"styles": {"avatar": {"height": "30px", "width": "30px"}}},
