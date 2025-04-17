@@ -30,7 +30,7 @@
                     if (isOpen) {
                         closeChatbotIcon.style.display = 'inline';
                         openChatbotIcon.style.display = 'none';
-                    }   
+                    }
                     else {
                         openChatbotIcon.style.display = 'inline';
                         closeChatbotIcon.style.display = 'none';
@@ -45,7 +45,7 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
-
+    'use strict';
     // Adding the tag "Experimental".
     const experimentalTag = document.createElement("button");
     experimentalTag.classList.add("chatbot-tag");
