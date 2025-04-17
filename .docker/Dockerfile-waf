@@ -1,4 +1,4 @@
-ARG NGINX_VERSION="1.27.3"
+ARG NGINX_VERSION="1.27.4"
 FROM nginx:${NGINX_VERSION}
 
 LABEL maintainer="USA.gov Web Ops"
@@ -65,7 +65,7 @@ RUN apt-get update && \
     pkg-config \
     procps \
     wget \
-    zlib1g-dev
+    zlib1g-dev 
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
