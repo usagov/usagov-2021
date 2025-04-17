@@ -38,7 +38,7 @@
 
                 }
             });
-        })
+        });
         observer.observe(targetNode, {"attributes": true});
     });
 
