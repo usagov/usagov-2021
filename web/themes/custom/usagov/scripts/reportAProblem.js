@@ -56,12 +56,12 @@ function fieldValidation() {
         var label = jQuery(this).find("label");
         label.after(
           '<span id="' +
-            errorId +
+            String(errorId).replace(/<\/?[^>]+(>|$)/g, "") +
             '" class="err-label usa-error" tabindex="-1">' +
-            error +
+            String(error).replace(/<\/?[^>]+(>|$)/g, "") +
             "</span>"
         );
-        input.attr("aria-labelledby", label.attr("id") + " " + errorId);
+        input.attr("aria-labelledby", label.attr("id") + " " + String(errorId).replace(/<\/?[^>]+(>|$)/g, ""));
       }
 
       // Adds the error outline in the field.
