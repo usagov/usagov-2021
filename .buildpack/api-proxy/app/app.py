@@ -128,6 +128,8 @@ def proxy_request():
         origin = request.headers.get("Origin")
         if not origin:
             origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
+        origin = origin.replace("http://", "")
+
         headers["referer"] = 'https://' + origin + '/'
 
         if os.getenv("VERBOSE") == "1":
@@ -154,6 +156,7 @@ def proxy_request():
             origin = request.headers.get("Origin")
             if not origin:
                 origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
+            origin = origin.replace("http://", "")
             if 'localhost' in origin or 'usa.gov' in origin:
                 respHeaders = {
                     "Access-Control-Allow-Origin": origin,
