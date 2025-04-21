@@ -31,14 +31,12 @@
     <p class="chatbot-time">Today, {{ 'now'|date('g:i a') }}</p>
     <p class="chatbot-disclaimer">AI chat bots can make mistakes. Please verify<br>important information.</p>
     
-	  <deep-chat 
-
+	  <deep-chat
         avatars='{
                   "default": {"styles": {"avatar": {"height": "30px", "width": "30px"}}},
                   "ai": {"src": "/s3/files/2025-04/Favicon_USAGov_-B_-_Trans.png", "styles": {"container": {"marginRight": "8px", "marginTop": "0"}}},
                   "user": {"src": "/s3/files/2025-04/UserCircle-500x500%20%281%29.png", "styles": {"container": {"marginLeft": "8px", "marginTop": "0"}}}
                 }'
-
 
         messageStyles='{
                         "default": {
@@ -122,10 +120,11 @@
                         }
                       }
                     }'
+
         {% for key, value in deepchat_settings %}{{ key }}='{{ value|raw }}'{% endfor %}
 
         history='[{
-                    "html": "<div class=\&quot;deep-chat-temporary-message\&quot;><p style=\&quot;margin:0px\&quot;>Here are some common topics:</p><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>Unclaimed money</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>GSA auction</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px\&quot;>Federally seized properties</button></div></div>",
+                    "html": "<div class=\&quot;deep-chat-temporary-message\&quot;><p style=\&quot;margin:0px;\&quot;>Here are some common topics:</p><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px; padding:4px 8px; border: 1px solid #1B1B1B;\&quot;>Unclaimed money</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px; padding:4px 8px; border: 1px solid #1B1B1B;\&quot;>GSA auction</button></div><div class=\&quot;deep-chat-temporary-message\&quot;><button class=\&quot;deep-chat-button deep-chat-suggestion-button\&quot; style=\&quot;margin-top: 5px; padding:4px 8px; border: 1px solid #1B1B1B;\&quot;>Federally seized properties</button></div></div>",
                     "role": "ai"
                 }]'
     >
