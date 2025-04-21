@@ -25,6 +25,7 @@ fi
 
 
 SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secrets") | .credentials')
+CRON_SECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "cron-secrets") | .credentials')
 SECAUTHSECRETS=$(echo $VCAP_SERVICES | jq -r '.["user-provided"][] | select(.name == "secauthsecrets") | .credentials')
 
 APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
@@ -114,7 +115,7 @@ export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RE
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
 
-export CRON_KEY=${CRON_KEY:-$(echo $SECRETS | jq -r '.CRON_KEY')}
+export CRON_KEY=${CRON_KEY:-$(echo $CRON_SECRETS | jq -r '.CRON_KEY')}
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
 SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
@@ -239,4 +240,4 @@ else
 fi
 
 echo "Setting lightweight cron key"
-drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"
+drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$$CRON_KEY\");"

@@ -142,7 +142,6 @@ generate_cert_json()
   if service_exists "secrets" ; then
     echo "secrets already created: updating"
     CURR_SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
-    CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.CRON_KEY')
     CURR_HASH_SALT=$(echo $CURR_SECRETS | jq -r '.HASH_SALT')
     CURR_ROOT_USER_NAME=$(echo $CURR_SECRETS | jq -r '.ROOT_USER_NAME')
     CURR_ROOT_USER_PASS=$(echo $CURR_SECRETS | jq -r '.ROOT_USER_PASS')
@@ -164,11 +163,11 @@ generate_cert_json()
     fi
 
     # Only allow update of new relic vars, all others match the existing values
-    yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
+    yes '' | cf update-user-provided-service secrets -p "{\"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
     # do we need to reattach this service to the apps individually?
 
   else
-    yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$NEW_RELIC_API_KEY\"}"
+    yes '' | cf create-user-provided-service secrets -p "{\"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$NEW_RELIC_API_KEY\"}"
   fi
 
   if service_exists "secauthsecrets" ; then
@@ -186,11 +185,11 @@ generate_cert_json()
 
   if service_exists "cron-secrets" ; then
     echo "cron-secrets service already created"
-    CURR_SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
-    CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.CRON_KEY')
+    CURR_CRON_SECRETS=$(cf curl /v3/service_instances/$(cf service cron-secrets --guid)/credentials)
+    CURR_CRON_KEY=$(echo $CURR_CRON_SECRETS | jq -r '.CRON_KEY')
     yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\"}"
   else
-    cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+    yes '' | cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
   fi
 }
 

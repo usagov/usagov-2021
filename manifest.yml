@@ -9,6 +9,7 @@ applications:
   services:
     - database
     - secrets
+    - cron-secrets
     - secauthsecrets
     - storage
   health-check-type: process

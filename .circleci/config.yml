@@ -882,7 +882,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2314-cron-for-scheduled-publish
+                - USAGOV-2358-cron-deployment-issues
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
@@ -893,7 +893,7 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2314-cron-for-scheduled-publish
+                - USAGOV-2358-cron-deployment-issues
       - approve-dev-deployment-cron:
           type: approval
           requires:
@@ -902,7 +902,7 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2314-cron-for-scheduled-publish
+              - USAGOV-2358-cron-deployment-issues
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -918,7 +918,7 @@ workflows:
             branches:
               only:
               - dev
-              - USAGOV-2314-cron-for-scheduled-publish
+              - USAGOV-2358-cron-deployment-issues
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
