@@ -14,24 +14,24 @@ provider: null
 plugin: ai_deepchat_block
 settings:
   id: ai_deepchat_block
-  label: 'AI DeepChat Chatbot'
+  label: 'USAGov Chatbot'
   label_display: '0'
   provider: ai_chatbot
   ai_assistant: usagov_chatbot
   bot_name: 'USAGov Chatbot'
-  bot_image: /core/misc/druplicon.png
+  bot_image: /s3/files/2025-04/Favicon_USAGov_-B_-_Trans.png
   use_username: 1
   default_username: User
   use_avatar: 1
-  default_avatar: /core/misc/favicon.ico
+  default_avatar: /s3/files/2025-04/UserCircle-500x500%20%281%29.png
   first_message: 'Welcome to USA.gov! How can I help you today?'
   stream: 1
   toggle_state: remember
-  width: 400px
-  height: 500px
+  width: 320px
+  height: 550px
   placement: bottom-right
   show_structured_results: false
   show_copy_icon: true
   collapse_minimal: false
-  style_file: chatgpt.yml
+  style_file: bing.yaml
 visibility: {  }

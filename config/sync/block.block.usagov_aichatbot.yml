@@ -1,6 +1,6 @@
 uuid: 387f6a79-4745-46c2-a8c9-1837aaffcfb3
 langcode: en
-status: true
+status: false
 dependencies:
   module:
     - ai_chatbot
