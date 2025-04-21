@@ -50,6 +50,9 @@ if os.getenv("VERBOSE") != "1":
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
+if not VCAP_SERVICES:
+    print("Fatal Error: VCAP_SERVICES is empty or not set")
+    quit()
 VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
 
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
@@ -67,6 +70,13 @@ def proxy_request():
         return jsonify({"error": "API Proxy misconfigured. Rejecting request."}), 500
 
     params = request.args.to_dict()
+    if not params:
+        logger.error("No params passed in request.")
+        return jsonify({"error": "No params passed in request. Rejecting request."}), 400
+
+    if not params["keyname"]:
+        logger.error("No keyname in params passed in request.")
+        return jsonify({"error": "No keyname in params passed in request. Rejecting request."}), 400
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
