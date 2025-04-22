@@ -1,0 +1,120 @@
+@use "uswds-core" as *;
+@use "usagov-variables" as *;
+
+.toogle-svg {
+    width: 24px;
+    height: 24px;
+}
+
+.open-chatbot-icon {
+    display: inline;
+}
+
+.close-chatbot-icon {
+    display: none;
+}
+
+.chatbot-time {
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    line-height: 150%;
+    text-align: center;
+    color: #1B1B1B;
+
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+
+.chatbot-disclaimer {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 16px;
+
+    font-size: 12.8px;
+    line-height: 130%;
+    text-align: center;
+
+    color: #1B1B1B;
+
+
+    /* Inside auto layout */
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 0;
+
+}
+
+.usagov-chatbot-container {
+    border: 2px solid #1B1B1B;
+    border-top: none;
+
+    // Padding of the chat container
+    padding: 8px 16px;
+}
+
+
+.chatbot-tag {
+    color: #1B1B1B;
+    background-color: #FFFFFF;
+    border: 2px solid #1B1B1B;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 10px;
+    padding: 4px 6px;
+}
+
+#block-usagov-aideepchatchatbot > div {
+    overflow: visible;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header {
+    padding-inline: 16px;
+    background-color: #00BDE3;
+    border-radius: 0;
+
+    border: 2px solid #1B1B1B;
+    border-bottom: none;
+
+    outline: none;
+    color: #1B1B1B;
+    justify-content: left;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.ai-deepchat--label > .ai-deepchat--bullet {
+    display: none;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.chat-dropdown > button {
+    color: #1B1B1B;
+    padding-left: 0px;
+    box-shadow: none;
+}
+
+.ai-deepchat--header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ai-deepchat--header > :nth-child(2),
+.ai-deepchat--header > :nth-child(3) {
+    margin-right: 10px;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > .toggle-icon {
+    margin-left: auto;
+}
+
+#block-usagov-aideepchatchatbot > div > div.ai-deepchat--header > div.ai-deepchat--label {
+    padding-inline: 0px;
+    width: max-content;
+}
+
+#chevron {
+    fill: #1B1B1B;
+}
