@@ -240,4 +240,4 @@ else
 fi
 
 echo "Setting lightweight cron key"
-drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$$CRON_KEY\");"
+drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"
