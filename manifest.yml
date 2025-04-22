@@ -35,7 +35,7 @@ applications:
     BLOCKED_NAME: USAGov
     IP_ALLOWED: |
       # IPv4 addresses and CIDR blocks go here. Put IPv6 addresses in the IPV6_ALLOWED section.
-      # Both groups are validated by startup code; separating them makes the validation easier. 
+      # Both groups are validated by startup code; separating them makes the validation easier.
 
       # AWS EC2 Instances on the west-coast? Why do we have these? (see ticket USAGOV-1103)
       allow 52.222.122.97/32;
@@ -43,6 +43,23 @@ applications:
 
       # GSA CIDR Block
       allow 159.142.0.0/16;
+
+      # ZScaler "edge" addresses; sometimes GSA linux clients come through on these
+      allow 159.142.0.128/27;
+      allow 159.142.71.0/28;
+      allow 136.226.4.0/23;
+      allow 136.226.6.0/23;
+      allow 136.226.8.0/23;
+      allow 136.226.10.0/23;
+      allow 136.226.12.0/23;
+      allow 136.226.14.0/23;
+      allow 136.226.16.0/23;
+      allow 136.226.18.0/23;
+      allow 136.226.20.0/23;
+      allow 136.226.22.0/24;
+      allow 165.225.3.0/24;
+      allow 165.225.46.0/24;
+      allow 165.225.48.0/24;
 
       # SiteImprove:
       allow 13.58.165.213;
@@ -128,6 +145,16 @@ applications:
       2620:0:150:4029:c9cc:5ce:ec04:eb30
       2620:0:150:4029:f30c:dc1f:6722:b47b
 
+      # ZScaler "edge" addresses; sometimes GSA linux clients come through on these
+      2605:4300:1511::/48
+      2605:4300:1512::/48
+      2605:4300:1611::/48
+      2605:4300:1612::/48
+      2605:4300:1711::/48
+      2605:4300:2c11::/48
+      2605:4300:2c12::/48
+
+
 - name: cron
   docker:
     image: gsatts/usagov-2021:cron
@@ -140,4 +167,5 @@ applications:
     - cron-event-storage
     - cron-callwait-storage
     - cron-service-account
+    - cron-secrets
   health-check-type: process
