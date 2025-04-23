@@ -207,7 +207,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php83-zip \
       php83-zlib \
       openssl \
-      redis \
       && mkdir -p /var/www/web/sites/default/files
 
 # Determine the system architecture and select the appropriate S6 overlay
