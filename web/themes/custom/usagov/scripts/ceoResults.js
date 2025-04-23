@@ -10,48 +10,80 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
-    // We can controle where the API is used from by toggling the value in this next variable
-    // Comment or uncoment out the appropriate line to toggle the setting
-    var apiMode = 'dev';
-    // var apiMode = 'localhost';
-    // var apiMode = 'legacy';
-
-    if (apiMode !== 'legacy') {
-        var url = '';
-        if (apiMode == 'localhost') {
-            url += 'http://localhost:8080/proxy';
-        }
-        else if (apiMode == 'dev') {
-            url += 'https://api-proxy-dev.app.cloud.gov/proxy';
-        }
-        url += '?keyname=google-civic';
-        url += '&endpoint=civicinfo/v2/representatives';
-        url += '&address=' + address;
-        console.log('The CEO tool is using URL: ' + url);
-        jQuery.get(url, callback);
-
-    } else {
-
-        console.log('The CEO tool is using legacy behavior.');
-        let count=0;
-        var timer = window.setInterval(function() {
-            count++;
-            if (typeof gapi.client !== "undefined") {
-
-                window.clearInterval(timer);
-                let req = gapi.client.request({
-                    "path": "/civicinfo/v2/representatives",
-                    "params": {"address": address}
-                });
-                req.execute(callback);
-            }
-        else if (count > 100) {
-                // Stop trying after 100 attempts (10 seconds)
-                window.clearInterval(timer);
-            }
-        }, 100);
+    // We will use the new API-Proxy implementation by default
+    // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
+    if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
+        lookup_newImplementation(address, callback);
+        return;
     }
 
+    console.log('The CEO tool running the legacy system (not utilizing the API-Proxy)');
+
+    let count=0;
+    var timer = window.setInterval(function() {
+        count++;
+        if (typeof gapi.client !== "undefined") {
+            window.clearInterval(timer);
+            let req = gapi.client.request({
+                "path": "/civicinfo/v2/representatives",
+                "params": {"address": address}
+            });
+            req.execute(callback);
+        }
+    else if (count > 100) {
+            // Stop trying after 100 attempts (10 seconds)
+            window.clearInterval(timer);
+        }
+    }, 100);
+
+}
+
+/**
+ * Build and execute request to look up elected officials for provided address.
+ * @param {string} address Address for which to fetch elected officials info.
+ * @param {function(Object)} callback Function which takes the response object as a parameter.
+ */
+function lookup_newImplementation(address, callback) {
+    "use strict";
+    /**
+     * Request object for given parameters.
+     * @type {gapi.client.HttpRequest}
+     */
+
+    // We will auto detect which environment we are on (dev/stage/prod) and use the corresponding API-Proxy domain based on that
+    var weAreOnDomain = String(document.location);
+    var proxyDomain = '';
+    if (weAreOnDomain.indexOf('beta-dev.usa.gov') !== -1) {
+        proxyDomain = 'api-proxy-dev.usa.gov';
+    }
+    else if (weAreOnDomain.indexOf('cms-dev.usa.gov') !== -1) {
+        proxyDomain = 'api-proxy-dev.usa.gov';
+    }
+    else if (weAreOnDomain.indexOf('beta-stage.usa.gov') !== -1) {
+        proxyDomain = 'api-proxy-stage.usa.gov';
+    }
+    else if (weAreOnDomain.indexOf('cms-stage.usa.gov') !== -1) {
+        proxyDomain = 'api-proxy-stage.usa.gov';
+    }
+    else if (weAreOnDomain.indexOf('usa.gov') !== -1) {
+        proxyDomain = 'api-proxy.usa.gov';
+    }
+    else if (weAreOnDomain.indexOf('cms.usa.gov') !== -1) {
+        proxyDomain = 'api-proxy.usa.gov';
+    }
+    else {
+        // otherwise assume this is a local dev environment
+        proxyDomain = 'localhost';
+    }
+
+    console.log('The CEO tool is using the API-Proxy domain of: ' + proxyDomain);
+
+    var url = 'https://' + proxyDomain + '/proxy';
+    url += '?keyname=google-civic';
+    url += '&endpoint=civicinfo/v2/representatives';
+    url += '&address=' + address;
+    console.log('The CEO tool is using URL: ' + url);
+    jQuery.get(url, callback);
 }
 
 /**
