@@ -10,13 +10,18 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
-    // We will programmatically use the API-Proxy when requested by a Dev
-    if (document.cookie.indexOf('apiMode=') !== -1) {
+    // We can controle where the API is used from by toggling the value in this next variable
+    // Comment or uncoment out the appropriate line to toggle the setting
+    var apiMode = 'dev';
+    // var apiMode = 'localhost';
+    // var apiMode = 'legacy';
+
+    if (apiMode !== 'legacy') {
         var url = '';
-        if (document.cookie.indexOf('apiMode=localhost') !== -1) {
+        if (apiMode == 'localhost') {
             url += 'http://localhost:8080/proxy';
         }
-        else if (document.cookie.indexOf('apiMode=dev') !== -1) {
+        else if (apiMode == 'dev') {
             url += 'https://api-proxy-dev.app.cloud.gov/proxy';
         }
         url += '?keyname=google-civic';
@@ -24,27 +29,28 @@ function lookup(address, callback) {
         url += '&address=' + address;
         console.log('The CEO tool is using URL: ' + url);
         jQuery.get(url, callback);
-        return;
+
+    } else {
+
+        console.log('The CEO tool is using legacy behavior.');
+        let count=0;
+        var timer = window.setInterval(function() {
+            count++;
+            if (typeof gapi.client !== "undefined") {
+
+                window.clearInterval(timer);
+                let req = gapi.client.request({
+                    "path": "/civicinfo/v2/representatives",
+                    "params": {"address": address}
+                });
+                req.execute(callback);
+            }
+        else if (count > 100) {
+                // Stop trying after 100 attempts (10 seconds)
+                window.clearInterval(timer);
+            }
+        }, 100);
     }
-
-    console.log('The CEO tool is using legacy behavior.');
-    let count=0;
-    var timer = window.setInterval(function() {
-        count++;
-        if (typeof gapi.client !== "undefined") {
-
-            window.clearInterval(timer);
-            let req = gapi.client.request({
-                "path": "/civicinfo/v2/representatives",
-                "params": {"address": address}
-            });
-            req.execute(callback);
-        }
-    else if (count > 100) {
-            // Stop trying after 100 attempts (10 seconds)
-            window.clearInterval(timer);
-        }
-    }, 100);
 
 }
 
