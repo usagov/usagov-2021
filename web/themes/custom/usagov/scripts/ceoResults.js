@@ -73,7 +73,7 @@ function lookup_newImplementation(address, callback) {
     }
     else {
         // otherwise assume this is a local dev environment
-        proxyDomain = 'localhost';
+        proxyDomain = 'localhost:8080';
     }
 
     console.log('The CEO tool is using the API-Proxy domain of: ' + proxyDomain);
