@@ -139,6 +139,7 @@ def proxy_request():
         if not origin:
             origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
         origin = origin.replace("http://", "")
+        origin = origin.replace("https://", "")
 
         headers["referer"] = 'https://' + origin + '/'
 
@@ -167,9 +168,10 @@ def proxy_request():
             if not origin:
                 origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
             origin = origin.replace("http://", "")
+            origin = origin.replace("https://", "")
             if 'localhost' in origin or 'usa.gov' in origin:
                 respHeaders = {
-                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Origin": "https://" + origin,
                     "Access-Control-Allow-Headers": "Content-Type,Authorization",
                     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS"
                 }
