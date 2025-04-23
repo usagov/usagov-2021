@@ -54,31 +54,31 @@ function lookup_newImplementation(address, callback) {
     var weAreOnDomain = String(document.location.host);
     var proxyDomain = '';
     if (weAreOnDomain === 'beta-dev.usa.gov') {
-        proxyDomain = 'api-proxy-dev.usa.gov';
+        proxyDomain = 'https://api-proxy-dev.usa.gov';
     }
     else if (weAreOnDomain === 'cms-dev.usa.gov') {
-        proxyDomain = 'api-proxy-dev.usa.gov';
+        proxyDomain = 'https://api-proxy-dev.usa.gov';
     }
     else if (weAreOnDomain === 'beta-stage.usa.gov') {
-        proxyDomain = 'api-proxy-stage.usa.gov';
+        proxyDomain = 'https://api-proxy-stage.usa.gov';
     }
     else if (weAreOnDomain === 'cms-stage.usa.gov') {
-        proxyDomain = 'api-proxy-stage.usa.gov';
+        proxyDomain = 'https://api-proxy-stage.usa.gov';
     }
     else if (weAreOnDomain === 'usa.gov') {
-        proxyDomain = 'api-proxy.usa.gov';
+        proxyDomain = 'https://api-proxy.usa.gov';
     }
     else if (weAreOnDomain === 'cms.usa.gov') {
-        proxyDomain = 'api-proxy.usa.gov';
+        proxyDomain = 'https://api-proxy.usa.gov';
     }
     else {
         // otherwise assume this is a local dev environment
-        proxyDomain = 'localhost:8080';
+        proxyDomain = 'http://localhost:8080';
     }
 
     console.log('The CEO tool is using the API-Proxy domain of: ' + proxyDomain);
 
-    var url = 'https://' + proxyDomain + '/proxy';
+    var url = proxyDomain + '/proxy';
     url += '?keyname=google-civic';
     url += '&endpoint=civicinfo/v2/representatives';
     url += '&address=' + address;
