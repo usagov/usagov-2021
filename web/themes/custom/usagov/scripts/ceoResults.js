@@ -51,7 +51,7 @@ function lookup_newImplementation(address, callback) {
      */
 
     // We will auto detect which environment we are on (dev/stage/prod) and use the corresponding API-Proxy domain based on that
-    var weAreOnDomain = String(document.location);
+    var weAreOnDomain = String(document.location.host);
     var proxyDomain = '';
     if (weAreOnDomain.indexOf('beta-dev.usa.gov') !== -1) {
         proxyDomain = 'api-proxy-dev.usa.gov';
