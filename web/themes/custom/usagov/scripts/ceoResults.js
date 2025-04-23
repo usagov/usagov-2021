@@ -53,22 +53,22 @@ function lookup_newImplementation(address, callback) {
     // We will auto detect which environment we are on (dev/stage/prod) and use the corresponding API-Proxy domain based on that
     var weAreOnDomain = String(document.location.host);
     var proxyDomain = '';
-    if (weAreOnDomain == 'beta-dev.usa.gov') {
+    if (weAreOnDomain === 'beta-dev.usa.gov') {
         proxyDomain = 'api-proxy-dev.usa.gov';
     }
-    else if (weAreOnDomain == 'cms-dev.usa.gov') {
+    else if (weAreOnDomain === 'cms-dev.usa.gov') {
         proxyDomain = 'api-proxy-dev.usa.gov';
     }
-    else if (weAreOnDomain == 'beta-stage.usa.gov') {
+    else if (weAreOnDomain === 'beta-stage.usa.gov') {
         proxyDomain = 'api-proxy-stage.usa.gov';
     }
-    else if (weAreOnDomain == 'cms-stage.usa.gov') {
+    else if (weAreOnDomain === 'cms-stage.usa.gov') {
         proxyDomain = 'api-proxy-stage.usa.gov';
     }
-    else if (weAreOnDomain == 'usa.gov') {
+    else if (weAreOnDomain === 'usa.gov') {
         proxyDomain = 'api-proxy.usa.gov';
     }
-    else if (weAreOnDomain == 'cms.usa.gov') {
+    else if (weAreOnDomain === 'cms.usa.gov') {
         proxyDomain = 'api-proxy.usa.gov';
     }
     else {
