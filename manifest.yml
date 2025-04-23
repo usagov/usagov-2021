@@ -35,7 +35,7 @@ applications:
     BLOCKED_NAME: USAGov
     IP_ALLOWED: |
       # IPv4 addresses and CIDR blocks go here. Put IPv6 addresses in the IPV6_ALLOWED section.
-      # Both groups are validated by startup code; separating them makes the validation easier. 
+      # Both groups are validated by startup code; separating them makes the validation easier.
 
       # AWS EC2 Instances on the west-coast? Why do we have these? (see ticket USAGOV-1103)
       allow 52.222.122.97/32;
@@ -167,4 +167,5 @@ applications:
     - cron-event-storage
     - cron-callwait-storage
     - cron-service-account
+    - cron-secrets
   health-check-type: process

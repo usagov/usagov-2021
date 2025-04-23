@@ -8,7 +8,10 @@
 /.aws
 /*.crt
 /*.key
+
 /.idea
+.venv
+**/.venv
 
 *.sql
 *.gz
@@ -128,6 +131,9 @@ workspace.code-workspace
 manifest-egress-vars.yml
 .docker/src-egress/caddy
 .docker/src-reporter/local_proxy/caddy
+
+# api-proxy-cache will be created/populated if you run the api-proxy app locally:
+.buildpack/api-proxy/app/api-proxy-cache
 
 bin/deploy/logs/*.log
 bin/cloudgov/test/nr/logs/*
