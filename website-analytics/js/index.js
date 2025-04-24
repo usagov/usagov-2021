@@ -1113,6 +1113,6 @@
 
 function goToPage(){
   var selectElement = document.getElementById("agency-selector");
-  var optionValue = selectElement.value;
+  var optionValue = String(selectElement.value).replace(/<\/?[^>]+(>|$)/g, ""); //sanitization to prevent XSS
   window.location = optionValue;
 }

@@ -81,8 +81,7 @@ function ensure_route {
 ## Ensure routes exist before deployment
 echo "🔄 Checking routes..."
 basehost=$APP-${SPACE_NODOT}
-basehostusagov=${basehost}-usagov
-ensure_route "${basehostusagov}" "apps.internal"
+ensure_route "${basehost}-usagov" "apps.internal"
 if [[ "$ORG" == "gsa-tts-usagov" ]]; then
   # in prod, we drop the -space suffix for the "usa.gov" hostname:
   if [[ ${SPACE_NODOT} == "prod" ]]; then
@@ -90,9 +89,6 @@ if [[ "$ORG" == "gsa-tts-usagov" ]]; then
   else
       ensure_route "${basehost}" "usa.gov"
   fi
-  ensure_route "${basehost}" "app.cloud.gov" # TODO: This is temporary for testing purposes, remove for production
-else
-  ensure_route "app.cloud.gov"
 fi
 
 # If any routes were created, display them in a single message
@@ -110,8 +106,7 @@ fi
 
 # Add network policies
 echo "🔒 Configuring network policies..."
-if cf add-network-policy $APP cms --protocol tcp --port 61443 > /dev/null 2>&1 \
-   && cf add-network-policy cms $APP --protocol tcp --port 61443 > /dev/null 2>&1; then
+if cf add-network-policy waf $APP --protocol tcp --port 61443 > /dev/null 2>&1; then
   echo "✅ Network policies added."
 else
   echo "❌ Failed to configure network policies."
