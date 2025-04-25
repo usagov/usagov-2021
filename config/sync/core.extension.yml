@@ -52,6 +52,8 @@ module:
   log_stdout: 0
   media: 0
   media_library: 0
+  memcache: 0
+  memcache_admin: 0
   menu_block: 0
   menu_breadcrumb: 0
   menu_item_fields: 0
