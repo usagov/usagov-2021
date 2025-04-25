@@ -54,7 +54,7 @@ fi;
 mkdir -p $RENDER_DIR
 
 # copy from tome's output directory to our working directory RENDER_DIR
-# RISK: tome's output diretory is not locked, mulitple processes could cause issues
+# RISK: tome's output diretory is not locked, multiple processes could cause issues
 cp -Rp /var/www/html/* $RENDER_DIR
 cd $RENDER_DIR
 
