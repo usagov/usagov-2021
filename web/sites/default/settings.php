@@ -914,10 +914,14 @@ foreach ($cf_service_data as $service_list) {
 
 $settings['php_storage']['twig']['directory'] = '../storage/php';
 
-// CSS and JS aggregation need per dyno/container cache.
+// See https://git.drupalcode.org/project/memcache/blob/8.x-2.x/README.md for more memcache options.
+// Set the default cache backend to memcache:
+$settings['cache']['default'] = 'cache.backend.memcache';
+
+// CSS and JS aggregation need per-container cache. (memcache is currently set up per-container as well.)
 // This is from https://www.fomfus.com/articles/how-to-create-a-drupal-8-project-for-heroku-part-1
-// included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
+
 
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
@@ -929,6 +933,10 @@ if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
   $settings['cache']['bins']['data'] = 'cache.backend.null';
 }
 
+
+
+
+////////////////////////////////////////////////////////////
 // Override anything special for local development
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';

@@ -155,6 +155,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       nano \
       mysql-client \
       mariadb-connector-c \
+      memcached \
       nginx \
       nginx-mod-http-lua \
       php83 \
@@ -184,6 +185,7 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php83-pdo_sqlite \
       php83-pear \
       php83-pecl-imagick \
+      php83-pecl-memcached \
       php83-pecl-xdebug \
       php83-phar \
       php83-posix \

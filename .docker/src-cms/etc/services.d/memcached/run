@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+exec memcached -u memcached -m 48 -p 11211 -d
+
