@@ -915,10 +915,16 @@ foreach ($cf_service_data as $service_list) {
 $settings['php_storage']['twig']['directory'] = '../storage/php';
 
 // See https://git.drupalcode.org/project/memcache/blob/8.x-2.x/README.md for more memcache options.
-// Set the default cache backend to memcache:
-$settings['cache']['default'] = 'cache.backend.memcache';
+// Set the default cache backend to memcache. The installationAttempted() check enables drupal to
+// proceed using the database cache while installing the memcache module.
+// transition from non-memcache to memcache installation):
+if (! \Drupal\Core\Installer\InstallerKernel::installationAttempted()) {
+  $settings['cache']['default'] = 'cache.backend.memcache';
+}
 
-// CSS and JS aggregation need per-container cache. (memcache is currently set up per-container as well.)
+
+// CSS and JS aggregation need per-container cache because they will
+// point to locally-hosted files.
 // This is from https://www.fomfus.com/articles/how-to-create-a-drupal-8-project-for-heroku-part-1
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
