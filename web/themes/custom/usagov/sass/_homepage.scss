@@ -4,6 +4,109 @@
 // $hero: var( $usagov-variables, hero );
 // $card: var( $usagov-variables, card );
 
+.usagov-ai-chatbot-container {
+  position: fixed;
+  z-index: 50;
+  right: 0;
+  bottom: 0;
+  overflow: scroll;
+  width: 320px;
+  margin-bottom: 0 !important;
+  margin-right: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
+.usagov-ai-chatbot-header {
+  display: flex;
+  justify-content: space-between;
+
+  @include u-bg('cyan-30v');
+  @include u-padding-x(16px);
+  @include u-padding-y(8px);
+}
+
+.usagov-ai-chatbot-title {
+  display: flex;
+
+  @include u-font-size('sans', 'md');
+  @include u-text('gray-90');
+  @include u-text('bold');
+}
+
+.usagov-ai-chatbot-experimental {
+  width: fit-content;
+  height: fit-content;
+  align-self: center;
+  border-radius: 4px;
+  font-size: 12px;
+
+  @include u-text('gray-90');
+  @include u-text('bold');
+  @include u-bg('white');
+  @include u-border(2px, 'solid', 'gray-90');
+  @include u-padding-x(4px);
+  @include u-padding-y(2px);
+  @include u-margin-left(8px);
+}
+
+.usagov-ai-chatbot-disclaimer {
+  height: 60px;
+}
+
+.usagov-ai-chatbot-messages {
+  height: 357px;
+  overflow-y: auto;
+  @include u-padding-x(16px);
+  @include u-padding-y(8px);
+}
+
+.usagov-ai-chatbot-message {
+  display: flex;
+  align-items: flex-start;
+}
+
+#toogleBtn {
+  border: none;
+  background: none;
+  font-size: 24px;
+}
+
+.usagov-ai-chatbot-message.user {
+  justify-content: flex-end;
+}
+
+.usagov-ai-chatbot-message.bot {
+  justify-content: flex-start;
+}
+
+.usagov-ai-chatbot-message img {
+  border-radius: 50%;
+}
+
+.usagov-ai-chatbot-message .text {
+  @include u-bg('cyan-10');
+  @include u-padding-x(8px);
+  @include u-padding-y(4px);
+  @include u-margin-bottom(8px);
+  max-width: 70%;
+  border-radius: 4px;
+}
+
+.usagov-ai-chatbot-message.user .text{
+  @include u-bg('gray-90');
+  @include u-text('white');
+}
+
+.usagov-ai-chatbot-input {
+  height: 74px;
+}
+
+.usagov-ai-chatbot-body {
+  display: flex;
+  flex-direction: column;
+}
+
 .usagov-hero-homepage {
   @include u-bg('blue-80v');
 

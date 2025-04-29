@@ -1,0 +1,63 @@
+{#
+/**
+ * @file
+ * Theme override to display a block.
+ *
+ * Available variables:
+ * - plugin_id: The ID of the block implementation.
+ * - label: The configured label of the block if visible.
+ * - configuration: A list of the block's configuration values.
+ *   - label: The configured label for the block.
+ *   - label_display: The display settings for the label.
+ *   - provider: The module or other provider that provided this block plugin.
+ *   - Block plugin specific settings will also be stored here.
+ * - content: The content of this block.
+ * - attributes: array of HTML attributes populated by modules, intended to
+ *   be added to the main container tag of this template.
+ *   - id: A valid HTML ID and guaranteed unique.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ * - bundle: The bundle of a custom block.
+ * - view_mode: The view mode a custom block was rendered in.
+ *
+ * @see template_preprocess_block()
+ * @see block_content_preprocess_block()
+ */
+#}
+{%
+  set classes = [
+  'block',
+  'block-' ~ configuration.provider|clean_class,
+  'block-' ~ plugin_id|clean_class,
+  bundle ? 'block--type-' ~ bundle|clean_class,
+  view_mode ? 'block--view-mode-' ~ view_mode|clean_class,
+]
+%}
+<div class="usagov-ai-chatbot-container" >
+  <div class="usagov-ai-chatbot-header">
+    <div class="usagov-ai-chatbot-title">
+      USAGov Chatbot
+      <div class="usagov-ai-chatbot-experimental">Experimental</div>
+    </div>
+    <button id="toogleBtn">+</button>
+  </div>
+  <div class="usagov-ai-chatbot-body">
+    <div class="usagov-ai-chatbot-disclaimer"></div>
+    <div class="usagov-ai-chatbot-messages">
+      <div class="usagov-ai-chatbot-message bot">
+        <div class="text">I'm the chatbot</div>
+      </div>
+      <div class="usagov-ai-chatbot-message user">
+        <div class="text">I'm the user I'm the user I'm the user</div>
+      </div>
+    </div>
+    <div class="usagov-ai-chatbot-input">
+      <input type="text" id="userMessage" placeholder="Type a message..."/>
+      <button id="submitMessage">Submit</button>
+    </div>
+  </div>
+</div>
