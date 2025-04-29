@@ -1,0 +1,25 @@
+uuid: df72e567-de11-4bae-872f-b3c25b84d3c5
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:fbb9fa15-75cc-4d3a-94c2-ce979b70c956'
+  module:
+    - block_content
+  theme:
+    - usagov
+id: usagov_usagovchatbot
+theme: usagov
+region: header
+weight: -21
+provider: null
+plugin: 'block_content:fbb9fa15-75cc-4d3a-94c2-ce979b70c956'
+settings:
+  id: 'block_content:fbb9fa15-75cc-4d3a-94c2-ce979b70c956'
+  label: 'USAGov Chatbot'
+  label_display: visible
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }
