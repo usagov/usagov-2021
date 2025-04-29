@@ -1,5 +1,4 @@
 (function(exports) {
-
   // some hardcoded exceptions for consistently high-traffic
   // infrastructure. we will not add exceptions for any site
   // that happens to have trouble keeping permalinks.
@@ -28,11 +27,9 @@
     "forecast.weather.gov/mapclick.php": "National Weather Service - Forecasts by Region",
   };
 
-
   // common parsing and formatting functions
   var formatCommas = d3.format(","),
       parseDate = d3.time.format("%Y-%m-%d").parse,
-     // formatDate = d3.time.format("%A, %b %e"),
       formatDate = d3.time.format("%b %e"),
       formatPrefix = function(suffixes) {
         if (!suffixes) return formatCommas;
@@ -100,7 +97,6 @@
    * Define block renderers for each of the different data types.
    */
   var BLOCKS = {
-
     // the realtime block is just `data.totals.active_visitors` formatted with commas
     "realtime": renderBlock()
       .render(function(selection, data) {
@@ -108,8 +104,8 @@
         selection.text(formatCommas(+totals.active_visitors));
       }),
 
-      // the traffic sources 30 days block
-      "traffic-sources-30-days": renderBlock()
+    // the traffic sources 30 days block
+    "traffic-sources-30-days": renderBlock()
       .transform(function(data) {
         return data;
       })
@@ -124,7 +120,7 @@
               .series([data.data.reverse()])
               .y(y)
               .label(function(d) {
-               return formatDate(parseDate(d.date));
+                return formatDate(parseDate(d.date));
               })
               .title(function(d) {
                 return formatCommas(d.visits)
@@ -142,10 +138,39 @@
           .tickFormat(formatVisits);
 
         svg.call(series);
+
+        // Populate hidden table
+        var tbody = d3.select("#time-series-table-body").selectAll("tr").data(days);
+        tbody.exit().remove();
+        var tr = tbody.enter().append("tr");
+        tr.append("td").text(function(d) { return formatDate(parseDate(d.date)); });
+        tr.append("td").text(function(d) { return formatCommas(d.visits); });
+
+        // Generate insights
+        var maxVisit = d3.max(days, function(d) { return d.visits; }),
+            maxDay = days.find(function(d) { return d.visits === maxVisit; }),
+            avgVisits = d3.mean(days, function(d) { return d.visits; }),
+            weekendDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() === 0 || date.getDay() === 6;
+            }),
+            weekdayDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() !== 0 && date.getDay() !== 6;
+            }),
+            avgWeekend = d3.mean(weekendDays, function(d) { return d.visits; }),
+            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; });
+
+        d3.select("#time-series-insights").text(
+          "Traffic follows a weekly pattern with weekdays averaging " +
+          formatCommas(Math.round(avgWeekday)) + " visits and weekends averaging " +
+          formatCommas(Math.round(avgWeekend)) + " visits. The highest traffic occurred on " +
+          formatDate(parseDate(maxDay.date)) + " with " + formatCommas(maxVisit) + " visits."
+        );
       }),
 
-      // the traffic sources 30 days total block
-      "traffic-sources-30-days-totals": renderBlock()
+    // the traffic sources 30 days total block
+    "traffic-sources-30-days-totals": renderBlock()
       .render(function(selection, data) {
         var totals = data.totals;
         selection.text(formatCommas(+totals.visits));
@@ -189,7 +214,7 @@
     // the OS block is a stack layout
     "os": renderBlock()
       .transform(function(d) {
-        var [values, total] = returnValuesAndTotals(d,"os","visits");
+        var [values, total] = returnValuesAndTotals(d, "os", "visits");
         return addShares(collapseOther(values, total * .01));
       })
       .render(barChart()
@@ -199,7 +224,7 @@
     // the windows block is a stack layout
     "windows": renderBlock()
       .transform(function(d) {
-        var [values, total] = returnValuesAndTotals(d,"os_version","visits");
+        var [values, total] = returnValuesAndTotals(d, "os_version", "visits");
         return addShares(collapseOther(values, total * .01)); // % of Windows
       })
       .render(barChart()
@@ -209,32 +234,40 @@
     // the devices block is a stack layout
     "devices": renderBlock()
       .transform(function(d) {
-        var [values, total] = returnValuesAndTotals(d,"device","visits");
+        var [values, total] = returnValuesAndTotals(d, "device", "visits");
         return addShares(values);
       })
       .render(barChart()
         .value(function(d) { return d.share * 100; })
         .format(formatPercent))
       .on("render", function(selection, data) {
-        /*
-         * XXX this is an optimization. Rather than loading
-         * users.json, we total up the device numbers to get the "big
-         * number", saving us an extra XHR load.
-         */
         var total = d3.sum(data.map(function(d) { return d.value; }));
-        d3.select("#total_visitors")
-          .text(formatBigNumber(total));
+        d3.select("#total_visitors").text(formatBigNumber(total));
+        // Populate hidden table
+        var tbody = d3.select("#device-table-body").selectAll("tr").data(data);
+        tbody.exit().remove();
+        var tr = tbody.enter().append("tr");
+        tr.append("td").text(function(d) { return d.key; });
+        tr.append("td").text(function(d) { return formatPercent(d.share * 100); });
       }),
 
     // the browsers block is a table
     "browsers": renderBlock()
       .transform(function(d) {
-        var [values, total] = returnValuesAndTotals(d,"browser","visits");
+        var [values, total] = returnValuesAndTotals(d, "browser", "visits");
         return addShares(collapseOther(values, total * .01));
       })
       .render(barChart()
         .value(function(d) { return d.share * 100; })
-        .format(formatPercent)),
+        .format(formatPercent))
+      .on("render", function(selection, data) {
+        // Populate hidden table
+        var tbody = d3.select("#browser-table-body").selectAll("tr").data(data);
+        tbody.exit().remove();
+        var tr = tbody.enter().append("tr");
+        tr.append("td").text(function(d) { return d.key; });
+        tr.append("td").text(function(d) { return formatPercent(d.share * 100); });
+      }),
 
     // the IE block is a stack, but with some extra work done to transform the
     // data beforehand to match the expected object format
@@ -401,7 +434,6 @@
             .rangeRound([0, 1, 100]);
         })
         .format(formatCommas)),
-
   };
 
   // store a promise for each block
@@ -474,8 +506,7 @@
           }
         }
       }
-  }
-);
+  });
 
   // nest the IE chart inside the browsers chart once they're both rendered
   whenRendered(["browsers", "ie"], function() {
@@ -496,56 +527,91 @@
   /*
    * A very primitive, aria-based tab system!
    */
-  d3.selectAll("*[role='tablist']")
-    .each(function() {
-      // grab all of the tabs and panels
-      var tabs = d3.select(this).selectAll("*[role='tab'][href]")
-            .datum(function() {
-              var href = this.href,
-                  target = document.getElementById(href.split("#").pop());
-              return {
-                selected: this.getAttribute("aria-selected") === "true",
-                target: target,
-                tab: this
-              };
-            }),
-          panels = d3.select(this.parentNode)
-            .selectAll("*[role='tabpanel']");
+  d3.selectAll("*[role='tablist']").each(function() {
+    // grab all of the tabs and panels
+    var tabs = d3.select(this).selectAll("*[role='tab'][href]")
+          .datum(function() {
+            var href = this.href,
+                target = document.getElementById(href.split("#").pop());
+            return {
+              selected: this.getAttribute("aria-selected") === "true",
+              target: target,
+              tab: this
+            };
+          }),
+        panels = d3.select(this.parentNode)
+          .selectAll("*[role='tabpanel']");
 
-      // when a tab is clicked, update the panels
-      tabs.on("click", function(d) {
+    // when a tab is clicked, update the panels
+    tabs.on("click", function(d) {
+      d3.event.preventDefault();
+      tabs.each(function(tab) { tab.selected = false; });
+      d.selected = true;
+
+      update();
+
+      // Move focus to the selected tab
+      this.focus();
+
+      // track in google analytics
+      var link = this.href;
+      var text = this.text;
+      ga('send','event','Site Navigation', link, text);
+    });
+
+    // Add keyboard navigation
+    tabs.on("keydown", function(d) {
+      var currentIndex = tabs.nodes().indexOf(this),
+          nextIndex,
+          keyCode = d3.event.keyCode;
+
+      if (keyCode === 37 || keyCode === 38) { // Left or Up arrow
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.size() - 1;
+      } else if (keyCode === 39 || keyCode === 40) { // Right or Down arrow
+        nextIndex = currentIndex < tabs.size() - 1 ? currentIndex + 1 : 0;
+      } else if (keyCode === 13 || keyCode === 32) { // Enter or Space
         d3.event.preventDefault();
         tabs.each(function(tab) { tab.selected = false; });
         d.selected = true;
-
         update();
+        this.focus();
+        return;
+      } else {
+        return;
+      }
 
-        // track in google analytics
-        var link = this.href;
-        var text = this.text;
-        ga('send','event','Site Navigation', link, text);
-      });
-
-      // update them to start
+      d3.event.preventDefault();
+      tabs.each(function(tab) { tab.selected = false; });
+      tabs.nodes()[nextIndex].datum().selected = true;
       update();
+      tabs.nodes()[nextIndex].focus();
+    });
 
-      function update() {
-        var selected;
-        tabs.attr("aria-selected", function(tab) {
+    // update them to start
+    function update() {
+      var selected;
+      tabs
+        .attr("aria-selected", function(tab) {
           if (tab.selected) selected = tab.target;
           return tab.selected;
+        })
+        .attr("tabindex", function(tab) {
+          return tab.selected ? "0" : "-1";
         });
-        panels.attr("aria-hidden", function(panel) {
+      panels
+        .attr("aria-hidden", function(panel) {
           panel.selected = selected === this;
           return !panel.selected;
         })
         .style("display", function(d) {
           return d.selected ? null : "none";
         });
-      }
-    });
+    }
 
-  function returnValuesAndTotals(json_data, metric, addends ){
+    update();
+  });
+
+  function returnValuesAndTotals(json_data, metric, addends) {
     var metric_total = {}
     for (entry in json_data.data) {
       //metric isn't already in our dictionary
@@ -564,6 +630,7 @@
     );
     return [values,total]
   };
+
   /*
    * our block renderer is a d3 selection manipulator that does a bunch of
    * stuff:
@@ -690,50 +757,33 @@
   }
 
   function barChart() {
-    var bars = function(d) {
-          return d;
-        },
-        value = function(d) {
-          return d.value;
-        },
+    var bars = function(d) { return d; },
+        value = function(d) { return d.value; },
         format = String,
-        label = function(d) {
-          return d.key;
-        },
+        label = function(d) { return d.key; },
         scale = null,
-        size = function(n) {
-          return (n || 0).toFixed(1) + "%";
-        };
+        size = function(n) { return (n || 0).toFixed(1) + "%"; };
 
     var chart = function(selection) {
-      var bin = selection.selectAll(".bin")
-        .data(bars);
-
+      selection.attr("role", "list"); // Add list role to ul
+      var bin = selection.selectAll(".bin").data(bars);
       bin.exit().remove();
 
-      var enter = bin.enter().append("li");
-      enter.append("div")
-        .attr("class", "bin");
-      enter.append("div")
-        .attr("class", "label");
-      enter.append("div")
-        .attr("class", "value");
-      enter.append("div")
-        .attr("class", "bar")
-        .style("width", "0%");
+      var enter = bin.enter().append("li")
+        .attr("class", "bin")
+        .attr("tabindex", "0")
+        .attr("role", "listitem")
+        .attr("aria-label", function(d) { return d.key + ": " + format(value(d)); });
+      enter.append("div").attr("class", "bin");
+      enter.append("div").attr("class", "label");
+      enter.append("div").attr("class", "value");
+      enter.append("div").attr("class", "bar").style("width", "0%");
 
-      var _scale = scale
-        ? scale.call(selection, bin.data().map(value))
-        : null;
-      // console.log("scale:", _scale ? _scale.domain() : "(none)");
+      var _scale = scale ? scale.call(selection, bin.data().map(value)) : null;
       bin.select(".bar")
         .style("width", _scale
-          ? function(d) {
-            return size(_scale(value(d)));
-          }
-          : function(d) {
-            return size(value(d));
-          });
+          ? function(d) { return size(_scale(value(d))); }
+          : function(d) { return size(value(d)); });
 
       bin.select(".label").html(label);
       bin.select(".value").text(function(d, i) {
@@ -808,39 +858,42 @@
       yScale.range([bottom, top]);
       xScale.rangeRoundBands([left, right], 0, 0);
 
-      svg.attr("viewBox", [0, 0, width, height].join(" "));
+      svg
+        .attr("viewBox", [0, 0, width, height].join(" "))
+        .attr("tabindex", "0")
+        .attr("role", "img")
+        .attr("aria-labelledby", function() { return svg.node().querySelector("title").id; });
 
       element(svg, "g.axis.y0")
         .attr("transform", "translate(" + [left, 0] + ")")
         .attr("aria-hidden", "true")
         .transition()
           .duration(duration)
-          .call(yAxis
-            // .innerTickSize(left - right)
-            .orient("left"));
+          .call(yAxis.orient("left"));
 
       element(svg, "g.axis.y1")
         .attr("transform", "translate(" + [right, 0] + ")")
         .attr("aria-hidden", "true")
         .transition()
           .duration(duration)
-          .call(yAxis
-            .innerTickSize(innerTickSize)
-            .orient("right"));
+          .call(yAxis.innerTickSize(innerTickSize).orient("right"));
 
-      var g = svg.selectAll(".series")
-        .data(series);
+      var g = svg.selectAll(".series").data(series)
+        .attr("role", "list");
       g.exit().remove();
       g.enter().append("g")
-        .attr("class", "series");
+        .attr("class", "series")
+        .attr("role", "list");
 
       var barWidth = xScale.rangeBand();
 
-      var bar = g.selectAll(".bar")
-        .data(bars);
+      var bar = g.selectAll(".bar").data(bars);
       bar.exit().remove();
       var enter = bar.enter().append("g")
-        .attr("class", "bar");
+        .attr("class", "bar")
+        .attr("tabindex", "0")
+        .attr("role", "listitem")
+        .attr("aria-labelledby", function(d, i) { return "bar-" + i + "-label"; });
       enter.append("rect")
         .attr("width", barWidth)
         .attr("y", 0)
@@ -848,6 +901,10 @@
       enter.append("text")
         .attr("class", "label");
       enter.append("title");
+      enter.append("text")
+        .attr("class", "sr-only")
+        .attr("id", function(d, i) { return "bar-" + i + "-label"; })
+        .text(function(d) { return formatDate(parseDate(d.date)) + ": " + formatCommas(d.visits) + " visits"; });
 
       bar
         .datum(function(d) {
@@ -876,7 +933,6 @@
 
       bar.select(".label")
         .attr("text-anchor", "middle")
-        // .attr("alignment-baseline", "before-edge")
         .attr("dy", 10)
         .attr("dx", barWidth / 2)
         .text(label);
@@ -946,7 +1002,7 @@
     var el = selection.select(selector);
     if (!el.empty()) return el;
 
-    var bits = selector.split("."),
+    var bits = selector.split(". "),
         name = bits[0],
         klass = bits.slice(1).join(" ");
     return selection.append(name)
@@ -1032,7 +1088,6 @@
   }
 
   function nestOSCharts(selection, parentFilter, child) {
-
     var parent = selection.selectAll(".bin")
           .filter(parentFilter),
         scale = (child.attr("data-scale-to-parent") == "true"),
@@ -1056,15 +1111,19 @@
       .text(function(d) {
         return formatPercent(d.share * 100);
       });
-    console.log(parentFilter)
-    console.log(selection.selectAll(".label").filter(parentFilter))
+
+    // Add ARIA attributes
+    child
+      .attr("aria-describedby", "nested-windows-desc")
+      .append("desc")
+      .attr("id", "nested-windows-desc")
+      .text("Sub-chart showing Windows version distribution as a percentage of total Windows usage.");
 
     var xpath = "//div[text()='Windows']";
     var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-    var windowsParent = matchingElement.parentNode
+    var windowsParent = matchingElement.parentNode;
 
     windowsParent.appendChild(child.node());
-
   }
 
   // friendly console message
@@ -1091,28 +1150,25 @@
     console.log("%cIf you find a bug or something, please report it over at %chttps://github.com/GSA/analytics.usa.gov/issues", styles.medium, styles.medium_link);
     console.log("%cLike it, but want a different front-end? The data reporting is its own tool: %chttps://github.com/18f/analytics-reporter", styles.medium, styles.medium_link);
     console.log("%cThis is an open source, public domain project, and your contributions are very welcome.", styles.medium);
-
   }
 
-// Set the dropdown
-// var dropDown = document.getElementById('agency-selector');
+  // Skip link focus management
+  d3.select(".skip-to-main-content-link").on("click", function() {
+    d3.event.preventDefault();
+    var target = document.getElementById("skip-to-h1");
+    target.focus();
+  });
 
-// Start on change listener to load new page
-// d3.select(dropDown).on("change", function () {
-//   window.location= d3.select(this).property('value');
-// });
+  // Form submission handling
+  function goToPage() {
+    var selectElement = document.getElementById("agency-selector"),
+        optionValue = String(selectElement.value).replace(/<\/?[^>]+(>|$)/g, "");
+    window.location = optionValue;
+  }
 
-// for (var j = 0; j < dropDown.options.length; j++) {
-//   if (dropDown.options[j].value === window.location.pathname){
-//     dropDown.selectedIndex = j;
-//     break;
-//   }
-// }
+  d3.select(".select-agency-form").on("submit", function() {
+    d3.event.preventDefault();
+    goToPage();
+  });
 
 })(this);
-
-function goToPage(){
-  var selectElement = document.getElementById("agency-selector");
-  var optionValue = String(selectElement.value).replace(/<\/?[^>]+(>|$)/g, ""); //sanitization to prevent XSS
-  window.location = optionValue;
-}

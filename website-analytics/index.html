@@ -1,27 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Initalize title and data source variables -->
-
 <head>
   <!--
-
   Hi! Welcome to our source code.
-
   This dashboard uses data from the Digital Analytics Program, a US
   government team inside the General Services Administration, an independent
   federal agency.
-
-
   For a detailed tech breakdown of how 18F and friends built this site:
-
   https://18f.gsa.gov/2015/03/19/how-we-built-analytics-usa-gov/
-
-
   This is a fully open source project, and your contributions are welcome.
-
   Frontend static site: https://github.com/GSA/analytics.usa.gov
   Backend data reporting: https://github.com/18F/analytics-reporter
-
   -->
 
   <meta charset="utf-8">
@@ -72,7 +61,6 @@
     ga('send', 'pageview');
 
     document.addEventListener("DOMContentLoaded", function (event) {
-
       d3.selectAll('.download-data').on('click', function () {
         var link = this.href;
         var text = this.text;
@@ -96,7 +84,6 @@
         var text = this.text;
         ga('send', 'event', 'Top-Download File', link, text);
       });
-
     });
   </script>
 
@@ -110,7 +97,6 @@
   <link href="/website-analytics/css/google-fonts.css" rel="stylesheet" />
 </head>
 
-
 <body>
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NHDBX4B" height="0" width="0" style="display:none;visibility:hidden" title="GTM"></iframe></noscript>
@@ -118,26 +104,24 @@
 
   <header>
     <div class="header-parent">
-      <a href="#skip-to-h1" class="skip-to-main-content-link">
-        Skip to main content
-      </a>
+      <a href="#skip-to-h1" class="skip-to-main-content-link">Skip to main content</a>
 
       <div class="header-child header-logo">
-        <a href="https://www.usa.gov" class="header-child external-link remove-hover-underline" alt="USAGov Logo">
-          <img src="/website-analytics/images/usagov.png" alt="USAGov" />
+        <a href="https://www.usa.gov" class="header-child external-link remove-hover-underline" aria-label="Return to USAGov homepage">
+          <img src="/website-analytics/images/usagov.png" alt="USAGov logo" />
         </a>
       </div>
 
       <div class="header-child header-parent header-right">
         <div class="header-child header-dropdown">
           <form class="select-agency-form header-parent">
-            <label for="agency-selector">Select an agency</label>
+            <label for="agency-selector" class="usa-label">Select an agency</label>
             <select name="agency-selector" id="agency-selector" title="Agency Selection Dropdown">
               <option selected value="/website-analytics/">USA.gov and USA.gov/es/</option>
               <option value="/website-analytics/usagov/">USA.gov</option>
               <option value="/website-analytics/usagov-en-espanol/">USA.gov/es/</option>
             </select>
-            <button class="usa-button select-agency-form-button" type="button" onclick="goToPage()">Go</button>
+            <button class="usa-button select-agency-form-button" aria-label="Go to selected agency page" type="button" onclick="goToPage()">Go</button>
           </form>
         </div>
 
@@ -146,15 +130,12 @@
           <a href="/website-analytics/data/">Download Data</a>
         </div>
       </div>
-
     </div>
   </header>
 
   <div class="container">
-    <h1 id="skip-to-h1">
-      <a href="/website-analytics/" class="header-child external-link">
-        Analytics Dashboard
-      </a>
+    <h1 id="skip-to-h1" tabindex="-1">
+      <a href="/website-analytics/" class="header-child external-link">Analytics Dashboard</a>
     </h1>
 
     <div id="main_data" class="width-two-thirds">
@@ -163,19 +144,34 @@
         <h2>Total visits in the last 30 days</h2>
       </section>
 
-      <section id="realtime" data-block="traffic-sources-30-days-totals"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/traffic-sources-30-days.json">
-        <h2 id="current_visitors" class="data">...</h2>
+      <section id="realtime" data-block="traffic-sources-30-days-totals" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/traffic-sources-30-days.json">
+        <h2 id="current_visitors" class="data" aria-live="polite">...</h2>
       </section>
 
       <section class="section_headline">
         <h2>Visits in the Past 30 Days</h2>
       </section>
 
-      <section id="time_series" data-block="traffic-sources-30-days"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/traffic-sources-30-days.json">
-        <svg class="data time-series">
-        </svg>
+      <section id="time_series" data-block="traffic-sources-30-days" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/traffic-sources-30-days.json">
+        <figure>
+          <figcaption>Website Traffic Sources: Past 30 Days</figcaption>
+          <svg class="data time-series" role="img" aria-labelledby="time-series-title time-series-desc" viewBox="0 0 700 150">
+            <title class="sr-only" id="time-series-title">Daily Website Visit Counts</title>
+            <desc class="sr-only" id="time-series-desc">Bar chart showing daily website visits to USA.gov and USA.gov/es/ over the past 30 days. Traffic varies by day, with weekdays typically higher than weekends.</desc>
+          </svg>
+          <div class="sr-only chart-data-table" id="time-series-data-table">
+            <table>
+              <caption>Daily Website Visit Counts: Past 30 Days</caption>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Number of Visits</th>
+                </tr>
+              </thead>
+              <tbody id="time-series-table-body"></tbody>
+            </table>
+          </div>
+        </figure>
       </section>
       <!-- end past 30 days section -->
 
@@ -187,43 +183,65 @@
         There were <span id="total_visitors" class="data">...</span> visits over the past 90 days.
       </section>
 
-      <section id="devices" class="three_column" data-block="devices"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/devices.json">
+      <section id="devices" class="three_column" data-block="devices" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/devices.json">
         <h3>Devices</h3>
         <figure id="chart_device_types">
-          <ul class="data bar-chart">
+          <figcaption>Device Usage: Past 90 Days</figcaption>
+          <ul class="data bar-chart" role="img" aria-labelledby="device-chart-title device-chart-desc">
+            <title class="sr-only" id="device-chart-title">Device Usage Distribution</title>
+            <desc class="sr-only" id="device-chart-desc">Bar chart showing the percentage of visits by device type (e.g., desktop, mobile, tablet) to USA.gov and USA.gov/es/ over the past 90 days.</desc>
           </ul>
+          <div class="sr-only chart-data-table" id="device-data-table">
+            <table>
+              <caption>Device Usage Data: Past 90 Days</caption>
+              <thead>
+                <tr>
+                  <th>Device</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody id="device-table-body"></tbody>
+            </table>
+          </div>
         </figure>
-
-        <p>Based on rough network segmentation data, we estimate that <strong>less than 5%</strong> of all traffic across all agencies comes from U.S. federal government networks.
-        </p>
-        <p> Much more detailed data is available in <strong><a href="data/">downloadable CSV and JSON</a></strong>. This includes data on combined browser and OS usage. </p>
+        <p>Based on rough network segmentation data, we estimate that <strong>less than 5%</strong> of all traffic across all agencies comes from U.S. federal government networks.</p>
+        <p>Much more detailed data is available in <strong><a href="data/">downloadable CSV and JSON</a></strong>. This includes data on combined browser and OS usage.</p>
       </section>
 
       <section id="browsers" class="three_column">
         <h3>Browsers</h3>
-
-        <figure id="chart_browsers" data-block="browsers"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/browsers.json">
-          <ul class="data bar-chart">
+        <figure id="chart_browsers" data-block="browsers" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/browsers.json">
+          <figcaption>Browser Usage: Past 90 Days</figcaption>
+          <ul class="data bar-chart" role="img" aria-labelledby="browser-chart-title browser-chart-desc">
+            <title class="sr-only" id="browser-chart-title">Browser Usage Distribution</title>
+            <desc class="sr-only" id="browser-chart-desc">Bar chart showing the percentage of visits by browser type to USA.gov and USA.gov/es/ over the past 90 days.</desc>
           </ul>
-        </figure>
-
+          <div class="sr-only chart-data-table" id="browser-data-table">
+            <table>
+              <caption>Browser Usage Data: Past 90 Days</caption>
+              <thead>
+                <tr>
+                  <th>Browser</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody id="browser-table-body"></tbody>
+            </table>
+          </div>
         </figure>
       </section>
 
       <section id="operating_systems" class="three_column">
         <h3>Operating Systems</h3>
-
         <figure id="chart_os" data-block="os" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/os.json">
-          <ul class="data bar-chart">
+          <figcaption>Operating System Usage: Past 90 Days</figcaption>
+          <ul class="data bar-chart" role="img" aria-labelledby="os-chart-title os-chart-desc">
+            <title class="sr-only" id="os-chart-title">Operating System Usage Distribution</title>
+            <desc class="sr-only" id="os-chart-desc">Bar chart showing the percentage of visits by operating system to USA.gov and USA.gov/es/ over the past 90 days.</desc>
           </ul>
         </figure>
-
-        <figure id="chart_windows" data-block="windows"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/windows.json" data-scale-to-parent="true">
-          <ul class="data bar-chart windows-div">
-          </ul>
+        <figure id="chart_windows" data-block="windows" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/windows.json" data-scale-to-parent="true">
+          <ul class="data bar-chart windows-div"></ul>
         </figure>
       </section>
 
@@ -234,66 +252,52 @@
         <h2>Visitor Locations over the Past 90 Days</h2>
       </section>
 
-      <section id="cities" class="three_column" data-block="cities"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-cities-90-days.json">
+      <section id="cities" class="three_column" data-block="cities" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-cities-90-days.json">
         <h3>Cities</h3>
         <figure id="chart_top-cities-90-days">
-          <ul class="data bar-chart">
+          <figcaption>Top Cities: Past 90 Days</figcaption>
+          <ul class="data bar-chart" role="img" aria-labelledby="cities-chart-title cities-chart-desc">
+            <title class="sr-only" id="cities-chart-title">Top Cities by Visits</title>
+            <desc class="sr-only" id="cities-chart-desc">Bar chart showing the percentage of visits from the top cities to USA.gov and USA.gov/es/ over the past 90 days.</desc>
           </ul>
         </figure>
       </section>
 
       <section id="countries" class="three_column">
         <h3>Countries</h3>
-
-        <figure id="chart_us" data-block="countries"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-countries-90-days.json">
-          <ul class="data bar-chart">
-          </ul>
+        <figure id="chart_us" data-block="countries" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-countries-90-days.json">
+          <ul class="data bar-chart"></ul>
         </figure>
-
-        <figure id="chart_countries" data-block="international_visits"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-countries-90-days.json">
-          <h3>International</h3>
-          <ul class="data bar-chart">
-          </ul>
+        <figure id="chart_countries" data-block="international_visits" data-source="https://s3-us-gov-west-1.amazonaws.com   <h3>International</h3>
+          <ul class="data bar-chart"></ul>
         </figure>
       </section>
-
     </div>
 
     <div id="secondary_data" class="width-one-third">
       <section id="top_100_table">
-        <!-- see: http://heydonworks.com/practical_aria_examples/ -->
         <h2>Top <span id="top_table_type">Pages</span></h2>
         <ul class="pills" role="tablist">
-          <li><a role="tab" data-type="Pages" aria-selected="true" href="#top-pages-realtime" class="site-nav">Now</a></li>
-          <li><a role="tab" data-type="Domains" aria-selected="true" href="#top-pages-7-days" class="site-nav">7 Days</a></li>
-          <li><a role="tab" data-type="Domains" href="#top-pages-30-days" class="site-nav">30 Days</a></li>
+          <li><a role="tab" id="tab-realtime" data-type="Pages" aria-selected="true" aria-controls="top-pages-realtime" href="#top-pages-realtime" class="site-nav" tabindex="0">Now</a></li>
+          <li><a role="tab" id="tab-7-days" data-type="Domains" aria-selected="false" aria-controls="top-pages-7-days" href="#top-pages-7-days" class="site-nav" tabindex="-1">7 Days</a></li>
+          <li><a role="tab" id="tab-30-days" data-type="Domains" aria-selected="false" aria-controls="top-pages-30-days" href="#top-pages-30-days" class="site-nav" tabindex="-1">30 Days</a></li>
         </ul>
 
-        <figure class="top-pages" id="top-pages-7-days" role="tabpanel" data-block="top-pages"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-pages-7-days.json">
-          <h3>
-            <em>Unique pageviews over the last week.</em>
-          </h3>
-          <ul class="data bar-chart">
-          </ul>
+        <figure class="top-pages" id="top-pages-realtime" role="tabpanel" aria-labelledby="tab-realtime" aria-hidden="false">
+          <h3><em>Unique pageviews over the last week.</em></h3>
+          <ul class="data bar-chart"></ul>
         </figure>
-
-        <figure class="top-pages" id="top-pages-30-days" role="tabpanel" data-block="top-pages"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-pages-30-days.json">
-          <h3>
-            <em>Unique pageviews over the last 30 days.</em>
-          </h3>
-          <ul class="data bar-chart">
-          </ul>
+        <figure class="top-pages" id="top-pages-7-days" role="tabpanel" aria-labelledby="tab-7-days" aria-hidden="true" style="display: none;">
+          <h3><em>Unique pageviews over the last week.</em></h3>
+          <ul class="data bar-chart"></ul>
         </figure>
-
+        <figure class="top-pages" id="top-pages-30-days" role="tabpanel" aria-labelledby="tab-30-days" aria-hidden="true" style="display: none;">
+          <h3><em>Unique pageviews over the last 30 days.</em></h3>
+          <ul class="data bar-chart"></ul>
+        </figure>
       </section>
 
       <section id="top_external_links_table">
-        <!-- see: http://heydonworks.com/practical_aria_examples/ -->
         <h2>Top <span id="top_external_links_table_type">External Links</span></h2>
         <ul class="pills" role="tablist">
           <li><a role="tab" data-type="Links" aria-selected="true" href="#top-external-links-yesterday" class="site-nav">Yesterday</a></li>
@@ -301,31 +305,19 @@
           <li><a role="tab" data-type="Links" href="#top-external-links-30-days" class="site-nav">30 Days</a></li>
         </ul>
 
-        <figure class="top-pages" id="top-external-links-yesterday" role="tabpanel" data-block="top-external-links"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-yesterday.json" data-refresh="15">
-          <h3>
-            <em>Total external links clicked yesterday on USA.gov and USA.gov/es/.</em>
-          </h3>
-          <ul class="data bar-chart">
-          </ul>
+        <figure class="top-pages" id="top-external-links-yesterday" role="tabpanel" data-block="top-external-links" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-yesterday.json" data-refresh="15">
+          <h3><em>Total external links clicked yesterday on USA.gov and USA.gov/es/.</em></h3>
+          <ul class="data bar-chart"></ul>
         </figure>
 
-        <figure class="top-pages" id="top-external-links-7-days" role="tabpanel" data-block="top-external-links"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-7-days.json">
-          <h3>
-            <em>Total external links clicked over the last week on USA.gov and USA.gov/es/.</em>
-          </h3>
-          <ul class="data bar-chart">
-          </ul>
+        <figure class="top-pages" id="top-external-links-7-days" role="tabpanel" data-block="top-external-links" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-7-days.json">
+          <h3><em>Total external links clicked over the last week on USA.gov and USA.gov/es/.</em></h3>
+          <ul class="data bar-chart"></ul>
         </figure>
 
-        <figure class="top-pages" id="top-external-links-30-days" role="tabpanel" data-block="top-external-links"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-30-days.json">
-          <h3>
-            <em>Total external links clicked over the last 30 days on USA.gov and USA.gov/es/.</em>
-          </h3>
-          <ul class="data bar-chart">
-          </ul>
+        <figure class="top-pages" id="top-external-links-30-days" role="tabpanel" data-block="top-external-links" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-30-days.json">
+          <h3><em>Total external links clicked over the last 30 days on USA.gov and USA.gov/es/.</em></h3>
+          <ul class="data bar-chart"></ul>
         </figure>
       </section>
     </div>
@@ -334,12 +326,8 @@
   <div class="container">
     <section id="explanation" class="width-two-thirds">
       <h2>About this Site</h2>
-      <p>This data comes from a Google Analytics account of the U.S. General Services Administration. The data provides a window into how people are finding and interacting with <a
-          href="https://www.usa.gov/">USA.gov</a> and <a href="https://www.usa.gov/es/">USA.gov/es/</a> online. Individuals are not tracked and <a
-          href="https://support.google.com/analytics/answer/2763052?hl=en">visitor IP addresses are anonymized.</a> </p>
-      <p>This dashboard is based on the <a href="http://analytics.usa.gov/">analytics.usa.gov</a> open source project, which provides <a
-          href="https://github.com/GSA/analytics.usa.gov">code for the website</a> and <a href="https://github.com/18F/analytics-reporter">code behind the data collection</a> on
-        GitHub.</p>
+      <p>This data comes from a Google Analytics account of the U.S. General Services Administration. The data provides a window into how people are finding and interacting with <a href="https://www.usa.gov/">USA.gov</a> and <a href="https://www.usa.gov/es/">USA.gov/es/</a> online. Individuals are not tracked and <a href="https://support.google.com/analytics/answer/2763052?hl=en">visitor IP addresses are anonymized.</a></p>
+      <p>This dashboard is based on the <a href="http://analytics.usa.gov/">analytics.usa.gov</a> open source project, which provides <a href="https://github.com/GSA/analytics.usa.gov">code for the website</a> and <a href="https://github.com/18F/analytics-reporter">code behind the data collection</a> on GitHub.</p>
     </section>
 
     <section class="width-one-third">
@@ -364,7 +352,7 @@ IE11 JS targeting: https://stackoverflow.com/a/17447695
 -->
 <script type="text/javascript">
   window._ie10 = ("onpropertychange" in document && !!window.matchMedia);
-  window._ie11 = !!navigator.userAgent.match(/Trident\/7.0; rv 11/);
+  window._ie11 = !!navigator.userAgent.match(/-trident\/7.0; rv 11/);
   window._ie = window._ie9 || window._ie10 || window._ie11;
 </script>
 

@@ -732,10 +732,6 @@ ul.pills > li:last-child > a {
   margin-bottom: 0rem;
 }
 
-.bar-chart .bar-chart .bin .bar {
-  display: none;
-}
-
 .bar-chart .bin {
   position: relative;
   overflow: hidden;
@@ -957,4 +953,39 @@ a {
 
 .windows-div {
   flex-basis: 85%;
+}
+
+/* Accessibility styles */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.bar rect {
+  fill: #0066cc; /* Blue with sufficient contrast against white background */
+}
+
+.axis text {
+  fill: #333333; /* Dark gray for readability */
+}
+
+.time-series .label {
+  fill: #333333; /* Dark gray for readability */
+}
+
+figcaption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
