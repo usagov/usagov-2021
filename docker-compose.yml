@@ -76,6 +76,7 @@ services:
     depends_on:
       - database
       - minio
+      - cache1
 
   database:
     container_name: database
@@ -168,6 +169,27 @@ services:
       - ./env.local
     networks:
       - gsa-gov
+
+  cache1:
+    container_name: memcache1
+    image: memcached:1.6-alpine
+    command:
+      - --conn-limit=1024
+      - --memory-limit=64
+      - --threads=4
+    networks:
+      gsa-gov:
+        aliases:
+          - memcache1-local-usagov.apps.internal
+
+  cache2:
+    container_name: memcache2
+    image: memcached:1.6-alpine
+    command:
+    networks:
+      gsa-gov:
+        aliases:
+          - memcache2-local-usagov.apps.internal
 
 volumes:
   database_data:

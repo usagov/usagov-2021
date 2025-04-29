@@ -914,10 +914,23 @@ foreach ($cf_service_data as $service_list) {
 
 $settings['php_storage']['twig']['directory'] = '../storage/php';
 
+///////////////// Memcache settings ////////////////////////////////////////
 // See https://git.drupalcode.org/project/memcache/blob/8.x-2.x/README.md for more memcache options.
-// Set the default cache backend to memcache.
-// TODO: un-comment this for a follow-on deployment. The memcache module installation must happen first. 
-// $settings['cache']['default'] = 'cache.backend.memcache';
+////////////////////////////////////////////////////////////////////////////
+$memcache_exists = class_exists('Memcache', FALSE);
+$memcached_exists = class_exists('Memcached', FALSE);
+// TODO: verify that this doesn't fire if the module exists but is not yet enabled. 
+if ($memcache_exists || $memcached_exists) {
+  $cache_server1 = 'memcache1-' . $space_name . '-usagov.apps.internal';
+  $cache_server2 = 'memcache2-' . $space_name . '-usagov.apps.internal';
+  $settings['cache']['default'] = 'cache.backend.memcache';
+  $settings['memcache']['servers'] = [
+     $cache_server1 . ':11211' => 'default',
+     $cache_server2 . ':11211' => 'default',
+     ];
+  $settings['memcache']['bins'] = ['default' => 'default'];
+  $settings['memcache']['key_prefix'] = '';
+}
 
 
 // CSS and JS aggregation need per-container cache because they will
