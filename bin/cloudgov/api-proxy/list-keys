@@ -8,8 +8,8 @@ service_exists()
 }
 
 {
-  if service_exists "key-storage" ; then
-    KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
+  if service_exists "api-key-storage" ; then
+    KEY_STORE=$(cf curl /v3/service_instances/$(cf service api-key-storage --guid)/credentials)
     NAMES=$(echo "$KEY_STORE" | jq -r 'keys[]')
 
     for NAME in $NAMES; do
