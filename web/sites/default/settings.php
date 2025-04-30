@@ -937,6 +937,10 @@ if  ($use_redis) {
   $settings['cache']['default'] = 'cache.backend.redis';
   $settings['redis.connection']['persistent'] = TRUE;
 
+  // Try this after doing other benchmarking. 
+  // $settings['redis_invalidate_all_as_delete'] = TRUE;
+
+
   // host, port, and password are set from $VCAP_SERVICES (look for 'cache-service').
 
   // Use the redis cache tag checksum service.
