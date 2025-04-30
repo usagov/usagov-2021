@@ -875,32 +875,13 @@ workflows:
     jobs:
       - approve-build-and-push-container-cron:
           type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - approve-dev-deployment-cron:
           type: approval
           requires:
             - build-and-push-container-cron
-          filters:
-            branches:
-              only:
-              - dev
-              - USAGOV-2314-cron-for-scheduled-publish
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -912,11 +893,6 @@ workflows:
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
-          filters:
-            branches:
-              only:
-              - dev
-              - USAGOV-2314-cron-for-scheduled-publish
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
