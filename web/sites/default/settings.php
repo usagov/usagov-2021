@@ -915,22 +915,23 @@ foreach ($cf_service_data as $service_list) {
 $settings['php_storage']['twig']['directory'] = '../storage/php';
 
 ///////////////// Memcache settings ////////////////////////////////////////
-// See https://git.drupalcode.org/project/memcache/blob/8.x-2.x/README.md for more memcache options.
+// See https://git.drupalcode.org/project/memcache/blob/8.x-2.x/README.md 
+// for more memcache options.
+// n.b.: there are various checks you can do to see whether Memcache is installed,
+//       but none that will tell you whether it is installed and enabled
+//       at this point. So it is necessary to install and enable the
+//       drupal/memcache contributed module before deploying code that
+//       sets any $settings['cache'] to 'cache.backend.memcache'.
 ////////////////////////////////////////////////////////////////////////////
-$memcache_exists = class_exists('Memcache', FALSE);
-$memcached_exists = class_exists('Memcached', FALSE);
-// TODO: verify that this doesn't fire if the module exists but is not yet enabled. 
-if ($memcache_exists || $memcached_exists) {
-  $cache_server1 = 'memcache1-' . $space_name . '-usagov.apps.internal';
-  $cache_server2 = 'memcache2-' . $space_name . '-usagov.apps.internal';
-  $settings['cache']['default'] = 'cache.backend.memcache';
-  $settings['memcache']['servers'] = [
-     $cache_server1 . ':11211' => 'default',
-     $cache_server2 . ':11211' => 'default',
-     ];
-  $settings['memcache']['bins'] = ['default' => 'default'];
-  $settings['memcache']['key_prefix'] = '';
-}
+$cache_server1 = 'memcache1-' . $space_name . '-usagov.apps.internal';
+$cache_server2 = 'memcache2-' . $space_name . '-usagov.apps.internal';
+$settings['memcache']['servers'] = [
+   $cache_server1 . ':11211' => 'default',
+   $cache_server2 . ':11211' => 'default',
+   ];
+$settings['memcache']['bins'] = ['default' => 'default'];
+$settings['memcache']['key_prefix'] = '';
+$settings['cache']['default'] = 'cache.backend.memcache';
 
 
 // CSS and JS aggregation need per-container cache because they will
