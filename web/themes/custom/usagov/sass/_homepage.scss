@@ -51,7 +51,17 @@
 }
 
 .usagov-ai-chatbot-disclaimer {
-  height: 60px;
+  height: fit-content;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.usagov-ai-chatbot-disclaimer-title {
+  @include u-font-size('sans', 'md');
+}
+
+.usagov-ai-chatbot-disclaimer-body {
+  @include u-font-size('sans', 'xs');
 }
 
 .usagov-ai-chatbot-messages {
@@ -64,6 +74,10 @@
 .usagov-ai-chatbot-message {
   display: flex;
   align-items: flex-start;
+}
+
+#userMessage {
+  padding: 8px;
 }
 
 #toogleBtn {
@@ -98,8 +112,23 @@
   @include u-text('white');
 }
 
-.usagov-ai-chatbot-input {
+.usagov-ai-chatbot-input-container {
   height: 74px;
+  display: flex;
+  align-content: center;
+}
+
+.usagov-ai-chatbot-input {
+  flex: 75%;
+  border-radius: .25rem;
+  margin-top: 0;
+}
+
+.usagov-ai-chatbot-input-button {
+  flex: 25%;
+  height: 2.5rem;
+  @include u-padding-x(16px);
+  @include u-padding-y(8px);
 }
 
 .usagov-ai-chatbot-body {

@@ -46,8 +46,15 @@
     <button id="toogleBtn">+</button>
   </div>
   <div class="usagov-ai-chatbot-body">
-    <div class="usagov-ai-chatbot-disclaimer"></div>
     <div class="usagov-ai-chatbot-messages">
+      <div class="usagov-ai-chatbot-disclaimer">
+        <div class="usagov-ai-chatbot-disclaimer-title">
+          Today, {{ 'now'|date('g:i a') }}
+        </div>
+        <div class="usagov-ai-chatbot-disclaimer-body">
+          AI chat bots can make mistakes. Please verify important information.
+        </div>
+      </div>
       <div class="usagov-ai-chatbot-message bot">
         <div class="text">I'm the chatbot</div>
       </div>
@@ -55,9 +62,9 @@
         <div class="text">I'm the user I'm the user I'm the user</div>
       </div>
     </div>
-    <div class="usagov-ai-chatbot-input">
-      <input type="text" id="userMessage" placeholder="Type a message..."/>
-      <button id="submitMessage">Submit</button>
+    <div class="usagov-ai-chatbot-input-container">
+      <input type="text" id="userMessage" class="usa-input usagov-ai-chatbot-input" placeholder="Type a message..."/>
+      <button id="submitMessage" class="usa-button usagov-ai-chatbot-input-button">Submit</button>
     </div>
   </div>
 </div>
