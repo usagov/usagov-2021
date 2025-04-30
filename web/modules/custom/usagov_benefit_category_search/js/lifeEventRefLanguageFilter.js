@@ -49,7 +49,7 @@ function updateLifeEventRef(jQuery) {
     }
 
     $details.html(
-      "Showing " + selectedLanguage + " life events" + extraDetail
+      "Showing " + String(selectedLanguage).replace(/<\/?[^>]+(>|$)/g, "") + " life events" + extraDetail
       + " <button onclick='updateFilterState(\"false\")'>Show all life events. </button>"
     );
 
