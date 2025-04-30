@@ -10,12 +10,14 @@ use Drupal\Core\Routing\RouteMatch;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\Router;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\path_alias\AliasManagerInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 use Drupal\usagov_ssg_postprocessing\Data\PublishedPagesRow;
 use Drupal\usagov_wizard\WizardDataLayer;
+use Drupal\views\Views;
 use Drush\Attributes\Command;
 use Drush\Attributes\Argument;
 use Drush\Attributes\Usage;
@@ -26,9 +28,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * A Drush commandfile.
+ *
+ * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
  */
 final class PublishedPagesCommands extends DrushCommands {
 
+  /**
+   * @var array<string> $csvHeader
+   */
   private array $csvHeader = [
     "Hierarchy Level",
     "Page Type",
@@ -70,7 +77,7 @@ final class PublishedPagesCommands extends DrushCommands {
     parent::__construct();
   }
 
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       entityTypeManager: $container->get('entity_type.manager'),
       configFactory: $container->get('config.factory'),
@@ -92,7 +99,7 @@ final class PublishedPagesCommands extends DrushCommands {
     name: 'usagov_ssg_postprocessing:published-csv',
     description: 'Usage description')
   ]
-  public function publishedCsv($outfile) {
+  public function publishedCsv(mixed $outfile): void {
     $this->output()->writeln('<info>Publishing CSV to ' . $outfile . '</info>');
 
     $out = fopen($outfile, 'w');
@@ -112,7 +119,7 @@ final class PublishedPagesCommands extends DrushCommands {
     fclose($out);
   }
 
-  protected function saveNodeRows($out): void {
+  protected function saveNodeRows(mixed $out): void {
     $nids = $this->entityTypeManager
       ->getStorage('node')
       ->getQuery()
@@ -131,28 +138,62 @@ final class PublishedPagesCommands extends DrushCommands {
       ->execute();
 
     foreach ($nids as $nid) {
+
+      // Get DataLayer information on this node
       $node = $this->entityTypeManager->getStorage('node')->load($nid);
       $row = $this->getNodeRow($node)->toArray();
 
-      $row = array_map(fn($col) => trim($col), $row);
-      fputcsv($out, $row);
+      // Save this row into the spreadsheet
+      $this->saveNodeRow($out, $node, $row);
 
-      $origLanguage = $node->language();
-      if ($languages = $node->getTranslationLanguages()) {
-        foreach ($languages as $lang) {
-          if ($lang->getId() !== $origLanguage->getId()) {
-            // export translated node
-            $trNode = $node->getTranslation($lang->getId());
-            $trRow = $this->getNodeRow($trNode);
-            $fields = array_map(fn($field) => trim($field), $trRow->toArray());
-            fputcsv($out, $fields);
+      // If this is a Directory-Index, add in all letter pages (USAGOV-2103)
+      if ($row[1] == 'federal_directory_index') {
+        $baseUrl = $row[2];
+        $fullBaseUrl = $row[5];
+        $view = Views::getView('federal_agencies');
+
+        // Difference languages have different letters
+        if ($node->language()->getId() == 'en') {
+          $view->setDisplay('attachment_1');
+        }
+        else {
+          $view->setDisplay('attachment_2');
+        }
+
+        $view->execute();
+        foreach ($view->result as $result) {
+          $letter = strtolower($result->title_truncated);
+          if ($letter == 'a') {
+            continue;
           }
+          $row[2] = $baseUrl . '/' . $letter;
+          $row[5] = $fullBaseUrl . '/' . $letter;
+          $this->saveNodeRow($out, $node, $row);
         }
       }
     }
   }
 
-  protected function saveWizardRows($out): void {
+  protected function saveNodeRow(mixed $out, Node $node, mixed $row): void {
+
+    $row = array_map(fn($col) => trim($col), $row);
+    fputcsv($out, $row);
+
+    $origLanguage = $node->language();
+    if ($languages = $node->getTranslationLanguages()) {
+      foreach ($languages as $lang) {
+        if ($lang->getId() !== $origLanguage->getId()) {
+          // export translated node
+          $trNode = $node->getTranslation($lang->getId());
+          $trRow = $this->getNodeRow($trNode);
+          $fields = array_map(fn($field) => trim($field), $trRow->toArray());
+          fputcsv($out, $fields);
+        }
+      }
+    }
+  }
+
+  protected function saveWizardRows(mixed $out): void {
     $tids = $this->entityTypeManager
       ->getStorage('taxonomy_term')
       ->getQuery()
@@ -170,7 +211,7 @@ final class PublishedPagesCommands extends DrushCommands {
     }
   }
 
-  protected function getNodeRow(Node $node): PublishedPagesRow {
+  protected function getNodeRow(NodeInterface $node): PublishedPagesRow {
     $front_uri = $this->configFactory->get('system.site')->get('page.front');
     $alias = $this->pathAliasManager->getAliasByPath('/node/' . $node->id());
 
@@ -209,7 +250,7 @@ final class PublishedPagesCommands extends DrushCommands {
    * entity we are exporting that the datalayer module can look up via the
    * breadcrumb manager.
    */
-  private function getRouteMatchForNode(Node $node): RouteMatchInterface {
+  private function getRouteMatchForNode(NodeInterface $node): RouteMatchInterface {
     $route = $this->router->match('/node/' . $node->id());
 
     return new RouteMatch(
@@ -228,6 +269,10 @@ final class PublishedPagesCommands extends DrushCommands {
     return PublishedPagesRow::datalayerForWizard($data, $wizard, $baseURL);
   }
 
+  /**
+   * @param TaxonomyBreadcrumb $data
+   * @return TaxonomyBreadcrumb
+   */
   private function alterDatalayer(array $data): array {
     // Let other modules add to the datalayer payload.
     $datalayerEvent = new DatalayerAlterEvent($data);

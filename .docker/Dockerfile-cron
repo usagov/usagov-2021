@@ -1,4 +1,4 @@
-### 
+###
 FROM alpine:3.18 AS cron
 
 ARG S6_VERSION
@@ -54,6 +54,7 @@ RUN tar xzf /tmp/s6overlay.tar.gz -C / \
 # cron setup
 RUN mkdir -p /etc/periodic/1min \
     && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
+    && echo "*/5  *       *       *       *       run-parts /etc/periodic/5min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 

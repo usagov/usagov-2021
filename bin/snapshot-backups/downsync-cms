@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Restore CMS database and files to a specific environment.
 # Typically used for "downsync" from prod to dev or stage.
 

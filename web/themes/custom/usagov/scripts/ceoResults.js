@@ -10,6 +10,15 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
+    // We will use the new API-Proxy implementation by default
+    // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
+    if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
+        lookup_newImplementation(address, callback);
+        return;
+    }
+
+    console.log('The CEO tool running the legacy system (not utilizing the API-Proxy)');
+
     let count=0;
     var timer = window.setInterval(function() {
         count++;
@@ -27,6 +36,54 @@ function lookup(address, callback) {
         }
     }, 100);
 
+}
+
+/**
+ * Build and execute request to look up elected officials for provided address.
+ * @param {string} address Address for which to fetch elected officials info.
+ * @param {function(Object)} callback Function which takes the response object as a parameter.
+ */
+function lookup_newImplementation(address, callback) {
+    "use strict";
+    /**
+     * Request object for given parameters.
+     * @type {gapi.client.HttpRequest}
+     */
+
+    // We will auto detect which environment we are on (dev/stage/prod) and use the corresponding API-Proxy domain based on that
+    var weAreOnDomain = String(document.location.host);
+    var proxyDomain = '';
+    if (weAreOnDomain === 'beta-dev.usa.gov') {
+        proxyDomain = 'https://api-proxy-dev.usa.gov';
+    }
+    else if (weAreOnDomain === 'cms-dev.usa.gov') {
+        proxyDomain = 'https://api-proxy-dev.usa.gov';
+    }
+    else if (weAreOnDomain === 'beta-stage.usa.gov') {
+        proxyDomain = 'https://api-proxy-stage.usa.gov';
+    }
+    else if (weAreOnDomain === 'cms-stage.usa.gov') {
+        proxyDomain = 'https://api-proxy-stage.usa.gov';
+    }
+    else if (weAreOnDomain === 'usa.gov') {
+        proxyDomain = 'https://api-proxy.usa.gov';
+    }
+    else if (weAreOnDomain === 'cms.usa.gov') {
+        proxyDomain = 'https://api-proxy.usa.gov';
+    }
+    else {
+        // otherwise assume this is a local dev environment
+        proxyDomain = 'http://localhost:8080';
+    }
+
+    console.log('The CEO tool is using the API-Proxy domain of: ' + proxyDomain);
+
+    var url = proxyDomain + '/proxy';
+    url += '?keyname=google-civic';
+    url += '&endpoint=civicinfo/v2/representatives';
+    url += '&address=' + address;
+    console.log('The CEO tool is using URL: ' + url);
+    jQuery.get(url, callback);
 }
 
 /**
@@ -98,8 +155,10 @@ function renderResults(response, rawResponse) {
         }
     };
 
+    // Ternary to preserve how the labels work with the custom twig templates.
     // const content = (typeof usagovCEOtext !== "undefined") ? usagovCEOtext : backupTranslations[ document.documentElement.lang ];
-    const content = backupTranslations[ document.documentElement.lang ];
+    const content = (typeof usagovCEOlabels !== "undefined") ?
+      usagovCEOlabels : backupTranslations[document.documentElement.lang];
 
     // Get location for where to attach the rendered results
     let resultsDiv = document.getElementById("results");
@@ -277,7 +336,7 @@ function renderResults(response, rawResponse) {
                 address = address[0].line1 + "<br>" + address[0].city + ", " + address[0].state + " " + address[0].zip;
 
                 nextElem = document.createElement("li");
-            nextElem.classList.add("padding-bottom-2");
+                nextElem.classList.add("padding-bottom-2");
                 nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
@@ -353,7 +412,7 @@ function renderResults(response, rawResponse) {
                 let linkToContact = document.createElement("button");
                 let firstEmail = email[0];
 
-                linkToContact.setAttribute("class", "usa-button usa-button--secondary state-email");
+                linkToContact.setAttribute("class", "usa-button usagov-button state-email");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.style.marginBottom = "8px";
                 linkToContact.innerHTML = content["contact-via-email"];

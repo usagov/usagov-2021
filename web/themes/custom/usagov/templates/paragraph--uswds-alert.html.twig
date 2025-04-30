@@ -64,20 +64,62 @@
 
 {{ attach_library('uswds_paragraph_components/uswds-alerts') }}
 
+{% if node.langcode.langcode == "es" %}
+  {% set translations = {
+    'info': 'información',
+    'warning': 'aviso',
+    'error': 'error',
+    'success': 'exito',
+  } %}
+{% else %}
+  {% set translations = {
+    'info': 'info',
+    'warning': 'warning',
+    'error': 'error',
+    'success': 'success',
+  } %}
+{% endif %}
+
 {# Prints div with classes, and content without Width and Background. #}
-<div{{ attributes.addClass(classes) }} role="region" aria-label={{ alert_status }}>
+{% if alert_status %}
+  {% if alert_status == "info" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.info }}>
+  {% endif %}
+  {% if alert_status == "warning" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.warning }}>
+  {% endif %}
+  {% if alert_status == "error" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.error }}>
+  {% endif %}
+  {% if alert_status == "success" %}
+    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.success }}>
+  {% endif %}
+{% else %}
+  <div{{ attributes.addClass(classes) }}>
+{% endif %}
     <div class="usa-alert__body">
-    {% if 'usa-alert--no-icon' not in classes %}
-    <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
-    <svg role="img" aria-label={{ alert_status }}>
-    <title aria-labelledby="usa-alert--1__heading">{{ alert_status }}</title>
-    </svg>
+    {% if alert_status %}
+      <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
+        <svg role="img" aria-label={{ alert_status }}>
+        {% if alert_status == "info" %}
+          <title aria-labelledby="usa-alert--1__heading">{{translations.info}}</title>
+        {% endif %}
+         {% if alert_status == "warning" %}
+           <title>{{translations.warning}}</title>
+        {% endif %}
+         {% if alert_status == "error" %}
+           <title>{{translations.error}}</title>
+        {% endif %}
+         {% if alert_status == "success" %}
+           <title>{{translations.success}}</title>
+        {% endif %}
+        </svg>
      </span>
-     {% endif %}
+    {% endif %}
     {% if not paragraph.field_alert_title.isempty %}
-    <div id="usa-alert--1__heading">
-      <h2 class="usa-alert__heading">{{ content.field_alert_title }}</h2>
-    </div>
+      <div id="usa-alert--1__heading">
+        <h2 class="usa-alert__heading">{{ content.field_alert_title }}</h2>
+      </div>
     {% endif %}
     {{ content.field_alert_body }}
   </div>

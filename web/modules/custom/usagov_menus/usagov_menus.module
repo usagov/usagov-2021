@@ -1,9 +1,15 @@
 <?php
 
+use Drupal\node\Entity\Node;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
+
 /**
  * Implements hook_theme().
+ *
+ * @param array<string, mixed> $existing
+ * @return array<string, mixed>
  */
-function usagov_menus_theme($existing, $type, $theme, $path) {
+function usagov_menus_theme(array $existing, string $type, string $theme, string $path): array {
   return [
     'usagov_menu_mobile' => [
       'variables' => [
@@ -28,4 +34,24 @@ function usagov_menus_theme($existing, $type, $theme, $path) {
       ],
     ],
   ];
+}
+
+/**
+ * @param array<string, mixed> $variables
+ */
+function usagov_menus_preprocess_usagov_menu_mobile(&$variables): void {
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
+  $variables['dirRecordBreadLevel1En'] = TaxonomyDatalayerBuilder::aboutGovtEn();
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - Spanish
+  $variables['dirRecordBreadLevel1Es'] = TaxonomyDatalayerBuilder::aboutGovtEs();
+
+  // USAGOV-2287: Look up the title for the 1st level breadcrumb for Directory - English
+  $variables['dirRecordBreadLevel2AgencyEn'] = TaxonomyDatalayerBuilder::agencyIndexEn();
+  $variables['dirRecordBreadLevel2StateEn'] = TaxonomyDatalayerBuilder::stateIndexEn();
+
+  // USAGOV-2287: Look up the title for the 2nd level breadcrumb for Directory - Spanish
+  $variables['dirRecordBreadLevel2AgencyEs'] = TaxonomyDatalayerBuilder::agencyIndexEs();
+  $variables['dirRecordBreadLevel2StateEs'] = TaxonomyDatalayerBuilder::stateIndexEs();
 }

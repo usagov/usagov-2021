@@ -29,7 +29,6 @@
   }
 
   &--content {
-
     /* There's some USWDS style rule which puts a bunch of margin-top on
     h1 elements if there is an element in between it and the parent <div> that has .usa-prose on it.
     We dont want that. */
@@ -39,7 +38,7 @@
     }
 
     h1, h2, h3, h4 {
-      font-family: Merriweather Web,Georgia,Cambria,Times New Roman,Times,serif;
+      @include u-font-family('serif');
     }
 
     .usagov-wizard--content-step-indicator {
@@ -48,7 +47,6 @@
     }
 
     h2 {
-      font-size: 2rem;
       line-height: 120%;
     }
 

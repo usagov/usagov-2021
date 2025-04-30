@@ -8,7 +8,10 @@
 /.aws
 /*.crt
 /*.key
+
 /.idea
+.venv
+**/.venv
 
 *.sql
 *.gz
@@ -49,6 +52,9 @@
 /web/sites/default/*.zip
 /web/sites/default/*.tar
 /web/sites/default/*.tgz
+/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
+/web/modules/custom/usagov_ssg_postprocessing/files/s3-files.txt
+/web/modules/custom/usagov_ssg_postprocessing/files/tome-files.txt
 
 # Ignore configuration files that may contain sensitive information
 /web/sites/*.php
@@ -75,6 +81,8 @@
 
 /content/*
 /files/*
+
+#This keeps the directory ignored but allows Git to track only HTML files, which makes git diff work.
 /html/*
 
 env.local
@@ -113,6 +121,9 @@ web/themes/custom/usagov/img
 # # Ignore published-pages.csv file
 web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
 
+# Ignore report.csv which is created by the USAGOV-2180 script
+report.csv
+
 .vscode
 .vscode/settings.json
 workspace.code-workspace
@@ -120,6 +131,9 @@ workspace.code-workspace
 manifest-egress-vars.yml
 .docker/src-egress/caddy
 .docker/src-reporter/local_proxy/caddy
+
+# api-proxy-cache will be created/populated if you run the api-proxy app locally:
+.buildpack/api-proxy/app/api-proxy-cache
 
 bin/deploy/logs/*.log
 bin/cloudgov/test/nr/logs/*

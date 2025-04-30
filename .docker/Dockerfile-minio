@@ -1,7 +1,7 @@
 FROM minio/minio:RELEASE.2022-10-24T18-35-07Z
 
 ARG BUILD_ENV
-ENV BUILD_ENV ${BUILD_ENV:-none}
+ENV BUILD_ENV=${BUILD_ENV:-none}
 
 COPY .docker/src-minio/docker-entrypoint-minio.sh /docker-entrypoint-minio.sh
 COPY .docker/src-minio/setup-bucket.sh /setup-bucket.sh
@@ -12,9 +12,14 @@ COPY .docker/src-minio/certs/ /root/.minio/certs/
 COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
 RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /etc/pki/ca-trust/source/anchors/zscaler.crt ; update-ca-trust ; fi
 
-RUN curl -L https://dl.min.io/client/mc/release/linux-amd64/mc \
-        -s -q --create-dirs \
-        -o /opt/bin/mc \
+RUN export ARCH=`uname -m` && \
+    if [ "$ARCH" = "aarch64" ]; then \
+        curl -L https://dl.min.io/client/mc/release/linux-arm64/mc -s -q --create-dirs -o /opt/bin/mc; \
+    elif [ "$ARCH" = "x86_64" ]; then \
+        curl -L https://dl.min.io/client/mc/release/linux-amd64/mc -s -q --create-dirs -o /opt/bin/mc; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi \
     && chmod +x /opt/bin/mc \
     && chmod +x /docker-entrypoint-minio.sh
 

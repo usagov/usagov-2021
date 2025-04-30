@@ -10,16 +10,17 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class SsgStatController extends ControllerBase {
 
-  protected $requestStack;
-
-  public function __construct(RequestStack $request_stack) {
-    $this->requestStack = $request_stack;
+  public function __construct(
+    protected RequestStack $requestStack,
+  ) {
   }
 
-  public function content() {
-
-    $date = \Drupal::state()->get('ssg_stat_date');
-    $msg = \Drupal::state()->get('ssg_stat_msg');
+  /**
+   * @return array<mixed>
+   */
+  public function content(): array {
+    $date = $this->state()->get('ssg_stat_date');
+    $msg = $this->state()->get('ssg_stat_msg');
 
     if (empty($msg)) {
       $markup = "Static Site Generator has not been run on this environment yet.";
@@ -32,17 +33,19 @@ class SsgStatController extends ControllerBase {
     return ['#markup' => $markup, '#cache' => ['max-age' => 0]];
   }
 
-  /*
-   * This is a utility use in order to test what the WAF and proxies will do with wait-timeouts.
-   * See ticket USAGOV-1927.
+  /**
+   * This is a utility. Use in order to test what the WAF and proxies will do with wait-timeouts
+   * See ticket USAGOV-1927
+   *
+   * @return array<mixed>
    */
-  public function siteLagTest() {
+  public function siteLagTest(): array {
 
     $request = $this->requestStack->getCurrentRequest();
     $waitParam = $request->query->get('wait');
 
     if (!empty($waitParam)) {
-      $wait = intval($waitParam);
+      $wait = (int) $waitParam;
     }
     if (!empty($wait)) {
       sleep($wait);

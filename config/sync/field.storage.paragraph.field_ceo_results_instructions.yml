@@ -1,0 +1,19 @@
+uuid: a6799e84-fca8-478d-8049-483ac56c1755
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+    - text
+id: paragraph.field_ceo_results_instructions
+field_name: field_ceo_results_instructions
+entity_type: paragraph
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

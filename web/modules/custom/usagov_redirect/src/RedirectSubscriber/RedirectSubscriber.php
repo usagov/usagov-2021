@@ -30,7 +30,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *
    * @param ResponseEvent $event
    */
-  public function checkForRedirection(ResponseEvent $event) {
+  public function checkForRedirection(ResponseEvent $event): void {
 
     $response = $event->getResponse();
 

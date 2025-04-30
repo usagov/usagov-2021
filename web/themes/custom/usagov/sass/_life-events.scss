@@ -7,6 +7,7 @@
   h1 {
     @include u-bg('blue-80v');
     @include u-text('white');
+
     padding: 15px 45px 8px 35px;
     width: fit-content;
 
@@ -25,6 +26,7 @@
   .usagov-cards {
     max-width: 960px;
     @include u-bg('gray-4');
+
     margin-right: 0;
   }
 }
@@ -43,12 +45,14 @@
   .usa-card__container {
     @include u-bg('blue-80v');
     @include u-text('white');
+
     border: none;
     border-radius: 0;
   }
 
   .usa-card__body {
     @include u-text('white');
+
     padding-bottom: 1.5rem;
   }
 
@@ -59,6 +63,7 @@
 
   .usa-card__container .usa-card__header .usa-card__heading .card-link {
     @include u-text('white');
+
     text-decoration-line: underline;
     text-decoration-thickness: 7px;
     text-decoration-color: $cyan-text-decoration;
@@ -99,6 +104,7 @@
   outline-offset: 0;
   box-shadow: none;
 }
+
 .life-events-landing-page-card-image {
   aspect-ratio: 5/2;
   background-size: cover;
@@ -109,6 +115,7 @@
   align-items: center;
   @include u-bg('blue-80v');
   @include u-text('white');
+
   height: 3.5rem;
   padding: 1rem;
 }

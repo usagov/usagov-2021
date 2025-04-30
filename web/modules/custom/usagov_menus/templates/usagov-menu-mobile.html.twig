@@ -4,13 +4,13 @@
   {% if node.langcode.langcode == "es" %}
     {% set active_trail = [
       {
-        title: "Acerca de EE. UU. y directorios del Gobierno",
+        title: dirRecordBreadLevel1Es,
         url: "/es/acerca-de-estados-unidos",
         in_active_trail: true,
         active: false
       },
       {
-        title: "Agencias federales",
+        title: dirRecordBreadLevel2AgencyEs,
         url: "/es/indice-agencias",
         in_active_trail: true,
         active: false
@@ -19,13 +19,13 @@
   {% else %}
     {% set active_trail = [
       {
-        title: "About the U.S. and its government",
+        title: dirRecordBreadLevel1En,
         url: "/about-the-us",
         in_active_trail: true,
         active: false
       },
       {
-        title: "A-Z index of U.S. government departments and agencies",
+        title: dirRecordBreadLevel2AgencyEn,
         url: "/agency-index",
         in_active_trail: true,
         active: false
@@ -38,13 +38,13 @@
   {% if node.langcode.langcode == "es" %}
     {% set active_trail = [
       {
-        title: "Acerca de EE. UU. y directorios del Gobierno",
+        title: dirRecordBreadLevel1Es,
         url: "/es/acerca-de-estados-unidos",
         in_active_trail: true,
         active: false
       },
       {
-        title: "Gobiernos estatales",
+        title: dirRecordBreadLevel2StateEs,
         url: "/es/gobiernos-estatales",
         in_active_trail: true,
         active: false
@@ -53,13 +53,13 @@
   {% else %}
     {% set active_trail = [
       {
-        title: "About the U.S. and its government",
+        title: dirRecordBreadLevel1En,
         url: "/about-the-us",
         in_active_trail: true,
         active: false
       },
       {
-        title: "State governments",
+        title: dirRecordBreadLevel2StateEn,
         url: "/state-governments",
         in_active_trail: true,
         active: false
@@ -108,11 +108,9 @@
           {% set label_string = translations.search %}
           {% set alt_string = translations.search %}
         {% endembed %}
-        <span class="usa-nav__secondary-links">
-          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
-            <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
-          </span>
-        </span>
+        <div class="usa-nav__secondary-links">
+          {{ drupal_region('top_nav_mobile') }}
+        </div>
       </div>
     </div>
 
@@ -165,14 +163,14 @@
                       {% else %}
                         {% set class = " sibling" %}
                       {% endif %}
-                      <li class="navigation__item{{class}}">
+                      <li class="navigation__item{{ class }}">
                         <a href="{{ child.active ? "#" : child.url }}">{{ child.title }}</a>
                       </li>
                     {% endfor %}
                   </ul>
                 </li>
               {% else %}
-                <li class="navigation__item{{class}}">
+                <li class="navigation__item{{ class }}">
                   <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.title }}</a>
                   {# Show any children of the active item #}
                   {% if menu_item.active and menu_item.below is not empty %}
@@ -196,7 +194,7 @@
                         {% endfor %}
                       {% endif %}
                       <li class="navigation__item active">
-                        <a href="#">{{node.title.value}}</a>
+                        <a href="#">{{ node.title.value }}</a>
                       </li>
                     </ul>
                   {% endif %}

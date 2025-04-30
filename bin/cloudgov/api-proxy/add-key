@@ -1,0 +1,88 @@
+#!/bin/bash
+set -e  # Exit on any error
+
+# this function is a convenient semantic wrapper around a one-liner
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
+KEY_NAME=${1:-} # Arbitrary name for the key.
+KEY_DOMAIN=${2:-} # The base url of the api.
+KEY_VALUE=${3:-} # The api key value.
+OPTIONS=${4:-} # Optional json-formatted flags to attach to the key.
+
+# Check if KEY_NAME is set
+if [[ -z "$KEY_NAME" ]]; then
+  echo "❌ KEY_NAME must be set."
+  exit 1
+fi
+
+# Check if KEY_DOMAIN is set
+if [[ -z "$KEY_DOMAIN" ]]; then
+  echo "❌ KEY_DOMAIN must be set."
+  exit 1
+fi
+
+# Check if KEY_VALUE is set
+if [[ -z "$KEY_VALUE" ]]; then
+  echo "❌ KEY_VALUE must be set."
+  exit 1
+fi
+
+{
+  if service_exists "api-key-storage" ; then
+    echo "✅ Key Storage exists.  Proceeding to push key..."
+    KEY_STORE=$(cf curl /v3/service_instances/$(cf service api-key-storage --guid)/credentials)
+
+    KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
+    NAME_EXISTS=false
+    KEY_EXISTS=false
+    CURRENT_OPTIONS="{}"
+
+    while read -r ENTRY; do
+      NAME=$(echo "$ENTRY" | jq -r '.key')
+      if [[ "$NAME" == "$KEY_NAME" ]]; then
+        NAME_EXISTS=true
+        VALUE=$(echo "$ENTRY" | jq -r '.value')
+
+        if [ $(jq -r ".$NAME.OPTIONS" <<< "$VALUE") ]; then
+          CURRENT_OPTIONS=$(jq -r ".$NAME.OPTIONS" <<< "$VALUE")
+        fi
+
+        if [[ $(jq -r ".$NAME.APIKEY" <<< "$VALUE") == "$KEY_VALUE" ]]; then
+          KEY_EXISTS=true
+          break;
+        fi
+      fi
+    done <<< "$KEY_STORE_ENTRIES"
+
+    if [[ "$KEY_EXISTS" == true ]]; then
+      echo "❌ Key is identical to current key.  Cancelling import."
+      exit 1;
+    fi
+
+    if [[ "$NAME_EXISTS" == true ]]; then
+      read -p "❓ Key with this name already exists.  Update key? " -n 1 -r
+      echo
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+          echo "❌ Cancelling key import."
+          exit 1;
+      fi
+    fi
+
+    if [[ "$OPTIONS" ]]; then
+      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg OPTIONS "$OPTIONS" '.[$KEY_NAME] = {"APIKEY": $KEY_VALUE, "DOMAIN": $KEY_DOMAIN, "OPTIONS": $OPTIONS}' <<< "$KEY_STORE")
+    else
+      KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg CURRENT_OPTIONS "$CURRENT_OPTIONS" '.[$KEY_NAME] = {"APIKEY": $KEY_VALUE, "DOMAIN": $KEY_DOMAIN, "OPTIONS": $CURRENT_OPTIONS}' <<< "$KEY_STORE")
+    fi
+
+    yes '' | cf update-user-provided-service api-key-storage -p "$KEY_STORE"
+    echo "✅ Key pushed to Key Storage. Restarting proxy."
+    cf restart api-proxy
+    echo "✅ Proxy restarted."
+  else
+    echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."
+    exit 1
+  fi
+}

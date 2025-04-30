@@ -237,21 +237,23 @@ submitting a pull request.
 
 [back to top](#usagov-2021)
 
-## Checking PHP dode style and syntax errors
+## Checking PHP code style and syntax errors
 PHPCodesniffer and the parallel linting tools should be installed automatically on a local environment via `composer install`. PHPCodeSniffer is used to ensure new code follows Drupal's coding standard. The parallel linter will check for PHP syntax errors. If they detect any errors, they must be fixed before a PR of changes can be accepted.
 
 The following composer scripts are aliases for running these tools.
 
 * Check for code style errors across all project files. Must have zero errors:
-  `./bin/composer phpcs-errors`:
-* Check for code style errors and warnings across all project files.
-  `./bin/composer phpcs-strict`
+`./bin/composer phpcs-errors`
+* Check for code style errors and warnings across all project file
+`./bin/composer phpcs-strict`
 * Check for code style errors in current branch. Must have zero errors:
   `./bin/composer phpcs-changes`
 * Check for code style errors and warnings in current branch.
   `./bin/composer phpcs-changes-strict`
 * Check for PHP lint errors
   `./bin/composer php-lint`
+* Check for PHP 8.3 compatibility
+  `./bin/composer php-compatibility`
 
 ## Checking code with PHPStan
 
@@ -262,8 +264,12 @@ It's defined as a dev dependency in `composer.json` and will be installed automa
 
 The following composer scripts are aliases for running PHPStan
 
-* Check for errors at the level configured in `phpstan.neon`
-  `./bin/composer phpcs-errors`:
+* Check for errors at the level configured in `phpstan.neon`:
+
+  `./bin/composer phpstan`
+
+   (optionally, supply a file or directory name starting with `web/`)
+
 
 ## Project restart/reset
 Sometimes, Docker problems arise after an upgrade and a more complete restart is needed. After closing down and
@@ -272,7 +278,7 @@ destroying the existing containers, networks, and volumes the procedure is the s
 ### Docker cleanup
 ```
 docker compose down
-docker system prune
+docker system prune --filter "label=com.docker.compose.project=usagov-2021"
 ```
 
 Refer to [Full Project Setup](#setting-up-the-project) section above to continue the setup.

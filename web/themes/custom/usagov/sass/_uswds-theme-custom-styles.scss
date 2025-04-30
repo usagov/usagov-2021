@@ -96,8 +96,34 @@ Buttons with visited links would mysteriously get white text which is not access
   color: initial;
 }
 
+
+
+/****************************************************************************************
+  AFTER UPDATING CONTENT BUTTONS, REMOVE STYLES FOR .usa-button--secondary
+*****************************************************************************************
+
+The following usa-button--secondary styles override the default look of USWDS utility classes.
+This hinders our ability to use those classes to acheive their intended effect.
+It would be better to use a custom usagov-button class.
+Any buttons updated to use the custom class can be updated anytime without impacting utility classes.
+
+*****************************************************************************************
+
+We currently apply these classes to our buttons in our content:
+  class="usa-button usa-button--secondary usa-button--big"
+The new approach uses these classes:
+  class="usa-button usagov-button"
+
+*****************************************************************************************
+
+To update existing content buttons:
+  - edit the content page
+  - In CKEditor, select the button
+  - In the style dropdown, select the Button option twice to toggle the style off and back on
+  - Save the content page
+
+******************************************************************************************/
 .usa-button--secondary {
-  font-size: 1.1rem;
   border: 2px solid $secondary-border;
 }
 
@@ -105,6 +131,32 @@ Buttons with visited links would mysteriously get white text which is not access
   background-color: $secondary-background;
   border: 2px solid $secondary-border;
 }
+
+.usa-button--secondary.usa-button--big {
+  @include u-font-size('sans', 'md');
+}
+
+/****************************************************************************************
+  AFTER UPDATING CONTENT BUTTONS, KEEP STYLES FOR .usagov-button
+****************************************************************************************/
+.usagov-button{
+  border: 2px solid $secondary-border;
+  @include u-font-size('sans', 'md');
+
+  padding: units(2) units(3);
+  @include set-text-and-bg("secondary", $context: "Button");
+
+  &:hover {
+    background-color: $secondary-background;
+    border: 2px solid $secondary-border;
+  }
+}
+
+/****************************************************************************************
+  END OF CONTENT BUTTON UPDATE CODE
+****************************************************************************************/
+
+
 
 /*
 This style ensures that we can remove the padding-top from text in a card body. Used on navigation pages.
@@ -169,15 +221,6 @@ a.usa-button.hero-button {
   }
 }
 
-.usa-button {
-  width: 100%;
-  line-height: 1.5;
-
-  @media (min-width: 30em) {
-    width: auto;
-  }
-}
-
 .usagov-button--outline-black {
   box-shadow: $theme-button-stroke-width color('black');
   @include u-text('black');
@@ -233,31 +276,8 @@ a {
   @include u-text('blue-warm-70v');
 }
 
-#block-usagov-content .font-serif-lg {
-  // This style is needed to set the font size of intro text
-  font-size: 1.5rem;
-}
-
 .usa-prose > p.usa-intro {
   max-width: none;
-}
-
-@media (max-width: 30em) {
-  .usa-alert,
-  .usa-prose,
-  .usa-table,
-  .usa-form,
-  .usa-radio__label,
-  .usa-footer,
-  .usa-nav .usa-accordion,
-  .usa-accordian__heading,
-  .text-primary-lighter,
-  .usa-hero,
-  .usa-identifier,
-  .usa-label,
-  .usa-description {
-    font-size: 1.1rem;
-  }
 }
 
 .desktop\:grid-col-8 .body-copy {
@@ -316,7 +336,7 @@ div #sm-share {
   display: flex;
   padding-bottom: 22px;
   background-color: transparent;
-  font-size: 1rem;
+  @include u-font-size('sans', 'xs');
 }
 
 #share-page {
@@ -536,8 +556,8 @@ div[class^="QSIUserDefinedHTML"] {
 
 #pagesurvey-qual-hdr {
   @include u-bg('cyan-10');
+  @include u-font('serif', 'lg');
 
-  font-size: 130%;
   display: block;
   @include u-text('gray-90');
 
@@ -566,12 +586,6 @@ div[class^="QSIUserDefinedHTML"] {
 
 // END Page Level Survey extra CSS
 
-.usa-prose p,
-.usa-prose li,
-.usa-prose a {
-  font-size: 1.1rem;
-}
-
 .usa-prose.body-copy {
   &>h1, &>h2, &>h3, &>h4 {
     clear: unset;
@@ -586,31 +600,8 @@ div[class^="QSIUserDefinedHTML"] {
   }
 }
 
-.usa-accordion__heading button,
-.usa-accordion__heading p,
-.usa-accordion__heading a {
-  font-size: 1.1rem;
-}
-
-#question-box > div > p,
-#question-box > div > div {
-  font-size: 1.1rem;
-}
-
-#prior,
-#next {
-  font-size: 1.1rem;
-}
-
-#wizard-border > fieldset > label,
-.wizard_result > p {
-  font-size: 1.1rem;
-}
-
-.last,
-#last-updated,
-#share-page {
-  font-size: 1rem;
+#last-updated {
+  @include u-font-size('sans', 'xs');
 }
 
 .visually-hidden {
@@ -659,6 +650,7 @@ a,
 
 // Alignment of recaptcha error message and recaptcha box.
 .recaptcha-container {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .ceo-button-container;
 
   margin-bottom: 1em;
@@ -667,6 +659,7 @@ a,
 
 // Centers the recaptcha error message
 .err-label-captcha {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .usa-error;
 
   text-align: center;
@@ -685,6 +678,7 @@ a,
 }
 
 .issue-button {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .ceo-button;
 
   margin-top: 1.5rem;
@@ -716,7 +710,7 @@ div div.field--name-field-offices-near-you {
 
 // Add padding for feedback button
 button#QSIFeedbackButton-btn {
-  padding: 2px !important;
+  padding: 2px !important; // stylelint-disable-line selector-id-pattern
 }
 
 [href]:focus,
@@ -784,10 +778,6 @@ select:not([disabled]):focus,
   }
 }
 
-.usagov-button {
-  font-size: 1.1rem;
-}
-
 .usa-pagination .usa-current {
   background-color: color('blue-warm-70v');
 
@@ -814,14 +804,14 @@ select:not([disabled]):focus,
 
     &:hover{
       @include u-text('gray-90');
+
       background-color:#768FB3;
       border-color: #768FB3;
     }
 }
 
   .usa-pagination__link {
-    text-decoration-color: color('blue-warm-70v');
-    text-decoration: underline;
+    text-decoration: underline color('blue-warm-70v');
 
     &:hover{
       color: color('blue-warm-70v');
@@ -920,6 +910,7 @@ input::-webkit-textfield-decoration-container {
 .benefits-finder-content {
   .usa-prose>p.usa-intro {
     @include u-margin(0);
+    @include u-font-size('serif', 'md');
 
     max-width: 100%;
   }
@@ -930,6 +921,7 @@ input::-webkit-textfield-decoration-container {
     top: 5vh !important;
     min-height: 80vh !important;
 }
+
 .ui-dialog.ckeditor5-paragraph-embed-modal > .ui-dialog-content {
     height: 80vh !important;
 }

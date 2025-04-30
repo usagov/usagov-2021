@@ -3,7 +3,7 @@ FROM composer:latest AS composer-builder
 ARG BUID=1000
 ARG BGID=1000
 ARG BUILD_ENV
-ENV BUILD_ENV ${BUILD_ENV:-none}
+ENV BUILD_ENV=${BUILD_ENV:-none}
 
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
@@ -107,33 +107,37 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
 FROM alpine:3.20 AS cms
 
 ARG S6_VERSION
-ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
+ENV S6_VERSION=${S6_VERSION:-v2.2.0.3}
 
 ARG GITBRANCH
-ENV GITBRANCH ${GITBRANCH:-none}
+ENV GITBRANCH=${GITBRANCH:-none}
 
 ARG GITCOMMIT
-ENV GITCOMMIT ${GITCOMMIT:-none}
+ENV GITCOMMIT=${GITCOMMIT:-none}
 
 ARG GITTAG
-ENV GITTAG ${GITTAG:-none}
+ENV GITTAG=${GITTAG:-none}
 
 ARG CONTAINERTAG
-ENV CONTAINERTAG ${CONTAINERTAG:-none}
-
+ENV CONTAINERTAG=${CONTAINERTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+ARG BUILD_ENV
+ENV BUILD_ENV=${BUILD_ENV:-none}
 
-# Dependencies
+# Users and dependencies.
+# Note: we used to use adduser and addgroup to set up the nginx user (if not already present).
+#       alpine linux adduser/addgroup don't accept numbers over 256000 so now we update
+#       /etc/passwd and /etc/group directly; see 
+#       https://stackoverflow.com/questions/41807026/cant-add-a-user-with-a-high-uid-in-docker-alpine
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
     && sed -E -i "s/nginx:x:[0-9]+:[0-9]+:/nginx:x:${BUID}:${BGID}:/g" /etc/passwd \
     && sed -E -i "s/nginx:x:[0-9]+:/nginx:x:${BGID}:/g" /etc/group \
-    && addgroup -S -g $BGID nginx \
-    && adduser -S -G nginx -D -H -u $BUID nginx \
+    && grep nginx /etc/passwd || echo "nginx:x:${BUID}:${BGID}:Linux User,,,:/home/nginx:/sbin/nologin" >> /etc/passwd \
+    && grep nginx /etc/group || echo "nginx:x:${BUID}:nginx" >> /etc/group \
     && apk upgrade --update \
     && apk add --no-cache --virtual .persistent-deps \
       aws-cli \
@@ -201,13 +205,29 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php83-xmlwriter \
       php83-zip \
       php83-zlib \
-    && mkdir -p /var/www/web/sites/default/files \
-    # s6 supervisor setup
+      openssl \
+      && mkdir -p /var/www/web/sites/default/files
+
+# Determine the system architecture and select the appropriate S6 overlay
+# Also;
+# Add the zscaler certificate to the trusted certs only on local builds
+# COPY cannot be conditional, but RUN can run conditional code.
+COPY .docker/zscaler_cert.pem /tmp/zscaler.crt
+RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates ; fi \
+    && export ARCH=`uname -m` && \
+    if [ "$ARCH" = "aarch64" ]; then \
+        echo "Downloading: wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz;"; \
+        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-aarch64.tar.gz; \
+    elif [ "$ARCH" = "x86_64" ]; then \
+        echo "Downloading: https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz"; \
+        wget -qO /tmp/s6overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi \
     && tar xzf /tmp/s6overlay.tar.gz -C / \
     && rm /tmp/s6overlay.tar.gz \
     && mkdir -p /var/run/s6 \
     && chown -R nginx:nginx /var/run/s6 \
-    # webserver setup
     && mkdir -p /var/www/ \
     && chown -R nginx:nginx /var/www \
     && mkdir -p /var/log/nginx \
@@ -216,7 +236,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && ln -s /dev/stdout /var/log/nginx/access.log \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
-    # php setup
     && ln -s /usr/sbin/php-fpm83 /usr/sbin/php-fpm
 
     # new relic setup
@@ -270,6 +289,44 @@ RUN chmod -R +x /etc/periodic \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
     && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
+
+RUN if pgrep nginx; then pkill nginx; fi
+
+RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
+RUN apk del nginx nginx-mod-http-lua || true
+RUN cd /tmp/ \
+    && git clone --branch v0.10.26 https://github.com/openresty/lua-nginx-module.git \
+    && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
+    && tar -xzvf v0.3.1.tar.gz \
+    && mv ngx_devel_kit-0.3.1 ngx_devel_kit \
+    && wget https://nginx.org/download/nginx-1.27.4.tar.gz \
+    && NGCHECKSUM="3785797d3c8f96b930c11a445c68ce88b584af9645f41b8929a779ef1507b74831fa91e9144f3a56599737517cbf1864954d91e312d12cc59e23e4db72c2c716 *nginx-1.27.4.tar.gz" \
+    && if [ "$(openssl sha512 -r nginx-1.27.4.tar.gz)" = "$NGCHECKSUM" ]; then \
+        echo "nginx tarball checksum verification succeeded!"; \
+    else \
+        echo "nginx tarball checksum verification failed!"; \
+        exit 1; \
+    fi \
+    && tar -xzvf nginx-1.27.4.tar.gz \
+    && cd nginx-1.27.4 \
+    && ./configure \
+        --prefix=/var/lib/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --modules-path=/usr/lib/nginx/modules \
+        --with-compat \
+        --with-http_gzip_static_module \
+        --with-http_ssl_module \
+        --with-http_realip_module \
+        --with-cc-opt="-I/usr/include/luajit-2.1" \
+        --with-ld-opt="-L/usr/lib -lluajit-5.1" \
+        --add-module=/tmp/ngx_devel_kit \
+        --add-module=/tmp/lua-nginx-module \
+    && make
+RUN rm /etc/nginx/modules/10_devel_kit.conf || true
+RUN rm /etc/nginx/modules/30_http_lua.conf || true
+RUN cd /tmp/nginx-1.27.4 \
+    && make install
 
 EXPOSE 80
 

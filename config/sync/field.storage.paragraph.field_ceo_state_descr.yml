@@ -1,0 +1,21 @@
+uuid: 9043fe33-9eb5-4d87-9898-227bbec03970
+langcode: en
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_ceo_state_descr
+field_name: field_ceo_state_descr
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

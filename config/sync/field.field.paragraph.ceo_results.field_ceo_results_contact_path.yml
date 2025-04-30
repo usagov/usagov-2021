@@ -1,0 +1,29 @@
+uuid: 6a2740f8-dd1d-4468-9cd5-a531c1446386
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ceo_results_contact_path
+    - node.type.basic_page
+    - paragraphs.paragraphs_type.ceo_results
+id: paragraph.ceo_results.field_ceo_results_contact_path
+field_name: field_ceo_results_contact_path
+entity_type: paragraph
+bundle: ceo_results
+label: 'Contact Path'
+description: 'Page for "Contact officials by email" link.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      basic_page: basic_page
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
