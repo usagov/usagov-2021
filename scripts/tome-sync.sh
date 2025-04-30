@@ -101,8 +101,10 @@ prod)
 esac
 
 # replacing inaccurate hostnames
+# Note that we explicitly do not replace hostnames in .js files, so we can include conditionals based
+# on the host; see themes/custom/usagov/scripts/ceoResults.js
 echo "Replacing references to CMS hostname ... "
-find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
+find $RENDER_DIR -type f \( -name "*.css" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
 # Modification of the sitemap
 SITEMAP_FILE="$RENDER_DIR/sitemap.xml"
