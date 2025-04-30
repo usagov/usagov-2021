@@ -13,8 +13,9 @@
   width: 320px;
   margin-bottom: 0 !important;
   margin-right: 10px;
-  background-color: white;
-  border: 1px solid #ccc;
+  
+  @include u-bg('white');
+  @include u-border(2px, 'solid', 'gray-90');
 }
 
 .usagov-ai-chatbot-header {
