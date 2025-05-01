@@ -116,18 +116,23 @@
 .usagov-ai-chatbot-input-container {
   height: 74px;
   display: flex;
-  align-content: center;
+  padding: 16px;
 }
 
 .usagov-ai-chatbot-input {
   flex: 75%;
   border-radius: .25rem;
   margin-top: 0;
+  align-self: center;
 }
 
 .usagov-ai-chatbot-input-button {
   flex: 25%;
   height: 2.5rem;
+  align-self: center;
+  margin: 0;
+  margin-left: 4px;
+
   @include u-padding-x(16px);
   @include u-padding-y(8px);
 }
