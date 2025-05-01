@@ -135,7 +135,21 @@
 .usagov-ai-chatbot-body {
   display: flex;
   flex-direction: column;
+
+  @include u-border-top(2px, 'solid', 'gray-90');
 }
+
+/* When Chat is Open */
+.usagov-ai-chatbot-container.chat-open {
+  transform: translateY(0);
+}
+
+/* When Chat is Collapsed */
+.usagov-ai-chatbot-container.chat-collapsed {
+  margin-bottom: 50px;
+  transform: translateY(433px);
+}
+
 
 .usagov-hero-homepage {
   @include u-bg('blue-80v');

@@ -37,13 +37,13 @@
   view_mode ? 'block--view-mode-' ~ view_mode|clean_class,
 ]
 %}
-<div class="usagov-ai-chatbot-container" >
+<div class="usagov-ai-chatbot-container chat-collapsed" >
   <div class="usagov-ai-chatbot-header">
     <div class="usagov-ai-chatbot-title">
       USAGov Chatbot
       <div class="usagov-ai-chatbot-experimental">Experimental</div>
     </div>
-    <button id="toogleBtn">+</button>
+    <button id="toogleBtn" onclick="chatbotToogle()">+</button>
   </div>
   <div class="usagov-ai-chatbot-body">
     <div class="usagov-ai-chatbot-messages">
@@ -68,3 +68,5 @@
     </div>
   </div>
 </div>
+
+<script src="/themes/custom/usagov/scripts/AIchatbot.js"></script>
