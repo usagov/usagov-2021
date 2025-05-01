@@ -864,16 +864,18 @@
         .attr("role", "img")
         .attr("aria-labelledby", function() { return svg.node().querySelector("title").id; });
 
-      element(svg, "g.axis.y0")
+      element(svg, "g")
+        .attr("class", "axis y0")
         .attr("transform", "translate(" + [left, 0] + ")")
-        // .attr("aria-hidden", "true")
+        .attr("aria-hidden", "true")
         .transition()
           .duration(duration)
           .call(yAxis.orient("left"));
 
-      element(svg, "g.axis.y1")
+      element(svg, "g")
+        .attr("class", "axis y1")
         .attr("transform", "translate(" + [right, 0] + ")")
-        // .attr("aria-hidden", "true")
+        .attr("aria-hidden", "true")
         .transition()
           .duration(duration)
           .call(yAxis.innerTickSize(innerTickSize).orient("right"));
