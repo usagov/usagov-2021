@@ -11,9 +11,9 @@ KEY_DOMAIN=${1:-} # The base url of the api.
 KEY_NAME=${2:-} # Arbitrary name for the key.
 
 {
-  if service_exists "key-storage" ; then
+  if service_exists "api-key-storage" ; then
     echo "✅ Key Storage exists.  Proceeding to remove key..."
-    KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
+    KEY_STORE=$(cf curl /v3/service_instances/$(cf service api-key-storage --guid)/credentials)
 
     KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
     NAME_EXISTS=false
@@ -33,7 +33,7 @@ KEY_NAME=${2:-} # Arbitrary name for the key.
       exit 1;
     fi
 
-    yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"
+    yes '' | cf update-user-provided-service api-key-storage -p "$KEY_STORE"
     echo "✅ Key pushed to Key Storage. Restarting proxy."
     cf restart api-proxy
     echo "✅ Proxy restarted."

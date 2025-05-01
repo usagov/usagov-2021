@@ -56,10 +56,13 @@ if not VCAP_SERVICES:
 VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
 
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
-    KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
+    KEY_STORAGE = next(
+        (service["credentials"] for service in VCAP_JSON["user-provided"] if service["name"] == "api-key-storage"),
+        None
+    )
 else:
     logger.error("No credentials found in VCAP_SERVICES")
-    KEY_STORAGE = {}
+    KEY_STORAGE = None
 
 @app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 def proxy_request():
@@ -133,7 +136,7 @@ def proxy_request():
         # Remove proxy-specific parameters
         del params["endpoint"]
         del params["keyname"]
-        
+
         # Set referer header
         origin = request.headers.get("Origin")
         if not origin:
