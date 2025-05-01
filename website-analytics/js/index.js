@@ -900,8 +900,7 @@
         .attr("height", 0);
       enter.append("text")
         .attr("class", "label");
-      enter.append("title");
-      enter.append("text")
+      enter.append("title")
         .attr("class", "sr-only")
         .attr("id", function(d, i) { return "bar-" + i + "-label"; })
         .text(function(d) { return formatDate(parseDate(d.date)) + ": " + formatCommas(d.visits) + " visits"; });
