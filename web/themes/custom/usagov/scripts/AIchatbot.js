@@ -19,3 +19,18 @@ function chatbotToogle() {
     }
     
 }
+
+function sendMessage() {
+    const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
+    const inputValue = document.getElementById("userMessage").value;
+
+    if(inputValue) {
+        // make a new parser
+        const parser = new DOMParser();
+        const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message user'><div class='text'>" + inputValue +"</div></div>", "text/html");
+
+        messageContainer.appendChild(newMessage.body.firstChild);
+    }
+
+    
+}
