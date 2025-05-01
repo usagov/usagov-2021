@@ -32,5 +32,20 @@ function sendMessage() {
         messageContainer.appendChild(newMessage.body.firstChild);
     }
 
-    
+}
+
+function sendSuggestion(element) {
+    const selectedSuggestion = element.innerHTML;
+    const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
+
+    if(selectedSuggestion) {
+        // make a new parser
+        const parser = new DOMParser();
+        const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message user'><div class='text'>" + selectedSuggestion +"</div></div>", "text/html");
+
+        messageContainer.appendChild(newMessage.body.firstChild);
+
+        const suggestionsContainer = document.getElementsByClassName('usagov-ai-chatbot-suggestions')[0];
+        suggestionsContainer.style.display = 'none';
+    }
 }

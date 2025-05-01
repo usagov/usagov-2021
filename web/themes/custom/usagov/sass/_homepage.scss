@@ -113,6 +113,23 @@
   @include u-text('white');
 }
 
+.usagov-ai-chatbot-suggestion-button {
+  border-radius: 4px;
+
+  @include u-text('gray-90');
+  @include u-text('normal');
+  @include u-bg('white');
+  @include u-border(1px, 'solid', 'gray-90');
+  @include u-padding-x(8px);
+  @include u-padding-y(4px);
+  @include u-margin-bottom(8px);
+  @include u-margin-right(2px);
+}
+
+.usagov-ai-chatbot-suggestion-button:hover {
+  @include u-bg('gray-5');
+}
+
 .usagov-ai-chatbot-input-container {
   height: 74px;
   display: flex;
