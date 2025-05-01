@@ -866,14 +866,14 @@
 
       element(svg, "g.axis.y0")
         .attr("transform", "translate(" + [left, 0] + ")")
-        .attr("aria-hidden", "true")
+        // .attr("aria-hidden", "true")
         .transition()
           .duration(duration)
           .call(yAxis.orient("left"));
 
       element(svg, "g.axis.y1")
         .attr("transform", "translate(" + [right, 0] + ")")
-        .attr("aria-hidden", "true")
+        // .attr("aria-hidden", "true")
         .transition()
           .duration(duration)
           .call(yAxis.innerTickSize(innerTickSize).orient("right"));
