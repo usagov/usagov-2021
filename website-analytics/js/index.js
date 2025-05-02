@@ -686,8 +686,12 @@
         dispatch.loading(selection, d);
 
         var json = url.apply(this, arguments);
-        if (!json) {
-          return console.error("no data source found:", this, d);
+
+        // Validate the URL
+        if (!json || typeof json !== "string" || !json.startsWith("http")) {
+          console.error("Invalid URL:", json);
+          that.classed("loading", false).classed("error", true);
+          return;
         }
 
         d._request = d3.json(json, function(error, data) {
