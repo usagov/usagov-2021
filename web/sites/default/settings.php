@@ -871,7 +871,6 @@ foreach ($cf_service_data as $service_list) {
         'port' => $service['credentials']['port'],
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
         'driver' => 'mysql',
-        'isolation_level' => 'READ COMMITTED',
       ];
       if ($IS_CLOUDGOV === TRUE) {
         $databases['default']['default']['pdo'] = [
