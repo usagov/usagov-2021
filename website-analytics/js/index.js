@@ -689,19 +689,27 @@
 
         // Validate the URL
         if (!json || typeof json !== "string" || !json.startsWith("http")) {
-          console.error("Invalid URL:", json);
+          console.error("Invalid or undefined URL detected:", json, "for block:", d.block);
           that.classed("loading", false).classed("error", true);
           return;
         }
 
-        d._request = d3.json(json, function(error, data) {
-          that.classed("loading", false);
-          if (error) return that.call(onerror, error);
+        try {
+          d._request = d3.json(json, function(error, data) {
+            that.classed("loading", false);
+            if (error) {
+              console.error("Error fetching data from URL:", json, error);
+              return that.call(onerror, error);
+            }
 
-          that.classed("loaded", true);
-          dispatch.load(selection, data);
-          that.call(render, d._data = transform(data));
-        });
+            that.classed("loaded", true);
+            dispatch.load(selection, data);
+            that.call(render, d._data = transform(data));
+          });
+        } catch (e) {
+          console.error("Unexpected error during data fetch:", e);
+          that.classed("loading", false).classed("error", true);
+        }
       }
     };
 
