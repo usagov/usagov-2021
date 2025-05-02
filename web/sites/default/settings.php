@@ -870,7 +870,8 @@ foreach ($cf_service_data as $service_list) {
         'host' => $service['credentials']['host'],
         'port' => $service['credentials']['port'],
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
-        'driver' => 'mysql'
+        'driver' => 'mysql',
+        'isolation_level' => 'READ COMMITTED',
       ];
       if ($IS_CLOUDGOV === TRUE) {
         $databases['default']['default']['pdo'] = [
@@ -912,11 +913,9 @@ foreach ($cf_service_data as $service_list) {
     }
     else if (array_key_exists('tags', $service) && in_array('cache-service', $service['tags'], TRUE)) {
       $use_redis = TRUE;
-      if (array_key_exists('IS_LOCAL_DEV', $service['credentials'])) { 
-        $settings['redis.connection']['host'] = $service['credentials']['host'];
-      }
-      else {      
-        $settings['redis.connection']['host'] = 'tls://' . $service['credentials']['host'];
+      $settings['redis.connection']['host'] = $service['credentials']['host'];
+      if (!array_key_exists('IS_LOCAL_DEV', $service['credentials'])) {
+          $settings['redis.connection']['scheme'] = 'tls';
       }
       $settings['redis.connection']['port'] = $service['credentials']['port'];
       $settings['redis.connection']['password'] = $service['credentials']['password'];
