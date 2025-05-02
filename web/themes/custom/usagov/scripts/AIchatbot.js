@@ -29,6 +29,7 @@ function sendMessage() {
 
     if (inputValue) {
         addMessage(inputValue);
+        document.getElementById("userMessage").value = "";
     }
 
 }
