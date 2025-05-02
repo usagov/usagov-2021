@@ -56,4 +56,6 @@ function addMessage(message) {
     const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message user'><div class='text'>" + message +"</div></div>", "text/html");
 
     messageContainer.appendChild(newMessage.body.firstChild);
+
+    document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
 }
