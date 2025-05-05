@@ -34,6 +34,7 @@ A revamped USA.gov site using Drupal 10 and Cloud Foundry
 - [Troubleshooting](#troubleshooting)
   - [If CMS Password is Not Accepted:](#if-cms-password-is-not-accepted)
   - [More Info on Cloud Foundry \& Cloud.gov](#more-info-on-cloud-foundry--cloudgov)
+- [Public domain][#public-domain]
 
 ## Prerequisites
 
@@ -443,3 +444,16 @@ bin/cloudgov/deploy TAGNAME
 
 ## More info on Cloud Foundry & Cloud.gov
 This repository was loosely based off of Cloud.gov's [cf-ex-drupal8 repo](https://github.com/cloud-gov/cf-ex-drupal8). Their README may provide other useful info.
+
+
+## Contributing
+
+See [CONTRIBUTING](CONTRIBUTING.md) for additional information.
+
+## Public domain
+
+This project is in the worldwide [public domain](LICENSE.md). As stated in [CONTRIBUTING](CONTRIBUTING.md):
+
+> This project is in the public domain within the United States, and copyright and related rights in the work worldwide are waived through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/).
+>
+> All contributions to this project will be released under the CC0 dedication. By submitting a pull request, you are agreeing to comply with this waiver of copyright interest.
