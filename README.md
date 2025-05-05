@@ -34,7 +34,7 @@ A revamped USA.gov site using Drupal 10 and Cloud Foundry
 - [Troubleshooting](#troubleshooting)
   - [If CMS Password is Not Accepted:](#if-cms-password-is-not-accepted)
   - [More Info on Cloud Foundry \& Cloud.gov](#more-info-on-cloud-foundry--cloudgov)
-- [Public domain][#public-domain]
+- [Public domain](#public-domain)
 
 ## Prerequisites
 
