@@ -26,6 +26,7 @@
   
   .usagov-ai-chatbot-title {
     display: flex;
+    align-self: center;
   
     @include u-font-size('sans', 'md');
     @include u-text('gray-90');
@@ -71,7 +72,9 @@
   
   .usagov-ai-chatbot-message {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+
+    @include u-margin-bottom(8px);
   }
   
   #userMessage {
@@ -94,19 +97,28 @@
   
   .usagov-ai-chatbot-message img {
     border-radius: 50%;
+    width: 32px;
+    height: 32px;
+  }
+
+  .usagov-ai-chatbot-message img.bot {
+    margin-right: 8px;
+  }
+
+  .usagov-ai-chatbot-message img.user {
+    margin-left: 8px;
   }
   
   .usagov-ai-chatbot-message .text {
     @include u-bg('cyan-10');
     @include u-padding-x(8px);
     @include u-padding-y(4px);
-    @include u-margin-bottom(8px);
-    max-width: 70%;
+    max-width: 90%;
     border-radius: 4px;
   }
   
   .usagov-ai-chatbot-message.user .text{
-    @include u-bg('gray-90');
+    @include u-bg('blue-80v');
     @include u-text('white');
   }
   
@@ -169,3 +181,18 @@
     transform: translateY(433px);
   }
   
+  /* HTML: <div class="loader"></div> */
+.loader {
+  width: 15px;
+  margin-inline: 20px;
+  margin-block: 4px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  animation: l5 1s infinite linear alternate;
+}
+@keyframes l5 {
+    0%  {box-shadow: 20px 0 #000, -20px 0 #0002;background: #000 }
+    33% {box-shadow: 20px 0 #000, -20px 0 #0002;background: #0002}
+    66% {box-shadow: 20px 0 #0002,-20px 0 #000; background: #0002}
+    100%{box-shadow: 20px 0 #0002,-20px 0 #000; background: #000 }
+}

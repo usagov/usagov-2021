@@ -46,16 +46,77 @@ function sendSuggestion(element) {
     }
 }
 
-function addMessage(message) {
+async function addMessage(message) {
     'use strict';
 
     const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
     // make a new parser
     const parser = new DOMParser();
-    const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message user'><div class='text'>" + message +"</div></div>", "text/html");
+    const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message user'><div class='text'>" + message +"</div><img class='message-image user' src='/themes/custom/usagov/images/chatbot/usagov-user-avatar.png' alt='USA.gov User Avatar' /></div>", "text/html");
 
     messageContainer.appendChild(newMessage.body.firstChild);
 
-    document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
+    if (document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display !== "none"){
+        document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
+    } 
+
+    const aiResponse = await getAIResponse(message, messageContainer);
+    document.getElementById("loader-container").remove();
+    addBotMessage(aiResponse);
+
 }
+
+function addBotMessage(message) {
+    'use strict';
+
+    const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
+
+    // make a new parser
+    const parser = new DOMParser();
+    const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message bot'><div class='text'>" + message +"</div></div>", "text/html");
+
+    messageContainer.appendChild(newMessage.body.firstChild);
+
+}
+
+async function getAIResponse(userMessage, messageContainer) {
+    'use strict';
+    
+    // make a new parser
+    const parser = new DOMParser();
+    const loaderElement = parser.parseFromString('<div id="loader-container" class="usagov-ai-chatbot-message bot"><div class="text"><div class="loader"></div></div></div>', "text/html");
+
+    messageContainer.appendChild(loaderElement.body.firstChild);
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+    "model": "llama3.2",
+    "prompt": userMessage,
+    "stream": false,
+    "options": {
+    "num_thread": 8,
+    "num_ctx": 2024
+    }
+    });
+
+    const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+    };
+
+    try {
+        const response = await fetch("http://127.0.0.1:11434/api/generate", requestOptions);
+
+        const result = await response.text();
+        return JSON.parse(result).response;
+
+    } catch (error) {
+        console.error(error);
+    };
+}
+
