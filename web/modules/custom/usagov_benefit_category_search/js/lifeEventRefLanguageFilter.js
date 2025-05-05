@@ -48,17 +48,20 @@ function updateLifeEventRef(jQuery) {
                   + otherCheckedEvents > 1 ? "s" : "";
     }
 
-    $details.html(
-      "Showing " + String(selectedLanguage).replace(/<\/?[^>]+(>|$)/g, "") + " life events" + extraDetail
-      + " <button onclick='updateFilterState(\"false\")'>Show all life events. </button>"
+    $details.text(
+      "Showing " + selectedLanguage + " life events" + extraDetail
+    ).append(
+      " <button onclick='updateFilterState(\"false\")'>Show all life events. </button>"
     );
-
     return;
   }
 
   $editField.children().show();
-  $details.html(
-    "Showing all life events. <button onclick='updateFilterState(\"true\")'>Filter life events by selected language</button>"
+  $editField.children().show();
+  $details.text(
+    "Showing all life events."
+  ).append(
+    " <button onclick='updateFilterState(\"true\")'>Filter life events by selected language</button>"
   );
 }
 
