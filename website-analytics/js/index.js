@@ -710,7 +710,6 @@
           console.error("Unexpected error during data fetch:", e);
           console.error("Error URL:", json);
           console.error("Block data:", d);
-          console.error("data:", data);
           that.classed("loading", false).classed("error", true);
         }
       }
