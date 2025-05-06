@@ -517,12 +517,12 @@
   });
 
   // nest the international countries chart inside the "International" chart once they're both rendered
-  // whenRendered(["countries", "international_visits"], function() {
-  //   d3.select("#chart_us")
-  //     .call(nestCharts, function(d) {
-  //       return d.key === "International";
-  //     }, d3.select("#chart_countries"));
-  // });
+  whenRendered(["countries", "international_visits"], function() {
+    d3.select("#chart_us")
+      .call(nestCharts, function(d) {
+        return d.key === "International";
+      }, d3.select("#chart_countries"));
+  });
 
   /*
    * A very primitive, aria-based tab system!
