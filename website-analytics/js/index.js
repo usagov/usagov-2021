@@ -878,7 +878,7 @@
         .attr("role", "img")
         .attr("aria-labelledby", function() { return svg.node().querySelector("title").id; });
 
-      element(svg, "g")
+      element(svg, "g0")
         .attr("class", "axis y0")
         .attr("transform", "translate(" + [left, 0] + ")")
         .attr("aria-hidden", "true")
@@ -886,7 +886,7 @@
           .duration(duration)
           .call(yAxis.orient("left"));
 
-      element(svg, "g")
+      element(svg, "g1")
         .attr("class", "axis y1")
         .attr("transform", "translate(" + [right, 0] + ")")
         .attr("aria-hidden", "true")
