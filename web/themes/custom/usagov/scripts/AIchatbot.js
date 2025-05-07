@@ -97,7 +97,7 @@ async function handleUserMessage(userMessage) {
     const newUserMessageElement = createMessage(true, userMessage);
 
     // Remove the message suggestions after the first message.
-    if (document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display !== "none"){
+    if (document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display !== "none") {
         document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
     }
 
@@ -129,7 +129,7 @@ async function handleUserMessage(userMessage) {
  * 2. Sends a POST request to the local Ollama server with the user message.
  * 3. Waits for a response and then it returns just the AI message as a string.
  *
- * @returns {string} The new message element so it can be added to the chatbot. 
+ * @returns {string} The new message element so it can be added to the chatbot.
  */
 async function getAIResponse(userMessage, messageContainer) {
     'use strict';
@@ -167,7 +167,7 @@ async function getAIResponse(userMessage, messageContainer) {
         // Return the AI response.
         return JSON.parse(result).response;
 
-    } 
+    }
     catch (error) {
         console.error(error);
     };
@@ -178,9 +178,10 @@ async function getAIResponse(userMessage, messageContainer) {
  *
  * @param {boolean} isUser - Wheter the message is from the user (true) or the bot (false).
  * @param {string} message - The message content, supports markdown.
- * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container. 
+ * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
 function createMessage(isUser, message) {
+    'use strict';
 
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
