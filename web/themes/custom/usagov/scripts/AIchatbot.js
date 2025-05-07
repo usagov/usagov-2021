@@ -1,6 +1,10 @@
 /**
- * Handles the toggle button click event in the chatbot header, 
- * switching the chatbot's visibility or interaction state.
+ * Toggles the visibility of the chatbot window.
+ * 
+ * This function:
+ * 1. Is triggered when the user clicks the chatbot toggle icon in the header.
+ * 2. Adds or removes CSS class to show or hide the chatbot interface.
+ * 3. Creates the visual effect of opening and closing the chatbot without removing it from the DOM.
  */
 function chatbotToogle() {
     'use strict';
@@ -27,7 +31,14 @@ function chatbotToogle() {
 }
 
 /**
+ * Sends the user's typed message from the input field to the chatbot.
  * 
+ * This function:
+ * 1. Retrieves the current value from the message input field.
+ * 2. Calls the `handleUserMessage(inputValue)` function to process and display the message.
+ * 3. Clears the input field after seding the message.
+ * 
+ * This functions is triggered by clicking the "Send" button.
  */
 function sendMessage() {
     'use strict';
@@ -42,10 +53,13 @@ function sendMessage() {
 }
 
 /**
- * TO-DO: describe the function
+ * Handles a user clicking on a suggestion button by sending the suggested message to the chatbot.
  *
- * @param {string} userMessage - 
- * @returns {string} The new message element so it can be added to the chatbot. 
+ * @param {HTMLElement} element - The HTML element that contains the suggestion text that the user has selected.
+ * 
+ * This function:
+ * 1. Retrieves the inner HTML/text of the clicked suggestion element.
+ * 2. Passes that text to the `handleUserMessage(selectedSuggestion)` function to process it as if the user typed it manually.
  */
 function sendSuggestion(element) {
     'use strict';
@@ -58,9 +72,19 @@ function sendSuggestion(element) {
 }
 
 /**
- * TO-DO: describe the function
+ * Handles the full lifecycle of processing a user message in the chatbot interface.
  *
- * @param {string} userMessage - 
+ * @param {string} userMessage - The message text input from the user.
+ * 
+ * This function:
+ * 1. Retrieves the main message container from the DOM.
+ * 2. Uses a helper function to create and return a DOM element for the user's message.
+ * 3. Removes any suggeston boxes.
+ * 4. Appends the user's message to the chat container.
+ * 5. Calls the async function that sends the message to the local Ollama server and waits for the AI's response.
+ * 6. Uses the same message-creating helper function to create the AI's response element from the returned text.
+ * 7. Removes the loader after receiving the AI response.
+ * 8. Appends the AI's message element to the chat interface.
  */
 
 async function handleUserMessage(userMessage) {
@@ -95,9 +119,16 @@ async function handleUserMessage(userMessage) {
 }
 
 /**
- * TO-DO: describe the function
+ * Sends the user's message to the local Ollama server and returns a DOM element containing the AI's response.
  *
- * @param {string} userMessage - 
+ * @param {string} userMessage - The user's input message to be sent to the AI.
+ * @param {HTMLElement} messageContainer - The container where the loading indicator is temporarily appended during the request.
+ * 
+ * This function:
+ * 1. Creates and appends a loader element to indicate the AI is thinking.
+ * 2. Sends a POST request to the local Ollama server with the user message.
+ * 3. Waits for a response and then it returns just the AI message as a string.
+ * 
  * @returns {string} The new message element so it can be added to the chatbot. 
  */
 async function getAIResponse(userMessage, messageContainer) {
@@ -142,7 +173,13 @@ async function getAIResponse(userMessage, messageContainer) {
     };
 }
 
-
+/**
+ * Creates a DOM element representing a chat message bubble with an avatar and text.
+ *
+ * @param {boolean} isUser - Wheter the message is from the user (true) or the bot (false).
+ * @param {string} message - The message content, supports markdown.
+ * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container. 
+ */
 function createMessage(isUser, message) {
 
     // Convert the text to html since it has the format of a Markdown.
