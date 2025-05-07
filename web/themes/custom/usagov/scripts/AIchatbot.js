@@ -1,3 +1,7 @@
+/**
+ * Handles the toggle button click event in the chatbot header, 
+ * switching the chatbot's visibility or interaction state.
+ */
 function chatbotToogle() {
     'use strict';
 
@@ -22,67 +26,83 @@ function chatbotToogle() {
 
 }
 
+/**
+ * 
+ */
 function sendMessage() {
     'use strict';
 
     const inputValue = document.getElementById("userMessage").value;
 
     if (inputValue) {
-        addMessage(inputValue);
+        handleUserMessage(inputValue);
         document.getElementById("userMessage").value = "";
     }
 
 }
 
+/**
+ * TO-DO: describe the function
+ *
+ * @param {string} userMessage - 
+ * @returns {string} The new message element so it can be added to the chatbot. 
+ */
 function sendSuggestion(element) {
     'use strict';
 
     const selectedSuggestion = element.innerHTML;
 
     if (selectedSuggestion) {
-        addMessage(selectedSuggestion);
-        const suggestionsContainer = document.getElementsByClassName('usagov-ai-chatbot-suggestions')[0];
-        suggestionsContainer.style.display = 'none';
+        handleUserMessage(selectedSuggestion);
     }
 }
 
-async function addMessage(message) {
+/**
+ * TO-DO: describe the function
+ *
+ * @param {string} userMessage - 
+ */
+
+async function handleUserMessage(userMessage) {
     'use strict';
 
+    // Get the message container.
     const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
-    // make a new parser
-    const parser = new DOMParser();
-    const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message user'><div class='text'>" + message +"</div><img class='message-image user' src='/themes/custom/usagov/images/chatbot/usagov-user-avatar.png' alt='USA.gov User Avatar' /></div>", "text/html");
+    // Create a message element for the user's message.
+    const newUserMessageElement = createMessage(true, userMessage);
 
-    messageContainer.appendChild(newMessage.body.firstChild);
-
+    // Remove the message suggestions after the first message.
     if (document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display !== "none"){
         document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
-    } 
+    }
 
-    const aiResponse = await getAIResponse(message, messageContainer);
+    // Add the user's message element to the chatbot.
+    messageContainer.appendChild(newUserMessageElement);
+
+    // Make the request to the AI server to get the response.
+    const aiResponse = await getAIResponse(userMessage, messageContainer);
+
+    // Create a message element for the user's message.
+    const newBotMessageElement = createMessage(false, aiResponse);
+
+    // Remove the loader so it can be replaced by the new message.
     document.getElementById("loader-container").remove();
-    addBotMessage(aiResponse);
+
+    // Add the bot's message element to the chatbot.
+    messageContainer.appendChild(newBotMessageElement);
 
 }
 
-function addBotMessage(message) {
-    'use strict';
-
-    const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
-
-    // make a new parser
-    const parser = new DOMParser();
-    const newMessage = parser.parseFromString("<div class='usagov-ai-chatbot-message bot'><div class='text'>" + message +"</div></div>", "text/html");
-
-    messageContainer.appendChild(newMessage.body.firstChild);
-
-}
-
+/**
+ * TO-DO: describe the function
+ *
+ * @param {string} userMessage - 
+ * @returns {string} The new message element so it can be added to the chatbot. 
+ */
 async function getAIResponse(userMessage, messageContainer) {
     'use strict';
-    
+
     // make a new parser
     const parser = new DOMParser();
     const loaderElement = parser.parseFromString('<div id="loader-container" class="usagov-ai-chatbot-message bot"><div class="text"><div class="loader"></div></div></div>', "text/html");
@@ -103,20 +123,67 @@ async function getAIResponse(userMessage, messageContainer) {
     });
 
     const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
+        "method": "POST",
+        "headers": myHeaders,
+        "body": raw,
+        "redirect": "follow"
     };
 
     try {
         const response = await fetch("http://127.0.0.1:11434/api/generate", requestOptions);
-
         const result = await response.text();
+
+        // Return the AI response.
         return JSON.parse(result).response;
 
-    } catch (error) {
+    } 
+    catch (error) {
         console.error(error);
     };
 }
 
+
+function createMessage(isUser, message) {
+
+    // Convert the text to html since it has the format of a Markdown.
+    const converter = new showdown.Converter();
+    const htmlMessage = converter.makeHtml(message);
+
+    // Create all the components of a message.
+    const messageElement = document.createElement("div");
+    const messageAvatarElement = document.createElement('img');
+    const messageTextElement = document.createElement('div');
+
+    // Configure the text of the message.
+    messageTextElement.classList.add("text");
+    messageTextElement.innerHTML = htmlMessage;
+
+    if (isUser) {
+        // Configure the user message container.
+        messageElement.classList.add("usagov-ai-chatbot-message", "user");
+
+        // Configure the avatar for the user.
+        messageAvatarElement.classList.add("message-image", "user");
+        messageAvatarElement.src = "/themes/custom/usagov/images/chatbot/usagov-user-avatar.png";
+        messageAvatarElement.alt = "USA.gov User Avatar";
+
+        // Add the avatar and text in the correct order for the user's messages.
+        messageElement.appendChild(messageTextElement);
+        messageElement.appendChild(messageAvatarElement);
+    }
+    else {
+        // Configure the bot message container.
+        messageElement.classList.add("usagov-ai-chatbot-message", "bot");
+
+        // Configure the avatar for the bot.
+        messageAvatarElement.classList.add("message-image", "bot");
+        messageAvatarElement.src = "/themes/custom/usagov/images/chatbot/usagov-bot-avatar.png";
+        messageAvatarElement.alt = "USA.gov Chatbot Avatar";
+
+        // Add the avatar and text in the correct order for the bot's messages.
+        messageElement.appendChild(messageAvatarElement);
+        messageElement.appendChild(messageTextElement);
+    }
+    
+    return messageElement;
+}

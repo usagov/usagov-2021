@@ -97,6 +97,7 @@
   
   .usagov-ai-chatbot-message img {
     border-radius: 50%;
+    align-self: end;
     width: 32px;
     height: 32px;
   }
@@ -115,6 +116,10 @@
     @include u-padding-y(4px);
     max-width: 90%;
     border-radius: 4px;
+  }
+  
+  .usagov-ai-chatbot-message .text p {
+    margin: 0;
   }
   
   .usagov-ai-chatbot-message.user .text{
