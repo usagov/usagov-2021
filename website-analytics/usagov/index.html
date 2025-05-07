@@ -176,24 +176,20 @@
         <h2>Visits in the Past 30 Days</h2>
       </section>
 
-      <!-- <section id="time_series" data-block="traffic-sources-30-days"
+      <section class="bar_chart">
+        <figure id="time_series" data-block="traffic-sources-30-days"
         data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/traffic-sources-30-days.json">
-        <svg class="data time-series">
-        </svg>
-      </section> -->
-
-      <figure id="time_series" data-block="traffic-sources-30-days"
-      data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/traffic-sources-30-days.json">
-        <figcaption>Website Traffic Sources: </figcaption>
-        <svg aria-labelledby="chart-title chart-desc" role="img" class="data time-series" viewBox="0 0 700 150">
-          <title id="chart-title">Daily Website Visit Counts</title>
-          <desc id="chart-desc">Bar chart showing daily website visits ranging from approximately 206,000 to 372,000 visits. Weekends consistently show lower traffic (around 215,000-250,000 visits) compared to weekdays (300,000-370,000 visits). Peak traffic occurred on February 20 with 371,785 visits.</desc>
-          <!-- Existing SVG content -->
-        </svg>
-        <div class="sr-only chart-data-table">
-          <!-- Add an HTML table with the same data for screen readers -->
-        </div>
-      </figure>
+          <figcaption>Website Traffic Sources: </figcaption>
+          <svg aria-labelledby="chart-title chart-desc" role="img" class="data time-series" viewBox="0 0 700 150">
+            <title id="chart-title">Daily Website Visit Counts</title>
+            <desc id="chart-desc">Bar chart showing daily website visits ranging from approximately 206,000 to 372,000 visits. Weekends consistently show lower traffic (around 215,000-250,000 visits) compared to weekdays (300,000-370,000 visits). Peak traffic occurred on February 20 with 371,785 visits.</desc>
+            <!-- Existing SVG content -->
+          </svg>
+          <div class="sr-only chart-data-table">
+            <!-- Add an HTML table with the same data for screen readers -->
+          </div>
+        </figure>
+      </section>
       <!-- end past 30 days section -->
 
       <section class="section_headline">
