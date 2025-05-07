@@ -50,10 +50,15 @@ function lookup_newImplementation(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
-    // We will auto detect which environment we are on (dev/stage/prod) and use the corresponding API-Proxy domain based on that
+    // We will auto detect which environment we are on (local/dev/stage/other)
+    // and use the corresponding API-Proxy domain based on that.
+    // To be safe, we'll default to production.
     var weAreOnDomain = String(document.location.host);
     var proxyDomain = '';
-    if (weAreOnDomain === 'beta-dev.usa.gov') {
+    if (weAreOnDomain === 'localhost') {
+        proxyDomain = 'http://localhost:8080';
+    }
+    else if (weAreOnDomain === 'beta-dev.usa.gov') {
         proxyDomain = 'https://api-proxy-dev.usa.gov';
     }
     else if (weAreOnDomain === 'cms-dev.usa.gov') {
@@ -65,15 +70,8 @@ function lookup_newImplementation(address, callback) {
     else if (weAreOnDomain === 'cms-stage.usa.gov') {
         proxyDomain = 'https://api-proxy-stage.usa.gov';
     }
-    else if (weAreOnDomain === 'usa.gov') {
-        proxyDomain = 'https://api-proxy.usa.gov';
-    }
-    else if (weAreOnDomain === 'cms.usa.gov') {
-        proxyDomain = 'https://api-proxy.usa.gov';
-    }
     else {
-        // otherwise assume this is a local dev environment
-        proxyDomain = 'http://localhost:8080';
+        proxyDomain = 'https://api-proxy.usa.gov';
     }
 
     console.log('The CEO tool is using the API-Proxy domain of: ' + proxyDomain);
