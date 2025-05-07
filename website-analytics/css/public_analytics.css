@@ -836,12 +836,12 @@ ul.pills > li:last-child > a {
   font-size: 0.8em;
 }
 
-.axis path,
-.axis line {
+g.axis path,
+g.axis line {
   fill: none;
   stroke: none;
 }
-.axis .tick text {
+g.axis .tick text {
   fill: #323a45;
   font-size: 1.1rem;
 }
