@@ -31,9 +31,9 @@ if [[ -z "$KEY_VALUE" ]]; then
 fi
 
 {
-  if service_exists "key-storage" ; then
+  if service_exists "api-key-storage" ; then
     echo "✅ Key Storage exists.  Proceeding to push key..."
-    KEY_STORE=$(cf curl /v3/service_instances/$(cf service key-storage --guid)/credentials)
+    KEY_STORE=$(cf curl /v3/service_instances/$(cf service api-key-storage --guid)/credentials)
 
     KEY_STORE_ENTRIES=$(echo "$KEY_STORE" | jq -c 'to_entries[]')
     NAME_EXISTS=false
@@ -77,7 +77,7 @@ fi
       KEY_STORE=$(jq --arg KEY_DOMAIN "$KEY_DOMAIN" --arg KEY_NAME "$KEY_NAME" --arg KEY_VALUE "$KEY_VALUE" --arg CURRENT_OPTIONS "$CURRENT_OPTIONS" '.[$KEY_NAME] = {"APIKEY": $KEY_VALUE, "DOMAIN": $KEY_DOMAIN, "OPTIONS": $CURRENT_OPTIONS}' <<< "$KEY_STORE")
     fi
 
-    yes '' | cf update-user-provided-service key-storage -p "$KEY_STORE"
+    yes '' | cf update-user-provided-service api-key-storage -p "$KEY_STORE"
     echo "✅ Key pushed to Key Storage. Restarting proxy."
     cf restart api-proxy
     echo "✅ Proxy restarted."

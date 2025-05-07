@@ -10,6 +10,15 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
+    // We will use the new API-Proxy implementation by default
+    // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
+    if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
+        lookup_newImplementation(address, callback);
+        return;
+    }
+
+    console.log('The CEO tool running the legacy system (not utilizing the API-Proxy)');
+
     let count=0;
     var timer = window.setInterval(function() {
         count++;
@@ -27,6 +36,52 @@ function lookup(address, callback) {
         }
     }, 100);
 
+}
+
+/**
+ * Build and execute request to look up elected officials for provided address.
+ * @param {string} address Address for which to fetch elected officials info.
+ * @param {function(Object)} callback Function which takes the response object as a parameter.
+ */
+function lookup_newImplementation(address, callback) {
+    "use strict";
+    /**
+     * Request object for given parameters.
+     * @type {gapi.client.HttpRequest}
+     */
+
+    // We will auto detect which environment we are on (local/dev/stage/other)
+    // and use the corresponding API-Proxy domain based on that.
+    // To be safe, we'll default to production.
+    var weAreOnDomain = String(document.location.host);
+    var proxyDomain = '';
+    if (weAreOnDomain === 'localhost') {
+        proxyDomain = 'http://localhost:8080';
+    }
+    else if (weAreOnDomain === 'beta-dev.usa.gov') {
+        proxyDomain = 'https://api-proxy-dev.usa.gov';
+    }
+    else if (weAreOnDomain === 'cms-dev.usa.gov') {
+        proxyDomain = 'https://api-proxy-dev.usa.gov';
+    }
+    else if (weAreOnDomain === 'beta-stage.usa.gov') {
+        proxyDomain = 'https://api-proxy-stage.usa.gov';
+    }
+    else if (weAreOnDomain === 'cms-stage.usa.gov') {
+        proxyDomain = 'https://api-proxy-stage.usa.gov';
+    }
+    else {
+        proxyDomain = 'https://api-proxy.usa.gov';
+    }
+
+    console.log('The CEO tool is using the API-Proxy domain of: ' + proxyDomain);
+
+    var url = proxyDomain + '/proxy';
+    url += '?keyname=google-civic';
+    url += '&endpoint=civicinfo/v2/representatives';
+    url += '&address=' + address;
+    console.log('The CEO tool is using URL: ' + url);
+    jQuery.get(url, callback);
 }
 
 /**
