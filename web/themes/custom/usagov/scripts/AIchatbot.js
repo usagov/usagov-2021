@@ -1,6 +1,6 @@
 /**
  * Toggles the visibility of the chatbot window.
- * 
+ *
  * This function:
  * 1. Is triggered when the user clicks the chatbot toggle icon in the header.
  * 2. Adds or removes CSS class to show or hide the chatbot interface.
@@ -32,12 +32,12 @@ function chatbotToogle() {
 
 /**
  * Sends the user's typed message from the input field to the chatbot.
- * 
+ *
  * This function:
  * 1. Retrieves the current value from the message input field.
  * 2. Calls the `handleUserMessage(inputValue)` function to process and display the message.
  * 3. Clears the input field after seding the message.
- * 
+ *
  * This functions is triggered by clicking the "Send" button.
  */
 function sendMessage() {
@@ -56,7 +56,7 @@ function sendMessage() {
  * Handles a user clicking on a suggestion button by sending the suggested message to the chatbot.
  *
  * @param {HTMLElement} element - The HTML element that contains the suggestion text that the user has selected.
- * 
+ *
  * This function:
  * 1. Retrieves the inner HTML/text of the clicked suggestion element.
  * 2. Passes that text to the `handleUserMessage(selectedSuggestion)` function to process it as if the user typed it manually.
@@ -75,7 +75,7 @@ function sendSuggestion(element) {
  * Handles the full lifecycle of processing a user message in the chatbot interface.
  *
  * @param {string} userMessage - The message text input from the user.
- * 
+ *
  * This function:
  * 1. Retrieves the main message container from the DOM.
  * 2. Uses a helper function to create and return a DOM element for the user's message.
@@ -123,12 +123,12 @@ async function handleUserMessage(userMessage) {
  *
  * @param {string} userMessage - The user's input message to be sent to the AI.
  * @param {HTMLElement} messageContainer - The container where the loading indicator is temporarily appended during the request.
- * 
+ *
  * This function:
  * 1. Creates and appends a loader element to indicate the AI is thinking.
  * 2. Sends a POST request to the local Ollama server with the user message.
  * 3. Waits for a response and then it returns just the AI message as a string.
- * 
+ *
  * @returns {string} The new message element so it can be added to the chatbot. 
  */
 async function getAIResponse(userMessage, messageContainer) {
@@ -221,6 +221,6 @@ function createMessage(isUser, message) {
         messageElement.appendChild(messageAvatarElement);
         messageElement.appendChild(messageTextElement);
     }
-    
+
     return messageElement;
 }
