@@ -958,3 +958,10 @@ a {
 .windows-div {
   flex-basis: 85%;
 }
+
+.bar rect {
+  fill: #0066cc; /* Ensure this color has at least 4.5:1 contrast ratio with background */
+}
+.axis text {
+  fill: #333333; /* Ensure readable text */
+}
