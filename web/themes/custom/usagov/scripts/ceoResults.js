@@ -10,12 +10,12 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
-    // We will use the new API-Proxy implementation by default
-    // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
-    if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
-        lookup_newImplementation(address, callback);
-        return;
-    }
+    // // We will use the new API-Proxy implementation by default
+    // // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
+    // if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
+    //     lookup_newImplementation(address, callback);
+    //     return;
+    // }
 
     console.log('The CEO tool running the legacy system (not utilizing the API-Proxy)');
 
@@ -301,7 +301,7 @@ function renderResults(response, rawResponse) {
 
             var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
-            accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
+            accordionHeaderButton.textContent =  response.officials[i].office + ", " + response.officials[i].name;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -322,7 +322,7 @@ function renderResults(response, rawResponse) {
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
             nextElem.classList.add("padding-bottom-2");
-            nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
+            nextElem.textContent = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
@@ -335,7 +335,7 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
+                nextElem.textContent = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
             }
@@ -348,7 +348,7 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
+                nextElem.textContent = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
                 // nextElem.appendChild(linkToPhone);
 
                 bulletList.appendChild(nextElem);
@@ -370,7 +370,7 @@ function renderResults(response, rawResponse) {
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
                 // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
-                nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
+                nextElem.textContent = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
                 // nextElem.appendChild(link);
 
                 bulletList.appendChild(nextElem);
@@ -393,10 +393,10 @@ function renderResults(response, rawResponse) {
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
                         if (socials[j].type === "Twitter") {
-                            nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            nextElem.textContent = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                         }
                         else {
-                            nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            nextElem.textContent = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                         }
                     }
                     bulletList.appendChild(nextElem);
