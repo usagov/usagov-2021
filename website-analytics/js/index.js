@@ -120,17 +120,17 @@
         });
 
         var y = function(d) { return d.visits; },
-            series = timeSeries()
-              .series([data.data.reverse()])
-              .y(y)
-              .label(function(d) {
-               return formatDate(parseDate(d.date));
-              })
-              .title(function(d) {
-                return formatCommas(d.visits)
-                  + " visits on "
-                  + formatDate(parseDate(d.date));
-              });
+          series = timeSeries()
+            .series([data.data.reverse()])
+            .y(y)
+            .label(function(d) {
+              return formatDate(parseDate(d.date));
+            })
+            .title(function(d) {
+              return formatCommas(d.visits)
+                + " visits on "
+                + formatDate(parseDate(d.date));
+            });
 
         series.xScale()
           .domain(d3.range(0, days.length + 1));
@@ -142,6 +142,54 @@
           .tickFormat(formatVisits);
 
         svg.call(series);
+
+        // Update the figcaption with the date range
+        var startDate = formatDate(parseDate(days[0].date));
+        var endDate = formatDate(parseDate(days[days.length - 1].date));
+        d3.select("#time_series").select("figcaption").text(`Website Traffic Sources: ${startDate} - ${endDate}`);
+
+        // Update the chart description
+        var minVisits = d3.min(days, function(d) { return d.visits; });
+        var maxVisits = d3.max(days, function(d) { return d.visits; });
+        var peakDay = days.find(function(d) { return d.visits === maxVisits; });
+        var weekendRange = d3.extent(weekendDays, function(d) { return d.visits; });
+        var weekdayRange = d3.extent(weekdayDays, function(d) { return d.visits; });
+
+        d3.select("#time_series").select("#chart-desc").text(
+          `Bar chart showing daily website visits ranging from approximately ${formatCommas(minVisits)} to ${formatCommas(maxVisits)} visits. ` +
+          `Weekends consistently show lower traffic (around ${formatCommas(weekendRange[0])}-${formatCommas(weekendRange[1])} visits) compared to weekdays ` +
+          `(${formatCommas(weekdayRange[0])}-${formatCommas(weekdayRange[1])} visits). Peak traffic occurred on ${formatDate(parseDate(peakDay.date))} ` +
+          `with ${formatCommas(maxVisits)} visits.`
+        );
+
+        // Populate hidden table
+        var tbody = d3.select("#time-series-table-body").selectAll("tr").data(days);
+        tbody.exit().remove();
+        var tr = tbody.enter().append("tr");
+        tr.append("td").text(function(d) { return formatDate(parseDate(d.date)); });
+        tr.append("td").text(function(d) { return formatCommas(d.visits); });
+
+        // Generate insights
+        var maxVisit = d3.max(days, function(d) { return d.visits; }),
+            maxDay = days.find(function(d) { return d.visits === maxVisit; }),
+            avgVisits = d3.mean(days, function(d) { return d.visits; }),
+            weekendDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() === 0 || date.getDay() === 6;
+            }),
+            weekdayDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() !== 0 && date.getDay() !== 6;
+            }),
+            avgWeekend = d3.mean(weekendDays, function(d) { return d.visits; }),
+            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; });
+
+        d3.select("#time-series-insights").text(
+          "Traffic follows a weekly pattern with weekdays averaging " +
+          formatCommas(Math.round(avgWeekday)) + " visits and weekends averaging " +
+          formatCommas(Math.round(avgWeekend)) + " visits. The highest traffic occurred on " +
+          formatDate(parseDate(maxDay.date)) + " with " + formatCommas(maxVisit) + " visits."
+        );
       }),
 
       // the traffic sources 30 days total block
