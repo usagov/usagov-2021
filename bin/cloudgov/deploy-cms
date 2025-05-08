@@ -131,7 +131,8 @@ if appOrServiceExists cms; then
   setupEgress cms
   setUSPSCreds
   setCallCenterEWTBucket
-  if appOrServiceExists cache-service; then
+  if appOrServiceExists "cache-service"; then
+      echo "binding cms to cache-service"
       cf bind_service cms cache-service
   fi
   pushApp cms
@@ -140,7 +141,7 @@ else
   pushApp cms
   setupRoutes cms
   setupEgress cms
-  if appOrServiceExists cache-service; then
+  if appOrServiceExists "cache-service"; then
       cf bind_service cms cache-service
   fi
   setUSPSCreds
