@@ -157,26 +157,27 @@
               return date.getDay() !== 0 && date.getDay() !== 6;
             }),
             avgWeekend = d3.mean(weekendDays, function(d) { return d.visits; }),
-            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; });
+            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; }),
+            minVisits = d3.min(days, function(d) { return d.visits; }),
+            maxVisits = d3.max(days, function(d) { return d.visits; }),
+            peakDay = days.find(function(d) { return d.visits === maxVisits; }),
+            weekendRange = d3.extent(weekendDays, function(d) { return d.visits; }),
+            weekdayRange = d3.extent(weekdayDays, function(d) { return d.visits; }),
+            startDate = formatDate(parseDate(days[0].date)),
+            endDate = formatDate(parseDate(days[days.length - 1].date));
 
-        // Update the figcaption with the date range
-        var startDate = formatDate(parseDate(days[0].date));
-        var endDate = formatDate(parseDate(days[days.length - 1].date));
+        // Update the chart title
         d3.select("#time_series").select("figcaption").text(`Website Traffic Sources: ${startDate} - ${endDate}`);
 
         // Update the chart description
-        var minVisits = d3.min(days, function(d) { return d.visits; });
-        var maxVisits = d3.max(days, function(d) { return d.visits; });
-        var peakDay = days.find(function(d) { return d.visits === maxVisits; });
-        var weekendRange = d3.extent(weekendDays, function(d) { return d.visits; });
-        var weekdayRange = d3.extent(weekdayDays, function(d) { return d.visits; });
-
         d3.select("#chart-desc").text(
           `Bar chart showing daily website visits ranging from approximately ${formatCommas(minVisits)} to ${formatCommas(maxVisits)} visits. ` +
           `Weekends consistently show lower traffic (around ${formatCommas(weekendRange[0])}-${formatCommas(weekendRange[1])} visits) compared to weekdays ` +
           `(${formatCommas(weekdayRange[0])}-${formatCommas(weekdayRange[1])} visits). Peak traffic occurred on ${formatDate(parseDate(peakDay.date))} ` +
           `with ${formatCommas(maxVisits)} visits.`
         );
+
+
 
         // Populate hidden table
         var tbody = d3.select("#time-series-table-body").selectAll("tr").data(days);
