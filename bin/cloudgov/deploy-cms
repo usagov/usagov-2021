@@ -137,13 +137,13 @@ function setCallCenterEWTBucket {
   cf set-env cms CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
 }
 
-if appOrServiceExists cms; then
+if appExists cms; then
   setupRoutes cms
   setupEgress cms
   setUSPSCreds
   setCallCenterEWTBucket
   if serviceExists "cache-service"; then
-      cf bind_service cms cache-service
+      cf bind-service cms cache-service
   fi
   pushApp cms
 else
@@ -152,7 +152,7 @@ else
   setupRoutes cms
   setupEgress cms
   if serviceExists "cache-service"; then
-      cf bind_service cms cache-service
+      cf bind-service cms cache-service
   fi
   setUSPSCreds
   setCallCenterEWTBucket
