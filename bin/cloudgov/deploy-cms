@@ -33,14 +33,25 @@ EGRESS_SPACE='shared-egress'
 # The Image digest for this tag should be looked up from cloud.gov storage
 # Any tag with a stored Image digest should be referenced by hash instead of tag
 
-function appOrServiceExists {  # appname or service-name
-  app_or_svc=$1
-  if [ -z "$app_or_svc" ]; then
-    echo "ERROR: app or service name is required"
+function appExists {  # appname
+  app=$1
+  if [ -z "$app" ]; then
+    echo "ERROR: app name is required"
     exit 1
   fi
-  echo cf app $app_or_svc > /dev/null 2>&1
-  cf app $app_or_svc > /dev/null 2>&1
+  echo cf app $app > /dev/null 2>&1
+  cf app $app > /dev/null 2>&1
+  return $?
+}
+
+function serviceExists {  # service name
+  service=$1
+  if [ -z "$service" ]; then
+    echo "ERROR: service name is required"
+    exit 1
+  fi
+  echo cf service $service > /dev/null 2>&1
+  cf service $service > /dev/null 2>&1
   return $?
 }
 
@@ -131,8 +142,7 @@ if appOrServiceExists cms; then
   setupEgress cms
   setUSPSCreds
   setCallCenterEWTBucket
-  if appOrServiceExists "cache-service"; then
-      echo "binding cms to cache-service"
+  if serviceExists "cache-service"; then
       cf bind_service cms cache-service
   fi
   pushApp cms
@@ -141,7 +151,7 @@ else
   pushApp cms
   setupRoutes cms
   setupEgress cms
-  if appOrServiceExists "cache-service"; then
+  if serviceExists "cache-service"; then
       cf bind_service cms cache-service
   fi
   setUSPSCreds
