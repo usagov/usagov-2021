@@ -155,7 +155,7 @@
         var weekendRange = d3.extent(weekendDays, function(d) { return d.visits; });
         var weekdayRange = d3.extent(weekdayDays, function(d) { return d.visits; });
 
-        d3.select("#time_series").select("#chart-desc").text(
+        d3.select("#chart-desc").text(
           `Bar chart showing daily website visits ranging from approximately ${formatCommas(minVisits)} to ${formatCommas(maxVisits)} visits. ` +
           `Weekends consistently show lower traffic (around ${formatCommas(weekendRange[0])}-${formatCommas(weekendRange[1])} visits) compared to weekdays ` +
           `(${formatCommas(weekdayRange[0])}-${formatCommas(weekdayRange[1])} visits). Peak traffic occurred on ${formatDate(parseDate(peakDay.date))} ` +
