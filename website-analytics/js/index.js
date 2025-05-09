@@ -143,11 +143,9 @@
 
         svg.call(series);
 
-
         // Generate insights
         var maxVisit = d3.max(days, function(d) { return d.visits; }),
             maxDay = days.find(function(d) { return d.visits === maxVisit; }),
-            avgVisits = d3.mean(days, function(d) { return d.visits; }),
             weekendDays = days.filter(function(d) {
               var date = parseDate(d.date);
               return date.getDay() === 0 || date.getDay() === 6;
@@ -177,8 +175,6 @@
           `with ${formatCommas(maxVisits)} visits.`
         );
 
-
-
         // Populate hidden table
         var tbody = d3.select("#time-series-table-body").selectAll("tr").data(days);
         tbody.exit().remove();
@@ -186,12 +182,16 @@
         tr.append("td").text(function(d) { return formatDate(parseDate(d.date)); });
         tr.append("td").text(function(d) { return formatCommas(d.visits); });
 
+        // Update the table with new data
         d3.select("#time-series-insights").text(
           "Traffic follows a weekly pattern with weekdays averaging " +
           formatCommas(Math.round(avgWeekday)) + " visits and weekends averaging " +
           formatCommas(Math.round(avgWeekend)) + " visits. The highest traffic occurred on " +
           formatDate(parseDate(maxDay.date)) + " with " + formatCommas(maxVisit) + " visits."
         );
+
+        // Update the insights container
+        d3.select("#chart-insights p").html(`Traffic follows a weekly pattern with weekdays averaging ${formatCommas(Math.round(avgWeekday))} visits and weekends dropping to around ${formatCommas(Math.round(avgWeekend))} visits. ${formatDate(parseDate(maxDay.date))} saw the highest traffic at ${formatCommas(maxVisit)} visits.`);
       }),
 
       // the traffic sources 30 days total block
@@ -858,7 +858,8 @@
       yScale.range([bottom, top]);
       xScale.rangeRoundBands([left, right], 0, 0);
 
-      svg.attr("viewBox", [0, 0, width, height].join(" "));
+      svg.attr("viewBox", [0, 0, width, height].join(" "))
+         .attr("tabindex", 0);
 
       element(svg, "g.axis.y0")
         .attr("transform", "translate(" + [left, 0] + ")")
@@ -909,6 +910,8 @@
           return d;
         })
         .attr("aria-label", title)
+        .attr("tabindex", 0)
+        .attr("role", "listitem")
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
         });

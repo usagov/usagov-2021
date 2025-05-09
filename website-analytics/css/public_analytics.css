@@ -966,7 +966,7 @@ a {
   fill: #333333; /* Ensure readable text */
 }
 
-figure.time_series figcaption {
+figure#time_series figcaption {
   position: absolute;
   width: 1px;
   height: 1px;
