@@ -143,6 +143,22 @@
 
         svg.call(series);
 
+
+        // Generate insights
+        var maxVisit = d3.max(days, function(d) { return d.visits; }),
+            maxDay = days.find(function(d) { return d.visits === maxVisit; }),
+            avgVisits = d3.mean(days, function(d) { return d.visits; }),
+            weekendDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() === 0 || date.getDay() === 6;
+            }),
+            weekdayDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() !== 0 && date.getDay() !== 6;
+            }),
+            avgWeekend = d3.mean(weekendDays, function(d) { return d.visits; }),
+            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; });
+
         // Update the figcaption with the date range
         var startDate = formatDate(parseDate(days[0].date));
         var endDate = formatDate(parseDate(days[days.length - 1].date));
@@ -168,21 +184,6 @@
         var tr = tbody.enter().append("tr");
         tr.append("td").text(function(d) { return formatDate(parseDate(d.date)); });
         tr.append("td").text(function(d) { return formatCommas(d.visits); });
-
-        // Generate insights
-        var maxVisit = d3.max(days, function(d) { return d.visits; }),
-            maxDay = days.find(function(d) { return d.visits === maxVisit; }),
-            avgVisits = d3.mean(days, function(d) { return d.visits; }),
-            weekendDays = days.filter(function(d) {
-              var date = parseDate(d.date);
-              return date.getDay() === 0 || date.getDay() === 6;
-            }),
-            weekdayDays = days.filter(function(d) {
-              var date = parseDate(d.date);
-              return date.getDay() !== 0 && date.getDay() !== 6;
-            }),
-            avgWeekend = d3.mean(weekendDays, function(d) { return d.visits; }),
-            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; });
 
         d3.select("#time-series-insights").text(
           "Traffic follows a weekly pattern with weekdays averaging " +
