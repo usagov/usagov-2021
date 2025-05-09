@@ -191,7 +191,7 @@
         );
 
         // Update the insights container
-        d3.select("#chart-insights p").html(`Traffic follows a weekly pattern with weekdays averaging ${formatCommas(Math.round(avgWeekday))} visits and weekends dropping to around ${formatCommas(Math.round(avgWeekend))} visits. ${formatDate(parseDate(maxDay.date))} saw the highest traffic at ${formatCommas(maxVisit)} visits.`);
+        d3.select(".chart-insights p").html(`Traffic follows a weekly pattern with weekdays averaging ${formatCommas(Math.round(avgWeekday))} visits and weekends dropping to around ${formatCommas(Math.round(avgWeekend))} visits. ${formatDate(parseDate(maxDay.date))} saw the highest traffic at ${formatCommas(maxVisit)} visits.`);
       }),
 
       // the traffic sources 30 days total block
@@ -855,11 +855,13 @@
           top = margin.top,
           bottom = height - margin.bottom;
 
+      var tabindex = 0;
+
       yScale.range([bottom, top]);
       xScale.rangeRoundBands([left, right], 0, 0);
 
       svg.attr("viewBox", [0, 0, width, height].join(" "))
-         .attr("tabindex", 0);
+         .attr("tabindex", tabindex);
 
       element(svg, "g.axis.y0")
         .attr("transform", "translate(" + [left, 0] + ")")
@@ -910,7 +912,7 @@
           return d;
         })
         .attr("aria-label", title)
-        .attr("tabindex", 0)
+        .attr("tabindex", tabindex++)
         .attr("role", "listitem")
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
