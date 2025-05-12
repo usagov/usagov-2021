@@ -19,12 +19,13 @@
  */
 #}
 
+
 {{ attach_library('usagov/stateDirectory') }}
 
 {% set lang = node.langcode.value %}
 
 {% if attributes -%}
-	<div{{attributes}}>
+    <div{{attributes}}>
 {% endif %}
 
 <form id="stateForm" class="usa-form state-usa-form" action="javascript:void(0);" autocomplete="off">
@@ -37,66 +38,66 @@
                 <label class="visuallyhidden">Select or type your state or territory::
                 <select class="usa-select usa-sr-only usa-combo-box__select" name="state-info" id="stateselect" aria-hidden="true" tabindex="-1">
                     <option value=""></option>
-												<option value=""></option>
-												<option key="undefined" value="/states/alabama">Alabama (AL)</option>
-												<option key="undefined" value="/states/alaska">Alaska (AK)</option>
-												<option key="undefined" value="/states/american-samoa">American Samoa (AS)</option>
-												<option key="undefined" value="/states/arizona">Arizona (AZ)</option>
-												<option key="undefined" value="/states/arkansas">Arkansas (AR)</option>
-												<option key="undefined" value="/states/california">California (CA)</option>
-												<option key="undefined" value="/states/colorado">Colorado (CO)</option>
-												<option key="undefined" value="/states/connecticut">Connecticut (CT)</option>
-												<option key="undefined" value="/states/delaware">Delaware (DE)</option>
-												<option key="undefined" value="/states/district-of-columbia">District of Columbia (DC)</option>
-												<option key="undefined" value="/states/federated-states-of-micronesia">Federated States of Micronesia (FM)</option>
-												<option key="undefined" value="/states/florida">Florida (FL)</option>
-												<option key="undefined" value="/states/georgia">Georgia (GA)</option>
-												<option key="undefined" value="/states/guam">Guam (GU)</option>
-												<option key="undefined" value="/states/hawaii">Hawaii (HI)</option>
-												<option key="undefined" value="/states/idaho">Idaho (ID)</option>
-												<option key="undefined" value="/states/illinois">Illinois (IL)</option>
-												<option key="undefined" value="/states/indiana">Indiana (IN)</option>
-												<option key="undefined" value="/states/iowa">Iowa (IA)</option>
-												<option key="undefined" value="/states/kansas">Kansas (KS)</option>
-												<option key="undefined" value="/states/kentucky">Kentucky (KY)</option>
-												<option key="undefined" value="/states/louisiana">Louisiana (LA)</option>
-												<option key="undefined" value="/states/maine">Maine (ME)</option>
-												<option key="undefined" value="/states/maryland">Maryland (MD)</option>
-												<option key="undefined" value="/states/massachusetts">Massachusetts (MA)</option>
-												<option key="undefined" value="/states/michigan">Michigan (MI)</option>
-												<option key="undefined" value="/states/minnesota">Minnesota (MN)</option>
-												<option key="undefined" value="/states/mississippi">Mississippi (MS)</option>
-												<option key="undefined" value="/states/missouri">Missouri (MO)</option>
-												<option key="undefined" value="/states/montana">Montana (MT)</option>
-												<option key="undefined" value="/states/nebraska">Nebraska (NE)</option>
-												<option key="undefined" value="/states/nevada">Nevada (NV)</option>
-												<option key="undefined" value="/states/new-hampshire">New Hampshire (NH)</option>
-												<option key="undefined" value="/states/new-jersey">New Jersey (NJ)</option>
-												<option key="undefined" value="/states/new-mexico">New Mexico (NM)</option>
-												<option key="undefined" value="/states/new-york">New York (NY)</option>
-												<option key="undefined" value="/states/north-carolina">North Carolina (NC)</option>
-												<option key="undefined" value="/states/north-dakota">North Dakota (ND)</option>
-												<option key="undefined" value="/states/northern-mariana-islands">Northern Mariana Islands (MP)</option>
-												<option key="undefined" value="/states/ohio">Ohio (OH)</option>
-												<option key="undefined" value="/states/oklahoma">Oklahoma (OK)</option>
-												<option key="undefined" value="/states/oregon">Oregon (OR)</option>
-												<option key="undefined" value="/states/pennsylvania">Pennsylvania (PA)</option>
-												<option key="undefined" value="/states/puerto-rico">Puerto Rico (PR)</option>
-												<option key="undefined" value="/states/republic-of-palau">Republic of Palau (PW)</option>
-												<option key="undefined" value="/states/republic-of-the-marshall-islands">Republic of the Marshall Islands (MH)</option>
-												<option key="undefined" value="/states/rhode-island">Rhode Island (RI)</option>
-												<option key="undefined" value="/states/south-carolina">South Carolina (SC)</option>
-												<option key="undefined" value="/states/south-dakota">South Dakota (SD)</option>
-												<option key="undefined" value="/states/tennessee">Tennessee (TN)</option>
-												<option key="undefined" value="/states/texas">Texas (TX)</option>
-												<option key="undefined" value="/states/u-s-virgin-islands">U.S. Virgin Islands (VI)</option>
-												<option key="undefined" value="/states/utah">Utah (UT)</option>
-												<option key="undefined" value="/states/vermont">Vermont (VT)</option>
-												<option key="undefined" value="/states/virginia">Virginia (VA)</option>
-												<option key="undefined" value="/states/washington">Washington (WA)</option>
-												<option key="undefined" value="/states/west-virginia">West Virginia (WV)</option>
-												<option key="undefined" value="/states/wisconsin">Wisconsin (WI)</option>
-												<option key="undefined" value="/states/wyoming">Wyoming (WY)</option>
+                    <option value=""></option>
+                    <option key="undefined" value="/states/alabama">Alabama (AL)</option>
+                    <option key="undefined" value="/states/alaska">Alaska (AK)</option>
+                    <option key="undefined" value="/states/american-samoa">American Samoa (AS)</option>
+                    <option key="undefined" value="/states/arizona">Arizona (AZ)</option>
+                    <option key="undefined" value="/states/arkansas">Arkansas (AR)</option>
+                    <option key="undefined" value="/states/california">California (CA)</option>
+                    <option key="undefined" value="/states/colorado">Colorado (CO)</option>
+                    <option key="undefined" value="/states/connecticut">Connecticut (CT)</option>
+                    <option key="undefined" value="/states/delaware">Delaware (DE)</option>
+                    <option key="undefined" value="/states/district-of-columbia">District of Columbia (DC)</option>
+                    <option key="undefined" value="/states/federated-states-of-micronesia">Federated States of Micronesia (FM)</option>
+                    <option key="undefined" value="/states/florida">Florida (FL)</option>
+                    <option key="undefined" value="/states/georgia">Georgia (GA)</option>
+                    <option key="undefined" value="/states/guam">Guam (GU)</option>
+                    <option key="undefined" value="/states/hawaii">Hawaii (HI)</option>
+                    <option key="undefined" value="/states/idaho">Idaho (ID)</option>
+                    <option key="undefined" value="/states/illinois">Illinois (IL)</option>
+                    <option key="undefined" value="/states/indiana">Indiana (IN)</option>
+                    <option key="undefined" value="/states/iowa">Iowa (IA)</option>
+                    <option key="undefined" value="/states/kansas">Kansas (KS)</option>
+                    <option key="undefined" value="/states/kentucky">Kentucky (KY)</option>
+                    <option key="undefined" value="/states/louisiana">Louisiana (LA)</option>
+                    <option key="undefined" value="/states/maine">Maine (ME)</option>
+                    <option key="undefined" value="/states/maryland">Maryland (MD)</option>
+                    <option key="undefined" value="/states/massachusetts">Massachusetts (MA)</option>
+                    <option key="undefined" value="/states/michigan">Michigan (MI)</option>
+                    <option key="undefined" value="/states/minnesota">Minnesota (MN)</option>
+                    <option key="undefined" value="/states/mississippi">Mississippi (MS)</option>
+                    <option key="undefined" value="/states/missouri">Missouri (MO)</option>
+                    <option key="undefined" value="/states/montana">Montana (MT)</option>
+                    <option key="undefined" value="/states/nebraska">Nebraska (NE)</option>
+                    <option key="undefined" value="/states/nevada">Nevada (NV)</option>
+                    <option key="undefined" value="/states/new-hampshire">New Hampshire (NH)</option>
+                    <option key="undefined" value="/states/new-jersey">New Jersey (NJ)</option>
+                    <option key="undefined" value="/states/new-mexico">New Mexico (NM)</option>
+                    <option key="undefined" value="/states/new-york">New York (NY)</option>
+                    <option key="undefined" value="/states/north-carolina">North Carolina (NC)</option>
+                    <option key="undefined" value="/states/north-dakota">North Dakota (ND)</option>
+                    <option key="undefined" value="/states/northern-mariana-islands">Northern Mariana Islands (MP)</option>
+                    <option key="undefined" value="/states/ohio">Ohio (OH)</option>
+                    <option key="undefined" value="/states/oklahoma">Oklahoma (OK)</option>
+                    <option key="undefined" value="/states/oregon">Oregon (OR)</option>
+                    <option key="undefined" value="/states/pennsylvania">Pennsylvania (PA)</option>
+                    <option key="undefined" value="/states/puerto-rico">Puerto Rico (PR)</option>
+                    <option key="undefined" value="/states/republic-of-palau">Republic of Palau (PW)</option>
+                    <option key="undefined" value="/states/republic-of-the-marshall-islands">Republic of the Marshall Islands (MH)</option>
+                    <option key="undefined" value="/states/rhode-island">Rhode Island (RI)</option>
+                    <option key="undefined" value="/states/south-carolina">South Carolina (SC)</option>
+                    <option key="undefined" value="/states/south-dakota">South Dakota (SD)</option>
+                    <option key="undefined" value="/states/tennessee">Tennessee (TN)</option>
+                    <option key="undefined" value="/states/texas">Texas (TX)</option>
+                    <option key="undefined" value="/states/u-s-virgin-islands">U.S. Virgin Islands (VI)</option>
+                    <option key="undefined" value="/states/utah">Utah (UT)</option>
+                    <option key="undefined" value="/states/vermont">Vermont (VT)</option>
+                    <option key="undefined" value="/states/virginia">Virginia (VA)</option>
+                    <option key="undefined" value="/states/washington">Washington (WA)</option>
+                    <option key="undefined" value="/states/west-virginia">West Virginia (WV)</option>
+                    <option key="undefined" value="/states/wisconsin">Wisconsin (WI)</option>
+                    <option key="undefined" value="/states/wyoming">Wyoming (WY)</option>
                 </select>
                 </label>
 
@@ -114,11 +115,11 @@
             </div>
         </div>
 
-        <button class="usa-button sd-go-btn" type="submit">Go</button>
+        <button class="usa-button sd-go-btn" type="submit" onclick="window.location.href = jQuery('#stateselect').val();">Go</button>
 
     </div>
 </form>
 
 {% if attributes -%}
-	</div>
+    </div>
 {% endif %}
