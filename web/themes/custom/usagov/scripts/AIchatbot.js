@@ -161,7 +161,7 @@ async function getAIResponse(userMessage, messageContainer) {
     };
 
     try {
-        const response = await fetch("http://127.0.0.1:11434/api/generate", requestOptions);
+        const response = await fetch("http://ob.straypacket.com/api/generate", requestOptions);
         const result = await response.text();
 
         // Return the AI response.
