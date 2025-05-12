@@ -1,0 +1,5 @@
+name: "Chatbot Module"
+type: module
+description: "Demo ChromaDB integration"
+core_version_requirement: ^9 || ^10
+package: USAgov

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89504ee19765bf0203f3c6bd066fc6fb",
+    "content-hash": "aa2ad8f290d898db3ae937a674dd243a",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -333,6 +333,63 @@
                 "source": "https://github.com/Chi-teck/drupal-code-generator/tree/3.6.1"
             },
             "time": "2024-06-06T17:36:37+00:00"
+        },
+        {
+            "name": "codewithkyrian/chromadb-php",
+            "version": "0.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CodeWithKyrian/chromadb-php.git",
+                "reference": "53bb269c6e76ae9976b0750eed3731d1fdcb9ea5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CodeWithKyrian/chromadb-php/zipball/53bb269c6e76ae9976b0750eed3731d1fdcb9ea5",
+                "reference": "53bb269c6e76ae9976b0750eed3731d1fdcb9ea5",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^2.19",
+                "symfony/var-dumper": "^6.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Codewithkyrian\\ChromaDB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kyrian Obikwelu",
+                    "email": "kyrianobikwelu@gmail.com"
+                }
+            ],
+            "description": "A PHP client for the Chroma Open Source Embedding Database",
+            "keywords": [
+                "chroma",
+                "chromadb",
+                "database",
+                "embedding",
+                "open-source",
+                "php",
+                "search",
+                "semantic",
+                "vectors"
+            ],
+            "support": {
+                "issues": "https://github.com/CodeWithKyrian/chromadb-php/issues",
+                "source": "https://github.com/CodeWithKyrian/chromadb-php/tree/0.4.0"
+            },
+            "time": "2025-03-09T16:58:50+00:00"
         },
         {
             "name": "commerceguys/addressing",
@@ -6706,16 +6763,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.9.2",
+            "version": "7.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b"
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/d281ed313b989f213357e3be1a179f02196ac99b",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
                 "shasum": ""
             },
             "require": {
@@ -6812,7 +6869,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.9.2"
+                "source": "https://github.com/guzzle/guzzle/tree/7.9.3"
             },
             "funding": [
                 {
@@ -6828,7 +6885,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-24T11:22:20+00:00"
+            "time": "2025-03-27T13:37:11+00:00"
         },
         {
             "name": "guzzlehttp/promises",

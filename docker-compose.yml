@@ -1,4 +1,14 @@
 services:
+  chromadb:
+   image: chromadb/chroma:0.6.2
+   container_name: chromadb
+   ports:
+     - "8000:8000"
+   volumes:
+     - ./chatbot/services/chroma:/chroma/chroma
+   restart: always
+   networks:
+     - gsa-gov
   cms:
     container_name: cms
     image: gsatts/usagov-2021:cms-latest

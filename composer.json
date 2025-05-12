@@ -16,6 +16,7 @@
     ],
     "require": {
         "php": ">=8.3",
+        "codewithkyrian/chromadb-php": "^0.4.0",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",
         "drupal/address": "^1.9",
@@ -76,6 +77,7 @@
         "drupal/views_menu_children_filter": "^3.0@RC",
         "drupal/viewsreference": "^2.0@beta",
         "drush/drush": "^12",
+        "guzzlehttp/guzzle": "^7.9",
         "masterminds/html5": "^2.0",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",

@@ -1,0 +1,7 @@
+usagov_chatbot.test:
+  path: '/chromadb-test'
+  defaults:
+    _controller: '\Drupal\usagov_chatbot\Controller\GenerateRAGController::test'
+    _title: 'ChromaDB Test'
+  requirements:
+    _permission: 'access content'
