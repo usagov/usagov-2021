@@ -1,0 +1,5 @@
+services:
+  usagov_staticsite_ingest.commands:
+    class: Drupal\usagov_staticsite_ingest\Commands\StaticSiteIngestCommands
+    tags:
+      - { name: drush.command }
