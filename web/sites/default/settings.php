@@ -819,7 +819,7 @@ $IS_CLOUDGOV = FALSE;
 $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $settings['trusted_host_patterns'] = [];
 $space_name = strtolower($cf_application_data['space_name'] ?? '');
-$use_redis = FALSE; // Simple flag for later config block to enable redis.
+$use_redis = FALSE; // Will switch to TRUE if we detect a cache-service.
 
 if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
   $IS_CLOUDGOV = TRUE;
