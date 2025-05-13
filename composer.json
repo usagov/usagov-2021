@@ -16,6 +16,7 @@
     ],
     "require": {
         "php": ">=8.3",
+        "ardagnsrn/ollama-php": "^1.0",
         "codewithkyrian/chromadb-php": "^0.4.0",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^1.7",

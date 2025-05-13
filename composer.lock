@@ -4,8 +4,67 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa2ad8f290d898db3ae937a674dd243a",
+    "content-hash": "766dfec674a99e3d03dad7aeff631ac9",
     "packages": [
+        {
+            "name": "ardagnsrn/ollama-php",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ArdaGnsrn/ollama-php.git",
+                "reference": "32a926e3fa14869ceb2018c0360e9a3fcfd4d526"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ArdaGnsrn/ollama-php/zipball/32a926e3fa14869ceb2018c0360e9a3fcfd4d526",
+                "reference": "32a926e3fa14869ceb2018c0360e9a3fcfd4d526",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.9",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "pestphp/pest": "^3.0",
+                "spatie/ray": "^1.28"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ArdaGnsrn\\Ollama\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arda GUNSUREN",
+                    "email": "ardagunsuren@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This is a PHP library for Ollama. Ollama is an open-source project that serves as a powerful and user-friendly platform for running LLMs on your local machine. It acts as a bridge between the complexities of LLM technology and the desire for an accessible and customizable AI experience.",
+            "homepage": "https://github.com/ardagnsrn/ollama-php",
+            "keywords": [
+                "ArdaGnsrn",
+                "ai",
+                "gemma2",
+                "llama",
+                "llama3.1",
+                "llm",
+                "mistral",
+                "ollama",
+                "ollama-php"
+            ],
+            "support": {
+                "issues": "https://github.com/ArdaGnsrn/ollama-php/issues",
+                "source": "https://github.com/ArdaGnsrn/ollama-php/tree/1.0.2"
+            },
+            "time": "2024-12-23T09:15:54+00:00"
+        },
         {
             "name": "asm89/stack-cors",
             "version": "v2.2.0",
