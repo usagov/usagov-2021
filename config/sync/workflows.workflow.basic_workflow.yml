@@ -4,6 +4,11 @@ status: true
 dependencies:
   config:
     - node.type.basic_page
+    - node.type.bears_agency
+    - node.type.bears_benefit
+    - node.type.bears_criteria
+    - node.type.bears_life_event
+    - node.type.bears_life_event_form
   module:
     - content_moderation
 id: basic_workflow
@@ -71,4 +76,9 @@ type_settings:
   entity_types:
     node:
       - basic_page
+      - bears_agency
+      - bears_benefit
+      - bears_criteria
+      - bears_life_event
+      - bears_life_event_form
   default_moderation_state: draft

@@ -1,6 +1,6 @@
 uuid: 396e479e-afa6-43a5-878e-c4d95e6fb08a
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-spanish
@@ -13,7 +13,7 @@ dependencies:
 id: mobile_navigation_es
 theme: usagov
 region: header_top
-weight: -9
+weight: -13
 provider: null
 plugin: 'menu_block:left-menu-spanish'
 settings:
@@ -29,7 +29,9 @@ settings:
   depth: 0
   expand_all_items: true
   parent: 'left-menu-spanish:'
+  render_parent: false
   suggestion: left_menu_spanish
+  hide_on_nonactive: false
 visibility:
   language:
     id: language

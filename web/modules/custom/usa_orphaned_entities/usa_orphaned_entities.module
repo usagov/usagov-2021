@@ -7,14 +7,19 @@
  */
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\ConfirmFormInterface;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_form_alter.
- */
+ *
+ * @param array<string, mixed> $form
+ **/
 
-function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
+function usa_orphaned_entities_form_alter(array &$form, FormStateInterface &$form_state, string $form_id): void {
   if (str_contains($form_id, 'delete_form')) {
     // This is called on all delete form alters. Ensure we can get
     // an entity otherwise bail early.
@@ -23,17 +28,22 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
       return;
     }
 
-    $entity = $form_state->getFormObject()?->getEntity();
+    $entity = $delForm->getEntity();
     if (!$entity) {
       return;
     }
 
     $reference_data = usa_orphaned_entities_get_reference_data($entity);
 
-    $markup = "<div class=\"default-message\">" .
-      $form_state->getFormObject()->getDescription() .
-    "</div>";
-    $segway = "T"; // it's a joke about powered scooters
+    $markup = '';
+    if ($delForm instanceof ConfirmFormInterface) {
+      $markup = "<div class=\"default-message\">" .
+        $delForm->getDescription() . "</div>";
+    }
+    else {
+      $markup = '<div class="default-message">This action cannot be undone.</div>';
+    }
+    $segway = "T"; // It's a joke about powered scooters.
     $additional = "";
 
     if (!empty($reference_data)) {
@@ -43,7 +53,10 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
         $additional .= "<span>Deleting this entity will also delete the following entities:</span>" . PHP_EOL;
         $additional .= "<ul>" . PHP_EOL;
         foreach ($reference_data['delete']['references'] as $reference_delete) {
-          $additional .= "<li>" . $reference_delete->getType() . ": <a href=\"/node/" . $reference_delete->id() . "\" target=\"_blank\">" . $reference_delete->title->value . " (" . $reference_delete->id() . ")</a></li>" . PHP_EOL;
+          $additional .= "<li>" . $reference_delete->getType()
+            . ": <a href=\"/node/" . $reference_delete->id()
+            . "\" target=\"_blank\">" . $reference_delete->title->value
+            . " (" . $reference_delete->id() . ")</a></li>" . PHP_EOL;
         }
         $additional .= "</ul></div>" . PHP_EOL;
         $segway = "Additionally, t";
@@ -75,7 +88,6 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
         $additional .= "<ul>" . PHP_EOL;
 
         foreach ($reference_data['skip']['references'] as $reference_skip) {
-          $url = $reference_skip->toUrl();
           $id = $reference_skip->id();
           $type = $reference_skip->getEntityTypeId();
           $title = $reference_skip->label();
@@ -85,14 +97,25 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
               $type = $reference_skip->getType();
               break;
 
-            case Term::class;
+            case Term::class:
               $type = $reference_skip->getEntityTypeId() . ' / ' . $reference_skip->bundle();
               break;
           }
-          $additional .= sprintf(
-            '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
-            $url->toString(), $type, Html::escape($title), $id
-          );
+
+          // Some entities, like paragraphs, don't have a link template
+          // which makes call to toUrl() fail.
+          if ($reference_skip->hasLinkTemplate('canonical')) {
+            $additional .= sprintf(
+              '<li><a href="%s" target="_blank">%s: %s (%d)</a></li>' . PHP_EOL,
+              $reference_skip->toUrl()->toString(), $type, Html::escape($title), $id
+            );
+          }
+          else {
+            $additional .= sprintf(
+              '<li>%s: %s (%d)</li>' . PHP_EOL,
+              $type, Html::escape($title), $id
+            );
+          }
         }
 
         $additional .= "</ul></div>" . PHP_EOL;
@@ -106,7 +129,7 @@ function usa_orphaned_entities_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Implements hook_entity_predelete.
  */
-function usa_orphaned_entities_entity_predelete($entity) {
+function usa_orphaned_entities_entity_predelete(EntityInterface $entity): void {
   $reference_data = usa_orphaned_entities_get_reference_data($entity);
   if (!empty($reference_data)) {
     if (!empty($reference_data['delete'])) {
@@ -125,7 +148,12 @@ function usa_orphaned_entities_entity_predelete($entity) {
 
 }
 
-function usa_orphaned_entities_get_reference_data($deleting_entity) {
+/**
+ * Grab the data from all references from the entity being deleted.
+ *
+ * @return array<string, mixed>
+ **/
+function usa_orphaned_entities_get_reference_data(EntityInterface $deleting_entity): array {
   $entityTypeManager = \Drupal::service('entity_type.manager');
   $config = \Drupal::config('orphaned_entities.settings');
 
@@ -148,7 +176,7 @@ function usa_orphaned_entities_get_reference_data($deleting_entity) {
       // getTargetEntityTypeId() answers "as a field, which entity type
       // are you/ attached to?" It should not matter if $reference_field
       // is not attached to the same entity type that we are deleting.
-      $entity_type = $entity_reference->getTargetEntityTypeId('target_type');
+      $entity_type = $entity_reference->getTargetEntityTypeId();
 
       // Instead, we must look at the "target_type" setting to check
       // if $reference_field can select other entities like the

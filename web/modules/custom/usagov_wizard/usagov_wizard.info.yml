@@ -1,4 +1,6 @@
 name: 'USA Wizard'
 type: module
-description: 'Hooks, and maybe a service for the wizard content type.'
+description: 'Hooks and a service to help manage and display the wizard taxonomy vocabulary.'
 core_version_requirement: ^9 || ^10
+dependencies:
+  - hierarchy_manager:hierarchy_manager

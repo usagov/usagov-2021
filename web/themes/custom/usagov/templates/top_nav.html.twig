@@ -14,8 +14,11 @@
 
 	<div class="navbar-right">
     {% block translation %}
+
       {% set translation = node.field_language_toggle[0].value %}
-      {% if translation %}
+      {% set translation_node = node.field_language_toggle[0].entity %}
+
+    	{% if translation_node and translation_node.status.value %}
 
         {% if node.nid[0].value|render == "1" %}
           {% set translation_url = "/es" %}
@@ -28,11 +31,9 @@
     {% endblock %}
 		<button class="usa-menu-btn">Menu</button>
 		<div class="usa-nav__secondary">
-			<span class="usa-nav__secondary-links">
-				<span id="top-phone" class="usa-nav__secondary-item">
-					<a href="/phone" style="white-space: nowrap;">Call us at 1-844-USAGOV1</a>
-				</span>
-			</span>
+			<div class="usa-nav__secondary-links">
+        {{ page.top_nav }}
+			</div>
 			<!-- Search Bar -->
 			{% embed 'usagov:searchbar' with {
 				form_classes: "usa-search usa-search--small",
@@ -45,7 +46,7 @@
 				input_id:"search-field-small",
 				input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
 				placeholder_string:"Search all government",
-				button_classes:"usa-button usagov-button",
+				button_classes:"usa-button",
 				alt_string:"Search",
 			} %}
 			{% endembed %}
@@ -55,7 +56,7 @@
 <nav aria-label="Primary navigation" class="usa-nav">
 	<div class="usa-nav__inner">
 		<button class="usa-nav__close">
-			<img src="/themes/custom/usagov/assets/img/usa-icons/close.svg" role="img" alt="Close"/>
+			<img src="/themes/custom/usagov/assets/img/usa-icons/close.svg" alt="Close"/>
 		</button>
 		{{ drupal_menu('top-navigation') }}
 	</div>

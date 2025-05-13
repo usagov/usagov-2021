@@ -211,7 +211,7 @@
 <!-- Needed_for_USA.gov_uptime_check -->
 
 {% if lang == "en" %}
-<script type="text/javascript">
+<script>
   //<![CDATA[
     var usasearch_config = { siteHandle:"usagov_all_gov" };
     var script = document.createElement("script");
@@ -221,7 +221,7 @@
   //]]>
   </script>
   {% elseif lang == "es" %}
-  <script type="text/javascript">
+  <script>
     //<![CDATA[
       var usasearch_config = { siteHandle:"usagov_es_internal" };
       var script = document.createElement("script");
@@ -231,7 +231,7 @@
     //]]>
     </script>
 {% endif %}
-<script type="text/javascript">
+<script>
   // Set a variable for our button element.
 const scrollToTopButton = document.getElementById('back-to-top');
 
@@ -274,7 +274,7 @@ const scrollToTop = () => {
 </script>
 
 <!-- siteimprove usability -->
-<script type="text/javascript">
+<script>
 	/*<![CDATA[*/
 	(function() {
 	var sz = document.createElement('script'); sz.type = 'text/javascript'; sz.async = true;
@@ -286,7 +286,7 @@ const scrollToTop = () => {
 <!-- end siteimprove usability -->
 
 <!-- begin code to remove tabindex from survey -->
-<script type="text/javascript">
+<script>
   document.querySelectorAll(".usa-accordion__content").forEach((accordionContent) => {
     accordionContent.onbeforematch = () => {
       //accordionContent.removeAttribute("hidden");

@@ -28,7 +28,9 @@ settings:
   depth: 0
   expand_all_items: false
   parent: 'wizard:'
+  render_parent: false
   suggestion: wizard
+  hide_on_nonactive: false
 visibility:
   'entity_bundle:node':
     id: 'entity_bundle:node'

@@ -43,22 +43,18 @@
   padding: initial;
 
   > h2 {
+    @include u-font('serif', 'xl');
     @include u-text('blue-80v');
-    @include u-font-family('serif');
-    @include u-margin(0);
+    @include u-margin-top(0);
     @include u-margin-bottom(2);
 
-    font-size: 2.2rem;
     line-height: 117.4%;
     letter-spacing: -0.39px;
   }
 
   .benefits-block__content, p {
     @include u-text('blue-80v');
-    @include u-font-family('sans');
     @include u-margin(0);
-
-    font-size: 1.25rem;
   }
 }
 
@@ -71,7 +67,7 @@ a.usa-button.benefits-link {
   @include u-padding(3);
   @include u-bg('blue-80v');
   @include u-display(flex);
-  @include u-font-family('sans');
+  @include u-font('sans', 'lg');
 
   grid-area: button;
   text-decoration: none;
@@ -79,9 +75,9 @@ a.usa-button.benefits-link {
   margin: auto;
   justify-content: center;
   align-items: center;
-  font-size: 22px;
   font-weight: 600;
   width: 100%;
+  border: solid 2px transparent;
 
   &:hover {
     @include u-bg('white');
@@ -113,4 +109,8 @@ a.usa-button.benefits-link {
   .benefits-block {
     align-items: center;
   }
+}
+
+body #benefit-finder .bf-notices p {
+  line-height: 1.5;
 }

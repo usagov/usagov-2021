@@ -25,7 +25,7 @@ applications:
 - name: waf
   docker:
     image: gsatts/usagov-2021:waf-latest
-  disk_quota: 1G
+  disk_quota: 2G
   memory: 256M
   services:
     - secrets
@@ -34,11 +34,32 @@ applications:
     APP_NAME: nginx
     BLOCKED_NAME: USAGov
     IP_ALLOWED: |
-      allow 50.81.160.164;
-      allow 100.36.151.190;
+      # IPv4 addresses and CIDR blocks go here. Put IPv6 addresses in the IPV6_ALLOWED section.
+      # Both groups are validated by startup code; separating them makes the validation easier.
+
+      # AWS EC2 Instances on the west-coast? Why do we have these? (see ticket USAGOV-1103)
       allow 52.222.122.97/32;
       allow 52.222.123.172/32;
+
+      # GSA CIDR Block
       allow 159.142.0.0/16;
+
+      # ZScaler "edge" addresses; sometimes GSA linux clients come through on these
+      allow 159.142.0.128/27;
+      allow 159.142.71.0/28;
+      allow 136.226.4.0/23;
+      allow 136.226.6.0/23;
+      allow 136.226.8.0/23;
+      allow 136.226.10.0/23;
+      allow 136.226.12.0/23;
+      allow 136.226.14.0/23;
+      allow 136.226.16.0/23;
+      allow 136.226.18.0/23;
+      allow 136.226.20.0/23;
+      allow 136.226.22.0/24;
+      allow 165.225.3.0/24;
+      allow 165.225.46.0/24;
+      allow 165.225.48.0/24;
 
       # SiteImprove:
       allow 13.58.165.213;
@@ -102,3 +123,49 @@ applications:
       allow 52.3.16.30;
       allow 52.22.251.194;
       allow 52.70.135.185;
+
+    IPV6_ALLOWED: |
+      # GSA IPv6 blocks and addresses:
+      2607:6540:2000:800::/64
+      2607:6540:2700:800::/64
+      2620:0:150:3447:5d77:841e:bc01:5bf4
+      2620:0:150:3447:8fca:87e5:da51:4b7b
+      2620:0:150:3447:daad:6c9f:fb78:b689
+      2620:0:150:3447:faf0:b47d:a67d:5bad
+      2620:0:150:3447:6df7:3fdc:64b4:1b83
+      2620:0:150:3447:1196:7f61:5aab:fd8f
+      2620:0:150:3447:2f92:e6a1:efaa:fb98
+      2620:0:150:3447:2772:3f17:a0eb:8566
+      2620:0:150:4029:896d:2ddc:8450:efe9
+      2620:0:150:4029:de4b:dd85:31cc:6f55
+      2620:0:150:4029:a5df:d6e0:fc6c:e16b
+      2620:0:150:4029:da15:7695:c137:7767
+      2620:0:150:4029:a5bc:cc3f:55f9:6458
+      2620:0:150:4029:b8c7:f0d0:941e:de07
+      2620:0:150:4029:c9cc:5ce:ec04:eb30
+      2620:0:150:4029:f30c:dc1f:6722:b47b
+
+      # ZScaler "edge" addresses; sometimes GSA linux clients come through on these
+      2605:4300:1511::/48
+      2605:4300:1512::/48
+      2605:4300:1611::/48
+      2605:4300:1612::/48
+      2605:4300:1711::/48
+      2605:4300:2c11::/48
+      2605:4300:2c12::/48
+
+
+- name: cron
+  docker:
+    image: gsatts/usagov-2021:cron
+  memory: 128M
+  disk_quota: 4G
+  timeout: 180
+  no-route: true
+  services:
+    - cron-state-storage
+    - cron-event-storage
+    - cron-callwait-storage
+    - cron-service-account
+    - cron-secrets
+  health-check-type: process

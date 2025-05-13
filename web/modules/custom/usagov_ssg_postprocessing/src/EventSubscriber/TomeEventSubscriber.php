@@ -2,13 +2,16 @@
 
 namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
+use Drupal\tome_static\Event\PathPlaceholderEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Drupal\views\ViewExecutable;
+use Drupal\views\Views;
 use Masterminds\HTML5;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -60,7 +63,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\CollectPathsEvent $event
    *   The collect paths event.
    */
-  public function excludeDirectories(CollectPathsEvent $event) {
+  public function excludeDirectories(CollectPathsEvent $event): void {
     $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
     foreach ($paths as $path => $metadata) {
@@ -76,7 +79,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $entity_id = $path_parts[3];
 
         $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
-        if (!$entity | (!$entity instanceof ContentEntityInterface) || !$entity->hasTranslation($langcode)) {
+        // ContentEntityBase interface require the getTranslation()/hasTranslation() methods
+        if (!$entity || (!$entity instanceof ContentEntityBase) || !$entity->hasTranslation($langcode)) {
           continue;
         }
         $entity = $entity->getTranslation($langcode);
@@ -113,10 +117,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   /**
    * Returns per-site excluded directory paths.
    *
-   * @return array
+   * @return array<mixed>
    *   An array of excluded paths.
    */
-  public static function getExcludedDirectories() {
+  public static function getExcludedDirectories(): array {
     $excluded_paths = [];
     $site_paths = Settings::get('usagov_tome_static_path_exclude_directories', []);
     if (is_array($site_paths)) {
@@ -134,7 +138,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @param \Drupal\tome_static\Event\ModifyHtmlEvent $event
    *   The event.
    */
-  public function modifyHtml(ModifyHtmlEvent $event) {
+  public function modifyHtml(ModifyHtmlEvent $event): void {
     $html = $event->getHtml();
     $html5 = new HTML5();
 
@@ -168,6 +172,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       }
     }
 
+    // Never crawl the rewritten Spanish path. It might be treated like a redirect by
+    // Tome and overwrite the original homepage HTML
+    $event->addExcludePath('/es/');
+
     if ($changes) {
       // Render it as HTML5:
       $modifiedHtml = $html5->saveHTML($document);
@@ -176,11 +184,81 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Prevent exporting paths Tome might discover after the collect paths event.
+   *
+   * @param PathPlaceholderEvent $event
+   * @return void
+   */
+  public function excludeInvalidPaths(PathPlaceholderEvent $event) {
+    $path = $event->getPath();
+
+    if ($path !== '/' && str_ends_with($path, '/')) {
+      // Tome should never request the Spanish homepage or any other local path
+      // with a trailing-slash. If it does request it, that is because the path
+      // was found in the content of a node or term.
+      // For example, when tome runs and it finds a link to `/es/`, Drupal will
+      // redirect the request for `/es/` to `/es`. The response causes Tome to
+      // save it in  the contents of `es/index.html` with an refresh redirect.
+      $event->setInvalid();
+      return;
+    }
+
+    if (preg_match('/(es\/)?node\/\d+$/', $path)) {
+      $event->setInvalid();
+    }
+  }
+
+  /**
+   * Add agency index paths to be exported instead of relying on Tome discovering the path
+   */
+  public function addAgencyIndexes(CollectPathsEvent $event): void {
+    $metadata = ['language_processed' => TRUE];
+    // Get the English letters to output from the pager view
+    $view = Views::getView('federal_agencies');
+    $view->setDisplay('attachment_1');
+
+    $metadata['langcode'] = 'en';
+    foreach ($this->getLetters($view) as $letter) {
+      $event->addPath('/agency-index?letter=' . $letter, $metadata);
+    }
+
+    // Get the Spanish letters
+    $view = Views::getView('federal_agencies');
+    $view->setDisplay('attachment_2');
+
+    $metadata['langcode'] = 'es';
+    foreach ($this->getLetters($view) as $letter) {
+      $event->addPath('/es/indice-agencias?letter=' . $letter, $metadata);
+    }
+
+  }
+
+  /**
+   * @return string[]
+   */
+  private function getLetters(ViewExecutable $view): array {
+    $view->execute();
+    $letters = [];
+    foreach ($view->result as $result) {
+      // Tome must create folders that are lower-cased
+      $letter = strtolower($result->title_truncated);
+      // The "A" page is the default agency-index page, no need to export.
+      if ($letter !== 'a') {
+        $letters[] = $letter;
+      }
+    }
+
+    return array_unique($letters);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['addAgencyIndexes'];
+    $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
     return $events;
   }
 

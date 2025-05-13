@@ -5,6 +5,7 @@ dependencies:
   module:
     - menu_ui
     - node_menus
+    - scheduler
 third_party_settings:
   menu_ui:
     available_menus:
@@ -22,10 +23,23 @@ third_party_settings:
         available_menus:
           - left-menu-spanish
         parent: 'left-menu-spanish:'
+  scheduler:
+    expand_fieldset: when_required
+    fields_display_mode: vertical_tab
+    publish_enable: true
+    publish_past_date: error
+    publish_past_date_created: false
+    publish_required: false
+    publish_revision: false
+    publish_touch: true
+    show_message_after_update: true
+    unpublish_enable: false
+    unpublish_required: false
+    unpublish_revision: false
 name: 'State Directory Record'
 type: state_directory_record
-description: ''
-help: ''
+description: null
+help: null
 new_revision: true
 preview_mode: 1
 display_submitted: false

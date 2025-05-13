@@ -29,7 +29,9 @@ settings:
   depth: 0
   expand_all_items: false
   parent: 'left-menu-spanish:'
+  render_parent: false
   suggestion: left_menu_spanish
+  hide_on_nonactive: false
 visibility:
   language:
     id: language

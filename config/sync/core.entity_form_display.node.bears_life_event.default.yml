@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.bears_life_event.field_b_display_order
     - field.field.node.bears_life_event.field_b_id
     - field.field.node.bears_life_event.field_b_search_title
     - field.field.node.bears_life_event.field_draft_json_data_file
@@ -16,6 +17,7 @@ dependencies:
     - field.field.node.bears_life_event.field_short_description
     - field.field.node.bears_life_event.field_summary
     - node.type.bears_life_event
+    - workflows.workflow.basic_workflow
   module:
     - allowed_formats
     - content_moderation
@@ -32,6 +34,13 @@ content:
     weight: 10
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_b_display_order:
+    type: number
+    weight: 26
+    region: content
+    settings:
+      placeholder: ''
     third_party_settings: {  }
   field_b_id:
     type: string_textfield
@@ -207,3 +216,7 @@ content:
     third_party_settings: {  }
 hidden:
   menu_entity_index: true
+  publish_on: true
+  publish_state: true
+  unpublish_on: true
+  unpublish_state: true

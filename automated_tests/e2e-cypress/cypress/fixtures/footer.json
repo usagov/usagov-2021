@@ -1,0 +1,88 @@
+{
+    "socials_heading": [
+        "Find us on social media",
+        "Encuéntrenos en las redes sociales"
+    ],
+    "num_socials": [4, 3],
+    "socials": [
+        {
+            "name": "Facebook",
+            "icon": "Facebook_Icon.svg",
+            "alt_text": "Facebook USAGov",
+            "link": [
+                "https://www.facebook.com/USAgov",
+                "https://www.facebook.com/usagovespanol"
+            ]
+        },
+        {
+            "name": "Twitter",
+            "icon": "X_Twitter_Icon.svg?version=2",
+            "alt_text": "X Twitter USAGov",
+            "link": [
+                "https://twitter.com/USAgov",
+                "https://twitter.com/usagovespanol"
+            ]
+        },
+        {
+            "name": "YouTube",
+            "icon": "YouTube_Icon.svg",
+            "alt_text": "Youtube USAGov",
+            "link": [
+                "https://www.youtube.com/usagov1",
+                "https://www.youtube.com/USAgovespanol"
+            ]
+        },
+        {
+            "name": "Instagram",
+            "icon": "Instagram_Icon.svg",
+            "alt_text": "Instagram USAGov",
+            "link": [
+                "https://www.instagram.com/usagov",
+                ""
+            ]
+        }
+    ],
+    "iconDir": "/themes/custom/usagov/images/social-media-icons/",
+
+    
+    "contact_heading": [
+        "USAGov Contact Center",
+        "Centro de llamadas de USAGov"
+    ],
+    "ask_a_question": [
+        "Ask USA.gov a question at",
+        "Haga una pregunta a USAGov en Español al"
+    ],
+    "phone_path": [
+        "/phone",
+        "/es/llamenos"
+    ],
+    "phone_number": "1-844-USAGOV1 (1-844-872-4681)",
+
+
+    "official_guide": [
+        "USAGov is the official guide to government information and services",
+        "USAGov en Español es la guía oficial de información y servicios del Gobierno"
+    ],
+    "official_site": [
+        "An official website of the U.S. General Services Administration",
+        "Un sitio web oficial de la Administración de Servicios Generales de los Estados Unidos (GSA, sigla en inglés)"
+    ],
+    "gsa_url": "https://www.gsa.gov/",
+    "important_links": [
+        "Important links",
+        "Enlaces importantes"
+    ],
+    "accessibility_support": [
+        "GSA accessibility support",
+        "Política de accesibilidad de\n GSA (en inglés)"
+    ],
+    "privacy_policy": [
+        "GSA privacy policy",
+        "Política de privacidad de\n GSA (en inglés)"
+    ],
+    "foia_requests": [
+        "FOIA requests",
+        "Solicitud a través de\n FOIA (en inglés)"
+    ]
+}

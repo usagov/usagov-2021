@@ -46,7 +46,7 @@ Taxonomy terms are content in drupal and if not already in database need to be m
 **Note** --> If homepage banner does not show after doing the above, refresh the page. The image styles may not have loaded. Similarly if you change the size of your window you may need to refresh. This should not be an issue on dev, stage or prod as tome will create the necessary files for the static site. If however you still do not see the banner go to content -> media -> media library. Try and upload media there. If it works there is a bug somewhere else in the code. If it does not there is an issue with media in general on the site and should be fixed by creating a new ticket for it.
 
 # Code Organization
-The homepage is currently in node--1--full.html.twig. Page.html.twig checks if the term_name is "Home Page" and if so in calls 		`<main class="main-content usa-layout-docs {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+The homepage is currently in node--1--full.html.twig. Page.html.twig checks if the term_name is "Home Page" and if so in calls 		`<main class="main-content usa-layout-docs {{ main_classes }}" id="main-content" data-pagetype="{{term_name}}">
 {{ page.content }}`
 This is because the other pages are wrapped in a `grid-container` which does not allow for full page spanning.
 

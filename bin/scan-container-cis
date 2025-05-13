@@ -16,8 +16,6 @@ fi
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
-APPNAME=${1:-cms}
-
 GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
 CTAG=${2:-$GITBRANCH}
 
@@ -31,6 +29,3 @@ docker run --disable-content-trust -it --rm --net host --pid host --userns host 
     --label docker_bench_security \
     docker-bench-security -b \
       -c "container_images,container_runtime"
-
-
-# -t "$DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG"

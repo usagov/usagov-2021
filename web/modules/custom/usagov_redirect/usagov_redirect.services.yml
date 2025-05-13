@@ -3,3 +3,7 @@ services:
     class: 'Drupal\usagov_redirect\RedirectSubscriber\RedirectSubscriber'
     tags:
       - { name: event_subscriber }
+  usagov_redirect.inbound_path_processor:
+    class: Drupal\usagov_redirect\PathProcessor\UsagovInboundPathProcessor
+    tags:
+      - { name: path_processor_inbound }

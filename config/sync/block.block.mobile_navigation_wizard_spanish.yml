@@ -13,7 +13,7 @@ dependencies:
 id: mobile_navigation_wizard_spanish
 theme: usagov
 region: header_top
-weight: 0
+weight: -10
 provider: null
 plugin: 'menu_block:wizard-espanol'
 settings:
@@ -29,7 +29,9 @@ settings:
   depth: 0
   expand_all_items: false
   parent: 'wizard-espanol:'
+  render_parent: false
   suggestion: wizard_espanol
+  hide_on_nonactive: false
 visibility:
   'entity_bundle:node':
     id: 'entity_bundle:node'

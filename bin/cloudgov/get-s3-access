@@ -15,6 +15,7 @@ fi
 
 SERVICE_KEY="storagekey-$SPACE-$SERVICE_NAME"
 
+### FIXME:  This is duplicate code, right?
 if ! cf service "$SERVICE_NAME" >/dev/null 2>&1; then
   echo "S3 service $SERVICE_NAME does not exist in space $SPACE"
   exit 1

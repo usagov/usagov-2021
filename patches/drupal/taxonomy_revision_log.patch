@@ -1,0 +1,16 @@
+diff --git a/modules/taxonomy/src/Entity/Term.php b/modules/taxonomy/src/Entity/Term.php
+index c7ac67216bbc159e6137952bbd8384a362d7164c..a0824d755be6de7bf2a3a5be3f76574e8e20a59f 100644
+--- a/modules/taxonomy/src/Entity/Term.php
++++ b/modules/taxonomy/src/Entity/Term.php
+@@ -210,12 +210,6 @@ public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+       ->setTranslatable(TRUE)
+       ->setRevisionable(TRUE);
+
+-    // @todo Keep this field hidden until we have a revision UI for terms.
+-    // @see https://www.drupal.org/project/drupal/issues/2936995
+-    $fields['revision_log_message']->setDisplayOptions('form', [
+-      'region' => 'hidden',
+-    ]);
+-
+     return $fields;
+   }

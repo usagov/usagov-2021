@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# Run this script as a task to query the run-time environment.
+# e.g., cf run-task my-app -c "/opt/cfevents/app-status"
+
+SPACE=$1
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
+
+source ~/.profile $SPACE event &> /dev/null
+
+echo SPACE REQUESTED        $SPACE
+echo CF_API                 $CF_API
+echo CF_USERNAME            $CF_USERNAME
+echo
+echo S3_BUCKET              $S3_BUCKET
+echo S3_ENDPOINT            $S3_ENDPOINT
+echo
+if [ -n "$HTTPS_PROXY" ]; then
+    echo "HTTP/S Proxy environment variables are present"
+fi
+cf -v
+echo
+cf t
+echo
+
+DATEFILE=logs.lastrun
+LOCALFILE=/tmp/test.datefile
+$echo aws_cp s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE $LOCALFILE &> /dev/null
+
+if [ -f  $LOCALFILE ]; then
+    echo pulled last query date from s3.
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r  $LOCALFILE)
+else
+    echo No previous query date found in s3.  initializing start date of query to 2 months ago.
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -d "$CFEVENTS_DEFAULT_LASTRUN")
+fi
+
+echo CFEVENTS_LASTRUN       $CFEVENTS_LASTRUN
+
+touch  $LOCALFILE
+
+CFEVENTS_THISRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r  $LOCALFILE)
+
+echo CFEVENTS_THISRUN       $CFEVENTS_THISRUN
+
+rm  $LOCALFILE

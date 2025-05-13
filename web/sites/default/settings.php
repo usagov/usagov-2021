@@ -428,6 +428,19 @@ $settings['update_free_access'] = FALSE;
  */
 # $settings['omit_vary_cookie'] = TRUE;
 
+/**
+ * The state system in Drupal is used for storing variables and configuration that:
+ * 1. Don't need to be deployed between environments
+ * 2. Are specific to a site's current state
+ * 3. Can change frequently
+ *
+ * By default, Drupal stores state information in the database. However, you can configure $settings['state_cache']
+ * to use alternative storage backends for better performance.
+ * The most common use case for modifying state cache settings is to improve performance on high-traffic
+ * sites by moving state storage to a faster storage backend like Redis or Memcached.
+ */
+// Use the default database storage
+$settings['state_cache']['storage'] = 'DatabaseStorage';
 
 /**
  * Cache TTL for client error (4xx) responses.
@@ -519,7 +532,7 @@ $settings['update_free_access'] = FALSE;
  * Private file path:
  *
  * A local file system path where private files will be stored. This directory
- * must be absolute, outside of the Drupal installation directory and not
+ * must be absolute, outside the Drupal installation directory and not
  * accessible over the web.
  *
  * Note: Caches need to be cleared when this value is changed to make the
@@ -778,8 +791,6 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 #
 
 $settings['config_sync_directory'] = '/var/www/config/sync';
-$settings['install_profile'] = 'minimal';
-
 /**
  * Stock tome_static exclusion variable. Does not traverse directories.
  */
@@ -789,8 +800,8 @@ $settings['tome_static_path_exclude'] = [];
  * USAGov addition to exclude entire directories. Don't include the trailing slash.
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
-    '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
-    '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
+  '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
+  '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
 ];
 
 
@@ -804,51 +815,49 @@ if (getenv('NEW_RELIC_API_KEY')) {
  * Cloud Foundry places all service credentials in VCAP_SERVICES
  */
 $cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
-$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'];
-if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
+$IS_CLOUDGOV = FALSE;
+$SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
+$settings['trusted_host_patterns'] = [];
+$space_name = strtolower($cf_application_data['space_name'] ?? '');
+
+if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
+  $IS_CLOUDGOV = TRUE;
+  $config['config_split.config_split.cloud_split']['status'] = TRUE;
+  $config['config_split.config_split.local_split']['status'] = FALSE;
+
   switch (strtolower($cf_application_data['space_name'])) {
+    // "local" values found in settings.local.php
     case "dev":
-      $SERVER_HTTP_HOST = 'https://cms-dev.usa.gov';
+      $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
+      break;
+
+    case "dr":
+      $SERVER_HTTP_HOST = 'cms-dr.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-dr.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-dr-usagov.apps.internal$';
       break;
 
     case "stage":
-      $SERVER_HTTP_HOST = 'https://cms-stage.usa.gov';
+      $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
       break;
 
     case "prod":
-      $SERVER_HTTP_HOST = 'https://cms.usa.gov';
+      $SERVER_HTTP_HOST = 'cms.usa.gov';
+      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
+      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
       break;
   }
 }
-
-$IS_CLOUDGOV=FALSE;
-$SERVER_HTTP_POST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
-$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
-if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['dev', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "dev":
-      $IS_CLOUDGOV=TRUE;
-      $SERVER_HTTP_HOST = 'cms-dev.usa.gov';
-      break;
-
-    case "stage":
-      $IS_CLOUDGOV=TRUE;
-      $SERVER_HTTP_HOST = 'cms-stage.usa.gov';
-      break;
-
-    case "prod":
-      $IS_CLOUDGOV=TRUE;
-      $SERVER_HTTP_HOST = 'cms.usa.gov';
-      break;
-  }
+else {
+  $config['config_split.config_split.cloud_split']['status'] = FALSE;
+  $config['config_split.config_split.local_split']['status'] = TRUE;
 }
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
-
 foreach ($cf_service_data as $service_list) {
   foreach ($service_list as $service) {
     if ($service['name'] === 'database') {
@@ -862,7 +871,7 @@ foreach ($cf_service_data as $service_list) {
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
         'driver' => 'mysql'
       ];
-      if ( $IS_CLOUDGOV===TRUE ) {
+      if ($IS_CLOUDGOV === TRUE) {
         $databases['default']['default']['pdo'] = [
           \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem',
           \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => TRUE
@@ -899,7 +908,6 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.upload_as_private'] = FALSE;
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
-
     }
   }
 }
@@ -911,35 +919,17 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
 
-$settings['trusted_host_patterns'] = [];
+// Add cache.backend.null:
+$settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
 
-if (!empty($cf_application_data['space_name']) &&
-    in_array($cf_application_data['space_name'],
-             ['local','dev', 'stage', 'prod'])) {
-  switch (strtolower($cf_application_data['space_name'])) {
-    case "local":
-      $settings['trusted_host_patterns'][] = '^cms-local.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-local-usagov.apps.internal$';
-      break;
-
-    case "dev":
-      $settings['trusted_host_patterns'][] = '^cms-dev.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-dev-usagov.apps.internal$';
-      break;
-
-    case "stage":
-      $settings['trusted_host_patterns'][] = '^cms-stage.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-stage-usagov.apps.internal$';
-      break;
-
-    case "prod":
-      $settings['trusted_host_patterns'][] = '^cms.usa.gov$';
-      $settings['trusted_host_patterns'][] = '^cms-prod-usagov.apps.internal$';
-      break;
-  }
+if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
+  // Disable the page and menu cache on tome runs
+  $settings['cache']['bins']['page'] = 'cache.backend.null';
+  $settings['cache']['bins']['menu'] = 'cache.backend.null';
+  $settings['cache']['bins']['data'] = 'cache.backend.null';
 }
 
-// Overide anything special for local developement
+// Override anything special for local development
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }

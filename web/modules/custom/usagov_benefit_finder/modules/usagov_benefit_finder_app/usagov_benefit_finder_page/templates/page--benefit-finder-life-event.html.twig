@@ -48,9 +48,6 @@
  * @see html.html.twig
  */
 #}
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@200;400;700;800&family=Tilt+Warp&display=swap');
-</style>
 
 {% set lang = node.langcode.value %}
 {% set content_type = "" %}
@@ -73,8 +70,6 @@
   {% set show_last_updated = false %}
 {% endif %}
 
-
-
 {% if government_banner %}
   <section class="usa-banner">
     {{ government_banner }}
@@ -83,7 +78,7 @@
 
 <div class="usa-overlay"></div>
 
-<header class="{{ header_classes }}" id="header" role="banner">
+<header class="{{ header_classes }}" id="header">
 
   {% if page.header_top %}
     <div class="usa-banner-inner">
@@ -115,7 +110,7 @@
 {% endif %}
 {% if term_name != "Home Page" %}
 
-<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+<main class="main-content usa-layout-docs usa-section {{ main_classes }}" id="main-content" data-pagetype="{{term_name}}">
 
   {# link is in html.html.twig #}
   <div hidden><a href="{{ json_data_file_path }}" rel="noindex nofollow">"{{ json_data_file_path }}"</a></div>
@@ -128,7 +123,7 @@
   </div>
 
   {% else %}
-  <main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+  <main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" id="main-content" data-pagetype="{{term_name}}">
 
     {{ page.content }}
     {% endif %}
@@ -146,5 +141,3 @@
   </main>
 
   {% include '@usagov/footer_nav.html.twig' %}
-
-

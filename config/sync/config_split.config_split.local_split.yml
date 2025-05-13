@@ -1,0 +1,18 @@
+uuid: f6542fd9-7b91-4451-bbeb-fd2b7db99e91
+langcode: en
+status: true
+dependencies: {  }
+id: local_split
+label: local_split
+description: ''
+weight: 0
+stackable: false
+no_patching: false
+storage: folder
+folder: /var/www/config/local_split
+module:
+  devel: 0
+  devel_generate: 0
+theme: {  }
+complete_list: {  }
+partial_list: {  }

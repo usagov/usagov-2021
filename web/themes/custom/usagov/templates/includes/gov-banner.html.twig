@@ -1,6 +1,6 @@
 <section class="usa-banner" aria-label="{{ official_statement }}" id="usagov-banner">
 	<div class="usa-accordion">
-		<header class="usa-banner__header">
+		<div class="usa-banner__header" role="banner">
 			<div class="usa-banner__inner">
 				<div class="grid-col-auto">
 					<img aria-hidden="true" class="usa-banner__header-flag" src="/themes/custom/usagov/images/favicon-57.png" alt="{{ flag_icon_alt }}" />
@@ -23,7 +23,7 @@
 					</svg>
 				</button>
 			</div>
-		</header>
+		</div>
 		<div class="usa-banner__content usa-accordion__content" id="gov-banner-default">
 			<div class="grid-row grid-gap-lg">
 				<div class="usa-banner__guidance tablet:grid-col-6">
@@ -44,8 +44,8 @@
 							<span class="icon-lock">
 								<svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64"
 									class="usa-banner__lock-image"
-									aria-labelledby="banner-lock-description-default" focusable="false">
-									<title id="banner-lock-title-default">Lock</title>
+									aria-labelledby="banner-lock-description-default">
+									<title>Lock</title>
 									<desc id="banner-lock-description-default">Locked padlock icon</desc>
 									<path fill="#000000" fill-rule="evenodd"
 									d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
@@ -64,6 +64,6 @@ This script applies the hidden attribute to the banner content.
 This script is located here so that it can hide the content immediately without a noticable flash of content.
 In the past, we added the hidden attribute in the HTML, but then it would be hidden even if javascript was disabled.
 #}
-<script type="text/javascript">
+<script>
 	document.getElementById('gov-banner-default').setAttribute('hidden', 'until-found');
 </script>

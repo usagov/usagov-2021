@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+### Required pretty much always for cron container scripts
+source ~/.profile &> /dev/null
+
+###
+### Test the task locking mechanism.  The bare-bones version of this looks like:
+###
+### TASKNAME=$(basename $0)                                                    ### < use filename of this script as the task name for creating lock directory
+### TASKPID=$$                                                                 ### < use PID of this process so we know if we died w/o proper unlocking
+### source .docker/src-cron/opt/cron/lock-singleton-task $TASKNAME $TASKPID    ### < locking preamble
+### sleep 15                                                                   ### < do whatever work needs done in the real world
+### source .docker/src-cron/opt/cron/unlock-singleton-task $TASKNAME $TASKPID  ### < unlocking postamble
+
+### Task Name (this filename, used for creating lock directory)
+TASKNAME=$(basename $0)
+
+### This pid (used to determine if we died w/o proper unlocking)
+TASKPID=$$
+
+SCRIPT_ROOT=${TASKLOCK_SCRIPT_ROOT:-.docker/src-cron/opt/cron/} # on the container, change this path to /opt/cron/
+RUN_ROOT=${TASKLOCK_RUN_ROOT:-/tmp/tasks/run} # on the container, maybe this should be /var/run?
+
+### Lock!
+echo "Attempting to take lock for $TASKNAME, PID: $TASKPID"
+source $SCRIPT_ROOT/lock-singleton-task $TASKNAME $TASKPID
+
+echo "What is in our lock directory now?"
+ls -ltR $RUN_ROOT/$TASKNAME
+
+### Do work!
+sleep 15
+
+### Unlock
+echo "Releasing lock for $TASKNAME, PID: $TASKPID"
+source $SCRIPT_ROOT/unlock-singleton-task $TASKNAME $TASKPID
+
+echo "What is in our lock directory now?"
+ls -ltR $RUN_ROOT

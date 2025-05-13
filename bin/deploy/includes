@@ -182,6 +182,20 @@ function existsCFService() { # desired service name
   fi
 }
 
+function bindCFService() {
+  appname=${1}
+  service=${2}
+  if existsCFService $service &> /dev/null; then
+    echo "Binding $appname with $service"
+    cf bind-service $appname $service
+    retval=$?
+  else
+    echo "Cannot bind $appname with non-existant service $service"
+    retval=1
+  fi
+  return $retval
+}
+
 function assertSpace() { # desired space
   desiredSpace=${1}
   if [ x${desiredSpace} != x$startspace ]; then

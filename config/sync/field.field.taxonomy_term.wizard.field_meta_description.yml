@@ -10,7 +10,7 @@ field_name: field_meta_description
 entity_type: taxonomy_term
 bundle: wizard
 label: 'Meta description'
-description: 'Sets the value for the metatag description. Only visible on the top level of a tree.'
+description: 'Text to place in a "meta description" tag on this page. If this field is empty, the Page Intro will be used for the meta description.'
 required: false
 translatable: false
 default_value: {  }

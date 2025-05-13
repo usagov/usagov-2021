@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Theme override to display a region.
+ *
+ * Available variables:
+ * - content: The content for this region, typically blocks.
+ * - attributes: HTML attributes for the region <div>.
+ * - region: The name of the region variable as defined in the theme's
+ *   .info.yml file.
+ *
+ * @see template_preprocess_region()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if content %}
+
+  <div{{ attributes }}>
+
+    {# Add all blocks in the `header_top` region #}
+    {{ content }}
+
+    {# Check if there are any site_banners #}
+    {% if site_banners %}
+      {% for site_banner_id in site_banners %}
+        {# If the current `site_banner` has the checkbox checked, it adds it to the `header_top` region. #}
+        {% if site_banner_id %}
+          {{ drupal_entity('block_content', site_banner_id) }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% for modal_id, modal_data in modals %}
+      {% if modal_id %}
+        {{ attach_library('usagov/modal') }}
+        {{ drupal_entity('block_content', modal_id) }}
+        {# This div creates an association between the modal's name used in the query string and the numerical ID used by the paragraph component' #}
+        <div data-modal-name="{{ modal_data['name']|url_encode }}" data-modal-id="{{ modal_data['id']['target_id'] }}"></div>
+      {% endif %}
+    {% endfor %}
+
+  </div>
+
+{% endif %}
+

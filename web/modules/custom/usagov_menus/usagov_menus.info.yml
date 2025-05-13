@@ -1,0 +1,9 @@
+name: 'USAGov Menu Blocks'
+type: module
+description: 'Provides blocks to display sidebars'
+core_version_requirement: ^9 || ^10
+package: USAgov
+dependencies:
+  - drupal:block
+  - usa_twig_vars
+  - drupal:simplify_menu

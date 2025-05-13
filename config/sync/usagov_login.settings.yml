@@ -1,4 +1,4 @@
 _core:
   default_config_hash: coO0RmJJp-D7jHHvSXkm9FDY4klel5kx5_E7b2uUQ2I
 sso_login_path: /saml/login
-sso_login_text: 'Login via SecureAuth'
+sso_login_text: 'Login via GSA Auth'

@@ -1,0 +1,7 @@
+name: 'USAGov CKEditor5 Source Editing Fixup'
+type: module
+description: 'Remove restrictions around elements that can be added for Source Editing mode'
+core_version_requirement: ^9 || ^10
+package: USAgov
+dependencies:
+  - drupal:ckeditor5

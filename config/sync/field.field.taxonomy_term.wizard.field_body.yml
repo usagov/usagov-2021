@@ -14,7 +14,7 @@ field_name: field_body
 entity_type: taxonomy_term
 bundle: wizard
 label: Body
-description: 'Use this field to enter text to display above the options list and below the introduction.'
+description: "<p>Steps to paste from Google Docs</p>\r\n<ol>\r\n<li>Copy content from Google Doc</li>\r\n<li>Go to HTML Tidy</li>\r\n<li>Paste the content into the left side of HTML Tidy</li>\r\n<li>Click the \"Tidy\" button above the right side</li>\r\n<li>Copy the code from the right side of HTML Tidy</li>\r\n<li>In the WYSIWYG editor above, enter source mode by clicking the \"Source\" button</li>\r\n<li>Paste the code copied from HTML Tidy</li>\r\n<li>Return to WYSIWYG mode by clicking the \"Source\" button again</li>\r\n<li>Finish any other steps needed before publishing the page</li>\r\n</ol>"
 required: false
 translatable: false
 default_value: {  }

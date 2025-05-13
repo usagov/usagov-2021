@@ -30,7 +30,7 @@ commands:
               echo "git checkout << parameters.envname >>"
               echo "git fetch --all --tags"
               echo "git pull"
-              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST
+              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST $WWW_DIGEST
               echo
             fi
       - run:
@@ -43,6 +43,13 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-www << pipeline.number >> $WWW_DIGEST
       - run:
+          name: CloudGov Deploy API Proxy
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./bin/cloudgov/deploy-api-proxy
+      - run:
           name: CloudGov Deploy WAF
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
@@ -53,11 +60,13 @@ commands:
             DWAF_APP=waf
             DCMS_APP=cms
             DWWW_APP=www
+            DPROXY_APP=api-proxy
             DAPP_SPACE=<< parameters.envname >>
             ROUTE_SERVICE_APP_NAME=$DWAF_APP \
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
-            PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP" \
+            PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP,$DPROXY_APP" \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
+
   save-image-digest:
     steps:
       - run:
@@ -79,6 +88,18 @@ commands:
             aws s3 cp /tmp/results/waf_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/waf-<< pipeline.number >>
             aws s3 cp /tmp/results/www_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/www-<< pipeline.number >>
 
+  save-image-digest-cron:
+    steps:
+      - run:
+          name: Save Image Digest Cron
+          command: |
+            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>)
+            CRON_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "$CRON_DIGEST" > /tmp/results/cron_digest
+            aws s3 cp /tmp/results/cron_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cron-<< pipeline.number >>
   load-image-digest:
     steps:
       - run:
@@ -99,6 +120,18 @@ commands:
             echo 'export CMS_DIGEST='"$CMS_DIGEST" | tee -a $BASH_ENV
             echo 'export WAF_DIGEST='"$WAF_DIGEST" | tee -a $BASH_ENV
             echo 'export WWW_DIGEST='"$WWW_DIGEST" | tee -a $BASH_ENV
+  load-image-digest-cron:
+    steps:
+      - run:
+          name: Load Image Digest Cron
+          command: |
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            export CRON_DIGEST=""
+            if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cron-<< pipeline.number >> ./cron-image-digest; then export CRON_DIGEST="@"$(cat ./cron-image-digest); fi;
+            export CRON_DIGEST=$CRON_DIGEST
+            echo 'export CRON_DIGEST='"$CRON_DIGEST" | tee -a $BASH_ENV
 
   install-cloud-foundry:
     steps:
@@ -106,28 +139,11 @@ commands:
           name: Install CloudFoundry
           command: |
             if command cf > /dev/null; then echo "CF client already installed"; exit 0; fi
-            wget --user-agent="Mozilla" -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-            echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-            sudo apt-get update
-            sudo apt-get install cf8-cli
+            wget 'https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.8.0&source=github-rel' -O /tmp/cf8.tar.gz
+            cd /usr/bin/ && sudo tar xzvpf /tmp/cf8.tar.gz
+            rm -f /tmp/cf8.tar.gz
             cf -v
 
-  install-node:
-    steps:
-      - run:
-          name: Install Specific Node Version
-          command: |
-            set +e
-            wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-            nvm install v20.10.0
-            nvm alias default 20.10.0
-            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
-            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-            echo "Install Gulp on node "$(node --version)
-            sudo npm install --global gulp-cli
   signed-dockerhub-login:
     steps:
       - run:
@@ -143,7 +159,6 @@ commands:
           no_output_timeout: 30m
           command: |
             echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
-
 
   snapshot-preamble:
     parameters:
@@ -210,52 +225,62 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-build-reporter
+            ./bin/cloudgov/container-build-reporter << pipeline.number >> latest
+            echo "docker images --no-trunc --quiet"
+            docker images --no-trunc --quiet
+            export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
+            echo RDIG is $RDIG
+      - run:
+          name: Save Image Digest Reporter
+          command: |
+            echo "docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'"
+            docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'
+            export REPORTER_DIGEST=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
+            echo "REPORTER_DIGEST is: "
+            echo $REPORTER_DIGEST
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            mkdir /tmp/results || true
+            echo -n "$REPORTER_DIGEST" > /tmp/results/reporter_digest
+            aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-push-reporter
+            ./bin/cloudgov/container-push-reporter << pipeline.number >> latest
       - run:
           name: Deploy Analytics Reporter
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-reporter
+            export RDIG=`cat /tmp/results/reporter_digest`
+            echo RDIG is $RDIG
+            ./bin/cloudgov/deploy-reporter << pipeline.number >> $RDIG
 
-  deploy-cfevents:
+  deploy-cloudgov-cron:
     parameters:
       envname:
-        default: "tools"
+        default: "dr"
         type: string
     steps:
       - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
       - install-cloud-foundry
-      - signed-dockerhub-login
+      - load-image-digest-cron
       - run:
-          name: Build CF Events Container
+          name: CloudGov Deploy Cron
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-build-cfevents
-      - run:
-          name: Push CF Events Container to Docker Hub
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/container-push-cfevents
-      - run:
-          name: Deploy CF Events App
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cfevents
+            ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CRON_DIGEST
 
 jobs:
   scan-code:
@@ -316,21 +341,22 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/php:8.1.27-node
+      - image: cimg/php:8.3-node
     steps:
       - checkout
-      - install-node
       - run:
           name: Install Linters and Sniffers
           command: |
             npm install --prefix ./web/themes/custom/usagov
             composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
             composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint
+            composer require --dev mglaman/phpstan-drupal phpstan/phpstan phpstan/phpstan-deprecation-rules
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
             mkdir -p /tmp/results
             touch /tmp/results/php-lint.log
             touch /tmp/results/php-cs.log
+            touch /tmp/results/php-stan.log
             touch /tmp/results/theme-lint.log
       - run:
           name: PHP Lint
@@ -342,6 +368,10 @@ jobs:
           command: |
             COMPOSER_DIR=$(composer -n config --global home)
             $COMPOSER_DIR/vendor/bin/phpcs -ns --standard=./.phpcs.xml.dist | tee /tmp/results/php-cs.log
+      - run:
+          name: PHPStan (static analysis, non-blocking)
+          command: |
+            (./vendor/bin/phpstan --memory-limit=2G || true) | tee /tmp/results/php-stan.log
       - run:
           name: Theme Lint
           command: npm run lint --prefix ./web/themes/custom/usagov | tee /tmp/results/theme-lint.log
@@ -413,44 +443,38 @@ jobs:
             cat /tmp/results/scan-waf-container.log
             exit 0
       - run:
-          name: Create Container for CIS Benchmarks
+          name: Prepare for CIS Benchmarks
           when: always
           command: |
+            # kill the Snyk Docker images, as we dont want the next scan to waste time scaning them
+            docker image rm snyk/snyk:php
+            docker image rm snyk/snyk:docker
             # build a fresh docker-bench-security container
             cd /tmp/
             git clone --depth 1 https://github.com/docker/docker-bench-security.git
             cd /tmp/docker-bench-security
             docker build --no-cache -t docker-bench-security .
       - run:
-          name: Check CMS CIS Benchmarks
+          name: Check CIS Benchmarks
           when: always
           command: |
             # use the fresh container to scan
             SCAN_CMS_CIS_RESULT=0
-            if (./bin/scan-container-cis cms << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
+            if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cms-container-cis.log); then export SCAN_CMS_CIS_RESULT=0; else export SCAN_CMS_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_CIS_RESULT" | tee -a /tmp/results/scan-cms-container-cis.log
-            cat /tmp/results/scan-cms-container-cis.log
             exit 0
       - run:
-          name: Check WWW CIS Benchmarks
+          name: Stop containers now that Benchmarks are done
           when: always
           command: |
-            # use the fresh container to scan
-            SCAN_WWW_CIS_RESULT=0
-            if (./bin/scan-container-cis www << pipeline.number >> | tee /tmp/results/scan-www-container-cis.log); then export SCAN_WWW_CIS_RESULT=0; else export SCAN_WWW_CIS_RESULT=$?; fi
-            echo "WWW CIS Benchmark Scan return code: $SCAN_WWW_CIS_RESULT" | tee -a /tmp/results/scan-www-container-cis.log
-            cat /tmp/results/scan-www-container-cis.log
-            exit 0
-      - run:
-          name: Check WAF CIS Benchmarks
-          when: always
-          command: |
-            # use the fresh container to scan
-            SCAN_WAF_CIS_RESULT=0
-            if (./bin/scan-container-cis waf << pipeline.number >> | tee /tmp/results/scan-waf-container-cis.log); then export SCAN_WAF_CIS_RESULT=0; else export SCAN_WAF_CIS_RESULT=$?; fi
-            echo "WAF CIS Benchmark Scan return code: $SCAN_WAF_CMS_RESULT" | tee -a /tmp/results/scan-waf-container-cis.log
-            cat /tmp/results/scan-waf-container-cis.log
-            exit 0
+            echo "Current running containers are:"
+            docker ps
+            echo "Stopping all containers ..."
+            docker stop $(docker ps -q)
+            echo "Current running containers are:"
+            docker ps
+            echo "done."
+
       - run:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
@@ -539,14 +563,137 @@ jobs:
       - deploy-reporter:
           envname: tools
 
-  deploy-cfevents-tools:
+  build-and-push-container-cron:
     machine:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - deploy-cfevents:
-          envname: tools
+      - checkout
+      - signed-dockerhub-login
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            mkdir -p /tmp/results
+            touch /tmp/results/scan-cron-container.log
+            touch /tmp/results/scan-cron-container-cis.log
+      - run:
+          name: Build Cron Container
+          no_output_timeout: 30m
+          command: |
+            ./bin/cloudgov/container-build-cron << pipeline.number >> latest
+      - run:
+          name: Scan Cron Container
+          command: |
+            SCAN_CRON_RESULT=0
+            if (./bin/scan-container cron << pipeline.number >> high | tee /tmp/results/scan-cron-container.log); then export SCAN_CRON_RESULT=0; else export SCAN_CRON_RESULT=$?; fi
+            echo "Cron Container Scan return code: $SCAN_CRON_RESULT" | tee -a /tmp/results/scan-cron-container.log
+            cat /tmp/results/scan-cron-container.log
+            exit 0
+      - run:
+          name: Create Container for Cron CIS Benchmarks
+          when: always
+          command: |
+            # build a fresh docker-bench-security container
+            cd /tmp/
+            git clone --depth 1 https://github.com/docker/docker-bench-security.git
+            cd /tmp/docker-bench-security
+            docker build --no-cache -t docker-bench-security .
+      - run:
+          name: Check Cron CIS Benchmarks
+          when: always
+          command: |
+            # use the fresh container to scan
+            SCAN_CRON_CIS_RESULT=0
+            if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
+            echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
+            cat /tmp/results/scan-cron-container-cis.log
+            exit 0
+      - run:
+          name: Stop containers now that Benchmarks are done
+          when: always
+          command: |
+            echo "Current running containers are:"
+            docker ps
+            echo "Stopping all containers ..."
+            docker stop $(docker ps -q)
+            echo "Current running containers are:"
+            docker ps
+            echo "done."
+      - run:
+          name: Push Cron Container to Docker Hub
+          no_output_timeout: 30m
+          command: |
+            export DOCKER_CONTENT_TRUST=1
+            ./bin/cloudgov/container-push-cron << pipeline.number >> latest
+      - install-cloud-foundry
+      - save-image-digest-cron
+      - store_artifacts:
+          path: /tmp/results
+
+  deploy-to-cloudgov-dr-cron:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - deploy-cloudgov-cron:
+          envname: dr
+
+  deploy-to-cloudgov-dev-cron:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - deploy-cloudgov-cron:
+          envname: dev
+
+  deploy-to-cloudgov-stage-cron:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: stage
+
+  deploy-to-cloudgov-prod-cron:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-cloudgov-cron:
+          envname: prod
+
+  perform-ip-allow-list-validation:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - checkout
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+      - run:
+          name: Validate IP Allow Lists
+          command: |
+            # Remove pyenv, etc from PATH to allow the system's python3 to work
+            export PATH=/home/circleci/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+            ### IP_ALLOWED and IPV6_ALLOWED are in the app's manifest.yml - use python and jq to extract them
+            export IPV6_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IPV6_ALLOWED' | sed 's/"//g')
+            export IP_ALLOWED=$(cat manifest.yml | python3 -c 'import sys,yaml,json; print(json.dumps(yaml.safe_load(str(sys.stdin.read()))))' | jq '.applications[] | select( .name=="waf") | .env.IP_ALLOWED' | sed 's/"//g')
+            IPV6_ALLOWED=$(echo -e $IPV6_ALLOWED)
+            IP_ALLOWED=$(echo -e $IP_ALLOWED)
+            RETVAL=0
+            if [ -n "$IP_ALLOWED" -o -n "$IPV6_ALLOWED" ]; then
+              ./scripts/validate-cidr
+              RETVAL=$?
+              echo "RETVAL: " $RETVAL
+            else
+              echo "INFO: IP_ALLOWED and/or IPV6_ALLOWED lists are empty"
+            fi
+            exit $RETVAL
 
 workflows:
   version: 2
@@ -565,6 +712,25 @@ workflows:
 
   try-snapshot-backup:
     jobs:
+      - approve-snapshot-backup-dr:
+          type: approval
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DR-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+      - run-snapshot-backup-dr:
+          filters:
+            tags:
+              only:
+              - /^USAGOV-(.*)-DR-SNAP(.*)/
+            branches:
+              ignore:
+              - /.*/
+          requires:
+            - approve-snapshot-backup-dr
       - approve-snapshot-backup-dev:
           type: approval
           filters:
@@ -642,36 +808,17 @@ workflows:
                 - prod
           requires:
             - approve-deploy-reporter
-
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
           type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - approve-dev-deployment:
           type: approval
           requires:
             - build-and-push-container
-          filters:
-            branches:
-              only:
-              - dev
       - approve-dr-deployment:
           type: approval
           requires:
@@ -683,10 +830,6 @@ workflows:
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
-          filters:
-            branches:
-              only:
-              - dev
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -727,3 +870,74 @@ workflows:
           filters:
             branches:
               only: prod
+
+  build-and-deploy-cron:
+    jobs:
+      - approve-build-and-push-container-cron:
+          type: approval
+      - build-and-push-container-cron:
+          requires:
+            - approve-build-and-push-container-cron
+      - approve-dev-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+      - approve-dr-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only:
+              - dr
+      - deploy-to-cloudgov-dev-cron:
+          requires:
+            - approve-dev-deployment-cron
+      - deploy-to-cloudgov-dr-cron:
+          requires:
+            - approve-dr-deployment-cron
+          filters:
+            branches:
+              only:
+              - dr
+      - approve-stage-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only: stage
+      - deploy-to-cloudgov-stage-cron:
+          requires:
+            - approve-stage-deployment-cron
+          filters:
+            branches:
+              only: stage
+      - approve-prod-deployment-cron:
+          type: approval
+          requires:
+            - build-and-push-container-cron
+          filters:
+            branches:
+              only: prod
+      - really-approve-prod-deployment-cron:
+          type: approval
+          requires:
+            - approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+      - deploy-to-cloudgov-prod-cron:
+          requires:
+            - really-approve-prod-deployment-cron
+          filters:
+            branches:
+              only: prod
+
+  ip-allow-list-validation:
+    jobs:
+      - approve-ip-allow-list-validation:
+          type: approval
+      - perform-ip-allow-list-validation:
+          requires:
+            - approve-ip-allow-list-validation

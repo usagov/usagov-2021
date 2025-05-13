@@ -54,7 +54,10 @@ settings:
       multiBlock: true
     ckeditor5_sourceEditing:
       allowed_tags:
-        - '<div>'
+        - '<h2 id>'
+        - '<h3 id>'
+        - '<h4 id>'
+        - '<div data-*>'
         - '<a role>'
     ckeditor5_style:
       styles:
@@ -84,9 +87,3 @@ settings:
       table_content_items: true
 image_upload:
   status: false
-  scheme: public
-  directory: inline-images
-  max_size: ''
-  max_dimensions:
-    width: null
-    height: null

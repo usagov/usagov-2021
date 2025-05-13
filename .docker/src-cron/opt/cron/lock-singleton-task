@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#
+# This is a locking preamble script, meant to be sourced from another script which should 
+# be limited to one running instance per host.
+#
+# There is a corresponding postamble called unlock-singleton-task
+#
+### Lock method:
+###   Lock directory + pid file
+###
+### Test lock exist sequence:
+###   1.1 mkdir /tmp/tasks/run/script-filename
+###   1.2 If mkdir fails we have at leats one instance of script-filename running
+###.....2.1 Look in /tmp/tasks/run/script-filename for a pid file
+###     2.2 If pid file exists, look for process id $pid
+###.....  3.1 If process exists, exit w/ error code "already running"
+###       3.2 If process does not exist, remove pid file, add pid file with task process' pid, continue normally
+###     2.3 If pid file does not exist, add pid file with task process' pid, continue normally normally
+###   1.2 If mkdir succeeds, add pid file with task process' pid, continue normally
+
+TASKSPS=${TASKLOCK_PS:-ps}
+TASKSDIR=${TASKLOCK_RUN_ROOT:-/tmp/tasks/run}
+mkdir -p $TASKSDIR
+
+TASKNAME=${1}
+if [ x"$TASKNAME" = x ]; then
+  echo "ERROR: No task name provided on the commandline"
+  exit 3
+fi
+shift
+
+TASKPID=${1}
+if [ x"$TASKPID" = x ]; then
+  echo "ERROR: No task pid provided on the commandline"
+  exit 3
+fi
+shift
+
+TASKLOCK="$TASKSDIR/$TASKNAME"
+
+if ! mkdir "$TASKLOCK" &> /dev/null; then
+
+  lastpid=$(ls -t1 $TASKLOCK | sort | head -n1 )
+  while [ "$lastpid" != "" ]; do
+    if $TASKSPS $lastpid &> /dev/null; then
+      echo "NOTICE: No action taken because $TASKNAME (pid: $lastpid) appears to be running since: " $(TZ=UTC date -r $TASKLOCK/$lastpid)
+      exit 1
+    else
+      echo "NOTICE: Removing stale PID file $TASKLOCK/$lastpid"
+      rm $TASKLOCK/$lastpid &> /dev/null
+    fi
+    lastpid=$(ls -t1 $TASKLOCK | sort | head -n1)
+  done
+fi
+
+### add pid file with task process' pid, continue normally
+touch $TASKLOCK/$TASKPID
+#echo "Created lock $TASKLOCK/$TASKPID"

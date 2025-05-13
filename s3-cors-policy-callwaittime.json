@@ -1,0 +1,28 @@
+{
+    "CORSRules": [
+        {
+            "AllowedHeaders": [
+                "*"
+            ],
+            "AllowedMethods": [
+                "HEAD",
+                "GET"
+            ],
+            "AllowedOrigins": [
+                "https://cms-dr.usa.gov",
+                "https://cms-dev.usa.gov",
+                "https://cms-stage.usa.gov",
+                "https://beta-dr.usa.gov",
+                "https://beta-dev.usa.gov",
+                "https://beta-stage.usa.gov",
+                "https://cms.usa.gov",
+                "https://usa.gov",
+                "https://www.usa.gov",
+                "http://localhost"
+            ],
+            "ExposeHeaders": [
+                "ETag"
+            ]
+        }
+    ]
+}

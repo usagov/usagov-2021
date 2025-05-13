@@ -1,6 +1,6 @@
 uuid: ba88b0a4-52e5-4783-9a97-d569a3371e56
 langcode: en
-status: true
+status: false
 dependencies:
   module:
     - language
@@ -11,7 +11,7 @@ dependencies:
 id: mobile_navigation_dr_en
 theme: usagov
 region: header_top
-weight: -10
+weight: -14
 provider: null
 plugin: system_main_block
 settings:

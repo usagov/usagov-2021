@@ -20,11 +20,9 @@
     {% endblock %}
 		<button class="usa-menu-btn">Menú</button>
 		<div class="usa-nav__secondary">
-			<span class="usa-nav__secondary-links">
-				<span id="top-phone" class="usa-nav__secondary-item">
-					<a href="/es/llamenos" style="white-space: nowrap;">Llámenos al 1-844-USAGOV1</a>
-				</span>
-			</span>
+			<div class="usa-nav__secondary-links">
+        {{ page.top_nav }}
+			</div>
 			<!-- Search Bar -->
 			{% embed 'usagov:searchbar' with {
 				form_classes: "usa-search usa-search--small",
@@ -37,7 +35,7 @@
 				input_id:"search-field-small",
 				input_classes:"usa-input text usagov-search-autocomplete ui-autocomplete-input",
 				placeholder_string:"Busque en este sitio...",
-				button_classes:"usa-button usagov-button",
+				button_classes:"usa-button",
 				alt_string:"Buscar",
 			} %}
 			{% endembed %}
@@ -47,7 +45,7 @@
 <nav aria-label="Navegación primaria" class="usa-nav">
 	<div class="usa-nav__inner">
 		<button class="usa-nav__close">
-			<img src="/themes/custom/usagov/assets/img/usa-icons/close.svg" role="img" alt="Close"/>
+			<img src="/themes/custom/usagov/assets/img/usa-icons/close.svg" alt="Close"/>
 		</button>
 		{{ drupal_menu('top-navigation-es') }}
 	</div>

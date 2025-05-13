@@ -2,9 +2,10 @@
 
 namespace Drupal\usagov_directories\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements a form an administrator can use to add acronyms to
@@ -13,17 +14,30 @@ use Drupal\node\Entity\Node;
  */
 class DirectoryRecordsAddAcronymsForm extends FormBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'directory_records_add_acronyms_form';
+  public function __construct(
+    private EntityTypeManagerInterface $entityTypeManager,
+  ) {}
+
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      entityTypeManager: $container->get('entity_type.manager'),
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function getFormId(): string {
+    return 'directory_records_add_acronyms_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   * @return array<string, mixed>
+   */
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['description'] = [
       '#type' => 'processed_text',
       '#text' => $this->t('Submit this form to add or update the acronyms on records imported from Mothership.'),
@@ -47,8 +61,11 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  #[\Override]
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $all_files = $this->getRequest()->files->get('files', []);
     $file = $all_files['acronym_file'];
     if (isset($file)) {
@@ -66,8 +83,10 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $acronyms = $form_state->get('acronyms');
     $firstrow = TRUE;
     foreach ($acronyms as $map_entry) {
@@ -76,10 +95,15 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
         // blank line, ignore.
         continue;
       }
-      $nids = \Drupal::entityQuery('node')->condition('field_mothership_uuid', $uuid)->execute();
+      $nids = $this->entityTypeManager
+        ->getStorage('node')
+        ->getQuery()
+        ->condition('field_mothership_uuid', $uuid)
+        ->accessCheck(TRUE)
+        ->execute();
       $nid = reset($nids);
       if ($nid) {
-        $node = Node::load($nid);
+        $node = $this->entityTypeManager->getStorage('node')->load($nid);
         $node->set('field_acronym', $acronym);
         $node->save();
       }

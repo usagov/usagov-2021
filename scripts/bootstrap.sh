@@ -31,11 +31,18 @@ APP_NAME=$(echo $VCAP_APPLICATION | jq -r '.name')
 APP_ROOT=$(dirname "$0")
 APP_ID=$(echo "$VCAP_APPLICATION" | jq -r '.application_id')
 
-DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
-DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
-DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
-DB_HOST=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.host')
-DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
+
+AWSRDS=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"]')
+if [ "$AWSRDS" = "null" ]; then
+  echo "WARNING: The aws-rds variable is not set in the VCAP_SERVICES which is only a problem if this is NOT the WWW instance."
+else
+  echo "NOTICE: This bootstrap.sh sees the aws-rds variable is indeed set in the VCAP_SERVICES so this application should be able to connect to RDS/MySQL."
+  DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
+  DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
+  DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
+  DB_HOST=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.host')
+  DB_PORT=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.port')
+fi
 
 ADMIN_EMAIL=$(echo $SECRETS | jq -r '.ADMIN_EMAIL')
 
@@ -89,12 +96,12 @@ export S3_PROXY_WEB
 export S3_PROXY_CMS
 export S3_PROXY_PATH_CMS
 
-if [ -f "/etc/php81/php-fpm.d/env.conf.tmpl" ]; then
-  cp /etc/php81/php-fpm.d/env.conf.tmpl /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php81/php-fpm.d/env.conf
-  echo "env[S3_HOST] = "$S3_HOST >> /etc/php81/php-fpm.d/env.conf
+if [ -f "/etc/php83/php-fpm.d/env.conf.tmpl" ]; then
+  cp /etc/php83/php-fpm.d/env.conf.tmpl /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_PROXY_PATH_CMS] = "$S3_PROXY_PATH_CMS >> /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_PROXY_CMS] = "$S3_PROXY_CMS >> /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_ROOT_CMS] = "$S3_ROOT_CMS >> /etc/php83/php-fpm.d/env.conf
+  echo "env[S3_HOST] = "$S3_HOST >> /etc/php83/php-fpm.d/env.conf
 fi
 
 export DNS_SERVER=${DNS_SERVER:-$(grep -i '^nameserver' /etc/resolv.conf|head -n1|cut -d ' ' -f2)}
@@ -106,6 +113,8 @@ export NEW_RELIC_DISPLAY_NAME=${NEW_RELIC_DISPLAY_NAME:-$(echo $SECRETS | jq -r 
 export NEW_RELIC_APP_NAME=${NEW_RELIC_APP_NAME:-$(echo $SECRETS | jq -r '.NEW_RELIC_APP_NAME')}
 export NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_API_KEY')}
 export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY:-$(echo $SECRETS | jq -r '.NEW_RELIC_LICENSE_KEY')}
+
+export CRON_KEY=${CRON_KEY:-$(echo $SECRETS | jq -r '.CRON_KEY')}
 
 SP_KEY=$(echo $SECAUTHSECRETS | jq -r '.spkey')
 SP_CRT=$(echo $SECAUTHSECRETS | jq -r '.spcrt')
@@ -129,7 +138,7 @@ for FILE in /etc/nginx/*/*.conf.tmpl /etc/nginx/*.conf.tmpl; do
 done
 
 # update new relic with environment specific settings
-if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
+if [ -f "/etc/php83/conf.d/newrelic.ini" ]; then
   if [ -n "$NEW_RELIC_LICENSE_KEY" ] && [ "$NEW_RELIC_LICENSE_KEY" != "null" ]; then
     echo "Setting up New Relic ... "
     sed -i \
@@ -138,20 +147,21 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
         -e "s|;\?newrelic.appname =.*|newrelic.appname = \"${NEW_RELIC_APP_NAME:-CMS-dev;USA.gov}\"|" \
         -e "s|;\?newrelic.daemon.loglevel =.*|newrelic.daemon.loglevel = \"${NEW_RELIC_LOG_LEVEL:-warning}\"|" \
         -e "s|;\?newrelic.enabled =.*|newrelic.enabled = true|" \
-        /etc/php81/conf.d/newrelic.ini
+        /etc/php83/conf.d/newrelic.ini
 
   else
     echo "Turning off New Relic ... "
     sed -i \
         -e "s/;\?newrelic.enabled =.*/newrelic.enabled = false/" \
-        /etc/php81/conf.d/newrelic.ini
+        /etc/php83/conf.d/newrelic.ini
   fi
-  if [ "NoProxy" = "${PROXYROUTE:NoProxy}" ]; then
-      # TODO: what to do here? PROXYROUTE should be set!
+
+  if [ "NoProxy" = "${PROXYROUTE:-NoProxy}" ]; then
+    # This is only expected to be the situation on local dev.
     sed -i \
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
-      /etc/php81/conf.d/newrelic.ini
+      /etc/php83/conf.d/newrelic.ini
   else
       # We are probably being needlessly redundant in setting both ssl_ca_bundle and ssl_ca_path.
       # NR says it will search ssl_ca_bundle first, then the certificates in ssl_ca_path. We have ssl_ca_bundle within ssl_ca_path, so ...
@@ -159,24 +169,7 @@ if [ -f "/etc/php81/conf.d/newrelic.ini" ]; then
       -e "s|;\?newrelic.daemon.ssl_ca_bundle =.*|newrelic.daemon.ssl_ca_bundle = \"/etc/ssl/certs/ca-certificates.crt\"|" \
       -e "s|;\?newrelic.daemon.ssl_ca_path =.*|newrelic.daemon.ssl_ca_path = \"/etc/ssl/certs/\"|" \
       -e "s|;\?newrelic.daemon.proxy =.*|newrelic.daemon.proxy = \"$PROXYROUTE\"|" \
-      /etc/php81/conf.d/newrelic.ini
-  fi
-fi
-
-echo "Checking for .git file to identify local installation; \"fatal: not a git repository\" is expected elsewhere"
-git config --global --add safe.directory /var/www
-if [[ $(git rev-parse --is-inside-work-tree) ]]; then
-  # Find the php.ini file
-  PHP_INI=$(php -i | grep 'Loaded Configuration File' | awk '{print $NF}')
-
-  # Check if opcache is already disabled
-  if grep -q 'opcache\.enable\s*=\s*0' "$PHP_INI"; then
-    echo "OPCache is already disabled."
-  else
-    echo "Disabling OPCache..."
-    sed -i 's/^opcache\.enable\s*=.*/opcache.enable=0/' "$PHP_INI"
-    sed -i 's/^opcache\.enable_cli\s*=.*/opcache.enable_cli=0/' "$PHP_INI"
-    echo "OPCache disabled."
+      /etc/php83/conf.d/newrelic.ini
   fi
 fi
 
@@ -217,6 +210,8 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
     drush updatedb --no-cache-clear -y
     drush cim -y || drush cim -y
     drush cim -y
+    echo "Notice: If a TXNDATA error is seen above this line, we believe it is likely NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
+
     drush php-eval "node_access_rebuild();" -y
 
     if [ x$initial_mm_state = x0 ]; then
@@ -229,6 +224,9 @@ else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
 fi
 
+echo "Updating SAMLAuth configuration for $SPACE:"
+/var/www/scripts/gsaauth/configset.sh $SPACE
+
 echo "Adding the USPS credentials..."
 if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
    [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
@@ -239,3 +237,6 @@ else
     echo "No credentials found in the env."
     echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
 fi
+
+echo "Setting lightweight cron key"
+drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"

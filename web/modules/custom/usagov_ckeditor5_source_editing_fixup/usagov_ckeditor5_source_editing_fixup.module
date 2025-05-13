@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Implements hook_config_schema_info_alter().
+ *
+ * This enables us to add elements to the "Source Editing" elements of a
+ * CKEditor5 editor configuration, even if a disabled plugin would also supply them.
+ * See https://www.drupal.org/project/drupal/issues/3410100#comment-15457015
+ *
+ * @param array<string, mixed> $definitions
+ */
+function usagov_ckeditor5_source_editing_fixup_config_schema_info_alter(array &$definitions): void {
+  if (isset($definitions['ckeditor5.plugin.ckeditor5_sourceEditing'])) {
+    unset($definitions['ckeditor5.plugin.ckeditor5_sourceEditing']['mapping']['allowed_tags']['sequence']['constraints']['SourceEditingRedundantTags']);
+  }
+}

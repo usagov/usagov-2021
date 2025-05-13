@@ -1,0 +1,35 @@
+uuid: d94cae25-c082-4463-8bd5-d3b5c27acc42
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - system
+    - usagov_menus
+  theme:
+    - usagov
+id: usagov_leftmenusidebarblock
+theme: usagov
+region: sidebar_first
+weight: 0
+provider: null
+plugin: usagov_sidebarfirst_block
+settings:
+  id: usagov_sidebarfirst_block
+  label: 'Left Menu Sidebar Block'
+  label_display: '0'
+  provider: usagov_menus
+visibility:
+  request_path:
+    id: request_path
+    negate: true
+    pages: '<front>'
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+      directory_record: directory_record
+      state_directory_record: state_directory_record

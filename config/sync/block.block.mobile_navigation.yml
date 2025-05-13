@@ -1,6 +1,6 @@
 uuid: c7dd9b01-0afc-404b-ba8e-a6ad8f901151
 langcode: en
-status: true
+status: false
 dependencies:
   config:
     - system.menu.left-menu-english
@@ -13,7 +13,7 @@ dependencies:
 id: mobile_navigation
 theme: usagov
 region: header_top
-weight: -11
+weight: -15
 provider: null
 plugin: 'menu_block:left-menu-english'
 settings:
@@ -29,7 +29,9 @@ settings:
   depth: 0
   expand_all_items: true
   parent: 'left-menu-english:'
+  render_parent: false
   suggestion: left_menu_english
+  hide_on_nonactive: false
 visibility:
   language:
     id: language

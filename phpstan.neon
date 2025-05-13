@@ -1,0 +1,40 @@
+includes:
+    - vendor/mglaman/phpstan-drupal/extension.neon
+    - vendor/mglaman/phpstan-drupal/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+parameters:
+    level: 6
+    paths:
+        - web/modules/custom
+        - web/themes/custom
+    excludePaths:
+        - web/modules/custom/usagov_benefit_finder
+        - web/themes/custom/usagov/node_modules/flatted/php
+        # The next two files define the same functions into global scope,
+        # And confuse stan
+        - web/modules/custom/usagov_directories/utility/states_import_prep.php
+        - web/modules/custom/usagov_directories/utility/agency_import_prep.php
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # same as Drupal core
+        # new static() is a best practice in Drupal, so we cannot fix that.
+        - "#^Unsafe usage of new static#"
+
+        - '#^Access to an undefined property Drupal\\views\\ResultRow::#'
+        - '#^Access to an undefined property Drupal\\views\\Plugin\\views\\field\\FieldPluginBase::#'
+        # FieldItemListInterface needs additional help in core
+        # https://github.com/mglaman/phpstan-drupal/issues/782
+        - '#Access to an undefined property Drupal\\Core\\Field\\FieldItemInterface::#'
+        - '#Access to an undefined property Drupal\\Core\\Field\\FieldItemListInterface::#'
+        - '#Access to an undefined property Drupal\\Core\\Field\\FieldItemListInterface\<Drupal\\Core\\Field\\FieldItemInterface\>\:\:\$alias.#'
+        - '#Access to an undefined property Drupal\\Core\\TypedData\\TypedDataInterface::#'
+
+    drupal:
+        entityMapping:
+            # From https://www.drupal.org/project/paragraphs/issues/3256371
+            embedded_paragraphs:
+                class: Drupal\paragraphs\Entity\Paragraph
+            paragraph:
+                class: Drupal\paragraphs\Entity\Paragraph
+            paragraphs_type:
+                class: Drupal\paragraphs\Entity\ParagraphsType

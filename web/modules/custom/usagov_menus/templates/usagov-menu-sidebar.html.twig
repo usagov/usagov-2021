@@ -1,0 +1,48 @@
+{###
+
+menutree  (Object)  The root item of a tree with the following structure:
+  title   (String)  The menu item's title
+  url     (String)  The menu item's URL
+  active  (Boolean) Whether the menu item is in the active trail
+  current (Boolean) Whether the menu item represents the current page
+  below   (Array)   The child menu items below this menu item
+
+lang      (String)  The current page's langcode
+
+###}
+
+{% import _self as self %}
+
+<nav aria-label="{{ lang == 'es' ? 'Secundaria' : 'Secondary' }}">
+  <ul class="usa-sidenav">
+    {{ self.sidenav_item(menutree, lang) }}
+  </ul>
+</nav>
+
+
+{% macro sidenav_item(item, lang) %}
+  {% import _self as self %}
+
+  <li class="usa-sidenav__item">
+
+    {% if item.current %}
+      <div class="active-trail usa-current">
+        <p class="usa-sr-only">{{ lang == 'es' ? 'esta página' : 'current page' }}</p>
+        {{ item.title }}
+      </div>
+    {% else %}
+      <a href="{{ item.url }}"{% if item.active %} class="active-trail"{% endif %}>
+        {{ item.title }}
+      </a>
+    {% endif %}
+
+    {% if item.below %}
+      <ul class="usa-sidenav__sublist">
+        {% for subitem in item.below %}
+          {{ self.sidenav_item(subitem, lang) }}
+        {% endfor %}
+      </ul>
+    {% endif %}
+    
+  </li>
+{%  endmacro %}

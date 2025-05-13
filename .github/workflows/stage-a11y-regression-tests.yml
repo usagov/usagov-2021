@@ -1,0 +1,21 @@
+name: Stage A11Y Regression Tests
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  run-regression-tests:
+    name: run-regression-tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set env
+        run: echo "CYPRESS_BASE_URL=https://beta-stage.usa.gov/" >> $GITHUB_ENV
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: automated_tests/e2e-cypress
+          spec: cypress/e2e/regression_testing/*.cy.js

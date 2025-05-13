@@ -9,8 +9,8 @@ id: taxonomy_term.wizard.field_heading
 field_name: field_heading
 entity_type: taxonomy_term
 bundle: wizard
-label: Heading/Question
-description: ''
+label: 'Page Title'
+description: 'H1 published on the site.'
 required: false
 translatable: false
 default_value: {  }

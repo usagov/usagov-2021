@@ -13,8 +13,10 @@ dependencies:
     - field.field.taxonomy_term.wizard.field_option_name
     - field.field.taxonomy_term.wizard.field_options_list
     - field.field.taxonomy_term.wizard.field_step_number
+    - field.field.taxonomy_term.wizard.field_wizard_breadcrumbs
     - taxonomy.vocabulary.wizard
   module:
+    - link
     - text
     - viewsreference
 id: taxonomy_term.wizard.default
@@ -105,6 +107,18 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 11
+    region: content
+  field_wizard_breadcrumbs:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 12
     region: content
 hidden:
   breadcrumbs: true

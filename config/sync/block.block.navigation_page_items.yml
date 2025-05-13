@@ -29,7 +29,9 @@ settings:
   depth: 0
   expand_all_items: false
   parent: 'left-menu-english:'
+  render_parent: false
   suggestion: navigation_page_items
+  hide_on_nonactive: false
 visibility:
   'entity_bundle:node':
     id: 'entity_bundle:node'

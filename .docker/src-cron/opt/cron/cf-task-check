@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+# Provide serialization support for cf-task based apps.
+# Still WIP, as we've moved the 2 intial tasks to live within the cron app.
+
+function mktasklock() {
+  TASKSPEC=$1
+  TASKID=$2
+  TASKDIR=/tmp/tasklocks/$TASKSPEC
+  mkdir -p $TASKDIR
+  touch $TASKDIR/$TASKID
+}
+
+function rmtasklock() {
+  TASKSPEC=$1
+  TASKID=$2
+  TASKDIR=/tmp/tasklocks/$TASKSPEC
+  rm -f $TASKDIR/$TASKID
+}
+
+function cktaskstatus() {
+  TASKSPEC=$1
+  TASKID=$2
+  TASKRUNNING=""
+  TASKSTATUS=$(cf tasks $TASKSPEC | tr -s ' ' | cut -d ' ' -f 1,2,3 | grep $TASKID)
+  if [ x"$TASKSTATUS" != x ]; then
+    RUNNING=$(echo $TASKSTATUS | grep RUNNING)
+    if [ x"$RUNNING" != x ]; then
+       TASKRUNNING=1
+    else
+      rmtasklock $TASKSPEC $taskid
+    fi
+  else
+    rmtasklock $TASKSPEC $taskid    
+  fi
+  echo $TASKRUNNING
+}
+
+function cktasklocks() {
+  TASKSPEC=$1
+  TASKDIR=/tmp/tasklocks/$TASKSPEC
+  mkdir -p $TASKDIR
+  TASKSRUNNING=""
+  for taskid in $(ls $TASKDIR); do
+    TASKRUNNING=$(cktaskstatus $TASKSPEC $taskid)
+    if [ x$TASKRUNNING != x ]; then
+      TASKSRUNNING=1
+    fi
+  done
+  echo $TASKSRUNNING
+}
+
+function runtask() {
+  TASKSPEC=$1
+  COMMAND=$2
+  RETVAL=""
+
+  TASKSRUNNING=$(cktasklocks $TASKSPEC)
+  if [ x$TASKSRUNNING = x ]; then
+    TASKINFO=$(cf run-task $TASKSPEC --name ${TASKSPEC}-instance --command "$COMMAND")
+    TASKSTATUS=$(echo $TASKINFO | tr '[:upper:]' '[:lower:]' | sed 's/.*task id://' | grep ok)
+    if [ x"$TASKSTATUS" != x ]; then
+      TASKID=$(echo $TASKSTATUS | sed 's/ ok//')
+    fi
+
+    if [ x$TASKID != x ]; then
+      RETVAL=$TASKID
+      echo "Running CF '$TASKSPEC' Task $RETVAL"
+      mktasklock $TASKSPEC $TASKID
+    else
+      echo "Failed to run CF '$TASKSPEC' Task"
+    fi
+  fi
+  echo $RETVAL
+}

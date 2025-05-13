@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+### Capture recent events from Cloud Foundry Event API
+
+# 0. Make sure our env is set up for this task ("event" gathering).
+#
+# 1. If $DATEFILE exists in s3, use the timestamp as the start time boundary for our event API query
+#    Otherwise, set the begin date as to $CFEVENTS_DEFAULT_LASTRUN (should be 60 days)
+#
+# 2. Touch $DATEFILE to capture timestamp of this query, and then copy $DATEFILE to AWS
+#
+# 3. Run the get-events script with our beginning query time and capture any output
+#
+# 4. If there is output, copy the capture file to s3
+
+SPACE=$1
+
+if [ x$SPACE = x ]; then
+   SPACE=$(echo $VCAP_APPLICATION | jq -r '.space_name')
+fi
+
+source ~/.profile $SPACE event &> /dev/null
+
+DATEFILE=logs.lastrun
+rm -f /tmp/$DATEFILE
+aws_cp  s3://$S3_BUCKET/cfevents/${SPACE}/$DATEFILE /tmp/ &>/dev/null
+if [ -f /tmp/$DATEFILE ]; then
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r /tmp/$DATEFILE)
+else
+    CFEVENTS_LASTRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -d "$CFEVENTS_DEFAULT_LASTRUN")
+fi
+
+touch /tmp/$DATEFILE
+CFEVENTS_THISRUN=$(TZ=UTC date +"$CFEVENTS_DATE_FORMAT" -r /tmp/$DATEFILE)
+aws_cp  /tmp/$DATEFILE s3://$S3_BUCKET/cfevents/${SPACE}/
+
+/opt/cfevents/get-events $SPACE $CFEVENTS_LASTRUN | tee /tmp/cfevents.${CFEVENTS_THISRUN}.log
+
+if [ -s /tmp/cfevents.${CFEVENTS_THISRUN}.log ]; then
+    aws_cp  /tmp/cfevents.${CFEVENTS_THISRUN}.log s3://$S3_BUCKET/cfevents/${SPACE}/
+fi

@@ -4,6 +4,6 @@ status: true
 dependencies: {  }
 name: 'Page Type'
 vid: page_type
-description: ''
+description: null
 weight: 0
 new_revision: false

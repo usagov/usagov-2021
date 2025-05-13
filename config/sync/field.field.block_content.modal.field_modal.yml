@@ -1,0 +1,118 @@
+uuid: b2cadf02-3ac3-4772-ae71-01b302c4c1a8
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.modal
+    - field.storage.block_content.field_modal
+    - paragraphs.paragraphs_type.uswds_modal
+  module:
+    - entity_reference_revisions
+id: block_content.modal.field_modal
+field_name: field_modal
+entity_type: block_content
+bundle: modal
+label: Modal
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      uswds_modal: uswds_modal
+    negate: 0
+    target_bundles_drag_drop:
+      b_benefit_eligibility:
+        weight: 31
+        enabled: false
+      b_levent_elg_criteria:
+        weight: 32
+        enabled: false
+      b_levent_elg_criteria_group:
+        weight: 33
+        enabled: false
+      b_levent_elg_section:
+        weight: 34
+        enabled: false
+      b_levent_relevant_benefit:
+        weight: 35
+        enabled: false
+      faq:
+        weight: 36
+        enabled: false
+      text_field:
+        weight: 37
+        enabled: false
+      uswds_2_column_breakpoints:
+        weight: 39
+        enabled: false
+      uswds_2_columns:
+        weight: 38
+        enabled: false
+      uswds_3_column_breakpoints:
+        weight: 41
+        enabled: false
+      uswds_3_columns:
+        weight: 40
+        enabled: false
+      uswds_accordion:
+        weight: 42
+        enabled: false
+      uswds_accordion_section:
+        weight: 43
+        enabled: false
+      uswds_alert:
+        weight: 44
+        enabled: false
+      uswds_card_breakpoints:
+        weight: 46
+        enabled: false
+      uswds_card_group_flag:
+        weight: 47
+        enabled: false
+      uswds_card_group_regular:
+        weight: 48
+        enabled: false
+      uswds_card_regular:
+        weight: 49
+        enabled: false
+      uswds_cards_flag:
+        weight: 45
+        enabled: false
+      uswds_column_equal_size:
+        weight: 52
+        enabled: false
+      uswds_columns_2_uneven:
+        weight: 50
+        enabled: false
+      uswds_columns_3_uneven:
+        weight: 51
+        enabled: false
+      uswds_icon_list:
+        weight: 53
+        enabled: false
+      uswds_icon_list_item:
+        weight: 54
+        enabled: false
+      uswds_modal:
+        weight: 55
+        enabled: true
+      uswds_process_item:
+        weight: 56
+        enabled: false
+      uswds_process_list:
+        weight: 57
+        enabled: false
+      uswds_step_indicator_item:
+        weight: 58
+        enabled: false
+      uswds_step_indicator_list:
+        weight: 59
+        enabled: false
+      uswds_summary_box:
+        weight: 60
+        enabled: false
+field_type: entity_reference_revisions

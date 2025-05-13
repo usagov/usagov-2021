@@ -83,7 +83,7 @@
 
 <div class="usa-overlay"></div>
 
-<header class="{{ header_classes }}" id="header" role="banner">
+<header class="{{ header_classes }}" id="header">
 
 	{% if page.header_top %}
 		<div class="usa-banner-inner">
@@ -118,7 +118,7 @@
 
 {% if term_name == "Home Page" %}
 
-	<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+	<main class="main-content usa-layout-docs no-footer-gap {{ main_classes }}" id="main-content" data-pagetype="{{term_name}}">
 		{{ page.content }}
 		<a id="back-to-top" href="#main-content" aria-label="{{ lang == 'en' ? 'Back to top' : 'Subir a la parte superior' }}">
 			{{ lang == 'en' ? 'Top' : 'Subir' }}
@@ -127,18 +127,18 @@
 
 {% else %}
   {% block main %}
-	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" role="main" id="main-content" data-pagetype="{{term_name}}">
+	<main class="main-content usa-layout-docs usa-section {{ main_classes }}" id="main-content" data-pagetype="{{term_name}}">
   {% endblock %}
 		{# link is in html.html.twig #}
 
 		<div class="grid-container">
 			{% if page.breadcrumb or page.highlighted or page.help %}
 				{% if pagetype == "Navigation Cards Page"%}
-				<div class="grid-row breadcrumb-spacing">
+				<div class="grid-row breadcrumb-nav-spacing">
 					{{ page.breadcrumb }}
 				</div>
 				{% else %}
-				<div class="grid-row">
+				<div class="grid-row breadcrumb-spacing">
 					{{ page.breadcrumb }}
 				</div>
 				{% endif %}
@@ -175,7 +175,12 @@
 
                 {% if node.changed.value %}
                   <p id="last-updated">{{ lang == 'en' ? 'LAST UPDATED: ' : 'ÚLTIMA ACTUALIZACIÓN: '}}
-                    {% set date = node.changed.value %}
+                    {% if (not (node.fields.field_public_modified.value is empty)) %}
+                      {# The dates template below subtracts 5 hours #}
+                      {% set date = node.fields.field_public_modified.value|date_modify("+12 hour") %}
+                    {% else %}
+                      {% set date = node.changed.value %}
+                    {% endif %}
                     {% include '@usagov/dates.html.twig' %}
                   </p>
                 {% endif %}

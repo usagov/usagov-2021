@@ -9,7 +9,7 @@ describe('Mobile [ENG]', () => {
     it('BTE 17: Mobile menu appears and functions appropriately', () => {
         cy.get('.usagov-mobile-menu')
             .should('not.be.visible')
-        
+
         // Open menu
         cy.get('.usa-menu-btn').click()
 
@@ -42,7 +42,7 @@ describe('Mobile [ENG]', () => {
         // Open menu
         cy.get('.usa-menu-btn').click()
 
-        // Enters query into search input 
+        // Enters query into search input
         cy.get('header')
             .find('#search-field-small-mobile-menu')
             .type(typedText)
@@ -52,17 +52,17 @@ describe('Mobile [ENG]', () => {
         // Origin URL should now be search.gov
         const sentArgs = { query: typedText }
         cy.origin(
-            'https://search.usa.gov/', 
-            { args: sentArgs }, 
+            'https://search.usa.gov/',
+            { args: sentArgs },
             ({ query }) => {
-                cy.get('#query').should('have.value', query)
+                cy.get('#search-field').should('have.value', query)
             }
         )
 
         // Go back to localhost to test search icon
         cy.visit('/')
         cy.get('.usa-menu-btn').click()
-        
+
         cy.get('header')
             .find('#search-field-small-mobile-menu')
             .next()
@@ -73,7 +73,7 @@ describe('Mobile [ENG]', () => {
             .find('#search-field-small-mobile-menu')
             .next()
             .click()
-            
+
         // Verify URL is search.gov
         cy.origin('https://search.usa.gov/', () => {
             cy.url().should('include', 'search.usa.gov')
@@ -87,7 +87,7 @@ describe('Mobile [ENG]', () => {
                     .find('.usa-list')
                     .should('not.be.visible')
 
-                // Expand accordion 
+                // Expand accordion
                 cy.wrap(section)
                     .find('.usa-gov-footer__primary-link')
                     .click()

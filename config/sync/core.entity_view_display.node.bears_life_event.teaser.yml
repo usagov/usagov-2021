@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.bears_life_event.field_b_display_order
     - field.field.node.bears_life_event.field_b_id
     - field.field.node.bears_life_event.field_b_search_title
     - field.field.node.bears_life_event.field_draft_json_data_file
@@ -35,6 +36,7 @@ content:
     weight: 100
     region: content
 hidden:
+  field_b_display_order: true
   field_b_id: true
   field_b_search_title: true
   field_draft_json_data_file: true

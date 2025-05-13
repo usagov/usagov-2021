@@ -1,0 +1,19 @@
+uuid: 8f64e00a-34d2-459f-99aa-644bb91f105c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_sirf_all_required_label
+    - paragraphs.paragraphs_type.site_issue_report_form
+id: paragraph.site_issue_report_form.field_sirf_all_required_label
+field_name: field_sirf_all_required_label
+entity_type: paragraph
+bundle: site_issue_report_form
+label: 'All fields required label'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
