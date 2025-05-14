@@ -855,13 +855,11 @@
           top = margin.top,
           bottom = height - margin.bottom;
 
-      var tabindex = 0;
-
       yScale.range([bottom, top]);
       xScale.rangeRoundBands([left, right], 0, 0);
 
       svg.attr("viewBox", [0, 0, width, height].join(" "))
-         .attr("tabindex", tabindex);
+         .attr("tabindex", 0);
 
       element(svg, "g.axis.y0")
         .attr("transform", "translate(" + [left, 0] + ")")
@@ -912,9 +910,7 @@
           return d;
         })
         .attr("aria-label", title)
-        // .attr("tabindex", function() {
-        //   return tabindex++;
-        // })
+        .attr("tabindex", 1)
         .attr("role", "listitem")
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
