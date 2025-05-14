@@ -912,9 +912,9 @@
           return d;
         })
         .attr("aria-label", title)
-        .attr("tabindex", function() {
-          return tabindex++;
-        })
+        // .attr("tabindex", function() {
+        //   return tabindex++;
+        // })
         .attr("role", "listitem")
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
