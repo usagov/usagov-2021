@@ -1,43 +1,4 @@
 
-{% if node.langcode.value == "es" %}
-  {% set  translations = {
-    'find_us': 'Encuéntrenos en las redes sociales',
-    'social_media_usernames': ['usagovespanol', 'usagovespanol', 'USAgovespanol']
-  } %}
-{% else %}
-  {% set translations = {
-    'find_us': 'Find us on social media',
-    'social_media_usernames': ['USAgov', 'USAgov', 'usagov1', 'usagov']
-  } %}
-{% endif %}
-
-{% set social_media_details = [
-	{
-		'name':'Facebook',
-		'url':'https://www.facebook.com/',
-		'icon':'Facebook_Icon.svg',
-		'alt_text':'Facebook USAGov',
-	},
-	{
-		'name':'Twitter',
-		'url':'https://twitter.com/',
-		'icon':'X_Twitter_Icon.svg?version=2',
-		'alt_text':'X Twitter USAGov',
-	},
-	{
-		'name':'YouTube',
-		'url':'https://www.youtube.com/',
-		'icon':'YouTube_Icon.svg',
-		'alt_text':'Youtube USAGov',
-	},
-	{
-		'name':'Instagram',
-		'url':'https://www.instagram.com/',
-		'icon':'Instagram_Icon.svg',
-		'alt_text':'Instagram USAGov',
-	}
-] %}
-
 <div class="usa-footer__secondary-section">
 	<div class="grid-container">
 		<div class="grid-row grid-gap">
@@ -46,22 +7,7 @@
 			</div>
 			<div class="usa-footer__contact-links mobile-lg:grid-col-6">
 				<div class="footer-social-block">
-					<h4 class="usa-footer__contact-heading font-sans-lg">
-						{{- translations.find_us -}}
-					</h4>
-					<div class="usa-footer__social-links en-links grid-row grid-gap-1">
-
-						{% for username in translations.social_media_usernames %}
-							{% set details = social_media_details[loop.index0] %}
-							<div class="grid-col-auto">
-								<a class="usa-social-link" href="{{ details.url }}{{ username }}">
-									<img class="image-svg-test" src="/themes/custom/usagov/images/social-media-icons/{{ details.icon }}" alt="{{ details.alt_text }}" loading="lazy"/>
-									<span>{{ details.name }}</span>
-								</a>
-							</div>
-						{% endfor %}
-
-					</div>
+					<!-- Social Media icons were removed in USAGOV-2374 -->
 				</div>
 			</div>
 		</div>
