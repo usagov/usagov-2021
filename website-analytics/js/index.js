@@ -891,7 +891,9 @@
         .data(bars);
       bar.exit().remove();
       var enter = bar.enter().append("g")
-        .attr("class", "bar");
+        .attr("class", function(d, i) {
+          return "bar bar-" + i;
+        });
       enter.append("rect")
         .attr("width", barWidth)
         .attr("y", 0)
@@ -912,6 +914,20 @@
         .attr("aria-label", title)
         .attr("tabindex", 0)
         .attr("role", "listitem")
+        .on("keydown", (e) => {
+            // Handle keyboard navigation
+            if (e.key === "ArrowRight" && d3.select(this).datum().u < data.length - 1) {
+            d3.select(this.parentNode)
+              .select(`.bar-${d3.select(this).datum().u + 1}`)
+              .node()
+              .focus();
+            } else if (e.key === "ArrowLeft" && d3.select(this).datum().u > 0) {
+            d3.select(this.parentNode)
+              .select(`.bar-${d3.select(this).datum().u - 1}`)
+              .node()
+              .focus();
+            }
+        })
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
         });
