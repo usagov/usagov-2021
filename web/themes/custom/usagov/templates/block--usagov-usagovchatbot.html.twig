@@ -40,8 +40,9 @@
 <div class="usagov-ai-chatbot-container chat-collapsed" >
   <div class="usagov-ai-chatbot-header">
     <div class="usagov-ai-chatbot-title">
-      USAGov Chatbot
-      <div class="usagov-ai-chatbot-experimental">Experimental</div>
+      <img class="header-image bot" src="/themes/custom/usagov/images/chatbot/usagov-bot-avatar.png" alt="USA.gov Chatbot Avatar" />
+      USA.gov Chatbot
+      <div class="usagov-ai-chatbot-experimental">Beta</div>
     </div>
     <button id="usagov-ai-chatbot-toogle" onclick="chatbotToogle()">+</button>
   </div>
@@ -49,15 +50,18 @@
     <div class="usagov-ai-chatbot-messages">
       <div class="usagov-ai-chatbot-disclaimer">
         <div class="usagov-ai-chatbot-disclaimer-title">
-          Today, {{ 'now'|date('g:i a') }}
+          {{ 'now'|date('F d') }}
         </div>
         <div class="usagov-ai-chatbot-disclaimer-body">
-          AI chat bots can make mistakes. Please verify important information.
+          AI chatbots can make mistakes. Please verify important information.
         </div>
       </div>
-      <div class="usagov-ai-chatbot-message bot">
-        <img class="message-image bot" src="/themes/custom/usagov/images/chatbot/usagov-bot-avatar.png" alt="USA.gov Chatbot Avatar" />
-        <div class="text">Welcome to USAGov’s assistance chatbot. I’m available 24/7. </br>Would you like help with a common topic below?</div>
+      <div id="usagov-ai-chatbot-last-message" class="usagov-ai-chatbot-message bot">
+        <div class="usagov-ai-chatbot-inner-container">
+          <img class="message-image bot" src="/themes/custom/usagov/images/chatbot/usagov-bot-avatar.png" alt="USA.gov Chatbot Avatar" />
+          <div class="text">Welcome to USAGov’s assistance chatbot. I’m available 24/7. </br>Would you like help with a common topic below?</div>
+        </div>
+        <div class="usagov-ai-chatbot-message-time">{{ 'now'|date('h:i A') }}</div>
       </div>
       <div class="usagov-ai-chatbot-suggestions">
         <button id="unclaimedMoney" class="usagov-ai-chatbot-suggestion-button" onclick="sendSuggestion(this)">Unclaimed money</button>
@@ -65,8 +69,16 @@
         <button id="federallySeizedProperties" class="usagov-ai-chatbot-suggestion-button" onclick="sendSuggestion(this)">Federally seized properties</button>
       </div>
     </div>
+
+    <a href="#usagov-ai-chatbot-last-message">
+      <div id="usagov-ai-chatbot-view-last-message">
+        <img src="/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg" alt="">
+        <span>View last message</span>
+      </div>
+    </a>
+
     <div class="usagov-ai-chatbot-input-container">
-      <input type="text" id="userMessage" class="usa-input usagov-ai-chatbot-input" placeholder="Type a message..."/>
+      <input type="text" id="userMessage" class="usa-input usagov-ai-chatbot-input" placeholder="Type a message..." onkeypress="handleEnter(event)"/>
       <button id="submitMessage" class="usa-button usagov-ai-chatbot-input-button" onclick="sendMessage()">Send</button>
     </div>
   </div>
