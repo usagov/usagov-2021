@@ -18,16 +18,35 @@
 {% set path = drupal_url('node/'~nodeID) %}
 
 {% if path|render not in exclusions %}
-	{% set facebook = 'https://www.facebook.com/sharer/sharer.php?u=' %}
-	{% set twitter = 'https://twitter.com/intent/tweet?source=webclient&text=' %}
-	{% set email = 'mailto:?subject=' %}
-	{% set baseURL = url('<front>') %}
-	{% set url = baseURL|render~path|render[1:] %}
+        {% set facebook = 'https://www.facebook.com/sharer/sharer.php?u=' %}
+        {% set twitter = 'https://twitter.com/intent/tweet?source=webclient&text=' %}
+        {% set email = 'mailto:?subject=' %}
+        {% set baseURL = url('<front>') %}
+        {% set url = baseURL|render~path|render[1:] %}
 
-	<!-- Social Media icons were removed in USAGOV-2374 -->
+        <div id="sm-share">
+                <span id="share-page">{{ lang == 'en' ? "SHARE THIS PAGE:" : "COMPARTA ESTA PÁGINA:" }}</span>
+                <div class="share-icons">
+                        <a aria-labelledby="share-page fb" href="{{ facebook }}{{ url }}&amp;v=3">
+                                <div class="share-icon-div">
+                                        <img class="share-icon" id="fb" src="/themes/custom/usagov/images/social-media-icons/Facebook_Icon.svg" alt="Facebook"/>
+                                </div>
+                        </a>
+                        <a aria-labelledby="share-page twr" href="{{ twitter }}{{ url }}">
+                                <div class="share-icon-div">
+                                        <img class="share-icon" id="twr" src="/themes/custom/usagov/images/social-media-icons/X_Twitter_Icon.svg?version=2" alt="X Twitter USAGov"/>
+                                </div>
+                        </a>
+                        <a aria-labelledby="share-page em" href="{{ email }}{{ url }}">
+                                <div class="share-icon-div">
+                                        <img class="share-icon" id="em" src="/themes/custom/usagov/images/social-media-icons/Email_Icon.svg?version=2" alt="Email"/>
+                                </div>
+                        </a>
+                </div>
+        </div>
 
-	{% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+        {% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
 
-		<div class="border-top-05  border-base-lightest"></div>
-	{% endif %}
+                <div class="border-top-05  border-base-lightest"></div>
+        {% endif %}
 {% endif %}
