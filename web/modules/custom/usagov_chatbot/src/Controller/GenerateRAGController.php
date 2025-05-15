@@ -24,45 +24,50 @@ class GenerateRAGController {
         ->connect();
 
       $collection = $chromaDB->getCollection('usagovsite');
-
-      // return new Response($collection->count());
-
-      // $embeddingFunction = new OllamaEmbeddingFunction();
+      // return new Response($collection->id);
 
       // Connect to Ollama server.
       $ollamaClient = Ollama::client('http://ob.straypacket.com');
 
+      // $ollamaModels = $ollamaClient->models()->list();
+      // return new Response(dump($ollamaModels->toArray()));
+
       // Need to change this with the user message.
       $query = "What is usa.gov?";
 
-      // Find a way to list the models available and return it.
-
       $queryembed = $ollamaClient->embed()->create([
-          'model' => 'nomic-embed-text',
-          'input' => [
-            $query,
-          ]
-      ]);
+        'model' => 'nomic-embed-text',
+        'input' => [
+          $query,
+        ],
+      ])->embeddings;
+
+      // Search for similar embeddings.
+      $queryResponse = $collection->query(
+        queryEmbeddings: $queryembed,
+        nResults: 2
+      );
+      return new Response(dump($queryResponse->ids[0][0]));
 
       // $relateddocs = ;
 
-      $prompt =
-        "{$query} - Answer that question using ONLY the resources provided. " .
-        "Please avoid saying things similar to 'not enough data' and 'there is no further information'" .
-        "Do not admit ignorance of other data, even if there is more data available, " .
-        "outside of the resources provided. " .
+      // $prompt =
+      //   "{$query} - Answer that question using ONLY the resources provided. " .
+      //   "Please avoid saying things similar to 'not enough data' and 'there is no further information'" .
+      //   "Do not admit ignorance of other data, even if there is more data available, " .
+      //   "outside of the resources provided. " .
 
-        "Please keep the answer factual, and avoid superlatives or unnecessary adjectives." .
+      //   "Please keep the answer factual, and avoid superlatives or unnecessary adjectives." .
 
-        "Do not provide any data, or make any suggestions unless it comes from the " .
-        "following resources: {$relateddocs}.";
+      //   "Do not provide any data, or make any suggestions unless it comes from the " .
+      //   "following resources: {$relateddocs}.";
 
-      $completions = $ollamaClient->completions()->create([
-        'model' => 'llama3.2',
-        'prompt' => $prompt,
-      ]);
+      // $completions = $ollamaClient->completions()->create([
+      //   'model' => 'llama3.2',
+      //   'prompt' => $prompt,
+      // ]);
 
-      return new Response(dump($completions->response));
+      // return new Response(dump($completions->response));
     }
     catch (\Exception $e) {
       return new Response('An error occured: ' . $e->getMessage(), 500);

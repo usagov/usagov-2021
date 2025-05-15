@@ -71,6 +71,24 @@ function sendSuggestion(element) {
     }
 }
 
+// Create a visibility observer instance
+const lastMessageObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        const scrollElement = document.getElementById('usagov-ai-chatbot-view-last-message');
+        if (entry.isIntersecting) {
+            // Last message is visible
+            scrollElement.style.display = "none";
+        } else {
+            // Last message is hidden
+            scrollElement.style.display = "flex";
+        }
+    });
+},
+{
+    root: null, // Use the viewport as the root
+    threshold: 0.0, // Trigger when any part of the element is visible
+});
+
 /**
  * Handles the full lifecycle of processing a user message in the chatbot interface.
  *
@@ -191,10 +209,19 @@ function createMessage(isUser, message) {
     const messageElement = document.createElement("div");
     const messageAvatarElement = document.createElement('img');
     const messageTextElement = document.createElement('div');
+    const messageTimeElement = document.createElement('div');
+    const messageInnerContainerElement = document.createElement('div');
 
     // Configure the text of the message.
     messageTextElement.classList.add("text");
     messageTextElement.innerHTML = htmlMessage;
+
+    var dateConstructor = new Date();
+    var time = dateConstructor.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    messageTimeElement.classList.add("usagov-ai-chatbot-message-time");
+    messageTimeElement.innerHTML = time;
+
+    messageInnerContainerElement.classList.add("usagov-ai-chatbot-inner-container");
 
     if (isUser) {
         // Configure the user message container.
@@ -206,8 +233,8 @@ function createMessage(isUser, message) {
         messageAvatarElement.alt = "USA.gov User Avatar";
 
         // Add the avatar and text in the correct order for the user's messages.
-        messageElement.appendChild(messageTextElement);
-        messageElement.appendChild(messageAvatarElement);
+        messageInnerContainerElement.appendChild(messageTextElement);
+        messageInnerContainerElement.appendChild(messageAvatarElement);
     }
     else {
         // Configure the bot message container.
@@ -221,7 +248,37 @@ function createMessage(isUser, message) {
         // Add the avatar and text in the correct order for the bot's messages.
         messageElement.appendChild(messageAvatarElement);
         messageElement.appendChild(messageTextElement);
+
+        // Add the avatar and text in the correct order for the user's messages.
+        messageInnerContainerElement.appendChild(messageAvatarElement);
+        messageInnerContainerElement.appendChild(messageTextElement);
+
+        const lastMessage = document.getElementById('usagov-ai-chatbot-last-message');
+        if(lastMessage) {
+            lastMessage.removeAttribute('id');
+        }
+
+        lastMessageObserver.unobserve(lastMessage);
+
+        messageElement.id = 'usagov-ai-chatbot-last-message';
+
+        lastMessageObserver.observe(messageElement);  
+       
     }
+
+    messageElement.appendChild(messageInnerContainerElement);
+    messageElement.appendChild(messageTimeElement);
 
     return messageElement;
 }
+
+function handleEnter(event) {
+    'use strict';
+
+    var key = event.which || event.keyCode;
+
+    if (key === 13) {
+        sendMessage();
+    }
+}
+
