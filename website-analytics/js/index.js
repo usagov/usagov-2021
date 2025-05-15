@@ -916,18 +916,32 @@
         .attr("role", "listitem")
         .on("keydown", (e) => {
             // Handle keyboard navigation
-            if (e.key === "ArrowRight" && d3.select(this).datum().u < data.length - 1) {
-            d3.select(this.parentNode)
-              .select(`.bar-${d3.select(this).datum().u + 1}`)
-              .node()
-              .focus();
-            } else if (e.key === "ArrowLeft" && d3.select(this).datum().u > 0) {
-            d3.select(this.parentNode)
-              .select(`.bar-${d3.select(this).datum().u - 1}`)
-              .node()
-              .focus();
+            var data = d3.select(this.parentNode).datum().series[0];
+            var currentIndex = d3.select(this).datum().u;
+            if (e.key === "ArrowRight" && currentIndex < data.length - 1) {
+              var nextIndex = `.bar-${currentIndex + 1}`;
+            } else if (e.key === "ArrowLeft" && currentIndex > 0) {
+              var nextIndex = `.bar-${currentIndex - 1}`;
+            } else {
+              return;
             }
+            d3.select(this.parentNode)
+              .select(nextIndex)
+              .node()
+              .focus();
         })
+        .on("focus", function(event, d) {
+          d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("background", "#fff")
+            .style("border", "1px solid #ccc")
+            .style("padding", "5px")
+            .style("pointer-events", "none")
+            .text(title(d));
+        })
+        .on("blur", function() {
+          d3.select(".tooltip").remove()
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
         });

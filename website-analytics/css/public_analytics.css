@@ -981,3 +981,10 @@ figure#time_series figcaption {
   position: absolute;
   left: -999em;
 }
+
+.tooltip {
+  font-size: 12px;
+  color: #333;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
