@@ -942,6 +942,7 @@
         })
         .on("blur", function() {
           d3.select(".tooltip").remove()
+        })
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
         });
