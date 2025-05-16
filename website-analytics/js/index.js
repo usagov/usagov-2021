@@ -930,7 +930,7 @@
               .node()
               .focus();
         })
-        .on("focus", function(event, d) {
+        .on("focus", function(event) {
           d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
@@ -938,7 +938,7 @@
             .style("border", "1px solid #ccc")
             .style("padding", "5px")
             .style("pointer-events", "none")
-            .text(title);
+            .text(title(event));
         })
         .on("blur", function() {
           d3.select(".tooltip").remove()
