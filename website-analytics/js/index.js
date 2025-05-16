@@ -914,7 +914,7 @@
         .attr("aria-label", title)
         .attr("tabindex", 0)
         .attr("role", "listitem")
-        .on("keydown", (d, e) => {
+        .on("keydown", (d, l, o) => {
             // Handle keyboard navigation
             var length = d3.select(this.node().parentNode).datum()._data.data.length;
             var currentIndex = d.u;
