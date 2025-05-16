@@ -914,10 +914,10 @@
         .attr("aria-label", title)
         .attr("tabindex", 0)
         .attr("role", "listitem")
-        .on("keydown", (e) => {
+        .on("keydown", (d, e) => {
             // Handle keyboard navigation
             var length = d3.select(this.node().parentNode).datum()._data.data.length;
-            var currentIndex = e.u;
+            var currentIndex = d.u;
             if (e.key === "ArrowRight" && currentIndex < length - 1) {
               var nextIndex = `.bar-${currentIndex + 1}`;
             } else if (e.key === "ArrowLeft" && currentIndex > 0) {
@@ -930,7 +930,7 @@
               .node()
               .focus();
         })
-        .on("focus", function(event) {
+        .on("focus", function(d, e) {
           d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
@@ -938,7 +938,7 @@
             .style("border", "1px solid #ccc")
             .style("padding", "5px")
             .style("pointer-events", "none")
-            .text(title(event));
+            .text(title(d));
         })
         .on("blur", function() {
           d3.select(".tooltip").remove()
