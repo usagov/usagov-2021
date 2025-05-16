@@ -916,9 +916,9 @@
         .attr("role", "listitem")
         .on("keydown", (e) => {
             // Handle keyboard navigation
-            var data = d3.select(this.parentNode).datum().series[0];
+            var length = d3.select(this.node().parentNode).datum()._data.data.length;
             var currentIndex = d3.select(this).datum().u;
-            if (e.key === "ArrowRight" && currentIndex < data.length - 1) {
+            if (e.key === "ArrowRight" && currentIndex < length - 1) {
               var nextIndex = `.bar-${currentIndex + 1}`;
             } else if (e.key === "ArrowLeft" && currentIndex > 0) {
               var nextIndex = `.bar-${currentIndex - 1}`;
