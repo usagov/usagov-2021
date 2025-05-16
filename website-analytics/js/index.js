@@ -938,7 +938,7 @@
             .style("border", "1px solid #ccc")
             .style("padding", "5px")
             .style("pointer-events", "none")
-            .text(title(d));
+            .text(title);
         })
         .on("blur", function() {
           d3.select(".tooltip").remove()
