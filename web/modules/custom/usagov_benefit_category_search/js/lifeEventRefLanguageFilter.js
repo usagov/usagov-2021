@@ -57,7 +57,6 @@ function updateLifeEventRef(jQuery) {
   }
 
   $editField.children().show();
-  $editField.children().show();
   $details.text(
     "Showing all life events."
   ).append(
