@@ -915,20 +915,21 @@
         .attr("tabindex", 0)
         .attr("role", "listitem")
         .on("keydown", (d, l, o) => {
-            // Handle keyboard navigation
-            var length = d3.select(this.node().parentNode).datum()._data.data.length;
-            var currentIndex = d.u;
-            if (e.key === "ArrowRight" && currentIndex < length - 1) {
-              var nextIndex = `.bar-${currentIndex + 1}`;
-            } else if (e.key === "ArrowLeft" && currentIndex > 0) {
-              var nextIndex = `.bar-${currentIndex - 1}`;
-            } else {
-              return;
-            }
-            d3.select(this.parentNode)
-              .select(nextIndex)
-              .node()
-              .focus();
+          // Handle keyboard navigation
+          var length = d3.select(this.node().parentNode).datum()._data.data.length;
+          var currentIndex = d.u;
+          console.log(d3.event.keyCode);
+          if (e.key === "ArrowRight" && currentIndex < length - 1) {
+            var nextIndex = `.bar-${currentIndex + 1}`;
+          } else if (e.key === "ArrowLeft" && currentIndex > 0) {
+            var nextIndex = `.bar-${currentIndex - 1}`;
+          } else {
+            return;
+          }
+          d3.select(this.parentNode)
+            .select(nextIndex)
+            .node()
+            .focus();
         })
         .on("focus", function(d, e) {
           d3.select("body").append("div")
@@ -960,7 +961,6 @@
 
       bar.select(".label")
         .attr("text-anchor", "middle")
-        // .attr("alignment-baseline", "before-edge")
         .attr("dy", 10)
         .attr("dx", barWidth / 2)
         .text(label);
