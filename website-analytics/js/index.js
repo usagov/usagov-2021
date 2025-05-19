@@ -914,14 +914,13 @@
         .attr("aria-label", title)
         .attr("tabindex", 0)
         .attr("role", "listitem")
-        .on("keydown", (d, l, o) => {
+        .on("keydown", (d) => {
           // Handle keyboard navigation
           var length = d3.select(this.node().parentNode).datum()._data.data.length;
           var currentIndex = d.u;
-          console.log(d3.event.keyCode);
-          if (e.key === "ArrowRight" && currentIndex < length - 1) {
+          if (d3.event.keyCode === 39 && currentIndex < length - 1) {
             var nextIndex = `.bar-${currentIndex + 1}`;
-          } else if (e.key === "ArrowLeft" && currentIndex > 0) {
+          } else if (d3.event.keyCode === 37 && currentIndex > 0) {
             var nextIndex = `.bar-${currentIndex - 1}`;
           } else {
             return;
@@ -931,7 +930,7 @@
             .node()
             .focus();
         })
-        .on("focus", function(d, e) {
+        .on("focus", function(d) {
           d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
