@@ -925,7 +925,7 @@
           } else {
             return;
           }
-          var nextIndexElement = d3.select(this.parentNode).select(nextIndex);
+          var nextIndexElement = d3.select(nextIndex);
           var nextIndexElementNode = nextIndexElement.node();
           nextIndexElementNode.focus();
         })
