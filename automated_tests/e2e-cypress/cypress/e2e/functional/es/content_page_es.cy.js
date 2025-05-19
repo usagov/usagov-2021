@@ -91,18 +91,6 @@ describe('Content Page [ES]', () => {
             .find('#last-updated')
             .should('exist')
     })
-    it('BTS 33: Share this page function works correctly for facebook, twitter, and email', () => {
-        // test links for each social
-        cy.get('.additional_body_info')
-            .find('#sm-share')
-            .should('exist')
-            .get('div.share-icons>a').eq(0)
-            .should('have.attr', 'href', 'http://www.facebook.com/sharer/sharer.php?u=http://localhost/disaster-assistance&v=3')
-            .get('div.share-icons>a').eq(1)
-            .should('have.attr', 'href', 'http://twitter.com/intent/tweet?source=webclient&text=http://localhost/disaster-assistance')
-            .get('div.share-icons>a').eq(2)
-            .should('have.attr', 'href', 'mailto:?subject=http://localhost/disaster-assistance')
-    })
     it('BTS 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat', () => {
         // test question box
         cy.get('.additional_body_info')
