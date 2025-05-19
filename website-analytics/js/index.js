@@ -925,10 +925,9 @@
           } else {
             return;
           }
-          d3.select(this.parentNode)
-            .select(nextIndex)
-            .node()
-            .focus();
+          var nextIndexElement = d3.select(this.parentNode).select(nextIndex);
+          var nextIndexElementNode = nextIndexElement.node();
+          nextIndexElementNode.focus();
         })
         .on("focus", function(d) {
           d3.select("body").append("div")
