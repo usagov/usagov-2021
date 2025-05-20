@@ -943,14 +943,14 @@
           var tooltipWidth = 200; // approximate width
           var tooltipHeight = 30; // approximate height
           var left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-          var top = rect.top - tooltipHeight - 8; // 8px above the bar
+          var top = rect.top - tooltipHeight + 180; // offset for the tooltip
 
           // Create tooltip
           d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
-            .style("background", "#fff")
-            .style("border", "1px solid #ccc")
+            .style("background", "#000")
+            .style("border", "1px solid #111")
             .style("padding", "5px")
             .style("pointer-events", "none")
             .style("left", left + "px")
