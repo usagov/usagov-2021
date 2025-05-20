@@ -940,10 +940,12 @@
           var svgRect = svgNode.getBoundingClientRect();
 
           // Calculate tooltip position above the bar
-          var tooltipWidth = 200; // approximate width
+          var tooltipWidth = 180; // approximate width
           var tooltipHeight = 30; // approximate height
-          var left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-          var top = rect.top - tooltipHeight + 175; // offset for the tooltip
+          var absTop = rect.top + window.scrollY;
+          var absLeft = rect.left + window.scrollX;
+          var left = absTop + (rect.width / 2) - (tooltipWidth / 2);
+          var top = absLeft - tooltipHeight - 8; // offset for the tooltip
 
           // Create tooltip
           d3.select("body").append("div")
