@@ -944,11 +944,11 @@
           var tooltipHeight = 30; // approximate height
           var absTop = rect.top + window.scrollY;
           var absLeft = rect.left + window.scrollX;
-          var left = absLeft+ (rect.width / 2) - (tooltipWidth / 2);
+          var left = absLeft + (rect.width / 2) - (tooltipWidth / 2);
           var top = absTop - tooltipHeight - 8; // offset for the tooltip
 
           // Create tooltip
-          d3.select("body").append("div")
+          d3.select(this).append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
             .style("background", "#000")
