@@ -943,7 +943,7 @@
           var tooltipWidth = 200; // approximate width
           var tooltipHeight = 30; // approximate height
           var left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-          var top = rect.top - tooltipHeight + 180; // offset for the tooltip
+          var top = rect.top - tooltipHeight + 175; // offset for the tooltip
 
           // Create tooltip
           d3.select("body").append("div")
@@ -958,9 +958,13 @@
             .style("width", tooltipWidth + "px")
             .style("text-align", "center")
             .text(title(d));
+
+          // Add content to the focus info
+          d3.select(".focus-info").text(title(d));
         })
         .on("blur", function() {
           d3.select(".tooltip").remove()
+          d3.select(".focus-info").text("");
         })
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
