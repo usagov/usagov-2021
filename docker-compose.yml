@@ -71,11 +71,32 @@ services:
               "SPKEY": "SPKey",
               "SPCRT": "SPCert"
             }
-          }]
+          }],
+         "aws-elasticache-redis": [
+          {
+            "credentials": {
+              "current_redis_engine_version": "6.2",
+              "host": "cache",
+              "hostname": "cache",
+              "password": "CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV",
+              "port": "6379",
+              "uri": "redis://:CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV@cache:6379",
+              "IS_LOCAL_DEV": 1
+            },
+            "name": "cache-service",
+            "tags": [
+                        "redis",
+                        "Elasticache",
+                        "AWS",
+                        "cache-service"
+                ]
+          }
+        ]
         }
     depends_on:
       - database
       - minio
+      - cache
 
   database:
     container_name: database
@@ -166,6 +187,15 @@ services:
       - .:/var/www:delegated
     env_file:
       - ./env.local
+    networks:
+      - gsa-gov
+
+  cache:
+    container_name: cache
+    build:
+      dockerfile: .docker/Dockerfile-cache
+    ports:
+      - 6379:6379
     networks:
       - gsa-gov
 

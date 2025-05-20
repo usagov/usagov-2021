@@ -819,6 +819,7 @@ $IS_CLOUDGOV = FALSE;
 $SERVER_HTTP_HOST = $_SERVER['HTTP_HOST'] ?? 'cms-dev.usa.gov';
 $settings['trusted_host_patterns'] = [];
 $space_name = strtolower($cf_application_data['space_name'] ?? '');
+$use_redis = FALSE; // Will switch to TRUE if we detect a cache-service.
 
 if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
   $IS_CLOUDGOV = TRUE;
@@ -869,7 +870,7 @@ foreach ($cf_service_data as $service_list) {
         'host' => $service['credentials']['host'],
         'port' => $service['credentials']['port'],
         'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
-        'driver' => 'mysql'
+        'driver' => 'mysql',
       ];
       if ($IS_CLOUDGOV === TRUE) {
         $databases['default']['default']['pdo'] = [
@@ -909,6 +910,15 @@ foreach ($cf_service_data as $service_list) {
       $settings['s3fs.use_s3_for_public'] = TRUE;
       $settings['s3fs.use_s3_for_private'] = TRUE;
     }
+    else if (array_key_exists('tags', $service) && in_array('cache-service', $service['tags'], TRUE)) {
+      $use_redis = TRUE;
+      $settings['redis.connection']['host'] = $service['credentials']['host'];
+      if (!array_key_exists('IS_LOCAL_DEV', $service['credentials'])) {
+          $settings['redis.connection']['scheme'] = 'tls';
+      }
+      $settings['redis.connection']['port'] = $service['credentials']['port'];
+      $settings['redis.connection']['password'] = $service['credentials']['password'];
+    }
   }
 }
 
@@ -918,6 +928,57 @@ $settings['php_storage']['twig']['directory'] = '../storage/php';
 // This is from https://www.fomfus.com/articles/how-to-create-a-drupal-8-project-for-heroku-part-1
 // included here without fully understanding implications:
 $settings['cache']['bins']['data'] = 'cache.backend.php';
+
+// Configure redis caching
+if  ($use_redis) {
+  // Set Redis as the default backend for any cache bin not otherwise specified.
+  // see: https://git.drupalcode.org/project/redis/-/blob/8.x-1.x/README.Predis.txt
+  $settings['redis.connection']['interface'] = 'Predis';
+  $settings['cache']['default'] = 'cache.backend.redis';
+  $settings['redis.connection']['persistent'] = TRUE;
+
+  // host, port, and password are set from $VCAP_SERVICES (look for 'cache-service').
+
+  // Use the redis cache tag checksum service.
+  $settings['container_yamls'][] = 'modules/contrib/redis/example.services.yml';
+
+  // Allow the services to work before the Redis module itself is enabled.
+  $settings['container_yamls'][] = 'modules/contrib/redis/redis.services.yml';
+
+  // To use Redis for container cache, add the classloader path manually.
+  $class_loader->addPsr4('Drupal\\redis\\', 'modules/contrib/redis/src');
+
+  // Use Redis for container cache.
+  // The container cache is used to load the container definition itself.
+  // This means that any configuration stored in the container isn't available
+  // until the container definition is fully loaded.
+  // To ensure that the container cache uses Redis rather than the
+  // default SQL cache, add the following lines.
+  $settings['bootstrap_container_definition'] = [
+    'parameters' => [],
+    'services' => [
+      'redis.factory' => [
+        'class' => 'Drupal\redis\ClientFactory',
+      ],
+      'cache.backend.redis' => [
+        'class' => 'Drupal\redis\Cache\CacheBackendFactory',
+        'arguments' => ['@redis.factory', '@cache_tags_provider.container', '@serialization.phpserialize'],
+      ],
+      'cache.container' => [
+        'class' => '\Drupal\redis\Cache\PhpRedis',
+        'factory' => ['@cache.backend.redis', 'get'],
+        'arguments' => ['container'],
+      ],
+      'cache_tags_provider.container' => [
+        'class' => 'Drupal\redis\Cache\RedisCacheTagsChecksum',
+        'arguments' => ['@redis.factory'],
+      ],
+      'serialization.phpserialize' => [
+        'class' => 'Drupal\Component\Serialization\PhpSerialize',
+      ],
+    ],
+  ];
+}
 
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
