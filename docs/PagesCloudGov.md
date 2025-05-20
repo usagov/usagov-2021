@@ -31,7 +31,7 @@ Unless you're using a custom domain (not covered here), Pages will host your sit
 https://federalist-SOME-HOST.sites.pages.cloud.gov/site/username/project-foo/
 ```
 
-We need to know that URL to prepare the Tome export. Consider committing a simple `index.html` file to your repository, and pushing it. Pages should rebuild the site after a minute or two. Check the "Build History" for the site and click on "View Build" under actions to open your site's home page. Make a note of your hostname and delete your test `index.html` file
+We need to know that URL to prepare the Tome export. Consider committing a simple `index.html` file to your repository, and pushing it. Pages should rebuild the site after a minute or two. Check the "Build History" for the site and click on "View Build" under actions to open your site's home page. Make a note of your hostname and delete your test `index.html` file.
 
 ### 4. Export Drupal site
 
