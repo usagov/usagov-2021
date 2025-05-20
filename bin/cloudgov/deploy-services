@@ -126,6 +126,33 @@ generate_cert_json()
   cf delete-service-key database test-db-ok -f
 }
 
+## CACHE SERVICE
+# NB: the way to upgrade an aws-elasticache-redis instance (currently) is to
+# create a new one. Since we're storing truly ephemeral data in ours (drupal cache),
+# if we ever need to upgrade the redis version or switch to a different plan, this
+# is fine! The cms will identify this service by the "cache-service" tag, not its name.
+# To upgrade:
+#  1) Create a new service (this takes awhile)
+#  2) Add the "cache-service" tag to the new service and remove it from the old one
+#  3) Restart the cms app
+#  4) Delete the old service.
+{
+  CACHE_SERVICE_NAME=cache-service
+  echo "Configuring Cache Service"
+  if service_exists "${CACHE_SERVICE_NAME}" ; then
+    echo ${CACHE_SERVICE_NAME} already created
+  else
+    cf create-service aws-elasticache-redis redis-3node-large ${CACHE_SERVICE_NAME} -t "cache-service"
+  fi
+
+  # wait until the aws-elasticache-redis service is fully provisioned
+  until cf create-service-key ${CACHE_SERVICE_NAME} test-cache-ok ; do
+    echo waiting until ${CACHE_SERVICE_NAME} is live...
+    sleep 20
+  done
+  cf delete-service-key ${CACHE_SERVICE_NAME} test-cache-ok -f
+}
+
 ## STORAGE SERVICE
 {
   echo "Configuring Storage Service"
@@ -165,14 +192,14 @@ generate_cert_json()
 
     # Only allow update of new relic vars, all others match the existing values
     yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
-    # do we need to reattach this service to the apps individually?
+    # Appls would need to be restarted if they rely on any of the changed parameters.
 
   else
     yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$NEW_RELIC_API_KEY\"}"
   fi
 
   if service_exists "secauthsecrets" ; then
-    # check for existance of spcrt and spkey in secrets service
+    # check for existence of spcrt and spkey in secrets service
     # if not found generate
     echo "Secauthsecrets service already created"
     if generate_cert_json; then
