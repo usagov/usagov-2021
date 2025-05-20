@@ -1009,3 +1009,10 @@ figure#time_series figcaption {
   font-weight: bold;
   min-height: 24px;
 }
+
+.summary {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}

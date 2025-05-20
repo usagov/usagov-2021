@@ -192,6 +192,11 @@
 
         // Update the insights container
         d3.select(".chart-insights p").html(`Traffic follows a weekly pattern with weekdays averaging ${formatCommas(Math.round(avgWeekday))} visits and weekends dropping to around ${formatCommas(Math.round(avgWeekend))} visits. ${formatDate(parseDate(maxDay.date))} saw the highest traffic at ${formatCommas(maxVisit)} visits.`);
+
+        // Update summary statistics
+        d3.select("#total-days").text(days.length);
+        d3.select("#highest-value").text(formatCommas(maxVisit));
+        d3.select("#average-value").text(formatCommas(Math.round(d3.mean(days, function(d) { return d.visits; }))));
       }),
 
       // the traffic sources 30 days total block
@@ -948,7 +953,7 @@
           var top = absTop - tooltipHeight - 8; // offset for the tooltip
 
           // Create tooltip
-          d3.select(this).append("div")
+          d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
             .style("background", "#000")
