@@ -1,7 +1,8 @@
 usagov_chatbot.test:
-  path: '/chromadb-test'
+  path: '/usagov-ai'
   defaults:
-    _controller: '\Drupal\usagov_chatbot\Controller\GenerateRAGController::test'
-    _title: 'ChromaDB Test'
+    _controller: '\Drupal\usagov_chatbot\Controller\GenerateRAGController::GetAIResponse'
+    _title: 'Get a response from the USA.gov AI.'
   requirements:
     _permission: 'access content'
+  methods: [POST]
