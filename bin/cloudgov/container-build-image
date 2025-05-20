@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# This script will attempt to create a container image
+# to be used when launching cloud.gov images
+#
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+GITBRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+GITCOMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
+GITTAG=$(git tag --points-at $(git rev-parse HEAD 2>/dev/null) | grep ^v | sort -rV | head -n 1 2>/dev/null || echo "")
+
+APPNAME=${1}
+if [ -z "$APPNAME" ]
+then
+      echo "Must specify app you want to build, as the first argument!"
+      exit 1
+fi;
+
+### FIXME: should we fix it for the user, or just check?  This fixes it:
+APPNAME=${APPNAME//[^a-zA-Z]/} ## app name is always a short a-z string
+
+### We need some sort of verification of which apps are available to choose from
+DOCKER_FILE=.docker/Dockerfile-${APPNAME}
+if [ ! -f ".docker/Dockerfile-${APPNAME}" ]; then
+      echo "Unknown app '$APPNAME' (Dockerfile '$DOCKER_FILE' not found)"
+fi
+
+CONTAINERTAG=${2:-$GITBRANCH}
+CONTAINERTAG2=${3}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to build"
+      exit 1;
+fi
+
+### FIXME: should we fix it for the user, or just check?  This fixes it:
+CONTAINERTAG=${CONTAINERTAG//[^0-9]/} ## containertag is always an integer (CCI build number)
+
+echo "Building ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}-${CONTAINERTAG} ${CONTAINERTAG2}"
+
+exit
+
+chmod -R u+w ./web/sites/default/
+
+export DOCKER_CONTENT_TRUST=1
+docker build --force-rm \
+     -t $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG \
+     -f .docker/Dockerfile-${APPNAME} . \
+     --build-arg GITBRANCH=$GITBRANCH \
+     --build-arg GITCOMMIT=$GITCOMMIT \
+     --build-arg GITTAG=$GITTAG \
+     --build-arg CONTAINERTAG=$CONTAINERTAG
+
+echo "Running the Docker container"
+export DOCKER_CONTENT_TRUST=0
+docker run -d --name ${APPNAME}-container --rm $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG
+export DOCKER_CONTENT_TRUST=1
+
+if [ -n "$CONTAINERTAG2" ]
+then
+     echo "docker tag $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2"
+     docker tag $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG $DOCKERUSER/$DOCKERREPO:${APPNAME}-$CONTAINERTAG2
+fi

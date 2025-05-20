@@ -97,18 +97,18 @@ RUN cd /tmp \
     && mv /etc/modsecurity.d/modsecurity-crs/crs-setup.conf.example /etc/modsecurity.d/modsecurity-crs/crs-setup.conf \
     && mv /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /etc/modsecurity.d/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
-COPY src-waf/docker-entrypoint-waf.sh /
-COPY src-waf/etc/ /etc/
-COPY src-waf/opt/ /opt/
+COPY .docker/src-waf/docker-entrypoint-waf.sh /
+COPY .docker/src-waf/etc/ /etc/
+COPY .docker/src-waf/opt/ /opt/
 RUN rm -rf /opt/owasp-crs/tests;
 
-COPY src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
-COPY src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
-COPY src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
+COPY .docker/src-waf/opt/owasp-crs/modsecurity.conf /etc/modsecurity.d/modsecurity.conf
+COPY .docker/src-waf/opt/owasp-crs/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
+COPY .docker/src-waf/opt/owasp-crs/setup.conf /etc/modsecurity.d/setup.conf
 
-COPY src-waf/cert-watcher.sh /cert-watcher.sh
+COPY .docker/src-waf/cert-watcher.sh /cert-watcher.sh
 
-COPY motd /etc/motd
+COPY .docker/motd /etc/motd
 
 # Set environment variables
 ENV ZLIB_VERSION=1.3.1
