@@ -158,28 +158,16 @@ async function getAIResponse(userMessage, messageContainer) {
 
     messageContainer.appendChild(loaderElement.body.firstChild);
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    const raw = JSON.stringify({
-    "model": "llama3.2",
-    "prompt": userMessage,
-    "stream": false,
-    "options": {
-    "num_thread": 8,
-    "num_ctx": 2024
-    }
-    });
+    const requestBody = JSON.stringify({"userMessage": userMessage});
 
     const requestOptions = {
         "method": "POST",
-        "headers": myHeaders,
-        "body": raw,
-        "redirect": "follow"
+        "headers": { "Content-Type": "application/json" },
+        "body": requestBody
     };
 
     try {
-        const response = await fetch("http://ob.straypacket.com/api/generate", requestOptions);
+        const response = await fetch("/usagov-ai", requestOptions);
         const result = await response.text();
 
         // Return the AI response.
