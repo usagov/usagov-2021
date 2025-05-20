@@ -930,6 +930,22 @@
           nextIndexElementNode.focus();
         })
         .on("focus", function(d) {
+          // Remove any existing tooltip
+          d3.select(".tooltip").remove();
+
+          // Get the position of the bar
+          var barNode = d3.select(this).node();
+          var svgNode = barNode.ownerSVGElement;
+          var rect = barNode.getBoundingClientRect();
+          var svgRect = svgNode.getBoundingClientRect();
+
+          // Calculate tooltip position above the bar
+          var tooltipWidth = 200; // approximate width
+          var tooltipHeight = 30; // approximate height
+          var left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+          var top = rect.top - tooltipHeight - 8; // 8px above the bar
+
+          // Create tooltip
           d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
@@ -937,6 +953,10 @@
             .style("border", "1px solid #ccc")
             .style("padding", "5px")
             .style("pointer-events", "none")
+            .style("left", left + "px")
+            .style("top", top + "px")
+            .style("width", tooltipWidth + "px")
+            .style("text-align", "center")
             .text(title(d));
         })
         .on("blur", function() {

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessible Website Visits Bar Chart</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .chart-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 400px;
+      overflow-x: auto;
+      padding-left: 50px;
+      padding-bottom: 80px;
+    }
+
+    .y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-right: 8px;
+      text-align: right;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .y-axis-line {
+      position: absolute;
+      left: 50px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background-color: #ccc;
+    }
+
+    .chart-grid {
+      position: absolute;
+      left: 50px;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      height: 400px;
+    }
+
+    .grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: #eee;
+    }
+
+    .x-axis {
+      position: absolute;
+      left: 50px;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background-color: #ccc;
+    }
+
+    .bars-container {
+      position: absolute;
+      left: 50px;
+      bottom: 0;
+      height: 400px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 3px;
+    }
+
+    .bar {
+      width: 20px;
+      background-color: #4361ee;
+      border-radius: 2px 2px 0 0;
+      transition: background-color 0.2s;
+      position: relative;
+    }
+
+    .bar:hover, .bar:focus {
+      background-color: #3a56d4;
+      outline: none;
+    }
+
+    .bar:focus {
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.4);
+    }
+
+    .bar-label {
+      font-size: 12px;
+      margin-top: 8px;
+      transform: rotate(-45deg);
+      transform-origin: left top;
+      text-align: left;
+      width: 70px;
+      white-space: nowrap;
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #333;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .summary {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    .focus-info {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      min-height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="chart-title" class="chart-title">Website Visits: Feb 18 - Mar 19, 2025</h1>
+
+    <p id="chart-description" class="sr-only">
+      Bar chart showing total website visits per day from February 18 to March 19, 2025.
+      Values range from 0 to 300,000 visits. Use arrow keys to navigate between bars.
+    </p>
+
+    <div class="chart-container" role="figure" aria-labelledby="chart-title" aria-describedby="chart-description">
+      <div class="y-axis">
+        <span>300K</span>
+        <span>250K</span>
+        <span>200K</span>
+        <span>150K</span>
+        <span>100K</span>
+        <span>50K</span>
+        <span>0</span>
+      </div>
+
+      <div class="y-axis-line"></div>
+
+      <div class="chart-grid">
+        <!-- Grid lines will be added by JavaScript -->
+      </div>
+
+      <div class="x-axis"></div>
+
+      <div class="bars-container" role="group" aria-label="Chart data">
+        <!-- Bars will be added by JavaScript -->
+      </div>
+    </div>
+
+    <div id="focus-info" class="focus-info" aria-live="polite"></div>
+
+    <div class="summary">
+      <strong>Total Days:</strong> <span id="total-days">30</span> |
+      <strong>Highest Day:</strong> <span id="highest-value">295,000</span> visits |
+      <strong>Average:</strong> <span id="average-value">221,833</span> visits
+    </div>
+
+    <!-- Hidden table for screen readers -->
+    <table class="sr-only">
+      <caption>Website Visits: Feb 18 - Mar 19, 2025</caption>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Number of Visits</th>
+        </tr>
+      </thead>
+      <tbody id="sr-table-body">
+        <!-- Table rows will be added by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Sample data for the past 30 days (Feb 18 to Mar 19)
+    const data = [
+      { date: "Feb 18", visits: 120000 },
+      { date: "Feb 19", visits: 145000 },
+      { date: "Feb 20", visits: 165000 },
+      { date: "Feb 21", visits: 180000 },
+      { date: "Feb 22", visits: 210000 },
+      { date: "Feb 23", visits: 190000 },
+      { date: "Feb 24", visits: 140000 },
+      { date: "Feb 25", visits: 160000 },
+      { date: "Feb 26", visits: 185000 },
+      { date: "Feb 27", visits: 195000 },
+      { date: "Feb 28", visits: 220000 },
+      { date: "Mar 1", visits: 230000 },
+      { date: "Mar 2", visits: 210000 },
+      { date: "Mar 3", visits: 180000 },
+      { date: "Mar 4", visits: 195000 },
+      { date: "Mar 5", visits: 215000 },
+      { date: "Mar 6", visits: 225000 },
+      { date: "Mar 7", visits: 235000 },
+      { date: "Mar 8", visits: 245000 },
+      { date: "Mar 9", visits: 255000 },
+      { date: "Mar 10", visits: 270000 },
+      { date: "Mar 11", visits: 280000 },
+      { date: "Mar 12", visits: 260000 },
+      { date: "Mar 13", visits: 250000 },
+      { date: "Mar 14", visits: 275000 },
+      { date: "Mar 15", visits: 290000 },
+      { date: "Mar 16", visits: 285000 },
+      { date: "Mar 17", visits: 265000 },
+      { date: "Mar 18", visits: 275000 },
+      { date: "Mar 19", visits: 295000 }
+    ];
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const maxVisits = 300000;
+      const chartHeight = 400;
+      const barsContainer = document.querySelector(".bars-container");
+      const chartGrid = document.querySelector(".chart-grid");
+      const srTableBody = document.getElementById("sr-table-body");
+      const focusInfo = document.getElementById("focus-info");
+
+      // Add grid lines
+      for (let i = 0; i <= 6; i++) {
+        const gridLine = document.createElement("div");
+        gridLine.classList.add("grid-line");
+        gridLine.style.bottom = `${(i * 400 / 6)}px`;
+        chartGrid.appendChild(gridLine);
+      }
+
+      // Calculate and display summary statistics
+      document.getElementById("total-days").textContent = data.length;
+      const highestValue = Math.max(...data.map(item => item.visits));
+      document.getElementById("highest-value").textContent = formatNumber(highestValue);
+
+      const averageValue = Math.round(data.reduce((sum, item) => sum + item.visits, 0) / data.length);
+      document.getElementById("average-value").textContent = formatNumber(averageValue);
+
+      // Create bars and populate screen reader table
+      data.forEach((item, index) => {
+        const height = (item.visits / maxVisits) * chartHeight;
+
+        // Create bar wrapper
+        const barWrapper = document.createElement("div");
+        barWrapper.classList.add("bar-wrapper");
+
+        // Create bar
+        const bar = document.createElement("div");
+        bar.classList.add("bar");
+        bar.id = `bar-${index}`;
+        bar.tabIndex = 0;
+        bar.style.height = `${height}px`;
+        bar.setAttribute("role", "button");
+        bar.setAttribute("aria-label", `${item.date}: ${formatNumber(item.visits)} visits`);
+
+        // Create tooltip
+        const tooltip = document.createElement("div");
+        tooltip.classList.add("tooltip");
+        tooltip.textContent = `${formatNumber(item.visits)} visits`;
+        bar.appendChild(tooltip);
+
+        // Add event listeners
+        bar.addEventListener("mouseover", () => {
+          tooltip.style.opacity = "1";
+        });
+
+        bar.addEventListener("mouseout", () => {
+          tooltip.style.opacity = "0";
+        });
+
+        bar.addEventListener("focus", () => {
+          focusInfo.textContent = `${item.date}: ${formatNumber(item.visits)} visits`;
+          tooltip.style.opacity = "1";
+        });
+
+        bar.addEventListener("blur", () => {
+          focusInfo.textContent = "";
+          tooltip.style.opacity = "0";
+        });
+
+        bar.addEventListener("keydown", (e) => {
+          // Handle keyboard navigation
+          if (e.key === "ArrowRight" && index < data.length - 1) {
+            document.getElementById(`bar-${index + 1}`).focus();
+          } else if (e.key === "ArrowLeft" && index > 0) {
+            document.getElementById(`bar-${index - 1}`).focus();
+          }
+        });
+
+        // Create label
+        const label = document.createElement("div");
+        label.classList.add("bar-label");
+        label.textContent = item.date;
+
+        // Append elements
+        barWrapper.appendChild(bar);
+        barWrapper.appendChild(label);
+        barsContainer.appendChild(barWrapper);
+
+        // Add to screen reader table
+        const tableRow = document.createElement("tr");
+        const dateCell = document.createElement("th");
+        dateCell.setAttribute("scope", "row");
+        dateCell.textContent = item.date;
+
+        const visitsCell = document.createElement("td");
+        visitsCell.textContent = `${formatNumber(item.visits)} visits`;
+
+        tableRow.appendChild(dateCell);
+        tableRow.appendChild(visitsCell);
+        srTableBody.appendChild(tableRow);
+      });
+
+      // Format numbers with commas
+      function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+    });
+  </script>
+</body>
+</html>
