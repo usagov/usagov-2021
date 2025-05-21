@@ -93,7 +93,7 @@ class ChatbotService {
     ]);
 
     return [
-      'answer' => $completions,
+      'completions' => $completions,
       'related_docs' => $relateddocs,
     ];
   }

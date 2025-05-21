@@ -4,8 +4,6 @@ namespace Drupal\usagov_chatbot\Commands;
 
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\usagov_chatbot\Service\ChatbotService;
 
 /**
  * Class ChatbotCommands.
