@@ -1,0 +1,3 @@
+services:
+  usagov_chatbot.chatbot_service:
+    class: 'Drupal\usagov_chatbot\Service\ChatbotService'

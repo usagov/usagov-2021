@@ -1,5 +1,0 @@
-name: Static Site Ingest
-type: module
-description: Static Site to Vector DB Ingest
-package: USAgov
-core_version_requirement: ^9 || ^10
