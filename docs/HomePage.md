@@ -66,7 +66,7 @@ The banner image is determined by the width of the view port for responsiveness 
 The banner is set as a background image to allow the grid to change size based on the welcome and how do I boxes text lengths rather than image height.
 
 ### Welcome Box
-The title and welcome box text are variables set as {{ node.title.value }} and {{ node.body.value | raw}} repsectively so they can be changed in the cms.
+The title and welcome box text are variables set as {{ node.title.value }} and {{ node.body.value | raw}} respectively so they can be changed in the cms.
 
 ## How Do I Box
 The how do I Box is set to span rows 2 & 3 of the grid. This allows it to "sit" on top of the banner image and the blue background.
