@@ -31,7 +31,7 @@ class ChatbotCommands extends DrushCommands {
    * @command usagov_chatbot:listModels
    * @aliases listModels
    */
-  public function listModels($options = ['format' => 'table']) {
+  public function listModels($options = ['format' => 'json']) {
     $output_array = [];
     try {
       $models = $this->chatbotService->listModels();
@@ -42,7 +42,7 @@ class ChatbotCommands extends DrushCommands {
     catch (\Exception $e) {
       $output_array[] = [$e->getMessage()];
     }
-    return new RowsOfFields($output_array);
+    return $output_array;
   }
 
   /**
@@ -51,7 +51,7 @@ class ChatbotCommands extends DrushCommands {
    * @command usagov_chatbot:listCollections
    * @aliases listCollections
    */
-  public function listCollections($options = ['format' => 'table']) {
+  public function listCollections($options = ['format' => 'json']) {
     $output_array = [];
     try {
       $collections = $this->chatbotService->listCollections();
@@ -60,9 +60,9 @@ class ChatbotCommands extends DrushCommands {
       }
     }
     catch (\Exception $e) {
-      $output_array[] = [$e->getMessage()];
+      $output_array = ['message' => $e->getMessage(), 'status' => 1];
     }
-    return new RowsOfFields($output_array);
+    return $output_array;
   }
 
   /**
@@ -73,8 +73,8 @@ class ChatbotCommands extends DrushCommands {
    */
   public function askChat($collectionName, $query, $options = ['format' => 'json']) {
     try {
-      $result = $this->chatbotService->askChat($collectionName, $query);
-      return [$result];
+      $result = $this->chatbotService->askChat($collectionName, $query, TRUE);
+      return $result['completions']->response;
     }
     catch (\Exception $e) {
       return [['error' => $e->getMessage()]];
@@ -87,13 +87,13 @@ class ChatbotCommands extends DrushCommands {
    * @command usagov_chatbot:embedSite
    * @aliases embedSite
    */
-  public function embedSite($collectionName = 'usagovsite', $chunkSize = 100, $options = ['format' => 'table']) {
+  public function embedSite($collectionName = 'usagovsite', $chunkSize = 100, $options = ['format' => 'json']) {
     try {
       $this->chatbotService->embedSite($collectionName, $chunkSize);
-      return new RowsOfFields([['status' => 'Embedding complete']]);
+      return ['message' => 'Embedding complete', 'status' => 0];
     }
     catch (\Exception $e) {
-      return new RowsOfFields([['error' => $e->getMessage()]]);
+      return ['message' => $e->getMessage(), 'status' => 1];
     }
   }
 

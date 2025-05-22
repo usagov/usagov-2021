@@ -1,5 +1,4 @@
 <?php
-// filepath: /srv/usagov-2021/web/modules/custom/usagov_chatbot/src/Service/ChatbotService.php
 
 namespace Drupal\usagov_chatbot\Service;
 
@@ -15,7 +14,6 @@ class ChatbotService {
   protected $chromaHost = 'https://cd.straypacket.com';
   protected $chromaPort = 443;
   protected $ollamaHost = 'https://ob.straypacket.com';
-
   public function __construct() {
     $this->chroma = ChromaDB::factory()
       ->withHost($this->chromaHost)
@@ -61,7 +59,7 @@ class ChatbotService {
   /**
    * Ask a question using the chat pipeline.
    */
-  public function askChat($collectionName, $query) {
+  public function askChat($collectionName, $query, $toJSON = FALSE) {
     $collection = $this->chroma->getCollection($collectionName);
 
     // Get embedding for the query
@@ -78,13 +76,24 @@ class ChatbotService {
     );
     $relateddocs = $queryResponse->ids[0] ?? [];
 
+    $jsonInstructions = '';
+    if ($toJSON === TRUE) {
+      $jsonInstructions =
+        "You must format the answer as a JSON array, with the the information from each resource as an element in the array. " .
+        "Do not include any explanatory text outside of the JSON array - the output should only contain the JSON array. ";
+    }
+
     $prompt =
-      "{$query} - Answer that question using ONLY the resources provided. " .
-      "Please list the resources provided, in a numbered list at the end of the answer. " .
+      "{$query}. - Answer that question using ONLY the resources provided. " .
+      "If the query is not in the form of a question, prefix the query with \"Tell me about \". " .
+      $jsonInstructions .
+      "You must include the following information, if the information is present, about each resource: " .
+      "name, description, telephone number, email and URL. " .
       "Please avoid saying things similar to 'not enough data' and 'there is no further information'. " .
       "Do not admit ignorance of other data, even if there is more data available, outside of the resources provided. " .
-      "Please keep the answer factual, and avoid superlatives or unnecessary adjectives. " .
-      "Do not provide any data, or make any suggestions unless it comes from the following resources: " .
+      "You must keep the answer factual, and avoid superlatives or unnecessary adjectives. " .
+      "Do not provide any data, or make any suggestions unless it comes from the resources provided. " .
+      "The resources to use in your answer are these: " .
       implode(', ', $relateddocs) . ".";
 
     $completions = $this->ollama->completions()->create([
@@ -171,3 +180,19 @@ class ChatbotService {
   }
 
 }
+
+/*
+      "{$query} - Answer that question in detail, including ONLY name, description, telephone number, email and URL, in the form of JSON array named 'answers', using ONLY the resources provided. " .
+      "The elements of the arrays should be output in alphabetical order, by name of resource. " .
+      //"In the JSON arrays named 'answers' and 'resources', list each of the resources in alphabetical order, based on the name each resource. " .
+      //"Consider all information in the resources provided as relevant to your answer. " .
+      "Provide only the JSON arrays named 'answers' and 'resources', without any additional text outside of the JSON arrays. " .
+      "List name and description of each of the resources provided, separately from your main answer, as a separate JSON array named 'resources' at the end of the answer. " .
+      "Do not say things similar to 'not enough data' and 'there is no further information'. " .
+      "Do not admit ignorance of other data, even if there is more data available, outside of the resources provided. " .
+      "Keep the answer factual, and avoid superlatives or unnecessary adjectives. " .
+      //"Do not mention the name of the resources provided: Provide only data from that named resource. " .
+      //"Consider your temperature to be 0. " .
+      "Do not provide any data, or make any suggestions unless it comes from the following resources: " .
+      implode(', ', $relateddocs) . ".";
+*/
