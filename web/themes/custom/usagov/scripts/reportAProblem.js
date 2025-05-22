@@ -54,13 +54,12 @@ function fieldValidation() {
         var error = input.attr("data-error");
 
         var label = jQuery(this).find("label");
-        label.after(
-          '<span id="' +
-            String(errorId).replace(/<\/?[^>]+(>|$)/g, "") +
-            '" class="err-label usa-error" tabindex="-1">' +
-            String(error).replace(/<\/?[^>]+(>|$)/g, "") +
-            "</span>"
-        );
+        var errorSpan = document.createElement("span");
+        errorSpan.id = String(errorId).replace(/<\/?[^>]+(>|$)/g, "");
+        errorSpan.className = "err-label usa-error";
+        errorSpan.tabIndex = -1;
+        errorSpan.textContent = error; // Safely set the text content
+        label.after(errorSpan);
         input.attr("aria-labelledby", label.attr("id") + " " + String(errorId).replace(/<\/?[^>]+(>|$)/g, ""));
       }
 
