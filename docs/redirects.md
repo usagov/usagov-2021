@@ -49,6 +49,7 @@ In the `prod` space, map a route for the new subdomain to the `www` app and bind
 ```
 cf map-route www usa.gov --hostname $subdomain
 cf bind-route-service usa.gov --hostname $subdomain waf-route-prod-usagov
+```
 
 Proceed to [Create the external domain service](#create-the-external-domain-service)
 
