@@ -51,11 +51,11 @@ cf map-route www usa.gov --hostname $subdomain
 cf bind-route-service usa.gov --hostname $subdomain waf-route-prod-usagov
 ```
 
-Proceed to [Create the external domain service](#create-the-external-domain-service)
+Proceed to [Create the external domain service](#create-the-external-domain-service).
 
 #### For other domains:
 
-For each external domain, create a `domain` (these are at the cloud.gov `organization` level):
+For each external domain, create a `domain` (these are at the cloud.gov `organization` level; it does not matter what `space` you've targeted):
 
 ```
 cf create-domain gsa-tts-usagov $domain
