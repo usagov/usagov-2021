@@ -63,10 +63,6 @@ case $SPACE in
 	WWW_DOMAIN_PLAN="domain" ;;
 esac
 
-echo "Creating domains ${CMS_DOMAIN} and ${WWW_DOMAIN}"
-$echo cf create-domain $ORG $CMS_DOMAIN
-$echo cf create-domain $ORG $WWW_DOMAIN
-
 echo
 echo "Creating external domain services. Each of these could take awhile to come up."
 
