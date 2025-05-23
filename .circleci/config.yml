@@ -664,15 +664,6 @@ jobs:
       - deploy-cloudgov-cron:
           envname: prod
 
-  deploy-to-cloudgov-prod-cron-tools:
-    machine:
-      image: ubuntu-2204:current
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
-    steps:
-      - deploy-cloudgov-cron:
-          envname: tools
-
   perform-ip-allow-list-validation:
     machine:
       image: ubuntu-2204:current
@@ -821,31 +812,13 @@ workflows:
     jobs:
       - approve-build-and-push-container:
           type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - build-and-push-container:
           requires:
             - approve-build-and-push-container
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - approve-dev-deployment:
           type: approval
           requires:
             - build-and-push-container
-          filters:
-            branches:
-              only:
-              - dev
       - approve-dr-deployment:
           type: approval
           requires:
@@ -857,10 +830,6 @@ workflows:
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
-          filters:
-            branches:
-              only:
-              - dev
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
@@ -906,31 +875,13 @@ workflows:
     jobs:
       - approve-build-and-push-container-cron:
           type: approval
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - build-and-push-container-cron:
           requires:
             - approve-build-and-push-container-cron
-          filters:
-            branches:
-              only:
-                - dr
-                - dev
-                - stage
-                - prod
       - approve-dev-deployment-cron:
           type: approval
           requires:
             - build-and-push-container-cron
-          filters:
-            branches:
-              only:
-              - dev
       - approve-dr-deployment-cron:
           type: approval
           requires:
@@ -942,10 +893,6 @@ workflows:
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
-          filters:
-            branches:
-              only:
-              - dev
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
@@ -983,20 +930,6 @@ workflows:
       - deploy-to-cloudgov-prod-cron:
           requires:
             - really-approve-prod-deployment-cron
-          filters:
-            branches:
-              only: prod
-
-      - really-approve-prod-deployment-cron-tools:
-          type: approval
-          requires:
-            - approve-prod-deployment-cron
-          filters:
-            branches:
-              only: prod
-      - deploy-to-cloudgov-prod-cron-tools:
-          requires:
-            - really-approve-prod-deployment-cron-tools
           filters:
             branches:
               only: prod

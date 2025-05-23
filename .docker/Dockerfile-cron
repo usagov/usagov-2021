@@ -1,4 +1,4 @@
-### 
+###
 FROM alpine:3.18 AS cron
 
 ARG S6_VERSION
@@ -54,6 +54,7 @@ RUN tar xzf /tmp/s6overlay.tar.gz -C / \
 # cron setup
 RUN mkdir -p /etc/periodic/1min \
     && echo "*    *       *       *       *       run-parts /etc/periodic/1min" >> /etc/crontabs/root \
+    && echo "*/5  *       *       *       *       run-parts /etc/periodic/5min" >> /etc/crontabs/root \
     # cleanup
     && rm -rf /var/cache/apk/*
 
@@ -75,7 +76,7 @@ RUN chmod -R +x /etc/periodic \
 HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
 && s6-svstat /var/run/s6/services/cron
 
-ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.7.11\&source\=github-rel  /tmp/cf8.tar.gz
+ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.13.0\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
 RUN rm /tmp/cf8.tar.gz
 

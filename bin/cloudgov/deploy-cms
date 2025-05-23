@@ -36,11 +36,22 @@ EGRESS_SPACE='shared-egress'
 function appExists {  # appname
   app=$1
   if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
+    echo "ERROR: app name is required"
     exit 1
   fi
   echo cf app $app > /dev/null 2>&1
   cf app $app > /dev/null 2>&1
+  return $?
+}
+
+function serviceExists {  # service name
+  service=$1
+  if [ -z "$service" ]; then
+    echo "ERROR: service name is required"
+    exit 1
+  fi
+  echo cf service $service > /dev/null 2>&1
+  cf service $service > /dev/null 2>&1
   return $?
 }
 
@@ -72,16 +83,16 @@ function pushApp { #appname
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
     else
-      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
     fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-	cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+	    cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
     else
-      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME
+      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
     fi
   fi
 }
@@ -131,12 +142,18 @@ if appExists cms; then
   setupEgress cms
   setUSPSCreds
   setCallCenterEWTBucket
+  if serviceExists "cache-service"; then
+      cf bind-service cms cache-service
+  fi
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
   pushApp cms
   setupRoutes cms
   setupEgress cms
+  if serviceExists "cache-service"; then
+      cf bind-service cms cache-service
+  fi
   setUSPSCreds
   setCallCenterEWTBucket
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""

@@ -45,16 +45,24 @@ logging.basicConfig(
     level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+if os.getenv("VERBOSE") != "1":
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)  # or CRITICAL to fully silenc
 
 # Load API configuration
 VCAP_SERVICES = os.getenv("VCAP_SERVICES")  # VCAP_SERVICES
+if not VCAP_SERVICES:
+    print("Fatal Error: VCAP_SERVICES is empty or not set")
+    quit()
 VCAP_JSON = json.loads(VCAP_SERVICES)  # Convert to JSON
 
 if "user-provided" in VCAP_JSON and VCAP_JSON["user-provided"] and "credentials" in VCAP_JSON["user-provided"][0]:
-    KEY_STORAGE = VCAP_JSON["user-provided"][0]["credentials"]  # Get credentials
+    KEY_STORAGE = next(
+        (service["credentials"] for service in VCAP_JSON["user-provided"] if service["name"] == "api-key-storage"),
+        None
+    )
 else:
     logger.error("No credentials found in VCAP_SERVICES")
-    KEY_STORAGE = {}
+    KEY_STORAGE = None
 
 @app.route("/proxy", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 def proxy_request():
@@ -65,6 +73,13 @@ def proxy_request():
         return jsonify({"error": "API Proxy misconfigured. Rejecting request."}), 500
 
     params = request.args.to_dict()
+    if not params:
+        logger.error("No params passed in request.")
+        return jsonify({"error": "No params passed in request. Rejecting request."}), 400
+
+    if not params["keyname"]:
+        logger.error("No keyname in params passed in request.")
+        return jsonify({"error": "No keyname in params passed in request. Rejecting request."}), 400
 
     if params["keyname"] in KEY_STORAGE.keys():
         API_KEY = KEY_STORAGE[params["keyname"]]["APIKEY"]
@@ -122,7 +137,21 @@ def proxy_request():
         del params["endpoint"]
         del params["keyname"]
 
-        logger.info("Forwarding %s request to %s with params %s", method, API_ENDPOINT, params)
+        # Set referer header
+        origin = request.headers.get("Origin")
+        if not origin:
+            origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
+        origin = origin.replace("http://", "")
+        origin = origin.replace("https://", "")
+
+        headers["referer"] = 'https://' + origin + '/'
+
+        if os.getenv("VERBOSE") == "1":
+            log_msg = f"Forwarding {method} request to {API_ENDPOINT} with params {params} and with headers {headers}"
+            visible_chars = 4
+            masked_key = "*" * (len(API_KEY) - visible_chars) + API_KEY[-visible_chars:]
+            log_msg = log_msg.replace(API_KEY, masked_key)
+            logger.info(log_msg)
 
         try:
             response = requests.request(
@@ -135,12 +164,26 @@ def proxy_request():
                 allow_redirects=False
             )
             logger.info("API response status: %s", response.status_code)
-            sanitized = response.json()
-            if isinstance(sanitized, dict):
-                sanitized = {k: html.escape(str(v)) for k, v in sanitized.items()}
-            elif isinstance(sanitized, list):
-                sanitized = [html.escape(str(item)) for item in sanitized]
-            return jsonify(sanitized), html.escape(str(response.status_code))
+            # Allow if origin includes 'localhost' or ends with 'usa.gov'.
+            # We have to do this programmatically because *.usa.gov is not supported by the Access-Control-Allow-Origin header.
+            respHeaders = {}
+            origin = request.headers.get("Origin")
+            if not origin:
+                origin = urlparse(request.host_url).hostname  # fallback to 'localhost', 'example.com', etc.
+            origin = origin.replace("http://", "")
+            origin = origin.replace("https://", "")
+            if 'localhost' in origin or 'usa.gov' in origin:
+                respHeaders = {
+                    "Access-Control-Allow-Origin": "https://" + origin,
+                    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+                    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS"
+                }
+            return Response(
+                response.content,
+                status=response.status_code,
+                content_type=response.headers.get("Content-Type", "application/json"),
+                headers=respHeaders
+            )
         except requests.RequestException as e:
             error_message = str(e)
             if API_KEY in error_message:
