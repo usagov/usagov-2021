@@ -950,7 +950,7 @@
           var absTop = rect.top + window.scrollY;
           var absLeft = rect.left + window.scrollX;
           var left = absLeft + (rect.width / 2) - (tooltipWidth / 2);
-          var top = absTop - tooltipHeight - 8; // offset for the tooltip
+          var top = absTop - tooltipHeight - 10; // offset for the tooltip
 
           // Create tooltip
           d3.select("body").append("div")
