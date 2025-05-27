@@ -90,13 +90,16 @@
     const stateValue = stateData.get('state-info');
 
     if (String(select.value) !== "") {
-      window.location = stripTags(select.value).trim();
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        'event': '50_state_submit',
-        '50_state_url': url,
-        '50_state_name': statename
-      });
+      const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option")).map(option => option.value).filter(value => value.trim() !== "");
+      if (String(select.value) !== "" && allowedUrls.includes(select.value)) {
+        window.location = select.value;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          'event': '50_state_submit',
+          '50_state_url': url,
+          '50_state_name': statename
+        });
+      }
     }
   });
 
@@ -104,12 +107,6 @@
     url = this.value;
     statename = this.options[this.selectedIndex].text;
   });
-
-  function stripTags(input) {
-    const div = document.createElement("div");
-    div.innerHTML = input;
-    return div.textContent || div.innerText || "";
-  }
 
 })();
 
