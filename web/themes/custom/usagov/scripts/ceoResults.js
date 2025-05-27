@@ -4,18 +4,22 @@
  * @param {function(Object)} callback Function which takes the response object as a parameter.
  */
 function lookup(address, callback) {
-    "use strict";
     /**
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
      */
 
-    // // We will use the new API-Proxy implementation by default
-    // // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
-    // if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
-    //     lookup_newImplementation(address, callback);
-    //     return;
-    // }
+    // We developers can uncomment this block to test this CEO-tool despite the API being dead.
+    var passData = exampleGoogleApiResponse();
+    callback(passData);
+    return;
+
+    // We will use the new API-Proxy implementation by default
+    // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
+    if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
+        lookup_newImplementation(address, callback);
+        return;
+    }
 
     console.log('The CEO tool running the legacy system (not utilizing the API-Proxy)');
 
@@ -36,6 +40,115 @@ function lookup(address, callback) {
         }
     }, 100);
 
+}
+
+/**
+ * Since the Google-API is no longer available at the time of writing this,
+ * here is a function that returned an example of the data (in its proper 
+ * structure) that would be returned from the Google-API if it were alive.
+ * We developer can use this for testing purposes.
+ */
+function exampleGoogleApiResponse() {
+    var passData = {
+      "kind": "civicinfo#representativeInfoResponse",
+      "normalizedInput": {
+        "line1": "6017 Cypress Cove Dr",
+        "city": "The Colony",
+        "state": "TX",
+        "zip": "75056"
+      },
+      "divisions": {
+        "ocd-division/country:us": {
+          "name": "United States",
+          "officeIndices": [0, 1]
+        },
+        "ocd-division/country:us/state:tx": {
+          "name": "Texas",
+          "officeIndices": [2]
+        },
+      },
+      "offices": [
+        {
+          "name": "President of the United States",
+          "divisionId": "ocd-division/country:us",
+          "levels": ["country"],
+          "roles": ["headOfState", "headOfGovernment"],
+          "officialIndices": [0]
+        },
+        {
+          "name": "Vice President of the United States",
+          "divisionId": "ocd-division/country:us",
+          "levels": ["country"],
+          "roles": ["deputyHeadOfGovernment"],
+          "officialIndices": [1]
+        },
+        {
+          "name": "Governor of Texas",
+          "divisionId": "ocd-division/country:us/state:tx",
+          "levels": ["administrativeArea1"],
+          "roles": ["headOfGovernment"],
+          "officialIndices": [2]
+        }
+      ],
+      "officials": [
+        {
+          "name": "Joe Biden",
+          "address": [{
+            "line1": "1600 Pennsylvania Avenue NW",
+            "city": "Washington",
+            "state": "DC",
+            "zip": "20500"
+          }],
+          "party": "Democratic",
+          "phones": ["(202) 456-1111"],
+          "urls": ["https://www.whitehouse.gov/"],
+          "photoUrl": "https://example.com/joe_biden.jpg",
+          "channels": [
+            {
+              "type": "Twitter",
+              "id": "POTUS"
+            },
+            {
+              "type": "Facebook",
+              "id": "JoeBiden"
+            }
+          ]
+        },
+        {
+          "name": "Kamala Harris",
+          "address": [{
+            "line1": "1600 Pennsylvania Avenue NW",
+            "city": "Washington",
+            "state": "DC",
+            "zip": "20500"
+          }],
+          "party": "Democratic",
+          "phones": ["(202) 456-1111"],
+          "urls": ["https://www.whitehouse.gov/"],
+          "photoUrl": "https://example.com/kamala_harris.jpg",
+          "channels": [
+            {
+              "type": "Twitter",
+              "id": "VP"
+            }
+          ]
+        },
+        {
+          "name": "Greg Abbott",
+          "address": [{
+            "line1": "1100 San Jacinto Blvd",
+            "city": "Austin",
+            "state": "TX",
+            "zip": "78701"
+          }],
+          "party": "Republican",
+          "phones": ["(512) 463-2000"],
+          "urls": ["https://gov.texas.gov/"],
+          "photoUrl": "https://example.com/greg_abbott.jpg"
+        }
+      ]
+    };
+    return passData;
 }
 
 /**
@@ -301,7 +414,7 @@ function renderResults(response, rawResponse) {
 
             var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
-            accordionHeaderButton.textContent =  response.officials[i].office + ", " + response.officials[i].name;
+            accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -322,7 +435,7 @@ function renderResults(response, rawResponse) {
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
             nextElem.classList.add("padding-bottom-2");
-            nextElem.textContent = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
+            nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
@@ -335,7 +448,7 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.textContent = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
+                nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
 
                 bulletList.appendChild(nextElem);
             }
@@ -348,7 +461,7 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.textContent = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
+                nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
                 // nextElem.appendChild(linkToPhone);
 
                 bulletList.appendChild(nextElem);
@@ -370,7 +483,7 @@ function renderResults(response, rawResponse) {
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
                 // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
-                nextElem.textContent = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
+                nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
                 // nextElem.appendChild(link);
 
                 bulletList.appendChild(nextElem);
@@ -393,10 +506,10 @@ function renderResults(response, rawResponse) {
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
                         if (socials[j].type === "Twitter") {
-                            nextElem.textContent = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                         }
                         else {
-                            nextElem.textContent = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
                         }
                     }
                     bulletList.appendChild(nextElem);
