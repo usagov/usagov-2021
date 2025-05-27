@@ -4,15 +4,16 @@
  * @param {function(Object)} callback Function which takes the response object as a parameter.
  */
 function lookup(address, callback) {
+    "use strict";
     /**
      * Request object for given parameters.
      * @type {gapi.client.HttpRequest}
      */
 
-    // We developers can uncomment this block to test this CEO-tool despite the API being dead.
-    var passData = exampleGoogleApiResponse();
-    callback(passData);
-    return;
+    // // We developers can uncomment this block to test this CEO-tool despite the API being dead.
+    // var passData = exampleGoogleApiResponse();
+    // callback(passData);
+    // return;
 
     // We will use the new API-Proxy implementation by default
     // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
@@ -356,7 +357,15 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
             accordionHeaderButton.setAttribute("aria-controls", levelNameID);
-            accordionHeaderButton.innerHTML = `${levelName.heading} <span class='usa-normal'>${levelName.description}</span>`;
+            const headingText = document.createTextNode(levelName.heading);
+            const descriptionSpan = document.createElement('span');
+            descriptionSpan.className = 'usa-normal';
+            descriptionSpan.textContent = levelName.description;
+
+            accordionHeaderButton.innerHTML = ''; // Clear any existing content (optional)
+            accordionHeaderButton.appendChild(headingText);
+            accordionHeaderButton.appendChild(document.createTextNode(' ')); // Add space between heading and span
+            accordionHeaderButton.appendChild(descriptionSpan);
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -387,7 +396,7 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
             accordionHeaderButton.setAttribute("aria-controls", levelNameID);
-            accordionHeaderButton.innerHTML = levelName;
+            accordionHeaderButton.textContent = levelName;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -414,7 +423,7 @@ function renderResults(response, rawResponse) {
 
             var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
-            accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
+            accordionHeaderButton.textContent =  response.officials[i].office + ", " + response.officials[i].name;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -435,7 +444,21 @@ function renderResults(response, rawResponse) {
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
             nextElem.classList.add("padding-bottom-2");
-            nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
+
+            // Create the first div with bold text
+            const boldDiv = document.createElement('div');
+            boldDiv.className = 'text-bold';
+            boldDiv.textContent = `${content["party-affiliation"]}:`;
+
+            // Create the second div for the party value
+            const partyDiv = document.createElement('div');
+            partyDiv.textContent = party;
+
+            // Clear existing content and append securely
+            nextElem.innerHTML = ''; // Optional if you want to clear first
+            nextElem.appendChild(boldDiv);
+            nextElem.appendChild(partyDiv);
+
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
@@ -448,7 +471,17 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'text-bold';
+                labelDiv.textContent = `${content["address"]}:`;
+
+                const valueDiv = document.createElement('div');
+                valueDiv.textContent = address;
+
+                nextElem.innerHTML = ''; // Clear previous content if needed
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(valueDiv);
 
                 bulletList.appendChild(nextElem);
             }
@@ -461,7 +494,25 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
+
+                // Create the label
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'text-bold';
+                labelDiv.textContent = `${content["phone-number"]}:`;
+
+                // Create the phone link div
+                const phoneDiv = document.createElement('div');
+                const phoneLink = document.createElement('a');
+                phoneLink.href = `tel:${address}`;
+                phoneLink.textContent = address;
+
+                phoneDiv.appendChild(phoneLink);
+
+                // Clear and append
+                nextElem.innerHTML = '';
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(phoneDiv);
+
                 // nextElem.appendChild(linkToPhone);
 
                 bulletList.appendChild(nextElem);
