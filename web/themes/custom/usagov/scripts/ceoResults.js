@@ -45,7 +45,7 @@ function lookup(address, callback) {
 
 /**
  * Since the Google-API is no longer available at the time of writing this,
- * here is a function that returned an example of the data (in its proper 
+ * here is a function that returned an example of the data (in its proper
  * structure) that would be returned from the Google-API if it were alive.
  * We developer can use this for testing purposes.
  */
@@ -489,8 +489,6 @@ function renderResults(response, rawResponse) {
             // Display phone number, if provided
             let phoneNumber = response.officials[i].phones || "none provided";
             if (phoneNumber !== "none provided") {
-                // Select first phone number and create clickable link
-                let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
@@ -512,8 +510,6 @@ function renderResults(response, rawResponse) {
                 nextElem.innerHTML = '';
                 nextElem.appendChild(labelDiv);
                 nextElem.appendChild(phoneDiv);
-
-                // nextElem.appendChild(linkToPhone);
 
                 bulletList.appendChild(nextElem);
             }
