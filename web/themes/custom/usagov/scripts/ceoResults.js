@@ -50,6 +50,8 @@ function lookup(address, callback) {
  * We developer can use this for testing purposes.
  */
 function exampleGoogleApiResponse() {
+    "use strict";
+
     var passData = {
       "kind": "civicinfo#representativeInfoResponse",
       "normalizedInput": {
