@@ -1,0 +1,6 @@
+_core:
+  default_config_hash: IgOVnECx6lbVt6JVFnadoEEugneDf3UblPZnOzov43Q
+mode: simple
+ignored_config_entities:
+  - 'block.block.site_banner_*'
+  - 'block.block.usagov_*'
