@@ -281,8 +281,8 @@
         </p>
         <ul class="pills" role="tablist">
           <li role="presentation"><a id="tab-now" aria-controls="top-pages-realtime" role="tab" data-type="Pages" aria-selected="true" href="#top-pages-realtime" class="site-nav">Now</a></li>
-          <li role="presentation"><a id="tab-7" aria-controls="top-pages-7-days" role="tab" data-type="Domains" aria-selected="true" href="#top-pages-7-days" class="site-nav" aria-labelledby="top-pages-heading top-pages-7-tab">7 Days</a></li>
-          <li role="presentation"><a id="tab-30" aria-controls="top-pages-30-days" role="tab" data-type="Domains" href="#top-pages-30-days" class="site-nav" aria-labelledby="top-pages-heading top-pages-30-tab">30 Days</a></li>
+          <li id="top7days" role="presentation"><a id="tab-7" aria-controls="top-pages-7-days" role="tab" data-type="Domains" aria-selected="true" href="#top-pages-7-days" class="site-nav" aria-labelledby="top-pages-heading top-pages-7-tab" onkeydown="if (event.key === 'ArrowRight') { document.getElementById('top30days').click(); }">7 Days</a></li>
+          <li id="top30days" role="presentation"><a id="tab-30" aria-controls="top-pages-30-days" role="tab" data-type="Domains" href="#top-pages-30-days" class="site-nav" aria-labelledby="top-pages-heading top-pages-30-tab" onkeydown="if (event.key === 'ArrowLeft') { document.getElementById('top7days').click(); }">30 Days</a></li>
         </ul>
 
         <figure class="top-pages" id="top-pages-realtime" role="tabpanel" data-block="top-pages-realtime"
