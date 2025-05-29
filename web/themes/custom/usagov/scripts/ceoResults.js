@@ -55,7 +55,7 @@ function exampleGoogleApiResponse() {
     var passData = {
       "kind": "civicinfo#representativeInfoResponse",
       "normalizedInput": {
-        "line1": "6017 Cypress Cove Dr",
+        "line1": "6800 Main St",
         "city": "The Colony",
         "state": "TX",
         "zip": "75056"
