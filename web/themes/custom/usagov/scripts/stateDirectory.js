@@ -85,7 +85,7 @@
   let statename;
 
   button.addEventListener("click", function () {
-    const stateForm = document.forms[0]; // Assuming the form is the first one on the page
+    // const stateForm = document.forms[0]; // Assuming the form is the first one on the page
     // const stateData = new FormData(stateForm);
     // const stateValue = stateData.get('state-info');
 
