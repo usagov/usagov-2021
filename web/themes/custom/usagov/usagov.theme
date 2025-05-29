@@ -22,6 +22,9 @@ function usagov_preprocess_html(array &$variables): void {
   if ($node?->hasField('field_faq_page') && $node->get('field_faq_page')[0]?->value) {
     $variables['faq'] = generate_faq($node);
   }
+
+  $affiliate = \Drupal::state()->get('usagov_affiliate');
+  $variables['usagov_affiliate'] = empty($affiliate) ? 'usagov_en_all_gov' : $affiliate;
 }
 
 /**
@@ -556,4 +559,19 @@ function usagov_preprocess_breadcrumb(&$variables): void {
     ];
     $variables['breadcrumb'][] = ['text' => $currentTitle];
   }
+}
+
+function usagov_preprocess_header(array &$variables) {
+  $affiliate = \Drupal::state()->get('usagov_affiliate');
+  $variables['usagov_affiliate'] = empty($affiliate) ? 'usagov_en_all_gov' : $affiliate;
+}
+
+function usagov_preprocess_block__mobile_navigation(array &$variables) {
+  $affiliate = \Drupal::state()->get('usagov_affiliate');
+  $variables['usagov_affiliate'] = empty($affiliate) ? 'usagov_en_all_gov' : $affiliate;
+}
+
+function usagov_preprocess_top_nav(array &$variables) {
+  $affiliate = \Drupal::state()->get('usagov_affiliate');
+  $variables['usagov_affiliate'] = empty($affiliate) ? 'usagov_en_all_gov' : $affiliate;
 }

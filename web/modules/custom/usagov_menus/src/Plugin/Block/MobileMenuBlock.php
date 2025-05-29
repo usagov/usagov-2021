@@ -42,13 +42,14 @@ class MobileMenuBlock extends AbstractMenuBlock {
       case 'en':
       default:
         $menuID = 'left-menu-english';
+        $affiliate = \Drupal::state()->get('usagov_affiliate');
         $this->translations = [
           'home' => 'Home',
           'home_URL' => '/',
           'close' => 'Close',
           'search' => 'Search',
           'search_placeholder' => 'Search all government',
-          'search_affiliate' => 'usagov_en_all_gov',
+          'search_affiliate' => $affiliate,
           'all_topics' => 'All topics and services',
           'form_id' => 'usagov_all_gov-mobile',
         ];
