@@ -709,9 +709,11 @@ div div.field--name-field-offices-near-you {
 }
 
 // Add padding for feedback button
+/* stylelint-disable selector-id-pattern */
 button#QSIFeedbackButton-btn {
   padding: 2px !important; // stylelint-disable-line selector-id-pattern
 }
+/* stylelint-enable selector-id-pattern */
 
 [href]:focus,
 button:not([disabled]):focus,
