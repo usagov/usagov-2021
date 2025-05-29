@@ -120,17 +120,17 @@
         });
 
         var y = function(d) { return d.visits; },
-            series = timeSeries()
-              .series([data.data.reverse()])
-              .y(y)
-              .label(function(d) {
-               return formatDate(parseDate(d.date));
-              })
-              .title(function(d) {
-                return formatCommas(d.visits)
-                  + " visits on "
-                  + formatDate(parseDate(d.date));
-              });
+          series = timeSeries()
+            .series([data.data.reverse()])
+            .y(y)
+            .label(function(d) {
+              return formatDate(parseDate(d.date));
+            })
+            .title(function(d) {
+              return formatCommas(d.visits)
+                + " visits on "
+                + formatDate(parseDate(d.date));
+            });
 
         series.xScale()
           .domain(d3.range(0, days.length + 1));
@@ -142,6 +142,61 @@
           .tickFormat(formatVisits);
 
         svg.call(series);
+
+        // Generate insights
+        var maxVisit = d3.max(days, function(d) { return d.visits; }),
+            maxDay = days.find(function(d) { return d.visits === maxVisit; }),
+            weekendDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() === 0 || date.getDay() === 6;
+            }),
+            weekdayDays = days.filter(function(d) {
+              var date = parseDate(d.date);
+              return date.getDay() !== 0 && date.getDay() !== 6;
+            }),
+            avgWeekend = d3.mean(weekendDays, function(d) { return d.visits; }),
+            avgWeekday = d3.mean(weekdayDays, function(d) { return d.visits; }),
+            minVisits = d3.min(days, function(d) { return d.visits; }),
+            maxVisits = d3.max(days, function(d) { return d.visits; }),
+            peakDay = days.find(function(d) { return d.visits === maxVisits; }),
+            weekendRange = d3.extent(weekendDays, function(d) { return d.visits; }),
+            weekdayRange = d3.extent(weekdayDays, function(d) { return d.visits; }),
+            startDate = formatDate(parseDate(days[0].date)),
+            endDate = formatDate(parseDate(days[days.length - 1].date));
+
+        // Update the chart title
+        d3.select("#time_series").select("figcaption").text(`Website Traffic Sources: ${startDate} - ${endDate}`);
+
+        // Update the chart description
+        d3.select("#chart-desc").text(
+          `Bar chart showing daily website visits ranging from approximately ${formatCommas(minVisits)} to ${formatCommas(maxVisits)} visits. ` +
+          `Weekends consistently show lower traffic (around ${formatCommas(weekendRange[0])}-${formatCommas(weekendRange[1])} visits) compared to weekdays ` +
+          `(${formatCommas(weekdayRange[0])}-${formatCommas(weekdayRange[1])} visits). Peak traffic occurred on ${formatDate(parseDate(peakDay.date))} ` +
+          `with ${formatCommas(maxVisits)} visits.`
+        );
+
+        // Populate hidden table
+        var tbody = d3.select("#time-series-table-body").selectAll("tr").data(days);
+        tbody.exit().remove();
+        var tr = tbody.enter().append("tr");
+        tr.append("td").text(function(d) { return formatDate(parseDate(d.date)); });
+        tr.append("td").text(function(d) { return formatCommas(d.visits); });
+
+        // Update the table with new data
+        d3.select("#time-series-insights").text(
+          "Traffic follows a weekly pattern with weekdays averaging " +
+          formatCommas(Math.round(avgWeekday)) + " visits and weekends averaging " +
+          formatCommas(Math.round(avgWeekend)) + " visits. The highest traffic occurred on " +
+          formatDate(parseDate(maxDay.date)) + " with " + formatCommas(maxVisit) + " visits."
+        );
+
+        // Update the insights container
+        d3.select(".chart-insights p").html(`Traffic follows a weekly pattern with weekdays averaging ${formatCommas(Math.round(avgWeekday))} visits and weekends dropping to around ${formatCommas(Math.round(avgWeekend))} visits. ${formatDate(parseDate(maxDay.date))} saw the highest traffic at ${formatCommas(maxVisit)} visits.`);
+
+        // Update summary statistics
+        d3.select("#total-days").text(days.length);
+        d3.select("#highest-value").text(formatCommas(maxVisit));
+        d3.select("#average-value").text(formatCommas(Math.round(d3.mean(days, function(d) { return d.visits; }))));
       }),
 
       // the traffic sources 30 days total block
@@ -808,7 +863,8 @@
       yScale.range([bottom, top]);
       xScale.rangeRoundBands([left, right], 0, 0);
 
-      svg.attr("viewBox", [0, 0, width, height].join(" "));
+      svg.attr("viewBox", [0, 0, width, height].join(" "))
+         .attr("tabindex", 0);
 
       element(svg, "g.axis.y0")
         .attr("transform", "translate(" + [left, 0] + ")")
@@ -840,7 +896,9 @@
         .data(bars);
       bar.exit().remove();
       var enter = bar.enter().append("g")
-        .attr("class", "bar");
+        .attr("class", function(d, i) {
+          return "bar bar-" + i;
+        });
       enter.append("rect")
         .attr("width", barWidth)
         .attr("y", 0)
@@ -859,6 +917,62 @@
           return d;
         })
         .attr("aria-label", title)
+        .attr("tabindex", 0)
+        .attr("role", "listitem")
+        .on("keydown", (d) => {
+          // Handle keyboard navigation
+          var length = d3.select(this.node().parentNode).datum()._data.data.length;
+          var currentIndex = d.u;
+          if (d3.event.keyCode === 39 && currentIndex < length - 1) {
+            var nextIndex = `.bar-${currentIndex + 1}`;
+          } else if (d3.event.keyCode === 37 && currentIndex > 0) {
+            var nextIndex = `.bar-${currentIndex - 1}`;
+          } else {
+            return;
+          }
+          var nextIndexElement = d3.select(nextIndex);
+          var nextIndexElementNode = nextIndexElement.node();
+          nextIndexElementNode.focus();
+        })
+        .on("focus", function(d) {
+          // Remove any existing tooltip
+          d3.select(".tooltip").remove();
+
+          // Get the position of the bar
+          var barNode = d3.select(this).node();
+          var svgNode = barNode.ownerSVGElement;
+          var rect = barNode.getBoundingClientRect();
+          var svgRect = svgNode.getBoundingClientRect();
+
+          // Calculate tooltip position above the bar
+          var tooltipWidth = 180; // approximate width
+          var tooltipHeight = 30; // approximate height
+          var absTop = rect.top + window.scrollY;
+          var absLeft = rect.left + window.scrollX;
+          var left = absLeft + (rect.width / 2) - (tooltipWidth / 2);
+          var top = absTop - tooltipHeight - 10; // offset for the tooltip
+
+          // Create tooltip
+          d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("background", "#000")
+            .style("border", "1px solid #111")
+            .style("padding", "5px")
+            .style("pointer-events", "none")
+            .style("left", left + "px")
+            .style("top", top + "px")
+            .style("width", tooltipWidth + "px")
+            .style("text-align", "center")
+            .text(title(d));
+
+          // Add content to the focus info
+          d3.select(".focus-info").text(title(d));
+        })
+        .on("blur", function() {
+          d3.select(".tooltip").remove()
+          d3.select(".focus-info").text("");
+        })
         .attr("transform", function(d) {
           return "translate(" + [d.x, d.y1] + ")";
         });
@@ -876,7 +990,6 @@
 
       bar.select(".label")
         .attr("text-anchor", "middle")
-        // .attr("alignment-baseline", "before-edge")
         .attr("dy", 10)
         .attr("dx", barWidth / 2)
         .text(label);
