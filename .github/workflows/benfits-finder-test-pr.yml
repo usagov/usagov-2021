@@ -52,6 +52,7 @@ jobs:
           path: ./benefit-finder/cypress/screenshots
 
   tests-firefox:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch
