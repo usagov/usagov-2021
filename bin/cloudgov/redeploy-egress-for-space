@@ -44,10 +44,14 @@ Requirements:
 - You must be a SpaceDeveloper in the current space and the egress_space.
 
 NOTES:
-- This script deploys a single egress proxy app to serve all apps in the target space.
-- Files <allow|deny>.acl will be created if they don't exist
-- Any S3 buckets bound to an app will automatically be allowed
-- The username:password credentials of an existing proxy WILL NOT BE CHANGED.
+- This script redeploys a single egress proxy app for the target space.
+- It will update:
+  - The caddy binary
+  - allow.acl and deny.acl. Any S3 buckets bound to an app in the target space
+    will automatically be allowed
+- The username:password credentials the proxy WILL NOT BE CHANGED.
+- A proxy will not be launched if it is not already present! This is just for updating existing proxy apps.
+- Apps in the target space WILL NOT BE RESTARTED. That's the point of using this script -- less downtime.
 "
 
 if [[ "$1" == "-h" ]]; then
@@ -58,12 +62,6 @@ fi
 # Grab the starting space and org where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$( cf target | grep space: | awk '{ print $2 }')
-
-restartApps=0
-if [[ "$1" == "--restart" ]]; then
-    restartApps=1
-    shift
-fi
 
 egressspace=${1:-shared-egress}
 egressorg=${2:-$startorg}
@@ -204,23 +202,3 @@ if [ -n "${DRYRUN}" ]; then
 fi
 
 popspace
-
-if [ $restartApps -eq 1 ]; then
-    # APPNAMES=""
-    # for app in $applist ; do
-    # 	if [ $APPNAMES ]; then
-    # 	    APPNAMES="${APPNAMES},"
-    # 	fi
-    # 	APPNAMES="${APPNAMES}${app}"
-    # done
-    # echo "$SCRIPT_DIR/setup-egress-for-apps $APPNAMES"
-    # $output $SCRIPT_DIR/setup-egress-for-apps $APPNAMES
-
-    # While it seems it would be desirable to run setup-egress-for-apps with the
-    # whole list at once, in practice that script will stop after a slow-to-restart
-    # app doesn't complete in time.
-    for app in $applist ; do
-	echo "$SCRIPT_DIR/setup-egress-for-apps $app"
-	$output $SCRIPT_DIR/setup-egress-for-apps $app
-    done
-fi
