@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.blog_post.feeds_item
     - field.field.node.blog_post.field_author
     - field.field.node.blog_post.field_featured_image
+    - field.field.node.blog_post.field_post_url
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
@@ -40,6 +41,13 @@ content:
       link: false
     third_party_settings: {  }
     weight: 103
+    region: content
+  field_post_url:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 105
     region: content
   field_tags:
     type: basic_string

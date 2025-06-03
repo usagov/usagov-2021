@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.blog_post.body
     - field.field.node.blog_post.field_author
     - field.field.node.blog_post.field_featured_image
+    - field.field.node.blog_post.field_post_url
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
@@ -96,6 +97,11 @@ custom_sources:
     label: Status
     machine_name: status
     type: csv
+  post_url:
+    value: 'Post URL'
+    label: 'Post URL'
+    machine_name: post_url
+    type: csv
 mappings:
   -
     target: title
@@ -159,3 +165,9 @@ mappings:
     settings:
       language: null
     unique: {  }
+  -
+    target: field_post_url
+    map:
+      value: post_url
+    settings:
+      language: null
