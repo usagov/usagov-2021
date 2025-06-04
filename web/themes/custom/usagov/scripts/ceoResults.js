@@ -307,9 +307,9 @@ function renderResults(response, rawResponse) {
         let resultsSection = document.getElementById("resultsSection");
         let intro = document.getElementsByClassName("usa-intro")[0];
 
-        h1.innerHTML = content[""+errorType+"-heading"];
-        resultsSection.innerHTML = "";
-        intro.innerHTML = content[errorType];
+        h1.textContent = content[errorType + "-heading"] || "";
+        resultsSection.textContent = "";
+        intro.textContent = content[errorType] || "";
         intro.style.paddingBottom = '20px';
         dataLayer.push({
             'event': 'CEO API Error',
@@ -364,7 +364,7 @@ function renderResults(response, rawResponse) {
             descriptionSpan.className = 'usa-normal';
             descriptionSpan.textContent = levelName.description;
 
-            accordionHeaderButton.innerHTML = ''; // Clear any existing content (optional)
+            accordionHeaderButton.textContent = ''; // Clear any existing content (optional)
             accordionHeaderButton.appendChild(headingText);
             accordionHeaderButton.appendChild(document.createTextNode(' ')); // Add space between heading and span
             accordionHeaderButton.appendChild(descriptionSpan);
@@ -457,7 +457,7 @@ function renderResults(response, rawResponse) {
             partyDiv.textContent = party;
 
             // Clear existing content and append securely
-            nextElem.innerHTML = ''; // Optional if you want to clear first
+            nextElem.textContent = ''; // Optional if you want to clear first
             nextElem.appendChild(boldDiv);
             nextElem.appendChild(partyDiv);
 
@@ -481,7 +481,7 @@ function renderResults(response, rawResponse) {
                 const valueDiv = document.createElement('div');
                 valueDiv.textContent = address;
 
-                nextElem.innerHTML = ''; // Clear previous content if needed
+                nextElem.textContent = ''; // Clear previous content if needed
                 nextElem.appendChild(labelDiv);
                 nextElem.appendChild(valueDiv);
 
@@ -509,7 +509,7 @@ function renderResults(response, rawResponse) {
                 phoneDiv.appendChild(phoneLink);
 
                 // Clear and append
-                nextElem.innerHTML = '';
+                nextElem.textContent = '';
                 nextElem.appendChild(labelDiv);
                 nextElem.appendChild(phoneDiv);
 
@@ -526,14 +526,25 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                let link=`<a class="ceoLink" href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
-                // link.innerHTML = cleanLink;
 
-                nextElem = document.createElement("li");
+                const labelDiv = document.createElement("div");
+                labelDiv.className = "text-bold";
+                labelDiv.textContent = content["website"] + ":";
+
+                const valueDiv = document.createElement("div");
+                const anchor = document.createElement("a");
+                anchor.className = "ceoLink";
+                anchor.href = response.officials[i].urls[0];
+                anchor.textContent = cleanLink;
+                anchor.setAttribute("rel", "noopener noreferrer");
+                anchor.setAttribute("target", "_blank");
+
+                valueDiv.appendChild(anchor);
+
+                const nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
-                nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
-                // nextElem.appendChild(link);
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(valueDiv);
 
                 bulletList.appendChild(nextElem);
             }
