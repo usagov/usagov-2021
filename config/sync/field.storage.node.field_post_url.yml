@@ -1,0 +1,19 @@
+uuid: 30cb55da-9494-43a1-827f-96824ccdca4b
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_post_url
+field_name: field_post_url
+entity_type: node
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
