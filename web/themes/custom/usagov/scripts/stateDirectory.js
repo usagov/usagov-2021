@@ -82,12 +82,10 @@
   const stateList = document.getElementById("statelist");
   if (stateList) stateList.remove();
 
-  let statename;
-
   button.addEventListener("click", function () {
-    // const stateForm = document.forms[0]; // Assuming the form is the first one on the page
-    // const stateData = new FormData(stateForm);
-    // const stateValue = stateData.get('state-info');
+
+    var url = select.value;
+    var statename = select.options[select.selectedIndex].text;
 
     if (String(select.value) !== "") {
       const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option")).map(option => option.value).filter(value => value.trim() !== "");
@@ -101,11 +99,6 @@
         });
       }
     }
-  });
-
-  select.addEventListener("change", function () {
-    url = this.value;
-    statename = this.options[this.selectedIndex].text;
   });
 
 })();
