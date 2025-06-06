@@ -172,11 +172,37 @@
         <h2>Visits in the Past 30 Days</h2>
       </section>
 
-      <section id="time_series" data-block="traffic-sources-30-days"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/es/traffic-sources-30-days.json">
-        <svg class="data time-series">
+      <figure id="time_series" data-block="traffic-sources-30-days"
+      data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/es/traffic-sources-30-days.json">
+        <figcaption></figcaption>
+        <svg aria-labelledby="chart-title chart-desc" role="img" class="data time-series" viewBox="0 0 700 150">
+          <title id="chart-title">Daily Website Visit Counts</title>
+          <desc id="chart-desc"></desc>
+          <!-- Existing SVG content -->
         </svg>
-      </section>
+        <div class="sr-only chart-data-table">
+          <table>
+            <caption>Daily Website Visit Counts: Past 30 Days</caption>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Number of Visits</th>
+              </tr>
+            </thead>
+            <tbody id="time-series-table-body"></tbody>
+          </table>
+        </div>
+        <div class="sr-only chart-insights" aria-live="polite">
+          <h3>Key Insights</h3>
+          <p></p>
+        </div>
+      </figure>
+      <div id="focus-info" class="focus-info" aria-live="polite"></div>
+      <div class="summary">
+        <strong>Total Days:</strong> <span id="total-days"></span> |
+        <strong>Highest Day:</strong> <span id="highest-value"></span> visits |
+        <strong>Average:</strong> <span id="average-value"></span> visits
+      </div>
       <!-- end past 30 days section -->
 
       <section class="section_headline">
