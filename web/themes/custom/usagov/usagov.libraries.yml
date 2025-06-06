@@ -71,13 +71,6 @@ wizardStepTaxonomy:
     - core/drupal
     - core/jquery
 
-stateDirectory:
-  js:
-    scripts/stateDirectory.js: {}
-  dependencies:
-    - core/drupal
-    - core/jquery
-
 carousel:
   css:
     css/slick.min.css: {}
