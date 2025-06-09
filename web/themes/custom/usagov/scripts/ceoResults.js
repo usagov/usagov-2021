@@ -812,7 +812,6 @@ function load() {
         alertBody.appendChild(messageParagraph);
 
         // Final alert box
-        const addressSuggestionAlert = document.createElement("div");
         addressSuggestionAlert.className = "usa-alert usa-alert--info";
         addressSuggestionAlert.appendChild(alertBody);
 
