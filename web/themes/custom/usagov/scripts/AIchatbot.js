@@ -210,6 +210,10 @@ function createMessage(isUser, message) {
     messageInnerContainerElement.classList.add("usagov-ai-chatbot-inner-container");
 
     if (isUser) {
+
+        // Add the message to localStorage
+        addMessage("user", message);
+
         // Configure the user message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "user");
 
@@ -223,6 +227,10 @@ function createMessage(isUser, message) {
         messageInnerContainerElement.appendChild(messageAvatarElement);
     }
     else {
+
+        // Add the message to localStorage
+        addMessage("bot", message);
+        
         // Configure the bot message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "bot");
 
@@ -266,5 +274,39 @@ function handleEnter(event) {
     if (key === 13) {
         sendMessage();
     }
+}
+
+// Load session from localStorage or create a new one
+function loadSession() {
+    var sessionStored = localStorage.getItem("usagov_chatbot_session");
+
+    if (sessionStored) {
+        return JSON.parse(sessionStored);
+    }
+
+    var newSessionObject = {
+        date: new Date().toISOString(),
+        messages: []
+    };
+
+    return newSessionObject;
+}
+
+// Save session back to localStorage
+function saveSession(session) {
+    localStorage.setItem("usagov_chatbot_session", JSON.stringify(session));
+}
+
+function addMessage(type, content) {
+    const session = loadSession();
+
+    const newMessage = {
+        type: type,
+        date: new Date().toISOString(),
+        content: content
+    };
+
+    session.messages.push(newMessage);
+    saveSession(session);
 }
 
