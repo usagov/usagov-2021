@@ -1,0 +1,119 @@
+<?php
+
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\system\Entity\Menu;
+
+/**
+ * Implements hook_entity_insert().
+ */
+function usagov_blog_date_menu_entity_insert(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'blog_post') {
+    Cache::invalidateTags(['node_list:blog_post']);
+    usagov_blog_date_menu_rebuild_menu();
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function usagov_blog_date_menu_entity_update(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'blog_post') {
+    Cache::invalidateTags(['node_list:blog_post']);
+    usagov_blog_date_menu_rebuild_menu();
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function usagov_blog_date_menu_entity_delete(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'blog_post') {
+    Cache::invalidateTags(['node_list:blog_post']);
+    usagov_blog_date_menu_rebuild_menu();
+  }
+}
+
+/**
+ * Rebuilds the USAGov Blog Archive menu.
+ */
+function usagov_blog_date_menu_rebuild_menu(): void {
+  $menu_name = 'usagov_blog_archive';
+
+  // Create the menu if it doesn't exist.
+  if (!Menu::load($menu_name)) {
+    Menu::create([
+      'id' => $menu_name,
+      'label' => 'USAGov Blog Archive',
+      'description' => 'Archive of blog posts by year and month.',
+    ])->save();
+  }
+
+  // Remove all existing links in this menu.
+  $links = \Drupal::entityTypeManager()
+    ->getStorage('menu_link_content')
+    ->loadByProperties(['menu_name' => $menu_name]);
+  foreach ($links as $link) {
+    $link->delete();
+  }
+
+  // Load all blog nodes.
+  $nodes = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->loadByProperties(['type' => 'blog_post']);
+
+  // Group nodes by year and month.
+  $groups = [];
+  foreach ($nodes as $node) {
+    $created = $node->getCreatedTime();
+    $year = date('Y', $created);
+    $month = date('Y-m', $created);
+    $groups[$year][$month][] = $node;
+  }
+
+  // Build menu links: Year > Month > Blog Title.
+  $year_links = [];
+  foreach ($groups as $year => $months) {
+    // Year link (not clickable, just a parent).
+    $year_link = MenuLinkContent::create([
+      'title' => $year,
+      'link' => ['uri' => 'internal:/blog/' . $year],
+      'menu_name' => $menu_name,
+      'weight' => -1 * intval($year), // Sort descending.
+      'expanded' => FALSE,
+      'enabled' => TRUE,
+    ]);
+    $year_link->save();
+    $year_id = $year_link->getPluginId();
+    $year_links[$year] = $year_id;
+
+    foreach ($months as $month_key => $nodes_month) {
+      // Month link (not clickable, just a parent).
+      $month_title = date('F', strtotime($month_key . '-01'));
+      $month_numeric = date('m', strtotime($month_key . '-01'));
+      $month_link = MenuLinkContent::create([
+        'title' => $month_title,
+        'link' => ['uri' => 'internal:/blog/' . $year . '/' . $month_numeric],
+        'menu_name' => $menu_name,
+        'parent' => $year_id,
+        'weight' => -1 * intval(str_replace('-', '', $month_key)), // Sort descending.
+        'expanded' => FALSE,
+        'enabled' => TRUE,
+      ]);
+      $month_link->save();
+      $month_id = $month_link->getPluginId();
+
+      foreach ($nodes_month as $node) {
+        MenuLinkContent::create([
+          'title' => $node->getTitle(),
+          'link' => ['uri' => 'internal:/node/' . $node->id()],
+          'menu_name' => $menu_name,
+          'parent' => $month_id,
+          'weight' => 0,
+          'enabled' => TRUE,
+        ])->save();
+      }
+    }
+  }
+}

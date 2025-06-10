@@ -1,0 +1,89 @@
+{#
+/**
+ * @file
+ * Default theme implementation for main view template.
+ *
+ * Available variables:
+ * - attributes: Remaining HTML attributes for the element.
+ * - css_name: A CSS-safe version of the view name.
+ * - css_class: The user-specified classes names, if any.
+ * - header: The optional header.
+ * - footer: The optional footer.
+ * - rows: The results of the view query, if any.
+ * - empty: The content to display if there are no rows.
+ * - pager: The optional pager next/prev links to display.
+ * - exposed: Exposed widget form/info to display.
+ * - feed_icons: Optional feed icons to display.
+ * - more: An optional link to the next page of results.
+ * - title: Title of the view, only used when displaying in the admin preview.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the view title.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the view title.
+ * - attachment_before: An optional attachment view to be displayed before the
+ *   view content.
+ * - attachment_after: An optional attachment view to be displayed after the
+ *   view content.
+ * - dom_id: Unique id for every view being printed to give unique class for
+ *   JavaScript.
+ *
+ * @see template_preprocess_views_view()
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {{ title }}
+  {{ title_suffix }}
+
+  {% if header %}
+    <header>
+      {{ header }}
+    </header>
+  {% endif %}
+
+  <div class="grid-container">
+    <div class="grid-row grid-gap">
+      {%  block sidebar %}
+        {% if page.sidebar_first and show_sidebar %}
+          <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
+            {{ page.sidebar_first }}
+            {{ exposed }}
+            {{ attachment_before }}
+          </aside>
+        {% endif %}
+      {% endblock %}
+
+      <div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
+        {% if rows -%}
+          {{ rows }}
+        {% elseif empty -%}
+          {{ empty }}
+        {% endif %}
+        {{ pager }}
+      </div>
+      {# /.layout-content #}
+      {% if page.sidebar_second %}
+        <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-second" role="complementary">
+          {{ page.sidebar_second }}
+          {{ attachment_after }}
+          {{ more }}
+        </aside>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if footer %}
+    <footer>
+      {{ footer }}
+    </footer>
+  {% endif %}
+
+  {{ feed_icons }}
+</div>
