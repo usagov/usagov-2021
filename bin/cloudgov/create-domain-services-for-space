@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+# Create the domains and domain services for the "cms" and "www" hosts in one of these spaces:
+# - dev
+# - dr
+# - stage
+# - prod
+#
+# This is a one-time operation we would need to do when re-creating a space.
+# NB: the DNS records for the domain must already be set up, including the _acme-challenge
+# records, as described at https://cloud.gov/docs/services/external-domain-service/#how-to-create-an-instance-of-this-service
+
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+
+ORG=$(getOrg)
+
+# We have a consistent domain-naming convention, except for prod:
+case $SPACE in
+    'prod')
+	CMS_DOMAIN="cms.usa.gov"
+	WWW_DOMAIN="www.usa.gov"
+	DOMAINPART="www" ;;
+    *)
+	CMS_DOMAIN="cms-${SPACE}.usa.gov"
+	WWW_DOMAIN="beta-${SPACE}.usa.gov"
+	DOMAINPART="beta-${SPACE}" ;;
+esac
+
+
+# dev and dr are restricted to the GSA network, so a cloudfront CDN isn't appropriate
+case $SPACE in
+    'stage'|'prod')
+	WWW_DOMAIN_PLAN="domain-with-cdn-dedicated-waf" ;;
+    *)
+	WWW_DOMAIN_PLAN="domain" ;;
+esac
+
+echo
+echo "Creating external domain services. Each of these could take awhile to come up."
+
+# Passing JSON to this command inline works on the command line, but not when it is
+# called from the shell (why?). So we create a file and pass that instead.
+tmpfile=$(mktemp)
+domainjson=`printf "{\"domains\": \"%s\"}" ${CMS_DOMAIN}`
+echo $domainjson > $tmpfile
+
+echo  cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tmpfile
+$echo cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tmpfile
+
+if [ ${WWW_DOMAIN_PLAN} = "domain" ]; then
+    domainjson=`printf "{\"domains\": \"%s\"}" ${WWW_DOMAIN}`
+else
+    EMAIL_DISAMBIGUATOR="${SPACE}-${DOMAINPART}"
+    domainjson=`printf "{\"domains\": \"%s\", \"alarm_notification_email\": \"usagov-website-alerts+${EMAIL_DISAMBIGUATOR}@gsa.gov\"}" ${WWW_DOMAIN}`
+fi
+echo $domainjson > $tmpfile
+echo  cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
+$echo cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
+
+rm $tmpfile
+# The above commands output a message saying how to check them, so we don't need to explain further.
