@@ -164,7 +164,7 @@
       </section>
 
       <section id="realtime" data-block="traffic-sources-30-days-totals"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/traffic-sources-30-days.json">
+        data-source="https://{{analytics_bucket}}/usagov-analytics/both/traffic-sources-30-days.json">
         <h2 id="current_visitors" class="data">...</h2>
       </section>
 
@@ -173,7 +173,7 @@
       </section>
 
       <figure id="time_series" data-block="traffic-sources-30-days"
-      data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/traffic-sources-30-days.json">
+      data-source="https://{{analytics_bucket}}/usagov-analytics/en/traffic-sources-30-days.json">
         <figcaption></figcaption>
         <svg aria-labelledby="chart-title chart-desc" role="img" class="data time-series" viewBox="0 0 700 150">
           <title id="chart-title">Daily Website Visit Counts</title>
@@ -214,7 +214,7 @@
       </section>
 
       <section id="devices" class="three_column" data-block="devices"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/devices.json">
+        data-source="https://{{analytics_bucket}}/usagov-analytics/both/devices.json">
         <h3>Devices</h3>
         <figure id="chart_device_types">
           <ul class="data bar-chart">
@@ -230,7 +230,7 @@
         <h3>Browsers</h3>
 
         <figure id="chart_browsers" data-block="browsers"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/browsers.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/browsers.json">
           <ul class="data bar-chart">
           </ul>
         </figure>
@@ -241,13 +241,13 @@
       <section id="operating_systems" class="three_column">
         <h3>Operating Systems</h3>
 
-        <figure id="chart_os" data-block="os" data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/os.json">
+        <figure id="chart_os" data-block="os" data-source="https://{{analytics_bucket}}/usagov-analytics/both/os.json">
           <ul class="data bar-chart">
           </ul>
         </figure>
 
         <figure id="chart_windows" data-block="windows"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/windows.json" data-scale-to-parent="true">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/windows.json" data-scale-to-parent="true">
           <ul class="data bar-chart windows-div">
           </ul>
         </figure>
@@ -261,7 +261,7 @@
       </section>
 
       <section id="cities" class="three_column" data-block="cities"
-        data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-cities-90-days.json">
+        data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-cities-90-days.json">
         <h3>Cities</h3>
         <figure id="chart_top-cities-90-days">
           <ul class="data bar-chart">
@@ -273,13 +273,13 @@
         <h3>Countries</h3>
 
         <figure id="chart_us" data-block="countries"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-countries-90-days.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-countries-90-days.json">
           <ul class="data bar-chart">
           </ul>
         </figure>
 
         <figure id="chart_countries" data-block="international_visits"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-countries-90-days.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-countries-90-days.json">
           <h3>International</h3>
           <ul class="data bar-chart">
           </ul>
@@ -299,7 +299,7 @@
         </ul>
 
         <figure class="top-pages" id="top-pages-7-days" role="tabpanel" data-block="top-pages"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-pages-7-days.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-pages-7-days.json">
           <h3>
             <em>Unique pageviews over the last week.</em>
           </h3>
@@ -308,7 +308,7 @@
         </figure>
 
         <figure class="top-pages" id="top-pages-30-days" role="tabpanel" data-block="top-pages"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-pages-30-days.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-pages-30-days.json">
           <h3>
             <em>Unique pageviews over the last 30 days.</em>
           </h3>
@@ -328,7 +328,7 @@
         </ul>
 
         <figure class="top-pages" id="top-external-links-yesterday" role="tabpanel" data-block="top-external-links"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-yesterday.json" data-refresh="15">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-external-links-yesterday.json" data-refresh="15">
           <h3>
             <em>Total external links clicked yesterday on USA.gov and USA.gov/es/.</em>
           </h3>
@@ -337,7 +337,7 @@
         </figure>
 
         <figure class="top-pages" id="top-external-links-7-days" role="tabpanel" data-block="top-external-links"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-7-days.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-external-links-7-days.json">
           <h3>
             <em>Total external links clicked over the last week on USA.gov and USA.gov/es/.</em>
           </h3>
@@ -346,7 +346,7 @@
         </figure>
 
         <figure class="top-pages" id="top-external-links-30-days" role="tabpanel" data-block="top-external-links"
-          data-source="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/both/top-external-links-30-days.json">
+          data-source="https://{{analytics_bucket}}/usagov-analytics/both/top-external-links-30-days.json">
           <h3>
             <em>Total external links clicked over the last 30 days on USA.gov and USA.gov/es/.</em>
           </h3>

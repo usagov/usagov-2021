@@ -217,6 +217,12 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
+echo "Determining the S3 bucket the website-analytics should load data from ..."
+ANALYTICS_BUCKET=$(drush config:get usagov_ssg_postprocessing.settings analytics_bucket --format=string)
+echo "Making the website-analytics pages use: $ANALYTICS_BUCKET"
+find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}}|$ANALYTICS_BUCKET|g" {} +
+# Dev Note: Un-comment the next line if you want to confirm the files within the Docker container locally before the sync
+# sleep 500
 
 mkdir -p $RENDER_DIR/ppr
 cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
