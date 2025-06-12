@@ -1,7 +1,0 @@
-usagov_ssg_postprocessing.settings:
-  type: config_object
-  label: 'USAGov SSG Analytics S3 Bucket'
-  mapping:
-    analytics_bucket:
-      type: string
-      label: 'USAGov SSG Analytics S3 Bucket'

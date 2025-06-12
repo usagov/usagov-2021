@@ -218,7 +218,20 @@ ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 echo "Determining the S3 bucket the website-analytics should load data from ..."
-ANALYTICS_BUCKET=$(drush config:get usagov_ssg_postprocessing.settings analytics_bucket --format=string)
+export ORIG_SPACE=$(cf target | grep "space:" | awk '{print $2}')
+echo "First switching to the tools space to get the variable. The originating space is: $ORIG_SPACE"
+cf target -o gsa-tts-usagov -s tools
+export ANALYTICS_BUCKET=$(cf env AnalyticsReporter | grep bucket | tail -n 1 | awk '{print $2}' | tr -d '",')
+echo "Got the bucket, it is: $ANALYTICS_BUCKET"
+echo "Switching back to the space: $ORIG_SPACE"
+cf target -o gsa-tts-usagov -s "$ORIG_SPACE"
+# Verify we switched back to the original space
+CURRENT_SPACE=$(cf target | grep "space:" | awk '{print $2}')
+if [ "$CURRENT_SPACE" != "$ORIG_SPACE" ]; then
+  echo "⚠️ ERROR: Failed to switch back to the original space. Expected '$ORIG_SPACE' but found '$CURRENT_SPACE'"
+  exit 1
+fi
+echo "Confirmed that we have successfully returned to space: $CURRENT_SPACE"
 echo "Making the website-analytics pages use: $ANALYTICS_BUCKET"
 find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}}|$ANALYTICS_BUCKET|g" {} +
 # Dev Note: Un-comment the next line if you want to confirm the files within the Docker container locally before the sync
