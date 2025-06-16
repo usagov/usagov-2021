@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e  # Exit on any error
+
+# this function is a convenient semantic wrapper around a one-liner
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
+{
+  if service_exists "api-key-storage" ; then
+    KEY_STORE=$(cf curl /v3/service_instances/$(cf service api-key-storage --guid)/credentials)
+    NAMES=$(echo "$KEY_STORE" | jq -r 'keys[]')
+
+    for NAME in $NAMES; do
+      echo "🖊️  Key Name: $NAME"
+      VALUE=$(jq -r --arg NAME "$NAME" '.[$NAME]' <<< "$KEY_STORE")
+      DOMAIN=$(jq -r '.DOMAIN' <<< "$VALUE")
+      API_KEY=$(jq -r '.APIKEY' <<< "$VALUE")
+      OPTIONS=$(jq -r '.OPTIONS' <<< "$VALUE")
+      echo "   🌐 Domain: $DOMAIN"
+      echo "   🔑 Api Key: $API_KEY"
+      if [[ -n "$OPTIONS" ]] && [[ "$OPTIONS" != '{}' ]]; then
+        echo "   🛠  Options: $OPTIONS"
+      fi
+    done
+
+  else
+    echo "❌ Key Storage doesn't exist.  Something has gone wrong with deployment.  Please check and redeploy."
+    exit 1
+  fi
+}

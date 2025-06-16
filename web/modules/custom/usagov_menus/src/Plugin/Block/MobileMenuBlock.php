@@ -48,7 +48,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'close' => 'Close',
           'search' => 'Search',
           'search_placeholder' => 'Search all government',
-          'search_affiliate' => 'usagov_all_gov',
+          'search_affiliate' => 'usagov_en_all_gov',
           'all_topics' => 'All topics and services',
           'form_id' => 'usagov_all_gov-mobile',
         ];

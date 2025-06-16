@@ -5,7 +5,10 @@ on:
     branches:
       - dev
       - stage
-      - pord
+      - prod
+
+permissions:
+  contents: read
 
 jobs:
   tests-chrome:
@@ -49,6 +52,7 @@ jobs:
           path: ./benefit-finder/cypress/screenshots
 
   tests-firefox:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch

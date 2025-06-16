@@ -101,8 +101,10 @@ prod)
 esac
 
 # replacing inaccurate hostnames
+# Note that we explicitly do not replace hostnames in .js files, so we can include conditionals based
+# on the host; see themes/custom/usagov/scripts/ceoResults.js
 echo "Replacing references to CMS hostname ... "
-find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
+find $RENDER_DIR -type f \( -name "*.css" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
 # Modification of the sitemap
 SITEMAP_FILE="$RENDER_DIR/sitemap.xml"
@@ -299,12 +301,12 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
 
       # get a count of current AWS files, total and by extension
       echo "S3 dir storage files : count total" | tee -a $TOMELOG
-      S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | wc -l)
+      S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bfiles/styles\/" | wc -l)
       echo "     $S3_COUNT" | tee -a $TOMELOG
 
       # get a count of tome generated files, total and by extension
       echo "Tome generated files : count total" | tee -a $TOMELOG
-      TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | wc -l)
+      TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | grep -v "\bfiles/styles\/" | wc -l)
       echo "      $TOME_COUNT" | tee -a $TOMELOG
 
       # calculate the diff between s3 and tome
@@ -315,14 +317,15 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       DIFF_S3_TOME_IS_BAD=$(echo "scale=2; $DIFF_S3_TOME_PCT > $TOME_MAX_CHANGE_ALLOWED" | bc)
       if [ "$DIFF_S3_TOME_IS_BAD" == "1" ]; then
         echo "Warning: Mismatch detected! S3 has $S3_COUNT files, but local directory has $TOME_COUNT files." | tee -a "$TOMELOG"
-        exit 1
+        aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" > /var/www/web/modules/custom/usagov_ssg_postprocessing/files/s3-files.txt
+        find $RENDER_DIR -type f 2>&1 | uniq > /var/www/web/modules/custom/usagov_ssg_postprocessing/files/tome-files.txt
+        php -f $SCRIPT_PATH/tome-sync-comparison.php
       else
         echo "Success: The number of files in S3 matches (close enough) to the local count." | tee -a "$TOMELOG"
       fi
 
   else
       echo "Error: Sync operation failed." | tee -a "$TOMELOG"
-      exit 1
   fi
 
 
@@ -358,11 +361,9 @@ if [ -f "$TOMELOG" ]; then
           echo "Confirmed: File exists in S3." | tee -a "$TOMELOG"
       else
           echo "Error: File not found in S3 after upload." | tee -a "$TOMELOG"
-          exit 1
       fi
   else
       echo "Error: File upload failed." | tee -a "$TOMELOG"
-      exit 1
   fi
 else
   echo "No logs of this run to S3 available"

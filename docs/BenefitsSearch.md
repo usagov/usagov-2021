@@ -40,7 +40,7 @@ Content editors can categorize existing basic pages with page type of "Standard 
 
 #### Fields and Conditional Field Groups
 
-We use te Conditional Fields and Field Group module to customize the node add/edit forms content editors see for Basic Pages. With the module, we can show different field groups and fields so that editors can change text and labels on the homepage call-out, elements on the government benefits pages, and to categorize Standard Pages. These rules are configured in the Admin UI, in the **Manage Dependencies** tab for a content type. (`/admin/structure/types/manage/basic_page/conditionals`)
+We use the Conditional Fields and Field Group module to customize the node add/edit forms content editors see for Basic Pages. With the module, we can show different field groups and fields so that editors can change text and labels on the homepage call-out, elements on the government benefits pages, and to categorize Standard Pages. These rules are configured in the Admin UI, in the **Manage Dependencies** tab for a content type. (`/admin/structure/types/manage/basic_page/conditionals`)
 
 If a user is editing the homepage, they will see the following. These fields control the call-out shown on the homepage. This rule is when the page type is _Home Page_.
 

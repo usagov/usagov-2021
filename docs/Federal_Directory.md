@@ -14,7 +14,7 @@ We've tried to use "core Drupal" to build as much of this as possible.
 
 ### Drupal Structures
 
-The following are accessbile within the Drupal Admin UI:
+The following are accessible within the Drupal Admin UI:
 
 * **Federal Directory Record** Content type (Machine name: `directory_record`)
 * **Federal Agencies** View (Machine name: `federal_agencies`)
@@ -27,7 +27,7 @@ The following are accessbile within the Drupal Admin UI:
 
 Content editors will be able to create and manage content of type **Federal Directory Record** and "Agency Synonym" in the same way as they do other content. They are not expected to modify the Federal Agencies View or the block layout. It will be possible to modify the intro or body of the basic page at /agency-index, although no such need is anticipated.
 
-The synonyms are their own content type **Agency Synonym**.  Agency Synonym has one field, **Agency Reference**, which is a content entity reference( to a **Federal Directory Record**) type and limited to 1. For example the synonym *GSA* would contain one agency refernce to the Federal Directory Record *U.S. General Services Administration*.
+The synonyms are their own content type **Agency Synonym**.  Agency Synonym has one field, **Agency Reference**, which is a content entity reference( to a **Federal Directory Record**) type and limited to 1. For example the synonym *GSA* would contain one agency reference to the Federal Directory Record *U.S. General Services Administration*.
 
 The `directory_record` content type,`agency_synonym` content type, `federal_agencies` view, and Block Layout all produce artifacts (YAML) that are checked in to this repo.
 

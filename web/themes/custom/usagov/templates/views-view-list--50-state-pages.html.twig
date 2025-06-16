@@ -19,8 +19,6 @@
  */
 #}
 
-{{ attach_library('usagov/stateDirectory') }}
-
 {% set lang = node.langcode.value %}
 
 {% if attributes -%}
@@ -28,7 +26,7 @@
 {% endif %}
 
 <form id="stateForm" class="usa-form state-usa-form" action="javascript:void(0);" autocomplete="off">
-	<h2 id="state-info-label" class="usa-label" for="state-info">{{ lang == 'en' ? 'Select or type your state or territory:' : 'Elija o escriba el estado o territorio:' }}</h2>
+  <h2 id="state-info-label" class="usa-label">{{ lang == 'en' ? 'Select or type your state or territory:' : 'Elija o escriba el estado o territorio:' }}</h2>
 	<div class="grid-row" id="submitAfter">
 		<div class="grid-col-fill mobile-lg:grid-col-auto" id="comboBoxAfter">
 			<div id="comboBoxDiv" class="usa-combo-box usa-combo-box--pristine width-full mobile-lg:width-mobile" data-default-value="alabama" data-enhanced="true"  data-filter="{{ '{{' }}query}}.*|.*\s{{ '{{' }}query}}.*|.*\({{ '{{' }}query}}.*">
@@ -41,6 +39,10 @@
 		</div>
 	</div>
 </form>
+
+<!-- While it is unconventional to include JavaScript this way, we are doing this in order to force this script to execute immediately -->
+<!-- See ticket USAGOV-1419 -->
+<script src ="/themes/custom/usagov/scripts/stateDirectory.js"></script>
 
 {% if attributes -%}
 	</div>

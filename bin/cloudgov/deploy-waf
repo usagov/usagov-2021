@@ -24,19 +24,7 @@ DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
 CDIGEST=${2:-}
 
-
 SPACE=$( cf target | grep space: | awk '{ print $2 }')
-
-# The Image digest for this tag should be looked up from cloud.gov storage
-# Any tag with a stored Image digest should be referenced by hash instead of tag
-
-# Need to create 'external-domain' service for custom routes: *.usa.gov
-# cf delete-service dev-usagov-domain
-# cf create-service external-domain domain dev-usagov-domain -c '{"domains": "cms-dev.usa.gov,beta-dev.usa.gov"}'
-# cf create-service external-domain domain-with-cdn stage-usagov-domain -c '{"domains": "cms-stage.usa.gov,beta-stage.usa.gov"}'
-# cf create-service external-domain domain-with-cdn prod-www-usagov-domain -c '{"domains": "beta.usa.gov"}'
-# cf create-service external-domain domain          prod-cms-usagov-domain -c '{"domains": "cms.usa.gov"}'
-# cf service prod-cms-usagov-domain
 
 if ! command -v jq >/dev/null; then
   printf "\nMust have JQ installed\n"
@@ -59,7 +47,6 @@ if [ -z "${PROTECTED_APP_NAMES+set}" ]; then
 fi
 
 if [ "${ENV_ANY_NOT_SET+set}" ]; then
-
   printf "\nExample:\n"
   printf "\tROUTE_SERVICE_APP_NAME=waf ROUTE_SERVICE_NAME=waf-route-$SPACE-usagov PROTECTED_APP_NAMES=cms,www ${0} ${CTAG} ${CDIGEST}\n"
   exit 1
@@ -81,7 +68,7 @@ printf "\tAPP_SPACE: $APP_SPACE\n"
 if existsCFApp $ROUTE_SERVICE_APP_NAME; then
   # existsCFApp will print an appropriate message if the app does not exist.
   # If the app doesn't exist, this is likely a first deployment in this space.
-  cf set-env $ROUTE_SERVICE_APP_NAME http_proxy  ""
+  cf set-env $ROUTE_SERVICE_APP_NAME http_proxy ""
   cf set-env $ROUTE_SERVICE_APP_NAME https_proxy ""
   cf set-env $ROUTE_SERVICE_APP_NAME HTTPS_PROXY ""
   cf set-env $ROUTE_SERVICE_APP_NAME HTTP_PROXY ""
@@ -95,13 +82,13 @@ instances="-i 1"
 IP_ALLOW_ALL_CMS=0
 IP_ALLOW_ALL_WWW=0
 if [ "$APP_SPACE" == "prod" ]; then
-    instances="-i 2"
-    IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WWW=1
+  instances="-i 2"
+  IP_ALLOW_ALL_CMS=1
+  IP_ALLOW_ALL_WWW=1
 elif [ "$APP_SPACE" == "stage" ]; then
-    instances="-i 1"
-    IP_ALLOW_ALL_CMS=1
-    IP_ALLOW_ALL_WWW=1
+  instances="-i 1"
+  IP_ALLOW_ALL_CMS=1
+  IP_ALLOW_ALL_WWW=1
 # Defaults are appropriate for dev and any other dev-like space.
 fi
 
@@ -110,46 +97,52 @@ if ! existsCFApp $ROUTE_SERVICE_APP_NAME; then
   #exit ### <-- to test, uncomment this exit statement and pass "zaf" as $ROUTE_SERVICE_APP_NAME
 else
   # remove proxy
-    cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_CMS $IP_ALLOW_ALL_CMS
-    cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_WWW $IP_ALLOW_ALL_WWW
+  cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_CMS $IP_ALLOW_ALL_CMS
+  cf set-env $ROUTE_SERVICE_APP_NAME IP_ALLOW_ALL_WWW $IP_ALLOW_ALL_WWW
 fi
 
+STRATEGY="--no-start"
+PUSH_STRATEGY="start"
+if cf app "${ROUTE_SERVICE_APP_NAME}" | grep -q 'running'; then
+  echo "Waf is running, using rolling deployment strategy"
+  STRATEGY="--strategy rolling"
+  PUSH_STRATEGY="restage"
+fi
 
 # launch the app
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-      cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+      cf push "${ROUTE_SERVICE_APP_NAME}" $instances $STRATEGY \
       --var app-name="${ROUTE_SERVICE_APP_NAME}" \
       --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}
   else
     CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN \
-      cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+      cf push "${ROUTE_SERVICE_APP_NAME}" $instances $STRATEGY \
       --var app-name="${ROUTE_SERVICE_APP_NAME}" \
       --docker-image ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG} \
       --docker-username $DOCKERHUB_USERNAME
   fi
 else
-    echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
+  echo "Deploying ${DOCKERUSER}/${DOCKERREPO} waf-${CTAG} via digest ${CDIGEST}"
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+    cf push "${ROUTE_SERVICE_APP_NAME}" $instances $STRATEGY \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
   else
     CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN \
-    cf push "${ROUTE_SERVICE_APP_NAME}" $instances --no-start \
+    cf push "${ROUTE_SERVICE_APP_NAME}" $instances $STRATEGY \
     --var app-name="${ROUTE_SERVICE_APP_NAME}" \
     --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} \
     --docker-username $DOCKERHUB_USERNAME
   fi
-
 fi
 
 cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME
 cf map-route "$ROUTE_SERVICE_APP_NAME" app.cloud.gov --hostname $ROUTE_SERVICE_NAME
 
 cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
-cf start "${ROUTE_SERVICE_APP_NAME}"
+cf $PUSH_STRATEGY "${ROUTE_SERVICE_APP_NAME}" --strategy rolling
 
 printf "\nFetching GUIDs for protected-app & route-service-app\n"
 
@@ -176,14 +169,11 @@ else
     -r "https://${ROUTE_SERVICE_DOMAIN}";
 fi
 
-#PROTECTED_APP_NAMES="Ubuntu;Linux Mint;Debian;Arch;Fedora"
-
 IFS=',' read -ra app_names_array <<< "$PROTECTED_APP_NAMES"
 
 #Print the split string
 for PROTECTED_APP_NAME in "${app_names_array[@]}"
 do
-
   PROTECTED_APP_GUID="$(cf app ${PROTECTED_APP_NAME} --guid)"
   printf "\tprotected-app (${PROTECTED_APP_NAME}): ${PROTECTED_APP_GUID}\n"
 
@@ -205,5 +195,3 @@ do
   cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 80
   cf add-network-policy $ROUTE_SERVICE_APP_NAME $PROTECTED_APP_NAME -s $SPACE -o gsa-tts-usagov  --protocol tcp --port 61443
 done
-
-#$SCRIPT_DIR/setup-egress-for-apps waf

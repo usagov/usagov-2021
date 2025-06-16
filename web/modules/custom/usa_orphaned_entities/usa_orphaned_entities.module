@@ -7,6 +7,7 @@
  */
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\ConfirmFormInterface;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\Core\Form\FormStateInterface;
@@ -34,9 +35,15 @@ function usa_orphaned_entities_form_alter(array &$form, FormStateInterface &$for
 
     $reference_data = usa_orphaned_entities_get_reference_data($entity);
 
-    $markup = "<div class=\"default-message\">" .
-      $delForm->getDescription() . "</div>";
-    $segway = "T"; // it's a joke about powered scooters
+    $markup = '';
+    if ($delForm instanceof ConfirmFormInterface) {
+      $markup = "<div class=\"default-message\">" .
+        $delForm->getDescription() . "</div>";
+    }
+    else {
+      $markup = '<div class="default-message">This action cannot be undone.</div>';
+    }
+    $segway = "T"; // It's a joke about powered scooters.
     $additional = "";
 
     if (!empty($reference_data)) {
@@ -46,7 +53,10 @@ function usa_orphaned_entities_form_alter(array &$form, FormStateInterface &$for
         $additional .= "<span>Deleting this entity will also delete the following entities:</span>" . PHP_EOL;
         $additional .= "<ul>" . PHP_EOL;
         foreach ($reference_data['delete']['references'] as $reference_delete) {
-          $additional .= "<li>" . $reference_delete->getType() . ": <a href=\"/node/" . $reference_delete->id() . "\" target=\"_blank\">" . $reference_delete->title->value . " (" . $reference_delete->id() . ")</a></li>" . PHP_EOL;
+          $additional .= "<li>" . $reference_delete->getType()
+            . ": <a href=\"/node/" . $reference_delete->id()
+            . "\" target=\"_blank\">" . $reference_delete->title->value
+            . " (" . $reference_delete->id() . ")</a></li>" . PHP_EOL;
         }
         $additional .= "</ul></div>" . PHP_EOL;
         $segway = "Additionally, t";

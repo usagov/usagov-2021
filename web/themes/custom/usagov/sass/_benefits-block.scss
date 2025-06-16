@@ -47,6 +47,7 @@
     @include u-text('blue-80v');
     @include u-margin-top(0);
     @include u-margin-bottom(2);
+
     line-height: 117.4%;
     letter-spacing: -0.39px;
   }
@@ -108,4 +109,8 @@ a.usa-button.benefits-link {
   .benefits-block {
     align-items: center;
   }
+}
+
+body #benefit-finder .bf-notices p {
+  line-height: 1.5;
 }
