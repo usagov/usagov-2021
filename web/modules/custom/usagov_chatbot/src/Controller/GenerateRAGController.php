@@ -13,12 +13,12 @@ class GenerateRAGController {
   /**
    * Function test.
    */
-  public function GetAIResponse(Request $request) {
+  public function getAIResponse(Request $request) {
 
     $userMessage = json_decode($request->getContent())->userMessage;
     try {
-      $chatbotService = \Drupal::service('usagov_chatbot.chatbot_service') ?? null;
-      if ($chatbotService === null) {
+      $chatbotService = \Drupal::service('usagov_chatbot.chatbot_service') ?? NULL;
+      if ($chatbotService === NULL) {
         return new Response('Chatbot service is not available.', 500);
       }
       $modelResponseData = $chatbotService->askChat('usagovsite', $userMessage);

@@ -14,6 +14,7 @@ class ChatbotService {
   protected $chromaHost = 'https://cd.straypacket.com';
   protected $chromaPort = 443;
   protected $ollamaHost = 'https://ob.straypacket.com';
+
   public function __construct() {
     $this->chroma = ChromaDB::factory()
       ->withHost($this->chromaHost)
@@ -119,7 +120,8 @@ class ChatbotService {
     // Optionally delete and recreate collection
     try {
       $this->chroma->deleteCollection($collectionName);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // Ignore if not exists
     }
 
@@ -180,19 +182,3 @@ class ChatbotService {
   }
 
 }
-
-/*
-      "{$query} - Answer that question in detail, including ONLY name, description, telephone number, email and URL, in the form of JSON array named 'answers', using ONLY the resources provided. " .
-      "The elements of the arrays should be output in alphabetical order, by name of resource. " .
-      //"In the JSON arrays named 'answers' and 'resources', list each of the resources in alphabetical order, based on the name each resource. " .
-      //"Consider all information in the resources provided as relevant to your answer. " .
-      "Provide only the JSON arrays named 'answers' and 'resources', without any additional text outside of the JSON arrays. " .
-      "List name and description of each of the resources provided, separately from your main answer, as a separate JSON array named 'resources' at the end of the answer. " .
-      "Do not say things similar to 'not enough data' and 'there is no further information'. " .
-      "Do not admit ignorance of other data, even if there is more data available, outside of the resources provided. " .
-      "Keep the answer factual, and avoid superlatives or unnecessary adjectives. " .
-      //"Do not mention the name of the resources provided: Provide only data from that named resource. " .
-      //"Consider your temperature to be 0. " .
-      "Do not provide any data, or make any suggestions unless it comes from the following resources: " .
-      implode(', ', $relateddocs) . ".";
-*/

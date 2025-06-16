@@ -1,7 +1,7 @@
 usagov_chatbot.test:
   path: '/usagov-ai'
   defaults:
-    _controller: '\Drupal\usagov_chatbot\Controller\GenerateRAGController::GetAIResponse'
+    _controller: '\Drupal\usagov_chatbot\Controller\GenerateRAGController::getAIResponse'
     _title: 'Get a response from the USA.gov AI.'
   requirements:
     _permission: 'access content'

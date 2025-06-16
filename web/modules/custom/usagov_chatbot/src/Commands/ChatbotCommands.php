@@ -20,7 +20,7 @@ class ChatbotCommands extends DrushCommands {
   /**
    * ChatbotCommands constructor.
    */
-    public function __construct() {
+  public function __construct() {
     parent::__construct();
     $this->chatbotService = \Drupal::service('usagov_chatbot.chatbot_service');
   }
