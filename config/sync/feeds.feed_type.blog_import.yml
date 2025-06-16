@@ -9,11 +9,7 @@ dependencies:
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
-    - feeds_tamper
     - node
-third_party_settings:
-  feeds_tamper:
-    tampers: {  }
 label: 'Blog Import'
 id: blog_import
 description: 'Imports USAgov Hubspot Blog'

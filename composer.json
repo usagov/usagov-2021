@@ -40,7 +40,6 @@
         "drupal/externalauth": "^2",
         "drupal/faqfield": "^7.1",
         "drupal/feeds": "^3.0@beta",
-        "drupal/feeds_tamper": "^2.0@beta",
         "drupal/field_defaults": "^2.0",
         "drupal/field_group": "^3.6",
         "drupal/field_permissions": "^1.1",
