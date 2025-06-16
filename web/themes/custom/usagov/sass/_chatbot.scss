@@ -235,15 +235,18 @@
       box-shadow: 15px 0 #000, -15px 0 #0002;
       background: #000; 
     }
+    
     33% {
       box-shadow: 15px 0 #000, -15px 0 #0002;
       background: #0002;
     }
+
     66% {
       box-shadow: 15px 0 #0002,-15px 0 #000;
       background: #0002;
     }
-    100%{
+
+    100% {
       box-shadow: 15px 0 #0002,-15px 0 #000;
       background: #000;
     }

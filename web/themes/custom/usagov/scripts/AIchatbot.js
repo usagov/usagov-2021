@@ -196,7 +196,6 @@ async function getAIResponse(userMessage, messageContainer) {
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
 function createMessage(isUser, message, fromLocalStorage = false) {
-    'use strict';
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
     const htmlMessage = converter.makeHtml(message);
