@@ -6,11 +6,14 @@ dependencies:
     - field.field.node.blog_post.body
     - field.field.node.blog_post.field_author
     - field.field.node.blog_post.field_featured_image
-    - field.field.node.blog_post.field_post_url
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
+    - feeds_tamper
     - node
+third_party_settings:
+  feeds_tamper:
+    tampers: {  }
 label: 'Blog Import'
 id: blog_import
 description: 'Imports USAgov Hubspot Blog'
@@ -166,8 +169,9 @@ mappings:
       language: null
     unique: {  }
   -
-    target: field_post_url
+    target: path
     map:
-      value: post_url
+      alias: post_url
+      pathauto: ''
     settings:
       language: null

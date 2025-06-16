@@ -1,0 +1,8 @@
+uuid: 4af317d4-d8f0-4863-abea-b6e411af461b
+langcode: en
+status: true
+dependencies: {  }
+id: usagov_blog_archive
+label: 'USAGov Blog Archive'
+description: 'Archive of blog posts by year and month.'
+locked: false

@@ -1,0 +1,39 @@
+uuid: b7fff9fc-ce21-4b60-99ed-e4acfb028ae0
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.usagov_blog_archive
+  module:
+    - menu_block
+    - system
+  theme:
+    - usagov
+id: usagov_usagovblogarchive
+theme: usagov
+region: sidebar_first
+weight: 0
+provider: null
+plugin: 'menu_block:usagov_blog_archive'
+settings:
+  id: 'menu_block:usagov_blog_archive'
+  label: 'USAGov Blog Archive'
+  label_display: '0'
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  display_empty: false
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'usagov_blog_archive:'
+  render_parent: false
+  suggestion: usagov_blog_archive
+  hide_on_nonactive: false
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/blog\r\n/blog/*"
