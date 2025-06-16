@@ -76,14 +76,14 @@
     @include u-margin-bottom(18px);
   }
   
-  #userMessage {
+  #user-message {
     padding: 8px;
   }
   
   #usagov-ai-chatbot-toogle {
     border: none;
     background: none;
-    background-image: url(../assets/img/usa-icons/add.svg), linear-gradient(transparent, transparent);
+    background-image: url("../assets/img/usa-icons/add.svg"), linear-gradient(transparent, transparent);
     background-position-y: center;
     background-size: 1.5rem;
     filter: brightness(0) invert(1);
@@ -124,6 +124,7 @@
 
   .header-image {
     @include u-border(1px, 'solid', 'white');
+
     margin-right: 10px;
   }
 
@@ -139,6 +140,7 @@
     @include u-bg('cyan-10');
     @include u-padding-x(8px);
     @include u-padding-y(4px);
+
     max-width: 90%;
     border-radius: 4px;
   }
@@ -229,10 +231,22 @@
   animation: l5 1s infinite linear alternate;
 }
 @keyframes l5 {
-    0%  {box-shadow: 15px 0 #000, -15px 0 #0002;background: #000 }
-    33% {box-shadow: 15px 0 #000, -15px 0 #0002;background: #0002}
-    66% {box-shadow: 15px 0 #0002,-15px 0 #000; background: #0002}
-    100%{box-shadow: 15px 0 #0002,-15px 0 #000; background: #000 }
+    0%  {
+      box-shadow: 15px 0 #000, -15px 0 #0002;
+      background: #000; 
+    }
+    33% {
+      box-shadow: 15px 0 #000, -15px 0 #0002;
+      background: #0002;
+    }
+    66% {
+      box-shadow: 15px 0 #0002,-15px 0 #000;
+      background: #0002;
+    }
+    100%{
+      box-shadow: 15px 0 #0002,-15px 0 #000;
+      background: #000;
+    }
 }
 
 #usagov-ai-chatbot-view-last-message {
@@ -240,7 +254,6 @@
   bottom: 74px;
   right: 93.565px;
   border-radius: 25px;
-
   display: none;
   align-items: center;
   

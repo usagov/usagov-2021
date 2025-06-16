@@ -41,11 +41,11 @@ function chatbotToogle() {
 function sendMessage() {
     'use strict';
 
-    const inputValue = document.getElementById("userMessage").value;
+    const inputValue = document.getElementById("user-message").value;
 
     if (inputValue) {
         handleUserMessage(inputValue);
-        document.getElementById("userMessage").value = "";
+        document.getElementById("user-message").value = "";
     }
 
 }
@@ -80,12 +80,14 @@ function sendSuggestion(element) {
  * The "last message" element is used to indicate that the user has reached the end of the chat history.
  */
 const lastMessageObserver = new IntersectionObserver((entries) => {
+    'use strict';
     entries.forEach((entry) => {
         const scrollElement = document.getElementById('usagov-ai-chatbot-view-last-message');
         if (entry.isIntersecting) {
             // Last message is visible
             scrollElement.style.display = "none";
-        } else {
+        } 
+        else {
             // Last message is hidden
             scrollElement.style.display = "flex";
         }
@@ -169,7 +171,7 @@ async function getAIResponse(userMessage, messageContainer) {
 
     const requestOptions = {
         "method": "POST",
-        "headers": { "Content-Type": "application/json" },
+        "headers": {"Content-Type": "application/json"},
         "body": requestBody
     };
 
@@ -194,6 +196,7 @@ async function getAIResponse(userMessage, messageContainer) {
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
 function createMessage(isUser, message, fromLocalStorage = false) {
+    'use strict';
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
     const htmlMessage = converter.makeHtml(message);
@@ -210,7 +213,7 @@ function createMessage(isUser, message, fromLocalStorage = false) {
     messageTextElement.innerHTML = htmlMessage;
 
     var dateConstructor = new Date();
-    var time = dateConstructor.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    var time = dateConstructor.toLocaleString('en-US', {'hour': 'numeric', 'minute': 'numeric', 'hour12': true});
     messageTimeElement.classList.add("usagov-ai-chatbot-message-time");
     messageTimeElement.innerHTML = time;
 
@@ -241,7 +244,7 @@ function createMessage(isUser, message, fromLocalStorage = false) {
             // Add the message to localStorage
             addMessageLocalStorage("bot", message);
         }
-        
+
         // Configure the bot message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "bot");
 
@@ -253,7 +256,7 @@ function createMessage(isUser, message, fromLocalStorage = false) {
         // Add the avatar and text in the correct order for the bot's messages.
         messageElement.appendChild(messageAvatarElement);
         messageElement.appendChild(messageTextElement);
-        
+
         // Add the avatar and text in the correct order for the user's messages.
         messageInnerContainerElement.appendChild(messageAvatarElement);
         messageInnerContainerElement.appendChild(messageTextElement);
@@ -267,8 +270,8 @@ function createMessage(isUser, message, fromLocalStorage = false) {
 
         messageElement.id = 'usagov-ai-chatbot-last-message';
 
-        lastMessageObserver.observe(messageElement);  
-       
+        lastMessageObserver.observe(messageElement);
+
     }
 
     messageElement.appendChild(messageInnerContainerElement);
@@ -285,7 +288,7 @@ function createMessage(isUser, message, fromLocalStorage = false) {
  * 2. Calls the `sendMessage()` function to send the message when Enter is pressed.
  *
  * @param {Event} event - The keydown event triggered by the user pressing a key.
- */ 
+ */
 function handleEnter(event) {
     'use strict';
 
@@ -298,6 +301,7 @@ function handleEnter(event) {
 
 // Load session from localStorage or create a new one
 function loadSession() {
+    'use strict';
     var sessionStored = localStorage.getItem("usagov_chatbot_session");
 
     if (sessionStored) {
@@ -305,8 +309,8 @@ function loadSession() {
     }
 
     var newSessionObject = {
-        date: new Date().toISOString(),
-        messages: []
+        'date': new Date().toISOString(),
+        'messages': []
     };
 
     return newSessionObject;
@@ -314,6 +318,7 @@ function loadSession() {
 
 // Save session back to localStorage
 function saveSession(session) {
+    'use strict';
     localStorage.setItem("usagov_chatbot_session", JSON.stringify(session));
 }
 
@@ -330,14 +335,14 @@ function saveSession(session) {
  * 4. Saves the updated session back to localStorage.
  */
 function addMessageLocalStorage(type, content) {
-
+    'use strict';
     if (content) {
         const session = loadSession();
 
         const newMessage = {
-            type: type,
-            date: new Date().toISOString(),
-            content: content
+            'type': type,
+            'date': new Date().toISOString(),
+            'content': content
         };
 
         session.messages.push(newMessage);
@@ -348,6 +353,7 @@ function addMessageLocalStorage(type, content) {
 
 // Load the session from localStorage when the page is loaded.
 document.addEventListener("DOMContentLoaded", () => {
+    'use strict';
     const storedSession = localStorage.getItem("usagov_chatbot_session");
 
     if (storedSession) {
@@ -359,13 +365,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const sessionObject = JSON.parse(storedSession);
 
             // Check if the session has messages and is an array.
-            if (!sessionObject.messages || !Array.isArray(sessionObject.messages)) 
+            if (!sessionObject.messages || !Array.isArray(sessionObject.messages))
                 return;
 
             // Iterate through the stored messages and create message elements.
             sessionObject.messages.forEach((message) => {
                 var isUser = message.type === "user" ? true : false;
-                
+
                 // Get the message container.
                 const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
@@ -374,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Add the user's message element to the chatbot.
                 messageContainer.appendChild(newUserMessageElement);
-            })
+            });
 
         }
         catch (e) {
