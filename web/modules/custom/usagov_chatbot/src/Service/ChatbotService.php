@@ -7,6 +7,9 @@ use Codewithkyrian\ChromaDB\Embeddings\OllamaEmbeddingFunction;
 use ArdaGnsrn\Ollama\Ollama;
 use Drupal\Core\StreamWrapper\PublicStream;
 
+/**
+ * Service to interact with ChromaDB and Ollama for chatbot functionality.
+ */
 class ChatbotService {
 
   protected $chroma;
@@ -63,7 +66,7 @@ class ChatbotService {
   public function askChat($collectionName, $query, $toJSON = FALSE) {
     $collection = $this->chroma->getCollection($collectionName);
 
-    // Get embedding for the query
+    // Get embedding for the query.
     $queryEmbed = $this->ollama->embed();
     $embedResponse = $queryEmbed->create([
       'model' => 'nomic-embed-text:latest',
@@ -71,7 +74,7 @@ class ChatbotService {
     ])->toArray();
     $embeddings = $embedResponse['embeddings'];
 
-    // Search for similar embeddings
+    // Search for similar embeddings.
     $queryResponse = $collection->query(
       queryEmbeddings: $embeddings
     );
@@ -117,12 +120,12 @@ class ChatbotService {
       model: 'nomic-embed-text'
     );
 
-    // Optionally delete and recreate collection
+    // Optionally delete and recreate collection.
     try {
       $this->chroma->deleteCollection($collectionName);
     }
     catch (\Exception $e) {
-      // Ignore if not exists
+      // Ignore if not exists.
     }
 
     $collection = $this->chroma->getOrCreateCollection(
@@ -153,6 +156,15 @@ class ChatbotService {
 
   // --- Utility methods ---
 
+  /**
+   * Read all .dat files from a specified directory.
+   *
+   * @param string $path
+   *   The path to the directory containing .dat files.
+   *
+   * @return array
+   *   An associative array of filename => content pairs.
+   */
   protected function readTextFiles($path) {
     $textContents = [];
     foreach (scandir($path) as $filename) {
@@ -164,6 +176,17 @@ class ChatbotService {
     return $textContents;
   }
 
+  /**
+   * Split text into chunks of a specified size.
+   *
+   * @param string $text
+   *   The text to split.
+   * @param int $chunkSize
+   *   The number of words per chunk.
+   *
+   * @return array
+   *   An array of text chunks.
+   */
   protected function chunkSplitter($text, $chunkSize = 100) {
     $words = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
     $chunks = [];
