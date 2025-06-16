@@ -184,9 +184,7 @@ async function getAIResponse(userMessage, messageContainer) {
  * @param {string} message - The message content, supports markdown.
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
-function createMessage(isUser, message) {
-    'use strict';
-
+function createMessage(isUser, message, fromLocalStorage = false) {
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
     const htmlMessage = converter.makeHtml(message);
@@ -211,8 +209,10 @@ function createMessage(isUser, message) {
 
     if (isUser) {
 
-        // Add the message to localStorage
-        addMessage("user", message);
+        if (!fromLocalStorage) {
+            // Add the message to localStorage
+            addMessageLocalStorage("user", message);
+        }
 
         // Configure the user message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "user");
@@ -228,8 +228,10 @@ function createMessage(isUser, message) {
     }
     else {
 
-        // Add the message to localStorage
-        addMessage("bot", message);
+        if (!fromLocalStorage) {
+            // Add the message to localStorage
+            addMessageLocalStorage("bot", message);
+        }
         
         // Configure the bot message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "bot");
@@ -242,13 +244,13 @@ function createMessage(isUser, message) {
         // Add the avatar and text in the correct order for the bot's messages.
         messageElement.appendChild(messageAvatarElement);
         messageElement.appendChild(messageTextElement);
-
+        
         // Add the avatar and text in the correct order for the user's messages.
         messageInnerContainerElement.appendChild(messageAvatarElement);
         messageInnerContainerElement.appendChild(messageTextElement);
 
         const lastMessage = document.getElementById('usagov-ai-chatbot-last-message');
-        if(lastMessage) {
+        if (lastMessage) {
             lastMessage.removeAttribute('id');
         }
 
@@ -297,16 +299,51 @@ function saveSession(session) {
     localStorage.setItem("usagov_chatbot_session", JSON.stringify(session));
 }
 
-function addMessage(type, content) {
-    const session = loadSession();
+function addMessageLocalStorage(type, content) {
 
-    const newMessage = {
-        type: type,
-        date: new Date().toISOString(),
-        content: content
-    };
+    if (content) {
+        const session = loadSession();
 
-    session.messages.push(newMessage);
-    saveSession(session);
+        const newMessage = {
+            type: type,
+            date: new Date().toISOString(),
+            content: content
+        };
+
+        session.messages.push(newMessage);
+        saveSession(session);
+    }
+
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const storedSession = localStorage.getItem("usagov_chatbot_session");
+
+    if (storedSession) {
+        try {
+            document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
+            const sessionObject = JSON.parse(storedSession);
+
+            if (!sessionObject.messages || !Array.isArray(sessionObject.messages)) 
+                return;
+
+            sessionObject.messages.forEach((message) => {
+                var isUser = message.type === "user" ? true : false;
+                
+                // Get the message container.
+                const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
+
+                // Create a message element for the user's message.
+                const newUserMessageElement = createMessage(isUser, message.content, fromLocalStorage = true);
+
+                // Add the user's message element to the chatbot.
+                messageContainer.appendChild(newUserMessageElement);
+            })
+
+            localStorage.clear();
+        }
+        catch (e) {
+            console.error("Failed to parse stored session:", e);
+        }
+    }
+});
