@@ -11,9 +11,15 @@ use Symfony\Component\HttpFoundation\Request;
 class GenerateRAGController {
 
   /**
-   * Function test.
+   * Handles the request to get AI response.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object containing user message.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response containing AI-generated completions.
    */
-  public function getAIResponse(Request $request) {
+  public function getAiResponse(Request $request) {
 
     $userMessage = json_decode($request->getContent())->userMessage;
     try {
