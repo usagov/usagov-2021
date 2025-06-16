@@ -562,23 +562,16 @@ function usagov_preprocess_breadcrumb(&$variables): void {
   }
 }
 
-function usagov_preprocess_header(array &$variables) {
-  $affiliate = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
-  $affiliate_es = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
-
-  $current_path = \Drupal::service('path.current')->getPath();
-  $variables['usagov_affiliate_lang'] = str_starts_with($current_path, '/es') ? $affiliate_es : $affiliate;
-}
-
 function usagov_preprocess_block__mobile_navigation(array &$variables) {
   $variables['usagov_affiliate'] = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $variables['usagov_affiliate_es'] = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 }
 
-function usagov_preprocess_top_nav(array &$variables) {
+function usagov_preprocess_page(array &$variables): void {
+  
   $affiliate = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $affiliate_es = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 
-  $current_path = \Drupal::service('path.current')->getPath();
-  $variables['usagov_affiliate_lang'] = str_starts_with($current_path, '/es') ? $affiliate_es : $affiliate;
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $variables['usagov_affiliate_lang'] = $langcode == 'es' ? $affiliate_es : $affiliate;
 }
