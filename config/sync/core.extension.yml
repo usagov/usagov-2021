@@ -69,11 +69,14 @@ module:
   path_alias: 0
   permission_spreadsheet: 0
   redirect: 0
+  redis: 0
   remove_http_headers: 0
   responsive_image: 0
   rest: 0
   s3fs: 0
   samlauth: 0
+  scheduler: 0
+  scheduler_content_moderation_integration: 0
   serialization: 0
   settings_tray: 0
   simple_sitemap: 0

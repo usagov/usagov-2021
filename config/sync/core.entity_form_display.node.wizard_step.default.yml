@@ -147,3 +147,7 @@ content:
     third_party_settings: {  }
 hidden:
   menu_entity_index: true
+  publish_on: true
+  publish_state: true
+  unpublish_on: true
+  unpublish_state: true

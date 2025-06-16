@@ -28,7 +28,7 @@
     'close': 'Close',
     'search': 'Search',
     'search_placeholder': 'Search all government',
-    'search_affiliate': 'usagov_all_gov',
+    'search_affiliate': 'usagov_en_all_gov',
     'all_topics': 'All topics and services',
     'phone_URL': '/phone',
     'form_id':'usagov_all_gov-mobile'
@@ -171,11 +171,16 @@
           {% set label_string = translations.search %}
           {% set alt_string = translations.search %}
         {% endembed %}
+<<<<<<< USAGOV-2238-final-call-center-task
         <span class="usa-nav__secondary-links">
           <span id="top-phone-mobile-menu" class="usa-nav__secondary-item" data-contact-callout="visible">
+=======
+        <div class="usa-nav__secondary-links">
+          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
+>>>>>>> dev
             <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
           </span>
-        </span>
+        </div>
       </div>
     </div>
 
