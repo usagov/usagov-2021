@@ -69,7 +69,16 @@ function sendSuggestion(element) {
     }
 }
 
-// Create a visibility observer instance
+/**
+ * Observes the last message in the chat interface to determine if it is visible in the viewport.
+ *
+ * This function:
+ * 1. Uses the Intersection Observer API to monitor the last message element.
+ * 2. If the last message is visible, it hides the "last message" element.
+ * 3. If the last message is not visible, it shows the "last message" element.
+ *
+ * The "last message" element is used to indicate that the user has reached the end of the chat history.
+ */
 const lastMessageObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
         const scrollElement = document.getElementById('usagov-ai-chatbot-view-last-message');
@@ -268,6 +277,15 @@ function createMessage(isUser, message, fromLocalStorage = false) {
     return messageElement;
 }
 
+/**
+ * Handles the Enter key press event in the message input field.
+ *
+ * This function:
+ * 1. Listens for the Enter key press (key code 13).
+ * 2. Calls the `sendMessage()` function to send the message when Enter is pressed.
+ *
+ * @param {Event} event - The keydown event triggered by the user pressing a key.
+ */ 
 function handleEnter(event) {
     'use strict';
 
@@ -299,6 +317,18 @@ function saveSession(session) {
     localStorage.setItem("usagov_chatbot_session", JSON.stringify(session));
 }
 
+/**
+ * Adds a new message to the session stored in localStorage.
+ *
+ * @param {string} type - The type of the message, either "user" or "bot".
+ * @param {string} content - The content of the message to be stored.
+ *
+ * This function:
+ * 1. Loads the current session from localStorage.
+ * 2. Creates a new message object with the current date and content.
+ * 3. Appends the new message to the session's messages array.
+ * 4. Saves the updated session back to localStorage.
+ */
 function addMessageLocalStorage(type, content) {
 
     if (content) {
@@ -316,17 +346,23 @@ function addMessageLocalStorage(type, content) {
 
 }
 
+// Load the session from localStorage when the page is loaded.
 document.addEventListener("DOMContentLoaded", () => {
     const storedSession = localStorage.getItem("usagov_chatbot_session");
 
     if (storedSession) {
         try {
+            // Hide the suggestions box if it exists.
             document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display = "none";
+
+            // Parse the stored session from localStorage.
             const sessionObject = JSON.parse(storedSession);
 
+            // Check if the session has messages and is an array.
             if (!sessionObject.messages || !Array.isArray(sessionObject.messages)) 
                 return;
 
+            // Iterate through the stored messages and create message elements.
             sessionObject.messages.forEach((message) => {
                 var isUser = message.type === "user" ? true : false;
                 
@@ -340,7 +376,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 messageContainer.appendChild(newUserMessageElement);
             })
 
-            localStorage.clear();
         }
         catch (e) {
             console.error("Failed to parse stored session:", e);
