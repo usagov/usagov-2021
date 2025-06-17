@@ -129,7 +129,7 @@ ENV BUILD_ENV=${BUILD_ENV:-none}
 # Users and dependencies.
 # Note: we used to use adduser and addgroup to set up the nginx user (if not already present).
 #       alpine linux adduser/addgroup don't accept numbers over 256000 so now we update
-#       /etc/passwd and /etc/group directly; see 
+#       /etc/passwd and /etc/group directly; see
 #       https://stackoverflow.com/questions/41807026/cant-add-a-user-with-a-high-uid-in-docker-alpine
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
@@ -274,7 +274,8 @@ RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/shar
 
 RUN chmod -R +x /etc/periodic \
     && rm -f /var/www/web/sites/default/settings.local.php \
-    && rm -rf /var/www/web/sites/default/files/* \
+    && EXEMPT_DIRS="import" \
+    && find /var/www/web/sites/default/files -mindepth 1 -maxdepth 1 $(for d in $EXEMPT_DIRS; do printf "! -name %s " "$d"; done) -exec rm -rf {} + \
     && rm -rf /var/www/web/themes/custom/usagov/node_modules \
     && rm -f /var/www/web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock \
     && rm -rf /var/www/web/automated_tests \
