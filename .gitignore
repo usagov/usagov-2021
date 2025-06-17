@@ -148,3 +148,7 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 
 .docker/src-reporter/analytics.pem
 reporter-vcapsecrets.json
+
+# Allow import directory and its contents
+!/web/sites/default/files/import/
+!/web/sites/default/files/import/*
