@@ -274,7 +274,7 @@ RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/shar
 
 RUN chmod -R +x /etc/periodic \
     && rm -f /var/www/web/sites/default/settings.local.php \
-    # && rm -rf /var/www/web/sites/default/files/* \
+    && rm -rf /var/www/web/sites/default/files/* \
     && rm -rf /var/www/web/themes/custom/usagov/node_modules \
     && rm -f /var/www/web/core/modules/system/tests/fixtures/HtaccessTest/composer.lock \
     && rm -rf /var/www/web/automated_tests \
@@ -290,6 +290,7 @@ RUN chmod -R +x /etc/periodic \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
     && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
 
+COPY --chown=nginx:nginx web/sites/default/files/import /var/www/web/sites/default/files/import
 RUN if pgrep nginx; then pkill nginx; fi
 
 RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
