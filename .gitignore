@@ -64,6 +64,10 @@
 !/web/sites/*/settings.cf.php
 !/web/sites/*/settings.local.php
 
+# Allow import directory and its contents before ignoring files
+!/web/sites/default/files/import/
+!/web/sites/default/files/import/**
+
 # # Ignore paths that may contain user-generated content
 /web/sites/*/files
 /web/sites/*/public
@@ -148,7 +152,3 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 
 .docker/src-reporter/analytics.pem
 reporter-vcapsecrets.json
-
-# Allow import directory and its contents
-!/web/sites/default/files/import/
-!/web/sites/default/files/import/*
