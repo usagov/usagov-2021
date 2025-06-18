@@ -290,8 +290,9 @@ RUN chmod -R +x /etc/periodic \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
     && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
 
-COPY --chown=nginx:nginx web/sites/default/files/import /var/www/web/sites/default/files/import
 RUN if pgrep nginx; then pkill nginx; fi
+
+COPY --chown=nginx:nginx web/sites/default/files/import /var/www/web/sites/default/files/import
 
 RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
 RUN apk del nginx nginx-mod-http-lua || true
