@@ -24,13 +24,10 @@ CTAG=${2:-$GITBRANCH}
 THRESHOLD=${3:-low}
 
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
-# Mount nothing over the yarn.lock file in uswds_ckeditor_integration; we don't install those deps
-# and it throws false positives for us.
 docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $(pwd)/.docker:/app \
-    -v "/tmp/nosuchdir:/app/web/modules/contrib/uswds_ckeditor_integration/yarn.lock" \
   snyk/snyk:docker snyk container test \
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
