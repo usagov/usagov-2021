@@ -250,21 +250,18 @@ function createMessage(isUser, message, fromLocalStorage) {
 
     if (isUser) {
 
-        if (localStorage.getItem("usagov_chatbot_session") !== null) {
-            if (checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session")) && !fromLocalStorage) {
-                // If the date is the same or the message is not in localStorage, add the message to localStorage.
-                addMessageLocalStorage("user", message);
-            }
-            else {
+        if(!fromLocalStorage) {
+            if (localStorage.getItem("usagov_chatbot_session") !== null && 
+                !checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session"))) {
                 // If the date is different, delete the localStorage.
                 localStorage.removeItem("usagov_chatbot_session");
                 // Add the message to localStorage.
                 addMessageLocalStorage("user", message);
             }
-        }
-        else {
-            // If there is no localStorage, add the message to localStorage.
-            addMessageLocalStorage("user", message);
+            else {
+                // If there is no localStorage, add the message to localStorage.
+                addMessageLocalStorage("user", message);
+            }
         }
 
         // Configure the user message container.
@@ -280,11 +277,20 @@ function createMessage(isUser, message, fromLocalStorage) {
         messageInnerContainerElement.appendChild(messageAvatarElement);
     }
     else {
-
-        if (!fromLocalStorage) {
-            // Add the message to localStorage
-            addMessageLocalStorage("bot", message);
+        if(!fromLocalStorage) {
+            if (localStorage.getItem("usagov_chatbot_session") !== null && 
+                !checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session"))) {
+                // If the date is different, delete the localStorage.
+                localStorage.removeItem("usagov_chatbot_session");
+                // Add the message to localStorage.
+                addMessageLocalStorage("bot", message);
+            }
+            else {
+                // If there is no localStorage, add the message to localStorage.
+                addMessageLocalStorage("bot", message);
+            }
         }
+        
 
         // Configure the bot message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "bot");
