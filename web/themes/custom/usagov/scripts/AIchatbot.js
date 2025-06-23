@@ -149,7 +149,7 @@ async function handleUserMessage(userMessage) {
     const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
     // Create a message element for the user's message.
-    const newUserMessageElement = createMessage(true, userMessage);
+    const newUserMessageElement = createMessage(true, userMessage, false);
 
     // Remove the message suggestions after the first message.
     if (document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display !== "none") {
@@ -163,7 +163,7 @@ async function handleUserMessage(userMessage) {
     const aiResponse = await getAIResponse(userMessage, messageContainer);
 
     // Create a message element for the user's message.
-    const newBotMessageElement = createMessage(false, aiResponse);
+    const newBotMessageElement = createMessage(false, aiResponse, false);
 
     // Remove the loader so it can be replaced by the new message.
     document.getElementById("loader-container").remove();
@@ -221,12 +221,11 @@ async function getAIResponse(userMessage, messageContainer) {
  *
  * @param {boolean} isUser - Wheter the message is from the user (true) or the bot (false).
  * @param {string} message - The message content, supports markdown.
- * @param {boolean} [fromLocalStorage=false] - Indicates if the message is being created from localStorage data.
+ * @param {boolean} [fromLocalStorage] - Indicates if the message is being created from localStorage data.
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
-function createMessage(isUser, message, fromLocalStorage = false) {
+function createMessage(isUser, message, fromLocalStorage) {
     'use strict';
-
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
     const htmlMessage = converter.makeHtml(message);
