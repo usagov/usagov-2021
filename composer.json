@@ -59,6 +59,7 @@
         "drupal/pathauto": "^1.8",
         "drupal/permission_spreadsheet": "^2.1",
         "drupal/redirect": "^1.6",
+        "drupal/redis": "^1.9",
         "drupal/remove_http_headers": "^2.0",
         "drupal/s3fs": "^3.3",
         "drupal/samlauth": "^3.9",
@@ -83,6 +84,7 @@
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
+        "predis/predis": "^2.4",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {
@@ -161,6 +163,10 @@
             },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
+            },
+            "drupal/redis": {
+                "Support TLS for Predis": "https://www.drupal.org/files/issues/2021-11-19/redis-support_tls_on_predis-3004561-37.patch",
+                "Don't rely on presence of redis CONFIG command (disabled in AWS)": "https://www.drupal.org/files/issues/2024-09-25/3173988-28.patch"
             }
         }
     },
