@@ -29,6 +29,34 @@ function chatbotToogle() {
 }
 
 /**
+ * Checks if two date JSON objects represent the same date (day, month, and year).
+ *  
+ * @param {Date} dateJsonToSend - The first date object or JSON string to compare.
+ * @param {Object|string} dateJsonToCompare - The second date object or JSON string to compare.
+ * @returns {boolean} True if both dates are the same (day, month, and year), false otherwise.
+ * This function:
+ * 1. Converts the input parameters to JSON objects if they are strings.
+ * 2. Extracts the date from each JSON object and converts them to Date objects.
+ * 3. Compares the day, month, and year of both Date objects.
+ * 4. Returns true if all components match, false otherwise.
+ */
+function checkDate(dateJsonToSend, dateJsonToCompare) {
+    'use strict';
+    // Convert string to JSON.
+    if (typeof dateJsonToCompare === "string") {
+        dateJsonToCompare = JSON.parse(dateJsonToCompare);
+    }
+
+    // Get date argument from JSON and convert to Date objects.
+    dateJsonToCompare = new Date(dateJsonToCompare.date);
+    
+    // Compare the date, month, and year of both dates.
+    return dateJsonToSend.getDate() === dateJsonToCompare.getDate() &&
+           dateJsonToSend.getMonth() === dateJsonToCompare.getMonth() &&
+           dateJsonToSend.getFullYear() === dateJsonToCompare.getFullYear();
+}
+
+/**
  * Sends the user's typed message from the input field to the chatbot.
  *
  * This function:
@@ -193,6 +221,7 @@ async function getAIResponse(userMessage, messageContainer) {
  *
  * @param {boolean} isUser - Wheter the message is from the user (true) or the bot (false).
  * @param {string} message - The message content, supports markdown.
+ * @param {boolean} [fromLocalStorage=false] - Indicates if the message is being created from localStorage data.
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
 function createMessage(isUser, message, fromLocalStorage = false) {
@@ -220,8 +249,20 @@ function createMessage(isUser, message, fromLocalStorage = false) {
 
     if (isUser) {
 
-        if (!fromLocalStorage) {
-            // Add the message to localStorage
+        if(localStorage.getItem("usagov_chatbot_session") !== null) {
+            if(checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session")) && !fromLocalStorage) {
+                // If the date is the same or the message is not in localStorage, add the message to localStorage.
+                addMessageLocalStorage("user", message);
+            }
+            else {
+                // If the date is different, delete the localStorage.
+                localStorage.removeItem("usagov_chatbot_session");
+                // Add the message to localStorage.
+                addMessageLocalStorage("user", message);
+            }
+        }
+        else {
+            // If there is no localStorage, add the message to localStorage.
             addMessageLocalStorage("user", message);
         }
 
@@ -375,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
                 // Create a message element for the user's message.
-                const newUserMessageElement = createMessage(isUser, message.content, fromLocalStorage = true);
+                const newUserMessageElement = createMessage(isUser, message.content, true);
 
                 // Add the user's message element to the chatbot.
                 messageContainer.appendChild(newUserMessageElement);
