@@ -30,7 +30,7 @@ function chatbotToogle() {
 
 /**
  * Checks if two date JSON objects represent the same date (day, month, and year).
- *  
+ *
  * @param {Date} dateJsonToSend - The first date object or JSON string to compare.
  * @param {Object|string} dateJsonToCompare - The second date object or JSON string to compare.
  * @returns {boolean} True if both dates are the same (day, month, and year), false otherwise.
@@ -49,7 +49,7 @@ function checkDate(dateJsonToSend, dateJsonToCompare) {
 
     // Get date argument from JSON and convert to Date objects.
     dateJsonToCompare = new Date(dateJsonToCompare.date);
-    
+
     // Compare the date, month, and year of both dates.
     return dateJsonToSend.getDate() === dateJsonToCompare.getDate() &&
            dateJsonToSend.getMonth() === dateJsonToCompare.getMonth() &&
@@ -114,7 +114,7 @@ const lastMessageObserver = new IntersectionObserver((entries) => {
         if (entry.isIntersecting) {
             // Last message is visible
             scrollElement.style.display = "none";
-        } 
+        }
         else {
             // Last message is hidden
             scrollElement.style.display = "flex";
@@ -122,8 +122,8 @@ const lastMessageObserver = new IntersectionObserver((entries) => {
     });
 },
 {
-    root: null, // Use the viewport as the root
-    threshold: 0.0, // Trigger when any part of the element is visible
+    "root": null, // Use the viewport as the root
+    "threshold": 0.0, // Trigger when any part of the element is visible
 });
 
 /**
@@ -225,6 +225,8 @@ async function getAIResponse(userMessage, messageContainer) {
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
 function createMessage(isUser, message, fromLocalStorage = false) {
+    'use strict';
+
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
     const htmlMessage = converter.makeHtml(message);
@@ -249,8 +251,8 @@ function createMessage(isUser, message, fromLocalStorage = false) {
 
     if (isUser) {
 
-        if(localStorage.getItem("usagov_chatbot_session") !== null) {
-            if(checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session")) && !fromLocalStorage) {
+        if (localStorage.getItem("usagov_chatbot_session") !== null) {
+            if (checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session")) && !fromLocalStorage) {
                 // If the date is the same or the message is not in localStorage, add the message to localStorage.
                 addMessageLocalStorage("user", message);
             }
