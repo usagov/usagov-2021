@@ -261,6 +261,7 @@ commands:
             echo RDIG is $RDIG
             ./bin/cloudgov/deploy-reporter << pipeline.number >> $RDIG
 
+
   deploy-cloudgov-cron:
     parameters:
       envname:
