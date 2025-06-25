@@ -568,7 +568,6 @@ function usagov_preprocess_block__mobile_navigation(array &$variables) {
 }
 
 function usagov_preprocess_page(array &$variables): void {
-  
   $affiliate = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $affiliate_es = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 
