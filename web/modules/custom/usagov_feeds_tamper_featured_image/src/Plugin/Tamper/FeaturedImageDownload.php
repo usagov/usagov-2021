@@ -29,34 +29,58 @@ class FeaturedImageDownload extends TamperBase {
       return NULL;
     }
 
+    // Check if URL is already encoded by looking for percent-encoded patterns in the original URL
+    $is_already_encoded = preg_match('/%[0-9A-Fa-f]{2}/', $data);
+
     // Rebuild URL with proper encoding - use rawurlencode for path components
     $encoded_url = $parsed_url['scheme'] . '://' . $parsed_url['host'];
     if (isset($parsed_url['port'])) {
       $encoded_url .= ':' . $parsed_url['port'];
     }
     if (isset($parsed_url['path'])) {
-      // Split path into segments and encode each one separately
-      $path_segments = explode('/', $parsed_url['path']);
-      $encoded_segments = array_map('rawurlencode', $path_segments);
-      $encoded_url .= implode('/', $encoded_segments);
+      if ($is_already_encoded) {
+        // URL is already encoded, use as-is
+        $encoded_url .= $parsed_url['path'];
+      }
+      else {
+        // Split path into segments and encode each one separately
+        $path_segments = explode('/', $parsed_url['path']);
+        $encoded_segments = array_map('rawurlencode', $path_segments);
+        $encoded_url .= implode('/', $encoded_segments);
+      }
     }
     if (isset($parsed_url['query'])) {
       $encoded_url .= '?' . $parsed_url['query'];
     }
 
+    $urls_to_try = [];
+    // Try multiple URL variants in case of encoding issues
+    if ($is_already_encoded) {
+      // If already encoded, try original first, then a decoded version
+      $decoded_url = urldecode($data);
+      $urls_to_try = [$data, $decoded_url];
+    }
+    else {
+      // If not encoded, try encoded first, then original
+      $urls_to_try = [$encoded_url, $data];
+    }
+
     // Log the URLs for debugging
-    \Drupal::logger('usagov_feeds_tamper_featured_image')->info('Original URL: @original, Encoded URL: @encoded', [
+    \Drupal::logger('usagov_feeds_tamper_featured_image')->info('Original URL: @original, Already encoded: @already, Final URL: @final, URLs to try: @urls', [
       '@original' => $data,
-      '@encoded' => $encoded_url,
+      '@already' => $is_already_encoded ? 'Yes' : 'No',
+      '@final' => $encoded_url,
+      '@urls' => implode(', ', $urls_to_try),
     ]);
 
     // Download the image data using Drupal's HTTP client
     $http_client = \Drupal::httpClient();
 
-    // Try multiple URL variants in case of encoding issues
-    $urls_to_try = [$encoded_url, $data];
-
     foreach ($urls_to_try as $url_attempt) {
+      \Drupal::logger('usagov_feeds_tamper_featured_image')->info('Attempting to download from: @url', [
+        '@url' => $url_attempt,
+      ]);
+
       try {
         $response = $http_client->get($url_attempt, [
           'timeout' => 30,
