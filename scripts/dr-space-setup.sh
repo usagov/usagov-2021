@@ -200,40 +200,57 @@ cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
 cf restage $WAF_APP
 exit
 
+# We need to download the prod snapshots locally:
+# Public Files: https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk
+# Site Files:   https://drive.google.com/drive/folders/1EFJX3fGe4tyfYtK7T9jTqQ3GVw6Ugk0c
+# DB Files:     https://drive.google.com/drive/folders/1zVDr7dxzIa3tPsdxCb0FOXNvIFz96dNx
 #
-# In order to get the backed up files into the new space, we need to get the prod snapshot locally,
-# then create that snapshot on dr, from the local snapshot file we just downloaded.
+# Get the LATEST production snapshot files from the above links
+# Place them in the current directory
+# The files should be named, for example:
 #
-# Then we can deploy the public snapshot as usual
-#
-echo cf target -s prod
-$echo cf target -s prod &>/dev/null
-echo assertCurSpace prod
-$echo assertCurSpace prod
-bin/snapshot-backups/local-snapshot-download prod USAGOV-1669.prod.9820.post-deploy
+# Public Files: USAGOV-2416.prod.14113.post-deploy.public.zip
+# Site Files:   USAGOV-2416.prod.14113.post-deploy.zip
+# DB Files:     USAGOV-2416.prod.14113.post-deploy.sql.gz
 
+# create an environment variable for the backup tag, for example:
+#
+export BACKUP_TAG=USAGOV-2416.prod.14113.post-deploy
+#
+### !!! CHANGE THE ABOVE BACKUP_TAG TO THE LATEST PRODUCTION SNAPSHOT TAG!!!
+
+# Push the backup files into s3 for the new space
+#
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/db-dump-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy
-bin/snapshot-backups/db-dump-deploy dr USAGOV-1669.prod.9820.post-deploy
+bin/snapshot-backups/db-dump-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+bin/snapshot-backups/site-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+bin/snapshot-backups/public-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+exit
+
+# Create that snapshot on $APP_SPACE, from the local snapshot files we just downloaded.
+#
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${BACKUP_TAG}
 exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/public-folder-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy
-bin/snapshot-backups/public-snapshot-deploy dr USAGOV-1669.prod.9820.post-deploy
+bin/snapshot-backups/public-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
 exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/site-folder-push-to-snapshot dr USAGOV-1669.prod.9820.post-deploy
-bin/snapshot-backups/site-snapshot-deploy dr USAGOV-1669.prod.9820.post-deploy
+bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
 exit
 
 ### Replaced by db-dump-deploy above!
