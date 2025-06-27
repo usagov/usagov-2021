@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.blog_post.body
     - field.field.node.blog_post.field_author
-    - field.field.node.blog_post.field_featured_image
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
@@ -142,15 +141,6 @@ mappings:
     settings:
       language: ''
       format: html
-  -
-    target: field_featured_image
-    map:
-      target_id: featured_image_url
-    settings:
-      language: ''
-      reference_by: name
-      autocreate: 1
-      autocreate_bundle: image
   -
     target: status
     map:
