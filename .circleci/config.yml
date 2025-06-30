@@ -249,6 +249,8 @@ commands:
             DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${REPO}:${TAG}" | cut -d@ -f2)
             echo "SIGNED_DIGEST=${DIGEST}"
             echo "${DIGEST}" > /tmp/reporter_digest
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "S3_BUCKET is: $S3_BUCKET"
             aws s3 cp /tmp/reporter_digest "s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-${PIPELINE_NUM}"
       - run:
           name: Deploy Analytics Reporter
