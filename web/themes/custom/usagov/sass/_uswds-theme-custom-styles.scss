@@ -901,7 +901,7 @@ input::-webkit-textfield-decoration-container {
 // reduces space below the breadcrumb on benefits pages
 #block-usagov-breadcrumbs {
   min-height: 5rem;
-  
+
   @include at-media("mobile-lg") {
     min-height: 4rem;
   }
@@ -924,4 +924,88 @@ input::-webkit-textfield-decoration-container {
 
 .ui-dialog.ckeditor5-paragraph-embed-modal > .ui-dialog-content {
     height: 80vh !important;
+}
+
+/* Blog post styles */
+.usa-section .usa-prose.blog-view {
+  .views-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    min-height: 200px;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    border-color: #ddd;
+    transition: background .3s, border .3s, border-radius .3s, box-shadow .3s;
+    margin-top: 0px;
+    margin-bottom: 22px;
+    padding: 12px 12px 12px 16px;
+    border-radius: 4px 4px 4px 4px;
+
+    &:hover {
+      background-color: #ebe6de;
+    }
+
+    .views-field-title {
+      grid-column: 1 / -1;
+    }
+
+    .views-field-title a {
+      font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+      font-size: 1.95rem;
+      line-height: 1.2;
+      font-weight: 700;
+      text-decoration: none;
+
+      &:hover {
+        color: #4b4b4d;
+      }
+    }
+
+    .views-field-body {
+      grid-column: 1 / -1;
+    }
+
+    .views-field-created {
+      justify-self: start;
+      align-self: start;
+    }
+
+    .views-field-view-node {
+      justify-self: end;
+      align-self: end;
+
+      a {
+        display: inline-block;
+        width: auto;
+        margin-top: 0;
+        margin-right: .5em;
+        margin-bottom: .5em;
+        padding-top: .3rem;
+        padding-bottom: .3rem;
+        padding-left: 15px;
+        padding-right: 15px;
+        border: 0;
+        border-radius: .3rem;
+        overflow: visible;
+        background-color: #02bfe7;
+        background-size: 7rem;
+        background-repeat: no-repeat;
+        background-position: 110%;
+        font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+        font-size: 17px;
+        line-height: 23px;
+        font-weight: bold;
+        color: #000;
+        text-decoration: none;
+        text-transform: none;
+        -webkit-font-smoothing: antialiased;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: 0;
+      }
+    }
+  }
 }

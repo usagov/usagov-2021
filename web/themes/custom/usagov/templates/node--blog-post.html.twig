@@ -70,7 +70,7 @@
  *   in different view modes.
  */
 #}
-<article{{ attributes }}>
+<article{{ attributes.addClass('blog-post') }}>
 
   {{ title_prefix }}
   {% if not page %}
@@ -92,9 +92,9 @@
   {% endif %}
 
   <div{{ content_attributes }}>
+    {{ content.field_featured_image }}
     {{ content.body }}
     {{ content.tags }}
-    {{ content.field_featured_image }}
   </div>
 
 </article>

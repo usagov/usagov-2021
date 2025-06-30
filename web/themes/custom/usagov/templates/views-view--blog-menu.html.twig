@@ -60,7 +60,7 @@
         {% endif %}
       {% endblock %}
 
-      <div class="usa-layout-docs__main usa-prose desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
+      <div class="usa-layout-docs__main usa-prose blog-view desktop:grid-col-{% if (page.sidebar_first or page.sidebar_second) and show_sidebar %}8{% else %}fill{% endif %}">
         {% if rows -%}
           {{ rows }}
         {% elseif empty -%}
