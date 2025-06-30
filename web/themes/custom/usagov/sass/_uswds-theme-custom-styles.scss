@@ -927,6 +927,11 @@ input::-webkit-textfield-decoration-container {
 }
 
 /* Blog post styles */
+.usa-section .usa-prose .blog-post .field--name-field-featured-image {
+  float: right;
+}
+
+/* Blog view styles */
 .usa-section .usa-prose.blog-view {
   .views-row {
     display: grid;
