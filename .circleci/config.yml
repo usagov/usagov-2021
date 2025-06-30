@@ -248,15 +248,15 @@ commands:
             docker pull "${REPO}:${TAG}"
             DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${REPO}:${TAG}" | cut -d@ -f2)
             echo "SIGNED_DIGEST=${DIGEST}"
-            echo "${DIGEST}" > /tmp/results/reporter_digest
-            aws s3 cp /tmp/results/reporter_digest "s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-${PIPELINE_NUM}"
+            echo "${DIGEST}" > /tmp/reporter_digest
+            aws s3 cp /tmp/reporter_digest "s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-${PIPELINE_NUM}"
       - run:
           name: Deploy Analytics Reporter
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            export RDIG=`cat /tmp/results/reporter_digest`
+            export RDIG=`cat /tmp/reporter_digest`
             echo RDIG is $RDIG
             ./bin/cloudgov/deploy-reporter << pipeline.number >> $RDIG
 
