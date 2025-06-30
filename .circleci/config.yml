@@ -241,7 +241,8 @@ commands:
           name: Save Signed Image Digest Reporter
           command: |
             set -euo pipefail
-            PIPELINE_NUM=$1
+            export PIPELINE_NUM=<< pipeline.number >>
+            echo "PIPELINE_NUM is: $PIPELINE_NUM"
             TAG="reporter-${PIPELINE_NUM}"
             REPO="docker.io/${DOCKERUSER}/${DOCKERREPO}"
             docker pull "${REPO}:${TAG}"
