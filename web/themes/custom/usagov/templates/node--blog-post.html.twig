@@ -82,10 +82,8 @@
 
   {% if display_submitted %}
     <footer>
-      {{ author_picture }}
       <div{{ author_attributes }}>
-        {% set author = node.field_author.value is not empty ? node.field_author.value : author_name %}
-        {% trans %}Submitted by {{ author }} on {{ date }}{% endtrans %}
+        {% trans %}Posted on {{ date }}{% endtrans %}
         {{ metadata }}
       </div>
     </footer>

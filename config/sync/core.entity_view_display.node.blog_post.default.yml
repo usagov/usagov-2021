@@ -7,7 +7,6 @@ dependencies:
     - field.field.node.blog_post.feeds_item
     - field.field.node.blog_post.field_author
     - field.field.node.blog_post.field_featured_image
-    - field.field.node.blog_post.field_post_url
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
@@ -23,15 +22,7 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 101
-    region: content
-  field_author:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 104
+    weight: 2
     region: content
   field_featured_image:
     type: entity_reference_entity_view
@@ -40,27 +31,21 @@ content:
       view_mode: default
       link: false
     third_party_settings: {  }
-    weight: 103
-    region: content
-  field_post_url:
-    type: basic_string
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 105
+    weight: 1
     region: content
   field_tags:
     type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 102
+    weight: 3
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
-    weight: 100
+    weight: 0
     region: content
 hidden:
   feeds_item: true
+  field_author: true
   langcode: true
