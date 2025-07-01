@@ -26,6 +26,26 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
+function setVariables() {
+  WWW_APP=www
+  WAF_APP=waf
+  CMS_APP=cms
+  API_PROXY_APP=api-proxy
+  ORG=gsa-tts-usagov
+  APP_SPACE=dr
+  EGRESS_SPACE=dr-egress
+
+  echo "WWW_APP:       $WWW_APP"
+  echo "WAF_APP:       $WAF_APP"
+  echo "CMS_APP:       $CMS_APP"
+  echo "API_PROXY_APP: $API_PROXY_APP"
+  echo "ORG:           $ORG"
+  echo "APP_SPACE:     $APP_SPACE"
+  echo "EGRESS_SPACE:  $EGRESS_SPACE"
+
+  source bin/deploy/get-latest-prod-containers
+}
+
 #####################################################################
 ##
 ## This is meant to be a temporary script to assist in setting up
@@ -33,21 +53,7 @@ fi
 ##
 #####################################################################
 
-WWW_APP=www
-WAF_APP=waf
-CMS_APP=cms
-ORG=gsa-tts-usagov
-APP_SPACE=dr
-EGRESS_SPACE=shared-egress
-
-echo "WWW_APP:      $WWW_APP"
-echo "WAF_APP:      $WAF_APP"
-echo "CMS_APP:      $CMS_APP"
-echo "ORG:          $ORG"
-echo "APP_SPACE:    $APP_SPACE"
-echo "EGRESS_SPACE: $EGRESS_SPACE"
-
-source bin/deploy/get-latest-prod-containers
+setVariables
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &> /dev/null
@@ -70,16 +76,22 @@ exit
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
-#echo  cf delete-space $EGRESS_SPACE
-#$echo cf delete-space $EGRESS_SPACE
-#exit
+echo  cf delete-space $EGRESS_SPACE
+$echo cf delete-space $EGRESS_SPACE
+exit
+
+#####################################################
+### Start of recovery. Assume we're in a fresh session and set up env again.
+#####################################################
+setVariables
+exit
 
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
-#echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
-#$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
-#exit
+echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
+$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
+exit
 
 echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
 $echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
@@ -92,7 +104,7 @@ $echo assertCurSpace $APP_SPACE
 echo "************************************************************************"
 echo "Please remember to add each developer to the SpaceDeveloper group in the"
 echo "newly created space."
-echo 
+echo
 echo "Add devs in the CloudGov dashboard: https://dashboard.fr.cloud.gov/home"
 echo "************************************************************************"
 exit
@@ -108,11 +120,11 @@ exit
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
-#echo cf target -s $EGRESS_SPACE
-#$echo cf target -s $EGRESS_SPACE
-#echo cf create-service s3 basic-sandbox key-value  PIPE tee cskv.log
-#$echo cf create-service s3 basic-sandbox key-value  | tee cskv.log
-#exit
+echo cf target -s $EGRESS_SPACE
+$echo cf target -s $EGRESS_SPACE
+echo cf create-service s3 basic key-value  PIPE tee cskv.log
+$echo cf create-service s3 basic key-value  | tee cskv.log
+exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE  &> /dev/null
@@ -125,7 +137,7 @@ $echo bin/cloudgov/create-service-account $APP_SPACE cfevents | tee csa.log
 exit
 
 #
-# In order to use CircleCI to deploy to our new space, we have to grant Prod's cci service user 
+# In order to use CircleCI to deploy to our new space, we have to grant Prod's cci service user
 # the proper role:
 #
 echo cf target -s prod
@@ -136,33 +148,37 @@ SERVICE_KEY=$(cf service-key cci-service-account cci-service-key | tail -n +3)
 SERVICE_USER=$( echo $SERVICE_KEY | jq -r '.credentials.username')
 echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
 $echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE &>/dev/null
-echo assertCurSpace $APP_SPACE
-$echo assertCurSpace $APP_SPACE
-exit
-
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE &>/dev/null
-echo assertCurSpace $APP_SPACE
-$echo assertCurSpace $APP_SPACE
-echo  cf delete-service ${APP_SPACE}-usagov-domain
-$echo cf delete-service ${APP_SPACE}-usagov-domain
 exit
 
 #
-# The creation of the external domains takes a bit of time, so we will loop over
-# a status command, and wait until we see success (or failure) and Ctl-C out of the loop
+# The creation of the external domains takes a bit of time, so we'll issue the commands,
+# then deploy the log-shipper, then check status.
 #
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-DOMAIN_STRING="{\"domains\": \"beta-${APP_SPACE}.usa.gov, cms-${APP_SPACE}.usa.gov\"}"
-echo  cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c "$DOMAIN_STRING"
-$echo cf create-service external-domain domain ${APP_SPACE}-usagov-domain -c "$DOMAIN_STRING"
-while [ 1 = 1 ]; do cf service ${APP_SPACE}-usagov-domain; sleep 10; done
+echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
+$echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
+# TODO: this does not create an external domain for the api-proxy.
+echo "This will take awhile. Deploy the log-shipper, using bin/dr-space-setup.sh in the log-shipper repo, then come back."
 exit
+
+##################################################
+# README: deploy the log-shipper. Go to the log-shipper repo and use dr-space-setup.sh there.
+##################################################
+
+#
+# Check status of external domains. Ctrl-C out when you see success.
+#
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+$echo while [ 1 = 1 ]; do cf service ${APP_SPACE}-cms-usagov-domain; sleep 10; done
+$echo while [ 1 = 1 ]; do cf service ${APP_SPACE}-www-usagov-domain; sleep 10; done
+exit
+
 
 #
 # README:  This sequence needed to be run twice, to successfully deploy the cms app for the first time.
@@ -171,34 +187,70 @@ echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
+echo bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
+$echo bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
 exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
+echo bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
+$echo bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
 exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
+echo "deploy-api-proxy is expected to fail with \"Failed to configure network policies\". That is OKAY. deploy-waf will do those"
+echo bin/cloudgov/deploy-api-proxy
+$echo bin/cloudgov/deploy-api-proxy
+exit
+
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+echo \
 ROUTE_SERVICE_APP_NAME=$WAF_APP \
 ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP" \
+PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" \
+bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
+$echo \
+ROUTE_SERVICE_APP_NAME=$WAF_APP \
+ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
+PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" \
 bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
 exit
 
+##################################################
+# README: only do this if you want to expose the servers to public traffic
+##################################################
+# echo cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE &>/dev/null
+# echo assertCurSpace $APP_SPACE
+# $echo assertCurSpace $APP_SPACE
+# cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
+# cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
+# echo cf restage $WAF_APP
+# $echo cf restage $WAF_APP
+# exit
+
+#
+# Set up egress proxy. This will also run setup-egress-for apps (--restart option),
+#
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-cf set-env $WAF_APP IP_ALLOW_ALL_CMS 1
-cf set-env $WAF_APP IP_ALLOW_ALL_WWW 1
-cf restage $WAF_APP
-exit
+echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
+$echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
+
+##################################################
+# Set up log drains. Return to the log-shipper script, line 65
+##################################################
+
 
 # We need to download the prod snapshots locally:
 # Public Files: https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk
@@ -219,26 +271,22 @@ export BACKUP_TAG=USAGOV-2416.prod.14113.post-deploy
 #
 ### !!! CHANGE THE ABOVE BACKUP_TAG TO THE LATEST PRODUCTION SNAPSHOT TAG!!!
 
-# Push the backup files into s3 for the new space
+# Push the backup files into s3 for the new space.
 #
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/db-dump-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
-bin/snapshot-backups/site-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
-bin/snapshot-backups/public-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+echo bin/snapshot-backups/db-dump-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+$echo bin/snapshot-backups/db-dump-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+echo bin/snapshot-backups/site-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+$echo bin/snapshot-backups/site-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+echo bin/snapshot-backups/public-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
+$echo bin/snapshot-backups/public-folder-push-to-snapshot ${APP_SPACE} ${BACKUP_TAG}
 exit
 
 # Create that snapshot on $APP_SPACE, from the local snapshot files we just downloaded.
 #
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE &>/dev/null
-echo assertCurSpace $APP_SPACE
-$echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${BACKUP_TAG}
-exit
-
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
@@ -253,13 +301,33 @@ $echo assertCurSpace $APP_SPACE
 bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
 exit
 
+##################################################
+# Run automated regression tests on the static site now.
+# For stage and prod, this is just a matter of clicking a button under "Actions" in github.
+# For a non-standard space, a developer with usagov-2021 containers running locally can do this:
+# - bin/cypress-ssh
+#   in cypress shell:
+#   - CYPRESS_BASE_URL=https://beta-dr.usa.gov
+#   - npx cypress run --spec cypress/e2e/regression_testing
+# - Open the resulting report in a web browser:  ${repo dir}/automated_tests/e2e-cypress/cypress/reports/html/index.html
+##################################################
+
+# Deploy the database only if we're not getting a fresher backup from cloud.gov support
+# echo cf target -s $APP_SPACE
+# $echo cf target -s $APP_SPACE &>/dev/null
+# echo assertCurSpace $APP_SPACE
+# $echo assertCurSpace $APP_SPACE
+# bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${BACKUP_TAG}
+# exit
+
+
 ### Replaced by db-dump-deploy above!
 ### ### echo cf target -s $APP_SPACE
 ### ### $echo cf target -s $APP_SPACE &>/dev/null
 ### ### echo assertCurSpace $APP_SPACE
 ### ### $echo assertCurSpace $APP_SPACE
 ### ### SQL_FILE=usagov.sql
-### ### 
+### ###
 ### ### echo "Attempting to deploy database backup $SQL_FILE to $APP_SPACE"
 ### ### $echo cat $SQL_FILE | cf ssh cms -c "cat - > /tmp/$SQL_FILE"
 ### ### cf ssh $CMS_APP -c "if [ -f /tmp/$SQL_FILE ]; then . /etc/profile; drush sql-drop -y; cat /tmp/$SQL_FILE | drush sql-cli; drush cr; fi"
