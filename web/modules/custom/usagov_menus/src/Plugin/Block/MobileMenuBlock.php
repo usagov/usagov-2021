@@ -27,13 +27,14 @@ class MobileMenuBlock extends AbstractMenuBlock {
     switch ($this->language->getId()) {
       case 'es':
         $menuID = 'left-menu-spanish';
+        $affiliate_es = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
         $this->translations = [
           'home' => 'Página principal',
           'home_URL' => '/es',
           'close' => 'Cerrar',
           'search' => 'Buscar',
           'search_placeholder' => 'Busque en este sitio...',
-          'search_affiliate' => 'usagov_es_internal',
+          'search_affiliate' => $affiliate_es,
           'all_topics' => 'Todos los temas y servicios',
           'form_id' => 'usagov_es_internal-mobile',
         ];
@@ -42,13 +43,14 @@ class MobileMenuBlock extends AbstractMenuBlock {
       case 'en':
       default:
         $menuID = 'left-menu-english';
+        $affiliate = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
         $this->translations = [
           'home' => 'Home',
           'home_URL' => '/',
           'close' => 'Close',
           'search' => 'Search',
           'search_placeholder' => 'Search all government',
-          'search_affiliate' => 'usagov_en_all_gov',
+          'search_affiliate' => $affiliate,
           'all_topics' => 'All topics and services',
           'form_id' => 'usagov_all_gov-mobile',
         ];
