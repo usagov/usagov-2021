@@ -11,7 +11,7 @@
     'close': 'Cerrar',
     'search': 'Buscar',
     'search_placeholder': 'Busque en este sitio...',
-    'search_affiliate': 'usagov_es_internal',
+    'search_affiliate': usagov_affiliate_es,
     'all_topics': 'Todos los temas y servicios',
     'phone_URL': '/es/llamenos',
     'form_id':'usagov_es_internal-mobile'
@@ -28,7 +28,7 @@
     'close': 'Close',
     'search': 'Search',
     'search_placeholder': 'Search all government',
-    'search_affiliate': 'usagov_en_all_gov',
+    'search_affiliate': usagov_affiliate,
     'all_topics': 'All topics and services',
     'phone_URL': '/phone',
     'form_id':'usagov_all_gov-mobile'
@@ -172,7 +172,7 @@
           {% set alt_string = translations.search %}
         {% endembed %}
         <div class="usa-nav__secondary-links">
-          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item">
+          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item" data-contact-callout="visible">
             <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
           </span>
         </div>
