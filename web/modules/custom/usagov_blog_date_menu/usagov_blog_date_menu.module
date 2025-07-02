@@ -77,18 +77,36 @@ function usagov_blog_date_menu_rebuild_menu(): void {
 
   $groups = [];
   foreach ($nodes as $node) {
-    $created = $node->getCreatedTime();
-    $year = date('Y', $created);
-    $month = date('Y-m', $created);
+    // Use the 'created' field which is the "Authored on" date in Drupal
+    $authored = $node->get('created')->value;
+    $year = date('Y', $authored);
+    $month = date('Y-m', $authored);
     $groups[$year][$month][] = $node;
   }
 
+  // Sort each month's nodes by authored date (newest first)
+  foreach ($groups as $year => $months) {
+    foreach ($months as $month_key => $nodes_month) {
+      usort($groups[$year][$month_key], function ($a, $b) {
+        $a_authored = $a->get('created')->value;
+        $b_authored = $b->get('created')->value;
+        return $b_authored - $a_authored;
+      });
+    }
+  }
+
   // Build menu links: Year > Month > Blog Title.
+  // Sort years in descending order (newest first)
+  krsort($groups);
+
   $year_links = [];
   foreach ($groups as $year => $months) {
+    // Sort months in descending order (newest first)
+    krsort($months);
+
     $year_link = MenuLinkContent::create([
       'title' => $year,
-      'link' => ['uri' => '<nolink>'],
+      'link' => ['uri' => 'route:<nolink>'],
       'menu_name' => $menu_name,
       'weight' => -1 * intval($year),
       'expanded' => TRUE,
@@ -102,7 +120,7 @@ function usagov_blog_date_menu_rebuild_menu(): void {
       $month_title = date('F', strtotime($month_key . '-01'));
       $month_link = MenuLinkContent::create([
         'title' => $month_title,
-        'link' => ['uri' => '<nolink>'],
+        'link' => ['uri' => 'route:<nolink>'],
         'menu_name' => $menu_name,
         'parent' => $year_id,
         'weight' => -1 * intval(str_replace('-', '', $month_key)),
@@ -112,13 +130,13 @@ function usagov_blog_date_menu_rebuild_menu(): void {
       $month_link->save();
       $month_id = $month_link->getPluginId();
 
-      foreach ($nodes_month as $node) {
+      foreach ($nodes_month as $index => $node) {
         MenuLinkContent::create([
           'title' => $node->getTitle(),
           'link' => ['uri' => 'internal:/node/' . $node->id()],
           'menu_name' => $menu_name,
           'parent' => $month_id,
-          'weight' => 0,
+          'weight' => $index,
           'enabled' => TRUE,
         ])->save();
       }
@@ -168,10 +186,11 @@ function usagov_blog_date_menu_build_blog_post_breadcrumb(Breadcrumb &$breadcrum
   $links[] = Link::createFromRoute(t('Home'), '<front>');
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
 
-  $created = $node->getCreatedTime();
-  $year = date('Y', $created);
-  $month_name = date('F', $created);
-  $month_numeric = date('m', $created);
+  // Use the 'created' field which is the "Authored on" date in Drupal
+  $authored = $node->get('created')->value;
+  $year = date('Y', $authored);
+  $month_name = date('F', $authored);
+  $month_numeric = date('m', $authored);
 
   $links[] = Link::fromTextAndUrl($year, Url::fromUri('internal:/blog/' . $year));
   $links[] = Link::fromTextAndUrl($month_name, Url::fromUri('internal:/blog/' . $year . '/' . $month_numeric));

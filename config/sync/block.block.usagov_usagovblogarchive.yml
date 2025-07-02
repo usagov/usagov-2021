@@ -18,13 +18,13 @@ plugin: 'menu_block:usagov_blog_archive'
 settings:
   id: 'menu_block:usagov_blog_archive'
   label: 'USAGov Blog Archive'
-  label_display: '0'
+  label_display: visible
   provider: menu_block
   follow: false
   follow_parent: child
   display_empty: false
   label_link: false
-  label_type: block
+  label_type: menu
   level: 1
   depth: 0
   expand_all_items: false
