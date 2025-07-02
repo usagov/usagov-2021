@@ -59,10 +59,16 @@ echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &> /dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
+
 echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
 $echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE
-bin/cloudgov/get-s3-access log-storage
-aws s3 rm --recursive s3://$S3_BUCKET/fluent-bit-logs/
+echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE cron-callwait-storage
+$echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE cron-callwait-storage
+echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE cron-event-storage
+$echo bin/cloudgov/s3-clear-bucket --proceed-with-bucket-content-deletion $APP_SPACE cron-event-storage
+. bin/cloudgov/get-s3-access log-storage
+echo aws s3 rm --recursive s3://$S3_BUCKET/fluent-bit-logs/
+$echo aws s3 rm --recursive s3://$S3_BUCKET/fluent-bit-logs/
 exit
 
 echo cf target -s $APP_SPACE
