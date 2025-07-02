@@ -291,7 +291,9 @@
     justify-self: right;
     align-items: center;
     margin-right: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+
+    @include u-border(1px, 'solid', 'white');
 
     .usagov-ai-chatbot-title, .usagov-ai-chatbot-experimental {
       display: none;
@@ -299,13 +301,31 @@
 
   }
 
+  .usagov-ai-chatbot-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   .usagov-ai-chatbot-container.chat-open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+
     width: 100vw;
     border-radius: 0;
     right: 0;
     bottom: 0;
     margin-bottom: 0 !important;
     margin-right: 0 !important;
+  }
+
+  .usagov-ai-chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
   }
 
 }
