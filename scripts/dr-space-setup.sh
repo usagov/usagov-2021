@@ -82,22 +82,22 @@ exit
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
-echo  cf delete-space $EGRESS_SPACE
-$echo cf delete-space $EGRESS_SPACE
-exit
+#echo  cf delete-space $EGRESS_SPACE
+#$echo cf delete-space $EGRESS_SPACE
+#exit
 
 #####################################################
 ### Start of recovery. Assume we're in a fresh session and set up env again.
 #####################################################
-setVariables
-exit
+#setVariables
+#exit
 
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
-echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
-$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
-exit
+#echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
+#$echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
+#exit
 
 echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
 $echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
@@ -126,11 +126,11 @@ exit
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
-echo cf target -s $EGRESS_SPACE
-$echo cf target -s $EGRESS_SPACE
-echo cf create-service s3 basic key-value  PIPE tee cskv.log
-$echo cf create-service s3 basic key-value  | tee cskv.log
-exit
+#echo cf target -s $EGRESS_SPACE
+#$echo cf target -s $EGRESS_SPACE
+#echo cf create-service s3 basic key-value  PIPE tee cskv.log
+#$echo cf create-service s3 basic key-value  | tee cskv.log
+#exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE  &> /dev/null
@@ -154,6 +154,8 @@ SERVICE_KEY=$(cf service-key cci-service-account cci-service-key | tail -n +3)
 SERVICE_USER=$( echo $SERVICE_KEY | jq -r '.credentials.username')
 echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
 $echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
+$echo cf target -s $APP_SPACE  &> /dev/null
+$echo assertCurSpace $APP_SPACE
 exit
 
 #
@@ -181,10 +183,9 @@ echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-$echo while [ 1 = 1 ]; do cf service ${APP_SPACE}-cms-usagov-domain; sleep 10; done
-$echo while [ 1 = 1 ]; do cf service ${APP_SPACE}-www-usagov-domain; sleep 10; done
+echo "Run the following, and then Ctrl-C when you see success:"
+echo "while [ 1 = 1 ]; do cf service ${APP_SPACE}-cms-usagov-domain; sleep 10; done"
 exit
-
 
 #
 # README:  This sequence needed to be run twice, to successfully deploy the cms app for the first time.
@@ -228,6 +229,14 @@ ROUTE_SERVICE_APP_NAME=$WAF_APP \
 ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
 PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" \
 bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
+exit
+
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+echo bin/cloudgov/deploy-cron $APP_SPACE $CRON_BUILD $CRON_DIGEST
+$echo bin/cloudgov/deploy-cron $APP_SPACE $CRON_BUILD $CRON_DIGEST
 exit
 
 ##################################################
