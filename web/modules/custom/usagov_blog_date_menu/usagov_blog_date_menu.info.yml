@@ -1,6 +1,6 @@
 name: 'USAGov Blog Date Menu'
 type: module
-description: 'Provides a block that displays a blog archive menu grouped by date.'
+description: 'Provides a block that displays a blog menu grouped by date.'
 core_version_requirement: ^8 || ^9 || ^10
 package: USAgov
 dependencies:

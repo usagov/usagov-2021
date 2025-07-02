@@ -220,7 +220,6 @@ function usagov_blog_date_menu_build_blog_listing_breadcrumb(Breadcrumb &$breadc
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
-
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromRoute('<none>'));
 
   $new_breadcrumb = new Breadcrumb();
