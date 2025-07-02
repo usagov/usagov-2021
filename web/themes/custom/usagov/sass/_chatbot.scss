@@ -83,16 +83,17 @@
   #usagov-ai-chatbot-toogle {
     border: none;
     background: none;
-    background-image: url("../assets/img/usa-icons/add.svg"), linear-gradient(transparent, transparent);
+    background-image: url("../assets/img/usa-icons/add.svg");
     background-position-y: center;
     background-size: 1.5rem;
     filter: brightness(0) invert(1);
     width: 24px;
+    height: 24px;
+    align-self: center;
   }
 
   .usagov-ai-chatbot-inner-container {
     display: flex;
-    
   }
 
   .usagov-ai-chatbot-message-time {
@@ -172,16 +173,17 @@
   }
   
   .usagov-ai-chatbot-input-container {
-    height: 74px;
     display: flex;
+    height: 74px;
     padding: 16px;
   }
   
   .usagov-ai-chatbot-input {
-    flex: 75%;
     border-radius: .25rem;
     margin-top: 0;
     align-self: center;
+    flex: 1;
+    max-width: 100%;
     @include u-border(1px, 'solid', 'gray-90');
   }
 
@@ -190,11 +192,11 @@
   }
   
   .usagov-ai-chatbot-input-button {
-    flex: 25%;
     height: 2.5rem;
     align-self: center;
     margin: 0;
     margin-left: 4px;
+    width: auto;
   
     @include u-padding-x(16px);
     @include u-padding-y(8px);
@@ -269,4 +271,41 @@
     height: 25px;
     margin-right: 10px;
   }
+}
+
+@media (max-width: 768px) {
+
+  // Move elements inside container to the right side 
+  .usagov-ai-chatbot-container.chat-collapsed {
+    width: fit-content;
+    background: none;
+    box-shadow: none;
+  }
+
+  // Closed circle Icon
+  .usagov-ai-chatbot-container.chat-collapsed .usagov-ai-chatbot-header {
+    width: 60px;
+    height: 60px;
+    border-radius: 100px;
+    justify-content: center;
+    justify-self: right;
+    align-items: center;
+    margin-right: 10px;
+    margin-bottom: 10px;
+
+    .usagov-ai-chatbot-title, .usagov-ai-chatbot-experimental {
+      display: none;
+    }
+
+  }
+
+  .usagov-ai-chatbot-container.chat-open {
+    width: 100vw;
+    border-radius: 0;
+    right: 0;
+    bottom: 0;
+    margin-bottom: 0 !important;
+    margin-right: 0 !important;
+  }
+
 }

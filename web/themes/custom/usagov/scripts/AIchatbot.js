@@ -17,13 +17,13 @@ function chatbotToogle() {
         chatbotContainer.classList.remove("chat-open");
         chatbotContainer.classList.add("chat-collapsed");
         chatbotContainer.style.transform = "translateY(" + chatbotBody.offsetHeight + "px)";
-        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/add.svg), linear-gradient(transparent, transparent)";
+        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/add.svg)";
     }
     else {
         chatbotContainer.classList.remove("chat-collapsed");
         chatbotContainer.classList.add("chat-open");
         chatbotContainer.style.transform = "translateY(0)";
-        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/remove.svg), linear-gradient(transparent, transparent)";
+        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/remove.svg)";
     }
 
 }
