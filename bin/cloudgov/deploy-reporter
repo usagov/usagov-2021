@@ -110,6 +110,8 @@ cf create-service s3 basic-public-sandbox s3for${APPNAME}
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
 echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling"
+encoded_command=$(echo "cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling" | base64)
+echo "Base64 encoded command: ${encoded_command}"
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
     echo "testing this is a test - test 1"
     cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling
