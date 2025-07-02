@@ -250,8 +250,8 @@ function createMessage(isUser, message, fromLocalStorage) {
 
     if (isUser) {
 
-        if(!fromLocalStorage) {
-            if (localStorage.getItem("usagov_chatbot_session") !== null && 
+        if (!fromLocalStorage) {
+            if (localStorage.getItem("usagov_chatbot_session") !== null &&
                 !checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session"))) {
                 // If the date is different, delete the localStorage.
                 localStorage.removeItem("usagov_chatbot_session");
@@ -277,8 +277,8 @@ function createMessage(isUser, message, fromLocalStorage) {
         messageInnerContainerElement.appendChild(messageAvatarElement);
     }
     else {
-        if(!fromLocalStorage) {
-            if (localStorage.getItem("usagov_chatbot_session") !== null && 
+        if (!fromLocalStorage) {
+            if (localStorage.getItem("usagov_chatbot_session") !== null &&
                 !checkDate(dateConstructor, localStorage.getItem("usagov_chatbot_session"))) {
                 // If the date is different, delete the localStorage.
                 localStorage.removeItem("usagov_chatbot_session");
@@ -290,7 +290,7 @@ function createMessage(isUser, message, fromLocalStorage) {
                 addMessageLocalStorage("bot", message);
             }
         }
-        
+
 
         // Configure the bot message container.
         messageElement.classList.add("usagov-ai-chatbot-message", "bot");
