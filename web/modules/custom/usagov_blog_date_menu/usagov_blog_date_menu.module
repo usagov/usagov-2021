@@ -53,13 +53,14 @@ function usagov_blog_date_menu_entity_delete(EntityInterface $entity): void {
  * Rebuilds the USAGov Blog menu.
  */
 function usagov_blog_date_menu_rebuild_menu(): void {
-  $menu_name = 'usagov_blog_archive';
+  $menu_name = 'usagov_blog_menu';
 
   if (!Menu::load($menu_name)) {
     Menu::create([
       'id' => $menu_name,
       'label' => 'USAGov Blog Menu',
       'description' => 'Menu for blog posts by year and month.',
+      'title' => 'Our Blog',
     ])->save();
   }
 
@@ -129,6 +130,8 @@ function usagov_blog_date_menu_rebuild_menu(): void {
  * Implements hook_system_breadcrumb_alter().
  *
  * This runs after menu_breadcrumb module, overriding standard breadcrumb implementation.
+ *
+ * @param array<string, mixed> $context
  */
 function usagov_blog_date_menu_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context): void {
   $route_name = $route_match->getRouteName();
