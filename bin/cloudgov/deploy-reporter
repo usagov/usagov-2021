@@ -109,15 +109,14 @@ cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
-echo "Will use the command: cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling"
-encoded_command=$(echo "cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling" | base64)
-echo "Base64 encoded command: ${encoded_command}"
+echo "Will use the command: CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling"
+
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
     echo "testing this is a test - test 1"
     cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling
 else
     echo "testing this is a test - test 2"
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@sha256:${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
 fi
 
 # bind services (ups should be bound already, but just in case)
