@@ -889,7 +889,6 @@ workflows:
             branches:
               only:
               - dr
-
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
@@ -900,7 +899,6 @@ workflows:
             branches:
               only:
               - dr
-
       - approve-stage-deployment-cron:
           type: approval
           requires:
