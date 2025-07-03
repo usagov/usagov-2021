@@ -33,7 +33,10 @@ function setVariables() {
   API_PROXY_APP=api-proxy
   ORG=gsa-tts-usagov
   APP_SPACE=dr
-  EGRESS_SPACE=dr-egress
+  EGRESS_SPACE=shared-egress
+
+  USPS_USERID=237UGENER6849
+  USPS_PASSWORD=Z0596ZY82P9984G
 
   echo "WWW_APP:       $WWW_APP"
   echo "WAF_APP:       $WAF_APP"
@@ -89,8 +92,6 @@ exit
 #####################################################
 ### Start of recovery. Assume we're in a fresh session and set up env again.
 #####################################################
-#setVariables
-#exit
 
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
@@ -169,12 +170,14 @@ $echo assertCurSpace $APP_SPACE
 echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
 $echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
 # TODO: this does not create an external domain for the api-proxy.
-echo "This will take awhile. Deploy the log-shipper, using bin/dr-space-setup.sh in the log-shipper repo, then come back."
-exit
+
 
 ##################################################
-# README: deploy the log-shipper. Go to the log-shipper repo and use dr-space-setup.sh there.
+### We probably want to move this after the cms/www/waf app deployments ?
 ##################################################
+#echo "This will take awhile. Deploy the log-shipper, using bin/dr-space-setup.sh in the log-shipper repo, then come back."
+#exit
+
 
 #
 # Check status of external domains. Ctrl-C out when you see success.
@@ -219,16 +222,10 @@ echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-echo \
-ROUTE_SERVICE_APP_NAME=$WAF_APP \
-ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" \
-bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
-$echo \
-ROUTE_SERVICE_APP_NAME=$WAF_APP \
-ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov \
-PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" \
-bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
+echo export ROUTE_SERVICE_APP_NAME=$WAF_APP ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" 
+echo bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
+$echo export ROUTE_SERVICE_APP_NAME=$WAF_APP ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" 
+$echo bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
 exit
 
 echo cf target -s $APP_SPACE
@@ -255,12 +252,12 @@ exit
 #
 # Set up egress proxy. This will also run setup-egress-for apps (--restart option),
 #
-echo cf target -s $APP_SPACE
-$echo cf target -s $APP_SPACE &>/dev/null
-echo assertCurSpace $APP_SPACE
-$echo assertCurSpace $APP_SPACE
-echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
-$echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
+#echo cf target -s $APP_SPACE
+#$echo cf target -s $APP_SPACE &>/dev/null
+#echo assertCurSpace $APP_SPACE
+#$echo assertCurSpace $APP_SPACE
+#echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
+#$echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
 
 ##################################################
 # Set up log drains. Return to the log-shipper script, line 65
