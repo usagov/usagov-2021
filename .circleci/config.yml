@@ -826,6 +826,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-2430-nginx-hosts
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
@@ -836,6 +837,7 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-2430-nginx-hosts
       - approve-stage-deployment:
           type: approval
           requires:
@@ -889,6 +891,8 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-2430-nginx-hosts
+
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
@@ -899,6 +903,8 @@ workflows:
             branches:
               only:
               - dr
+              - USAGOV-2430-nginx-hosts
+
       - approve-stage-deployment-cron:
           type: approval
           requires:
