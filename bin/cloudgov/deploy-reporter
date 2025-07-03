@@ -119,6 +119,7 @@ else
     CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
 fi
 
+
 # bind services (ups should be bound already, but just in case)
 echo Binding s3 and user provided service
 cf bind-service ${APPNAME} s3for${APPNAME}
