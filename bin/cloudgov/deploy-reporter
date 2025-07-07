@@ -36,8 +36,8 @@ function popspace() {
 # trap popspace exit
 trap popspace err
 
-cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
-    (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
+# cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
+#     (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
 
 # Content checks
 if ! command -v jq >/dev/null; then
