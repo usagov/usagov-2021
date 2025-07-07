@@ -426,7 +426,6 @@ jobs:
             SCAN_CMS_RESULT=0
             if (./bin/scan-container cms << pipeline.number >> high | tee /tmp/results/scan-cms-container.log); then export SCAN_CMS_RESULT=0; else export SCAN_CMS_RESULT=$?; fi
             echo "CMS Container Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-container.log
-            cat /tmp/results/scan-cms-container.log
             exit 0
       - run:
           name: Scan WWW Container
