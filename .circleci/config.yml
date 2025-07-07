@@ -257,8 +257,6 @@ commands:
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
-            echo Target space is << parameters.envname >>
-            sleep 30
             ./bin/cloudgov/space << parameters.envname >>
             export RDIG=`cat /tmp/reporter_digest`
             echo RDIG is $RDIG

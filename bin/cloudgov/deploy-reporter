@@ -36,6 +36,9 @@ function popspace() {
 # trap popspace exit
 trap popspace err
 
+# NOTE: The following lines were commented out because it was forcing us to place the reporter in the Tools space,
+#       and since USAGOV-2278, we now want to deploy to dev/stage/prod instead.
+#
 # cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
 #     (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
 
