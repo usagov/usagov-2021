@@ -82,24 +82,36 @@
   const stateList = document.getElementById("statelist");
   if (stateList) stateList.remove();
 
-  button.addEventListener("click", function () {
+  window.addEventListener("load", function () {
+    const goButton = document.querySelector(".sd-go-btn");
+    if (goButton) {
+      goButton.addEventListener("click", function () {
 
-    var url = select.value;
-    var statename = select.options[select.selectedIndex].text;
+        const select = document.getElementById("stateselect");
+        if (!select) return;
 
-    if (String(select.value) !== "") {
-      const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option")).map(option => option.value).filter(value => value.trim() !== "");
-      if (String(select.value) !== "" && allowedUrls.includes(select.value)) {
-        window.location = select.value;
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          'event': '50_state_submit',
-          '50_state_url': url,
-          '50_state_name': statename
-        });
-      }
+        const url = select.value;
+        const statename = select.options[select.selectedIndex].text;
+
+        if (url !== "") {
+          const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option"))
+            .map(option => option.value)
+            .filter(value => value.trim() !== "");
+
+          if (allowedUrls.includes(url)) {
+            window.location = url;
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+              'event': '50_state_submit',
+              '50_state_url': url,
+              '50_state_name': statename
+            });
+          }
+        }
+      });
     }
   });
+
 
 })();
 
