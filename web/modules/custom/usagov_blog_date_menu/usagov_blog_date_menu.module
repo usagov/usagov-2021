@@ -106,10 +106,10 @@ function usagov_blog_date_menu_rebuild_menu(): void {
 
     $year_link = MenuLinkContent::create([
       'title' => $year,
-      'link' => ['uri' => 'route:<nolink>'],
+      'link' => ['uri' => 'internal:/blog/' . $year],
       'menu_name' => $menu_name,
       'weight' => -1 * intval($year),
-      'expanded' => TRUE,
+      'expanded' => FALSE,
       'enabled' => TRUE,
     ]);
     $year_link->save();
@@ -120,7 +120,7 @@ function usagov_blog_date_menu_rebuild_menu(): void {
       $month_title = date('F', strtotime($month_key . '-01'));
       $month_link = MenuLinkContent::create([
         'title' => $month_title,
-        'link' => ['uri' => 'route:<nolink>'],
+        'link' => ['uri' => 'internal:/blog/' . $year . '/' . date('m', strtotime($month_key . '-01'))],
         'menu_name' => $menu_name,
         'parent' => $year_id,
         'weight' => -1 * intval(str_replace('-', '', $month_key)),
