@@ -217,8 +217,8 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
-export ANALYTICS_BUCKET=$(cf env AnalyticsReporter | grep bucket | tail -n 1 | awk '{print $2}' | tr -d '",')
-echo "Got the bucket, it is: $ANALYTICS_BUCKET"
+export ANALYTICS_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
+echo "ANALYTICS_BUCKET is: $ANALYTICS_BUCKET"
 echo "Making the website-analytics pages use: $ANALYTICS_BUCKET"
 find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}}|$ANALYTICS_BUCKET|g" {} +
 # Dev Note: Un-comment the next line if you want to confirm the files within the Docker container locally before the sync
