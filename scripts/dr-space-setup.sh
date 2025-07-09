@@ -35,8 +35,8 @@ function setVariables() {
   APP_SPACE=dr
   EGRESS_SPACE=shared-egress
 
-  USPS_USERID=237UGENER6849
-  USPS_PASSWORD=Z0596ZY82P9984G
+  USPS_USERID=XXXXXXX
+  USPS_PASSWORD=ZZZZZZ
 
   echo "WWW_APP:       $WWW_APP"
   echo "WAF_APP:       $WAF_APP"
