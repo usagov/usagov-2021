@@ -118,6 +118,7 @@ function goToLastMessage(event) {
     }
 
 }
+
 /**
  * Observes the last message in the chat interface to determine if it is visible in the viewport.
  *
@@ -218,16 +219,51 @@ async function getAIResponse(userMessage, messageContainer) {
 
     messageContainer.appendChild(loaderElement.body.firstChild);
 
-    const requestBody = JSON.stringify({"userMessage": userMessage});
+    // Request when Drupal module is being used.
+
+    // const requestBody = JSON.stringify({"userMessage": userMessage});
+
+    // const requestOptions = {
+    //     "method": "POST",
+    //     "headers": {"Content-Type": "application/json"},
+    //     "body": requestBody
+    // };
+
+    // try {
+    //     const response = await fetch("/usagov-ai", requestOptions);
+    //     const result = await response.text();
+
+    //     // Return the AI response.
+    //     return JSON.parse(result).response;
+
+    // }
+    // catch (error) {
+    //     console.error(error);
+    // };
+
+    // Request when Drupal module is not being used and we are using the Ollama server directly.
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+    "model": "llama3.2",
+    "prompt": userMessage,
+    "stream": false,
+    "options": {
+    "num_thread": 8,
+    "num_ctx": 2024
+    }
+    });
 
     const requestOptions = {
         "method": "POST",
-        "headers": {"Content-Type": "application/json"},
-        "body": requestBody
+        "headers": myHeaders,
+        "body": raw,
+        "redirect": "follow"
     };
 
     try {
-        const response = await fetch("/usagov-ai", requestOptions);
+        const response = await fetch("https://ob.straypacket.com/api/generate", requestOptions);
         const result = await response.text();
 
         // Return the AI response.
