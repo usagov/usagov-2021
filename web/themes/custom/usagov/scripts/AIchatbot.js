@@ -17,13 +17,13 @@ function chatbotToogle() {
         chatbotContainer.classList.remove("chat-open");
         chatbotContainer.classList.add("chat-collapsed");
         chatbotContainer.style.transform = "translateY(" + chatbotBody.offsetHeight + "px)";
-        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/add.svg)";
+        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/add-white.png)";
     }
     else {
         chatbotContainer.classList.remove("chat-collapsed");
         chatbotContainer.classList.add("chat-open");
         chatbotContainer.style.transform = "translateY(0)";
-        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/remove.svg)";
+        chatbotToogle.style.backgroundImage = "url(./themes/custom/usagov/assets/img/usa-icons/remove-white.png)";
     }
 
 }
@@ -97,6 +97,16 @@ function sendSuggestion(element) {
     }
 }
 
+function goToLastMessage(event) {
+    'use strict';
+
+    event.preventDefault();
+    if (event.key === "Enter" || event.keyCode === 13) {
+        // If the Enter key is pressed, scroll to the last message.
+        window.location.href = "#usagov-ai-chatbot-last-message";
+    }
+    
+}
 /**
  * Observes the last message in the chat interface to determine if it is visible in the viewport.
  *
@@ -114,10 +124,12 @@ const lastMessageObserver = new IntersectionObserver((entries) => {
         if (entry.isIntersecting) {
             // Last message is visible
             scrollElement.style.display = "none";
+            scrollElement.removeAttribute("tabindex");
         }
         else {
             // Last message is hidden
             scrollElement.style.display = "flex";
+            scrollElement.setAttribute("tabindex", "0");
         }
     });
 },

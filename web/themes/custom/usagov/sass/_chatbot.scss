@@ -83,10 +83,9 @@
   #usagov-ai-chatbot-toogle {
     border: none;
     background: none;
-    background-image: url("../assets/img/usa-icons/add.svg");
+    background-image: url("../assets/img/usa-icons/add-white.png");
     background-position-y: center;
     background-size: 1.5rem;
-    filter: brightness(0) invert(1);
     width: 24px;
     height: 24px;
     align-self: center;
@@ -157,6 +156,7 @@
   
   .usagov-ai-chatbot-suggestion-button {
     border-radius: 4px;
+    outline: none;
   
     @include u-text('gray-90');
     @include u-text('normal');
@@ -166,6 +166,12 @@
     @include u-padding-y(4px);
     @include u-margin-bottom(8px);
     @include u-margin-right(2px);
+  }
+
+  .usagov-ai-chatbot-suggestion-button:focus {
+    outline: 0.25rem solid $blue-outer-focus;
+    outline-offset: 0;
+    box-shadow: inset 0 0 0 2px color('white');
   }
   
   .usagov-ai-chatbot-suggestion-button:hover {
@@ -271,6 +277,12 @@
     height: 25px;
     margin-right: 10px;
   }
+}
+
+#usagov-ai-chatbot-view-last-message:focus {
+  outline: 0.25rem solid $blue-outer-focus;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px color('white');
 }
 
 @media (max-width: 768px) {

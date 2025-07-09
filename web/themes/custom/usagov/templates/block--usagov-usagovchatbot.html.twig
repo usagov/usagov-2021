@@ -47,7 +47,7 @@
     <button id="usagov-ai-chatbot-toogle" onclick="chatbotToogle()"></button>
   </div>
   <div class="usagov-ai-chatbot-body">
-    <div class="usagov-ai-chatbot-messages">
+    <div class="usagov-ai-chatbot-messages" tabindex="-1">
       <div class="usagov-ai-chatbot-disclaimer">
         <div class="usagov-ai-chatbot-disclaimer-title">
           {{ 'now'|date('F d') }}
@@ -70,14 +70,13 @@
       </div>
     </div>
 
-    <a href="#usagov-ai-chatbot-last-message">
-      <div id="usagov-ai-chatbot-view-last-message">
-        <img src="/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg" alt="">
-        <span>View last message</span>
-      </div>
-    </a>
+    <div id="usagov-ai-chatbot-view-last-message" onclick='window.location.href="#usagov-ai-chatbot-last-message"' onkeypress='goToLastMessage(event)'>
+      <img src="/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg" alt="">
+      <span>View last message</span>
+    </div>
 
-    <div class="usagov-ai-chatbot-input-container">
+
+    <div class="usagov-ai-chatbot-input-container" tabindex="-1">
       <input type="text" id="user-message" class="usa-input usagov-ai-chatbot-input" placeholder="Type a message..." onkeypress="handleEnter(event)"/>
       <button id="submitMessage" class="usa-button usagov-ai-chatbot-input-button" onclick="sendMessage()">Send</button>
     </div>
