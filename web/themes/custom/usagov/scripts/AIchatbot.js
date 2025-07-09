@@ -97,17 +97,17 @@ function sendSuggestion(element) {
     }
 }
 
-/** 
+/**
  * Handles the Enter key press event to navigate to the last message in the chat interface.
- * 
+ *
  *  @param {Event} event - The keydown event triggered by the user pressing a key.
- * 
+ *
  * This function:
  * 1. Prevents the default action of the Enter key.
  * 2. Checks if the Enter key is pressed (key code 13).
  * 3. If pressed, scrolls to the last message in the chat interface by setting the window location to the last message's ID.
  * This allows users to quickly jump to the last message in the chat history.
- */ 
+ */
 function goToLastMessage(event) {
     'use strict';
 
@@ -116,7 +116,7 @@ function goToLastMessage(event) {
         // If the Enter key is pressed, scroll to the last message.
         window.location.href = "#usagov-ai-chatbot-last-message";
     }
-    
+
 }
 /**
  * Observes the last message in the chat interface to determine if it is visible in the viewport.
