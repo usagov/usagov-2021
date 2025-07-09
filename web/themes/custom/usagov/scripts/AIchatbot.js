@@ -97,6 +97,17 @@ function sendSuggestion(element) {
     }
 }
 
+/** 
+ * Handles the Enter key press event to navigate to the last message in the chat interface.
+ * 
+ *  @param {Event} event - The keydown event triggered by the user pressing a key.
+ * 
+ * This function:
+ * 1. Prevents the default action of the Enter key.
+ * 2. Checks if the Enter key is pressed (key code 13).
+ * 3. If pressed, scrolls to the last message in the chat interface by setting the window location to the last message's ID.
+ * This allows users to quickly jump to the last message in the chat history.
+ */ 
 function goToLastMessage(event) {
     'use strict';
 
@@ -161,7 +172,7 @@ async function handleUserMessage(userMessage) {
     const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
     // Create a message element for the user's message.
-    const newUserMessageElement = createMessage(true, userMessage, false);
+    const newUserMessageElement = createMessage(true, userMessage, false, null);
 
     // Remove the message suggestions after the first message.
     if (document.getElementsByClassName("usagov-ai-chatbot-suggestions")[0].style.display !== "none") {
@@ -175,7 +186,7 @@ async function handleUserMessage(userMessage) {
     const aiResponse = await getAIResponse(userMessage, messageContainer);
 
     // Create a message element for the user's message.
-    const newBotMessageElement = createMessage(false, aiResponse, false);
+    const newBotMessageElement = createMessage(false, aiResponse, false, null);
 
     // Remove the loader so it can be replaced by the new message.
     document.getElementById("loader-container").remove();
@@ -236,7 +247,7 @@ async function getAIResponse(userMessage, messageContainer) {
  * @param {boolean} [fromLocalStorage] - Indicates if the message is being created from localStorage data.
  * @returns {HTMLElement} A DOM element containing the avatar and message bubble, ready to be added into the chat container.
  */
-function createMessage(isUser, message, fromLocalStorage) {
+function createMessage(isUser, message, fromLocalStorage, messageDate) {
     'use strict';
     // Convert the text to html since it has the format of a Markdown.
     const converter = new showdown.Converter();
@@ -253,7 +264,7 @@ function createMessage(isUser, message, fromLocalStorage) {
     messageTextElement.classList.add("text");
     messageTextElement.innerHTML = htmlMessage;
 
-    var dateConstructor = new Date();
+    var dateConstructor = messageDate ? new Date(messageDate) : new Date();
     var time = dateConstructor.toLocaleString('en-US', {'hour': 'numeric', 'minute': 'numeric', 'hour12': true});
     messageTimeElement.classList.add("usagov-ai-chatbot-message-time");
     messageTimeElement.innerHTML = time;
@@ -435,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const messageContainer = document.getElementsByClassName("usagov-ai-chatbot-messages")[0];
 
                 // Create a message element for the user's message.
-                const newUserMessageElement = createMessage(isUser, message.content, true);
+                const newUserMessageElement = createMessage(isUser, message.content, true, message.date);
 
                 // Add the user's message element to the chatbot.
                 messageContainer.appendChild(newUserMessageElement);
