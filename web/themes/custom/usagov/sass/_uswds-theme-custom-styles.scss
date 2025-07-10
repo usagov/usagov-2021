@@ -934,6 +934,12 @@ input::-webkit-textfield-decoration-container {
 
   .field--name-field-featured-image {
     float: right;
+    margin-left: 10px;
+    margin-bottom: 10px;
+
+    .img {
+      max-width: 300px;
+    }
   }
 }
 
@@ -973,6 +979,10 @@ input::-webkit-textfield-decoration-container {
       &:hover {
         color: #a62a26;
       }
+    }
+
+    .views-field-field-featured-image {
+      margin-top: 15px;
     }
 
     .views-field-body {
