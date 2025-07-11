@@ -83,7 +83,8 @@
   {% if display_submitted %}
     <footer>
       <div{{ author_attributes }}>
-        {% trans %}Posted on {{ date }}{% endtrans %}
+        {% set post_date = node.getCreatedTime()|date('F j, Y') %}
+        {% trans %} 📅 Posted on {{ post_date }}{% endtrans %}
         {{ metadata }}
       </div>
     </footer>
