@@ -643,7 +643,7 @@ jobs:
       image: ubuntu-2204:current
     steps:
       - deploy-cloudgov-cron:
-          envname: dev
+          envname: USAGOV-2354-v2
 
   deploy-to-cloudgov-stage-cron:
     machine:
