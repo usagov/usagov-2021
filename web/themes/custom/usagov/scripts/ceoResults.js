@@ -10,6 +10,11 @@ function lookup(address, callback) {
      * @type {gapi.client.HttpRequest}
      */
 
+    // // We developers can uncomment this block to test this CEO-tool despite the API being dead.
+    // var passData = exampleGoogleApiResponse();
+    // callback(passData);
+    // return;
+
     // We will use the new API-Proxy implementation by default
     // However, if someone set a global NoProxyForAPI variable, we will fall back to the old system
     if (typeof window.NoProxyForAPI == "undefined" || !window.NoProxyForAPI) {
@@ -36,6 +41,117 @@ function lookup(address, callback) {
         }
     }, 100);
 
+}
+
+/**
+ * Since the Google-API is no longer available at the time of writing this,
+ * here is a function that returned an example of the data (in its proper
+ * structure) that would be returned from the Google-API if it were alive.
+ * We developer can use this for testing purposes.
+ */
+function exampleGoogleApiResponse() {
+    "use strict";
+
+    var passData = {
+      "kind": "civicinfo#representativeInfoResponse",
+      "normalizedInput": {
+        "line1": "6800 Main St",
+        "city": "The Colony",
+        "state": "TX",
+        "zip": "75056"
+      },
+      "divisions": {
+        "ocd-division/country:us": {
+          "name": "United States",
+          "officeIndices": [0, 1]
+        },
+        "ocd-division/country:us/state:tx": {
+          "name": "Texas",
+          "officeIndices": [2]
+        },
+      },
+      "offices": [
+        {
+          "name": "President of the United States",
+          "divisionId": "ocd-division/country:us",
+          "levels": ["country"],
+          "roles": ["headOfState", "headOfGovernment"],
+          "officialIndices": [0]
+        },
+        {
+          "name": "Vice President of the United States",
+          "divisionId": "ocd-division/country:us",
+          "levels": ["country"],
+          "roles": ["deputyHeadOfGovernment"],
+          "officialIndices": [1]
+        },
+        {
+          "name": "Governor of Texas",
+          "divisionId": "ocd-division/country:us/state:tx",
+          "levels": ["administrativeArea1"],
+          "roles": ["headOfGovernment"],
+          "officialIndices": [2]
+        }
+      ],
+      "officials": [
+        {
+          "name": "Joe Biden",
+          "address": [{
+            "line1": "1600 Pennsylvania Avenue NW",
+            "city": "Washington",
+            "state": "DC",
+            "zip": "20500"
+          }],
+          "party": "Democratic",
+          "phones": ["(202) 456-1111"],
+          "urls": ["https://www.whitehouse.gov/"],
+          "photoUrl": "https://example.com/joe_biden.jpg",
+          "channels": [
+            {
+              "type": "Twitter",
+              "id": "POTUS"
+            },
+            {
+              "type": "Facebook",
+              "id": "JoeBiden"
+            }
+          ]
+        },
+        {
+          "name": "Kamala Harris",
+          "address": [{
+            "line1": "1600 Pennsylvania Avenue NW",
+            "city": "Washington",
+            "state": "DC",
+            "zip": "20500"
+          }],
+          "party": "Democratic",
+          "phones": ["(202) 456-1111"],
+          "urls": ["https://www.whitehouse.gov/"],
+          "photoUrl": "https://example.com/kamala_harris.jpg",
+          "channels": [
+            {
+              "type": "Twitter",
+              "id": "VP"
+            }
+          ]
+        },
+        {
+          "name": "Greg Abbott",
+          "address": [{
+            "line1": "1100 San Jacinto Blvd",
+            "city": "Austin",
+            "state": "TX",
+            "zip": "78701"
+          }],
+          "party": "Republican",
+          "phones": ["(512) 463-2000"],
+          "urls": ["https://gov.texas.gov/"],
+          "photoUrl": "https://example.com/greg_abbott.jpg"
+        }
+      ]
+    };
+    return passData;
 }
 
 /**
@@ -191,9 +307,9 @@ function renderResults(response, rawResponse) {
         let resultsSection = document.getElementById("resultsSection");
         let intro = document.getElementsByClassName("usa-intro")[0];
 
-        h1.innerHTML = content[""+errorType+"-heading"];
-        resultsSection.innerHTML = "";
-        intro.innerHTML = content[errorType];
+        h1.textContent = content[errorType + "-heading"] || "";
+        resultsSection.textContent = "";
+        intro.textContent = content[errorType] || "";
         intro.style.paddingBottom = '20px';
         dataLayer.push({
             'event': 'CEO API Error',
@@ -243,7 +359,15 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
             accordionHeaderButton.setAttribute("aria-controls", levelNameID);
-            accordionHeaderButton.innerHTML = `${levelName.heading} <span class='usa-normal'>${levelName.description}</span>`;
+            const headingText = document.createTextNode(levelName.heading);
+            const descriptionSpan = document.createElement('span');
+            descriptionSpan.className = 'usa-normal';
+            descriptionSpan.textContent = levelName.description;
+
+            accordionHeaderButton.textContent = ''; // Clear any existing content (optional)
+            accordionHeaderButton.appendChild(headingText);
+            accordionHeaderButton.appendChild(document.createTextNode(' ')); // Add space between heading and span
+            accordionHeaderButton.appendChild(descriptionSpan);
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -274,7 +398,7 @@ function renderResults(response, rawResponse) {
             accordionHeaderButton.setAttribute("aria-expanded", "false");
 
             accordionHeaderButton.setAttribute("aria-controls", levelNameID);
-            accordionHeaderButton.innerHTML = levelName;
+            accordionHeaderButton.textContent = levelName;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -301,7 +425,7 @@ function renderResults(response, rawResponse) {
 
             var officialNumber = "Official_" + i;
             accordionHeaderButton.setAttribute("aria-controls", officialNumber);
-            accordionHeaderButton.innerHTML =  response.officials[i].office + ", " + response.officials[i].name;
+            accordionHeaderButton.textContent =  response.officials[i].office + ", " + response.officials[i].name;
 
             accordionHeader.appendChild(accordionHeaderButton);
 
@@ -322,7 +446,21 @@ function renderResults(response, rawResponse) {
             let party = response.officials[i].party || "none provided";
             let nextElem = document.createElement("li");
             nextElem.classList.add("padding-bottom-2");
-            nextElem.innerHTML = `<div class="text-bold">${content["party-affiliation"]}:</div><div>${party}<div>`;
+
+            // Create the first div with bold text
+            const boldDiv = document.createElement('div');
+            boldDiv.className = 'text-bold';
+            boldDiv.textContent = `${content["party-affiliation"]}:`;
+
+            // Create the second div for the party value
+            const partyDiv = document.createElement('div');
+            partyDiv.textContent = party;
+
+            // Clear existing content and append securely
+            nextElem.textContent = ''; // Optional if you want to clear first
+            nextElem.appendChild(boldDiv);
+            nextElem.appendChild(partyDiv);
+
             bulletList.appendChild(nextElem);
 
             // Display address, if provided
@@ -335,7 +473,17 @@ function renderResults(response, rawResponse) {
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.innerHTML = `<div class="text-bold">${content["address"]}:</div><div>${address}</div>`;
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'text-bold';
+                labelDiv.textContent = `${content["address"]}:`;
+
+                const valueDiv = document.createElement('div');
+                valueDiv.textContent = address;
+
+                nextElem.textContent = ''; // Clear previous content if needed
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(valueDiv);
 
                 bulletList.appendChild(nextElem);
             }
@@ -343,13 +491,27 @@ function renderResults(response, rawResponse) {
             // Display phone number, if provided
             let phoneNumber = response.officials[i].phones || "none provided";
             if (phoneNumber !== "none provided") {
-                // Select first phone number and create clickable link
-                let linkToPhone = `<a href="tel:${phoneNumber[0]}">${phoneNumber[0]}</a>`;
 
                 nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                nextElem.innerHTML = `<div class="text-bold">${content["phone-number"]}:</div><div>${linkToPhone}</div>`;
-                // nextElem.appendChild(linkToPhone);
+
+                // Create the label
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'text-bold';
+                labelDiv.textContent = `${content["phone-number"]}:`;
+
+                // Create the phone link div
+                const phoneDiv = document.createElement('div');
+                const phoneLink = document.createElement('a');
+                phoneLink.href = `tel:${address}`;
+                phoneLink.textContent = address;
+
+                phoneDiv.appendChild(phoneLink);
+
+                // Clear and append
+                nextElem.textContent = '';
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(phoneDiv);
 
                 bulletList.appendChild(nextElem);
             }
@@ -364,14 +526,25 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                let link=`<a class="ceoLink" href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
-                // link.innerHTML = cleanLink;
 
-                nextElem = document.createElement("li");
+                const labelDiv = document.createElement("div");
+                labelDiv.className = "text-bold";
+                labelDiv.textContent = content["website"] + ":";
+
+                const valueDiv = document.createElement("div");
+                const anchor = document.createElement("a");
+                anchor.className = "ceoLink";
+                anchor.href = response.officials[i].urls[0];
+                anchor.textContent = cleanLink;
+                anchor.setAttribute("rel", "noopener noreferrer");
+                anchor.setAttribute("target", "_blank");
+
+                valueDiv.appendChild(anchor);
+
+                const nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
-                nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
-                // nextElem.appendChild(link);
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(valueDiv);
 
                 bulletList.appendChild(nextElem);
             }
@@ -393,15 +566,47 @@ function renderResults(response, rawResponse) {
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
                         if (socials[j].type === "Twitter") {
-                            nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            if (social in socialOptions) {
+                                const labelDiv = document.createElement("div");
+                                labelDiv.className = "text-bold";
+                                labelDiv.textContent = socials[j].type === "Twitter" ? "X:" : `${socials[j].type}:`;
+
+                                const valueDiv = document.createElement("div");
+                                const anchor = document.createElement("a");
+                                anchor.href = socialOptions[social] + encodeURIComponent(socials[j].id);
+                                anchor.textContent = "@" + socials[j].id;
+                                anchor.setAttribute("rel", "noopener noreferrer");
+                                anchor.setAttribute("target", "_blank");
+
+                                valueDiv.appendChild(anchor);
+
+                                nextElem.textContent = "";
+                                nextElem.appendChild(labelDiv);
+                                nextElem.appendChild(valueDiv);
+                            }
                         }
                         else {
-                            nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            const labelDiv = document.createElement("div");
+                            labelDiv.className = "text-bold";
+                            labelDiv.textContent = socials[j].type === "Twitter" ? "X:" : `${socials[j].type}:`;
+
+                            const valueDiv = document.createElement("div");
+                            const anchor = document.createElement("a");
+                            anchor.href = socialOptions[social] + socials[j].id;
+                            anchor.textContent = "@" + socials[j].id;
+                            anchor.setAttribute("rel", "noopener noreferrer");
+                            anchor.setAttribute("target", "_blank");
+
+                            valueDiv.appendChild(anchor);
+                            nextElem.textContent = "";  // Clear if needed
+                            nextElem.appendChild(labelDiv);
+                            nextElem.appendChild(valueDiv);
                         }
                     }
                     bulletList.appendChild(nextElem);
                 }
             }
+
 
             // Display email via contact button, if provided
             let email = response.officials[i].emails || "none provided";
@@ -413,7 +618,7 @@ function renderResults(response, rawResponse) {
                 linkToContact.setAttribute("class", "usa-button usagov-button state-email");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.style.marginBottom = "8px";
-                linkToContact.innerHTML = content["contact-via-email"];
+                linkToContact.textContent = content["contact-via-email"];
 
                 // Build search params for email page.
                 let searchParams = getSearchParams();
@@ -574,18 +779,41 @@ function load() {
         let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
         let addressSuggestionAlert = document.createElement('div');
         addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
-        addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
-                        <h2 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h2>
-                        <p class="usa-alert__text">
-                            ${usps_suggestion_content["suggestion-message"]}
-                            <p>
-                                ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
-                            </p>
-                            <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
-                                ${usps_suggestion_content["suggestion-link-text"]}
-                            </a>
-                        </p>
-                        </div>`;
+
+        const alertBody = document.createElement("div");
+        alertBody.className = "usa-alert__body";
+
+        // Heading
+        const heading = document.createElement("h2");
+        heading.className = "usa-alert__heading";
+        heading.textContent = usps_suggestion_content["suggestion-heading"];
+        alertBody.appendChild(heading);
+
+        // Message paragraph
+        const messageParagraph = document.createElement("p");
+        messageParagraph.className = "usa-alert__text";
+        messageParagraph.textContent = usps_suggestion_content["suggestion-message"];
+
+        // Suggested address (as a separate paragraph with line breaks)
+        const addressParagraph = document.createElement("p");
+        const sanitizedAddress = DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"));  // still sanitized
+        addressParagraph.innerHTML = sanitizedAddress;
+
+        // Link
+        const suggestionLink = document.createElement("a");
+        suggestionLink.className = "usa-link";
+        suggestionLink.href = "#skip-to-h1";
+        suggestionLink.textContent = usps_suggestion_content["suggestion-link-text"];
+        suggestionLink.onclick = resubmitForm;
+
+        // Append elements
+        messageParagraph.appendChild(addressParagraph);
+        messageParagraph.appendChild(suggestionLink);
+        alertBody.appendChild(messageParagraph);
+
+        // Final alert box
+        addressSuggestionAlert.className = "usa-alert usa-alert--info";
+        addressSuggestionAlert.appendChild(alertBody);
 
         // Adds the USPS address suggestion alert box above the "Your address:" section.
         // Note: Make sure the "Your address:" header in the cms has the ID "address-heading".
@@ -601,11 +829,11 @@ function load() {
         // Add the href and link text depending on the language.
         if (document.documentElement.lang === "en") {
             link.setAttribute('href', `/elected-officials${window.location.search}`);
-            link.innerHTML = "Edit my address";
+            link.textContent = "Edit my address";
         }
         else {
             link.setAttribute('href', `/es/funcionarios-electos${window.location.search}`);
-            link.innerHTML = "Editar mi dirección";
+            link.textContent = "Editar mi dirección";
         }
 
         // Add the link to the <p> element in the cms.
