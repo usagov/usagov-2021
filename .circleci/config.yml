@@ -280,7 +280,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CRON_DIGEST
+            ./bin/cloudgov/deploy-cron dev << pipeline.number >> $CRON_DIGEST
 
 jobs:
   scan-code:
