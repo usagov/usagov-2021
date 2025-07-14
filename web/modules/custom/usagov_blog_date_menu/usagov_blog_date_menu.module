@@ -101,8 +101,11 @@ function usagov_blog_date_menu_rebuild_menu(): void {
 
   $year_links = [];
   foreach ($groups as $year => $months) {
-    // Sort months in descending order (newest first)
-    krsort($months);
+    uksort($months, function ($a, $b) {
+      $month_a = intval(substr($a, 5, 2));
+      $month_b = intval(substr($b, 5, 2));
+      return $month_b <=> $month_a;
+    });
 
     $year_link = MenuLinkContent::create([
       'title' => $year,
@@ -118,12 +121,15 @@ function usagov_blog_date_menu_rebuild_menu(): void {
 
     foreach ($months as $month_key => $nodes_month) {
       $month_title = date('F', strtotime($month_key . '-01'));
+      $month_number = intval(date('m', strtotime($month_key . '-01')));
+      $month_weight = -1 * $month_number;
+
       $month_link = MenuLinkContent::create([
         'title' => $month_title,
         'link' => ['uri' => 'internal:/blog/' . $year . '/' . date('m', strtotime($month_key . '-01'))],
         'menu_name' => $menu_name,
         'parent' => $year_id,
-        'weight' => -1 * intval(str_replace('-', '', $month_key)),
+        'weight' => $month_weight,
         'expanded' => FALSE,
         'enabled' => TRUE,
       ]);
