@@ -982,7 +982,9 @@ input::-webkit-textfield-decoration-container {
     }
 
     .views-field-field-featured-image {
+      grid-column: 1 / -1;
       margin-top: 15px;
+      margin-right: 5px;
     }
 
     .views-field-body {
