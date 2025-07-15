@@ -275,14 +275,6 @@
   }
 }
 
-@media only screen and (max-width: 500px) {
-  .usa-identifier {
-    // Prevent Tagline from being covered by the Feedback button
-    position: absolute;
-    z-index: 2000000005;
-  }
-}
-
 /* ---- Identifier---- */
 .usa-identifier {
   padding-bottom: 2rem;

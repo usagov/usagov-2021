@@ -307,9 +307,9 @@ function renderResults(response, rawResponse) {
         let resultsSection = document.getElementById("resultsSection");
         let intro = document.getElementsByClassName("usa-intro")[0];
 
-        h1.innerHTML = content[""+errorType+"-heading"];
-        resultsSection.innerHTML = "";
-        intro.innerHTML = content[errorType];
+        h1.textContent = content[errorType + "-heading"] || "";
+        resultsSection.textContent = "";
+        intro.textContent = content[errorType] || "";
         intro.style.paddingBottom = '20px';
         dataLayer.push({
             'event': 'CEO API Error',
@@ -364,7 +364,7 @@ function renderResults(response, rawResponse) {
             descriptionSpan.className = 'usa-normal';
             descriptionSpan.textContent = levelName.description;
 
-            accordionHeaderButton.innerHTML = ''; // Clear any existing content (optional)
+            accordionHeaderButton.textContent = ''; // Clear any existing content (optional)
             accordionHeaderButton.appendChild(headingText);
             accordionHeaderButton.appendChild(document.createTextNode(' ')); // Add space between heading and span
             accordionHeaderButton.appendChild(descriptionSpan);
@@ -457,7 +457,7 @@ function renderResults(response, rawResponse) {
             partyDiv.textContent = party;
 
             // Clear existing content and append securely
-            nextElem.innerHTML = ''; // Optional if you want to clear first
+            nextElem.textContent = ''; // Optional if you want to clear first
             nextElem.appendChild(boldDiv);
             nextElem.appendChild(partyDiv);
 
@@ -481,7 +481,7 @@ function renderResults(response, rawResponse) {
                 const valueDiv = document.createElement('div');
                 valueDiv.textContent = address;
 
-                nextElem.innerHTML = ''; // Clear previous content if needed
+                nextElem.textContent = ''; // Clear previous content if needed
                 nextElem.appendChild(labelDiv);
                 nextElem.appendChild(valueDiv);
 
@@ -509,7 +509,7 @@ function renderResults(response, rawResponse) {
                 phoneDiv.appendChild(phoneLink);
 
                 // Clear and append
-                nextElem.innerHTML = '';
+                nextElem.textContent = '';
                 nextElem.appendChild(labelDiv);
                 nextElem.appendChild(phoneDiv);
 
@@ -526,14 +526,25 @@ function renderResults(response, rawResponse) {
                 if (cleanLink[cleanLink.length - 1] === "/") {
                     cleanLink = cleanLink.slice(0, -1);
                 }
-                let link=`<a class="ceoLink" href="${response.officials[i].urls[0]}">${cleanLink}</a>`;
-                // link.innerHTML = cleanLink;
 
-                nextElem = document.createElement("li");
+                const labelDiv = document.createElement("div");
+                labelDiv.className = "text-bold";
+                labelDiv.textContent = content["website"] + ":";
+
+                const valueDiv = document.createElement("div");
+                const anchor = document.createElement("a");
+                anchor.className = "ceoLink";
+                anchor.href = response.officials[i].urls[0];
+                anchor.textContent = cleanLink;
+                anchor.setAttribute("rel", "noopener noreferrer");
+                anchor.setAttribute("target", "_blank");
+
+                valueDiv.appendChild(anchor);
+
+                const nextElem = document.createElement("li");
                 nextElem.classList.add("padding-bottom-2");
-                // nextElem.innerHTML = "<div class="text-bold">"+content["website"]+":</div><div>";
-                nextElem.innerHTML = `<div class="text-bold">${content["website"]}:</div><div>${link}</div>`;
-                // nextElem.appendChild(link);
+                nextElem.appendChild(labelDiv);
+                nextElem.appendChild(valueDiv);
 
                 bulletList.appendChild(nextElem);
             }
@@ -555,15 +566,47 @@ function renderResults(response, rawResponse) {
                     let social = socials[j].type.toLowerCase();
                     if (social in socialOptions) {
                         if (socials[j].type === "Twitter") {
-                            nextElem.innerHTML = `<div class="text-bold">X:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            if (social in socialOptions) {
+                                const labelDiv = document.createElement("div");
+                                labelDiv.className = "text-bold";
+                                labelDiv.textContent = socials[j].type === "Twitter" ? "X:" : `${socials[j].type}:`;
+
+                                const valueDiv = document.createElement("div");
+                                const anchor = document.createElement("a");
+                                anchor.href = socialOptions[social] + encodeURIComponent(socials[j].id);
+                                anchor.textContent = "@" + socials[j].id;
+                                anchor.setAttribute("rel", "noopener noreferrer");
+                                anchor.setAttribute("target", "_blank");
+
+                                valueDiv.appendChild(anchor);
+
+                                nextElem.textContent = "";
+                                nextElem.appendChild(labelDiv);
+                                nextElem.appendChild(valueDiv);
+                            }
                         }
                         else {
-                            nextElem.innerHTML = `<div class="text-bold">${socials[j].type}:</div><div><a href="${socialOptions[social]}${socials[j].id}">@${socials[j].id}</div>`;
+                            const labelDiv = document.createElement("div");
+                            labelDiv.className = "text-bold";
+                            labelDiv.textContent = socials[j].type === "Twitter" ? "X:" : `${socials[j].type}:`;
+
+                            const valueDiv = document.createElement("div");
+                            const anchor = document.createElement("a");
+                            anchor.href = socialOptions[social] + socials[j].id;
+                            anchor.textContent = "@" + socials[j].id;
+                            anchor.setAttribute("rel", "noopener noreferrer");
+                            anchor.setAttribute("target", "_blank");
+
+                            valueDiv.appendChild(anchor);
+                            nextElem.textContent = "";  // Clear if needed
+                            nextElem.appendChild(labelDiv);
+                            nextElem.appendChild(valueDiv);
                         }
                     }
                     bulletList.appendChild(nextElem);
                 }
             }
+
 
             // Display email via contact button, if provided
             let email = response.officials[i].emails || "none provided";
@@ -575,7 +618,7 @@ function renderResults(response, rawResponse) {
                 linkToContact.setAttribute("class", "usa-button usagov-button state-email");
                 linkToContact.style.marginTop = "15px";
                 linkToContact.style.marginBottom = "8px";
-                linkToContact.innerHTML = content["contact-via-email"];
+                linkToContact.textContent = content["contact-via-email"];
 
                 // Build search params for email page.
                 let searchParams = getSearchParams();
@@ -736,18 +779,41 @@ function load() {
         let suggestedAddress = localStorage.getItem("uspsStreetAddress") + ", " + localStorage.getItem("uspsCity") + ", " + inputState + " " + localStorage.getItem("uspsZipCode");
         let addressSuggestionAlert = document.createElement('div');
         addressSuggestionAlert.setAttribute('class', 'usa-alert usa-alert--info');
-        addressSuggestionAlert.innerHTML = `<div class="usa-alert__body">
-                        <h2 class="usa-alert__heading">${usps_suggestion_content["suggestion-heading"]}</h2>
-                        <p class="usa-alert__text">
-                            ${usps_suggestion_content["suggestion-message"]}
-                            <p>
-                                ${DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"))}
-                            </p>
-                            <a class="usa-link" href='#skip-to-h1' onclick="resubmitForm()">
-                                ${usps_suggestion_content["suggestion-link-text"]}
-                            </a>
-                        </p>
-                        </div>`;
+
+        const alertBody = document.createElement("div");
+        alertBody.className = "usa-alert__body";
+
+        // Heading
+        const heading = document.createElement("h2");
+        heading.className = "usa-alert__heading";
+        heading.textContent = usps_suggestion_content["suggestion-heading"];
+        alertBody.appendChild(heading);
+
+        // Message paragraph
+        const messageParagraph = document.createElement("p");
+        messageParagraph.className = "usa-alert__text";
+        messageParagraph.textContent = usps_suggestion_content["suggestion-message"];
+
+        // Suggested address (as a separate paragraph with line breaks)
+        const addressParagraph = document.createElement("p");
+        const sanitizedAddress = DOMPurify.sanitize(suggestedAddress.replace(", ", "<br>"));  // still sanitized
+        addressParagraph.innerHTML = sanitizedAddress;
+
+        // Link
+        const suggestionLink = document.createElement("a");
+        suggestionLink.className = "usa-link";
+        suggestionLink.href = "#skip-to-h1";
+        suggestionLink.textContent = usps_suggestion_content["suggestion-link-text"];
+        suggestionLink.onclick = resubmitForm;
+
+        // Append elements
+        messageParagraph.appendChild(addressParagraph);
+        messageParagraph.appendChild(suggestionLink);
+        alertBody.appendChild(messageParagraph);
+
+        // Final alert box
+        addressSuggestionAlert.className = "usa-alert usa-alert--info";
+        addressSuggestionAlert.appendChild(alertBody);
 
         // Adds the USPS address suggestion alert box above the "Your address:" section.
         // Note: Make sure the "Your address:" header in the cms has the ID "address-heading".
@@ -763,11 +829,11 @@ function load() {
         // Add the href and link text depending on the language.
         if (document.documentElement.lang === "en") {
             link.setAttribute('href', `/elected-officials${window.location.search}`);
-            link.innerHTML = "Edit my address";
+            link.textContent = "Edit my address";
         }
         else {
             link.setAttribute('href', `/es/funcionarios-electos${window.location.search}`);
-            link.innerHTML = "Editar mi dirección";
+            link.textContent = "Editar mi dirección";
         }
 
         // Add the link to the <p> element in the cms.

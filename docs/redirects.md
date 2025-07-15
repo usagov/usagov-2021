@@ -40,7 +40,22 @@ We are in the process of moving our DNS into [TTS DNS configuration](https://git
 
 ### cloud.gov domain and route configuration
 
-For each external domain, create a `domain` (these are at the cloud.gov `organization` level):
+The process is slightly different for subdomains of usa.gov than for other domains. We have a "usa.gov" domain in cloud.gov, so we don't need explicit domain entries for subdomains. Cloud Foundry also requires us to use the `--host` syntax when creating a route for usa.gov; otherwise it will report a conflict with an existing domain. (This was not always the case, so you will find some scripts, and even some existing route setups, that appear to contradict this.)
+
+#### For subdomains of usa.gov:
+
+In the `prod` space, map a route for the new subdomain to the `www` app and bind the route service to `waf-route-prod-usagov`:
+
+```
+cf map-route www usa.gov --hostname $subdomain
+cf bind-route-service usa.gov --hostname $subdomain waf-route-prod-usagov
+```
+
+Proceed to [Create the external domain service](#create-the-external-domain-service).
+
+#### For other domains:
+
+For each external domain, create a `domain` (these are at the cloud.gov `organization` level; it does not matter what `space` you've targeted):
 
 ```
 cf create-domain gsa-tts-usagov $domain
@@ -52,6 +67,9 @@ Then, in the `prod` space, map a route for that domain to the `www` app and bind
 cf map-route www $domain
 cf bind-route-service $domain waf-route-prod-usagov
 ```
+#### Create the external domain service
+
+*Verify: it might be desirable to use the `domain-with-cdn` plan for all domains, or even to use a different CDN-enabled plan.*
 
 Finally, create the cloud.gov external domain service. This command relies on the _acme-challenge DNS records to generate LetsEncrypt certificates for the domain.
 
@@ -69,7 +87,6 @@ An example script for setting up a batch of domains exists at [bin/cloudgov/doma
 ### Nginx configuration
 
 The nginx configuration for domain redirects is in the `waf` app. The WAF's nginx server handles the redirect directly.
-
 
 
 The [waf's nginx default.conf](../.docker/src-waf/etc/nginx/conf.d/default.conf) file sets `$cf_forwarded_host` to the value of host and then includes `domain_redirects.conf`:
