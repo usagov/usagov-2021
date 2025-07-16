@@ -9,7 +9,7 @@ ignore:
     - "@ckeditor/ckeditor5-dev-utils" :
         reason: "yarn.lock shows mocha 7.2.0 as a dependency, but the regex called out by this vulnerability does not appear anywhere in the javascript built and deployed with this module."
         expires: '2025-12-31T00:00:00.000Z'
-  CVE‑2024‑21538:
-    - "eslint@8.57.1" :
+  SNYK-JS-CROSSSPAWN-8303230:
+    - "eslint@8.57.1":
         reason: "This eslint script is never executed by our application. It only exists because it comes with a contrib module."
         expires: '2025-12-31T00:00:00.000Z'
