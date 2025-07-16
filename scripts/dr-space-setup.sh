@@ -258,6 +258,7 @@ exit
 #$echo assertCurSpace $APP_SPACE
 #echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
 #$echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
+#exit
 
 ##################################################
 # Set up log drains. Return to the log-shipper script, line 65
@@ -279,7 +280,7 @@ exit
 
 # create an environment variable for the backup tag, for example:
 #
-export BACKUP_TAG=USAGOV-2416.prod.14113.post-deploy
+export BACKUP_TAG=USAGOV-2424.prod.14197.post-deploy
 #
 ### !!! CHANGE THE ABOVE BACKUP_TAG TO THE LATEST PRODUCTION SNAPSHOT TAG!!!
 
@@ -303,14 +304,16 @@ echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/public-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
+echo bin/snapshot-backups/public-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
+$echo bin/snapshot-backups/public-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
 exit
 
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE &>/dev/null
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
-bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
+echo bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
+$echo bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${BACKUP_TAG}
 exit
 
 ##################################################
@@ -329,7 +332,8 @@ exit
 # $echo cf target -s $APP_SPACE &>/dev/null
 # echo assertCurSpace $APP_SPACE
 # $echo assertCurSpace $APP_SPACE
-# bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${BACKUP_TAG}
+# echo bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${BACKUP_TAG}
+# $echo bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${BACKUP_TAG}
 # exit
 
 
