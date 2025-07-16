@@ -2,15 +2,18 @@
 
 use Drupal\block\Entity\Block;
 use Drupal\block_content\Entity\BlockContent;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_entity_insert()
  * When a Content Admin creates a site_banner, this function creates a block
  * and places it in the header_top region if necessary.
  */
-function usa_site_banner_entity_insert(BlockContent $entity): void {
+function usa_site_banner_entity_insert(EntityInterface $entity): void {
   if ($entity->getEntityTypeId() == 'block_content' && $entity->bundle() == "site_banner") {
+    /** @var \Drupal\block_content\Entity\BlockContent $entity */
     usa_site_banner_place_block($entity);
+    usa_site_banner_add_to_config_ignore($entity);
   }
 }
 
@@ -19,9 +22,24 @@ function usa_site_banner_entity_insert(BlockContent $entity): void {
  * When a Content Admin updates a site_banner, this function creates a block, if necessary,
  * and places it in the header_top region, if necessary.
  */
-function usa_site_banner_entity_update(BlockContent $entity): void {
+function usa_site_banner_entity_update(EntityInterface $entity): void {
   if ($entity->getEntityTypeId() == 'block_content' && $entity->bundle() == "site_banner") {
+    /** @var \Drupal\block_content\Entity\BlockContent $entity */
     usa_site_banner_place_block($entity);
+    usa_site_banner_add_to_config_ignore($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete()
+ * When a Content Admin deletes a site_banner, this function deletes the corresponding
+ * block and removes it from the config ignore list.
+ */
+function usa_site_banner_entity_delete(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() == 'block_content' && $entity->bundle() == "site_banner") {
+    /** @var \Drupal\block_content\Entity\BlockContent $entity */
+    usa_site_banner_delete_block($entity);
+    usa_site_banner_remove_from_config_ignore($entity);
   }
 }
 
@@ -31,7 +49,7 @@ function usa_site_banner_entity_update(BlockContent $entity): void {
  */
 function usa_site_banner_place_block(BlockContent $block_content): void {
   // Get the block if any
-  $block = Block::load('site_banner_' . $block_content->id());
+  $block = Block::load('usagov_site_banner_' . $block_content->id());
   // Get the value of the checkbox in the site_banner form
   $place_above_header = $block_content->field_place_above_header->value;
 
@@ -77,7 +95,7 @@ function usa_site_banner_create_block(BlockContent $block_content) {
 
   // Set all the values ​​needed to create a block, including which region it will be placed in.
   $values = [
-    'id' => 'site_banner_' . $block_content->id(),
+    'id' => 'usagov_site_banner_' . $block_content->id(),
     'theme' => 'usagov',
     'plugin' => 'block_content:' . $block_content->uuid(),
     'region' => 'header_top',
@@ -89,4 +107,77 @@ function usa_site_banner_create_block(BlockContent $block_content) {
 
   // Create and return the new block.
   return Block::create($values);
+}
+
+/**
+ * Deletes a Block based on the BlockContent data.
+ * @param BlockContent $block_content The BlockContent for which you want to delete the block.
+ */
+function usa_site_banner_delete_block(BlockContent $block_content): void {
+  $block = Block::load('usagov_site_banner_' . $block_content->id());
+  if ($block) {
+    $block->delete();
+  }
+}
+
+/**
+ * Adds a site banner block to the config ignore list.
+ * @param BlockContent $block_content The BlockContent to add to config ignore.
+ */
+function usa_site_banner_add_to_config_ignore(BlockContent $block_content): void {
+  $config = \Drupal::configFactory()->getEditable('config_ignore.settings');
+  $ignored_config_entities = $config->get('ignored_config_entities') ?: [];
+
+  $block_config_name = 'block.block.usagov_site_banner_' . $block_content->id();
+
+  // Add the programmatically created block to the ignore list if not already present
+  if (!in_array($block_config_name, $ignored_config_entities)) {
+    $ignored_config_entities[] = $block_config_name;
+  }
+
+  // Since Drupal automatically generates a block based on the info
+  // field (block.block.usagov_[block name]), that should be ignored too.
+  if ($block_content->hasField('info') && !$block_content->get('info')->isEmpty()) {
+    $info = $block_content->get('info')->value;
+    // Sanitize the info field value to create a machine name similar to how Drupal does it
+    $sanitized_info = strtolower(preg_replace('/[^a-zA-Z0-9_]+/', '', $info));
+    $auto_generated_block_config_name = 'block.block.usagov_' . $sanitized_info;
+
+    if (!in_array($auto_generated_block_config_name, $ignored_config_entities)) {
+      $ignored_config_entities[] = $auto_generated_block_config_name;
+    }
+  }
+
+  $config->set('ignored_config_entities', $ignored_config_entities);
+  $config->save();
+}
+
+/**
+ * Removes a site banner block from the config ignore list.
+ * @param BlockContent $block_content The BlockContent to remove from config ignore.
+ */
+function usa_site_banner_remove_from_config_ignore(BlockContent $block_content): void {
+  $config = \Drupal::configFactory()->getEditable('config_ignore.settings');
+  $ignored_config_entities = $config->get('ignored_config_entities') ?: [];
+
+  $block_config_name = 'block.block.usagov_site_banner_' . $block_content->id();
+
+  $key = array_search($block_config_name, $ignored_config_entities);
+  if ($key !== FALSE) {
+    array_splice($ignored_config_entities, $key, 1);
+  }
+
+  if ($block_content->hasField('info') && !$block_content->get('info')->isEmpty()) {
+    $info = $block_content->get('info')->value;
+    $sanitized_info = strtolower(preg_replace('/[^a-zA-Z0-9_]+/', '', $info));
+    $auto_generated_block_config_name = 'block.block.usagov_' . $sanitized_info;
+
+    $key = array_search($auto_generated_block_config_name, $ignored_config_entities);
+    if ($key !== FALSE) {
+      array_splice($ignored_config_entities, $key, 1);
+    }
+  }
+
+  $config->set('ignored_config_entities', $ignored_config_entities);
+  $config->save();
 }
