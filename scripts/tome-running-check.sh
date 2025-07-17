@@ -4,10 +4,18 @@ SCRIPT_PATH=$(dirname "$0")
 SCRIPT_NAME=tome-run.sh
 #SCRIPT_PID=$$
 
-# we should expect to see our process running: so we would expect a count of 1
+sleep 2
 PS_AUX=$(ps aux)
 ALREADY_RUNNING=$(echo "$PS_AUX" | grep $SCRIPT_NAME | wc -l)
 if [ "$ALREADY_RUNNING" -gt "0" ]; then
-    exit 0
+
+    # Due to potential race-conditions brought up in USAGOV-2436, we will wait, and check again just to confirm
+    sleep 3
+    PS_AUX2=$(ps aux)
+    ALREADY_RUNNING2=$(echo "$PS_AUX2" | grep $SCRIPT_NAME | wc -l)
+    if [ "$ALREADY_RUNNING2" -gt "0" ]; then
+
+        exit 0
+    fi
 fi
 exit 1

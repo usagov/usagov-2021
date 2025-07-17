@@ -1,0 +1,8 @@
+uuid: cb6d4607-1f5f-4c6e-8caa-31e3c8bc5666
+langcode: en
+status: true
+dependencies: {  }
+id: usagov_blog_menu
+label: 'USAGov Blog Menu'
+description: 'Menu for blog posts by year and month.'
+locked: false
