@@ -103,3 +103,8 @@ lazyLoadBgImage:
 modal:
   js:
     scripts/modal.js: {}
+
+# chatbot-backend:
+#   js:
+#     scripts/chatbotBackend.js: {}
+

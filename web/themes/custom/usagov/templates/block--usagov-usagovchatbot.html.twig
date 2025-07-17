@@ -84,4 +84,20 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/iife/ollama-js.global.js"></script>
+{# <script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/index.js"
+>
+  // use in the browser as a type="module" or in node with modules enabled (mjs)
+  import Ollama from "ollama-js-client";
+
+  // use global in the browser with script tag
+  const Ollama = window.OllamaJS;
+  console.log("running ollama-js-client version");
+</script> #}
+
 <script src="/themes/custom/usagov/scripts/AIchatbot.js" defer></script>
+
+<script type="module" src="/themes/custom/usagov/scripts/chatbotBackend.js"></script>
