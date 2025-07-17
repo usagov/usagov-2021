@@ -446,8 +446,8 @@ jobs:
           when: always
           command: |
             # kill the Snyk Docker images, as we dont want the next scan to waste time scaning them
-            docker image rm snyk/snyk:php
-            docker image rm snyk/snyk:docker
+            docker image rm snyk/snyk:php || true
+            docker image rm snyk/snyk:docker || true
             # build a fresh docker-bench-security container
             cd /tmp/
             git clone --depth 1 https://github.com/docker/docker-bench-security.git

@@ -23,12 +23,14 @@ CTAG=${2:-$GITBRANCH}
 
 THRESHOLD=${3:-low}
 
+# Force use to use the digest sha256:cebce69ae39e76a71f704f285211ed21b460c645a5996abb632b2636aca8a4ac
+
 # Explicitly turn off DOCKER_CONTENT_TRUST, as snyk are not signing their images.
 docker run --disable-content-trust -it --rm \
     -e "SNYK_TOKEN=$SNYK_TOKEN" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v $(pwd)/.docker:/app \
-  snyk/snyk:docker snyk container test \
+  snyk/snyk@sha256:cebce69ae39e76a71f704f285211ed21b460c645a5996abb632b2636aca8a4ac snyk container test \
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
     --print-deps \
