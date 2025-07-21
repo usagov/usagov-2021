@@ -573,6 +573,24 @@ jobs:
       - deploy-reporter:
           envname: dev
 
+  deploy-reporter-stage:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: stage
+
+  deploy-reporter-prod:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: prod
+
   build-and-push-container-cron:
     machine:
       image: ubuntu-2204:current
@@ -817,7 +835,6 @@ workflows:
                 - dev
                 - stage
                 - prod
-                - USAGOV-2278-v3
           requires:
             - approve-deploy-reporter
   build-and-deploy:
