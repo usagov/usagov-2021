@@ -1,0 +1,163 @@
+uuid: ef3e5618-54b4-4cd7-9fe3-e3acfe4308bd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.blog_post.body
+    - field.field.node.blog_post.field_author
+    - field.field.node.blog_post.field_tags
+    - node.type.blog_post
+  module:
+    - node
+label: 'Blog Import'
+id: blog_import
+description: 'Imports USAgov Hubspot Blog'
+help: ''
+import_period: -1
+fetcher: upload
+fetcher_configuration:
+  allowed_extensions: 'txt csv tsv xml opml'
+  directory: 'public://import'
+parser: csv
+parser_configuration:
+  delimiter: ','
+  no_headers: false
+  line_limit: 100
+processor: 'entity:node'
+processor_configuration:
+  values:
+    type: blog_post
+  langcode: en
+  insert_new: 1
+  update_existing: 0
+  update_non_existent: _keep
+  skip_hash_check: false
+  skip_validation: false
+  skip_validation_types: {  }
+  authorize: false
+  revision: false
+  expire: -1
+  owner_feed_author: false
+  owner_id: 0
+custom_sources:
+  post_title:
+    value: 'Post title'
+    label: 'Post title'
+    machine_name: post_title
+    type: csv
+  post_language:
+    value: 'Post language'
+    label: 'Post language'
+    machine_name: post_language
+    type: csv
+  '':
+    value: ''
+    label: ''
+    machine_name: ''
+    type: csv
+  author:
+    value: Author
+    label: Author
+    machine_name: author
+    type: csv
+  publish_date:
+    value: 'Publish date'
+    label: 'Publish date'
+    machine_name: publish_date
+    type: csv
+  last_modified_date:
+    value: 'Last modified date'
+    label: 'Last modified date'
+    machine_name: last_modified_date
+    type: csv
+  tags:
+    value: Tags
+    label: Tags
+    machine_name: tags
+    type: csv
+  post_body:
+    value: 'Post body'
+    label: 'Post body'
+    machine_name: post_body
+    type: csv
+  meta_description:
+    value: 'Meta description'
+    label: 'Meta description'
+    machine_name: meta_description
+    type: csv
+  featured_image_url:
+    value: 'Featured image URL'
+    label: 'Featured image URL'
+    machine_name: featured_image_url
+    type: csv
+  status:
+    value: Status
+    label: Status
+    machine_name: status
+    type: csv
+  post_url:
+    value: 'Post URL'
+    label: 'Post URL'
+    machine_name: post_url
+    type: csv
+mappings:
+  -
+    target: title
+    map:
+      value: post_title
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: langcode
+    map:
+      value: post_language
+    settings:
+      language: null
+  -
+    target: created
+    map:
+      value: publish_date
+    settings:
+      language: ''
+      timezone: America/New_York
+  -
+    target: revision_timestamp
+    map:
+      value: last_modified_date
+    settings:
+      timezone: America/New_York
+  -
+    target: field_tags
+    map:
+      value: tags
+    settings:
+      language: null
+  -
+    target: body
+    map:
+      value: post_body
+      summary: meta_description
+    settings:
+      language: ''
+      format: html
+  -
+    target: status
+    map:
+      value: status
+    settings:
+      language: null
+  -
+    target: field_author
+    map:
+      value: author
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: path
+    map:
+      alias: post_url
+      pathauto: ''
+    settings:
+      language: null
