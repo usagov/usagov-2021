@@ -1,4 +1,4 @@
-name: Prod A11Y Regression Tests
+name: DR A11Y Regression Tests
 
 on: workflow_dispatch
 
