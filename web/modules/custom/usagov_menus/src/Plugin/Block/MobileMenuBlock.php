@@ -24,6 +24,8 @@ class MobileMenuBlock extends AbstractMenuBlock {
    * @return array<string, mixed>
    */
   public function build(): array {
+    $path = $this->request->getPathInfo();
+
     switch ($this->language->getId()) {
       case 'es':
         $menuID = 'left-menu-spanish';
@@ -55,6 +57,11 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'form_id' => 'usagov_all_gov-mobile',
         ];
         break;
+    }
+
+    // Check if we're on a blog page and use the blog menu
+    if (str_starts_with($path, '/blog/') || $path === '/blog') {
+      return $this->buildBlogMenu();
     }
 
     if ($active = $this->trail->getActiveLink($menuID)) {
@@ -163,6 +170,59 @@ class MobileMenuBlock extends AbstractMenuBlock {
       '#siblings_of_active_item' => $siblings_of_active_item,
       '#submenu' => $submenu,
     ];
+  }
+
+  /**
+   * Build the blog menu for mobile navigation.
+   *
+   * @return array<string, mixed>
+   */
+  private function buildBlogMenu(): array {
+    $menuID = 'usagov_blog_menu';
+
+    if ($active = $this->trail->getActiveLink($menuID)) {
+      $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
+      $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
+      $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
+
+      return $this->renderItems($items, $twigVars, $menuID);
+    }
+
+    // Display the full blog menu structure with "Our Blog" at the top.
+    $items = $this->getMenuTreeItems($menuID, [], NULL, FALSE, -1);
+
+    $ourBlogItem = NULL;
+    if (isset($items['#items'])) {
+      foreach ($items['#items'] as $item) {
+        if ($item['title'] === 'Our Blog') {
+          $ourBlogItem = $item;
+          break;
+        }
+      }
+    }
+
+    // If we found "Our Blog", structure it as the active trail with its children
+    if ($ourBlogItem) {
+      $twigVars = [
+        '#active_trail' => [$ourBlogItem], // Put "Our Blog" in active trail
+        '#found_active_item' => FALSE,
+        '#active_item_has_children' => !empty($ourBlogItem['below']),
+        '#siblings_of_active_item' => [],
+        '#submenu' => $ourBlogItem['below'] ?? [], // Years are children of "Our Blog"
+      ];
+    }
+    else {
+      // Fallback if "Our Blog" not found
+      $twigVars = [
+        '#active_trail' => [],
+        '#found_active_item' => FALSE,
+        '#active_item_has_children' => TRUE,
+        '#siblings_of_active_item' => [],
+        '#submenu' => $items['#items'],
+      ];
+    }
+
+    return $this->renderItems($items, $twigVars, $menuID);
   }
 
 }

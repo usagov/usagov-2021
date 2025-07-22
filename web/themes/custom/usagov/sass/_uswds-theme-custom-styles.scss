@@ -1040,5 +1040,16 @@ input::-webkit-textfield-decoration-container {
         }
       }
     }
+
+      // Mobile styles for blog view
+    @media (max-width: 40em) {
+      .views-field-created {
+        font-size: 1rem;
+      }
+
+      .views-field-view-node a {
+        font-size: 1rem;
+      }
+    }
   }
 }

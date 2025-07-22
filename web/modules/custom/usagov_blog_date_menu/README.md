@@ -8,12 +8,13 @@ The USAGov Blog Date Menu module provides automated blog navigation for Drupal s
 
 ### Key Features
 
-- **Automatic Menu Generation**: Creates a hierarchical menu structure (Year → Month → Blog Post) without manual intervention
+- **Automatic Menu Generation**: Creates a hierarchical menu structure (Our Blog → Year → Month → Blog Post) without manual intervention
 - **Real-time Updates**: Automatically rebuilds the menu whenever blog posts are created, updated, or deleted
 - **Smart Breadcrumb Navigation**: Provides contextual breadcrumbs for blog posts and archive pages that reflect the hierarchical structure
 - **SEO-Friendly URLs**: Supports clean URL patterns like `/blog/2025/07` for monthly archives
 - **Chronological Ordering**:
-  - Years are ordered newest-first
+  - "Our Blog" links to `/blog` as the top-level entry point
+  - Years are ordered newest-first under "Our Blog"
   - Months within years are ordered newest-first
   - Blog posts within months are ordered by publication date (newest-first)
 
@@ -47,7 +48,7 @@ The module uses Drupal's entity and menu systems to create a self-maintaining na
 
 - `usagov_blog_date_menu_rebuild_menu()`: The primary function that reconstructs the entire menu structure
 - Queries all blog post nodes and groups them by year and month using the node's `created` timestamp
-- Creates a three-level hierarchy: Year → Month → Individual Posts
+- Creates a four-level hierarchy: Our Blog → Year → Month → Individual Posts
 - Implements proper weight-based sorting for consistent chronological ordering
 
 #### Entity Hooks

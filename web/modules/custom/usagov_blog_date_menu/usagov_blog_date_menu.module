@@ -95,9 +95,21 @@ function usagov_blog_date_menu_rebuild_menu(): void {
     }
   }
 
-  // Build menu links: Year > Month > Blog Title.
+  // Build menu links: Our Blog > Year > Month > Blog Title.
   // Sort years in descending order (newest first)
   krsort($groups);
+
+  // Create the top-level "Our Blog" menu item
+  $blog_root_link = MenuLinkContent::create([
+    'title' => 'Our Blog',
+    'link' => ['uri' => 'internal:/blog'],
+    'menu_name' => $menu_name,
+    'weight' => 0,
+    'expanded' => TRUE,
+    'enabled' => TRUE,
+  ]);
+  $blog_root_link->save();
+  $blog_root_id = $blog_root_link->getPluginId();
 
   $year_links = [];
   foreach ($groups as $year => $months) {
@@ -111,6 +123,7 @@ function usagov_blog_date_menu_rebuild_menu(): void {
       'title' => $year,
       'link' => ['uri' => 'internal:/blog/' . $year],
       'menu_name' => $menu_name,
+      'parent' => $blog_root_id,
       'weight' => -1 * intval($year),
       'expanded' => FALSE,
       'enabled' => TRUE,
