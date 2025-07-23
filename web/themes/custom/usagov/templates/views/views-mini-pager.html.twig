@@ -29,7 +29,7 @@
             <svg class="usa-icon" aria-hidden="true" role="img">
               <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#chevron_left"></use>
             </svg>
-            <span class="usa-pagination__link-text">{{ items.previous.text|default('Previous'|t) }}</span>
+            <span class="usa-pagination__link-text">{{ 'Previous'|t }}</span>
           </a>
         </li>
       {% endif %}
@@ -49,7 +49,7 @@
              title="{{ 'Go to next page'|t }}"
              rel="next"{{ items.next.attributes|without('href', 'title', 'rel') }}
              aria-label="{{ 'Next page'|t }}">
-            <span class="usa-pagination__link-text">{{ items.next.text|default('Next'|t) }}</span>
+            <span class="usa-pagination__link-text">{{ 'Next'|t }}</span>
             <svg class="usa-icon" aria-hidden="true" role="img">
               <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#chevron_right"></use>
             </svg>
