@@ -15,6 +15,7 @@
 
 ## Disaster recovery and initial setup
 - [Go.usa.gov setup](bin/cloudgov/go-setup/README.md)
+- GSAAuth - [creating/restoring certificate for SSO](scripts/gsaauth/GSAAUTH-SAML.md)
 - See also [Backup and restore](#backup-and-restore)
 
 ## Implementation and architecture notes
@@ -34,4 +35,3 @@
 
 ### Smaller stuff
 - [USAgov USWDS paragraph component mod(s)](web/modules/custom/usagov_uswds_paragraph_components_mods/README.md)
-
