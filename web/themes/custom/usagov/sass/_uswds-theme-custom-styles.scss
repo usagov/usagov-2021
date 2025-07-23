@@ -927,3 +927,118 @@ input::-webkit-textfield-decoration-container {
 .ui-dialog.ckeditor5-paragraph-embed-modal > .ui-dialog-content {
     height: 80vh !important;
 }
+
+/* Blog post styles */
+.usa-section .usa-prose .blog-post {
+  margin-bottom: -85px;
+
+  .field--name-field-featured-image {
+    float: right;
+    margin-left: 10px;
+    margin-bottom: 10px;
+
+    img {
+      max-width: 300px;
+    }
+  }
+}
+
+/* Blog view styles */
+.usa-section .usa-prose.blog-view {
+  .views-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    min-height: 200px;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    border-color: #ddd;
+    margin-top: 0px;
+    margin-bottom: 22px;
+    padding: 12px 12px 12px 16px;
+    border-radius: 4px 4px 4px 4px;
+
+    &:hover {
+      background-color: #ebe6de;
+    }
+
+    .views-field-title {
+      grid-column: 1 / -1;
+    }
+
+    .views-field-title a {
+      font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+      font-size: 1.95rem;
+      color: #d83933;
+      line-height: 1.2;
+      font-weight: 700;
+      text-decoration: none;
+
+      &:hover {
+        color: #a62a26;
+      }
+    }
+
+    .views-field-field-featured-image {
+      grid-column: 1 / -1;
+      margin-top: 15px;
+      margin-right: 5px;
+    }
+
+    .views-field-body {
+      grid-column: 1 / -1;
+    }
+
+    .views-field-created {
+      justify-self: start;
+      align-self: start;
+    }
+
+    .views-field-view-node {
+      justify-self: end;
+      align-self: end;
+
+      a {
+        display: inline-block;
+        width: 100%;
+        margin-top: 0;
+        margin-right: .5rem;
+        margin-bottom: .5em;
+        padding: .75rem 1.25rem;
+        padding-top: .3rem;
+        padding-bottom: .3rem;
+        padding-left: 15px;
+        padding-right: 15px;
+        border: 0;
+        border-radius: .25rem;
+        overflow: visible;
+        background-color: #ccecf2;
+        transition: background-color 0.2s ease;
+        background-size: 7rem;
+        background-repeat: no-repeat;
+        background-position: 110%;
+        font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+        font-size: 1.13rem;
+        line-height: .9;
+        font-weight: 700;
+        color: #1b1b1b;
+        text-decoration: none;
+        text-transform: none;
+        -webkit-font-smoothing: antialiased;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        outline: 0;
+        cursor: pointer;
+        text-align: center;
+        border: 2px solid #377f9d;
+
+        &:hover {
+          background-color: #a7d8e3;
+        }
+      }
+    }
+  }
+}
