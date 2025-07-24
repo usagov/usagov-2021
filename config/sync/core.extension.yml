@@ -103,6 +103,7 @@ module:
   usagov_benefit_finder_api: 0
   usagov_benefit_finder_content: 0
   usagov_benefit_finder_page: 0
+  usagov_blog_date_menu: 0
   usagov_ckeditor5_source_editing_fixup: 0
   usagov_directories: 0
   usagov_login: 0

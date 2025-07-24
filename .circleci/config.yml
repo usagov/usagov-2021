@@ -213,7 +213,7 @@ commands:
   deploy-reporter:
     parameters:
       envname:
-        default: "tools"
+        default: "dev"
         type: string
     steps:
       - checkout
@@ -231,20 +231,6 @@ commands:
             export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
       - run:
-          name: Save Image Digest Reporter
-          command: |
-            echo "docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'"
-            docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'
-            export REPORTER_DIGEST=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
-            echo "REPORTER_DIGEST is: "
-            echo $REPORTER_DIGEST
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
-            cf target -s shared-egress -o gsa-tts-usagov
-            . ./bin/cloudgov/get-s3-access key-value
-            mkdir /tmp/results || true
-            echo -n "$REPORTER_DIGEST" > /tmp/results/reporter_digest
-            aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
-      - run:
           name: Push Reporter Container to Docker Hub
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
@@ -252,14 +238,30 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-push-reporter << pipeline.number >> latest
       - run:
+          name: Save Signed Image Digest Reporter
+          command: |
+            set -euo pipefail
+            export PIPELINE_NUM=<< pipeline.number >>
+            echo "PIPELINE_NUM is: $PIPELINE_NUM"
+            TAG="reporter-${PIPELINE_NUM}"
+            REPO="docker.io/${DOCKERUSER}/${DOCKERREPO}"
+            docker pull "${REPO}:${TAG}"
+            DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${REPO}:${TAG}" | cut -d@ -f2)
+            echo "SIGNED_DIGEST=${DIGEST}"
+            echo "${DIGEST}" > /tmp/reporter_digest
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "S3_BUCKET is: $S3_BUCKET"
+            aws s3 cp /tmp/reporter_digest "s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-${PIPELINE_NUM}"
+      - run:
           name: Deploy Analytics Reporter
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            export RDIG=`cat /tmp/results/reporter_digest`
+            export RDIG=`cat /tmp/reporter_digest`
             echo RDIG is $RDIG
             ./bin/cloudgov/deploy-reporter << pipeline.number >> $RDIG
+
 
   deploy-cloudgov-cron:
     parameters:
@@ -562,6 +564,15 @@ jobs:
       - deploy-reporter:
           envname: tools
 
+  deploy-reporter-dev:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: dev
+
   build-and-push-container-cron:
     machine:
       image: ubuntu-2204:current
@@ -798,13 +809,15 @@ workflows:
                 - dev
                 - stage
                 - prod
-      - deploy-reporter-tools:
+                - USAGOV-2278-v3
+      - deploy-reporter-dev:
           filters:
             branches:
               only:
                 - dev
                 - stage
                 - prod
+                - USAGOV-2278-v3
           requires:
             - approve-deploy-reporter
   build-and-deploy:
