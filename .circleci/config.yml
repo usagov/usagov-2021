@@ -833,13 +833,14 @@ workflows:
           filters:
             branches:
               only:
-                - dev
                 - stage
                 - prod
                 - dr
+      - approve-deploy-reporter-to-dev:
+          type: approval
       - deploy-reporter-dev:
           requires:
-            - approve-deploy-reporter
+            - approve-deploy-reporter-to-dev
       - deploy-reporter-stage:
           filters:
             branches:
