@@ -828,6 +828,8 @@ workflows:
 
   try-deploy-reporter:
     jobs:
+      - approve-deploy-reporter-to-dev:
+          type: approval
       - approve-deploy-reporter:
           type: approval
           filters:
@@ -836,8 +838,6 @@ workflows:
                 - stage
                 - prod
                 - dr
-      - approve-deploy-reporter-to-dev:
-          type: approval
       - deploy-reporter-dev:
           requires:
             - approve-deploy-reporter-to-dev
