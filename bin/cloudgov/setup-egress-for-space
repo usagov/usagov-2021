@@ -216,6 +216,6 @@ if [ $restartApps -eq 1 ]; then
     # app doesn't complete in time.
     for app in $applist ; do
 	echo "$SCRIPT_DIR/setup-egress-for-apps $app"
-	$output $SCRIPT_DIR/setup-egress-for-apps $app
+	$output $SCRIPT_DIR/setup-egress-for-apps $app $egressspace
     done
 fi
