@@ -9,7 +9,7 @@ blocks:
     fields:
       body:
         -
-          value: "<div id=\"question-box\" data-contact-callout=\"visible\">\r\n    <div class=\"border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-2\">\r\n        <h2 class=\"font-family-heading margin-top-0\">\r\n            ¿Tiene una pregunta?\r\n        </h2>\r\n                    <p>Pregunte gratis a una persona real cualquier duda relacionada con el Gobierno. Le darán la respuesta o le indicarán dónde encontrarla.</p>\r\n                <div class=\"grid-row grid-gap\">\r\n            <div class=\"tablet:grid-col-4 margin-bottom-2\">\r\n                <a class=\"question-icon\" href=\"/es/centro-de-llamadas\">\r\n                    <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_talk.png\" alt=\"talk icon\">\r\n                    Llame a USAGov en Español\r\n                </a>\r\n            </div>\r\n            <div class=\"tablet:grid-col-8\">\r\n                                    <a class=\"question-icon\" href=\"/es/chat\">\r\n                \r\n                    <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_chat.png\" alt=\"chat icon\">\r\n                    Chatee con USAGov en Español\r\n                </a>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>"
+          value: "<!-- Content is in block--usagov-questionboxes.html.twig -->"
           summary: ''
           format: html
   -
@@ -22,7 +22,7 @@ blocks:
     fields:
       body:
         -
-          value: "<div id=\"question-box\" data-contact-callout=\"visible\">\r\n   <div class=\"usa-prose border-left-1 padding-left-205 border-cyan-10 margin-top-8 margin-bottom-9 padding-bottom-2\">\r\n      <h2 class=\"font-family-heading margin-top-0\">\r\n         Have a question?\r\n      </h2>\r\n      <p>Ask a real person any government-related question for free. They will get you the answer or let you know where to find it.</p>\r\n      <div class=\"grid-row grid-gap\">\r\n         <div class=\"tablet:grid-col-4 margin-bottom-2\">\r\n            <a class=\"question-icon\" href=\"/phone\">\r\n            <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_talk.png\" alt=\"talk icon\">\r\n            Call USAGov\r\n            </a>\r\n         </div>\r\n         <div class=\"tablet:grid-col-8\">\r\n            <a class=\"question-icon\" href=\"/chat\">\r\n            <img class=\"chat-icon\" src=\"/themes/custom/usagov/images/ICONS_chat.png\" alt=\"chat icon\">\r\n            Chat with USAGov\r\n            </a>\r\n         </div>\r\n      </div>\r\n   </div>\r\n</div>"
+          value: "<!-- Content is in block--usagov-questionbox.html.twig -->"
           summary: ''
           format: html
   -
@@ -35,7 +35,7 @@ blocks:
     fields:
       body:
         -
-          value: "<div id=\"footer-phone\" data-contact-callout=\"visible\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">Centro de llamadas de USAGov</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Haga una pregunta a USAGov en Español al</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/es/llamenos\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          value: "<!-- Content is in block--usagov-footerphonees-2.html.twig -->"
           summary: ''
           format: html
   -
@@ -48,7 +48,7 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/es/llamenos\" class=\"\">1-844-USAGOV1</a>\r\n</span>\r\n"
+          value: "<!-- Content is in block--usagov-topnavmobilees-2.html.twig -->"
           summary: ''
           format: html
   -
@@ -61,7 +61,7 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/phone\" class=\"\">1-844-USAGOV1</a>\r\n</span>"
+          value: "<!-- Content is in block--usagov-topnavmobile-2.html.twig -->"
           summary: ''
           format: html
   -
@@ -74,7 +74,7 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/es/llamenos\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n</span>"
+          value: "<!-- Content is in block--usagov-topnavphonees-2.html.twig -->"
           summary: ''
           format: html
   -
@@ -87,7 +87,7 @@ blocks:
     fields:
       body:
         -
-          value: "<div id=\"footer-phone\" data-contact-callout=\"visible\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">USAGov Contact Center</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Ask USA.gov a question at</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
+          value: "<-- Content is in block--usagov-footerphone-2.html.twig -->"
           summary: ''
           format: html
   -
@@ -100,6 +100,6 @@ blocks:
     fields:
       body:
         -
-          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\" data-contact-callout=\"visible\">\r\n    <a href=\"/phone\" style=\"white-space: nowrap;\">Call us at 1-844-USAGOV1</a>\r\n</span>"
+          value: "<!-- Content is in block--usagov-topnavphone-2.html.twig -->"
           summary: ''
           format: html
