@@ -109,6 +109,11 @@ if cf app "${ROUTE_SERVICE_APP_NAME}" | grep -q 'running'; then
   PUSH_STRATEGY="restage"
 fi
 
+# The cf start command has no --strategy option
+if [ "$PUSH_STRATEGY" == "start" ]; then
+  STRATEGY=""
+fi
+
 # launch the app
 if [ -z "$CDIGEST" ]; then
   echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:waf-${CTAG}"
@@ -142,7 +147,7 @@ cf create-route app.cloud.gov --hostname $ROUTE_SERVICE_NAME
 cf map-route "$ROUTE_SERVICE_APP_NAME" app.cloud.gov --hostname $ROUTE_SERVICE_NAME
 
 cf set-env "${ROUTE_SERVICE_APP_NAME}" ALLOWED_IPS "$(printf "%s" "${NGINX_ALLOW_STATEMENTS:-}")"
-cf $PUSH_STRATEGY "${ROUTE_SERVICE_APP_NAME}" --strategy rolling
+cf $PUSH_STRATEGY "${ROUTE_SERVICE_APP_NAME}" $STRATEGY
 
 printf "\nFetching GUIDs for protected-app & route-service-app\n"
 
