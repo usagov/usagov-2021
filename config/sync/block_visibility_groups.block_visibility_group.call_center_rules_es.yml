@@ -4,12 +4,11 @@ status: true
 dependencies:
   module:
     - language
-    - node
     - system
     - term_condition
 id: call_center_rules_es
 label: 'Call Center Rules ES'
-logic: or
+logic: and
 conditions:
   ec31ca62-3fb6-4b7a-8eb2-3eed12b9065a:
     id: language
@@ -19,15 +18,6 @@ conditions:
       language: '@language.current_language_context:language_interface'
     langcodes:
       es: es
-  e8247c73-b7cf-4897-af36-ba1ff63f4e9c:
-    id: 'entity_bundle:node'
-    negate: true
-    uuid: e8247c73-b7cf-4897-af36-ba1ff63f4e9c
-    context_mapping:
-      node: '@node.node_route_context:node'
-    bundles:
-      directory_record: directory_record
-      state_directory_record: state_directory_record
   8b0a236d-96c0-4918-9d06-1216cc34d61c:
     id: term
     negate: true
@@ -36,42 +26,13 @@ conditions:
       node: '@node.node_route_context:node'
     term_uuids:
       - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
-  1339675d-7853-4719-9fb6-c4f014e6280a:
-    id: term
-    negate: true
-    uuid: 1339675d-7853-4719-9fb6-c4f014e6280a
-    context_mapping:
-      node: '@node.node_route_context:node'
-    term_uuids:
+      - 5d427eb4-eaf0-4735-a6c9-6968c85545f9
+      - 98da5ec5-e08a-4d6d-832e-0eb027282728
       - e81abe40-3c39-4457-a5de-265513e423be
   35c2945f-175d-4afe-9e71-fa9f044d9df3:
     id: request_path
     negate: true
     uuid: 35c2945f-175d-4afe-9e71-fa9f044d9df3
     context_mapping: {  }
-    pages: "/agencias/*\r\n/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estados/*\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n/website-analytics\r\n/website-analytics/*"
-  488e56c1-298c-4a24-a0fd-aed4f140e643:
-    id: term
-    negate: false
-    uuid: 488e56c1-298c-4a24-a0fd-aed4f140e643
-    context_mapping:
-      node: '@node.node_route_context:node'
-    term_uuids:
-      - 24ada0c8-3397-4b5f-a8bc-55adff307199
-  98801075-d742-4ee4-a7a7-8cd17e709f2c:
-    id: term
-    negate: false
-    uuid: 98801075-d742-4ee4-a7a7-8cd17e709f2c
-    context_mapping:
-      node: '@node.node_route_context:node'
-    term_uuids:
-      - 93f36183-bb28-415c-85c0-537f560bc38c
-  4c81e7ff-9cc2-4137-9f40-9e5de70cf522:
-    id: term
-    negate: true
-    uuid: 4c81e7ff-9cc2-4137-9f40-9e5de70cf522
-    context_mapping:
-      node: '@node.node_route_context:node'
-    term_uuids:
-      - fbaa8c29-47ad-4bc1-899f-c8f305ded805
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n"
 allow_other_conditions: false
