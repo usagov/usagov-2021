@@ -190,6 +190,8 @@ function usagov_blog_date_menu_build_blog_post_breadcrumb(Breadcrumb &$breadcrum
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
 
   // Use the 'created' field which is the "Authored on" date in Drupal
@@ -216,6 +218,8 @@ function usagov_blog_date_menu_build_breadcrumb(Breadcrumb &$breadcrumb, string 
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
 
   // year is non-clickable if on the year page
@@ -245,6 +249,8 @@ function usagov_blog_date_menu_build_blog_listing_breadcrumb(Breadcrumb &$breadc
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromRoute('<none>'));
 
   $new_breadcrumb = new Breadcrumb();
