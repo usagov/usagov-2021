@@ -5,6 +5,7 @@ namespace Drupal\usagov_menus\Plugin\Block;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Menu\MenuLinkInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 
 #[Block(
   id: "usagov_mobile_menu_block",
@@ -180,49 +181,80 @@ class MobileMenuBlock extends AbstractMenuBlock {
   private function buildBlogMenu(): array {
     $menuID = 'usagov_blog_menu';
 
+    // Get the full menu tree first
+    $topLevelItems = $this->getMenuTreeItems($menuID, [], NULL, FALSE, 1);
+    $fullItems = $topLevelItems;
+
+    if (!empty($topLevelItems['#items'])) {
+      $firstKey = array_key_first($topLevelItems['#items']);
+      $dummyActive = $topLevelItems['#items'][$firstKey]['original_link'] ?? NULL;
+      if ($dummyActive) {
+        $fullItems = $this->getMenuTreeItems($menuID, [], $dummyActive, FALSE, -1);
+      }
+    }
+
+    // Special case: if we're on /blog exactly, always use the synthetic menu
+    // to prevent template from adding node.title.value
+    if ($this->request->getPathInfo() === '/blog') {
+      $ourBlogItem = [
+        'title' => 'Our Blog',
+        'url' => Url::fromUri('internal:/blog'),
+        'below' => $fullItems['#items'] ?? [],
+        'in_active_trail' => TRUE,
+        'active' => TRUE, // Mark as active since we're on /blog
+      ];
+
+      $twigVars = [
+        '#active_trail' => [$ourBlogItem],
+        '#found_active_item' => TRUE, // We found the active item (Our Blog)
+        '#active_item_has_children' => TRUE, // It has children (the years)
+        '#siblings_of_active_item' => [],
+        '#submenu' => $ourBlogItem['below'], // Show years as children
+      ];
+
+      return $this->renderItems($fullItems, $twigVars, $menuID);
+    }
+
+    // Check if we have an active link in the blog menu
     if ($active = $this->trail->getActiveLink($menuID)) {
+      // We're on a specific blog page - use normal active trail logic
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
       $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
 
+      // Add "Our Blog" as the root of the active trail
+      $ourBlogItem = [
+        'title' => 'Our Blog',
+        'url' => Url::fromUri('internal:/blog'),
+        'below' => $fullItems['#items'] ?? [],
+        'in_active_trail' => TRUE,
+        'active' => FALSE,
+      ];
+
+      // Prepend "Our Blog" to the active trail
+      array_unshift($twigVars['#active_trail'], $ourBlogItem);
+
       return $this->renderItems($items, $twigVars, $menuID);
     }
 
-    // Display the full blog menu structure with "Our Blog" at the top.
-    $items = $this->getMenuTreeItems($menuID, [], NULL, FALSE, -1);
+    // No active blog page - show the full menu with "Our Blog" at the top
+    $ourBlogItem = [
+      'title' => 'Our Blog',
+      'url' => Url::fromUri('internal:/blog'),
+      'below' => $fullItems['#items'] ?? [],
+      'in_active_trail' => TRUE,
+      'active' => FALSE,
+    ];
 
-    $ourBlogItem = NULL;
-    if (isset($items['#items'])) {
-      foreach ($items['#items'] as $item) {
-        if ($item['title'] === 'Our Blog') {
-          $ourBlogItem = $item;
-          break;
-        }
-      }
-    }
+    $twigVars = [
+      '#active_trail' => [$ourBlogItem],
+      '#found_active_item' => FALSE,
+      '#active_item_has_children' => !empty($ourBlogItem['below']),
+      '#siblings_of_active_item' => [],
+      '#submenu' => $ourBlogItem['below'],
+    ];
 
-    // If we found "Our Blog", structure it as the active trail with its children
-    if ($ourBlogItem) {
-      $twigVars = [
-        '#active_trail' => [$ourBlogItem], // Put "Our Blog" in active trail
-        '#found_active_item' => FALSE,
-        '#active_item_has_children' => !empty($ourBlogItem['below']),
-        '#siblings_of_active_item' => [],
-        '#submenu' => $ourBlogItem['below'] ?? [], // Years are children of "Our Blog"
-      ];
-    }
-    else {
-      // Fallback if "Our Blog" not found
-      $twigVars = [
-        '#active_trail' => [],
-        '#found_active_item' => FALSE,
-        '#active_item_has_children' => TRUE,
-        '#siblings_of_active_item' => [],
-        '#submenu' => $items['#items'],
-      ];
-    }
-
-    return $this->renderItems($items, $twigVars, $menuID);
+    return $this->renderItems($fullItems, $twigVars, $menuID);
   }
 
 }
