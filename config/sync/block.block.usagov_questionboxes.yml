@@ -3,7 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - block_visibility_groups.block_visibility_group.call_center_rules_es
+    - block_visibility_groups.block_visibility_group.display_have_a_question_box_es
   content:
     - 'block_content:html_block:7066f7fa-491f-4a90-9995-251859b3ec7d'
   module:
@@ -37,4 +37,4 @@ visibility:
   condition_group:
     id: condition_group
     negate: false
-    block_visibility_group: call_center_rules_es
+    block_visibility_group: display_have_a_question_box_es

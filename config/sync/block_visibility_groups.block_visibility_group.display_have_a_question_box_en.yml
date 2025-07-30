@@ -1,4 +1,4 @@
-uuid: f6a34a22-a90d-45bc-846a-570477a2e3a7
+uuid: 7fa01189-7090-4ac9-b371-db32ceb79901
 langcode: en
 status: true
 dependencies:
@@ -7,39 +7,40 @@ dependencies:
     - node
     - system
     - term_condition
-id: call_center_rules
-label: 'Call Center Rules'
+id: display_have_a_question_box_en
+label: 'Display Have-a-question box EN'
 logic: and
 conditions:
-  dca74025-1a03-465d-abff-70d25b1225da:
+  69b01280-07c2-44c8-abb9-ea0fd8029003:
     id: language
     negate: false
-    uuid: dca74025-1a03-465d-abff-70d25b1225da
+    uuid: 69b01280-07c2-44c8-abb9-ea0fd8029003
     context_mapping:
       language: '@language.current_language_context:language_interface'
     langcodes:
       en: en
-  e047424a-27fd-45f2-a991-11381f506258:
-    id: term
-    negate: true
-    uuid: e047424a-27fd-45f2-a991-11381f506258
-    context_mapping:
-      node: '@node.node_route_context:node'
-    term_uuids:
-      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
-      - e81abe40-3c39-4457-a5de-265513e423be
-  f6a3a1cd-36c2-451a-b200-b815c3deba6c:
-    id: request_path
-    negate: true
-    uuid: f6a3a1cd-36c2-451a-b200-b815c3deba6c
-    context_mapping: {  }
-    pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
-  a52ca859-b313-4c81-94b1-79887eb414ca:
+  a60229c0-e18c-40f0-94fa-e663ea485164:
     id: 'entity_bundle:node'
     negate: false
-    uuid: a52ca859-b313-4c81-94b1-79887eb414ca
+    uuid: a60229c0-e18c-40f0-94fa-e663ea485164
     context_mapping:
       node: '@node.node_route_context:node'
     bundles:
       basic_page: basic_page
+  7eda5322-0f74-475d-b1b0-c7c04c9f90af:
+    id: term
+    negate: true
+    uuid: 7eda5322-0f74-475d-b1b0-c7c04c9f90af
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - 5d427eb4-eaf0-4735-a6c9-6968c85545f9
+      - 98da5ec5-e08a-4d6d-832e-0eb027282728
+      - e81abe40-3c39-4457-a5de-265513e423be
+  6edeba35-6aef-44e8-92f8-5e958a6f4a65:
+    id: request_path
+    negate: true
+    uuid: 6edeba35-6aef-44e8-92f8-5e958a6f4a65
+    context_mapping: {  }
+    pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
 allow_other_conditions: false

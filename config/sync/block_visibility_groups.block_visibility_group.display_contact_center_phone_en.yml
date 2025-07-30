@@ -1,4 +1,4 @@
-uuid: f6a34a22-a90d-45bc-846a-570477a2e3a7
+uuid: 93d7c284-cbbf-4f3b-afc3-510f38dd6218
 langcode: en
 status: true
 dependencies:
@@ -7,39 +7,39 @@ dependencies:
     - node
     - system
     - term_condition
-id: call_center_rules
-label: 'Call Center Rules'
+id: display_contact_center_phone_en
+label: 'Display contact center phone EN'
 logic: and
 conditions:
-  dca74025-1a03-465d-abff-70d25b1225da:
+  7db46360-142d-45f0-a378-cdefdc400c2c:
     id: language
     negate: false
-    uuid: dca74025-1a03-465d-abff-70d25b1225da
+    uuid: 7db46360-142d-45f0-a378-cdefdc400c2c
     context_mapping:
       language: '@language.current_language_context:language_interface'
     langcodes:
       en: en
-  e047424a-27fd-45f2-a991-11381f506258:
+  38746d0b-10b7-4453-b62d-bf84d8efb54a:
+    id: 'entity_bundle:node'
+    negate: false
+    uuid: 38746d0b-10b7-4453-b62d-bf84d8efb54a
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  55e01800-5555-4b03-9362-1e216752c809:
     id: term
     negate: true
-    uuid: e047424a-27fd-45f2-a991-11381f506258
+    uuid: 55e01800-5555-4b03-9362-1e216752c809
     context_mapping:
       node: '@node.node_route_context:node'
     term_uuids:
       - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
       - e81abe40-3c39-4457-a5de-265513e423be
-  f6a3a1cd-36c2-451a-b200-b815c3deba6c:
+  d31b633e-9df3-4617-bfc6-3b8f08525c9f:
     id: request_path
     negate: true
-    uuid: f6a3a1cd-36c2-451a-b200-b815c3deba6c
+    uuid: d31b633e-9df3-4617-bfc6-3b8f08525c9f
     context_mapping: {  }
     pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
-  a52ca859-b313-4c81-94b1-79887eb414ca:
-    id: 'entity_bundle:node'
-    negate: false
-    uuid: a52ca859-b313-4c81-94b1-79887eb414ca
-    context_mapping:
-      node: '@node.node_route_context:node'
-    bundles:
-      basic_page: basic_page
 allow_other_conditions: false

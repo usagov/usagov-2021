@@ -3,7 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - block_visibility_groups.block_visibility_group.call_center_rules
+    - block_visibility_groups.block_visibility_group.display_contact_center_phone_en
   content:
     - 'block_content:html_block:3a427426-d092-44ee-aa32-a0f6858f61d6'
   module:
@@ -42,4 +42,4 @@ visibility:
   condition_group:
     id: condition_group
     negate: false
-    block_visibility_group: call_center_rules
+    block_visibility_group: display_contact_center_phone_en
