@@ -42,7 +42,7 @@ jQuery(document).ready(async function () {
     // If the estimated time was captured over 10 minutes ago, remain silent.
     if (checkTimeStamp(timestamp)) {
       let displayTime;
-      if (actualSeconds !== -1 && shouldDisplay() && checkDataStructure()) {
+      if (actualSeconds !== -1 && shouldDisplay()) {
         if (actualSeconds < 60) {
           displayTime = 1;
         }
@@ -57,27 +57,6 @@ jQuery(document).ready(async function () {
     }
   }
 
-  /**
-   * Check dataLayer for /tax-refunds or /es/reembolsos-impuestos or bears_life_event'.
-   */
-  function checkDataStructure() {
-    // Check if dataLayer exists and has at least one element
-    if (!dataLayer || !dataLayer[0]) {
-      return false;
-    }
-
-    // Get the Taxonomy_URL_3 value
-    const taxonomyPath = dataLayer[0].Taxonomy_URL_3;
-
-    // Get the contentType
-    const contentType = dataLayer[0].contentType;
-
-    // Return false if it matches either of the specified paths
-    // Return true for all other paths
-    return !(taxonomyPath === '/tax-refunds' ||
-      taxonomyPath === '/es/reembolsos-impuestos' ||
-      contentType === 'bears_life_event');
-  }
 
   /**
    * Inject CSS to hide Call Center related elements on the page.
