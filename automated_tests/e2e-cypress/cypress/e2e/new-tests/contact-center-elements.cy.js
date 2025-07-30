@@ -5,7 +5,25 @@ const paths_with_all_contact_info = [
 
 // A sampling of paths for pages that SHOULD NOT HAVE the phone number and "have a question" box
 const paths_without_contact_info = [
-  "/tax-refunds",
+    // tax pages, by path and parent
+    "/tax-refunds",
+    "/es/reembolsos-impuestos",
+    // TODO: children of those two
+    // federal directory index and individual agency pages
+    "/agency-index",
+    "/agencies/",
+    "/agencies/u-s-air-force",
+    "/es/indice-agencias",
+    "/es/agencias/fuerza-aerea-de-ee-uu",
+    // State pages, 50-stage pages
+    "/states/alaska",
+    "/state-governments",
+    "/state-governor",
+    "/es/estados/alabama",
+    "/es/gobiernos-estatales",
+    "/es/estatal-consumidor",
+
+
 ];
 
 // A sampling of paths for pages that SHOULD HAVE the phone number but NOT the "have a question" box
@@ -50,4 +68,3 @@ describe('Neither phone number in header nor Have a Question box is present', ()
     });
   });
 });
-
