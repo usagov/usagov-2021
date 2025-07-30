@@ -1,4 +1,4 @@
-
+{# This block is pulled in through Block Layout for pages in the Wizards menus. #}
 {# Determine Language to decide which menu and translations to use #}
 {% if node.langcode.langcode == "es" %}
   {% set main_nav_items = simplify_menu('left-menu-spanish') %}
@@ -171,11 +171,6 @@
           {% set label_string = translations.search %}
           {% set alt_string = translations.search %}
         {% endembed %}
-        <div class="usa-nav__secondary-links">
-          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item" data-contact-callout="visible">
-            <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
-          </span>
-        </div>
       </div>
     </div>
 
