@@ -370,13 +370,13 @@
            //Downloads have their full URL in event_label, while link URLs have to be concatenated with a hardcoded protocol + ga:eventAction + event_label
            if ((d.linkUrl.startsWith('https://')) || (d.linkUrl.startsWith('http://'))) {
              return [
-                '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', formatURLWithPath(d.linkUrl), '</a></span> ',
+                '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', formatURLWithPath(d.page_title), '</a></span> ',
                 '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
                 d.page_title, '</a></span>'
               ].join('');
            }
            return [
-              '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], d.linkUrl, '</a></span> ',
+              '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], d.page_title, '</a></span> ',
               '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
               d.page_title, '</a></span>'
             ].join('');
