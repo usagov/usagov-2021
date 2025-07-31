@@ -24,7 +24,6 @@ settings:
   provider: menu_block
   follow: false
   follow_parent: active
-  display_empty: false
   label_link: true
   label_type: root
   level: 1
