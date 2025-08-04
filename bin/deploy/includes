@@ -177,7 +177,7 @@ function assertCFService() { # desired service name
 function existsCFService() { # desired service name
   desiredService=$1
   if ! cf service $desiredService &> /dev/null; then
-      echo "ERROR: CF service '$desiredService' does not exist in the current CF space"
+      echo "Notice: CF service '$desiredService' does not exist in the current CF space"
       return 1; #false
   fi
 }
