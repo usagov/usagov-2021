@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to create the rds service
+# The {} are for formatting only
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+if [ -f $SCRIPT_DIR/../bin/deploy/includes ]; then
+  . $SCRIPT_DIR/../bin/deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../bin/deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+APP_SPACE=${1:-please-provide-space-name-as-first-argument}
+APP_SPACE=$(echo "$APP_SPACE" | tr '[:upper:]' '[:lower:]')
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+shift
+
+## DATABASE SERVICE
+{
+  echo "Configuring Database Service"
+  if existsCFService "database" ; then
+    echo database already created
+  else
+    if [ "$SPACE" = "dev" ] ; then
+       RDS_PLAN=small-mysql
+    else
+	RDS_PLAN=small-mysql-redundant
+    fi
+    
+    echo cf create-service aws-rds \
+      $RDS_PLAN \
+      database \
+      -c '{"version": "8.0"}'
+    $echo cf create-service aws-rds \
+      $RDS_PLAN \
+      database \
+      -c '{"version": "8.0"}'
+  fi
+
+  # wait until the db is fully provisioned
+  if [ x$echo != x ];  then
+    until cf create-service-key database test-db-ok ; do
+      echo waiting until database is live...
+      sleep 20
+    done
+  fi
+
+  echo  cf delete-service-key database test-db-ok -f
+  $echo cf delete-service-key database test-db-ok -f
+}
+
+## DONE
