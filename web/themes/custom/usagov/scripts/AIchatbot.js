@@ -222,7 +222,7 @@ async function getAIResponse(userMessage, messageContainer) {
     const chatbotService = window.ChatbotService;
     const bot = new chatbotService();
     try {
-        const responseJSON = await bot.askChat('usagovsite', userMessage, true);
+        const responseJSON = await bot.askChat('usagovsite', userMessage, false);
         return responseJSON.response
 
     } catch (error) {

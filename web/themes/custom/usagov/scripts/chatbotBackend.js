@@ -100,17 +100,18 @@ export class ChatbotService {
 
     async ollamaGenerate(prompt) {
         try {
+            const body = {
+                'model': 'llama3.2',
+                'prompt': JSON.stringify(prompt),
+                'stream': false,
+            };
             const generateUrl = `${this.ollamaHost}/api/generate`;
             const generateRequest = await fetch(generateUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    'model': 'llama3.2',
-                    'prompt': prompt,
-                    'stream': false
-                }),
+                body: JSON.stringify(body),
             });
             const generateJson = await generateRequest.json();
             return generateJson;
@@ -161,34 +162,34 @@ export class ChatbotService {
 }
 
 // Example usage of the ChatbotService listModels() function.
-(async () => {
-    const chatbotService = new ChatbotService();
-    try {
-        const models = await chatbotService.listModels();
-        console.log('Available models:', models);
-    } catch (error) {
-        console.error('Failed to fetch models:', error);
-    }
-})();
+// (async () => {
+//     const chatbotService = new ChatbotService();
+//     try {
+//         const models = await chatbotService.listModels();
+//         console.log('Available models:', models);
+//     } catch (error) {
+//         console.error('Failed to fetch models:', error);
+//     }
+// })();
 
-// Example usage of the ChatbotService listCollections() function.
-(async () => {
-    const chatbotService = new ChatbotService();
-    try {
-        const collections = await chatbotService.listCollections();
-        console.log('Available collections:', collections);
-    } catch (error) {
-        console.error('Failed to fetch collections:', error);
-    }
-})();
+// // Example usage of the ChatbotService listCollections() function.
+// (async () => {
+//     const chatbotService = new ChatbotService();
+//     try {
+//         const collections = await chatbotService.listCollections();
+//         console.log('Available collections:', collections);
+//     } catch (error) {
+//         console.error('Failed to fetch collections:', error);
+//     }
+// })();
 
-(async () => {
-    const chatbotService = new ChatbotService();
-    try {
-        const response = await chatbotService.askChat('usagovsite', 'What is the contact information for the USAGov site?', true);
-    } catch (error) {
-        console.error('Failed to get chat response:', error);
-    }
-})();
+// (async () => {
+//     const chatbotService = new ChatbotService();
+//     try {
+//         const response = await chatbotService.askChat('usagovsite', 'What is the contact information for the USAGov site?', true);
+//     } catch (error) {
+//         console.error('Failed to get chat response:', error);
+//     }
+// })();
 
 window.ChatbotService = ChatbotService; // Expose the service globally for use in other scripts
