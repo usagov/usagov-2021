@@ -351,25 +351,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   </body>
 
-    <!--
-    IE detection, used to guide console formatting in subsequent include.
-  -->
-  <script type="text/javascript">window._ie9 = false;</script>
-
-  <!--[if IE 9 ]>
-    <script type="text/javascript">window._ie9 = true;</script>
-  <![endif]-->
-
-  <!--
-   IE10 JS targeting: https://stackoverflow.com/a/17099988
-   IE11 JS targeting: https://stackoverflow.com/a/17447695
-  -->
-  <script type="text/javascript">
-    window._ie10 = ("onpropertychange" in document && !!window.matchMedia);
-    window._ie11 = !!navigator.userAgent.match(/Trident\/7.0; rv 11/);
-    window._ie = window._ie9 || window._ie10 || window._ie11;
-  </script>
-
   <script src="/website-analytics/js/vendor/uswds.v0.9.1.js"></script>
   <script src="/website-analytics/js/index.js"></script>
 

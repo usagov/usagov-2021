@@ -1,0 +1,39 @@
+uuid: bead752a-c551-41b2-97e9-5899e7f9ed50
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.blog_post.body
+    - field.field.node.blog_post.feeds_item
+    - field.field.node.blog_post.field_author
+    - field.field.node.blog_post.field_featured_image
+    - field.field.node.blog_post.field_tags
+    - node.type.blog_post
+  module:
+    - text
+    - user
+id: node.blog_post.teaser
+targetEntityType: node
+bundle: blog_post
+mode: teaser
+content:
+  body:
+    type: text_summary_or_trimmed
+    label: hidden
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  feeds_item: true
+  field_author: true
+  field_featured_image: true
+  field_tags: true
+  langcode: true
