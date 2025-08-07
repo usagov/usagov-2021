@@ -173,7 +173,7 @@ function usagov_blog_date_menu_system_breadcrumb_alter(Breadcrumb &$breadcrumb, 
   if (preg_match('#^/blog/(\d{4})(?:/(\d{1,2}))?$#', $current_path, $matches)) {
     $year = $matches[1];
     $month = $matches[2] ?? NULL;
-    usagov_blog_date_menu_build_archive_breadcrumb($breadcrumb, $year, $month);
+    usagov_blog_date_menu_build_breadcrumb($breadcrumb, $year, $month);
     return;
   }
 
@@ -190,6 +190,8 @@ function usagov_blog_date_menu_build_blog_post_breadcrumb(Breadcrumb &$breadcrum
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
 
   // Use the 'created' field which is the "Authored on" date in Drupal
@@ -212,10 +214,12 @@ function usagov_blog_date_menu_build_blog_post_breadcrumb(Breadcrumb &$breadcrum
 /**
  * Builds breadcrumb for blog archive pages (year/month).
  */
-function usagov_blog_date_menu_build_archive_breadcrumb(Breadcrumb &$breadcrumb, string $year, ?string $month = NULL): void {
+function usagov_blog_date_menu_build_breadcrumb(Breadcrumb &$breadcrumb, string $year, ?string $month = NULL): void {
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
 
   // year is non-clickable if on the year page
@@ -245,6 +249,8 @@ function usagov_blog_date_menu_build_blog_listing_breadcrumb(Breadcrumb &$breadc
   $links = [];
 
   $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
   $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromRoute('<none>'));
 
   $new_breadcrumb = new Breadcrumb();
