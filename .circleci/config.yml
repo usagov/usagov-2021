@@ -307,7 +307,6 @@ jobs:
             SCAN_CODE_RESULT=0
             if (./bin/scan-code low | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             echo "CMS Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
-            cat /tmp/results/scan-cms-code.log
             exit $SCAN_CODE_RESULT
       - run:
           name: Scan Dependencies
@@ -316,7 +315,6 @@ jobs:
             SCAN_DEPS_RESULT=0
             if (./bin/scan-dependencies low | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
             echo "CMS Dependency Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
-            cat /tmp/results/scan-cms-dependencies.log
             exit $SCAN_DEPS_RESULT
       - run:
           name: Check CIS Benchmarks
@@ -332,7 +330,6 @@ jobs:
             cd /home/circleci/project
             if (./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log); then export SCAN_CIS_RESULT=0; else export SCAN_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-cis.log
-            cat /tmp/results/scan-cms-cis.log
             exit $SCAN_CIS_RESULT
       - store_artifacts:
           path: /tmp/results
@@ -405,7 +402,6 @@ jobs:
             SCAN_CODE_RESULT=0
             if (./bin/scan-code high | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             echo "Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
-            cat /tmp/results/scan-cms-code.log
             exit 0
       - run:
           name: Scan Dependencies
@@ -413,7 +409,6 @@ jobs:
             SCAN_DEPS_RESULT=0
             if (./bin/scan-dependencies high | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
             echo "Dependencies Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
-            cat /tmp/results/scan-cms-dependencies.log
             exit 0
       - run:
           name: Build Container
@@ -433,7 +428,6 @@ jobs:
             SCAN_WWW_RESULT=0
             if (./bin/scan-container www << pipeline.number >> high | tee /tmp/results/scan-www-container.log); then export SCAN_WWW_RESULT=0; else export SCAN_WWW_RESULT=$?; fi
             echo "WWW Container Scan return code: $SCAN_WWW_RESULT" | tee -a /tmp/results/scan-www-container.log
-            cat /tmp/results/scan-www-container.log
             exit 0
       - run:
           name: Scan WAF Container
@@ -441,7 +435,6 @@ jobs:
             SCAN_WAF_RESULT=0
             if (./bin/scan-container waf << pipeline.number >> high | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=0; else export SCAN_WAF_RESULT=$?; fi
             echo "WAF Container Scan return code: $SCAN_WAF_RESULT" | tee -a /tmp/results/scan-waf-container.log
-            cat /tmp/results/scan-waf-container.log
             exit 0
       - run:
           name: Prepare for CIS Benchmarks
@@ -626,7 +619,6 @@ jobs:
             SCAN_CRON_RESULT=0
             if (./bin/scan-container cron << pipeline.number >> high | tee /tmp/results/scan-cron-container.log); then export SCAN_CRON_RESULT=0; else export SCAN_CRON_RESULT=$?; fi
             echo "Cron Container Scan return code: $SCAN_CRON_RESULT" | tee -a /tmp/results/scan-cron-container.log
-            cat /tmp/results/scan-cron-container.log
             exit 0
       - run:
           name: Create Container for Cron CIS Benchmarks
@@ -645,7 +637,6 @@ jobs:
             SCAN_CRON_CIS_RESULT=0
             if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
             echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
-            cat /tmp/results/scan-cron-container-cis.log
             exit 0
       - run:
           name: Stop containers now that Benchmarks are done
