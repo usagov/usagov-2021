@@ -297,8 +297,8 @@ display:
           label: ''
           exclude: false
           alter:
-            alter_text: false
-            text: ''
+            alter_text: true
+            text: '<a class="usa-button usa-button--secondary" href="{{ view_node }}">Read More ❯</a>'
             make_link: false
             path: ''
             absolute: false
@@ -336,7 +336,7 @@ display:
           empty_zero: false
           hide_alter_empty: true
           text: 'Read More ❯'
-          output_url_as_text: false
+          output_url_as_text: true
           absolute: false
       pager:
         type: mini

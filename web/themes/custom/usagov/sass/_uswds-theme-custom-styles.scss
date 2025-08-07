@@ -994,51 +994,12 @@ input::-webkit-textfield-decoration-container {
     .views-field-created {
       justify-self: start;
       align-self: start;
+      margin-top: 10px;
     }
 
     .views-field-view-node {
       justify-self: end;
       align-self: end;
-
-      a {
-        display: inline-block;
-        width: 100%;
-        margin-top: 0;
-        margin-right: .5rem;
-        margin-bottom: .5em;
-        padding: .75rem 1.25rem;
-        padding-top: .3rem;
-        padding-bottom: .3rem;
-        padding-left: 15px;
-        padding-right: 15px;
-        border: 0;
-        border-radius: .25rem;
-        overflow: visible;
-        background-color: #ccecf2;
-        transition: background-color 0.2s ease;
-        background-size: 7rem;
-        background-repeat: no-repeat;
-        background-position: 110%;
-        font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
-        font-size: 1.13rem;
-        line-height: .9;
-        font-weight: 700;
-        color: #1b1b1b;
-        text-decoration: none;
-        text-transform: none;
-        -webkit-font-smoothing: antialiased;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        outline: 0;
-        cursor: pointer;
-        text-align: center;
-        border: 2px solid #377f9d;
-
-        &:hover {
-          background-color: #a7d8e3;
-        }
-      }
     }
   }
 }
