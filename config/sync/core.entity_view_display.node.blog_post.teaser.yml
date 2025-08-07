@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.blog_post.feeds_item
     - field.field.node.blog_post.field_author
     - field.field.node.blog_post.field_featured_image
+    - field.field.node.blog_post.field_hide_featured_image_from_n
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
@@ -35,5 +36,6 @@ hidden:
   feeds_item: true
   field_author: true
   field_featured_image: true
+  field_hide_featured_image_from_n: true
   field_tags: true
   langcode: true
