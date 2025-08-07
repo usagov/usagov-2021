@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.blog_post.feeds_item
     - field.field.node.blog_post.field_author
     - field.field.node.blog_post.field_featured_image
+    - field.field.node.blog_post.field_hide_featured_image_from_n
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
   module:
@@ -22,7 +23,7 @@ content:
     label: hidden
     settings: {  }
     third_party_settings: {  }
-    weight: 2
+    weight: 1
     region: content
   field_featured_image:
     type: entity_reference_entity_view
@@ -31,14 +32,14 @@ content:
       view_mode: default
       link: false
     third_party_settings: {  }
-    weight: 1
+    weight: 2
     region: content
   field_tags:
     type: basic_string
     label: above
     settings: {  }
     third_party_settings: {  }
-    weight: 3
+    weight: 4
     region: content
   links:
     settings: {  }
@@ -48,4 +49,5 @@ content:
 hidden:
   feeds_item: true
   field_author: true
+  field_hide_featured_image_from_n: true
   langcode: true

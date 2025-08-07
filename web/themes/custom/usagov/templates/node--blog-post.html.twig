@@ -91,7 +91,9 @@
   {% endif %}
 
   <div{{ content_attributes }}>
-    {{ content.field_featured_image }}
+    {% if not node.field_hide_featured_image_from_n.value %}
+      {{ content.field_featured_image }}
+    {% endif %}
     {{ content.body }}
     {{ content.tags }}
   </div>
