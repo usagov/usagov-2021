@@ -1,0 +1,21 @@
+uuid: 0a175ad5-6dff-4aad-86c8-9d2b7bd655aa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_hide_featured_image_from_n
+    - node.type.blog_post
+id: node.blog_post.field_hide_featured_image_from_n
+field_name: field_hide_featured_image_from_n
+entity_type: node
+bundle: blog_post
+label: 'Hide Featured Image from Node Display'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
