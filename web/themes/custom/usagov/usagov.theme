@@ -23,9 +23,13 @@ function usagov_preprocess_html(array &$variables): void {
     $variables['faq'] = generate_faq($node);
   }
 
-  $affiliate = \Drupal::state()->get('usagov_affiliate');
   $variables['usagov_affiliate'] = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $variables['usagov_affiliate_es'] = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
+
+  // Set a reliable language variable for the template
+  // This ensures proper language detection even when there's no node context (like in views)
+  $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $variables['language'] = $current_language;
 }
 
 /**
