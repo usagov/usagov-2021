@@ -17,5 +17,6 @@ RUN chmod +x /createreport.sh \
 WORKDIR /analytics-reporter
 RUN npm install minimist
 RUN npm install
+RUN npm install node-fetch cheerio
 WORKDIR /
 CMD ["./createreport.sh"]
