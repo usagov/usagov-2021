@@ -9,6 +9,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_entity_insert().
@@ -77,6 +78,7 @@ function usagov_blog_date_menu_rebuild_menu(): void {
 
   $groups = [];
   foreach ($nodes as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
     // Use the 'created' field which is the "Authored on" date in Drupal
     $authored = $node->get('created')->value;
     $year = date('Y', $authored);
@@ -145,6 +147,35 @@ function usagov_blog_date_menu_rebuild_menu(): void {
           'weight' => $index,
           'enabled' => TRUE,
         ])->save();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * Alter the title of the blog view based on year/month arguments.
+ */
+function usagov_blog_date_menu_views_pre_render(ViewExecutable $view): void {
+  if ($view->id() === 'blog_menu' && $view->current_display === 'page_1') {
+    $args = $view->args;
+
+    if (!empty($args)) {
+      $year = $args[0];
+      $month = $args[1] ?? NULL;
+
+      if ($month) {
+        // Month page: "Our blog [month] [year]"
+        $month_name = date('F', mktime(0, 0, 0, (int) $month, 1));
+        $view->setTitle(t('Our blog @month @year', [
+          '@month' => $month_name,
+          '@year' => $year,
+        ]));
+      }
+      else {
+        // Year page: "Our blog [year]"
+        $view->setTitle(t('Our blog @year', ['@year' => $year]));
       }
     }
   }
