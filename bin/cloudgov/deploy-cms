@@ -145,9 +145,6 @@ if appExists cms; then
   if serviceExists "cache-service"; then
       cf bind-service cms cache-service
   fi
-  if serviceExists "s3forAnalyticsReporter"; then
-      cf bind-service cms s3forAnalyticsReporter
-  fi
   pushApp cms
 else
   cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
@@ -156,9 +153,6 @@ else
   setupEgress cms
   if serviceExists "cache-service"; then
       cf bind-service cms cache-service
-  fi
-  if serviceExists "s3forAnalyticsReporter"; then
-      cf bind-service cms s3forAnalyticsReporter
   fi
   setUSPSCreds
   setCallCenterEWTBucket
