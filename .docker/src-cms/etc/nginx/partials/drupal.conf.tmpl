@@ -7,6 +7,12 @@
     set_real_ip_from       10.0.0.0/8;
     real_ip_recursive      on;
 
+    # Redirect REST XML wrapper requests
+    # Matches URLs like /rest/type/taxonomy_term?_wrapper_format=xml&...
+    if ($request_uri ~ ^/rest/type/taxonomy_term.*_wrapper_format=xml.*) {
+        return 302 /rest/type/taxonomy_term;
+    }
+
     location ~ ^${S3_PROXY_PATH_CMS}/(.*) {
         error_page 404 403 @notFoundInS3;
 
