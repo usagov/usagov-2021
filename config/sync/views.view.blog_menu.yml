@@ -222,7 +222,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '📅 {{ created }}'
+            text: '<span>📅 {{ created__value|date("F j, Y") }}</span>'
             make_link: false
             path: ''
             absolute: false
