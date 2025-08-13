@@ -217,7 +217,7 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
-export ANALYTICS_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
+export ANALYTICS_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "s3forAnalyticsReporter") | .credentials.bucket')
 echo "ANALYTICS_BUCKET is: $ANALYTICS_BUCKET"
 echo "Making the website-analytics pages use: $ANALYTICS_BUCKET"
 find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}}|$ANALYTICS_BUCKET|g" {} +
