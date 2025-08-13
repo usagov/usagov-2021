@@ -43,7 +43,9 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     tzdata \
     unzip \
     vim \
-    xz
+    xz \
+    python3 \
+    py3-pip
 
 # s6 supervisor setup
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
