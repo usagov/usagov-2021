@@ -18,6 +18,9 @@
 
         set $s3file "${S3_PROXY_CMS}/$1";
         proxy_pass https://$s3file;
+        # Don't send headers or body to S3.
+        proxy_pass_request_headers off;
+        proxy_pass_request_body off;
     }
     location @notFoundInS3 {
         expires max;
