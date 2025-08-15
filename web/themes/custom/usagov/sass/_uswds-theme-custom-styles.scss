@@ -941,6 +941,10 @@ input::-webkit-textfield-decoration-container {
       max-width: 300px;
     }
   }
+
+  .align-left {
+    margin-top: 0;
+  }
 }
 
 /* Blog view styles */
@@ -1038,6 +1042,127 @@ input::-webkit-textfield-decoration-container {
         &:hover {
           background-color: #a7d8e3;
         }
+      }
+    }
+
+    // Mobile styles for blog view
+    @media (max-width: 40em) {
+      .views-field-created {
+        font-size: 1rem;
+      }
+
+      .views-field-view-node a {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  // Blog view pagination styling
+  .usa-pagination {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+
+    .usa-pagination__list {
+      justify-content: center;
+    }
+  }
+}
+
+// Mini pager specific styles
+.usa-pagination {
+  // Ensure pager is visible on all screen sizes
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+
+  .usa-pagination__list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .usa-pagination__item {
+    display: flex;
+    align-items: center;
+  }
+
+  .usa-pagination__arrow {
+    .usa-pagination__link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      border: 2px solid color('blue-warm-70v');
+      border-radius: 4px;
+      background-color: white;
+      color: color('blue-warm-70v');
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover,
+      &:focus {
+        background-color: color('blue-warm-70v');
+        color: white;
+        text-decoration: none;
+      }
+
+      &:focus {
+        outline: 2px solid color('orange-warm-50v');
+        outline-offset: 2px;
+      }
+
+      .usa-icon {
+        width: 1rem;
+        height: 1rem;
+        fill: currentColor;
+      }
+
+      .usa-pagination__link-text {
+        margin: 0 0.5rem;
+
+        // Hide text on mobile, show only icons
+        @media (max-width: 479px) {
+          position: absolute;
+          left: -10000px;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+
+  .usa-pagination__page-no {
+    .usa-pagination__button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1rem;
+      border: 2px solid color('blue-warm-70v');
+      border-radius: 4px;
+      background-color: color('blue-warm-70v');
+      color: white;
+      font-weight: 600;
+      min-width: 3rem;
+    }
+  }
+
+  // Mobile-specific adjustments
+  @media (max-width: 479px) {
+    .usa-pagination__list {
+      gap: 0.5rem;
+    }
+
+    .usa-pagination__arrow {
+      .usa-pagination__link {
+        padding: 0.75rem;
+        min-width: 3rem;
+        justify-content: center;
       }
     }
   }
