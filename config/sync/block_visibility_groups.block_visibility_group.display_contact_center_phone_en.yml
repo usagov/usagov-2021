@@ -1,0 +1,45 @@
+uuid: 93d7c284-cbbf-4f3b-afc3-510f38dd6218
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+    - system
+    - term_condition
+id: display_contact_center_phone_en
+label: 'Display contact center phone EN'
+logic: and
+conditions:
+  7db46360-142d-45f0-a378-cdefdc400c2c:
+    id: language
+    negate: false
+    uuid: 7db46360-142d-45f0-a378-cdefdc400c2c
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
+  38746d0b-10b7-4453-b62d-bf84d8efb54a:
+    id: 'entity_bundle:node'
+    negate: false
+    uuid: 38746d0b-10b7-4453-b62d-bf84d8efb54a
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  55e01800-5555-4b03-9362-1e216752c809:
+    id: term
+    negate: true
+    uuid: 55e01800-5555-4b03-9362-1e216752c809
+    context_mapping:
+      node: '@node.node_route_context:node'
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - e81abe40-3c39-4457-a5de-265513e423be
+  d31b633e-9df3-4617-bfc6-3b8f08525c9f:
+    id: request_path
+    negate: true
+    uuid: d31b633e-9df3-4617-bfc6-3b8f08525c9f
+    context_mapping: {  }
+    pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
+allow_other_conditions: false
