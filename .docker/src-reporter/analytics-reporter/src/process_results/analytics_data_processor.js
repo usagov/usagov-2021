@@ -1,78 +1,4 @@
-const fs = require("fs");
-const path = require("path");
-const cheerio = require("cheerio");
 const ResultTotalsCalculator = require("./result_totals_calculator");
-
-// ---- simple on-disk cache at /tmp/titleCache.json
-const CACHE_FILE = path.join("/tmp", "titleCache.json");
-let titleCache = new Map();
-try {
-  if (fs.existsSync(CACHE_FILE)) {
-    const raw = fs.readFileSync(CACHE_FILE, "utf-8");
-    titleCache = new Map(Object.entries(JSON.parse(raw)));
-    console.log(`Loaded ${titleCache.size} cached titles from ${CACHE_FILE}`);
-  }
-} catch (err) {
-  console.warn("Could not load title cache:", err.message);
-}
-
-async function fetchPageTitle(url) {
-  if (titleCache.has(url)) return titleCache.get(url);
-
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      redirect: "follow",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
-        "Accept":
-          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-    });
-
-    const ctype = res.headers.get("content-type") || "";
-    if (!res.ok || !ctype.includes("text/html")) {
-      titleCache.set(url, null);
-      return null;
-    }
-
-    const html = await res.text();
-    const $ = cheerio.load(html);
-    let title =
-      $("head > title").first().text().trim() ||
-      $('meta[property="og:title"]').attr("content") ||
-      $('meta[name="title"]').attr("content") ||
-      null;
-
-    if (title) title = title.replace(/\s+/g, " ").trim();
-    titleCache.set(url, title || null);
-    return title || null;
-  } catch {
-    titleCache.set(url, null);
-    return null;
-  } finally {
-    clearTimeout(t);
-  }
-}
-
-// run tasks with a concurrency cap
-async function runLimited(items, limit, worker) {
-  const results = [];
-  let i = 0;
-  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (i < items.length) {
-      const idx = i++;
-      results[idx] = await worker(items[idx], idx);
-    }
-  });
-  await Promise.all(runners);
-  return results;
-}
 
 class AnalyticsDataProcessor {
   #hostname;
@@ -116,7 +42,7 @@ class AnalyticsDataProcessor {
    * as requested in the report object. This object also includes details from
    * the original report and query.
    */
-  async processData(report, data, query) {
+  processData(report, data, query) {
     let result = this.#initializeResult({ report, data, query });
 
     // If you use a filter that results in no data, you get null
@@ -138,43 +64,14 @@ class AnalyticsDataProcessor {
       });
     }
 
-    // 1) Build all rows synchronously (no network)
-    result.data = data.rows.map((row) => this.#processRow({ row, report, data }));
+    // Process each row
+    result.data = data.rows.map((row) => {
+      return this.#processRow({ row, report, data });
+    });
 
-    // 2) Totals
     result.totals = ResultTotalsCalculator.calculateTotals(result, {
       sumVisitsByColumns: report.sumVisitsByColumns,
     });
-
-    // 3) Fetch titles only for TOP 10 by total_events
-    //    (keep GA title for others)
-    const top10 = [...result.data]
-      .filter((d) => d.linkUrl)
-      .sort(
-        (a, b) =>
-          parseInt(b.total_events || "0", 10) - parseInt(a.total_events || "0", 10)
-      )
-      .slice(0, 10);
-
-    await runLimited(top10, 5, async (item) => {
-      const title = await fetchPageTitle(item.linkUrl);
-      if (title) {
-        item.page_title = title;
-        // optional debug:
-        // console.log("Title override ✓", item.linkUrl, "→", JSON.stringify(title));
-      }
-    });
-
-    // 4) Persist cache to disk
-    try {
-      fs.writeFileSync(
-        CACHE_FILE,
-        JSON.stringify(Object.fromEntries(titleCache), null, 2)
-      );
-      // console.log(`Saved ${titleCache.size} titles to ${CACHE_FILE}`);
-    } catch (err) {
-      console.warn("Could not save title cache:", err.message);
-    }
 
     return result;
   }
@@ -295,7 +192,7 @@ class AnalyticsDataProcessor {
     if (columnToRemove != null) {
       data[columnToRemove.rowKey.replace("Values", "Headers")].splice(
         columnToRemove.index,
-        1
+        1,
       );
       data.rows.forEach((row) => {
         row[columnToRemove.rowKey].splice(columnToRemove.index, 1);
