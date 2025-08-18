@@ -2,10 +2,13 @@ uuid: 8794ab0a-1c02-4505-ac46-2d31d58a49f8
 langcode: en
 status: true
 dependencies:
+  config:
+    - block_visibility_groups.block_visibility_group.display_contact_center_phone_es
   content:
     - 'block_content:html_block:1b695544-3f71-4c40-a6bc-518aee5cdc9c'
   module:
     - block_content
+    - block_visibility_groups
     - language
     - system
   theme:
@@ -36,3 +39,7 @@ visibility:
     id: request_path
     negate: true
     pages: "/agencias/*\r\n/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estados/*\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
+  condition_group:
+    id: condition_group
+    negate: false
+    block_visibility_group: display_contact_center_phone_es
