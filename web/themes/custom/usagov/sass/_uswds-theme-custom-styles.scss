@@ -997,6 +997,14 @@ input::-webkit-textfield-decoration-container {
       margin-top: 10px;
     }
 
+    .usa-button::after {
+      content: " >";
+      position: relative;
+      top: 1px;
+      left: 3px;
+      aria-hidden: true;
+    }
+
     .views-field-view-node {
       justify-self: end;
       align-self: end;
