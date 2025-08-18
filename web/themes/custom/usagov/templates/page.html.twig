@@ -187,7 +187,8 @@
               {% endif %}
 
               {% include '@usagov/sharethispage.html.twig' %}
-              {% include '@usagov/haveaquestion.html.twig' %}
+              {{ page.question_box }}
+
               <div id="pagesurvey-qual-container"></div>
             </div>
           {% endblock %}

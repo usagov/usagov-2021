@@ -1,0 +1,44 @@
+uuid: 6d64dd19-9cbd-410a-a715-643a3f1b0545
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+    - system
+    - term_condition
+id: display_contact_center_phone_es
+label: 'Display contact center phone ES'
+logic: and
+conditions:
+  4dd39758-674d-4803-a57b-aef446294458:
+    id: language
+    negate: false
+    uuid: 4dd39758-674d-4803-a57b-aef446294458
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
+  c4e2ac33-74fe-41be-8da8-2cd97c58a9d4:
+    id: 'entity_bundle:node'
+    negate: false
+    uuid: c4e2ac33-74fe-41be-8da8-2cd97c58a9d4
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  776eb691-2d45-466d-8f9a-421ac9d2476f:
+    id: term
+    negate: true
+    uuid: 776eb691-2d45-466d-8f9a-421ac9d2476f
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - e81abe40-3c39-4457-a5de-265513e423be
+  e7958790-6838-4739-8407-0c57e3972c0a:
+    id: request_path
+    negate: true
+    uuid: e7958790-6838-4739-8407-0c57e3972c0a
+    context_mapping: {  }
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/indice-agencias\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n"
+allow_other_conditions: false
