@@ -20,7 +20,7 @@ ENV CONTAINERTAG=${CONTAINERTAG:-none}
 ARG BUID=1000
 ARG BGID=1000
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
+RUN curl 'https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz' > /tmp/s6overlay.tar.gz
 
 # Dependencies
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
