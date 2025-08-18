@@ -1,0 +1,46 @@
+uuid: 56d836a1-73a6-40ac-8682-7d8fb0bd49c2
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+    - node
+    - system
+    - term_condition
+id: display_have_a_question_box_es
+label: 'Display Have-a-question box ES'
+logic: and
+conditions:
+  7607b7fb-c19e-4219-9ce7-4116129b47ad:
+    id: language
+    negate: false
+    uuid: 7607b7fb-c19e-4219-9ce7-4116129b47ad
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      es: es
+  455614a6-c297-421f-8f61-53d8ed985ee7:
+    id: 'entity_bundle:node'
+    negate: false
+    uuid: 455614a6-c297-421f-8f61-53d8ed985ee7
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
+  25007975-54ac-4353-bcd6-175b73178014:
+    id: term
+    negate: true
+    uuid: 25007975-54ac-4353-bcd6-175b73178014
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - 5d427eb4-eaf0-4735-a6c9-6968c85545f9
+      - 98da5ec5-e08a-4d6d-832e-0eb027282728
+      - e81abe40-3c39-4457-a5de-265513e423be
+  99cc7c66-53e4-475a-9629-449e2d42278a:
+    id: request_path
+    negate: true
+    uuid: 99cc7c66-53e4-475a-9629-449e2d42278a
+    context_mapping: {  }
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/indice-agencias\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n"
+allow_other_conditions: false
