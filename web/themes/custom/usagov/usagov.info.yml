@@ -22,7 +22,6 @@ regions:
   help: 'Help'
   hero: 'Hero'
   content: 'Content'
-  question_box: 'Question Box'
   footer_menu: 'Footer Menu'
   footer: 'Primary Footer'
   footer_secondary: 'Secondary Footer'
