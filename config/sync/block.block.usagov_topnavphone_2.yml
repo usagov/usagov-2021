@@ -2,13 +2,10 @@ uuid: c65daf27-59ef-4513-92bd-501f6be191b4
 langcode: en
 status: true
 dependencies:
-  config:
-    - block_visibility_groups.block_visibility_group.display_contact_center_phone_en
   content:
     - 'block_content:html_block:8607aa33-7c01-41c7-bd04-b8fb894224a1'
   module:
     - block_content
-    - block_visibility_groups
     - language
     - system
   theme:
@@ -39,7 +36,3 @@ visibility:
     id: request_path
     negate: true
     pages: "/agencies/*\r\n/benefit-finder\r\n/benefit-finder/*\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/local-governments\r\n/phone\r\n/states/*\r\n/state-attorney-general\r\n/state-consumer\r\n/state-corrections\r\n/state-election-office\r\n/state-emergency-management\r\n/state-governments\r\n/state-governments/*\r\n/state-governor\r\n/state-health\r\n/state-motor-vehicle-services\r\n/state-social-services\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds\r\n/where-report-scams"
-  condition_group:
-    id: condition_group
-    negate: false
-    block_visibility_group: display_contact_center_phone_en
