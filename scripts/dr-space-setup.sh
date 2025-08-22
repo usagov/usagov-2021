@@ -126,7 +126,7 @@ exit
 
 ### USAGOV-2473: Allow for parallel runs of cache creation and rds creation.
 echo "Open up 2 new terminal sessions, and run one of the two following commands in each terminal:"
-echo bin/cloudgov/deploy-cdn-service $APP_SPACE '| tee ds-cdn.log'
+echo bin/cloudgov/deploy-cache-service $APP_SPACE '| tee ds-cache.log'
 echo bin/cloudgov/deploy-rds-service $APP_SPACE '| tee ds-rds.log'
 exit
 

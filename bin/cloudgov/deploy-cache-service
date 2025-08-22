@@ -10,10 +10,10 @@ fi
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-if [ -f $SCRIPT_DIR/../bin/deploy/includes ]; then
-  . $SCRIPT_DIR/../bin/deploy/includes
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
 else
-   echo Cannot find $SCRIPT_DIR/../bin/deploy/includes
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
    exit 1
 fi
 
