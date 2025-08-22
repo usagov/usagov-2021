@@ -174,10 +174,6 @@ echo $S3_SERVICE_DATA | jq '.' > reporter-vcapsecrets.json
 
 cf uups ${APPNAME}Services -p reporter-vcapsecrets.json
 
-# Make sure the app has the PROXYROUTE variable for the egress proxy, and is
-# bound to the log-shipper-drain:
-$SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
-
 # restart for variables
 echo Restarting ${APPNAME}
 cf restart ${APPNAME} --strategy rolling
