@@ -6,6 +6,9 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
     # spanish catch urls that end in a trailing slash - assume they are dirs and need an index
     location ~* ^/(es/(.+/)?)$ {
@@ -15,6 +18,9 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
     # spanish catch urls that end without an extension or trailing slash - assume they are dirs and need an index
     location ~* ^/(es/(.*/)?[^\./]+)$ {
@@ -24,6 +30,9 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
     # spanish catch all urls - assume they are not dirs and should be proxied directly
     location ~* ^/(es/.*) {
@@ -33,6 +42,9 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
 
     # catch urls that end in a trailing slash - assume they are dirs and need an index
@@ -43,6 +55,9 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}index.html";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
 
     # catch urls that end without an extension or trailing slash - assume they are dirs and need an index
@@ -53,6 +68,9 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}/index.html";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
     # URLs under /sites/default/files/ (e.g, aggregated css and js) should have a longer cache max-age.
     # Fallback cache max-age is in www_common.conf.
@@ -66,6 +84,9 @@
       add_header Cache-Control max-age=1800;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
 
     # catch all urls - assume they are not dirs and should be proxied directly
@@ -76,4 +97,7 @@
       recursive_error_pages on;
       set $indexfile "${S3_PROXY_WEB}${request_uri_lowercase}";
       proxy_pass https://$indexfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
