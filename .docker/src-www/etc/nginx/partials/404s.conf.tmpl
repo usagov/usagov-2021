@@ -21,6 +21,9 @@
       recursive_error_pages on;
       set $errorfile "${S3_PROXY_WEB}${EN_404_PAGE}";
       proxy_pass https://$errorfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
     location @notFoundEnglishFallback {
       allow all;
@@ -38,6 +41,9 @@
       recursive_error_pages on;
       set $errorfile "${S3_PROXY_WEB}${ES_404_PAGE}";
       proxy_pass https://$errorfile;
+      # Don't send headers or body to S3.
+      proxy_pass_request_headers off;
+      proxy_pass_request_body off;
     }
     location @notFoundSpanishFallback {
       allow all;
