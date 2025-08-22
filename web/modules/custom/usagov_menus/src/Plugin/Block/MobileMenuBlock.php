@@ -5,6 +5,7 @@ namespace Drupal\usagov_menus\Plugin\Block;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Menu\MenuLinkInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 
 #[Block(
   id: "usagov_mobile_menu_block",
@@ -24,6 +25,8 @@ class MobileMenuBlock extends AbstractMenuBlock {
    * @return array<string, mixed>
    */
   public function build(): array {
+    $path = $this->request->getPathInfo();
+
     switch ($this->language->getId()) {
       case 'es':
         $menuID = 'left-menu-spanish';
@@ -55,6 +58,11 @@ class MobileMenuBlock extends AbstractMenuBlock {
           'form_id' => 'usagov_all_gov-mobile',
         ];
         break;
+    }
+
+    // Check if we're on a blog page and use the blog menu
+    if (str_starts_with($path, '/blog/') || $path === '/blog') {
+      return $this->buildBlogMenu();
     }
 
     if ($active = $this->trail->getActiveLink($menuID)) {
@@ -163,6 +171,90 @@ class MobileMenuBlock extends AbstractMenuBlock {
       '#siblings_of_active_item' => $siblings_of_active_item,
       '#submenu' => $submenu,
     ];
+  }
+
+  /**
+   * Build the blog menu for mobile navigation.
+   *
+   * @return array<string, mixed>
+   */
+  private function buildBlogMenu(): array {
+    $menuID = 'usagov_blog_menu';
+
+    // Get the full menu tree first
+    $topLevelItems = $this->getMenuTreeItems($menuID, [], NULL, FALSE, 1);
+    $fullItems = $topLevelItems;
+
+    if (!empty($topLevelItems['#items'])) {
+      $firstKey = array_key_first($topLevelItems['#items']);
+      $dummyActive = $topLevelItems['#items'][$firstKey]['original_link'] ?? NULL;
+      if ($dummyActive) {
+        $fullItems = $this->getMenuTreeItems($menuID, [], $dummyActive, FALSE, -1);
+      }
+    }
+
+    // Special case: if we're on /blog exactly, always use the synthetic menu
+    // to prevent template from adding node.title.value
+    if ($this->request->getPathInfo() === '/blog') {
+      $ourBlogItem = [
+        'title' => 'Our Blog',
+        'url' => Url::fromUri('internal:/blog'),
+        'below' => $fullItems['#items'] ?? [],
+        'in_active_trail' => TRUE,
+        'active' => TRUE, // Mark as active since we're on /blog
+      ];
+
+      $twigVars = [
+        '#active_trail' => [$ourBlogItem],
+        '#found_active_item' => TRUE, // We found the active item (Our Blog)
+        '#active_item_has_children' => TRUE, // It has children (the years)
+        '#siblings_of_active_item' => [],
+        '#submenu' => $ourBlogItem['below'], // Show years as children
+      ];
+
+      return $this->renderItems($fullItems, $twigVars, $menuID);
+    }
+
+    // Check if we have an active link in the blog menu
+    if ($active = $this->trail->getActiveLink($menuID)) {
+      // We're on a specific blog page - use normal active trail logic
+      $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
+      $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
+      $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
+
+      // Add "Our Blog" as the root of the active trail
+      $ourBlogItem = [
+        'title' => 'Our Blog',
+        'url' => Url::fromUri('internal:/blog'),
+        'below' => $fullItems['#items'] ?? [],
+        'in_active_trail' => TRUE,
+        'active' => FALSE,
+      ];
+
+      // Prepend "Our Blog" to the active trail
+      array_unshift($twigVars['#active_trail'], $ourBlogItem);
+
+      return $this->renderItems($items, $twigVars, $menuID);
+    }
+
+    // No active blog page - show the full menu with "Our Blog" at the top
+    $ourBlogItem = [
+      'title' => 'Our Blog',
+      'url' => Url::fromUri('internal:/blog'),
+      'below' => $fullItems['#items'] ?? [],
+      'in_active_trail' => TRUE,
+      'active' => FALSE,
+    ];
+
+    $twigVars = [
+      '#active_trail' => [$ourBlogItem],
+      '#found_active_item' => FALSE,
+      '#active_item_has_children' => !empty($ourBlogItem['below']),
+      '#siblings_of_active_item' => [],
+      '#submenu' => $ourBlogItem['below'],
+    ];
+
+    return $this->renderItems($fullItems, $twigVars, $menuID);
   }
 
 }
