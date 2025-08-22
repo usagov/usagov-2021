@@ -8,7 +8,6 @@ module:
   autologout: 0
   block: 0
   block_content: 0
-  block_visibility_groups: 0
   breakpoint: 0
   ckeditor5: 0
   ckeditor_media_resize: 0
@@ -86,7 +85,6 @@ module:
   system: 0
   taxonomy: 0
   telephone: 0
-  term_condition: 0
   text: 0
   token: 0
   tome_base: 0
