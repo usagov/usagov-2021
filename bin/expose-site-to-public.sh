@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -32,9 +32,9 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
-SPACE=${1:-please-provide-space-name-as-first-argument}
-SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
-assertCurSpace $SPACE
+APP_SPACE=${1:-please-provide-space-name-as-first-argument}
+APP_SPACE=$(echo "$APP_SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $APP_SPACE
 shift
 
 # expose or hide
@@ -51,13 +51,17 @@ if [ x$expose = x"" ]; then
   exit 1
 fi
 
+
+WAF_APP=${WAF_APP:-waf}
+CMS_APP=${CMS_APP:-cms}
+
 echo cf target -s $APP_SPACE
 $echo cf target -s $APP_SPACE
 
 echo assertCurSpace $APP_SPACE
 $echo assertCurSpace $APP_SPACE
 
-echo cf set-env $WAF_APP IP_ALLOW_ALL_CMS $expose
+echo  cf set-env $WAF_APP IP_ALLOW_ALL_CMS $expose
 $echo cf set-env $WAF_APP IP_ALLOW_ALL_CMS $expose
 
 echo cf set-env $WAF_APP IP_ALLOW_ALL_WWW $expose
