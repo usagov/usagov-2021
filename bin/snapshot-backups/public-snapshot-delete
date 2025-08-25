@@ -1,0 +1,103 @@
+#!/bin/sh
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+
+source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
+
+export BUCKET_SOURCE_FOLDER=public
+if [ -f ./bin/snapshot-backups/snapshot-include ]; then
+  . ./bin/snapshot-backups/snapshot-include
+else
+   echo Cannot find ${PWD}/bin/snapshot-backups/snapshot-include
+   exit 1
+fi
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+SPACE=${1:-please-provide-space-name-as-first-argument}
+SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $SPACE
+shift
+
+DEPLOY_TAG=$1
+
+if [ -z "$DEPLOY_TAG" ]; then
+  echo
+  echo "Usage: $0 [--dryrun] <tag> [--download]"
+  echo "This will remove a tagged $BACKUP_DESCRIPTION snapshot. Use $BACKUP_LISTER to see available tags."
+  echo "  --dryrun simply prints the commands that would have run"
+  echo "  --download downloads and creates a zip file of the snapshot, prior to deletion"
+  echo
+  exit 1
+fi
+shift
+
+if [ x$1 == x"--download" ]; then
+
+  if [ x$echo != xecho ]; then
+    mkdir $DEPLOY_TAG
+    success=$?
+
+    if [ "$success" != "0" ]; then
+        echo "Unable to create directory $DEPLOY_TAG.  Does it already exist?"
+        exit 1
+    fi
+  else
+    if [ -e $DEPLOY_TAG ]; then
+      echo
+      echo "****** The local destination folder $DEPLOY_TAG (or a file with that name) already exists!"
+      echo "****** If you run this script without the '--dryrun' argument, it will refuse to overwrite the existing item."
+      echo
+    fi
+  fi
+
+  echo "Downloading files from s3 to local directory './${DEPLOY_TAG}'. This could take a while."
+  echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $DEPLOY_TAG --recursive
+  $echo aws s3 cp --only-show-errors s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG $DEPLOY_TAG --recursive
+  success=$?
+
+  if [ "$success" != "0" ]; then
+    echo "Unable to download snapshot files for $DEPLOY_TAG."
+    exit 1
+  fi
+
+  echo "Creating zip file ${DEPLOY_TAG}.zip"
+  echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+  $echo zip -rq ${DEPLOY_TAG}.zip ${DEPLOY_TAG}
+  success=$?
+
+  if [ "$success" != "0" ]; then
+    echo "Unable to create Zip file of backup directory $DEPLOY_TAG."
+    exit 1
+  fi
+  $echo rm -rf $DEPLOY_TAG
+
+  echo "Backup Step Complete."
+fi
+
+echo "Deleting s3 static site snapshot '$DEPLOY_TAG'. This could take a while."
+echo aws s3 rm --only-show-errors --recursive s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG
+$echo aws s3 rm --only-show-errors --recursive s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/$DEPLOY_TAG
+
+exit $?
