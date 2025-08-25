@@ -57,9 +57,8 @@ jQuery(document).ready(async function () {
     }
   }
 
-
   /**
-   * Inject CSS to hide Call Center related elements on the page.
+   * Inject CSS to hide specific elements on the page.
    */
   function injectCSS() {
     const visibleElements = document.querySelectorAll('[data-contact-callout="visible"]');
@@ -86,6 +85,7 @@ jQuery(document).ready(async function () {
   function shouldDisplay() {
     // Generate a random number between 0 and 1
     const randomNumber = Math.random();
+
     // Return true if the number is less than 0.8 (80%)
     return randomNumber < 0.8;
   }
