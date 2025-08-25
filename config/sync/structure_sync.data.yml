@@ -1,31 +1,5 @@
 blocks:
   -
-    info: 'Question Box ES'
-    langcode: en
-    uuid: 7066f7fa-491f-4a90-9995-251859b3ec7d
-    bundle: html_block
-    revision_id: null
-    rev_id_current: null
-    fields:
-      body:
-        -
-          value: '<!-- Content is in block--usagov-questionboxes.html.twig -->'
-          summary: ''
-          format: html
-  -
-    info: 'Question Box'
-    langcode: en
-    uuid: d9012c83-2e04-46f2-9971-a3d6d5149de1
-    bundle: html_block
-    revision_id: null
-    rev_id_current: null
-    fields:
-      body:
-        -
-          value: '<!-- Content is in block--usagov-questionbox.html.twig -->'
-          summary: ''
-          format: html
-  -
     info: 'Footer Phone ES'
     langcode: en
     uuid: 1b695544-3f71-4c40-a6bc-518aee5cdc9c
@@ -35,7 +9,7 @@ blocks:
     fields:
       body:
         -
-          value: '<!-- Content is in block--usagov-footerphonees-2.html.twig -->'
+          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">Centro de llamadas de USAGov</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Haga una pregunta a USAGov en Español al</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/es/llamenos\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
           summary: ''
           format: html
   -
@@ -48,7 +22,7 @@ blocks:
     fields:
       body:
         -
-          value: '<!-- Content is in block--usagov-topnavmobilees-2.html.twig -->'
+          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" class=\"\">1-844-USAGOV1</a>\r\n</span>\r\n"
           summary: ''
           format: html
   -
@@ -61,7 +35,7 @@ blocks:
     fields:
       body:
         -
-          value: '<!-- Content is in block--usagov-topnavmobile-2.html.twig -->'
+          value: "<span id=\"top-phone-mobile-menu\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" class=\"\">1-844-USAGOV1</a>\r\n</span>"
           summary: ''
           format: html
   -
@@ -74,7 +48,7 @@ blocks:
     fields:
       body:
         -
-          value: '<!-- Content is in block--usagov-topnavphonees-2.html.twig -->'
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/es/llamenos\" style=\"white-space: nowrap;\">Llámenos al 1-844-USAGOV1</a>\r\n</span>"
           summary: ''
           format: html
   -
@@ -87,7 +61,7 @@ blocks:
     fields:
       body:
         -
-          value: '<-- Content is in block--usagov-footerphone-2.html.twig -->'
+          value: "<div id=\"footer-phone\">\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <h4 class=\"usa-footer__logo-heading\">USAGov Contact Center</h4>\r\n   </div>\r\n   <div class=\"mobile-lg:grid-col-auto\">\r\n      <p class=\"footer-question\">Ask USA.gov a question at</p>\r\n      <address class=\"usa-footer__address\">\r\n         <div class=\"usa-footer__contact-info\">\r\n            <a href=\"/phone\">1-844-USAGOV1 (1-844-872-4681)</a>\r\n         </div>\r\n      </address>\r\n   </div>\r\n</div>"
           summary: ''
           format: html
   -
@@ -100,6 +74,6 @@ blocks:
     fields:
       body:
         -
-          value: '<!-- Content is in block--usagov-topnavphone-2.html.twig -->'
+          value: "<span id=\"top-phone\" class=\"usa-nav__secondary-item\">\r\n    <a href=\"/phone\" style=\"white-space: nowrap;\">Call us at 1-844-USAGOV1</a>\r\n</span>"
           summary: ''
           format: html
