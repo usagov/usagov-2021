@@ -43,7 +43,11 @@ fi
 
 function show_usage() {
   echo "Usage:"
-  echo "$0 [--dryrun] <env> [--lt USAGOV-NNNN | --partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
+  echo "$0 [--dryrun] <env> \\"
+  echo "     [--lt USAGOV-NNNN | --partial <USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101>] \\"
+  echo "     [--keep <N> | --older-than <DATE>] \\"
+  echo "     [--download]"
+
   echo
   echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
   echo
@@ -53,7 +57,13 @@ function show_usage() {
   echo " OR "
   echo "--full <string>    - full match    (string must match the full snapshot tag)"
   echo
-  echo "Specify --partial OR --full - specifying none or both is invalid"
+  echo "  --keep <N>           Keep the N most recent snapshot tags and delete older ones"
+  echo "  --older-than <DATE>  Delete snapshot tags older than DATE"
+  echo "                       DATE may be YYYY-MM-DD or YYYYMMDD"
+  echo ""
+  echo "Specify exactly one of: { --lt | --partial | --full | --keep | --older-than }"
+  echo "Specifying none or more than one is invalid"
+
   echo
   echo "--download will download a copy of the snapshot(s) before deleting them"
   exit 1
@@ -73,6 +83,10 @@ match=""
 rematch=""
 idmatch=""
 matchtype=""
+keep_n=""
+older_than=""
+# internal accumulator for computed tag list when using --keep/--older-than
+_computed_delete_regex=""
 
 while [ 0 -eq 0 ]; do
 
@@ -104,6 +118,41 @@ while [ 0 -eq 0 ]; do
           fi
           shift
         fi
+      ;;
+
+      "--keep")
+        keep_n=$1
+        if [ -z "$keep_n" ]; then
+          show_usage
+        fi
+        if ! echo "$keep_n" | grep -Eq '^[0-9]+$'; then
+          echo "--keep requires a positive integer" >&2
+          show_usage
+        fi
+        if [ -n "$matchtype" ] || [ -n "$older_than" ]; then
+          echo "Specify only one of --lt/--partial/--full/--keep/--older-than" >&2
+          show_usage
+        fi
+        matchtype="keep"
+        shift
+      ;;
+
+      "--older-than")
+        older_than=$1
+        if [ -z "$older_than" ]; then
+          show_usage
+        fi
+        older_than=$(echo "$older_than" | sed -E 's/-//g')
+        if ! echo "$older_than" | grep -Eq '^[0-9]{8}$'; then
+          echo "--older-than requires YYYY-MM-DD or YYYYMMDD" >&2
+          show_usage
+        fi
+        if [ -n "$matchtype" ] || [ -n "$keep_n" ]; then
+          echo "Specify only one of --lt/--partial/--full/--keep/--older-than" >&2
+          show_usage
+        fi
+        matchtype="older"
+        shift
       ;;
 
       "--partial")
@@ -147,7 +196,11 @@ while [ 0 -eq 0 ]; do
 
 done
 
-if [ -z "$match" ]; then
+# Validation - only do one operation
+if [ -z "$match" ] && [ -z "$rematch" ] && [ -n "$idmatch" ]; then
+  : # ok (lt case populated idmatch)
+fi
+if [ -z "$match" ] && [ -z "$rematch" ] && [ -z "$idmatch" ] && [ -z "$keep_n" ] && [ -z "$older_than" ]; then
   show_usage
 fi
 
@@ -157,12 +210,44 @@ echo "Download:        $download"
 echo "Match:           $match"
 echo "Regex Match:     $rematch"
 echo "Ticket ID Match: $idmatch"
+echo "Keep Number:     ${keep_n:-}"
+echo "Older than:      ${older_than:-}"
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
 export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
 export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
 export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+
+# If using --keep or --older-than, compute a regex that fully matches the tags to delete.
+if [ "$matchtype" = "keep" ] || [ "$matchtype" = "older" ]; then
+  # unify all known tags (across db/site/public), unique
+  all_tags=$(printf "%s\n%s\n%s\n" "$db_available_tags" "$site_available_tags" "$public_available_tags" | tr ' ' '\n' | sed '/^$/d' | sort -u)
+  # Extract sortable key from the last dot-delimited field. like USAGOV-9999.dev.1111.post-deploy.2020010101 -> last field = 2020010101
+  if [ "$matchtype" = "keep" ]; then
+    # sort tags by the numeric last field, descending, and `top` to keep top <number>
+    # newline list of tags to keep
+    tags_keep=$(echo "$all_tags" | awk -F. '{k=$NF; printf "%s %s\n", k, $0}' | sort -rn | awk '{print $2}' | head -n "$keep_n")
+    # everything else is a delete
+    tags_delete=$(comm -13 <(echo "$tags_keep" | sort) <(echo "$all_tags" | sort))
+  else
+    # older-than mode
+    cutoff="$older_than"
+    tags_delete=$(echo "$all_tags" | awk -F. -v c="$cutoff" '{
+      last=$NF;
+      date=substr(last,1,8);
+      if (date ~ /^[0-9]{8}$/ && date < c) print $0;
+    }')
+  fi
+  # Build list, and escape dots and join with |
+  _computed_delete_regex="^($(echo "$tags_delete" | sed 's/[].[^$\\*\/]/\\&/g; s/\./\\./g' | paste -sd '|' -))$"
+  if [ -z "$_computed_delete_regex" ] || [ "$_computed_delete_regex" = "^()$" ]; then
+    echo "Nothing to delete for the selected criteria."
+    exit 0
+  fi
+  rematch="$_computed_delete_regex"
+  matchtype="full"
+fi
 
 if [ -n "$idmatch" ]; then
   for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq ); do
