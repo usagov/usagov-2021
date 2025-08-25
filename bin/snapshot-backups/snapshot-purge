@@ -43,7 +43,11 @@ fi
 
 function show_usage() {
   echo "Usage:"
-  echo "$0 [--dryrun] <env> [--lt USAGOV-NNNN | --partial <eg. USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101] [--download]"
+  echo "$0 [--dryrun] <env> \\"
+  echo "     [--lt USAGOV-NNNN | --partial <USAGOV-9999> | --full <eg. USAGOV-9999.dev.1111.post-deploy.2020010101>] \\"
+  echo "     [--keep <N> | --older-than <DATE>] \\"
+  echo "     [--download]"
+
   echo
   echo "--dryrun MUST be the first argument, or it WILL NOT BE ACKNOWLEDGED"
   echo
@@ -53,7 +57,13 @@ function show_usage() {
   echo " OR "
   echo "--full <string>    - full match    (string must match the full snapshot tag)"
   echo
-  echo "Specify --partial OR --full - specifying none or both is invalid"
+  echo "  --keep <N>           Keep the N most recent snapshot tags and delete older ones"
+  echo "  --older-than <DATE>  Delete snapshot tags older than DATE"
+  echo "                       DATE may be YYYY-MM-DD or YYYYMMDD"
+  echo ""
+  echo "Specify exactly one of: { --lt | --partial | --full | --keep | --older-than }"
+  echo "Specifying none or more than one is invalid"
+
   echo
   echo "--download will download a copy of the snapshot(s) before deleting them"
   exit 1
@@ -73,6 +83,10 @@ match=""
 rematch=""
 idmatch=""
 matchtype=""
+keep_n=""
+older_than=""
+# internal accumulator for computed tag list when using --keep/--older-than
+_computed_delete_regex=""
 
 while [ 0 -eq 0 ]; do
 
@@ -104,6 +118,41 @@ while [ 0 -eq 0 ]; do
           fi
           shift
         fi
+      ;;
+
+      "--keep")
+        keep_n=$1
+        if [ -z "$keep_n" ]; then
+          show_usage
+        fi
+        if ! echo "$keep_n" | grep -Eq '^[0-9]+$'; then
+          echo "--keep requires a positive integer" >&2
+          show_usage
+        fi
+        if [ -n "$matchtype" ] || [ -n "$older_than" ]; then
+          echo "Specify only one of --lt/--partial/--full/--keep/--older-than" >&2
+          show_usage
+        fi
+        matchtype="keep"
+        shift
+      ;;
+
+      "--older-than")
+        older_than=$1
+        if [ -z "$older_than" ]; then
+          show_usage
+        fi
+        older_than=$(echo "$older_than" | sed -E 's/-//g')
+        if ! echo "$older_than" | grep -Eq '^[0-9]{8}$'; then
+          echo "--older-than requires YYYY-MM-DD or YYYYMMDD" >&2
+          show_usage
+        fi
+        if [ -n "$matchtype" ] || [ -n "$keep_n" ]; then
+          echo "Specify only one of --lt/--partial/--full/--keep/--older-than" >&2
+          show_usage
+        fi
+        matchtype="older"
+        shift
       ;;
 
       "--partial")
@@ -147,7 +196,11 @@ while [ 0 -eq 0 ]; do
 
 done
 
-if [ -z "$match" ]; then
+# Validation - only do one operation
+if [ -z "$match" ] && [ -z "$rematch" ] && [ -n "$idmatch" ]; then
+  : # ok (lt case populated idmatch)
+fi
+if [ -z "$match" ] && [ -z "$rematch" ] && [ -z "$idmatch" ] && [ -z "$keep_n" ] && [ -z "$older_than" ]; then
   show_usage
 fi
 
@@ -157,65 +210,142 @@ echo "Download:        $download"
 echo "Match:           $match"
 echo "Regex Match:     $rematch"
 echo "Ticket ID Match: $idmatch"
+echo "Keep Number:     ${keep_n:-}"
+echo "Older than:      ${older_than:-}"
 
 source bin/cloudgov/get-s3-access storage >/dev/null 2>&1
 
-export db_available_tags=$(aws s3 ls s3://$S3_BUCKET/db-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz//g')
-export site_available_tags=$(aws s3 ls s3://$S3_BUCKET/web-backup/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
-export public_available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+# list available tags without ".sql.gz"
+list_db_tags() {
+  aws s3 ls "s3://$S3_BUCKET/db-backup/"    | awk '{print $NF}' | sed 's/[\/ ]*$//g' | sed 's/\.sql\.gz$//'
+}
+list_site_tags() {
+  aws s3 ls "s3://$S3_BUCKET/web-backup/"   | awk '{print $NF}' | sed 's/[\/ ]*$//g'
+}
+list_public_tags() {
+  aws s3 ls "s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/" | awk '{print $NF}' | sed 's/[\/ ]*$//g'
+}
 
-if [ -n "$idmatch" ]; then
-  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq ); do
-    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
-    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
-      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
-      $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
-    fi
+# Timestamp  modes (use S3 LastModified) since not all file have their dates in their filename
+if [ "$matchtype" = "keep" ] || [ "$matchtype" = "older" ]; then
+  # list like YYYY-MM-DD HH:MM:SS TYPE TAG
+  db_entries=$(aws s3 ls "s3://$S3_BUCKET/db-backup/"            | awk '{printf "%s %s db %s\n",$1,$2,$NF}' | sed 's/\.sql\.gz$//')
+  site_entries=$(aws s3 ls "s3://$S3_BUCKET/web-backup/"         | awk '{printf "%s %s site %s\n",$1,$2,$NF}')
+  public_entries=$(aws s3 ls "s3://$S3_BUCKET/'$BUCKET_BACKUP_FOLDER'/" | awk '{printf "%s %s public %s\n",$1,$2,$NF}')
+  all_entries=$(printf "%s\n%s\n%s\n" "$db_entries" "$site_entries" "$public_entries" | sed '/^[[:space:]]*$/d')
+
+  if [ -z "$all_entries" ]; then
+    echo "No snapshots found in S3."
+    exit 0
+  fi
+
+  if [ "$matchtype" = "keep" ]; then
+    # Keep the top N
+    keep_lines=$(echo "$all_entries" | sort -r | head -n "$keep_n")
+    keep_pairs=$(echo "$keep_lines" | awk '{print $3 "|" $4}' | sort -u)
+    all_pairs=$(echo "$all_entries"  | awk '{print $3 "|" $4}' | sort -u)
+    delete_pairs=$(comm -13 <(echo "$keep_pairs") <(echo "$all_pairs"))
+  else
+    # Delete older than cutoff date
+    cutoff="$older_than" # should be YYYYMMDD
+    delete_pairs=$(echo "$all_entries" | awk -v c="$cutoff" '{
+      dt=$1; gsub("-","",dt);
+      if (dt ~ /^[0-9]{8}$/ && dt < c) print $3 "|" $4
+    }' | sort -u)
+  fi
+
+  if [ -z "$delete_pairs" ]; then
+    echo "Nothing to delete for the selected criteria."
+    exit 0
+  fi
+
+  echo "Deleting (by S3 timestamp criteria):"
+  echo "$delete_pairs" | sed 's/|/  ->  /'
+
+  # Dispatch deletes by type; forward dryrun/download/SPACE/tag
+  while IFS='|' read -r typ tag; do
+    case "$typ" in
+      db)     cmd="$SCRIPT_DIR/db-snapshot-delete" ;;
+      site)   cmd="$SCRIPT_DIR/site-snapshot-delete" ;;
+      public) cmd="$SCRIPT_DIR/public-snapshot-delete" ;;
+      *)      echo "Unknown snapshot type: $typ (tag: $tag)" >&2; continue ;;
+    esac
+    [ -z "$dryrun" ] && echo "$cmd" $dryrun "$SPACE" "$tag" $download
+    $echo "$cmd" $dryrun "$SPACE" "$tag" $download
+  done <<< "$delete_pairs"
+
+  exit 0
+fi
+
+# Name-based modes (legacy behavior)
+db_available_tags="$(list_db_tags)"
+site_available_tags="$(list_site_tags)"
+public_available_tags="$(list_public_tags)"
+
+if [ -n "$rematch" ]; then
+  # regex match across all categories
+  for tag in $(echo "$db_available_tags" | tr ' ' '\n' | sort | uniq | grep -E "$rematch" || true); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR/db-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    $echo "$SCRIPT_DIR/db-snapshot-delete" $dryrun "$SPACE" "$tag" $download
   done
 
-  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq ); do
-    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
-    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
-      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
-      $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
-    fi
+  for tag in $(echo "$site_available_tags" | tr ' ' '\n' | sort | uniq | grep -E "$rematch" || true); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR/site-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    $echo "$SCRIPT_DIR/site-snapshot-delete" $dryrun "$SPACE" "$tag" $download
   done
 
-  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq ); do
-    tagmatch=$(echo $tag | sed -E 's/.*USAGOV-([0-9]+).*/\1/')
-    if  [ -n "$tagmatch" ] && [ "$tagmatch" != "$tag" ] && [ "$tagmatch" -lt "$idmatch" ]; then
-      [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
-      $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
-    fi
-  done
-elif [ -n "$rematch" ]; then
-  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
-    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
-    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
+  for tag in $(echo "$public_available_tags" | tr ' ' '\n' | sort | uniq | grep -E "$rematch" || true); do
+    [ -z "$dryrun" ] && echo "$SCRIPT_DIR/public-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    $echo "$SCRIPT_DIR/public-snapshot-delete" $dryrun "$SPACE" "$tag" $download
   done
 
-  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch ); do
-    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
-    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
-  done
-
-  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep -E $rematch); do
-    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
-    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
-  done
 else
-  for tag in $(echo $db_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
-    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
-    $echo "$SCRIPT_DIR"/db-snapshot-delete $dryrun $SPACE $tag $download
-  done
+  # grep (e.g., from --lt)
+  # Build pattern for --lt (idmatch) if that's what we have
+  if [ "$matchtype" = "lt" ] && [ -n "$idmatch" ]; then
+    # Match USAGOV-<NNNN>
+    filter_lt() {
+      awk -v th="$idmatch" -F'-' '
+        {
+          if ($1 ~ /USAGOV$/) {
+            split($2, rest, /\./);
+            n = rest[1] + 0;
+            if (n < th) print $0;
+          }
+        }'
+    }
 
-  for tag in $(echo $site_available_tags | tr ' ' '\n' | sort | uniq | grep $match ); do
-    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
-    $echo "$SCRIPT_DIR"/site-snapshot-delete $dryrun $SPACE $tag $download
-  done
+    del_db=$(echo "$db_available_tags"     | tr ' ' '\n' | sort | uniq | filter_lt || true)
+    del_site=$(echo "$site_available_tags" | tr ' ' '\n' | sort | uniq | filter_lt || true)
+    del_pub=$(echo "$public_available_tags"| tr ' ' '\n' | sort | uniq | filter_lt || true)
 
-  for tag in $(echo $public_available_tags | tr ' ' '\n' | sort | uniq | grep $match); do
-    [ -z "$dryrun" ] && echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
-    $echo "$SCRIPT_DIR"/public-snapshot-delete $dryrun $SPACE $tag $download
-  done
+    for tag in $del_db; do
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR/db-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+      $echo "$SCRIPT_DIR/db-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    done
+    for tag in $del_site; do
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR/site-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+      $echo "$SCRIPT_DIR/site-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    done
+    for tag in $del_pub; do
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR/public-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+      $echo "$SCRIPT_DIR/public-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    done
+
+  else
+    for tag in $(echo "$db_available_tags" | tr ' ' '\n' | sort | uniq | grep -F "$match" || true); do
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR/db-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+      $echo "$SCRIPT_DIR/db-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    done
+
+    for tag in $(echo "$site_available_tags" | tr ' ' '\n' | sort | uniq | grep -F "$match" || true); do
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR/site-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+      $echo "$SCRIPT_DIR/site-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    done
+
+    for tag in $(echo "$public_available_tags" | tr ' ' '\n' | sort | uniq | grep -F "$match" || true); do
+      [ -z "$dryrun" ] && echo "$SCRIPT_DIR/public-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+      $echo "$SCRIPT_DIR/public-snapshot-delete" $dryrun "$SPACE" "$tag" $download
+    done
+  fi
 fi
