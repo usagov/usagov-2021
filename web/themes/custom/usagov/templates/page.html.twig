@@ -143,6 +143,14 @@
 				</div>
 				{% endif %}
 
+				{# Blog header for blog_menu view or blog_post nodes #}
+				{% if is_blog_view or content_type == 'blog_post' %}
+					<h1 class="text-red-50" id="skip-to-h1">
+						<span>Our blog</span>
+					</h1>
+					<p>Select year and/or month to see the blog entries from the selected year/month.</p>
+				{% endif %}
+
 				<div class="">
 					{{ page.highlighted }}
 				</div>
