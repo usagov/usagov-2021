@@ -50,6 +50,15 @@ shift
   else
     echo  cf create-service aws-elasticache-redis redis-3node-large ${CACHE_SERVICE_NAME} -t "cache-service"
     $echo cf create-service aws-elasticache-redis redis-3node-large ${CACHE_SERVICE_NAME} -t "cache-service"
+    
+    retval=$?
+
+    if [ x$echo -ne x ]; then
+      if [ $retval -ne 0 ]; then
+        echo "ERROR: Could not create cache service (exit code: $retval)"
+        exit $retval
+      fi
+    fi
   fi
 
   # wait until the aws-elasticache-redis service is fully provisioned

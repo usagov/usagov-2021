@@ -41,17 +41,26 @@ shift
     if [ "$SPACE" = "dev" ] ; then
        RDS_PLAN=small-mysql
     else
-	RDS_PLAN=small-mysql-redundant
+       RDS_PLAN=small-mysql-redundant
     fi
-    
+
     echo cf create-service aws-rds \
       $RDS_PLAN \
       database \
-      -c '{"version": "8.0"}'
+      -c '{"version": "8.4"}'
     $echo cf create-service aws-rds \
       $RDS_PLAN \
       database \
-      -c '{"version": "8.0"}'
+      -c '{"version": "8.4"}'
+
+    retval=$?
+
+    if [ x$echo -ne x ]; then
+      if [ $retval -ne 0 ]; then
+        echo "ERROR: Could not create database service (exit code: $retval)"
+        exit $retval
+      fi
+    fi
   fi
 
   # wait until the db is fully provisioned
