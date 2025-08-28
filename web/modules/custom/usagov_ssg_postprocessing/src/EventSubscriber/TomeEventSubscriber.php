@@ -142,6 +142,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $html = $event->getHtml();
     $html5 = new HTML5();
 
+    // QuickFix for USAGOV-2312. We want to remove this meta-data.
+    $html = str_replace('xmlns:xlink="http://www.w3.org/1999/xlink"', '', $html);
+    $event->setHtml($html); // just in case setHtml() dosnt get caled later
+
     // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
     // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
     $document = new \DOMDocument();
@@ -179,6 +183,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     if ($changes) {
       // Render it as HTML5:
       $modifiedHtml = $html5->saveHTML($document);
+      $modifiedHtml = str_replace('xmlns:xlink="http://www.w3.org/1999/xlink"', '', $modifiedHtml); // QuickFix for USAGOV-2312. We want to remove this meta-data.
       $event->setHtml($modifiedHtml);
     }
   }
