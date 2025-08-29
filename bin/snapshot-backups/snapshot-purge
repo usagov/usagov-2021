@@ -229,11 +229,11 @@ list_public_tags() {
 # Timestamp  modes (use S3 LastModified) since not all file have their dates in their filename
 if [ "$matchtype" = "keep" ] || [ "$matchtype" = "older" ]; then
   # list like YYYY-MM-DD HH:MM:SS TYPE TAG
-  db_entries=$(aws s3 ls "s3://$S3_BUCKET/db-backup/"            | awk '{printf "%s %s db %s\n",$1,$2,$NF}' | sed 's/\.sql\.gz$//')
-  site_entries=$(aws s3 ls "s3://$S3_BUCKET/web-backup/"         | awk '{printf "%s %s site %s\n",$1,$2,$NF}')
-  public_entries=$(aws s3 ls "s3://$S3_BUCKET/'$BUCKET_BACKUP_FOLDER'/" | awk '{printf "%s %s public %s\n",$1,$2,$NF}')
+  db_entries=$(    aws s3 ls "s3://$S3_BUCKET/db-backup/" | awk '{printf "%s %s db %s\n",$1,$2,$NF}'     | sed 's/\.sql\.gz$//')
+  site_entries=$(  aws s3 ls "s3://$S3_BUCKET/db-backup/" | awk '{printf "%s %s site %s\n",$1,$2,$NF}'   | sed 's/\.sql\.gz$//')
+  public_entries=$(aws s3 ls "s3://$S3_BUCKET/db-backup/" | awk '{printf "%s %s public %s\n",$1,$2,$NF}' | sed 's/\.sql\.gz$//')
   all_entries=$(printf "%s\n%s\n%s\n" "$db_entries" "$site_entries" "$public_entries" | sed '/^[[:space:]]*$/d')
-
+  
   if [ -z "$all_entries" ]; then
     echo "No snapshots found in S3."
     exit 0
@@ -241,9 +241,9 @@ if [ "$matchtype" = "keep" ] || [ "$matchtype" = "older" ]; then
 
   if [ "$matchtype" = "keep" ]; then
     # Keep the top N
-    keep_lines=$(echo "$all_entries" | sort -r | head -n "$keep_n")
-    keep_pairs=$(echo "$keep_lines" | awk '{print $3 "|" $4}' | sort -u)
-    all_pairs=$(echo "$all_entries"  | awk '{print $3 "|" $4}' | sort -u)
+    keep_lines=$(echo "$db_entries" | sort -r | head -n "$keep_n")
+    keep_pairs=$(echo "$keep_lines" | awk '{print $3 "|" $4}' | sort -ru)
+    all_pairs=$(echo "$all_entries"  | awk '{print $3 "|" $4}' | sort -ru)
     delete_pairs=$(comm -13 <(echo "$keep_pairs") <(echo "$all_pairs"))
   else
     # Delete older than cutoff date
