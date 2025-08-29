@@ -104,7 +104,7 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
 
 ###############################################################
-FROM alpine:3.20 AS cms
+FROM alpine:3.22 AS cms
 
 ARG S6_VERSION
 ENV S6_VERSION=${S6_VERSION:-v2.2.0.3}
@@ -295,7 +295,7 @@ RUN if pgrep nginx; then pkill nginx; fi
 RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
 RUN apk del nginx nginx-mod-http-lua || true
 RUN cd /tmp/ \
-    && git clone --branch v0.10.26 https://github.com/openresty/lua-nginx-module.git \
+    && git clone --branch v0.10.28 https://github.com/openresty/lua-nginx-module.git \
     && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
     && tar -xzvf v0.3.1.tar.gz \
     && mv ngx_devel_kit-0.3.1 ngx_devel_kit \
