@@ -82,5 +82,11 @@ ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
 RUN rm /tmp/cf8.tar.gz
 
+RUN apk add --no-cache python3 py3-pip ca-certificates \
+  && update-ca-certificates \
+  && python3 -m venv /opt/venv \
+  && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
+  && /opt/venv/bin/pip install --no-cache-dir boto3
+
 # Init s6
 ENTRYPOINT [ "/init" ]
