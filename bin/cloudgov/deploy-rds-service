@@ -55,7 +55,7 @@ shift
 
     retval=$?
 
-    if [ x$echo != x ]; then
+    if [ x$echo = x ]; then
       if [ $retval -ne 0 ]; then
         echo "ERROR: Could not create database service (exit code: $retval)"
         exit $retval
@@ -64,7 +64,7 @@ shift
   fi
 
   # wait until the db is fully provisioned
-  if [ x$echo != x ];  then
+  if [ x$echo = x ];  then
     until cf create-service-key database test-db-ok ; do
       echo waiting until database is live...
       sleep 20

@@ -53,7 +53,7 @@ shift
     
     retval=$?
 
-    if [ x$echo != x ]; then
+    if [ x$echo = x ]; then
       if [ $retval -ne 0 ]; then
         echo "ERROR: Could not create cache service (exit code: $retval)"
         exit $retval
@@ -62,7 +62,7 @@ shift
   fi
 
   # wait until the aws-elasticache-redis service is fully provisioned
-  if [ x$echo != x ];  then
+  if [ x$echo = x ];  then
     until cf create-service-key ${CACHE_SERVICE_NAME} test-cache-ok ; do
       echo waiting until ${CACHE_SERVICE_NAME} is live...
       sleep 20
