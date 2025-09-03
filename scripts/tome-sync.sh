@@ -217,6 +217,12 @@ fi
 ANALYTICS_DIR=/var/www/website-analytics
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
+export ANALYTICS_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "s3forAnalyticsReporter") | .credentials.bucket')
+echo "ANALYTICS_BUCKET is: $ANALYTICS_BUCKET"
+echo "Making the website-analytics pages use: $ANALYTICS_BUCKET"
+find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}}|$ANALYTICS_BUCKET|g" {} +
+# Dev Note: Un-comment the next line if you want to confirm the files within the Docker container locally before the sync
+# sleep 500
 
 mkdir -p $RENDER_DIR/ppr
 cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
