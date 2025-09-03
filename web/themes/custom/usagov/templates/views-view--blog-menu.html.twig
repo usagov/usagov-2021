@@ -52,7 +52,7 @@
     <div class="grid-row grid-gap">
       {%  block sidebar %}
         {% if page.sidebar_first and show_sidebar %}
-          <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first">
+          <aside class="usa-layout-docs__sidenav desktop:grid-col-4 layout-sidebar-first" role="complementary">
             {{ page.sidebar_first }}
             {{ exposed }}
             {{ attachment_before }}
