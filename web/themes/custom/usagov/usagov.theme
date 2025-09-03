@@ -23,9 +23,13 @@ function usagov_preprocess_html(array &$variables): void {
     $variables['faq'] = generate_faq($node);
   }
 
-  $affiliate = \Drupal::state()->get('usagov_affiliate');
   $variables['usagov_affiliate'] = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $variables['usagov_affiliate_es'] = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
+
+  // Set a reliable language variable for the template
+  // This ensures proper language detection even when there's no node context (like in views)
+  $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $variables['language'] = $current_language;
 }
 
 /**
@@ -567,10 +571,49 @@ function usagov_preprocess_block__mobile_navigation(array &$variables) {
   $variables['usagov_affiliate_es'] = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 }
 
+function usagov_preprocess_page_title(array &$variables): void {
+  // Make node available in page-title template
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node) {
+    $variables['node'] = $node;
+  }
+}
+
 function usagov_preprocess_page(array &$variables): void {
   $affiliate = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $affiliate_es = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 
   $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
   $variables['usagov_affiliate_lang'] = $langcode == 'es' ? $affiliate_es : $affiliate;
+
+  // Add variables for blog detection
+  $route_match = \Drupal::routeMatch();
+  $route_name = $route_match->getRouteName();
+  $current_path = \Drupal::service('path.current')->getPath();
+  $current_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+
+  // Check if we're on the blog_menu view (multiple ways to detect)
+  $variables['is_blog_view'] = FALSE;
+  if ($route_name === 'view.blog_menu.page_1' ||
+      $route_name === 'view.blog_menu.default' ||
+      $current_path === '/blog' ||
+      $current_alias === '/blog' ||
+      strpos($route_name, 'blog_menu') !== FALSE) {
+    $variables['is_blog_view'] = TRUE;
+  }
+
+  // content_type variable is already set in the template, but let's ensure it's available
+  $node = $route_match->getParameter('node');
+  if ($node && method_exists($node, 'bundle')) {
+    $variables['content_type'] = $node->bundle();
+  }
+
+  // Alternative method: check if the page contains blog-related content
+  if (!$variables['is_blog_view']) {
+    // Check if we're viewing a page that renders the blog view
+    $view_storage = \Drupal::entityTypeManager()->getStorage('view');
+    if ($view_storage->load('blog_menu')) {
+      // Additional detection logic could go here if needed
+    }
+  }
 }
