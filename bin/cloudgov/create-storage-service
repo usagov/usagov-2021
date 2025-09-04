@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Create a cloud foundry storage service instance (i.e. an s3 bucket)
+# Also helpful for testing bucket content clearing and deletion
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+# we might be running from a local dev machine
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f $SCRIPT_DIR/env.local ]; then
+  . $SCRIPT_DIR/env.local
+fi
+if [ -f ./env.local ]; then
+  . ./env.local
+fi
+FCNS=$SCRIPT_DIR/../../deploy/includes
+if [ -f $FCNS ]; then
+  . $FCNS
+else
+   echo Cannot find $FCNS
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  export echo=echo
+  shift
+fi
+
+usage() {
+  echo
+  echo "Usage: $0 [--dryrun] <space-name> [<test-storage-service>]"
+  echo
+  echo "Creates a storage service in the specified space."
+  echo
+  echo "Options:"
+  echo "  --dryrun       Show the commands that would be run, but do not execute them - Optional, but must be the first argument, if used."
+  echo
+  echo "Arguments:"
+  echo "  <space-name>          The name of the space to create the service in - Required."
+  echo "  <test-storage-service> The name of the test storage service to create - Optional."
+  echo
+  echo "Example:"
+  echo "  $0 my-space my-storage-service"
+}
+
+if [ x$1 = x ]; then
+  usage
+  exit 1
+else
+  SPACE=${1:-please-provide-space-name-as-first-argument}
+  SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
+  assertCurSpace $SPACE
+  shift
+fi
+
+ORG=$(getOrg)
+
+TEST_STORAGE_SERVICE=${1:-test-state-storage}
+
+if [[ ! "$TEST_STORAGE_SERVICE" =~ ^[a-zA-Z][a-zA-Z0-9\-]*$ ]]; then
+  echo "ERROR: TEST_STORAGE_SERVICE must start with a letter and contain only letters and digits."
+  usage
+  exit 1
+fi
+
+for storage_service in $TEST_STORAGE_SERVICE; do
+  echo "Configuring $storage_service"
+  if existsCFService $storage_service &> /dev/null; then
+    echo "$storage_service already created"
+  else
+    echo  cf create-service s3 basic $storage_service
+    $echo cf create-service s3 basic $storage_service
+    if [ x$echo = x ]; then
+      if existsCFService $storage_service &> /dev/null; then
+        echo "$storage_service successfully created"
+      else
+        echo "ERROR: $storage_service creation failed"
+        exit 1
+      fi
+    fi
+  fi
+done
