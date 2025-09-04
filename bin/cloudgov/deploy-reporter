@@ -111,7 +111,8 @@ fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
 # Set the CORS policy so web clients can consume data for pages we serve:
-aws s3api put-bucket-cors --bucket s3for${APPNAME} --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
+source bin/cloudgov/get-s3-access s3for${APPNAME}
+aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
 
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
