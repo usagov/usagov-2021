@@ -110,6 +110,10 @@ else
 fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
+# Set the CORS policy so web clients can consume data for pages we serve:
+source bin/cloudgov/get-s3-access s3for${APPNAME}
+aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
+
 # launch the app
 echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
 echo "Will use the command: CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling"
