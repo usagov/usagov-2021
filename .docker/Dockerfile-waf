@@ -131,6 +131,20 @@ RUN echo    "    built:" $(date) >> /etc/motd \
     && echo "    commit: " $GITCOMMIT >> /etc/motd \
     && echo >> /etc/motd
 
+# Force-install the later version of libxml2 for security purposes
+RUN export LIBXML2_VERSION=2.13.6 \
+    && curl -fsSL -o libxml2.tar.xz   "https://download.gnome.org/sources/libxml2/2.13/libxml2-${LIBXML2_VERSION}.tar.xz" \
+    && tar -xf libxml2.tar.xz \
+    && cd "libxml2-${LIBXML2_VERSION}" \
+    && ./configure --prefix=/usr/local --with-zlib --with-lzma --without-python \
+    && make -j"$(nproc)" \
+    && make install \
+    && echo "/usr/local/lib" > /etc/ld.so.conf.d/usr-local.conf \
+    && ldconfig
+
+# This removes the older version
+RUN dpkg --remove --force-depends libxml2
+
 HEALTHCHECK CMD pgrep "nginx: master process"
 
 ENTRYPOINT ["/docker-entrypoint-waf.sh"]

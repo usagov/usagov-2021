@@ -27,6 +27,11 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
+service_exists()
+{
+  cf service "$1" >/dev/null 2>&1
+}
+
 SPACE=${1:-please-provide-space-name-as-first-argument}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
@@ -83,7 +88,7 @@ for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_S
     if [ $storage_service = $CALLWAIT_STORAGE_SERVICE ]; then
       cf create-service s3 basic-public $storage_service
       source bin/cloudgov/get-s3-access $storage_service
-      aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://s3-cors-policy-callwaittime.json
+      aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
     else
       cf create-service s3 basic $storage_service
     fi
