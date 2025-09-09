@@ -1136,3 +1136,16 @@ input::-webkit-textfield-decoration-container {
     }
   }
 }
+
+// Blog instruction text responsive display utilities
+.blog-instruction-text {
+  &.display-none {
+    display: none;
+  }
+  
+  @include at-media('desktop') {
+    &.desktop\:display-block {
+      display: block !important;
+    }
+  }
+}
