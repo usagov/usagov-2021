@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#
+# This script will attempt to create the cache service
+# The {} are for formatting only
+
+# we might be running in circleci
+if [ -f /home/circleci/project/env.local ]; then
+  . /home/circleci/project/env.local
+fi
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+if [ -f $SCRIPT_DIR/../deploy/includes ]; then
+  . $SCRIPT_DIR/../deploy/includes
+else
+   echo Cannot find $SCRIPT_DIR/../deploy/includes
+   exit 1
+fi
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
+fi
+
+APP_SPACE=${1:-please-provide-space-name-as-first-argument}
+APP_SPACE=$(echo "$APP_SPACE" | tr '[:upper:]' '[:lower:]')
+echo cf target -s $APP_SPACE
+$echo cf target -s $APP_SPACE &>/dev/null
+echo assertCurSpace $APP_SPACE
+$echo assertCurSpace $APP_SPACE
+shift
+
+## CACHE SERVICE
+# NB: the way to upgrade an aws-elasticache-redis instance (currently) is to
+# create a new one. Since we're storing truly ephemeral data in ours (drupal cache),
+# if we ever need to upgrade the redis version or switch to a different plan, this
+# is fine! The cms will identify this service by the "cache-service" tag, not its name.
+# To upgrade:
+#  1) Create a new service (this takes awhile)
+#  2) Add the "cache-service" tag to the new service and remove it from the old one
+#  3) Restart the cms app
+#  4) Delete the old service.
+{
+  CACHE_SERVICE_NAME=cache-service
+  echo "Configuring Cache Service"
+  if existsCFService "${CACHE_SERVICE_NAME}" ; then
+    echo ${CACHE_SERVICE_NAME} already created
+  else
+    echo  cf create-service aws-elasticache-redis redis-3node-large ${CACHE_SERVICE_NAME} -t "cache-service"
+    $echo cf create-service aws-elasticache-redis redis-3node-large ${CACHE_SERVICE_NAME} -t "cache-service"
+    
+    retval=$?
+
+    if [ x$echo = x ]; then
+      if [ $retval -ne 0 ]; then
+        echo "ERROR: Could not create cache service (exit code: $retval)"
+        exit $retval
+      fi
+    fi
+  fi
+
+  # wait until the aws-elasticache-redis service is fully provisioned
+  if [ x$echo = x ];  then
+    until cf create-service-key ${CACHE_SERVICE_NAME} test-cache-ok ; do
+      echo waiting until ${CACHE_SERVICE_NAME} is live...
+      sleep 20
+    done
+  fi
+  
+  echo  cf delete-service-key ${CACHE_SERVICE_NAME} test-cache-ok -f
+  $echo cf delete-service-key ${CACHE_SERVICE_NAME} test-cache-ok -f
+}
+
+## DONE
