@@ -101,58 +101,6 @@ generate_cert_json()
   NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-}
 }
 
-## DATABASE SERVICE
-{
-  echo "Configuring Database Service"
-  if service_exists "database" ; then
-    echo database already created
-  else
-    if [ "$SPACE" = "dev" ] ; then
-       RDS_PLAN=small-mysql
-    else
-	RDS_PLAN=small-mysql-redundant
-    fi
-    cf create-service aws-rds \
-      $RDS_PLAN \
-      database \
-      -c '{"version": "8.0"}'
-  fi
-
-  # wait until the db is fully provisioned
-  until cf create-service-key database test-db-ok ; do
-    echo waiting until database is live...
-    sleep 20
-  done
-  cf delete-service-key database test-db-ok -f
-}
-
-## CACHE SERVICE
-# NB: the way to upgrade an aws-elasticache-redis instance (currently) is to
-# create a new one. Since we're storing truly ephemeral data in ours (drupal cache),
-# if we ever need to upgrade the redis version or switch to a different plan, this
-# is fine! The cms will identify this service by the "cache-service" tag, not its name.
-# To upgrade:
-#  1) Create a new service (this takes awhile)
-#  2) Add the "cache-service" tag to the new service and remove it from the old one
-#  3) Restart the cms app
-#  4) Delete the old service.
-{
-  CACHE_SERVICE_NAME=cache-service
-  echo "Configuring Cache Service"
-  if service_exists "${CACHE_SERVICE_NAME}" ; then
-    echo ${CACHE_SERVICE_NAME} already created
-  else
-    cf create-service aws-elasticache-redis redis-3node-large ${CACHE_SERVICE_NAME} -t "cache-service"
-  fi
-
-  # wait until the aws-elasticache-redis service is fully provisioned
-  until cf create-service-key ${CACHE_SERVICE_NAME} test-cache-ok ; do
-    echo waiting until ${CACHE_SERVICE_NAME} is live...
-    sleep 20
-  done
-  cf delete-service-key ${CACHE_SERVICE_NAME} test-cache-ok -f
-}
-
 ## STORAGE SERVICE
 {
   echo "Configuring Storage Service"
