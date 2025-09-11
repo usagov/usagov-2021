@@ -336,3 +336,79 @@ function assertIsImageDigest() {
     fi
   done
 }
+
+function createRoute {
+  route=$1
+  host=$2
+  if [ -z "$route" -o -z "$host" ]; then
+    echo "ERROR: route and host are required for createRoute"
+    exit 1
+  fi
+  
+  echo cf create-route $route --hostname $host
+  $echo cf create-route $route --hostname $host
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    echo "ERROR: cf create-route failed ($RETVAL)"
+    exit $RETVAL
+  fi
+}
+
+function mapRoute {
+  app=$1
+  route=$2
+  host=$3
+  if [ -z "$app" -o -z "$route" -o -z "$host" ]; then
+    echo "ERROR: app, route and host are required for mapRoute"
+    exit 1
+  fi
+  
+  echo cf map-route $app $route --hostname $host
+  $echo cf map-route $app $route --hostname $host
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    echo "ERROR: cf map-route failed ($RETVAL)"
+    exit $RETVAL
+  fi
+}
+
+function bindServiceToApp {
+  app=$1
+  service=$2
+  assert=$3
+  if [ -z "$app" -o -z "$service" ]; then
+    echo "ERROR: app and service are required arguments for bindServiceToApp"
+    exit 1
+  fi
+
+  echo cf bind-service $app $service
+  $echo cf bind-service $app $service
+  RETVAL=$?
+  if [ x$assert = x ]; then
+    if [ $RETVAL -ne 0 ]; then
+      echo "ERROR: cf bind-service failed ($RETVAL)"
+      exit $RETVAL
+    fi
+  else
+    if [ $RETVAL -ne 0 ]; then
+      echo "NOTICE: cf bind-service $app $service failed ($RETVAL)"
+      return 0
+    fi
+  fi
+}
+
+function cfSetEnv {
+  app=$1
+  var=$2
+  val=$3
+  RETVAL=0
+  if [ -n "$var" ] && [ -n "$val" ] && [ -n "$app" ]; then
+    echo cf set-env $app $var $val
+    $echo cf set-env $app $var $val
+    RETVAL=$?
+  else
+    echo "NOTICE: cf set-env requires app, var and val to be set"
+    echo "Values are app: [$app], var: [$var], val: [$val]"
+  fi
+  return $RETVAL
+}
