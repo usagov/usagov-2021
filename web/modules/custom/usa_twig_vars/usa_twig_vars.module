@@ -278,7 +278,33 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
   if ($variables['region'] === 'header_top') {
 
     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    // Get all site_banners from the website.
+
+    // Get site banners from config_pages entities.
+    $config_pages_site_banners = \Drupal::entityTypeManager()->getStorage('config_pages')->loadByProperties(['type' => 'site_banner']);
+    if ($config_pages_site_banners) {
+      foreach ($config_pages_site_banners as $config_page) {
+        // Check if the config page has alert field with content.
+        if (!$config_page->field_alert->isEmpty()) {
+          // Iterate through all alert paragraphs in the field.
+          foreach ($config_page->field_alert as $delta => $alert_item) {
+            if ($alert_item->entity) {
+              // Get the referenced paragraph entity (uswds_alert).
+              $alert_paragraph = $alert_item->entity;
+
+              // Add the alert paragraph to site_banners for rendering.
+              // Use a unique key to distinguish from block-based banners and handle multiple paragraphs.
+              $banner_key = 'config_page_' . $config_page->id() . '_' . $delta;
+              $variables['site_banners'][$banner_key] = $banner_key;
+
+              // Store the paragraph reference for template usage.
+              $variables['config_page_alerts'][$banner_key] = $alert_paragraph;
+            }
+          }
+        }
+      }
+    }
+
+    // Get all site_banners from the website (existing block-based implementation).
     $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
     if ($site_banners_blocks) {
 
@@ -367,6 +393,34 @@ function usa_twig_vars_after_build(array $form, FormStateInterface &$form_state)
     $form['path']['widget'][0]['alias']['#required'] = TRUE;
   }
   return $form;
+}
+
+/**
+ * Implements hook_theme_suggestions_paragraph_alter().
+ *
+ * @param array<string> $suggestions
+ * @param array<string, mixed> $variables
+ */
+function usa_twig_vars_theme_suggestions_paragraph_alter(array &$suggestions, array $variables): void {
+  $paragraph = $variables['elements']['#paragraph'];
+
+  // Check if this is a uswds_alert paragraph being used in a config_pages site banner.
+  if ($paragraph->getType() === 'uswds_alert') {
+    // Check if this paragraph is referenced by a config_pages entity of type site_banner.
+    $config_pages = \Drupal::entityTypeManager()->getStorage('config_pages')->loadByProperties(['type' => 'site_banner']);
+    foreach ($config_pages as $config_page) {
+      // Check all alert paragraphs in the field.
+      if (!$config_page->field_alert->isEmpty()) {
+        foreach ($config_page->field_alert as $alert_item) {
+          if ($alert_item->entity && $alert_item->entity->id() == $paragraph->id()) {
+            // This paragraph is used in a config_pages site banner, so use the custom template.
+            $suggestions[] = 'paragraph__uswds_alert__config_pages_site_banner';
+            break 2; // Break out of both loops.
+          }
+        }
+      }
+    }
+  }
 }
 
 /**

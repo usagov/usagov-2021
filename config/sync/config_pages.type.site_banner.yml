@@ -1,0 +1,17 @@
+uuid: ad248575-2690-4e9e-bf64-f6d410680412
+langcode: en
+status: true
+dependencies: {  }
+id: site_banner
+label: 'Site Banner'
+token: false
+context:
+  show_warning: true
+  group:
+    language: false
+  fallback:
+    language: ''
+menu:
+  path: /admin/content/site-banner
+  weight: 0
+  description: 'Site-wide banner'

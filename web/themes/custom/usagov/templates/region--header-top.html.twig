@@ -21,12 +21,23 @@
     {# Add all blocks in the `header_top` region #}
     {{ content }}
 
+    {# Check if there are any config_page_alerts #}
+    {% if config_page_alerts %}
+      {% for banner_key, alert_paragraph in config_page_alerts %}
+        {{ drupal_entity('paragraph', alert_paragraph.id()) }}
+      {% endfor %}
+    {% endif %}
+
     {# Check if there are any site_banners #}
     {% if site_banners %}
       {% for site_banner_id in site_banners %}
         {# If the current `site_banner` has the checkbox checked, it adds it to the `header_top` region. #}
         {% if site_banner_id %}
-          {{ drupal_entity('block_content', site_banner_id) }}
+          {% if site_banner_id starts with 'config_page_' %}
+            {# Config page banners are already rendered above #}
+          {% else %}
+            {{ drupal_entity('block_content', site_banner_id) }}
+          {% endif %}
         {% endif %}
       {% endfor %}
     {% endif %}
