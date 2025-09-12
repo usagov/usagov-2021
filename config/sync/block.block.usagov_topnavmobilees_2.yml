@@ -6,7 +6,6 @@ dependencies:
     - 'block_content:html_block:3e472cf8-278e-498f-b7f4-501eb8ea77a6'
   module:
     - block_content
-    - block_visibility_groups
     - language
     - node
     - system
@@ -39,10 +38,6 @@ visibility:
     id: request_path
     negate: true
     pages: "/averiguar-estado-reembolso-impuestos\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/indice-agencias\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n"
-  condition_group:
-    id: condition_group
-    negate: false
-    block_visibility_group: ''
   term:
     id: term
     negate: true

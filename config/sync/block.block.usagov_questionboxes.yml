@@ -6,7 +6,6 @@ dependencies:
     - 'block_content:html_block:7066f7fa-491f-4a90-9995-251859b3ec7d'
   module:
     - block_content
-    - block_visibility_groups
     - language
     - node
     - system
@@ -28,10 +27,6 @@ settings:
   info: ''
   view_mode: full
 visibility:
-  condition_group:
-    id: condition_group
-    negate: false
-    block_visibility_group: ''
   language:
     id: language
     negate: false

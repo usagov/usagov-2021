@@ -6,7 +6,6 @@ dependencies:
     - 'block_content:html_block:ba151291-a004-469d-9192-deb7730e19df'
   module:
     - block_content
-    - block_visibility_groups
     - language
     - node
     - system
@@ -39,10 +38,6 @@ visibility:
     id: request_path
     negate: true
     pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
-  condition_group:
-    id: condition_group
-    negate: false
-    block_visibility_group: ''
   term:
     id: term
     negate: true
