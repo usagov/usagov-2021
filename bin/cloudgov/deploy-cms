@@ -3,25 +3,23 @@
 # This script will attempt to deploy a cms app by tag
 #
 
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-INCLUDES_BASE=$SCRIPT_DIR/../deploy/includes
-if [ -f $INCLUDES_BASE ]; then
-  . $INCLUDES_BASE
-else
-   echo Cannot find $INCLUDES_BASE
-   exit 1
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
-fi
+
+# Optional includes: we might be running in circleci, or a local dev machine
+for f in /home/circleci/project/env.local $SCRIPT_DIR/env.local ./env.local; do
+  if [ -f $f ]; then
+    . $f
+  fi
+done
+
+# Mandatory includes:
+for inc in $SCRIPT_DIR/../bin/deploy/includes; do
+  if [ ! -f $inc ]; then
+    echo "Cannot find $inc"
+    exit 1
+  fi
+  . $inc
+done
 
 # just testing?
 if [ x$1 = x"--dryrun" ]; then

@@ -27,11 +27,6 @@ if [ x$1 = x"--dryrun" ]; then
   shift
 fi
 
-service_exists()
-{
-  cf service "$1" >/dev/null 2>&1
-}
-
 SPACE=${1:-please-provide-space-name-as-first-argument}
 SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
 assertCurSpace $SPACE
@@ -147,12 +142,12 @@ cf set-env $APPNAME CALL_CENTER_SP_QUEUE_ID $CALL_CENTER_SP_QUEUE_ID
 
 ### Syncing lightweight cron key
 echo "Updating lightweight cron key"
-if service_exists "secrets" ; then
+if existsCFService "secrets" ; then
   echo "secrets already created: updating"
   SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
   CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
 
-  if service_exists "cron-secrets" ; then
+  if existsCFService "cron-secrets" ; then
     yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
   else
     cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
