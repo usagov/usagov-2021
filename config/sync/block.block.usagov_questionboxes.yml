@@ -2,14 +2,15 @@ uuid: d3baf11a-60d3-477f-95f8-3a247a38bd36
 langcode: en
 status: true
 dependencies:
-  config:
-    - block_visibility_groups.block_visibility_group.display_have_a_question_box_es
   content:
     - 'block_content:html_block:7066f7fa-491f-4a90-9995-251859b3ec7d'
   module:
     - block_content
     - block_visibility_groups
     - language
+    - node
+    - system
+    - term_condition
   theme:
     - usagov
 id: usagov_questionboxes
@@ -27,6 +28,10 @@ settings:
   info: ''
   view_mode: full
 visibility:
+  condition_group:
+    id: condition_group
+    negate: false
+    block_visibility_group: ''
   language:
     id: language
     negate: false
@@ -34,7 +39,23 @@ visibility:
       language: '@language.current_language_context:language_interface'
     langcodes:
       es: es
-  condition_group:
-    id: condition_group
+  request_path:
+    id: request_path
+    negate: true
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/indice-agencias\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
+  term:
+    id: term
+    negate: true
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - 5d427eb4-eaf0-4735-a6c9-6968c85545f9
+      - 98da5ec5-e08a-4d6d-832e-0eb027282728
+      - e81abe40-3c39-4457-a5de-265513e423be
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
     negate: false
-    block_visibility_group: display_have_a_question_box_es
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page

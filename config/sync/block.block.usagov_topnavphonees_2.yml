@@ -2,15 +2,15 @@ uuid: d5ced0cf-3ec8-4cb3-9bb3-0241d840ec79
 langcode: en
 status: true
 dependencies:
-  config:
-    - block_visibility_groups.block_visibility_group.display_contact_center_phone_es
   content:
     - 'block_content:html_block:8e768355-f298-44e8-81a9-e094cd55db26'
   module:
     - block_content
     - block_visibility_groups
     - language
+    - node
     - system
+    - term_condition
   theme:
     - usagov
 id: usagov_topnavphonees_2
@@ -38,8 +38,22 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: "/agencias/*\r\n/averiguar-estado-reembolso-impuestos\r\n/buscador-beneficios\r\n/buscador-beneficios/*\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/donde-reportar-una-estafa\r\n/estados/*\r\n/estatal-consumidor\r\n/estatales-servicios-sociales\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/gobiernos-estatales\r\n/gobiernos-estatales/*\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/oficina-elecciones-estatal-local\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados"
+    pages: "/averiguar-estado-reembolso-impuestos\r\n/chat\r\n/compensacion-reembolsos-impuestos\r\n/contactar-irs\r\n/funcionarios-electos-correo-electronico\r\n/funcionarios-electos-resultados\r\n/indice-agencias\r\n/llamenos\r\n/obtener-reembolso-de-impuestos-por-deposito-directo\r\n/reembolsos-impuestos\r\n/reembolsos-impuestos-no-entregados\r\n"
   condition_group:
     id: condition_group
     negate: false
-    block_visibility_group: display_contact_center_phone_es
+    block_visibility_group: ''
+  term:
+    id: term
+    negate: true
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - e81abe40-3c39-4457-a5de-265513e423be
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page

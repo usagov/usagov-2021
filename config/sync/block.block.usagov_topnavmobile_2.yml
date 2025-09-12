@@ -2,15 +2,15 @@ uuid: ca475251-8c0e-4a92-9143-ea5f905cc5bc
 langcode: en
 status: true
 dependencies:
-  config:
-    - block_visibility_groups.block_visibility_group.display_contact_center_phone_en
   content:
     - 'block_content:html_block:ba151291-a004-469d-9192-deb7730e19df'
   module:
     - block_content
     - block_visibility_groups
     - language
+    - node
     - system
+    - term_condition
   theme:
     - usagov
 id: usagov_topnavmobile_2
@@ -38,8 +38,22 @@ visibility:
   request_path:
     id: request_path
     negate: true
-    pages: "/agencies/*\r\n/benefit-finder\r\n/benefit-finder/*\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/local-governments\r\n/phone\r\n/states/*\r\n/state-attorney-general\r\n/state-consumer\r\n/state-corrections\r\n/state-election-office\r\n/state-emergency-management\r\n/state-governments\r\n/state-governments/*\r\n/state-governor\r\n/state-health\r\n/state-motor-vehicle-services\r\n/state-social-services\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds\r\n/where-report-scams"
+    pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
   condition_group:
     id: condition_group
     negate: false
-    block_visibility_group: display_contact_center_phone_en
+    block_visibility_group: ''
+  term:
+    id: term
+    negate: true
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - e81abe40-3c39-4457-a5de-265513e423be
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page
