@@ -264,11 +264,7 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$vari
 }
 
 /**
- * Create an array called `site_banners` that contains all the site banners.
- *
- * The value of each element in this array can be the id of the site banner
- * if the checkbox `place_above_header` is checked or `null` if the checkbox
- * is not checked.
+ * Create config page alerts for site banners.
  *
  * @param array<string, mixed> $variables
  */
@@ -284,19 +280,17 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
     if ($config_pages_site_banners) {
       foreach ($config_pages_site_banners as $config_page) {
         // Check if the config page has alert field with content.
-        if (!$config_page->field_alert->isEmpty()) {
+        if ($config_page->hasField('field_alert') && !$config_page->get('field_alert')->isEmpty()) {
           // Iterate through all alert paragraphs in the field.
-          foreach ($config_page->field_alert as $delta => $alert_item) {
+          $alert_field = $config_page->get('field_alert');
+          foreach ($alert_field as $delta => $alert_item) {
             if ($alert_item->entity) {
               // Get the referenced paragraph entity (uswds_alert).
               $alert_paragraph = $alert_item->entity;
 
-              // Add the alert paragraph to site_banners for rendering.
-              // Use a unique key to distinguish from block-based banners and handle multiple paragraphs.
-              $banner_key = 'config_page_' . $config_page->id() . '_' . $delta;
-              $variables['site_banners'][$banner_key] = $banner_key;
-
               // Store the paragraph reference for template usage.
+              // Use a unique key to handle multiple paragraphs.
+              $banner_key = 'config_page_' . $config_page->id() . '_' . $delta;
               $variables['config_page_alerts'][$banner_key] = $alert_paragraph;
             }
           }
@@ -304,36 +298,6 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
       }
     }
 
-    // Get all site_banners from the website (existing block-based implementation).
-    $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
-    if ($site_banners_blocks) {
-
-      foreach ($site_banners_blocks as $site_banner) {
-        /*
-         * Check if the language of the banner is the same as the website.
-         * This prevents incorrect language banners from being displayed on the
-         * site.
-         */
-        $site_banner_lang = $site_banner->langcode->value;
-        if ($site_banner_lang === $site_language) {
-          // Get the value of the checkbox in the site_banner form.
-          $place_above_header = $site_banner->field_place_above_header->value;
-
-          // Check if the checkbox in the site_banner form is checked or not.
-          if ($place_above_header) {
-            /* Set the value to the site_banner id to add the site_banner to the
-            `header_top` region.*/
-            $variables['site_banners'][$site_banner->id()] = $site_banner->id();
-          }
-          else {
-            /* Set the value to null to remove the site_banner with id
-            `$site_banner->id()` from the region `header_top`. */
-            $variables['site_banners'][$site_banner->id()] = NULL;
-          }
-        }
-
-      }
-    }
     // Get all modals from the website.
     $modal_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'modal']);
     foreach ($modal_blocks as $modal) {
@@ -342,11 +306,11 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
        * This prevents incorrect language modals from being displayed on the
        * site.
        */
-      $modal_lang = $modal->langcode->value;
+      $modal_lang = $modal->get('langcode')->value;
       if ($modal_lang === $site_language) {
         $variables['modals'][$modal->id()] = [
-          "name" => $modal->field_modal_id->value,
-          "id" => $modal->field_modal[0]->getValue(),
+          "name" => $modal->get('field_modal_id')->value,
+          "id" => $modal->get('field_modal')[0]->getValue(),
         ];
       }
     }
@@ -410,8 +374,9 @@ function usa_twig_vars_theme_suggestions_paragraph_alter(array &$suggestions, ar
     $config_pages = \Drupal::entityTypeManager()->getStorage('config_pages')->loadByProperties(['type' => 'site_banner']);
     foreach ($config_pages as $config_page) {
       // Check all alert paragraphs in the field.
-      if (!$config_page->field_alert->isEmpty()) {
-        foreach ($config_page->field_alert as $alert_item) {
+      if ($config_page->hasField('field_alert') && !$config_page->get('field_alert')->isEmpty()) {
+        $alert_field = $config_page->get('field_alert');
+        foreach ($alert_field as $alert_item) {
           if ($alert_item->entity && $alert_item->entity->id() == $paragraph->id()) {
             // This paragraph is used in a config_pages site banner, so use the custom template.
             $suggestions[] = 'paragraph__uswds_alert__config_pages_site_banner';

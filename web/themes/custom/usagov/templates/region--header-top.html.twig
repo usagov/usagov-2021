@@ -28,20 +28,6 @@
       {% endfor %}
     {% endif %}
 
-    {# Check if there are any site_banners #}
-    {% if site_banners %}
-      {% for site_banner_id in site_banners %}
-        {# If the current `site_banner` has the checkbox checked, it adds it to the `header_top` region. #}
-        {% if site_banner_id %}
-          {% if site_banner_id starts with 'config_page_' %}
-            {# Config page banners are already rendered above #}
-          {% else %}
-            {{ drupal_entity('block_content', site_banner_id) }}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
-    {% endif %}
-
     {% for modal_id, modal_data in modals %}
       {% if modal_id %}
         {{ attach_library('usagov/modal') }}
