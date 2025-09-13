@@ -38,9 +38,6 @@ class RequestPrepareSubscriber implements EventSubscriberInterface {
     $menuStorage = $this->entity_type_manager->getStorage('menu');
     $menuStorage->resetCache();
 
-    $blockVisibilityStorage = $this->entity_type_manager->getStorage('block_visibility_group');
-    $blockVisibilityStorage->resetCache();
-
     $this->currentRouteMatch->resetRouteMatch();
   }
 
