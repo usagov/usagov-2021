@@ -22,7 +22,6 @@
         "drupal/admin_toolbar": "^3.5",
         "drupal/allowed_formats": "^3.0",
         "drupal/autologout": "^2.0",
-        "drupal/block_visibility_groups": "^2.0",
         "drupal/ckeditor_media_resize": "^1.0@beta",
         "drupal/composer_deploy": "^1.7",
         "drupal/conditional_fields": "^4.0@alpha",
