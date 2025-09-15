@@ -98,6 +98,9 @@ ul.navigation__items {
 .usagov-mobile-menu .usa-nav__secondary-links {
   margin: 1rem;
   display: block;
+  &[data-visibility="hidden"] {
+    display: none;
+  }
 }
 
 .usa-header--extended button.usa-menu-btn {
@@ -157,5 +160,17 @@ ul.navigation__items {
     width: auto;
     right: 60px;
     top: 4px;
+  }
+}
+
+// Blog instruction text in mobile menu
+.blog-instruction-mobile {
+  background-color: color('blue-5');
+  border-top: 1px solid color('blue-30');
+  
+  p {
+    color: color('blue-80v');
+    margin-bottom: 0;
+    text-align: center;
   }
 }

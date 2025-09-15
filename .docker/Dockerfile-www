@@ -1,6 +1,6 @@
 
 ###############################################################
-FROM alpine:3.20 AS www
+FROM alpine:3.22 AS www
 
 ARG S6_VERSION
 ENV S6_VERSION=${S6_VERSION:-v2.2.0.3}
@@ -100,20 +100,21 @@ RUN if pgrep nginx; then pkill nginx; fi
 RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
 RUN apk del nginx nginx-mod-http-lua || true
 RUN cd /tmp/ \
-    && git clone --branch v0.10.26 https://github.com/openresty/lua-nginx-module.git \
+    && git clone --branch v0.10.28 https://github.com/openresty/lua-nginx-module.git \
     && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
     && tar -xzvf v0.3.1.tar.gz \
     && mv ngx_devel_kit-0.3.1 ngx_devel_kit \
-    && wget https://nginx.org/download/nginx-1.27.4.tar.gz \
-    && NGCHECKSUM="3785797d3c8f96b930c11a445c68ce88b584af9645f41b8929a779ef1507b74831fa91e9144f3a56599737517cbf1864954d91e312d12cc59e23e4db72c2c716 *nginx-1.27.4.tar.gz" \
-    && if [ "$(openssl sha512 -r nginx-1.27.4.tar.gz)" = "$NGCHECKSUM" ]; then \
+    && wget https://nginx.org/download/nginx-1.28.0.tar.gz \
+    && NGCHECKSUM="07d1ef078a73009c2aff0a5729a57f58f26512b71377715ef72cecdb249ef2ff69dd44df3d755a1de2a2721ee604e8a6cfac30a4cf8a45f0890b1746b68ee4d5 *nginx-1.28.0.tar.gz" \
+    && openssl sha512 -r nginx-1.28.0.tar.gz \
+    && if [ "$(openssl sha512 -r nginx-1.28.0.tar.gz)" = "$NGCHECKSUM" ]; then \
         echo "nginx tarball checksum verification succeeded!"; \
     else \
         echo "nginx tarball checksum verification failed!"; \
         exit 1; \
     fi \
-    && tar -xzvf nginx-1.27.4.tar.gz \
-    && cd nginx-1.27.4 \
+    && tar -xzvf nginx-1.28.0.tar.gz \
+    && cd nginx-1.28.0 \
     && ./configure \
         --prefix=/var/lib/nginx \
         --sbin-path=/usr/sbin/nginx \
@@ -130,7 +131,7 @@ RUN cd /tmp/ \
     && make
 RUN rm /etc/nginx/modules/10_devel_kit.conf || true
 RUN rm /etc/nginx/modules/30_http_lua.conf || true
-RUN cd /tmp/nginx-1.27.4 \
+RUN cd /tmp/nginx-1.28.0 \
     && make install
 
 EXPOSE 80

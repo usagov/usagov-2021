@@ -1,5 +1,15 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
 ignore:
   SNYK-DEBIAN12-ZLIB-6008963:
     - '*':
         reason: "We have update Dockerfile-WAF to force-remove the old version of zlib after compiling the new one from source. But Snyk does not know this. See comments in USAGOV-2242 for more details."
+        expires: '2025-12-31T00:00:00.000Z'
+  SNYK-JS-MOCHA-2863123:
+    - "@ckeditor/ckeditor5-dev-utils" :
+        reason: "yarn.lock shows mocha 7.2.0 as a dependency, but the regex called out by this vulnerability does not appear anywhere in the javascript built and deployed with this module."
+        expires: '2025-12-31T00:00:00.000Z'
+  SNYK-JS-CROSSSPAWN-8303230:
+    - "eslint@8.57.1":
+        reason: "This eslint script is never executed by our application. It only exists because it comes with a contrib module."
         expires: '2025-12-31T00:00:00.000Z'

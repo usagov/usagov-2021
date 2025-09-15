@@ -85,6 +85,7 @@ module:
   system: 0
   taxonomy: 0
   telephone: 0
+  term_condition: 0
   text: 0
   token: 0
   tome_base: 0
@@ -103,6 +104,7 @@ module:
   usagov_benefit_finder_api: 0
   usagov_benefit_finder_content: 0
   usagov_benefit_finder_page: 0
+  usagov_blog_date_menu: 0
   usagov_ckeditor5_source_editing_fixup: 0
   usagov_directories: 0
   usagov_login: 0

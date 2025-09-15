@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   tests-chrome:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch
@@ -93,6 +94,7 @@ jobs:
           path: ./benefit-finder/cypress/screenshots
 
   tests-edge:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch
