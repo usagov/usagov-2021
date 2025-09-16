@@ -65,9 +65,19 @@ touch $TOMELOG
 # Tome is failing to pull in these assets so we will pull them in ourself
 echo "Add in any extra or missing files ... "
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+
 cp -rfp /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+
+# --- USAGOV-2515: Replace spaces in filenames with '+' for S3/CloudFront compatibility ---
+echo "Renaming files in $RENDER_DIR/s3/files to replace spaces with '+' ..."
+find "$RENDER_DIR/s3/files" -depth -name "* *" | while IFS= read -r file; do
+  newfile="${file// /+}"
+  if [ "$file" != "$newfile" ]; then
+    mv "$file" "$newfile"
+  fi
+done
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
 cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
