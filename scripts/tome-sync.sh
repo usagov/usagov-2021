@@ -70,6 +70,13 @@ cp -rfp /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usago
 cp -rfp /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 
+# --- USAGOV-2515: Copy Drupal image styles to static output ---
+if [ -d /var/www/web/sites/default/files/styles ]; then
+  echo "Copying Drupal image styles to static output ..."
+  mkdir -p "$RENDER_DIR/s3/files/"
+  cp -rfp /var/www/web/sites/default/files/styles "$RENDER_DIR/s3/files/styles" 2>&1 | tee -a $TOMELOG
+fi
+
 # --- USAGOV-2515: Replace spaces in filenames with '+' for S3/CloudFront compatibility ---
 echo "Renaming files in $RENDER_DIR/s3/files to replace spaces with '+' ..."
 find "$RENDER_DIR/s3/files" -depth -name "* *" | while IFS= read -r file; do
