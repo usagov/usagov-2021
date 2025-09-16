@@ -79,12 +79,20 @@ fi
 
 # --- USAGOV-2515: Replace spaces in filenames with '+' for S3/CloudFront compatibility ---
 echo "Renaming files in $RENDER_DIR/s3/files to replace spaces with '+' ..."
+RENAME_ERRORS=0
 find "$RENDER_DIR/s3/files" -depth -name "* *" | while IFS= read -r file; do
   newfile="${file// /+}"
   if [ "$file" != "$newfile" ]; then
-    mv "$file" "$newfile"
+    if ! mv "$file" "$newfile" 2>>/var/www/tome-sync-debug.log; then
+      echo "[ERROR] Failed to rename: $file -> $newfile" >> /var/www/tome-sync-debug.log
+      RENAME_ERRORS=1
+    fi
   fi
 done
+# After renaming, print a message if there were no errors
+if [ ! -f /var/www/tome-sync-debug.log ] || ! grep -q '\[ERROR\]' /var/www/tome-sync-debug.log; then
+  echo "No errors: All files renamed successfully (or no files needed renaming)." > /var/www/tome-sync-debug.log
+fi
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
 cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
