@@ -4,7 +4,6 @@
 #
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-
 # Optional includes: we might be running in circleci, or a local dev machine
 for f in /home/circleci/project/env.local $SCRIPT_DIR/env.local ./env.local; do
   if [ -f $f ]; then
@@ -37,6 +36,8 @@ assertCurSpace $APP_SPACE
 shift
 
 APP_ORG=getOrg
+
+export APP_NAME="cms"
 
 CTAG=${1:-latest}
 CDIGEST=${2:-}
@@ -115,15 +116,15 @@ function setupRoutes { #appname
     exit 1
   fi
 
-  createRoute apps.internal cms-$APP_SPACE-usagov
-  mapRoute $app apps.internal cms-$APP_SPACE-usagov
-  
+  createRoute apps.internal ${app}-$APP_SPACE-usagov
+  mapRoute $app apps.internal ${app}-$APP_SPACE-usagov
+
   if [ "$APP_SPACE" == "prod" ]; then
-     createRoute usa.gov cms
-     mapRoute $app usa.gov cms
+     createRoute usa.gov $app
+     mapRoute $app usa.gov $app
   else
-    createRoute usa.gov cms-$APP_SPACE
-    mapRoute $app usa.gov cms-$APP_SPACE
+    createRoute usa.gov ${app}-$APP_SPACE
+    mapRoute $app usa.gov ${app}-$APP_SPACE
   fi
 }
 
@@ -149,40 +150,42 @@ function setupEgress { #appname
 }
 
 function setUSPSCreds {
-  cfSetEnv cms USPS_API_ENV $USPS_API_ENV
-  cfSetEnv cms USPS_USERID $USPS_USERID
-  cfSetEnv cms USPS_PASSWORD $USPS_PASSWORD
+  app=$1
+  cfSetEnv $app USPS_API_ENV $USPS_API_ENV
+  cfSetEnv $app USPS_USERID $USPS_USERID
+  cfSetEnv $app USPS_PASSWORD $USPS_PASSWORD
 }
 
 function setCallCenterEWTBucket {
-  cfSetEnv cms CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
+  app=$1
+  cfSetEnv $app CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
 }
 
-if existsCFApp cms; then
-  setupRoutes cms
-  setupEgress cms
-  setUSPSCreds
-  setCallCenterEWTBucket
+if existsCFApp $APP_NAME; then
+  setupRoutes $APP_NAME
+  setupEgress $APP_NAME
+  setUSPSCreds $APP_NAME
+  setCallCenterEWTBucket $APP_NAME
   if existsCFService "cache-service"; then
-      bindServiceToApp cms cache-service
+      bindServiceToApp $APP_NAME cache-service
   fi
   if existsCFService "s3forAnalyticsReporter"; then
-      bindServiceToApp cms s3forAnalyticsReporter
+      bindServiceToApp $APP_NAME s3forAnalyticsReporter
   fi
-  pushApp cms
+  pushApp $APP_NAME
 else
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
-  pushApp cms
-  setupRoutes cms
-  setupEgress cms
+  cf set-env $APP_NAME SKIP_DRUPAL_BOOTSTRAP "skip"
+  pushApp $APP_NAME
+  setupRoutes $APP_NAME
+  setupEgress $APP_NAME
   if existsCFService "cache-service"; then
-      bindServiceToApp cms cache-service
+      bindServiceToApp $APP_NAME cache-service
   fi
   if existsCFService "s3forAnalyticsReporter"; then
-      bindServiceToApp cms s3forAnalyticsReporter
+      bindServiceToApp $APP_NAME s3forAnalyticsReporter
   fi
-  setUSPSCreds
-  setCallCenterEWTBucket
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
-  restartApp cms
+  setUSPSCreds $APP_NAME
+  setCallCenterEWTBucket $APP_NAME
+  cfSetEnv $APP_NAME SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp $APP_NAME
 fi

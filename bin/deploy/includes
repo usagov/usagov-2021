@@ -412,3 +412,18 @@ function cfSetEnv {
   fi
   return $RETVAL
 }
+
+function cfUnSetEnv {
+  app=$1
+  var=$2
+  RETVAL=0
+  if [ -n "$var" ] && [ -n "$app" ]; then
+    echo cf unset-env $app $var
+    $echo cf unset-env $app $var
+    RETVAL=$?
+  else
+    echo "NOTICE: cf unset-env requires app and var to be set"
+    echo "Values are app: [$app], var: [$var]"
+  fi
+  return $RETVAL
+}

@@ -1,91 +1,127 @@
 #!/usr/bin/env bash
-
+#
 # Deploy services and app for cron app.  Service creation should be idempotent.
+#
 
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
-SCRIPT_DIR="$(dirname "$0")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
-fi
-if [ -f $SCRIPT_DIR/../deploy/includes ]; then
-  . $SCRIPT_DIR/../deploy/includes
-else
-   echo Cannot find $SCRIPT_DIR/../deploy/includes
-   exit 1
-fi
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# Optional includes: we might be running in circleci, or a local dev machine
+for f in /home/circleci/project/env.local $SCRIPT_DIR/env.local ./env.local; do
+  if [ -f $f ]; then
+    . $f
+  fi
+done
+
+# Mandatory includes:
+for inc in $SCRIPT_DIR/../bin/deploy/includes; do
+  if [ ! -f $inc ]; then
+    echo "Cannot find $inc"
+    exit 1
+  fi
+  . $inc
+done
 
 # just testing?
 if [ x$1 = x"--dryrun" ]; then
-  export echo=echo
+  echo=echo
+  dryrun=$1
   shift
 fi
-
-SPACE=${1:-please-provide-space-name-as-first-argument}
-SPACE=$(echo "$SPACE" | tr '[:upper:]' '[:lower:]')
-assertCurSpace $SPACE
-shift
-ORG=$(getOrg)
-CF_EGRESS_SPACE=${CF_EGRESS_SPACE:-shared-egress}
-CF_EGRESS_ORG=${CF_EGRESS_ORG:-$ORG}
-STAG=${1:-latest}
-SDIGEST=${2:-}
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
-export APPNAME="cron"
-export APPINSTANCES=1
+APP_SPACE=${1:-please-provide-space-name-as-first-argument}
+APP_SPACE=$(echo "$APP_SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $APP_SPACE
+shift
 
-if [ -z "$SDIGEST" ]; then
-  echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}-${STAG}"
-  APPSPEC="${DOCKERUSER}/${DOCKERREPO}:${APPNAME}-${STAG}"
+APP_ORG=getOrg
+
+export APP_NAME="cron"
+export APP_INSTANCES=1
+
+CTAG=${1:-latest}
+CDIGEST=${2:-}
+
+if [ -z "$CDIGEST" ]; then
+  echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}:${APP_NAME}-${CTAG}"
+  APPSPEC="${DOCKERUSER}/${DOCKERREPO}:${APP_NAME}-${CTAG}"
 else
-  echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}${SDIGEST}"
-  APPSPEC="${DOCKERUSER}/${DOCKERREPO}${SDIGEST}"
+  echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}"
+  APPSPEC="${DOCKERUSER}/${DOCKERREPO}${CDIGEST}"
 fi
 
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APPNAME}"
-
-if existsCFService ${APPNAME}-service-account; then
-  echo "User service ${APPNAME}-service-account already exists - good!"
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${APP_NAME}"
+if existsCFService ${APP_NAME}-service-account; then
+  echo "User service ${APP_NAME}-service-account already exists - good!"
 else
-  $SCRIPT_DIR/create-service-account $SPACE $APPNAME
+  echo  $SCRIPT_DIR/create-service-account $APP_SPACE $APP_NAME
+  $echo $SCRIPT_DIR/create-service-account $APP_SPACE $APP_NAME
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    echo "ERROR: '$SCRIPT_DIR/create-service-account $APP_SPACE $APP_NAME' failed ($retval)"
+    exit $retval
+  fi
 fi
 
 if existsCFService cfevent-service-account; then
   echo "User service cfevent-service-account already exists - good!"
 else
-  $SCRIPT_DIR/create-service-account $SPACE cfevent
+  echo  $SCRIPT_DIR/create-service-account $APP_SPACE cfevent
+  $echo $SCRIPT_DIR/create-service-account $APP_SPACE cfevent
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    echo "ERROR: '$SCRIPT_DIR/create-service-account $APP_SPACE cfevent' failed ($retval)"
+    exit $retval
+  fi
 fi
 
 if existsCFService callcenter-service-account; then
   echo "User service callcenter-service-account already exists - good!"
 else
-  $SCRIPT_DIR/create-service-account $SPACE callcenter
+  echo  $SCRIPT_DIR/create-service-account $APP_SPACE callcenter
+  $echo $SCRIPT_DIR/create-service-account $APP_SPACE callcenter
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    echo "ERROR: '$SCRIPT_DIR/create-service-account $APP_SPACE callcenter' failed ($retval)"
+    exit $retval
+  fi
 fi
 
-STATE_STORAGE_SERVICE=${APPNAME}-state-storage
-EVENT_STORAGE_SERVICE=${APPNAME}-event-storage
-CALLWAIT_STORAGE_SERVICE=${APPNAME}-callwait-storage
+STATE_STORAGE_SERVICE=${APP_NAME}-state-storage
+EVENT_STORAGE_SERVICE=${APP_NAME}-event-storage
+CALLWAIT_STORAGE_SERVICE=${APP_NAME}-callwait-storage
 for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_STORAGE_SERVICE; do
   echo "Configuring $storage_service"
   if existsCFService $storage_service &> /dev/null; then
-    echo "$storage_service already created"
+    echo "$storage_service already created - good!"
   else
     if [ $storage_service = $CALLWAIT_STORAGE_SERVICE ]; then
-      cf create-service s3 basic-public $storage_service
-      source bin/cloudgov/get-s3-access $storage_service
-      aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
+      echo  cf create-service s3 basic-public $storage_service
+      $echo cf create-service s3 basic-public $storage_service
+      retval=$?
+      if [ $retval -eq 0 ]; then
+        source bin/cloudgov/get-s3-access $storage_service
+        echo  aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
+        $echo aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
+        retval=$?
+        if [ $retval -ne 0 ]; then
+          echo "ERROR: 'aws s3api put-bucket-cors ...' failed ($retval)"
+          exit $retval
+        fi
+      else
+        echo "ERROR: 'cf create-service s3 basic-public $storage_service' failed ($retval)"
+        exit $retval
+      fi
     else
-      cf create-service s3 basic $storage_service
+      echo  cf create-service s3 basic $storage_service
+      $echo cf create-service s3 basic $storage_service
+      retval=$?
+      if [ $retval -ne 0 ]; then
+        echo "ERROR: 'cf create-service s3 basic $storage_service' failed ($retval)"
+        exit $retval
+      fi
     fi
     if existsCFService $storage_service &> /dev/null; then
       echo "$storage_service successfully created"
@@ -100,23 +136,48 @@ function cf_push() {
   appspec=$1
   instances=${2:-1} ### Always spawn a single app instance unless told otherwise
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} --docker-image ${appspec} --strategy rolling
+    echo  cf push ${APP_NAME} --docker-image ${appspec} --strategy rolling
+    $echo cf push ${APP_NAME} --docker-image ${appspec} --strategy rolling
+    retval=$?
+    if [ $retval -ne 0 ]; then
+      echo "ERROR: 'cf push ${APP_NAME} --docker-image ${appspec} --strategy rolling' failed ($retval)"
+      exit $retval
+    fi
   else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME --strategy rolling
-  fi
+    export CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN
+    echo  cf push ${APP_NAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+    $echo cf push ${APP_NAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+    retval=$?
+    unset CF_DOCKER_PASSWORD
+    if [ $retval -ne 0 ]; then
+      echo "ERROR: 'cf push ${APP_NAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME --strategy rolling' failed ($retval)"
+      exit $retval
+    fi
 }
 
-if existsCFApp ${APPNAME} ; then
-  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+if existsCFApp ${APP_NAME} ; then
+  $SCRIPT_DIR/setup-egress-for-apps ${APP_NAME} --no-restart
   retval=$?
   if [ $retval != 0 ]; then
-    echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
+    echo "ERROR: '$SCRIPT_DIR/setup-egress-for-apps ${APP_NAME} --no-restart' has failed.  Check output stream!"
     exit 1
   fi
-  cf_push $APPSPEC $APPINSTANCES
+  cf_push $APPSPEC $APP_INSTANCES
+  retval=$?
+  if [ $retval != 0 ]; then ## Should retval be set above here?
+    echo "ERROR: 'cf_push $APPSPEC $APP_INSTANCES' has failed.  Check output stream!"
+    exit 1
+  fi
 else
-  cf_push $APPSPEC $APPINSTANCES
-  $SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+  cf_push $APPSPEC $APP_INSTANCES
+  retval=$?
+  if [ $retval != 0 ]; then ## Should retval be set above here?
+    echo "ERROR: 'cf_push $APPSPEC $APP_INSTANCES' has failed.  Check output stream!"
+    exit 1
+  fi
+
+  echo  $SCRIPT_DIR/setup-egress-for-apps ${APP_NAME} --no-restart
+  $echo $SCRIPT_DIR/setup-egress-for-apps ${APP_NAME} --no-restart
   retval=$?
   if [ $retval != 0 ]; then ## Should retval be set above here?
     echo "ERROR: setup-egress-for-apps has failed.  Check output stream!"
@@ -125,20 +186,26 @@ else
 fi
 
 ### Setting up network policy so that cron app can talk to cms directly
-cf add-network-policy cron cms --protocol tcp --port 80
+echo  cf add-network-policy cron cms --protocol tcp --port 80
+$echo cf add-network-policy cron cms --protocol tcp --port 80
+retval=$?
+if [ $retval != 0 ]; then
+  echo "ERROR: cf add-network-policy cron cms --protocol tcp --port 80 has failed ($retval).  Check output stream!"
+  exit 1
+fi
 
 ### These are set for some reason - unset them at deployment
-cf unset-env $APPNAME HTTP_PROXY
-cf unset-env $APPNAME HTTPS_PROXY
-cf unset-env $APPNAME http_proxy
-cf unset-env $APPNAME https_proxy
+cfUnSetEnv $APP_NAME HTTP_PROXY
+cfUnSetEnv $APP_NAME HTTPS_PROXY
+cfUnSetEnv $APP_NAME http_proxy
+cfUnSetEnv $APP_NAME https_proxy
 
 ### Call center env (should we move this to a user-provided credentials service?)
-cf set-env $APPNAME CALL_CENTER_CLIENT_ID $CALL_CENTER_CLIENT_ID
-cf set-env $APPNAME CALL_CENTER_CLIENT_SECRET $CALL_CENTER_CLIENT_SECRET
-cf set-env $APPNAME CALL_CENTER_ENVIRONMENT $CALL_CENTER_ENVIRONMENT
-cf set-env $APPNAME CALL_CENTER_EN_QUEUE_ID $CALL_CENTER_EN_QUEUE_ID
-cf set-env $APPNAME CALL_CENTER_SP_QUEUE_ID $CALL_CENTER_SP_QUEUE_ID
+cfSetEnv $APP_NAME CALL_CENTER_CLIENT_ID $CALL_CENTER_CLIENT_ID
+cfSetEnv $APP_NAME CALL_CENTER_CLIENT_SECRET $CALL_CENTER_CLIENT_SECRET
+cfSetEnv $APP_NAME CALL_CENTER_ENVIRONMENT $CALL_CENTER_ENVIRONMENT
+cfSetEnv $APP_NAME CALL_CENTER_EN_QUEUE_ID $CALL_CENTER_EN_QUEUE_ID
+cfSetEnv $APP_NAME CALL_CENTER_SP_QUEUE_ID $CALL_CENTER_SP_QUEUE_ID
 
 ### Syncing lightweight cron key
 echo "Updating lightweight cron key"
@@ -146,18 +213,35 @@ if existsCFService "secrets" ; then
   echo "secrets already created: updating"
   SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
   CRON_KEY=$(echo $SECRETS | jq -r '.CRON_KEY')
+  if [ -z "$CRON_KEY" ] || [ "$CRON_KEY" = "null" ]; then
+    echo "ERROR: cannot find CRON_KEY in secrets service"
+    exit 1
+  fi
 
+  retval=0
   if existsCFService "cron-secrets" ; then
-    yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+    if [ x$echo = x ]; then
+      echo "create-user-provided-service cron-secrets -p " "{\"CRON_KEY\": \"$CRON_KEY\"}"
+      yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+      retval=$?
+    else
+      echo "create-user-provided-service cron-secrets -p " "{\"CRON_KEY\": \"$CRON_KEY\"}"
   else
-    cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+    echo  cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+    $echo cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
+    retval=$?
+  fi
+  if [ $retval != 0 ]; then
+    echo "ERROR: cannot create or update cron-secrets service: ($retval)"
+    exit 1
   fi
 fi
 
 # Enable call center / cfevents  scripts on prod only. (We can manually update this in dev, etc. for testing)
-if [ $SPACE = "prod" ]; then
-    cf set-env $APPNAME CALL_CENTER_RUN "true"
-    cf set-env $APPNAME CFEVENT_RUN "true"
+if [ $APP_SPACE = "prod" ]; then
+    cfSetEnv $APP_NAME CALL_CENTER_RUN "true"
+    cfSetEnv $APP_NAME CFEVENT_RUN "true"
 fi
 
-cf restage $APPNAME --strategy rolling
+echo  cf restage $APP_NAME --strategy rolling
+$echo cf restage $APP_NAME --strategy rolling
