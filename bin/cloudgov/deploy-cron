@@ -163,8 +163,18 @@ fi
 if [ $SPACE = "prod" ]; then
     cf set-env $APPNAME CALL_CENTER_RUN "true"
     cf set-env $APPNAME CFEVENT_RUN "true"
+
     cf bind-service cms s3forAnalyticsReporter
     cf bind-service cron log-storage
+
+    if cf services | grep -q '^log-storage'; then
+      echo "log-storage is available in prod (shared already)"
+    else
+      echo "log-storage not found in prod, creating it now"
+      cf target -o gsa-tts-usagov -s tools
+      cf share-service log-storage -s prod
+      cf target -o gsa-tts-usagov -s prod
+    fi
 fi
 
 cf restage $APPNAME --strategy rolling
