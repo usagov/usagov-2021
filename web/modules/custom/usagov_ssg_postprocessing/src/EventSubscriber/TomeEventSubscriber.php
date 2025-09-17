@@ -171,11 +171,15 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       $srcset = $node->getAttribute('srcset');
       if (strpos($srcset, ' ') !== FALSE) {
         // srcset can be multiple URLs, e.g. "img1.png 1x, img2.png 2x"
-        $new_srcset = preg_replace_callback('/([^,]+)( [0-9]+[wx])?/', function($matches) {
-          $url = $matches[1];
-          $rest = isset($matches[2]) ? $matches[2] : '';
-          return str_replace(' ', '+', $url) . $rest;
-        }, $srcset);
+        $new_srcset = preg_replace_callback(
+          '/([^,]+)( [0-9]+[wx])?/',
+          function ($matches) {
+            $url = $matches[1];
+            $rest = $matches[2] ?? '';
+            return str_replace(' ', '+', $url) . $rest;
+          },
+          $srcset
+        );
         $node->setAttribute('srcset', $new_srcset);
         $changes = TRUE;
       }
@@ -212,7 +216,12 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     if ($changes) {
       // Render it as HTML5:
       $modifiedHtml = $html5->saveHTML($document);
-      $modifiedHtml = str_replace('xmlns:xlink="http://www.w3.org/1999/xlink"', '', $modifiedHtml); // QuickFix for USAGOV-2312. We want to remove this meta-data.
+      // QuickFix for USAGOV-2312. We want to remove this meta-data.
+      $modifiedHtml = str_replace(
+        'xmlns:xlink="http://www.w3.org/1999/xlink"',
+        '',
+        $modifiedHtml
+      );
       $event->setHtml($modifiedHtml);
     }
   }
