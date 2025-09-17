@@ -112,6 +112,19 @@
           {{ drupal_region('top_nav_mobile') }}
         </div>
       </div>
+
+      {# Blog instruction text for mobile - only show on blog pages #}
+      {% set content_type = "" %}
+      {% if node.type.0 != null %}
+        {% set content_type = node.type.0.target_id %}
+      {% endif %}
+      {% set current_path = path('<current>') %}
+      {% set is_blog_view = '/blog' in current_path %}
+      {% if is_blog_view or content_type == 'blog_post' %}
+        <div class="blog-instruction-mobile">
+          <p class="margin-x-2 margin-y-1 text-base font-sans-xs">Select year and/or month to see the blog entries from the selected year/month.</p>
+        </div>
+      {% endif %}
     </div>
 
     {% block mobile_nav %}
