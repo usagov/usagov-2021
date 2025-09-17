@@ -163,6 +163,8 @@ fi
 if [ $SPACE = "prod" ]; then
     cf set-env $APPNAME CALL_CENTER_RUN "true"
     cf set-env $APPNAME CFEVENT_RUN "true"
+    cf bind-service cms s3forAnalyticsReporter
+    cf bind-service cron log-storage
 fi
 
 cf restage $APPNAME --strategy rolling
