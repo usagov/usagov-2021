@@ -165,7 +165,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
           $node->setAttribute('src', $new_src);
           $changes = TRUE;
           file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] Replaced src: ' . $src . ' -> ' . $new_src . "\n", FILE_APPEND);
-        } else {
+        }
+        else {
           file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] No change src: ' . $src . "\n", FILE_APPEND);
         }
       }
