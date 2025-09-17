@@ -158,30 +158,35 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     // img[src], source[src], and any srcset attributes
     $img_nodes = $xpath->query('//*[@src]');
     foreach ($img_nodes as $node) {
-      $src = $node->getAttribute('src');
-      if (strpos($src, ' ') !== FALSE) {
-        $new_src = str_replace(' ', '+', $src);
-        $node->setAttribute('src', $new_src);
-        $changes = TRUE;
+      if ($node instanceof \DOMElement) {
+        $src = $node->getAttribute('src');
+        if (strpos($src, ' ') !== FALSE || strpos($src, '%20') !== FALSE) {
+          $new_src = str_replace([' ', '%20'], '+', $src);
+          $node->setAttribute('src', $new_src);
+          $changes = TRUE;
+        }
       }
     }
     // srcset attributes (img, source, etc)
     $srcset_nodes = $xpath->query('//*[@srcset]');
     foreach ($srcset_nodes as $node) {
-      $srcset = $node->getAttribute('srcset');
-      if (strpos($srcset, ' ') !== FALSE) {
-        // srcset can be multiple URLs, e.g. "img1.png 1x, img2.png 2x"
-        $new_srcset = preg_replace_callback(
-          '/([^,]+)( [0-9]+[wx])?/',
-          function ($matches) {
-            $url = $matches[1];
-            $rest = $matches[2] ?? '';
-            return str_replace(' ', '+', $url) . $rest;
-          },
-          $srcset
-        );
-        $node->setAttribute('srcset', $new_srcset);
-        $changes = TRUE;
+      if ($node instanceof \DOMElement) {
+        $srcset = $node->getAttribute('srcset');
+        if (strpos($srcset, ' ') !== FALSE || strpos($srcset, '%20') !== FALSE) {
+          // srcset can be multiple URLs, e.g. "img1.png 1x, img2.png 2x"
+          $new_srcset = preg_replace_callback(
+            '/([^,]+)( [0-9]+[wx])?/',
+            function ($matches) {
+              $url = $matches[1];
+              $rest = $matches[2] ?? '';
+              $url = str_replace([' ', '%20'], '+', $url);
+              return $url . $rest;
+            },
+            $srcset
+          );
+          $node->setAttribute('srcset', $new_srcset);
+          $changes = TRUE;
+        }
       }
     }
 
