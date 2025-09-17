@@ -195,7 +195,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
           );
           $node->setAttribute('srcset', $new_srcset);
           $changes = TRUE;
-        } else {
+        }
+        else {
           file_put_contents('/tmp/tome-img-path-debug.log', '[SRCSET] No change srcset: ' . $srcset . "\n", FILE_APPEND);
         }
       }
