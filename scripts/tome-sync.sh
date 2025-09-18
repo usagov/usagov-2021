@@ -95,7 +95,7 @@ find "$RENDER_DIR/s3/files" -depth \( -name "* *" -o -name "*%20*" \) | while IF
 done
 # After renaming, print a message if there were no errors
 if [ ! -f /var/www/tome-sync-debug.log ] || ! grep -q '\[ERROR\]' /var/www/tome-sync-debug.log; then
-  echo "No errors: All files renamed successfully (or no files needed renaming)." > /var/www/tome-sync-debug.log
+  echo "No errors: All files renamed successfully (or no files needed renaming)." >> /var/www/tome-sync-debug.log
 fi
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
