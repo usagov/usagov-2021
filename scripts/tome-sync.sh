@@ -80,12 +80,15 @@ fi
 # --- USAGOV-2515: Replace spaces and %20 in filenames with '+' for S3/CloudFront compatibility ---
 echo "Renaming files in $RENDER_DIR/s3/files to replace spaces and %20 with '+' ..."
 RENAME_ERRORS=0
+# Debug log file for renames
+RENAME_DEBUG_LOG=/var/www/tome-sync-debug.log
 find "$RENDER_DIR/s3/files" -depth \( -name "* *" -o -name "*%20*" \) | while IFS= read -r file; do
   newfile="${file// /+}"
   newfile="${newfile//%20/+}"
   if [ "$file" != "$newfile" ]; then
-    if ! mv "$file" "$newfile" 2>>/var/www/tome-sync-debug.log; then
-      echo "[ERROR] Failed to rename: $file -> $newfile" >> /var/www/tome-sync-debug.log
+    echo "[RENAME] $file -> $newfile" >> "$RENAME_DEBUG_LOG"
+    if ! mv "$file" "$newfile" 2>>"$RENAME_DEBUG_LOG"; then
+      echo "[ERROR] Failed to rename: $file -> $newfile" >> "$RENAME_DEBUG_LOG"
       RENAME_ERRORS=1
     fi
   fi
