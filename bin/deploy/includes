@@ -182,6 +182,19 @@ function existsCFService() { # desired service name
   fi
 }
 
+function existsCFServiceKey() { # desired service name
+  desiredService=$1
+  serviceKey=$2
+  if existsCFService $desiredService &> /dev/null; then
+    if ! cf service-key $desiredService $serviceKey &> /dev/null; then
+        echo "NOTICE: CF service '$desiredService' does not exist in the current CF space"
+        return 1; #false
+    fi
+  else
+    echo "NOTICE: CF service '$desiredService' does not exist in the current CF space"
+    return 1; #false
+}
+
 function bindCFService() {
   appname=${1}
   service=${2}
@@ -426,4 +439,18 @@ function cfUnSetEnv {
     echo "Values are app: [$app], var: [$var]"
   fi
   return $RETVAL
+}
+
+function getLatestSnapTag {
+  tag=""
+  space=$( cf target | grep space: | awk '{ print $2 }')
+  cf target -s prod > /dev/null 2>&1
+  ps=$( cf target | grep space: | awk '{ print $2 }')
+  if [ x$ps != xprod ]; then
+    echo "ERROR: Could not target prod space - attempting to target back to $space space."
+  else
+    tag=$(bin/snapshot-backups/public-snapshot-list prod | grep post-deploy | sort | tail -1)
+  fi
+  cf target -s $space > /dev/null 2>&1
+  echo "$tag"
 }

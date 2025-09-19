@@ -43,6 +43,8 @@ export APP_INSTANCES=1
 CTAG=${1:-latest}
 CDIGEST=${2:-}
 
+# The Image digest for this tag should be looked up from cloud.gov storage
+# Any tag with a stored Image digest should be referenced by hash instead of tag
 if [ -z "$CDIGEST" ]; then
   echo "AppSpec: ${DOCKERUSER}/${DOCKERREPO}:${APP_NAME}-${CTAG}"
   APPSPEC="${DOCKERUSER}/${DOCKERREPO}:${APP_NAME}-${CTAG}"

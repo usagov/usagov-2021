@@ -66,24 +66,34 @@ esac
 echo
 echo "Creating external domain services. Each of these could take awhile to come up."
 
-# Passing JSON to this command inline works on the command line, but not when it is
-# called from the shell (why?). So we create a file and pass that instead.
-tmpfile=$(mktemp)
-domainjson=`printf "{\"domains\": \"%s\"}" ${CMS_DOMAIN}`
-echo $domainjson > $tmpfile
-
-echo  cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tmpfile
-$echo cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tmpfile
-
-if [ ${WWW_DOMAIN_PLAN} = "domain" ]; then
-    domainjson=`printf "{\"domains\": \"%s\"}" ${WWW_DOMAIN}`
+if existsCFService ${SPACE}-cms-usagov-domain ; then
+    echo ${SPACE}-cms-usagov-domain already created - good!
 else
-    EMAIL_DISAMBIGUATOR="${SPACE}-${DOMAINPART}"
-    domainjson=`printf "{\"domains\": \"%s\", \"alarm_notification_email\": \"usagov-website-alerts+${EMAIL_DISAMBIGUATOR}@gsa.gov\"}" ${WWW_DOMAIN}`
-fi
-echo $domainjson > $tmpfile
-echo  cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
-$echo cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
+  # Passing JSON to this command inline works on the command line, but not when it is
+  # called from the shell (why?). So we create a file and pass that instead.
+  tmpfile=$(mktemp)
+  domainjson=`printf "{\"domains\": \"%s\"}" ${CMS_DOMAIN}`
+  echo $domainjson > $tmpfile
 
-rm $tmpfile
-# The above commands output a message saying how to check them, so we don't need to explain further.
+  echo  cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tmpfile
+  $echo cf create-service external-domain domain ${SPACE}-cms-usagov-domain -c $tmpfile
+
+  rm $tmpfile
+fi
+
+if existsCFService ${SPACE}-www-usagov-domain ; then
+    echo ${SPACE}-www-usagov-domain already created - good!
+else    
+  if [ ${WWW_DOMAIN_PLAN} = "domain" ]; then
+      domainjson=`printf "{\"domains\": \"%s\"}" ${WWW_DOMAIN}`
+  else
+      EMAIL_DISAMBIGUATOR="${SPACE}-${DOMAINPART}"
+      domainjson=`printf "{\"domains\": \"%s\", \"alarm_notification_email\": \"usagov-website-alerts+${EMAIL_DISAMBIGUATOR}@gsa.gov\"}" ${WWW_DOMAIN}`
+  fi
+  echo $domainjson > $tmpfile
+  echo  cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
+  $echo cf create-service external-domain domain-with-cdn ${SPACE}-www-usagov-domain -c $tmpfile
+
+  rm $tmpfile
+  # The above commands output a message saying how to check them, so we don't need to explain further.
+fi

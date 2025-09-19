@@ -72,15 +72,19 @@ CREATE_APP_SPACE=0
 # WE ARE IN AN ACTUAL DISASTER RECOVERY SITUATION
 CREATE_EGRESS_SPACE=0
 
-##############################################################
-# Snapshot tag for restoration of latest backup to DR space
-# CHANGE THE SNAPTAG TO THE LATEST PRODUCTION SNAPSHOT TAG!!
-export SNAPTAG=USAGOV-2424.prod.14197.post-deploy
-
 setVariables
 
 ### Check our current cloud foundry space for real, even if we're in dryrun mode
 assertCurSpace $APP_SPACE
+
+##############################################################
+# Snapshot (backup) tag to restore latest backup to DR space
+export SNAPTAG=$(getLatestSnapTag)
+if [[ $(echo $SNAPTAG | grep -c $CCI_BUILD_ID -) = 0 ]]; then
+  echo "WARNING: latest snapshot tag ($SNAPTAG) does not match latest build id ($CCI_BUILD_ID)"
+else
+  echo "INFO: latest snapshot tag ($SNAPTAG) matches latest build id ($CCI_BUILD_ID)"
+fi
 
 if [ $CREATE_APP_SPACE -ne 0 ]; then
   clearExistingBuckets

@@ -47,9 +47,6 @@ EGRESS_SPACE='shared-egress'
 #    EGRESS_SPACE='shared-egress-dr'
 #fi
 
-# The Image digest for this tag should be looked up from cloud.gov storage
-# Any tag with a stored Image digest should be referenced by hash instead of tag
-
 function restartApp { #appname
   app=$1
   if [ -z "$app" ]; then
@@ -76,6 +73,8 @@ function pushApp { #appname
     instances="-i 1"
   fi
 
+  # The Image digest for this tag should be looked up from cloud.gov storage
+  # Any tag with a stored Image digest should be referenced by hash instead of tag
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
