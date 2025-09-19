@@ -1,0 +1,6 @@
+services:
+  usagov_ssg_postprocessing.drush.static_image_sync:
+    class: 'Drupal\usagov_ssg_postprocessing\Drush\Commands\StaticImageSyncCommands'
+    arguments: ['@file_system']
+    tags:
+      - { name: drush.command }
