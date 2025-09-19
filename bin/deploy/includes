@@ -193,6 +193,7 @@ function existsCFServiceKey() { # desired service name
   else
     echo "NOTICE: CF service '$desiredService' does not exist in the current CF space"
     return 1; #false
+  fi
 }
 
 function bindCFService() {

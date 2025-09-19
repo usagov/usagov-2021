@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+function exitOnFailure {
+  retval=$1
+  if [ $retval -ne 0 ]; then
+    echo "ERROR: Command failed ($retval)"
+    exit 1
+  fi
+}
+
 function sanityPreamble {
   echo cf target -s $APP_SPACE
   $echo cf target -s $APP_SPACE &> /dev/null
@@ -18,6 +26,7 @@ function clearExistingBuckets {
   . bin/cloudgov/get-s3-access log-storage
   echo aws s3 rm --recursive s3://$S3_BUCKET/fluent-bit-logs/
   $echo aws s3 rm --recursive s3://$S3_BUCKET/fluent-bit-logs/
+  exitOnFailure $?
   $exit
 }
 
@@ -25,6 +34,7 @@ function deleteExistingAppSpace {
   sanityPreamble
   echo  cf delete-space $APP_SPACE
   while [ 1 = 1 ]; do $echo cf delete-space $APP_SPACE; sleep 10; done
+  exitOnFailure $?
   $exit
 }
 
@@ -74,6 +84,7 @@ function deployServices {
   sanityPreamble
   echo bin/cloudgov/deploy-services PIPE tee ds.log
   $echo bin/cloudgov/deploy-services | tee ds.log
+  exitOnFailure $?
   $exit
 }
 
@@ -102,6 +113,7 @@ function createCCIServiceAccount {
   sanityPreamble
   echo  bin/cloudgov/create-service-account $APP_SPACE cci PIPE tee csa.log
   $echo bin/cloudgov/create-service-account $APP_SPACE cci | tee csa.log
+  exitOnFailure $?
   $exit
 }
 
@@ -109,6 +121,7 @@ function createCFEventsServiceAccount {
   sanityPreamble
   echo  bin/cloudgov/create-service-account $APP_SPACE cfevents PIPE tee csa.log
   $echo bin/cloudgov/create-service-account $APP_SPACE cfevents | tee csa.log
+  exitOnFailure $?
   $exit
 }
 
@@ -129,6 +142,7 @@ function setCCIUserRoles {
   $echo cf set-space-role $SERVICE_USER $ORG $APP_SPACE SpaceDeveloper
   $echo cf target -s $APP_SPACE  &> /dev/null
   $echo assertCurSpace $APP_SPACE
+  exitOnFailure $?
   $exit
 }
 
@@ -138,12 +152,18 @@ function createDomainService {
   # then deploy the log-shipper, then check status.
   #
   sanityPreamble
-  echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
-  $echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
-  # TODO: this does not create an external domain for the api-proxy.
-  if [ x$echo = x ]; then
-    echo "Checking domain status every 10 seconds.  Hit Ctrl-C when you see success"
-    while [ 1 = 1 ]; do cf service ${APP_SPACE}-cms-usagov-domain; sleep 10; done
+
+  if existsCFService ${APP_SPACE}-cms-usagov-domain ; then
+    echo "${APP_SPACE}-cms-usagov-domain service already exists - good!"
+  else 
+    echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
+    $echo bin/cloudgov/create-domain-services-for-space $APP_SPACE
+    exitOnFailure $?
+    # TODO: this does not create an external domain for the api-proxy.
+    if [ x$echo = x ]; then
+      echo "Checking domain status every 10 seconds.  Hit Ctrl-C when you see success"
+      while [ 1 = 1 ]; do cf service ${APP_SPACE}-cms-usagov-domain; sleep 10; done
+    fi
   fi
   $exit
 }
@@ -153,8 +173,18 @@ function createDomainService {
 #
 function deployCMSApp {
   sanityPreamble
-  echo bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
-  $echo bin/cloudgov/deploy-cms $CCI_BUILD_ID $CMS_DIGEST
+  echo bin/cloudgov/deploy-cms $APP_SPACE $CCI_BUILD_ID $CMS_DIGEST
+  $echo bin/cloudgov/deploy-cms $APP_SPACE $CCI_BUILD_ID $CMS_DIGEST
+  echo "If this is the first time deploying the cms app to this space and you see an error regarding routes in other spaces, please run this command again."
+  exitOnFailure $?
+  $exit
+}
+
+function deployCronApp {
+  sanityPreamble
+  echo bin/cloudgov/deploy-cron $APP_SPACE $CRON_BUILD $CRON_DIGEST
+  $echo bin/cloudgov/deploy-cron $APP_SPACE $CRON_BUILD $CRON_DIGEST
+  exitOnFailure $?
   $exit
 }
 
@@ -162,6 +192,7 @@ function deployWWWApp {
   sanityPreamble
   echo bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
   $echo bin/cloudgov/deploy-www $CCI_BUILD_ID $WWW_DIGEST
+  exitOnFailure $?
   $exit
 }
 
@@ -169,6 +200,7 @@ function deployAPIProxyApp {
   sanityPreamble
   echo bin/cloudgov/deploy-api-proxy
   $echo bin/cloudgov/deploy-api-proxy
+  exitOnFailure $?
   $exit
 }
 
@@ -178,13 +210,7 @@ function deployWAFApp {
   echo bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
   $echo export ROUTE_SERVICE_APP_NAME=$WAF_APP ROUTE_SERVICE_NAME=waf-route-${APP_SPACE}-usagov PROTECTED_APP_NAMES="$CMS_APP,$WWW_APP,$API_PROXY_APP" 
   $echo bin/cloudgov/deploy-waf $CCI_BUILD_ID $WAF_DIGEST
-  $exit
-}
-
-function deployCronApp {
-  sanityPreamble
-  echo bin/cloudgov/deploy-cron $APP_SPACE $CRON_BUILD $CRON_DIGEST
-  $echo bin/cloudgov/deploy-cron $APP_SPACE $CRON_BUILD $CRON_DIGEST
+  exitOnFailure $?
   $exit
 }
 
@@ -192,6 +218,7 @@ function deployAnalyticsReporterApp {
   sanityPreamble
   echo bin/cloudgov/deploy-reporter $APP_SPACE $REPORTER_BUILD $REPORTER_DIGEST
   $echo bin/cloudgov/deploy-reporter $APP_SPACE $REPORTER_BUILD $REPORTER_DIGEST
+  exitOnFailure $?
   $exit
 }
 
@@ -207,6 +234,20 @@ function exposeServers {
 
   echo cf restage $WAF_APP
   $echo cf restage $WAF_APP
+  exitOnFailure $?
+  $exit
+}
+
+function hideServers {
+  sanityPreamble
+  echo  cf set-env $WAF_APP IP_ALLOW_ALL_CMS 0
+  $echo cf set-env $WAF_APP IP_ALLOW_ALL_CMS 0
+  echo  cf set-env $WAF_APP IP_ALLOW_ALL_WWW 0
+  $echo cf set-env $WAF_APP IP_ALLOW_ALL_WWW 0
+
+  echo cf restage $WAF_APP
+  $echo cf restage $WAF_APP
+  exitOnFailure $?
   $exit
 }
 
@@ -217,6 +258,7 @@ function setupEgressForSpace {
   sanityPreamble
   echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
   $echo bin/cloudgov/setup-egress-for-space --restart $EGRESS_SPACE
+  exitOnFailure $?
   $exit
 }
 
@@ -256,6 +298,7 @@ function deployPublicFiles {
   sanityPreamble
   echo bin/snapshot-backups/public-snapshot-deploy ${APP_SPACE} ${SNAPTAG}
   $echo bin/snapshot-backups/public-snapshot-deploy ${APP_SPACE} ${SNAPTAG}
+  exitOnFailure $?
   $exit
 }
 
@@ -263,6 +306,7 @@ function deploySiteFiles {
   sanityPreamble
   echo bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${SNAPTAG}
   $echo bin/snapshot-backups/site-snapshot-deploy ${APP_SPACE} ${SNAPTAG}
+  exitOnFailure $?
   $exit
 }
 
@@ -282,5 +326,6 @@ function deployDBDump {
   sanityPreamble
   echo bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${SNAPTAG}
   $echo bin/snapshot-backups/db-dump-deploy ${APP_SPACE} ${SNAPTAG}
+  exitOnFailure $?
   $exit
 }

@@ -12,7 +12,7 @@ for f in /home/circleci/project/env.local $SCRIPT_DIR/env.local ./env.local; do
 done
 
 # Mandatory includes:
-for inc in $SCRIPT_DIR/../bin/deploy/includes; do
+for inc in $SCRIPT_DIR/../deploy/includes; do
   if [ ! -f $inc ]; then
     echo "Cannot find $inc"
     exit 1
@@ -73,31 +73,39 @@ function pushApp { #appname
     instances="-i 1"
   fi
 
+  if existsCFApp $app; then
+    echo "App $app already exists - use normal cf routing"
+    no_route=""
+  else
+    no_route="--no-route"
+    echo "App $app does not exist - will push with --no-route to prevent failure on first push"
+  fi
+
   # The Image digest for this tag should be looked up from cloud.gov storage
   # Any tag with a stored Image digest should be referenced by hash instead of tag
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-      echo  cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
-      $echo cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
       RETVAL=$?
     else
       export CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN
-      echo  cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
-      $echo cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
       RETVAL=$?
       unset CF_DOCKER_PASSWORD
     fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-      echo  cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
-      $echo cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
       RETVAL=$?
     else
       export CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN
-      echo  cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
-      $echo cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
       RETVAL=$?
       unset CF_DOCKER_PASSWORD
     fi
@@ -173,7 +181,7 @@ if existsCFApp $APP_NAME; then
   fi
   pushApp $APP_NAME
 else
-  cf set-env $APP_NAME SKIP_DRUPAL_BOOTSTRAP "skip"
+  cf set-env $APP_NAME SKIP_DRUPAL_BOOTSTRAP "skip" &> /dev/null ### redirect error message - we know app doesn't exist
   pushApp $APP_NAME
   setupRoutes $APP_NAME
   setupEgress $APP_NAME

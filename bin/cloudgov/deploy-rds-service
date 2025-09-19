@@ -61,18 +61,18 @@ shift
         exit $retval
       fi
     fi
-  fi
 
-  # wait until the db is fully provisioned
-  if [ x$echo = x ];  then
-    until cf create-service-key database test-db-ok ; do
-      echo waiting until database is live...
-      sleep 20
-    done
-  fi
+    # wait until the db is fully provisioned
+    if [ x$echo = x ];  then
+      until cf create-service-key database test-db-ok ; do
+        echo waiting until database is live...
+        sleep 20
+      done
+    fi
 
-  echo  cf delete-service-key database test-db-ok -f
-  $echo cf delete-service-key database test-db-ok -f
+    echo  cf delete-service-key database test-db-ok -f
+    $echo cf delete-service-key database test-db-ok -f
+  fi
 }
 
 ## DONE
