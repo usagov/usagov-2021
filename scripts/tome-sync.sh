@@ -77,26 +77,6 @@ if [ -d /var/www/web/sites/default/files/styles ]; then
   cp -rfp /var/www/web/sites/default/files/styles "$RENDER_DIR/s3/files/styles" 2>&1 | tee -a $TOMELOG
 fi
 
-# --- USAGOV-2515: Replace spaces and %20 in filenames with '+' for S3/CloudFront compatibility ---
-echo "Renaming files in $RENDER_DIR/s3/files to replace spaces and %20 with '+' ..."
-RENAME_ERRORS=0
-# Debug log file for renames
-RENAME_DEBUG_LOG=/var/www/tome-sync-debug.log
-find "$RENDER_DIR/s3/files" -depth \( -name "* *" -o -name "*%20*" \) | while IFS= read -r file; do
-  newfile="${file// /+}"
-  newfile="${newfile//%20/+}"
-  if [ "$file" != "$newfile" ]; then
-    echo "[RENAME] $file -> $newfile" >> "$RENAME_DEBUG_LOG"
-    if ! mv "$file" "$newfile" 2>>"$RENAME_DEBUG_LOG"; then
-      echo "[ERROR] Failed to rename: $file -> $newfile" >> "$RENAME_DEBUG_LOG"
-      RENAME_ERRORS=1
-    fi
-  fi
-done
-# After renaming, print a message if there were no errors
-if [ ! -f /var/www/tome-sync-debug.log ] || ! grep -q '\[ERROR\]' /var/www/tome-sync-debug.log; then
-  echo "No errors: All files renamed successfully (or no files needed renaming)." >> /var/www/tome-sync-debug.log
-fi
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
 cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
@@ -176,6 +156,18 @@ do
   i=$((i+1))
 done
 
+
+################################################################################
+# USAGOV-2515: Sync static images referenced in HTML from S3FS/public:// to static output
+# and rewrite HTML references to use static file paths. This is done via Drush command.
+################################################################################
+echo "Running Drush static image sync (usagov:ssg-sync-images) ..." | tee -a $TOMELOG
+if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" 2>&1 | tee -a $TOMELOG; then
+  echo "Drush static image sync completed successfully." | tee -a $TOMELOG
+else
+  echo "ERROR: Drush static image sync failed!" | tee -a $TOMELOG
+  exit 1
+fi
 
 # lower case all filenames in the copied dir before uploading
 LCF=0
