@@ -82,6 +82,7 @@
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
         "onelogin/php-saml": "^4",
+        "phpoffice/phpspreadsheet": "^3.10",
         "predis/predis": "^2.4",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
