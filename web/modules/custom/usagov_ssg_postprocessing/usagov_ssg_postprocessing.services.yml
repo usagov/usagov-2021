@@ -13,8 +13,3 @@ services:
     arguments: ['@path_alias.manager', '@entity_type.manager', '@current_route_match']
     tags:
       - { name: 'event_subscriber' }
-  usagov_ssg_postprocessing.commands.static_image_sync:
-    class: '\Drupal\usagov_ssg_postprocessing\Drush\Commands\StaticImageSyncCommands'
-    arguments: ['@file_system', '@entity_type.manager', '@logger.factory']
-    tags:
-      - { name: 'drush.command' }

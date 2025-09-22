@@ -14,6 +14,7 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\image\ImageStyleInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class StaticImageSyncCommands extends DrushCommands {
 
@@ -48,11 +49,26 @@ class StaticImageSyncCommands extends DrushCommands {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    */
-  public function __construct(FileSystemInterface $file_system, EntityTypeManagerInterface $entity_type_manager, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(
+    FileSystemInterface $file_system,
+    EntityTypeManagerInterface $entity_type_manager,
+    LoggerChannelFactoryInterface $logger_factory,
+  ) {
     parent::__construct();
     $this->fileSystem = $file_system;
     $this->entityTypeManager = $entity_type_manager;
     $this->loggerFactory = $logger_factory;
+  }
+
+  /**
+   * Create method for dependency injection.
+   */
+  public static function create(ContainerInterface $container): static {
+    return new static(
+      $container->get('file_system'),
+      $container->get('entity_type.manager'),
+      $container->get('logger.factory')
+    );
   }
 
   /**
