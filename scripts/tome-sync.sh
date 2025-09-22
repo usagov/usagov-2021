@@ -62,17 +62,6 @@ mkdir -p /tmp/tome-log/
 TOMELOG=/tmp/tome-log/$TOMELOGFILE
 touch $TOMELOG
 
-################################################################################
-# USAGOV-2515: Pre-generate image styles for blog post images to ensure they exist
-# before Tome processes the HTML output
-################################################################################
-echo "Pre-generating image styles for blog posts ..." | tee -a $TOMELOG
-if drush usagov:ssg-pregenerate-blog-images 2>&1 | tee -a $TOMELOG; then
-  echo "Image style pre-generation completed successfully." | tee -a $TOMELOG
-else
-  echo "WARNING: Image style pre-generation failed, continuing anyway." | tee -a $TOMELOG
-fi
-
 # Tome is failing to pull in these assets so we will pull them in ourself
 echo "Add in any extra or missing files ... "
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
