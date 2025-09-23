@@ -47,6 +47,7 @@ class StaticImageSyncCommands extends DrushCommands {
    *
    * @command usagov:ssg-sync-images
    * @aliases ssg-sync-images
+   * @param array<string, string> $options
    */
   public function syncImages(array $options = ['html_dir' => 'html', 'output_files_dir' => 'html/files']): void {
     $html_dir = $options['html_dir'];
@@ -205,6 +206,7 @@ class StaticImageSyncCommands extends DrushCommands {
    * @command usagov:ssg-rename-s3-files
    * @aliases ssg-rename-s3-files
    * @option dry-run Run in dry-run mode without making actual changes
+   * @param array<string, mixed> $options
    */
   public function renameS3Files(array $options = ['dry-run' => FALSE]): void {
     $dry_run = $options['dry-run'];
@@ -335,6 +337,7 @@ class StaticImageSyncCommands extends DrushCommands {
    * @option skip-s3-files Skip S3 file renaming
    * @option html_dir HTML directory for static files
    * @option output_files_dir Output files directory
+   * @param array<string, bool|string> $options
    */
   public function normalizeAllUrls(
     array $options = [
