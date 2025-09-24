@@ -108,51 +108,59 @@ class StaticImageSyncCommands extends DrushCommands {
     // Now rewrite HTML references to use static paths and normalize URLs.
     foreach ($finder as $file) {
       $html = file_get_contents($file->getRealPath());
-      // Replace /s3/files/ and /sites/default/files/ with /files/
-      $html = preg_replace('#/s3/files/#', '/files/', $html);
-      $html = preg_replace('#/sites/default/files/#', '/files/', $html);
-      // Replace %20 and spaces in filenames only (src attributes only)
-      $html = preg_replace_callback(
-        '/src="([^"]+)"/',
-        function ($matches) {
-          $url = $matches[1];
-          // Only normalize /files/ URLs
-          if (strpos($url, '/files/') !== FALSE) {
-            // Split the URL to isolate the filename from the path
-            $url_parts = parse_url($url);
-            $path = $url_parts['path'] ?? $url;
 
-            // Find the last slash to separate directory path from filename
+      // Only process img src attributes for image files with spaces in filenames
+      $html = preg_replace_callback(
+        '/<img[^>]+src="([^"]+)"[^>]*>/i',
+        function ($matches) {
+          $full_img_tag = $matches[0];
+          $src_url = $matches[1];
+
+          // Only process image files (by extension) that contain /files/ and have spaces or %20
+          if (strpos($src_url, '/files/') !== FALSE &&
+              (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
+              preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
+
+            // Replace /s3/files/ and /sites/default/files/ with /files/ in the URL
+            $normalized_url = preg_replace('#/s3/files/#', '/files/', $src_url);
+            $normalized_url = preg_replace('#/sites/default/files/#', '/files/', $normalized_url);
+
+            // Find the filename part and normalize spaces to plus signs
+            $url_parts = parse_url($normalized_url);
+            $path = $url_parts['path'] ?? $normalized_url;
             $last_slash_pos = strrpos($path, '/');
+
             if ($last_slash_pos !== FALSE) {
               $directory_path = substr($path, 0, $last_slash_pos + 1);
               $filename = substr($path, $last_slash_pos + 1);
-
-              // Only normalize spaces//%20 in the filename part
               $normalized_filename = str_replace(['%20', ' '], '+', $filename);
-
-              // Reconstruct the path
               $normalized_path = $directory_path . $normalized_filename;
 
-              // Reconstruct the full URL if there were other components
+              // Rebuild URL with query/fragment if present
               if (isset($url_parts['query']) || isset($url_parts['fragment'])) {
-                $url = $normalized_path;
+                $normalized_url = $normalized_path;
                 if (isset($url_parts['query'])) {
-                  $url .= '?' . $url_parts['query'];
+                  $normalized_url .= '?' . $url_parts['query'];
                 }
                 if (isset($url_parts['fragment'])) {
-                  $url .= '#' . $url_parts['fragment'];
+                  $normalized_url .= '#' . $url_parts['fragment'];
                 }
               }
               else {
-                $url = $normalized_path;
+                $normalized_url = $normalized_path;
               }
             }
+
+            // Replace the src URL in the img tag
+            return str_replace($src_url, $normalized_url, $full_img_tag);
           }
-          return 'src="' . $url . '"';
+
+          // Return unchanged if not an image file with spaces
+          return $full_img_tag;
         },
         $html
       );
+
       file_put_contents($file->getRealPath(), $html);
     }
     $this->output()->writeln('HTML references normalized to use pluses.');
