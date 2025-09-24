@@ -111,45 +111,45 @@ class StaticImageSyncCommands extends DrushCommands {
       // Replace /s3/files/ and /sites/default/files/ with /files/
       $html = preg_replace('#/s3/files/#', '/files/', $html);
       $html = preg_replace('#/sites/default/files/#', '/files/', $html);
-      // Replace %20 and spaces in file URLs with pluses (in src and srcset)
+      // Replace %20 and spaces in filenames only (src attributes only)
       $html = preg_replace_callback(
-        '/(src|srcset)="([^"]+)"/',
+        '/src="([^"]+)"/',
         function ($matches) {
-          $attr = $matches[1];
-          $url = $matches[2];
+          $url = $matches[1];
+          // Only normalize /files/ URLs
+          if (strpos($url, '/files/') !== FALSE) {
+            // Split the URL to isolate the filename from the path
+            $url_parts = parse_url($url);
+            $path = $url_parts['path'] ?? $url;
 
-          if ($attr === 'srcset') {
-            // For srcset, handle each URL separately to preserve spaces between URL and descriptors
-            // srcset format: "url1 descriptor1, url2 descriptor2, ..."
-            $srcset_parts = explode(',', $url);
-            $normalized_parts = [];
+            // Find the last slash to separate directory path from filename
+            $last_slash_pos = strrpos($path, '/');
+            if ($last_slash_pos !== FALSE) {
+              $directory_path = substr($path, 0, $last_slash_pos + 1);
+              $filename = substr($path, $last_slash_pos + 1);
 
-            foreach ($srcset_parts as $part) {
-              $part = trim($part);
-              // Split on space to separate URL from descriptor (e.g., "image.jpg 300w")
-              $url_and_descriptor = preg_split('/\s+/', $part, 2);
-              $image_url = $url_and_descriptor[0];
-              $descriptor = $url_and_descriptor[1] ?? '';
+              // Only normalize spaces//%20 in the filename part
+              $normalized_filename = str_replace(['%20', ' '], '+', $filename);
 
-              // Only normalize /files/ URLs in the image URL part
-              if (strpos($image_url, '/files/') !== FALSE) {
-                $image_url = str_replace(['%20', ' '], '+', $image_url);
+              // Reconstruct the path
+              $normalized_path = $directory_path . $normalized_filename;
+
+              // Reconstruct the full URL if there were other components
+              if (isset($url_parts['query']) || isset($url_parts['fragment'])) {
+                $url = $normalized_path;
+                if (isset($url_parts['query'])) {
+                  $url .= '?' . $url_parts['query'];
+                }
+                if (isset($url_parts['fragment'])) {
+                  $url .= '#' . $url_parts['fragment'];
+                }
               }
-
-              // Reconstruct with proper spacing
-              $normalized_parts[] = $descriptor ? $image_url . ' ' . $descriptor : $image_url;
-            }
-
-            $url = implode(', ', $normalized_parts);
-          }
-          else {
-            // For src, normalize the entire URL if it contains /files/
-            if (strpos($url, '/files/') !== FALSE) {
-              $url = str_replace(['%20', ' '], '+', $url);
+              else {
+                $url = $normalized_path;
+              }
             }
           }
-
-          return $attr . '="' . $url . '"';
+          return 'src="' . $url . '"';
         },
         $html
       );
