@@ -117,10 +117,38 @@ class StaticImageSyncCommands extends DrushCommands {
         function ($matches) {
           $attr = $matches[1];
           $url = $matches[2];
-          // Only normalize /files/ URLs
-          if (strpos($url, '/files/') !== FALSE) {
-            $url = str_replace(['%20', ' '], '+', $url);
+
+          if ($attr === 'srcset') {
+            // For srcset, handle each URL separately to preserve spaces between URL and descriptors
+            // srcset format: "url1 descriptor1, url2 descriptor2, ..."
+            $srcset_parts = explode(',', $url);
+            $normalized_parts = [];
+
+            foreach ($srcset_parts as $part) {
+              $part = trim($part);
+              // Split on space to separate URL from descriptor (e.g., "image.jpg 300w")
+              $url_and_descriptor = preg_split('/\s+/', $part, 2);
+              $image_url = $url_and_descriptor[0];
+              $descriptor = $url_and_descriptor[1] ?? '';
+
+              // Only normalize /files/ URLs in the image URL part
+              if (strpos($image_url, '/files/') !== FALSE) {
+                $image_url = str_replace(['%20', ' '], '+', $image_url);
+              }
+
+              // Reconstruct with proper spacing
+              $normalized_parts[] = $descriptor ? $image_url . ' ' . $descriptor : $image_url;
+            }
+
+            $url = implode(', ', $normalized_parts);
           }
+          else {
+            // For src, normalize the entire URL if it contains /files/
+            if (strpos($url, '/files/') !== FALSE) {
+              $url = str_replace(['%20', ' '], '+', $url);
+            }
+          }
+
           return $attr . '="' . $url . '"';
         },
         $html
