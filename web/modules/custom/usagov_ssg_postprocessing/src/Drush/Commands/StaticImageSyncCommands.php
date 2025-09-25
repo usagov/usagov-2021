@@ -57,8 +57,8 @@ class StaticImageSyncCommands extends DrushCommands {
     $all_files = [];
     foreach ($finder as $file) {
       $html = file_get_contents($file->getRealPath());
-      // Match src and srcset URLs.
-      preg_match_all('/(?:src|srcset)="([^"]+)"/', $html, $matches);
+      // Match only src URLs (exclude srcset).
+      preg_match_all('/src="([^"]+)"/', $html, $matches);
       foreach ($matches[1] as $url) {
         // Only process /s3/files/ or /sites/default/files/ or /files/.
         if (preg_match('#/(s3/files|sites/default/files|files)/(.+?)(["\?\s])#', $url . ' ', $m)) {
