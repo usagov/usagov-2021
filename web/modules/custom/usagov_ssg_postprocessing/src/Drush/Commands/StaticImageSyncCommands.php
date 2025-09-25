@@ -109,79 +109,22 @@ class StaticImageSyncCommands extends DrushCommands {
     foreach ($finder as $file) {
       $html = file_get_contents($file->getRealPath());
 
-      // Process img tags to normalize src and srcset attributes
+      // Process only src attributes in img tags (exclude srcset)
       $html = preg_replace_callback(
-        '/<img[^>]*>/i',
-        function ($matches) {
-          $img_tag = $matches[0];
+        '/src="([^"]+)"/i',
+        function ($src_matches) {
+          $src_url = $src_matches[1];
 
-          // Process src attribute
-          $img_tag = preg_replace_callback(
-            '/src="([^"]+)"/i',
-            function ($src_matches) {
-              $src_url = $src_matches[1];
+          // Only process image files with /files/ and spaces or %20
+          if (strpos($src_url, '/files/') !== FALSE &&
+              (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
+              preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
 
-              // Only process image files with /files/ and spaces or %20
-              if (strpos($src_url, '/files/') !== FALSE &&
-                  (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
-                  preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
+            $normalized_url = $this->normalizeImageUrl($src_url);
+            return 'src="' . $normalized_url . '"';
+          }
 
-                $normalized_url = $this->normalizeImageUrl($src_url);
-                return 'src="' . $normalized_url . '"';
-              }
-
-              return $src_matches[0];
-            },
-            $img_tag
-          );
-
-          // Process srcset attribute
-          $img_tag = preg_replace_callback(
-            '/srcset="([^"]+)"/i',
-            function ($srcset_matches) {
-              $srcset_value = $srcset_matches[1];
-
-              // Parse srcset format: "url1 descriptor1, url2 descriptor2, ..."
-              $srcset_parts = explode(',', $srcset_value);
-              $normalized_parts = [];
-
-              foreach ($srcset_parts as $part) {
-                $part = trim($part);
-
-                // Split URL from descriptor (e.g., "image.jpg 300w")
-                if (preg_match('/^(.+?)\s+([\dw\.x]+)$/', $part, $url_matches)) {
-                  $url = trim($url_matches[1]);
-                  $descriptor = trim($url_matches[2]);
-
-                  // Normalize the URL if it's an image with spaces
-                  if (strpos($url, '/files/') !== FALSE &&
-                      (strpos($url, ' ') !== FALSE || strpos($url, '%20') !== FALSE) &&
-                      preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $url)) {
-
-                    $url = $this->normalizeImageUrl($url);
-                  }
-
-                  $normalized_parts[] = $url . ' ' . $descriptor;
-                }
-                else {
-                  // No descriptor, just a URL
-                  $url = trim($part);
-                  if (strpos($url, '/files/') !== FALSE &&
-                      (strpos($url, ' ') !== FALSE || strpos($url, '%20') !== FALSE) &&
-                      preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $url)) {
-
-                    $url = $this->normalizeImageUrl($url);
-                  }
-                  $normalized_parts[] = $url;
-                }
-              }
-
-              return 'srcset="' . implode(', ', $normalized_parts) . '"';
-            },
-            $img_tag
-          );
-
-          return $img_tag;
+          return $src_matches[0];
         },
         $html
       );
