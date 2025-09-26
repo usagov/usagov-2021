@@ -86,6 +86,7 @@ module:
   system: 0
   taxonomy: 0
   telephone: 0
+  term_condition: 0
   text: 0
   token: 0
   tome_base: 0
