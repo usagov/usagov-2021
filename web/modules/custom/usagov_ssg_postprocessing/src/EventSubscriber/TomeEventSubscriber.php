@@ -171,37 +171,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         }
       }
     }
-    // srcset attributes (img, source, etc)
-    // $srcset_nodes = $xpath->query('//*[@srcset]');
-    // foreach ($srcset_nodes as $node) {
-    //   if ($node instanceof \DOMElement) {
-    //     $srcset = $node->getAttribute('srcset');
-    //     if (strpos($srcset, ' ') !== FALSE || strpos($srcset, '%20') !== FALSE) {
-    //       // srcset can be multiple URLs, e.g. "img1.png 1x, img2.png 2x"
-    //       $new_srcset = preg_replace_callback(
-    //         '/([^,]+)( [0-9]+[wx])?/',
-    //         function ($matches) {
-    //           $url = $matches[1];
-    //           $rest = $matches[2] ?? '';
-    //           $url_new = str_replace([' ', '%20'], '+', $url);
-    //           if ($url !== $url_new) {
-    //             file_put_contents('/tmp/tome-img-path-debug.log', '[SRCSET] Replaced url: ' . $url . ' -> ' . $url_new . "\n", FILE_APPEND);
-    //           }
-    //           else {
-    //             file_put_contents('/tmp/tome-img-path-debug.log', '[SRCSET] No change url: ' . $url . "\n", FILE_APPEND);
-    //           }
-    //           return $url_new . $rest;
-    //         },
-    //         $srcset
-    //       );
-    //       $node->setAttribute('srcset', $new_srcset);
-    //       $changes = TRUE;
-    //     }
-    //     else {
-    //       file_put_contents('/tmp/tome-img-path-debug.log', '[SRCSET] No change srcset: ' . $srcset . "\n", FILE_APPEND);
-    //     }
-    //   }
-    // }
 
     // Existing logic: fix /es links
     $nodes = $xpath->query('//a[starts-with(@href,"/es")]');
