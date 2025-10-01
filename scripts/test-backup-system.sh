@@ -127,28 +127,33 @@ test_config_loading() {
 
 # Function to test script files existence and permissions
 test_script_files() {
-    local scripts=("./scripts/tome-sync.sh" "./scripts/tome-backup-manager.sh")
+    # Check tome-sync.sh
+    check_file "./scripts/tome-sync.sh" "script file" || return 1
+    if [ -x "./scripts/tome-sync.sh" ]; then
+        echo "✓ Script is executable: ./scripts/tome-sync.sh"
+    else
+        echo "✗ Script is not executable: ./scripts/tome-sync.sh"
+        return 1
+    fi
 
-    for script in "${scripts[@]}"; do
-        check_file "$script" "script file" || return 1
-
-        if [ -x "$script" ]; then
-            echo "✓ Script is executable: $script"
-        else
-            echo "✗ Script is not executable: $script"
-            return 1
-        fi
-    done
+    # Check tome-backup-manager.sh
+    check_file "./scripts/tome-backup-manager.sh" "script file" || return 1
+    if [ -x "./scripts/tome-backup-manager.sh" ]; then
+        echo "✓ Script is executable: ./scripts/tome-backup-manager.sh"
+    else
+        echo "✗ Script is not executable: ./scripts/tome-backup-manager.sh"
+        return 1
+    fi
 
     return 0
 }
 
 # Function to test required commands
 test_dependencies() {
-    local commands=("aws" "jq" "date" "grep" "awk" "sort" "md5sum" "bc")
-    local missing_commands=()
+    local missing_commands=""
 
-    for cmd in "${commands[@]}"; do
+    # Check each required command
+    for cmd in aws jq date grep awk sort md5sum bc; do
         if ! check_command "$cmd"; then
             # Try alternative commands
             case "$cmd" in
@@ -156,20 +161,20 @@ test_dependencies() {
                     if check_command "md5"; then
                         echo "✓ Using 'md5' instead of 'md5sum'"
                     else
-                        missing_commands+=("$cmd")
+                        missing_commands="$missing_commands $cmd"
                     fi
                     ;;
                 *)
-                    missing_commands+=("$cmd")
+                    missing_commands="$missing_commands $cmd"
                     ;;
             esac
         fi
     done
 
-    if [ ${#missing_commands[@]} -eq 0 ]; then
+    if [ -z "$missing_commands" ]; then
         return 0
     else
-        echo "✗ Missing required commands: ${missing_commands[*]}"
+        echo "✗ Missing required commands:$missing_commands"
         return 1
     fi
 }
@@ -192,8 +197,7 @@ test_aws_connectivity() {
     fi
 
     # Test specific backup directories
-    local backup_dirs=("web-backup" "public_backup")
-    for dir in "${backup_dirs[@]}"; do
+    for dir in web-backup public_backup; do
         aws s3 ls "s3://$BUCKET_NAME/$dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
         if [ $? -eq 0 ]; then
             echo "✓ Backup directory exists: $dir"
@@ -210,17 +214,7 @@ test_backup_integration() {
     local tome_sync_script="./scripts/tome-sync.sh"
 
     # Check for backup-related code in tome-sync.sh
-    local required_patterns=(
-        "tome-backup.conf"
-        "ENABLE_AUTO_BACKUPS"
-        "ENABLE_SMART_PUBLIC_BACKUP"
-        "Creating automatic backups"
-        "web-backup"
-        "public_backup"
-        "BACKUP_PREFIX"
-    )
-
-    for pattern in "${required_patterns[@]}"; do
+    for pattern in "tome-backup.conf" "ENABLE_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating automatic backups" "web-backup" "public_backup" "BACKUP_PREFIX"; do
         if grep -q "$pattern" "$tome_sync_script"; then
             echo "✓ Found backup integration: $pattern"
         else
@@ -247,15 +241,7 @@ test_backup_manager() {
     fi
 
     # Check for required functions in the script
-    local required_functions=(
-        "list_backups"
-        "list_old_backups"
-        "clean_old_backups"
-        "backup_info"
-        "restore_backup"
-    )
-
-    for func in "${required_functions[@]}"; do
+    for func in "list_backups" "list_old_backups" "clean_old_backups" "backup_info" "restore_backup"; do
         if grep -q "$func" "$manager_script"; then
             echo "✓ Found backup manager function: $func"
         else
