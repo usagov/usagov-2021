@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Tome Backup System Test Script
 # This script validates all aspects of the automatic backup system
