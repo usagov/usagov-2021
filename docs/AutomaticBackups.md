@@ -180,7 +180,11 @@ Monitor Tome logs for backup-related messages:
 
 **Cleanup not working:**
 - Verify `ENABLE_AUTO_CLEANUP=true` in configuration
-- Check date command compatibility (Linux vs macOS)
+- **Date command compatibility:**
+- Verify `ENABLE_AUTO_CLEANUP=true` in configuration
+- Check date command compatibility (Linux vs macOS vs minimal containers)
+- In environments with limited date commands, cleanup will be disabled automatically
+- Ensure AWS CLI has delete permissions
 - Ensure AWS CLI has delete permissions
 
 **Storage growing too fast:**

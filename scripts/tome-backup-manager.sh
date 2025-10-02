@@ -92,7 +92,9 @@ list_old_backups() {
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -z "$cutoff_date" ]; then
-        print_status $RED "Error: Could not calculate cutoff date"
+        print_status $RED "Error: Could not calculate cutoff date - advanced date calculations not supported"
+        print_status $YELLOW "This environment's date command doesn't support relative date calculations."
+        print_status $YELLOW "Manual backup management will be required."
         exit 1
     fi
 
@@ -127,7 +129,9 @@ clean_old_backups() {
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -z "$cutoff_date" ]; then
-        print_status $RED "Error: Could not calculate cutoff date"
+        print_status $RED "Error: Could not calculate cutoff date - advanced date calculations not supported"
+        print_status $YELLOW "This environment's date command doesn't support relative date calculations."
+        print_status $YELLOW "Use 'list' command to see backups and remove them manually with AWS CLI."
         exit 1
     fi
 
