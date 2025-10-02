@@ -29,18 +29,18 @@ run_test() {
     local test_name="$1"
     local test_command="$2"
 
-    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    TESTS_TOTAL=`expr $TESTS_TOTAL + 1`
     echo ""
     print_status $BLUE "TEST $TESTS_TOTAL: $test_name"
     echo "----------------------------------------"
 
     if eval "$test_command"; then
         print_status $GREEN "✓ PASSED: $test_name"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
+        TESTS_PASSED=`expr $TESTS_PASSED + 1`
         return 0
     else
         print_status $RED "✗ FAILED: $test_name"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
+        TESTS_FAILED=`expr $TESTS_FAILED + 1`
         return 1
     fi
 }
@@ -109,13 +109,14 @@ test_config_loading() {
     check_file "$config_file" "backup configuration file" || return 1
 
     # Source the config
-    source "$config_file"
+    . "$config_file"
 
     # Check required variables are set
     local required_vars="BACKUP_RETENTION_DAYS ENABLE_AUTO_BACKUPS ENABLE_AUTO_CLEANUP BACKUP_PREFIX ENABLE_SMART_PUBLIC_BACKUP"
     for var in $required_vars; do
-        if [ -n "${!var}" ]; then
-            echo "✓ Config variable $var = ${!var}"
+        eval "var_value=\$$var"
+        if [ -n "$var_value" ]; then
+            echo "✓ Config variable $var = $var_value"
         else
             echo "✗ Config variable $var is not set"
             return 1
@@ -276,7 +277,7 @@ test_date_calculations() {
 
 # Function to test backup naming pattern
 test_backup_naming() {
-    source "./scripts/tome-backup.conf"
+    . "./scripts/tome-backup.conf"
 
     local test_space="test"
     local test_timestamp="2024_03_15_14_30_00"
