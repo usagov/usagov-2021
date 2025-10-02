@@ -1,5 +1,7 @@
 #!/bin/sh
 
+#!/bin/sh
+
 # Tome Backup System Test Script
 # This script validates all aspects of the automatic backup system
 
@@ -236,6 +238,17 @@ test_backup_manager() {
     local exit_code=$?
     if [ $exit_code -eq 1 ] || [ $exit_code -eq 0 ]; then
         echo "✓ Backup manager script runs and shows usage correctly"
+    elif [ $exit_code -eq 127 ]; then
+        # Try with sh if bash is not available
+        echo "⚠ Trying backup manager with sh instead of bash..."
+        sh "$manager_script" >/dev/null 2>&1
+        local sh_exit_code=$?
+        if [ $sh_exit_code -eq 1 ] || [ $sh_exit_code -eq 0 ]; then
+            echo "✓ Backup manager script runs with sh"
+        else
+            echo "✗ Backup manager script fails even with sh (exit code: $sh_exit_code)"
+            return 1
+        fi
     else
         echo "✗ Backup manager script has execution errors (exit code: $exit_code)"
         return 1
@@ -293,8 +306,8 @@ test_backup_naming() {
         return 1
     fi
 
-    # Test date extraction
-    local extracted_date=$(echo "$expected_pattern" | grep -o "${BACKUP_PREFIX}-[^/]*-[0-9_]*" | tail -c 11 | head -c 10)
+    # Test date extraction (extract the date part from the pattern)
+    local extracted_date=$(echo "$expected_pattern" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
     if [ "$extracted_date" = "2024_03_15" ]; then
         echo "✓ Date extraction works correctly: $extracted_date"
     else

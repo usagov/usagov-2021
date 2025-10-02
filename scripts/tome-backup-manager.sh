@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Tome Backup Manager
 # Provides utilities for managing automatic backups created by tome-sync.sh
