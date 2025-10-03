@@ -122,6 +122,7 @@ if [ -z "$proxyname" ]; then
 fi
 if [ -z "$proxyname" ]; then
     echo "No existing egress proxy application"
+    popspace
     exit 1
 fi
 echo "Using egress proxy app: $proxyname"
@@ -133,6 +134,7 @@ cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
 proxyroute=$(cf env $proxyname | grep proxy_route | awk '{print $2}')
 if [ -z "$proxyroute" ]; then
   echo "Unable to find route to proxy app for this space"
+  popspace
   exit 1
 fi
 
@@ -141,48 +143,70 @@ if [ -n "${DRYRUN}" ]; then
     output="echo # "
 fi
 
-retval=0
+RETVAL=0
 
 # add proxy setting to each app and restart
 $output cf target -o "$startorg" -s "$startspace" 2>&1 > /dev/null
 for app in $applist; do
     echo "Configure Egress settings for $app"
     $output cf add-network-policy "$app" "$proxyname" -s "$egressspace" -o "$egressorg" --protocol tcp --port 61443
-    $output cf set-env "$app" PROXYROUTE $proxyroute
-    $output cf set-env "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
-    $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ]; then
+      echo "ERROR: 'cf add-network-policy $app $proxyname -s $egressspace -o $egressorg --protocol tcp --port 61443 failed' ($RETVAL)"
+      popspace
+      exit $RETVAL
+    fi
+    
+    cfSetEnv "$app" PROXYROUTE $proxyroute
+    cfSetEnv "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+    cfSetEnv "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
     ### Ensure that our primary apps are all attached to the log drain service!
     service=log-shipper-drain
-    if ! cf service $service &> /dev/null; then
-      echo "Cannot bind $app with non-existant service $service"
-      retval=1
-    else
-      if [ "$app" != "log-shipper" ]; then
-        echo "Binding $app with $service"
-        $output cf bind-service $app $service
-        retval=$?
-      fi
+    if [ "$app" != "log-shipper" ]; then
+      echo "Binding $app with $service"
+
+      ### these caused issues at times. Unset then reset when done.
+      set +e
+      set +o pipefail
+
+      ### We don't want to fail if the log-shipper doesn't exist, as
+      ### other processes will handle creation and binding of the log-shipper
+
+      ### This will exit on fail - don't need to check RETVAL here
+      bindServiceToApp $app $service "ignore-missing-service"
+
+      set -e
+      set -o pipefail
+
+      RETVAL=0
     fi
 
     if [ "$app" = cron ]; then
       for svc in callcenter-service-account cfevent-service-account; do
         if existsCFService $svc; then
           echo "Binding $app with $svc"
-          $output cf bind-service $app $svc
-          retval=$?
+          bindServiceToApp $app $svc
+          RETVAL=$?
         else
           echo "Cannot bind $app with non-existant service $svc"
-          retval=1
+          RETVAL=1
         fi
       done
     fi
 
+    if [ $RETVAL -ne 0 ]; then
+      echo "ERROR: non-existant service: $svc ($RETVAL)"
+      popspace
+      exit $RETVAL
+    fi
+
     if [ $restartRequired -eq 1 ]; then
       $output cf restart "$app" --no-wait --strategy rolling
+      RETVAL=$?
     fi
 done
 
 popspace
 
-exit $retval
+exit $RETVAL
