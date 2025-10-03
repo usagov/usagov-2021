@@ -182,6 +182,20 @@ function existsCFService() { # desired service name
   fi
 }
 
+function existsCFServiceKey() { # desired service name
+  desiredService=$1
+  serviceKey=$2
+  if existsCFService $desiredService &> /dev/null; then
+    if ! cf service-key $desiredService $serviceKey &> /dev/null; then
+        echo "NOTICE: CF service '$desiredService' does not exist in the current CF space"
+        return 1; #false
+    fi
+  else
+    echo "NOTICE: CF service '$desiredService' does not exist in the current CF space"
+    return 1; #false
+  fi
+}
+
 function bindCFService() {
   appname=${1}
   service=${2}
@@ -335,4 +349,109 @@ function assertIsImageDigest() {
       fi
     fi
   done
+}
+
+function createRoute {
+  route=$1
+  host=$2
+  if [ -z "$route" -o -z "$host" ]; then
+    echo "ERROR: route and host are required for createRoute"
+    exit 1
+  fi
+  
+  echo cf create-route $route --hostname $host
+  $echo cf create-route $route --hostname $host
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    echo "ERROR: cf create-route failed ($RETVAL)"
+    exit $RETVAL
+  fi
+}
+
+function mapRoute {
+  app=$1
+  route=$2
+  host=$3
+  if [ -z "$app" -o -z "$route" -o -z "$host" ]; then
+    echo "ERROR: app, route and host are required for mapRoute"
+    exit 1
+  fi
+  
+  echo cf map-route $app $route --hostname $host
+  $echo cf map-route $app $route --hostname $host
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    echo "ERROR: cf map-route failed ($RETVAL)"
+    exit $RETVAL
+  fi
+}
+
+function bindServiceToApp {
+  app=$1
+  service=$2
+  assert=$3
+  if [ -z "$app" -o -z "$service" ]; then
+    echo "ERROR: app and service are required arguments for bindServiceToApp"
+    exit 1
+  fi
+
+  echo cf bind-service $app $service
+  $echo cf bind-service $app $service
+  RETVAL=$?
+  if [ x$assert = x ]; then
+    if [ $RETVAL -ne 0 ]; then
+      echo "ERROR: cf bind-service failed ($RETVAL)"
+      exit $RETVAL
+    fi
+  else
+    if [ $RETVAL -ne 0 ]; then
+      echo "NOTICE: cf bind-service $app $service failed ($RETVAL)"
+      return 0
+    fi
+  fi
+}
+
+function cfSetEnv {
+  app=$1
+  var=$2
+  val=$3
+  RETVAL=0
+  if [ -n "$var" ] && [ -n "$val" ] && [ -n "$app" ]; then
+    echo cf set-env $app $var $val
+    $echo cf set-env $app $var $val
+    RETVAL=$?
+  else
+    echo "NOTICE: cf set-env requires app, var and val to be set"
+    echo "Values are app: [$app], var: [$var], val: [$val]"
+  fi
+  return $RETVAL
+}
+
+function cfUnSetEnv {
+  app=$1
+  var=$2
+  RETVAL=0
+  if [ -n "$var" ] && [ -n "$app" ]; then
+    echo cf unset-env $app $var
+    $echo cf unset-env $app $var
+    RETVAL=$?
+  else
+    echo "NOTICE: cf unset-env requires app and var to be set"
+    echo "Values are app: [$app], var: [$var]"
+  fi
+  return $RETVAL
+}
+
+function getLatestSnapTag {
+  tag=""
+  space=$( cf target | grep space: | awk '{ print $2 }')
+  cf target -s prod > /dev/null 2>&1
+  ps=$( cf target | grep space: | awk '{ print $2 }')
+  if [ x$ps != xprod ]; then
+    echo "ERROR: Could not target prod space - attempting to target back to $space space."
+  else
+    tag=$(bin/snapshot-backups/public-snapshot-list prod | grep post-deploy | sort | tail -1)
+  fi
+  cf target -s $space > /dev/null 2>&1
+  echo "$tag"
 }
