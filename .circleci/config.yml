@@ -8,7 +8,7 @@ commands:
         type: string
     steps:
       - checkout:
-        method: full
+          method: full
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -196,7 +196,7 @@ commands:
         type: string
     steps:
       - checkout:
-        method: full
+          method: full
       - install-cloud-foundry
       - snapshot-preamble:
           envname: << parameters.envname >>
@@ -219,7 +219,7 @@ commands:
         type: string
     steps:
       - checkout:
-        method: full
+          method: full
       - install-cloud-foundry
       - signed-dockerhub-login
       - run:
@@ -274,7 +274,7 @@ commands:
         type: string
     steps:
       - checkout:
-        method: full
+          method: full
       - run:
           name: Setup Environment for use in Scripts
           command: |
