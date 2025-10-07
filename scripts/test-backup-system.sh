@@ -26,6 +26,23 @@ print_status() {
     echo -e "${color}${message}${NC}"
 }
 
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --help, -h              Show this help message"
+    echo "  --force-static-backup   Force an immediate static site backup"
+    echo "  --force-public-backup   Force an immediate public files backup"
+    echo "  --force-db-backup       Force an immediate database backup"
+    echo "  --force-all-backups     Force all three backup types"
+    echo ""
+    echo "Examples:"
+    echo "  $0                           # Run full test suite"
+    echo "  $0 --force-static-backup     # Test + force static site backup"
+    echo "  $0 --force-all-backups       # Test + force all backup types"
+}
+
 # Function to run a test
 run_test() {
     local test_name="$1"
@@ -470,28 +487,263 @@ test_database_backup_system() {
     return 0
 }
 
+# Function to force static site backup
+force_static_backup() {
+    print_status $BLUE "============================================"
+    print_status $BLUE "    FORCING STATIC SITE BACKUP"
+    print_status $BLUE "============================================"
+    
+    # Load configuration
+    . "./scripts/tome-backup.conf"
+    
+    if [ "$ENABLE_AUTO_BACKUPS" != "true" ]; then
+        print_status $RED "Error: Auto backups are disabled in configuration"
+        print_status $YELLOW "Set ENABLE_AUTO_BACKUPS=true in scripts/tome-backup.conf"
+        return 1
+    fi
+    
+    # Check if tome-sync.sh exists
+    if [ ! -f "./scripts/tome-sync.sh" ]; then
+        print_status $RED "Error: tome-sync.sh not found"
+        return 1
+    fi
+    
+    print_status $YELLOW "Setting up S3 environment for backup..."
+    
+    # Set up S3 environment variables if in CF
+    if [ -n "$VCAP_SERVICES" ]; then
+        eval $(echo "$VCAP_SERVICES" | jq -r '.s3[0].credentials | "export AWS_ACCESS_KEY_ID=" + .access_key_id + " AWS_SECRET_ACCESS_KEY=" + .secret_access_key + " AWS_DEFAULT_REGION=" + .region + " BUCKET_NAME=" + .bucket')
+    fi
+    
+    if [ -z "$BUCKET_NAME" ]; then
+        print_status $RED "Error: BUCKET_NAME not configured"
+        print_status $YELLOW "Configure S3 credentials or set BUCKET_NAME environment variable"
+        return 1
+    fi
+    
+    # Get current space for backup naming
+    SPACE="test"
+    if [ -n "$VCAP_APPLICATION" ]; then
+        SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+    fi
+    
+    # Create a timestamp for the backup
+    TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
+    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${TIMESTAMP}"
+    
+    print_status $YELLOW "Creating static site backup: $BACKUP_TAG"
+    
+    # Force create static site backup by calling tome-sync.sh backup functions directly
+    SCRIPT_PATH="./scripts"
+    
+    # Create the backup directory structure and sync
+    print_status $YELLOW "Backing up static site..."
+    if command -v aws >/dev/null 2>&1; then
+        # Create backup of current static site
+        aws s3 sync s3://"$BUCKET_NAME"/web/ s3://"$BUCKET_NAME"/web-backup/"$BACKUP_TAG"/ --delete 2>/dev/null && \
+        print_status $GREEN "✓ Static site backup created: $BACKUP_TAG" || \
+        print_status $RED "✗ Static site backup failed"
+    else
+        print_status $RED "Error: aws cli not available"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Function to force public files backup
+force_public_backup() {
+    print_status $BLUE "============================================"
+    print_status $BLUE "    FORCING PUBLIC FILES BACKUP"
+    print_status $BLUE "============================================"
+    
+    # Load configuration
+    . "./scripts/tome-backup.conf"
+    
+    if [ "$ENABLE_AUTO_BACKUPS" != "true" ]; then
+        print_status $RED "Error: Auto backups are disabled in configuration"
+        print_status $YELLOW "Set ENABLE_AUTO_BACKUPS=true in scripts/tome-backup.conf"
+        return 1
+    fi
+    
+    print_status $YELLOW "Setting up S3 environment for backup..."
+    
+    # Set up S3 environment variables if in CF
+    if [ -n "$VCAP_SERVICES" ]; then
+        eval $(echo "$VCAP_SERVICES" | jq -r '.s3[0].credentials | "export AWS_ACCESS_KEY_ID=" + .access_key_id + " AWS_SECRET_ACCESS_KEY=" + .secret_access_key + " AWS_DEFAULT_REGION=" + .region + " BUCKET_NAME=" + .bucket')
+    fi
+    
+    if [ -z "$BUCKET_NAME" ]; then
+        print_status $RED "Error: BUCKET_NAME not configured"
+        print_status $YELLOW "Configure S3 credentials or set BUCKET_NAME environment variable"
+        return 1
+    fi
+    
+    # Get current space for backup naming
+    SPACE="test"
+    if [ -n "$VCAP_APPLICATION" ]; then
+        SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
+    fi
+    
+    # Create a timestamp for the backup
+    TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
+    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${TIMESTAMP}"
+    
+    print_status $YELLOW "Creating public files backup: $BACKUP_TAG"
+    
+    # Force create public files backup
+    print_status $YELLOW "Backing up public files..."
+    if command -v aws >/dev/null 2>&1; then
+        # Create backup of current public files
+        aws s3 sync s3://"$BUCKET_NAME"/cms/public/ s3://"$BUCKET_NAME"/public_backup/"$BACKUP_TAG"/ --delete 2>/dev/null && \
+        print_status $GREEN "✓ Public files backup created: $BACKUP_TAG" || \
+        print_status $RED "✗ Public files backup failed"
+    else
+        print_status $RED "Error: aws cli not available"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Function to force database backup
+force_db_backup() {
+    print_status $BLUE "============================================"
+    print_status $BLUE "    FORCING DATABASE BACKUP"
+    print_status $BLUE "============================================"
+    
+    # Load configuration
+    . "./scripts/tome-backup.conf"
+    
+    if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
+        print_status $RED "Error: Database backups are disabled in configuration"
+        print_status $YELLOW "Set ENABLE_DB_BACKUPS=true in scripts/tome-backup.conf"
+        return 1
+    fi
+    
+    # Check if backup manager exists
+    if [ ! -f "./scripts/tome-backup-manager.sh" ]; then
+        print_status $RED "Error: Backup manager not found"
+        return 1
+    fi
+    
+    print_status $YELLOW "Running immediate database backup via backup manager..."
+    
+    # Use the backup manager's backup-db command
+    if ./scripts/tome-backup-manager.sh backup-db; then
+        print_status $GREEN "✓ Database backup completed successfully"
+        return 0
+    else
+        print_status $RED "✗ Database backup failed"
+        return 1
+    fi
+}
+
+# Function to force all backup types
+force_all_backups() {
+    print_status $BLUE "============================================"
+    print_status $BLUE "    FORCING ALL BACKUP TYPES"
+    print_status $BLUE "============================================"
+    
+    local success=0
+    
+    echo ""
+    if force_static_backup; then
+        success=$((success + 1))
+    fi
+    
+    echo ""
+    if force_public_backup; then
+        success=$((success + 1))
+    fi
+    
+    echo ""
+    if force_db_backup; then
+        success=$((success + 1))
+    fi
+    
+    echo ""
+    print_status $BLUE "============================================"
+    print_status $BLUE "    BACKUP SUMMARY"
+    print_status $BLUE "============================================"
+    
+    if [ $success -eq 3 ]; then
+        print_status $GREEN "✓ All 3 backup types completed successfully"
+        return 0
+    else
+        print_status $RED "✗ Only $success out of 3 backup types succeeded"
+        return 1
+    fi
+}
+
 # Main execution
 main() {
-    print_status $BLUE "============================================"
-    print_status $BLUE "     Tome Backup System Test Suite"
-    print_status $BLUE "============================================"
+    # Parse command line arguments
+    local run_tests=true
+    local force_static=false
+    local force_public=false
+    local force_db=false
+    local force_all=false
+    
+    while [ $# -gt 0 ]; do
+        case $1 in
+            --help|-h)
+                show_usage
+                exit 0
+                ;;
+            --force-static-backup)
+                force_static=true
+                shift
+                ;;
+            --force-public-backup)
+                force_public=true
+                shift
+                ;;
+            --force-db-backup)
+                force_db=true
+                shift
+                ;;
+            --force-all-backups)
+                force_all=true
+                shift
+                ;;
+            *)
+                echo "Unknown option: $1"
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+    
+    # If force_all is set, enable all individual force flags
+    if [ "$force_all" = true ]; then
+        force_static=true
+        force_public=true
+        force_db=true
+    fi
+    
+    # Run the test suite first if any tests should run
+    if [ "$run_tests" = true ]; then
+        print_status $BLUE "============================================"
+        print_status $BLUE "     Tome Backup System Test Suite"
+        print_status $BLUE "============================================"
 
-    echo ""
-    print_status $YELLOW "Setting up test environment..."
-    setup_test_env
+        echo ""
+        print_status $YELLOW "Setting up test environment..."
+        setup_test_env
 
-    # Run all tests
-    run_test "Configuration File Loading" "test_config_loading"
-    run_test "Script Files and Permissions" "test_script_files"
-    run_test "Required Dependencies" "test_dependencies"
-    run_test "AWS Connectivity" "test_aws_connectivity"
-    run_test "Backup Integration in tome-sync.sh" "test_backup_integration"
-    run_test "Backup Manager Functionality" "test_backup_manager"
-    run_test "Database Backup System" "test_database_backup_system"
-    run_test "Date Calculations" "test_date_calculations"
-    run_test "Backup Naming Pattern" "test_backup_naming"
-    run_test "Backup Simulation" "test_backup_simulation"
-    run_test "Log Directory Access" "test_log_directory"
+        # Run all tests
+        run_test "Configuration File Loading" "test_config_loading"
+        run_test "Script Files and Permissions" "test_script_files"
+        run_test "Required Dependencies" "test_dependencies"
+        run_test "AWS Connectivity" "test_aws_connectivity"
+        run_test "Backup Integration in tome-sync.sh" "test_backup_integration"
+        run_test "Backup Manager Functionality" "test_backup_manager"
+        run_test "Database Backup System" "test_database_backup_system"
+        run_test "Date Calculations" "test_date_calculations"
+        run_test "Backup Naming Pattern" "test_backup_naming"
+        run_test "Backup Simulation" "test_backup_simulation"
+        run_test "Log Directory Access" "test_log_directory"
 
     # Test results summary
     echo ""
@@ -503,24 +755,105 @@ main() {
     print_status $GREEN "Tests Passed: $TESTS_PASSED"
     print_status $RED "Tests Failed: $TESTS_FAILED"
 
-    if [ $TESTS_FAILED -eq 0 ]; then
+        # Handle forced backups after tests complete
+        local test_success=true
+        if [ $TESTS_FAILED -eq 0 ]; then
+            echo ""
+            print_status $GREEN "🎉 ALL TESTS PASSED! The backup system is ready for use."
+        else
+            echo ""
+            print_status $RED "❌ SOME TESTS FAILED. Please fix the issues above before using the backup system."
+            test_success=false
+        fi
+    fi
+    
+    # Execute forced backups if requested
+    local backup_results=0
+    local total_forced=0
+    
+    if [ "$force_all" = true ]; then
         echo ""
-        print_status $GREEN "🎉 ALL TESTS PASSED! The backup system is ready for use."
-        echo ""
-        print_status $YELLOW "Next steps:"
-        echo "1. Run a Tome sync to test automatic backups in action"
-        echo "2. Monitor the logs for backup creation messages"
-        echo "3. Use './scripts/tome-backup-manager.sh list' to see created backups"
-        return 0
+        force_all_backups
+        backup_results=$?
+        total_forced=3
     else
+        if [ "$force_static" = true ]; then
+            echo ""
+            force_static_backup
+            if [ $? -eq 0 ]; then
+                backup_results=$((backup_results + 1))
+            fi
+            total_forced=$((total_forced + 1))
+        fi
+        
+        if [ "$force_public" = true ]; then
+            echo ""
+            force_public_backup  
+            if [ $? -eq 0 ]; then
+                backup_results=$((backup_results + 1))
+            fi
+            total_forced=$((total_forced + 1))
+        fi
+        
+        if [ "$force_db" = true ]; then
+            echo ""
+            force_db_backup
+            if [ $? -eq 0 ]; then
+                backup_results=$((backup_results + 1))
+            fi
+            total_forced=$((total_forced + 1))
+        fi
+    fi
+    
+    # Final summary
+    if [ $total_forced -gt 0 ]; then
         echo ""
-        print_status $RED "❌ SOME TESTS FAILED. Please fix the issues above before using the backup system."
-        echo ""
-        print_status $YELLOW "Common fixes:"
-        echo "1. Ensure all dependencies are installed (aws cli, jq, etc.)"
-        echo "2. Verify AWS credentials and S3 access"
-        echo "3. Check file permissions on script files"
-        return 1
+        print_status $BLUE "============================================"
+        print_status $BLUE "              FINAL SUMMARY"
+        print_status $BLUE "============================================"
+        
+        if [ "$run_tests" = true ]; then
+            echo "Tests: $TESTS_PASSED passed, $TESTS_FAILED failed"
+        fi
+        
+        if [ "$force_all" = true ]; then
+            if [ $backup_results -eq 0 ]; then
+                echo "Forced Backups: All 3 types completed successfully"
+            else
+                echo "Forced Backups: Some backups failed"
+            fi
+        else
+            echo "Forced Backups: $backup_results of $total_forced completed successfully"
+        fi
+        
+        # Return appropriate exit code
+        if [ "$run_tests" = true ] && [ $TESTS_FAILED -gt 0 ]; then
+            return 1
+        elif [ $total_forced -gt 0 ] && [ "$force_all" = true ] && [ $backup_results -ne 0 ]; then
+            return 1
+        elif [ $total_forced -gt 0 ] && [ "$force_all" = false ] && [ $backup_results -ne $total_forced ]; then
+            return 1
+        else
+            return 0
+        fi
+    else
+        # Only tests were run
+        if [ "$test_success" = true ]; then
+            echo ""
+            print_status $YELLOW "Next steps:"
+            echo "1. Run a Tome sync to test automatic backups in action"
+            echo "2. Monitor the logs for backup creation messages"
+            echo "3. Use './scripts/tome-backup-manager.sh list' to see created backups"
+            echo "4. Use './scripts/test-backup-system.sh --help' to see forced backup options"
+            return 0
+        else
+            echo ""
+            print_status $YELLOW "Common fixes:"
+            echo "1. Ensure all dependencies are installed (aws cli, jq, etc.)"
+            echo "2. Verify AWS credentials and S3 access"
+            echo "3. Check file permissions on script files"
+            return 1
+        fi
     fi
 }
 
