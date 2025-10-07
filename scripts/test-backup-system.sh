@@ -393,6 +393,83 @@ test_log_directory() {
     fi
 }
 
+# Function to test database backup system
+test_database_backup_system() {
+    echo "Testing database backup system..."
+    
+    # Check if database backup script exists
+    if [ ! -f "./scripts/db-backup-daily.sh" ]; then
+        echo "✗ Database backup script not found"
+        return 1
+    fi
+    
+    # Check if cron setup script exists  
+    if [ ! -f "./scripts/setup-db-backup-cron.sh" ]; then
+        echo "✗ Database backup cron setup script not found"
+        return 1
+    fi
+    
+    # Load config to test database backup settings
+    . "./scripts/tome-backup.conf"
+    
+    # Test database backup configuration
+    echo "Testing database backup configuration..."
+    if [ "$ENABLE_DB_BACKUPS" = "true" ]; then
+        echo "✓ Database backups are enabled"
+    else
+        echo "✓ Database backups are disabled (as configured)"
+    fi
+    
+    # Test backup time configuration
+    if [ -n "$DB_BACKUP_TIME" ]; then
+        echo "✓ Database backup time is configured: $DB_BACKUP_TIME"
+    else
+        echo "✗ Database backup time not configured"
+        return 1
+    fi
+    
+    # Test retention configuration
+    if [ -n "$DB_BACKUP_RETENTION_DAYS" ] && [ "$DB_BACKUP_RETENTION_DAYS" -gt 0 ]; then
+        echo "✓ Database backup retention configured: $DB_BACKUP_RETENTION_DAYS days"
+    else
+        echo "✗ Database backup retention not properly configured"
+        return 1
+    fi
+    
+    # Test backup prefix configuration
+    if [ -n "$DB_BACKUP_PREFIX" ]; then
+        echo "✓ Database backup prefix configured: $DB_BACKUP_PREFIX"
+    else
+        echo "✗ Database backup prefix not configured"
+        return 1
+    fi
+    
+    # Test database backup manager functions
+    local manager_script="./scripts/tome-backup-manager.sh"
+    for func in "list_db_backups" "list_old_db_backups" "clean_old_db_backups" "backup_db" "db_backup_info"; do
+        if grep -q "$func" "$manager_script"; then
+            echo "✓ Found database backup manager function: $func"
+        else
+            echo "✗ Missing database backup manager function: $func"
+            return 1
+        fi
+    done
+    
+    # Check if daily backup script has required components
+    local db_script="./scripts/db-backup-daily.sh"
+    for component in "tome-backup.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX" "db-dump-to-snapshot"; do
+        if grep -q "$component" "$db_script"; then
+            echo "✓ Database backup script includes: $component"
+        else
+            echo "✗ Database backup script missing: $component"
+            return 1
+        fi
+    done
+    
+    echo "✓ Database backup system test passed"
+    return 0
+}
+
 # Main execution
 main() {
     print_status $BLUE "============================================"
@@ -410,6 +487,7 @@ main() {
     run_test "AWS Connectivity" "test_aws_connectivity"
     run_test "Backup Integration in tome-sync.sh" "test_backup_integration"
     run_test "Backup Manager Functionality" "test_backup_manager"
+    run_test "Database Backup System" "test_database_backup_system"
     run_test "Date Calculations" "test_date_calculations"
     run_test "Backup Naming Pattern" "test_backup_naming"
     run_test "Backup Simulation" "test_backup_simulation"

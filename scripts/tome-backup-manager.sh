@@ -22,19 +22,28 @@ print_status() {
 show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
-    echo "Commands:"
+    echo "Static Site & Public Files Commands:"
     echo "  list                     List all automatic backups"
     echo "  list-old [days]          List backups older than N days (default: 7)"
     echo "  clean [days]             Remove backups older than N days (default: 7)"
     echo "  restore <backup_tag>     Restore from a specific backup"
     echo "  info <backup_tag>        Show information about a specific backup"
     echo ""
+    echo "Database Commands:"
+    echo "  list-db                  List all database backups"
+    echo "  list-db-old [days]       List database backups older than N days (default: 30)"
+    echo "  clean-db [days]          Remove database backups older than N days (default: 30)"
+    echo "  backup-db                Create an immediate database backup"
+    echo "  info-db <backup_tag>     Show information about a database backup"
+    echo ""
     echo "Examples:"
     echo "  $0 list"
-    echo "  $0 list-old 14"
+    echo "  $0 list-db"
     echo "  $0 clean 30"
+    echo "  $0 clean-db 60"
+    echo "  $0 backup-db"
     echo "  $0 restore AUTO-dev-2024_03_15_14_30_00"
-    echo "  $0 info AUTO-prod-2024_03_15_14_30_00"
+    echo "  $0 info-db DB-AUTO-2024_03_15_19_00_00"
 }
 
 # Function to get S3 credentials (simplified from tome-sync.sh)
@@ -210,6 +219,167 @@ restore_backup() {
     print_status $GREEN "Restore completed."
 }
 
+# List database backups
+list_db_backups() {
+    setup_s3_vars
+
+    echo "Database backups:"
+    echo "=================="
+
+    if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+        aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive | grep "$DB_BACKUP_PREFIX" | while read -r line; do
+            # Extract backup name from S3 listing
+            backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
+            backup_size=$(echo "$line" | awk '{print $3}')
+            backup_date=$(echo "$line" | awk '{print $1" "$2}')
+
+            echo "  $backup_file ($backup_size bytes) - $backup_date"
+        done
+    else
+        print_status $RED "Error: AWS credentials not available"
+    fi
+}
+
+# List database backups older than specified days
+list_old_db_backups() {
+    days="${1:-30}"
+
+    setup_s3_vars
+
+    # Get current timestamp
+    current_time=$(date +%s)
+
+    # Calculate cutoff timestamp (days ago)
+    cutoff_time=$((current_time - days * 86400))
+
+    echo "Listing database backups older than $days days:"
+    echo "=============================================="
+
+    if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+        aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive | grep "$DB_BACKUP_PREFIX" | while read -r line; do
+            backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
+
+            # Extract date from backup name (YYYY_MM_DD_HH_MM_SS format)
+            timestamp_part=$(echo "$backup_file" | sed "s/.*$DB_BACKUP_PREFIX-[^-]*-//")
+            if [ -n "$timestamp_part" ]; then
+                # Convert to epoch time for comparison
+                date_str=$(echo "$timestamp_part" | sed 's/_/ /g' | sed 's/ /:/' | sed 's/ /:/' | sed 's/ / /')
+                backup_time=$(date -j -f "%Y %m %d %H:%M:%S" "$date_str" +%s 2>/dev/null || echo "0")
+
+                if [ "$backup_time" -gt 0 ] && [ "$backup_time" -lt "$cutoff_time" ]; then
+                    backup_size=$(echo "$line" | awk '{print $3}')
+                    backup_date=$(echo "$line" | awk '{print $1" "$2}')
+                    echo "  $backup_file ($backup_size bytes) - $backup_date"
+                fi
+            fi
+        done
+    else
+        print_status $RED "Error: AWS credentials not available"
+    fi
+}
+
+# Clean old database backups
+clean_old_db_backups() {
+    days="${1:-30}"
+
+    setup_s3_vars
+
+    # Get current timestamp
+    current_time=$(date +%s)
+
+    # Calculate cutoff timestamp (days ago)
+    cutoff_time=$((current_time - days * 86400))
+
+    print_status $YELLOW "Cleaning database backups older than $days days..."
+
+    if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+        count=0
+        aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive | grep "$DB_BACKUP_PREFIX" | while read -r line; do
+            backup_file=$(echo "$line" | awk '{print $4}')
+            backup_name=$(echo "$backup_file" | xargs basename)
+
+            # Extract date from backup name (YYYY_MM_DD_HH_MM_SS format)
+            timestamp_part=$(echo "$backup_name" | sed "s/.*$DB_BACKUP_PREFIX-[^-]*-//")
+            if [ -n "$timestamp_part" ]; then
+                # Convert to epoch time for comparison
+                date_str=$(echo "$timestamp_part" | sed 's/_/ /g' | sed 's/ /:/' | sed 's/ /:/' | sed 's/ / /')
+                backup_time=$(date -j -f "%Y %m %d %H:%M:%S" "$date_str" +%s 2>/dev/null || echo "0")
+
+                if [ "$backup_time" -gt 0 ] && [ "$backup_time" -lt "$cutoff_time" ]; then
+                    print_status $YELLOW "Deleting old database backup: $backup_name"
+                    aws s3 rm s3://"$BUCKET_NAME"/"$backup_file" $S3_EXTRA_PARAMS
+                    count=$((count + 1))
+                fi
+            fi
+        done
+
+        print_status $GREEN "Database backup cleanup completed. Processed $count old backups."
+    else
+        print_status $RED "Error: AWS credentials not available"
+    fi
+}
+
+# Create immediate database backup
+backup_db() {
+    setup_s3_vars
+
+    print_status $YELLOW "Creating immediate database backup..."
+
+    # Use the daily backup script
+    script_dir="$(dirname "$0")"
+    if [ -f "$script_dir/db-backup-daily.sh" ]; then
+        "$script_dir/db-backup-daily.sh"
+    else
+        print_status $RED "Error: Database backup script not found at $script_dir/db-backup-daily.sh"
+        exit 1
+    fi
+}
+
+# Show database backup information
+db_backup_info() {
+    backup_name="$1"
+
+    if [ -z "$backup_name" ]; then
+        print_status $RED "Error: Backup name required"
+        show_usage
+        exit 1
+    fi
+
+    setup_s3_vars
+
+    echo "Database Backup Information:"
+    echo "============================"
+    echo "Backup Name: $backup_name"
+
+    if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+        # Look for the backup file
+        backup_info=$(aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive | grep "$backup_name")
+
+        if [ -n "$backup_info" ]; then
+            backup_size=$(echo "$backup_info" | awk '{print $3}')
+            backup_date=$(echo "$backup_info" | awk '{print $1" "$2}')
+            backup_file=$(echo "$backup_info" | awk '{print $4}')
+
+            echo "File Path: s3://$BUCKET_NAME/$backup_file"
+            echo "Size: $backup_size bytes"
+            echo "Created: $backup_date"
+
+            # Extract date from backup name if possible
+            timestamp_part=$(echo "$backup_name" | sed "s/.*$DB_BACKUP_PREFIX-[^-]*-//")
+            if [ -n "$timestamp_part" ]; then
+                formatted_date=$(echo "$timestamp_part" | sed 's/_/-/g' | sed 's/-/ /' | sed 's/-/ /' | sed 's/-/:/' | sed 's/-/:/')
+                echo "Backup Timestamp: $formatted_date"
+            fi
+        else
+            print_status $RED "Error: Database backup '$backup_name' not found"
+            exit 1
+        fi
+    else
+        print_status $RED "Error: AWS credentials not available"
+        exit 1
+    fi
+}
+
 # Main script logic
 case "${1:-}" in
     "list")
@@ -226,6 +396,21 @@ case "${1:-}" in
         ;;
     "info")
         backup_info "$2"
+        ;;
+    "list-db")
+        list_db_backups
+        ;;
+    "list-db-old")
+        list_old_db_backups "${2:-30}"
+        ;;
+    "clean-db")
+        clean_old_db_backups "${2:-30}"
+        ;;
+    "backup-db")
+        backup_db
+        ;;
+    "info-db")
+        db_backup_info "$2"
         ;;
     *)
         show_usage
