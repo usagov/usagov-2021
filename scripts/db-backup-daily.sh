@@ -70,7 +70,7 @@ setup_s3_env() {
         if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
             export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint' 2>/dev/null)
         fi
-        
+
         # Set S3 parameters for local/minio support
         if [ "${APP_SPACE}" = "local" ]; then
             S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
@@ -81,7 +81,7 @@ setup_s3_env() {
         log_message "WARNING: VCAP_SERVICES not found - not in Cloud Foundry environment"
         S3_EXTRA_PARAMS=""
     fi
-    
+
     if [ -z "$BUCKET_NAME" ]; then
         log_message "ERROR: Could not determine S3 bucket name"
         exit 1
@@ -91,14 +91,43 @@ setup_s3_env() {
 # Function to create database backup
 create_db_backup() {
     log_message "Creating database backup..." | tee -a "$LOGFILE"
-    
+
+    # Ensure we're in the right working directory
+    # In Cloud Foundry, we should be in /var/www
+    if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
+        log_message "Cloud Foundry detected, changing to /var/www directory" | tee -a "$LOGFILE"
+        cd /var/www
+        log_message "New working directory: $(pwd)" | tee -a "$LOGFILE"
+    fi
+
     # Use the existing database backup script from bin/snapshot-backups
-    if [ -f "$SCRIPT_PATH/../bin/snapshot-backups/db-dump-to-snapshot" ]; then
-        log_message "Using existing db-dump-to-snapshot script" | tee -a "$LOGFILE"
-        
+    # Try multiple possible paths to find the script
+    DB_SCRIPT_PATHS="
+        $SCRIPT_PATH/../bin/snapshot-backups/db-dump-to-snapshot
+        ./bin/snapshot-backups/db-dump-to-snapshot
+        /var/www/bin/snapshot-backups/db-dump-to-snapshot
+        $(pwd)/bin/snapshot-backups/db-dump-to-snapshot
+    "
+
+    log_message "Current working directory: $(pwd)" | tee -a "$LOGFILE"
+    log_message "SCRIPT_PATH: $SCRIPT_PATH" | tee -a "$LOGFILE"
+
+    DB_SCRIPT_PATH=""
+    for path in $DB_SCRIPT_PATHS; do
+        log_message "Checking for database script at: $path" | tee -a "$LOGFILE"
+        if [ -f "$path" ]; then
+            DB_SCRIPT_PATH="$path"
+            log_message "Found database script at: $DB_SCRIPT_PATH" | tee -a "$LOGFILE"
+            break
+        fi
+    done
+
+    if [ -n "$DB_SCRIPT_PATH" ] && [ -f "$DB_SCRIPT_PATH" ]; then
+        log_message "Using database backup script: $DB_SCRIPT_PATH" | tee -a "$LOGFILE"
+
         # The db-dump-to-snapshot script expects a tag parameter
-        "$SCRIPT_PATH/../bin/snapshot-backups/db-dump-to-snapshot" "$DB_BACKUP_TAG" 2>&1 | tee -a "$LOGFILE"
-        
+        "$DB_SCRIPT_PATH" "$DB_BACKUP_TAG" 2>&1 | tee -a "$LOGFILE"
+
         if [ $? -eq 0 ]; then
             log_message "Database backup completed successfully" | tee -a "$LOGFILE"
             return 0
@@ -107,7 +136,36 @@ create_db_backup() {
             return 1
         fi
     else
-        log_message "ERROR: Database backup script not found" | tee -a "$LOGFILE"
+        log_message "ERROR: Database backup script not found in any expected location" | tee -a "$LOGFILE"
+        log_message "Searched paths:" | tee -a "$LOGFILE"
+        for path in $DB_SCRIPT_PATHS; do
+            if [ -f "$path" ]; then
+                log_message "  $path - EXISTS" | tee -a "$LOGFILE"
+            else
+                log_message "  $path - NOT FOUND" | tee -a "$LOGFILE"
+            fi
+        done
+
+        log_message "Debugging directory structure:" | tee -a "$LOGFILE"
+        log_message "Current working directory contents:" | tee -a "$LOGFILE"
+        ls -la "." 2>&1 | head -10 | tee -a "$LOGFILE"
+
+        if [ -d "bin" ]; then
+            log_message "bin/ directory contents:" | tee -a "$LOGFILE"
+            ls -la "bin/" 2>&1 | tee -a "$LOGFILE"
+
+            if [ -d "bin/snapshot-backups" ]; then
+                log_message "bin/snapshot-backups/ directory contents:" | tee -a "$LOGFILE"
+                ls -la "bin/snapshot-backups/" 2>&1 | tee -a "$LOGFILE"
+            else
+                log_message "bin/snapshot-backups/ directory does not exist" | tee -a "$LOGFILE"
+            fi
+        else
+            log_message "bin/ directory does not exist in current working directory" | tee -a "$LOGFILE"
+        fi
+
+        log_message "Attempting to resolve path issue..." | tee -a "$LOGFILE"
+        log_message "Note: Ensure you're running this from the project root directory (/var/www in CF)" | tee -a "$LOGFILE"
         return 1
     fi
 }
@@ -118,12 +176,12 @@ cleanup_old_db_backups() {
         log_message "Automatic cleanup is disabled" | tee -a "$LOGFILE"
         return 0
     fi
-    
+
     log_message "Cleaning up database backups older than $DB_BACKUP_RETENTION_DAYS days..." | tee -a "$LOGFILE"
-    
+
     # Calculate cutoff date
     CUTOFF_DATE=$(date -u -d "${DB_BACKUP_RETENTION_DAYS} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${DB_BACKUP_RETENTION_DAYS}d '+%Y_%m_%d' 2>/dev/null)
-    
+
     if [ -n "$CUTOFF_DATE" ]; then
         # List and delete old database backups
         aws s3 ls s3://$BUCKET_NAME/db_backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
@@ -146,7 +204,7 @@ upload_log() {
     if [ -f "$LOGFILE" ] && [ -n "$BUCKET_NAME" ]; then
         log_message "Uploading backup log to S3..." | tee -a "$LOGFILE"
         aws s3 cp "$LOGFILE" "s3://$BUCKET_NAME/db-backup-logs/$(basename "$LOGFILE")" $S3_EXTRA_PARAMS 2>&1 | tee -a "$LOGFILE"
-        
+
         if [ $? -eq 0 ]; then
             log_message "Log uploaded successfully" | tee -a "$LOGFILE"
         else
@@ -158,28 +216,28 @@ upload_log() {
 # Main execution
 main() {
     log_message "=== Database Backup Started ===" | tee -a "$LOGFILE"
-    
+
     # Setup environment
     setup_s3_env
-    
+
     # Create database backup
     if create_db_backup; then
         print_status $GREEN "Database backup successful: $DB_BACKUP_TAG"
-        
+
         # Cleanup old backups
         cleanup_old_db_backups
-        
+
         # Upload log
         upload_log
-        
+
         log_message "=== Database Backup Completed Successfully ===" | tee -a "$LOGFILE"
         exit 0
     else
         print_status $RED "Database backup failed"
-        
+
         # Upload log even on failure
         upload_log
-        
+
         log_message "=== Database Backup Failed ===" | tee -a "$LOGFILE"
         exit 1
     fi
