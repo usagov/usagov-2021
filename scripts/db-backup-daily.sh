@@ -1,7 +1,21 @@
 #!/bin/sh
 
 # Automated Database Backup Script
-# Runs daily to create database snapshots
+# Check if database backups are enabled
+if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
+    log_message "Database backups disabled"
+    exit 0
+fi
+
+# Generate backup tag with timestamp
+TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
+DB_BACKUP_TAG="${DB_BACKUP_PREFIX}-${TIMESTAMP}"
+
+# Get environment info
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
+APP_SPACE=${APP_SPACE:-local}
+
+log_message "Starting DB backup: $DB_BACKUP_TAG ($APP_SPACE)"database snapshots
 
 SCRIPT_PATH=$(dirname "$0")
 
@@ -106,23 +120,17 @@ setup_s3_env() {
 create_db_backup() {
     log_message "Creating database backup..." | tee -a "$LOGFILE"
 
-    # Ensure we're in the right working directory for drush commands
-    # In Cloud Foundry, we should be in /var/www
+    # Set working directory for drush
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
-        log_message "Cloud Foundry detected, changing to /var/www directory" | tee -a "$LOGFILE"
         cd /var/www
-        log_message "New working directory: $(pwd)" | tee -a "$LOGFILE"
     fi
-
-    # Instead of using the bash-dependent scripts, implement database backup directly
-    log_message "Implementing database backup directly (POSIX compatible)" | tee -a "$LOGFILE"
 
     # Create temporary files for database backup
     TEMP_SQL="/tmp/${DB_BACKUP_TAG}.sql"
     TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
 
-    # Step 1: Create database dump using drush (without --gzip to avoid bash dependency)
-    log_message "Creating database dump with drush..." | tee -a "$LOGFILE"
+    # Create database dump using drush
+    log_message "Creating database dump..." | tee -a "$LOGFILE"
     if command -v drush >/dev/null 2>&1; then
         # Clear cache first, then create dump to SQL file
         drush cr 2>&1 | tee -a "$LOGFILE"
@@ -145,8 +153,8 @@ create_db_backup() {
         return 1
     fi
 
-    # Step 2.5: Compress the SQL file using gzip (POSIX compatible)
-    log_message "Compressing database dump..." | tee -a "$LOGFILE"
+    # Compress the SQL file using gzip
+    log_message "Compressing dump..." | tee -a "$LOGFILE"
     gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
     GZIP_EXIT_CODE=$?
 
@@ -163,8 +171,8 @@ create_db_backup() {
         return 1
     fi
 
-    # Step 3: Upload to S3
-    log_message "Uploading database backup to S3..." | tee -a "$LOGFILE"
+    # Upload compressed file to S3
+    log_message "Uploading to S3..." | tee -a "$LOGFILE"
 
     # Use BUCKET_NAME (consistent with existing scripts)
     if [ -z "$BUCKET_NAME" ]; then
@@ -173,7 +181,7 @@ create_db_backup() {
     fi
 
     S3_DB_PATH="s3://${BUCKET_NAME}/database/${DB_BACKUP_TAG}.sql.gz"
-    log_message "Uploading to: $S3_DB_PATH" | tee -a "$LOGFILE"
+    log_message "Target: $S3_DB_PATH" | tee -a "$LOGFILE"
 
     aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
     UPLOAD_EXIT_CODE=$?

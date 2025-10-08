@@ -1,15 +1,14 @@
 #!/bin/sh
 
-# Cron Setup Script for Database Backups
-# Sets up daily database backups to run at 7pm EST
+# Database Backup Cron Setup
 
 SCRIPT_PATH=$(dirname "$0")
 
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 print_status() {
     local color=$1
@@ -57,40 +56,31 @@ fi
 # Get absolute path
 DB_BACKUP_SCRIPT=$(cd "$(dirname "$DB_BACKUP_SCRIPT")" && pwd)/$(basename "$DB_BACKUP_SCRIPT")
 
-print_status $YELLOW "Setting up daily database backups..."
-echo "Backup time: ${DB_BACKUP_TIME} EST (${DB_HOUR}:${DB_MINUTE})"
-echo "Backup script: $DB_BACKUP_SCRIPT"
+print_status $YELLOW "Setting up DB backups at ${DB_BACKUP_TIME} EST"
 
 # Check if we're in a Cloud Foundry environment
 if [ -n "$VCAP_APPLICATION" ]; then
-    print_status $YELLOW "Cloud Foundry environment detected"
-    
-    # In CF with CMS container, we integrate with the existing Alpine cron system
-    # The CMS container already has cron running with /etc/periodic/ structure
-    
-    # Check if we're in the CMS container (has the existing static site cron)
+    print_status $YELLOW "Cloud Foundry detected"
+
+    # Check if we're in the CMS container
     if [ -f "/etc/periodic/1min/generate-static-site" ]; then
-        print_status $YELLOW "CMS container detected - integrating with existing cron system"
-        
+        print_status $YELLOW "CMS container - integrating with existing cron"
+
         # Create database backup script in the periodic directory
         # Since we want daily backups at a specific time, we'll create a script
         # that checks the time and only runs at the specified hour/minute
-        
+
         DB_CRON_SCRIPT="/etc/periodic/1min/database-backup"
-        
+
         cat > "$DB_CRON_SCRIPT" << EOF
 #!/bin/sh
 
-# Database backup cron integration
-# Runs within the existing CMS container cron system
-# Only executes at the configured time: $DB_BACKUP_TIME EST
+# Database backup cron - runs at $DB_BACKUP_TIME EST
 
-# Only the 1st instance within cloud formation should do backups
+# Only primary instance runs backups
 if [ "\${CF_INSTANCE_INDEX:-''}" != "0" ]; then
     exit 0
 fi
-
-# Check if it's time to run the backup
 # Convert EST time to UTC since Cloud Foundry containers run in UTC
 # EST is UTC-5, EDT is UTC-4. We'll use a simple approach:
 # Check if we're in EST (Nov-Mar) or EDT (Mar-Nov) period
@@ -126,29 +116,29 @@ TARGET_MINUTE_UTC=\${TARGET_MINUTE_UTC:-0}
 if [ "\$CURRENT_HOUR_UTC" -eq "\$TARGET_HOUR_UTC" ] && [ "\$CURRENT_MINUTE_UTC" -eq "\$TARGET_MINUTE_UTC" ]; then
     # Ensure log directory exists
     mkdir -p /tmp/tome-log
-    
+
     # Change to the correct directory
     cd /var/www
-    
+
     # Run the database backup
     $DB_BACKUP_SCRIPT >> /tmp/tome-log/db-backup-cron.log 2>&1
 fi
 EOF
-        
+
         chmod +x "$DB_CRON_SCRIPT"
-        
+
         print_status $GREEN "Created database backup integration: $DB_CRON_SCRIPT"
         print_status $GREEN "Backup time: ${DB_BACKUP_TIME} EST"
         print_status $YELLOW "Database backups will run within the existing CMS container cron system"
         print_status $YELLOW "The backup will execute daily at ${DB_BACKUP_TIME} EST"
-        
+
     else
         print_status $YELLOW "Generic Cloud Foundry environment - using standard cron setup"
-        
+
         # Fallback to standard CF cron setup for non-CMS containers
         CRON_DIR="/var/www/scripts/cron"
         mkdir -p "$CRON_DIR"
-        
+
         # Create cron job file
         CRON_JOB_FILE="$CRON_DIR/db-backup"
         cat > "$CRON_JOB_FILE" << EOF
@@ -167,15 +157,15 @@ cd /var/www
 # Run the database backup
 $DB_BACKUP_SCRIPT >> /tmp/tome-log/db-backup-cron.log 2>&1
 EOF
-        
+
         chmod +x "$CRON_JOB_FILE"
-        
+
         # Create crontab entry
         CRONTAB_ENTRY="$DB_MINUTE $DB_HOUR * * * $CRON_JOB_FILE"
-        
+
         print_status $GREEN "Created cron job file: $CRON_JOB_FILE"
         print_status $GREEN "Crontab entry: $CRONTAB_ENTRY"
-        
+
         # Add to crontab if crontab command is available
         if command -v crontab >/dev/null 2>&1; then
             # Check if cron entry already exists
@@ -192,13 +182,13 @@ EOF
             print_status $YELLOW "$CRONTAB_ENTRY"
         fi
     fi
-    
+
 else
     print_status $YELLOW "Local environment detected"
-    
+
     # For local development, just show the crontab entry
     CRONTAB_ENTRY="$DB_MINUTE $DB_HOUR * * * cd $(pwd) && $DB_BACKUP_SCRIPT >> /tmp/tome-log/db-backup-cron.log 2>&1"
-    
+
     print_status $YELLOW "To set up the cron job, add this line to your crontab:"
     print_status $GREEN "$CRONTAB_ENTRY"
     print_status $YELLOW ""

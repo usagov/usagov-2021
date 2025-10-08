@@ -26,53 +26,38 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
 print_status() {
     local color=$1
     local message=$2
     echo -e "${color}${message}${NC}"
 }
 
-# Function to show usage
+
 show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
-    echo "Listing Commands:"
-    echo "  list                     List ALL backups (static site, public files, and database)"
-    echo "  list-static              List static site backups only"
-    echo "  list-public              List public file backups only"
-    echo "  list-db                  List database backups only"
-    echo ""
-    echo "Management Commands:"
-    echo "  list-old [days]          List static/public backups older than N days (default: 7)"
-    echo "  list-db-old [days]       List database backups older than N days (default: 30)"
-    echo "  clean [days]             Remove static/public backups older than N days (default: 7)"
-    echo "  clean-db [days]          Remove database backups older than N days (default: 30)"
-    echo "  restore <backup_tag> [--only=types]  Unified restore (static+public+database)"
-    echo "  backup-db                Create an immediate database backup"
-    echo ""
-    echo "Information Commands:"
-    echo "  info <backup_tag>        Show information about a static/public backup"
-    echo "  info-db <backup_tag>     Show information about a database backup"
+    echo "Commands:"
+    echo "  list                     All backups organized by restore tag"
+    echo "  list-static              Static site backups"
+    echo "  list-public              Public file backups"
+    echo "  list-db                  Database backups"
+    echo "  list-old [days]          Old static/public backups (default: 7 days)"
+    echo "  list-db-old [days]       Old database backups (default: 30 days)"
+    echo "  clean [days]             Remove old static/public backups"
+    echo "  clean-db [days]          Remove old database backups"
+    echo "  restore <tag> [--only=type,type]  Restore backups"
+    echo "  backup-db                Create database backup now"
+    echo "  info <tag>               Static/public backup details"
+    echo "  info-db <tag>            Database backup details"
     echo ""
     echo "Examples:"
-    echo "  $0 list                  # Show all backup types organized by restore tag"
-    echo "  $0 list-static           # Show only static site backups"
-    echo "  $0 list-db               # Show only database backups"
-    echo "  $0 clean 30              # Clean old static/public backups"
-    echo "  $0 backup-db             # Create immediate database backup"
-    echo ""
-    echo "Unified Restore Examples:"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00                    # Restore all (static+public+database)"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static     # Restore only static site"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,public  # Restore static + public"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=database   # Restore only database"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,database # Restore static + database"
-    echo ""
-    echo "  $0 info-db DB-AUTO-2024_03_15_19_00_00"
+    echo "  $0 list"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,database"
+    echo "  $0 clean 30"
 }
 
-# Function to get S3 credentials (simplified from tome-sync.sh)
+
 setup_s3_vars() {
     if [ -z "$BUCKET_NAME" ]; then
         export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
@@ -101,13 +86,11 @@ setup_s3_vars() {
     fi
 }
 
-# Function to list all automatic backups
 list_backups() {
-    # Now calls the all backups function to show everything
     list_all_backups
 }
 
-# Function to list static site backups only
+
 list_static_backups() {
     setup_s3_vars
 
@@ -116,7 +99,7 @@ list_static_backups() {
     aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
 }
 
-# Function to list public file backups only
+
 list_public_backups() {
     setup_s3_vars
 
@@ -125,12 +108,11 @@ list_public_backups() {
     aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
 }
 
-# Function to list all backup types organized by restore tag
+
 list_all_backups() {
     setup_s3_vars
 
-    print_status $BLUE "BACKUPS ORGANIZED BY RESTORE TAG"
-    print_status $BLUE "================================="
+    print_status $BLUE "Backups by Restore Tag"
     echo ""
 
     # Create temporary files to collect backup data
@@ -194,14 +176,7 @@ list_all_backups() {
     rm -f "$static_list" "$public_list" "$db_list" "$all_tags" 2>/dev/null
 
     echo ""
-    print_status $YELLOW "Legend:"
-    print_status $YELLOW "  ✓ = Backup available    ✗ = No backup (may use smart fallback for public files)"
-    print_status $YELLOW "  Database backups have independent timestamps from static/public backups"
-    echo ""
-    print_status $GREEN "Usage Examples:"
-    echo "  ./scripts/tome-backup-manager.sh restore <BACKUP_TAG>    # Restore static + public files"
-    echo "  ./scripts/tome-backup-manager.sh info <BACKUP_TAG>       # Show backup details"
-    echo "  ./scripts/tome-backup-manager.sh info-db <DB_BACKUP>     # Show database backup details"
+    print_status $YELLOW "✓ = Available    ✗ = Missing (smart fallback may apply)"
 }
 
 # Function to list old backups
@@ -212,9 +187,8 @@ list_old_backups() {
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -z "$cutoff_date" ]; then
-        print_status $RED "Error: Could not calculate cutoff date - advanced date calculations not supported"
-        print_status $YELLOW "This environment's date command doesn't support relative date calculations."
-        print_status $YELLOW "Manual backup management will be required."
+        print_status $RED "Error: Date calculation not supported on this system"
+        print_status $YELLOW "Use 'list' command and manual cleanup required."
         exit 1
     fi
 
@@ -249,9 +223,8 @@ clean_old_backups() {
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -z "$cutoff_date" ]; then
-        print_status $RED "Error: Could not calculate cutoff date - advanced date calculations not supported"
-        print_status $YELLOW "This environment's date command doesn't support relative date calculations."
-        print_status $YELLOW "Use 'list' command to see backups and remove them manually with AWS CLI."
+        print_status $RED "Error: Date calculation not supported on this system"
+        print_status $YELLOW "Use 'list' command for manual cleanup with AWS CLI."
         exit 1
     fi
 
@@ -478,11 +451,6 @@ restore_backup() {
     if [ $# -eq 0 ]; then
         print_status $RED "Error: Backup tag is required"
         print_status $YELLOW "Usage: restore <backup_tag> [--only=static,public,database]"
-        print_status $YELLOW "Examples:"
-        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00                    # Restore all (static + public + database)"
-        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00 --only=static     # Restore only static site"
-        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00 --only=static,public  # Restore static + public"
-        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00 --only=database   # Restore only database"
         exit 1
     fi
 
@@ -502,8 +470,7 @@ restore_backup() {
     restore_public=$(echo "$restore_types" | grep -q "public" && echo "yes" || echo "no")
     restore_database=$(echo "$restore_types" | grep -q "database" && echo "yes" || echo "no")
 
-    print_status $BLUE "UNIFIED RESTORE ANALYSIS"
-    print_status $BLUE "========================"
+    print_status $BLUE "Restore Analysis"
     echo ""
 
     # Find appropriate backups for each type

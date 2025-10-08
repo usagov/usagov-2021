@@ -336,15 +336,13 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       
       # Static site backup (if enabled)
       if [ "$ENABLE_STATIC_AUTO_BACKUPS" = "true" ]; then
-          echo "Creating static site backup with tag: $BACKUP_TAG" | tee -a $TOMELOG
+          echo "Creating static backup: $BACKUP_TAG" | tee -a $TOMELOG
           aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/web-backup/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
           if [ $? -eq 0 ]; then
-              echo "Static site backup completed successfully." | tee -a $TOMELOG
+              echo "Static backup complete" | tee -a $TOMELOG
           else
-              echo "Warning: Static site backup failed." | tee -a $TOMELOG
+              echo "Warning: Static backup failed" | tee -a $TOMELOG
           fi
-      else
-          echo "Static site automatic backups are disabled." | tee -a $TOMELOG
       fi
 
       # Public files backup (if enabled)
@@ -353,45 +351,40 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
           PUBLIC_BACKUP_NEEDED=true
 
           if [ "$ENABLE_SMART_PUBLIC_BACKUP" = "true" ]; then
-              echo "Checking if public files backup is needed..." | tee -a $TOMELOG
+              echo "Checking if public backup needed..." | tee -a $TOMELOG
 
               # Find the most recent automatic public files backup
               LATEST_PUBLIC_BACKUP=$(aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-${APP_SPACE}-" | sort -r | head -n1 | awk '{print $2}' | tr -d '/')
 
               if [ -n "$LATEST_PUBLIC_BACKUP" ]; then
-                  echo "Found latest public backup: $LATEST_PUBLIC_BACKUP" | tee -a $TOMELOG
-                  echo "Comparing current public files with latest backup..." | tee -a $TOMELOG
+                  echo "Comparing with: $LATEST_PUBLIC_BACKUP" | tee -a $TOMELOG
 
                   # Get checksums of current public files and latest backup
                   CURRENT_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/cms/public/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/cms/public/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
                   BACKUP_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/public_backup/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/public_backup/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
 
                   if [ -n "$CURRENT_PUBLIC_CHECKSUM" ] && [ -n "$BACKUP_PUBLIC_CHECKSUM" ] && [ "$CURRENT_PUBLIC_CHECKSUM" = "$BACKUP_PUBLIC_CHECKSUM" ]; then
-                      echo "Public files unchanged since last backup. Skipping duplicate backup." | tee -a $TOMELOG
+                      echo "Public files unchanged, skipping backup" | tee -a $TOMELOG
                       PUBLIC_BACKUP_NEEDED=false
                   else
-                      echo "Public files have changed since last backup." | tee -a $TOMELOG
+                      echo "Public files changed" | tee -a $TOMELOG
                   fi
               else
-                  echo "No previous automatic public backup found. Creating initial backup." | tee -a $TOMELOG
+                  echo "No previous public backup found" | tee -a $TOMELOG
               fi
-          else
-              echo "Smart public backup is disabled. Creating backup without comparison." | tee -a $TOMELOG
           fi
 
           if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
-              echo "Creating public files backup with tag: $BACKUP_TAG" | tee -a $TOMELOG
+              echo "Creating public backup: $BACKUP_TAG" | tee -a $TOMELOG
               aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/public_backup/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
               if [ $? -eq 0 ]; then
-                  echo "Public files backup completed successfully." | tee -a $TOMELOG
+                  echo "Public backup complete" | tee -a $TOMELOG
               else
-                  echo "Warning: Public files backup failed." | tee -a $TOMELOG
+                  echo "Warning: Public backup failed" | tee -a $TOMELOG
               fi
           else
-              echo "Public files backup skipped (no changes detected)." | tee -a $TOMELOG
+              echo "Public backup skipped (no changes)" | tee -a $TOMELOG
           fi
-      else
-          echo "Public files automatic backups are disabled." | tee -a $TOMELOG
       fi
 
       echo "Automatic backup process completed." | tee -a $TOMELOG

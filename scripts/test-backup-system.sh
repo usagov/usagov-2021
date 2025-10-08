@@ -1,25 +1,21 @@
 #!/bin/sh
 
-#!/bin/sh
+# Backup System Test Script
 
-# Tome Backup System Test Script
-# This script validates all aspects of the automatic backup system
+set -e
 
-set -e  # Exit on any error
-
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Test results tracking
+# Test tracking
 TESTS_PASSED=0
 TESTS_FAILED=0
 TESTS_TOTAL=0
 
-# Function to print colored output
 print_status() {
     local color=$1
     local message=$2
@@ -234,7 +230,7 @@ test_backup_integration() {
     local tome_sync_script="./scripts/tome-sync.sh"
 
     # Check for backup-related code in tome-sync.sh
-    for pattern in "auto-backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating static site backup" "web-backup" "public_backup" "BACKUP_PREFIX"; do
+    for pattern in "auto-backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating static backup" "web-backup" "public_backup" "BACKUP_PREFIX"; do
         if grep -q "$pattern" "$tome_sync_script"; then
             echo "✓ Found backup integration: $pattern"
         else
@@ -483,9 +479,9 @@ test_database_backup_system() {
         fi
     done
 
-    # Check for direct database backup implementation (POSIX compatible)
-    if grep -q "drush sql:dump" "$db_script" && grep -q "POSIX compatible" "$db_script"; then
-        echo "✓ Database backup script uses direct POSIX-compatible implementation"
+    # Check for direct database backup implementation
+    if grep -q "drush sql:dump" "$db_script"; then
+        echo "✓ Database backup script uses direct implementation"
     else
         echo "✗ Database backup script missing direct implementation"
         return 1
@@ -539,7 +535,7 @@ force_static_backup() {
     TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
     BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${TIMESTAMP}"
 
-    print_status $YELLOW "Creating static site backup: $BACKUP_TAG"
+    print_status $YELLOW "Creating static backup: $BACKUP_TAG"
 
     # Force create static site backup by calling tome-sync.sh backup functions directly
     SCRIPT_PATH="./scripts"
@@ -732,9 +728,8 @@ main() {
 
     # Run the test suite first if any tests should run
     if [ "$run_tests" = true ]; then
-        print_status $BLUE "============================================"
-        print_status $BLUE "     Tome Backup System Test Suite"
-        print_status $BLUE "============================================"
+        print_status $BLUE "Backup System Test Suite"
+        print_status $BLUE "========================"
 
         echo ""
         print_status $YELLOW "Setting up test environment..."
@@ -755,9 +750,8 @@ main() {
 
     # Test results summary
     echo ""
-    print_status $BLUE "============================================"
-    print_status $BLUE "              TEST RESULTS"
-    print_status $BLUE "============================================"
+    print_status $BLUE "Test Results"
+    print_status $BLUE "============"
 
     echo "Total Tests: $TESTS_TOTAL"
     print_status $GREEN "Tests Passed: $TESTS_PASSED"
