@@ -364,7 +364,11 @@ clean_old_db_backups() {
 
     if [ -n "$AWS_ACCESS_KEY_ID" ]; then
         count=0
-        aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive | grep "$DB_BACKUP_PREFIX" | while read -r line; do
+        # Store AWS output in temp file to avoid subshell issue
+        temp_list="/tmp/db_backup_list_$$"
+        aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive | grep "$DB_BACKUP_PREFIX" > "$temp_list" 2>/dev/null
+
+        while read -r line; do
             backup_file=$(echo "$line" | awk '{print $4}')
             backup_name=$(echo "$backup_file" | xargs basename)
 
@@ -382,7 +386,9 @@ clean_old_db_backups() {
                     count=$((count + 1))
                 fi
             fi
-        done
+        done < "$temp_list"
+
+        rm -f "$temp_list" 2>/dev/null
 
         print_status $GREEN "Database backup cleanup completed. Processed $count old backups."
     else
