@@ -257,7 +257,7 @@ backup_info() {
     else
         echo "  No public files backup found with this tag"
         public_exists="no"
-        
+
         # If static exists but public doesn't, show the smart relationship
         if [ "$static_exists" = "yes" ]; then
             echo ""
@@ -266,7 +266,7 @@ backup_info() {
             echo "This static site backup has no corresponding public files backup."
             echo "This is normal when public files were unchanged (smart optimization)."
             echo ""
-            
+
             corresponding_public=$(find_corresponding_public_backup "$backup_tag")
             if [ -n "$corresponding_public" ]; then
                 if [ "$corresponding_public" != "$backup_tag" ]; then
@@ -284,33 +284,33 @@ backup_info() {
 # Function to find the appropriate public backup for a static site backup
 find_corresponding_public_backup() {
     local static_backup_tag=$1
-    
+
     # First, check if there's an exact match
     if aws s3 ls s3://$BUCKET_NAME/public_backup/$static_backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
         echo "$static_backup_tag"
         return 0
     fi
-    
+
     # If no exact match, find the most recent public backup before or at the static backup time
     # Extract timestamp from static backup tag (format: AUTO-space-YYYY_MM_DD_HH_MM_SS)
     static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
-    
+
     if [ -z "$static_timestamp" ]; then
         return 1
     fi
-    
+
     # Use a temp file to avoid subshell variable issues
     temp_list="/tmp/public_backup_search_$$"
     aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-" > "$temp_list" 2>/dev/null
-    
+
     best_public_backup=""
     best_timestamp=""
-    
+
     while read -r line; do
         if [ -n "$line" ]; then
             public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             public_timestamp=$(echo "$public_backup_name" | grep -o '[0-9_]*$')
-            
+
             # Compare timestamps (lexicographic comparison works for YYYY_MM_DD_HH_MM_SS format)
             if [ -n "$public_timestamp" ] && [ "$public_timestamp" \< "$static_timestamp" ] || [ "$public_timestamp" = "$static_timestamp" ]; then
                 # This public backup is at or before the static backup time
@@ -321,10 +321,10 @@ find_corresponding_public_backup() {
             fi
         fi
     done < "$temp_list"
-    
+
     # Clean up temp file
     rm -f "$temp_list" 2>/dev/null
-    
+
     if [ -n "$best_public_backup" ]; then
         echo "$best_public_backup"
         return 0
@@ -352,7 +352,7 @@ restore_backup() {
     # Find the appropriate public backup (smart logic for skipped backups)
     print_status $BLUE "Finding appropriate public files backup for static site backup: $backup_tag"
     public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
-    
+
     if [ -n "$public_backup_tag" ]; then
         if [ "$public_backup_tag" = "$backup_tag" ]; then
             print_status $GREEN "Found exact public backup match: $public_backup_tag"
