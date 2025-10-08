@@ -48,7 +48,7 @@ show_usage() {
     echo "  list-db-old [days]       List database backups older than N days (default: 30)"
     echo "  clean [days]             Remove static/public backups older than N days (default: 7)"
     echo "  clean-db [days]          Remove database backups older than N days (default: 30)"
-    echo "  restore <backup_tag>     Restore from a specific backup"
+    echo "  restore <backup_tag> [--only=types]  Unified restore (static+public+database)"
     echo "  backup-db                Create an immediate database backup"
     echo ""
     echo "Information Commands:"
@@ -56,12 +56,19 @@ show_usage() {
     echo "  info-db <backup_tag>     Show information about a database backup"
     echo ""
     echo "Examples:"
-    echo "  $0 list                  # Show all backup types"
+    echo "  $0 list                  # Show all backup types organized by restore tag"
     echo "  $0 list-static           # Show only static site backups"
     echo "  $0 list-db               # Show only database backups"
     echo "  $0 clean 30              # Clean old static/public backups"
     echo "  $0 backup-db             # Create immediate database backup"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00"
+    echo ""
+    echo "Unified Restore Examples:"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00                    # Restore all (static+public+database)"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static     # Restore only static site"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,public  # Restore static + public"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=database   # Restore only database"
+    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,database # Restore static + database"
+    echo ""
     echo "  $0 info-db DB-AUTO-2024_03_15_19_00_00"
 }
 
@@ -118,38 +125,83 @@ list_public_backups() {
     aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
 }
 
-# Function to list all backup types (new behavior for 'list' command)
+# Function to list all backup types organized by restore tag
 list_all_backups() {
     setup_s3_vars
 
-    print_status $BLUE "ALL BACKUP TYPES"
-    print_status $BLUE "================"
+    print_status $BLUE "BACKUPS ORGANIZED BY RESTORE TAG"
+    print_status $BLUE "================================="
     echo ""
 
-    print_status $GREEN "Static Site Backups:"
-    echo "--------------------"
-    aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+    # Create temporary files to collect backup data
+    static_list="/tmp/static_backups_$$"
+    public_list="/tmp/public_backups_$$"
+    db_list="/tmp/db_backups_$$"
+
+    # Get all backup lists
+    aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | awk '{print $2}' | tr -d '/' | sort -r > "$static_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | awk '{print $2}' | tr -d '/' | sort -r > "$public_list" 2>/dev/null
+    aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | awk '{print $4}' | xargs -I {} basename {} | sort -r > "$db_list" 2>/dev/null
+
+    # Create unified list of all backup tags (timestamps)
+    all_tags="/tmp/all_backup_tags_$$"
+    (
+        cat "$static_list" 2>/dev/null
+        cat "$public_list" 2>/dev/null
+        cat "$db_list" 2>/dev/null | sed "s/^$DB_BACKUP_PREFIX-/$BACKUP_PREFIX-/" | sed 's/\.sql\.gz$//'
+    ) | sort -ru > "$all_tags"
+
+    printf "%-32s %-8s %-8s %-8s %s\n" "BACKUP TAG" "STATIC" "PUBLIC" "DATABASE" "RESTORE COMMAND"
+    printf "%-32s %-8s %-8s %-8s %s\n" "$(printf '%*s' 32 '' | tr ' ' '-')" "$(printf '%*s' 8 '' | tr ' ' '-')" "$(printf '%*s' 8 '' | tr ' ' '-')" "$(printf '%*s' 8 '' | tr ' ' '-')" "$(printf '%*s' 20 '' | tr ' ' '-')"
+
+    while read -r tag; do
+        if [ -n "$tag" ]; then
+            # Check what backup types exist for this tag
+            has_static=""
+            has_public=""
+            has_database=""
+
+            # Check static backup
+            if grep -q "^$tag$" "$static_list" 2>/dev/null; then
+                has_static="✓"
+            else
+                has_static="✗"
+            fi
+
+            # Check public backup
+            if grep -q "^$tag$" "$public_list" 2>/dev/null; then
+                has_public="✓"
+            else
+                has_public="✗"
+            fi
+
+            # Check database backup (convert tag format)
+            db_tag=$(echo "$tag" | sed "s/^$BACKUP_PREFIX-/$DB_BACKUP_PREFIX-/").sql.gz
+            if grep -q "^$db_tag$" "$db_list" 2>/dev/null; then
+                has_database="✓"
+            else
+                has_database="✗"
+            fi
+
+            # Format restore command
+            restore_cmd="restore $tag"
+
+            printf "%-32s %-8s %-8s %-8s %s\n" "$tag" "$has_static" "$has_public" "$has_database" "$restore_cmd"
+        fi
+    done < "$all_tags"
+
+    # Clean up temporary files
+    rm -f "$static_list" "$public_list" "$db_list" "$all_tags" 2>/dev/null
 
     echo ""
-    print_status $GREEN "Public Files Backups:"
-    echo "---------------------"
-    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
-
+    print_status $YELLOW "Legend:"
+    print_status $YELLOW "  ✓ = Backup available    ✗ = No backup (may use smart fallback for public files)"
+    print_status $YELLOW "  Database backups have independent timestamps from static/public backups"
     echo ""
-    print_status $GREEN "Database Backups:"
-    echo "-----------------"
-    aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | while read -r line; do
-        # Extract backup name from S3 listing
-        backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
-        backup_size=$(echo "$line" | awk '{print $3}')
-        backup_date=$(echo "$line" | awk '{print $1" "$2}')
-
-        echo "  $backup_file ($backup_size bytes) - $backup_date"
-    done | sort -r
-
-    echo ""
-    print_status $YELLOW "Note: Some static site backups may not have corresponding public file backups"
-    print_status $YELLOW "if the public files were unchanged (smart backup optimization)."
+    print_status $GREEN "Usage Examples:"
+    echo "  ./scripts/tome-backup-manager.sh restore <BACKUP_TAG>    # Restore static + public files"
+    echo "  ./scripts/tome-backup-manager.sh info <BACKUP_TAG>       # Show backup details"
+    echo "  ./scripts/tome-backup-manager.sh info-db <DB_BACKUP>     # Show database backup details"
 }
 
 # Function to list old backups
@@ -333,9 +385,111 @@ find_corresponding_public_backup() {
     fi
 }
 
-# Function to restore from backup (WARNING: This is destructive)
+# Function to find the appropriate database backup for a static site backup
+find_corresponding_db_backup() {
+    local static_backup_tag=$1
+
+    # Extract timestamp from static backup tag (format: AUTO-space-YYYY_MM_DD_HH_MM_SS)
+    static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
+
+    if [ -z "$static_timestamp" ]; then
+        return 1
+    fi
+
+    # First, check if there's an exact match (convert tag format)
+    exact_db_tag=$(echo "$static_backup_tag" | sed "s/^$BACKUP_PREFIX-/$DB_BACKUP_PREFIX-/").sql.gz
+    if aws s3 ls s3://$BUCKET_NAME/database/$exact_db_tag $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        echo "$exact_db_tag"
+        return 0
+    fi
+
+    # Use a temp file to avoid subshell variable issues
+    temp_list="/tmp/db_backup_search_$$"
+    aws s3 ls s3://$BUCKET_NAME/database/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
+
+    best_db_backup=""
+    best_timestamp=""
+
+    while read -r line; do
+        if [ -n "$line" ]; then
+            # Extract timestamp from database backup name (DB-AUTO-env-YYYY_MM_DD_HH_MM_SS.sql.gz)
+            db_timestamp=$(echo "$line" | sed "s/^$DB_BACKUP_PREFIX-[^-]*-//" | sed 's/\.sql\.gz$//')
+
+            # Compare timestamps (lexicographic comparison works for YYYY_MM_DD_HH_MM_SS format)
+            if [ -n "$db_timestamp" ] && [ "$db_timestamp" \< "$static_timestamp" ] || [ "$db_timestamp" = "$static_timestamp" ]; then
+                # This database backup is at or before the static backup time
+                if [ -z "$best_timestamp" ] || [ "$db_timestamp" \> "$best_timestamp" ]; then
+                    best_db_backup="$line"
+                    best_timestamp="$db_timestamp"
+                fi
+            fi
+        fi
+    done < "$temp_list"
+
+    # Clean up temp file
+    rm -f "$temp_list" 2>/dev/null
+
+    if [ -n "$best_db_backup" ]; then
+        echo "$best_db_backup"
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to parse restore options
+parse_restore_options() {
+    local restore_types="static,public,database"  # default: restore all
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --only=*)
+                restore_types="${1#--only=}"
+                shift
+                ;;
+            --only)
+                if [ -n "$2" ] && [ "${2#-}" = "$2" ]; then
+                    restore_types="$2"
+                    shift 2
+                else
+                    print_status $RED "Error: --only requires a value (e.g., --only=static,public)"
+                    exit 1
+                fi
+                ;;
+            *)
+                # This should be the backup tag
+                echo "$1"
+                shift
+                break
+                ;;
+        esac
+    done
+
+    # Return the restore types for the caller to use
+    echo "$restore_types" >&2
+}
+
+# Function to unified restore from backup (WARNING: This is destructive)
 restore_backup() {
-    local backup_tag=$1
+    local backup_tag=""
+    local restore_types=""
+
+    # Parse arguments
+    if [ $# -eq 0 ]; then
+        print_status $RED "Error: Backup tag is required"
+        print_status $YELLOW "Usage: restore <backup_tag> [--only=static,public,database]"
+        print_status $YELLOW "Examples:"
+        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00                    # Restore all (static + public + database)"
+        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00 --only=static     # Restore only static site"
+        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00 --only=static,public  # Restore static + public"
+        print_status $YELLOW "  restore AUTO-prod-2024_10_08_14_30_00 --only=database   # Restore only database"
+        exit 1
+    fi
+
+    # Parse options and get backup tag
+    restore_types=$(parse_restore_options "$@" 2>&1 >/dev/null | tail -n1)
+    backup_tag=$(parse_restore_options "$@" 2>/dev/null | head -n1)
+
     if [ -z "$backup_tag" ]; then
         print_status $RED "Error: Backup tag is required"
         exit 1
@@ -343,36 +497,94 @@ restore_backup() {
 
     setup_s3_vars
 
-    # Check if the static site backup exists
-    if ! aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        print_status $RED "Error: Static site backup not found: $backup_tag"
-        exit 1
-    fi
+    # Determine what to restore
+    restore_static=$(echo "$restore_types" | grep -q "static" && echo "yes" || echo "no")
+    restore_public=$(echo "$restore_types" | grep -q "public" && echo "yes" || echo "no")
+    restore_database=$(echo "$restore_types" | grep -q "database" && echo "yes" || echo "no")
 
-    # Find the appropriate public backup (smart logic for skipped backups)
-    print_status $BLUE "Finding appropriate public files backup for static site backup: $backup_tag"
-    public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
+    print_status $BLUE "UNIFIED RESTORE ANALYSIS"
+    print_status $BLUE "========================"
+    echo ""
 
-    if [ -n "$public_backup_tag" ]; then
-        if [ "$public_backup_tag" = "$backup_tag" ]; then
-            print_status $GREEN "Found exact public backup match: $public_backup_tag"
+    # Find appropriate backups for each type
+    static_backup_tag=""
+    public_backup_tag=""
+    db_backup_tag=""
+
+    # Static site backup analysis
+    if [ "$restore_static" = "yes" ]; then
+        if aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            static_backup_tag="$backup_tag"
+            print_status $GREEN "✓ Static site backup found: $static_backup_tag"
         else
-            print_status $YELLOW "No exact public backup match found."
-            print_status $GREEN "Using most recent public backup from that time: $public_backup_tag"
+            print_status $RED "✗ Static site backup not found: $backup_tag"
+            exit 1
         fi
-    else
-        print_status $YELLOW "Warning: No suitable public backup found for the selected time period."
-        print_status $YELLOW "Only static site will be restored. Public files will remain unchanged."
     fi
 
-    print_status $YELLOW "WARNING: This will overwrite current static site and potentially public files!"
-    echo "Static site backup: $backup_tag"
-    if [ -n "$public_backup_tag" ]; then
-        echo "Public files backup: $public_backup_tag"
-    else
-        echo "Public files backup: NONE (will be skipped)"
+    # Public files backup analysis
+    if [ "$restore_public" = "yes" ]; then
+        print_status $BLUE "Analyzing public files backup options..."
+        public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
+
+        if [ -n "$public_backup_tag" ]; then
+            if [ "$public_backup_tag" = "$backup_tag" ]; then
+                print_status $GREEN "✓ Exact public backup match: $public_backup_tag"
+            else
+                print_status $YELLOW "⚠ No exact public backup match found"
+                print_status $GREEN "✓ Smart fallback public backup: $public_backup_tag"
+            fi
+        else
+            print_status $YELLOW "⚠ No suitable public backup found for time period"
+            print_status $YELLOW "  Public files will remain unchanged"
+        fi
     fi
-    print_status $YELLOW "Are you sure you want to proceed? (y/N)"
+
+    # Database backup analysis
+    if [ "$restore_database" = "yes" ]; then
+        print_status $BLUE "Analyzing database backup options..."
+        db_backup_tag=$(find_corresponding_db_backup "$backup_tag")
+
+        if [ -n "$db_backup_tag" ]; then
+            # Convert to expected database tag format for comparison
+            expected_db_tag=$(echo "$backup_tag" | sed "s/^$BACKUP_PREFIX-/$DB_BACKUP_PREFIX-/").sql.gz
+            if [ "$db_backup_tag" = "$expected_db_tag" ]; then
+                print_status $GREEN "✓ Exact database backup match: $db_backup_tag"
+            else
+                print_status $YELLOW "⚠ No exact database backup match found"
+                print_status $GREEN "✓ Smart fallback database backup: $db_backup_tag"
+            fi
+        else
+            print_status $YELLOW "⚠ No suitable database backup found for time period"
+            print_status $YELLOW "  Database will remain unchanged"
+        fi
+    fi
+
+    echo ""
+    print_status $YELLOW "RESTORE PLAN SUMMARY"
+    print_status $YELLOW "===================="
+
+    if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
+        echo "Static Site:   $static_backup_tag"
+    fi
+    if [ "$restore_public" = "yes" ]; then
+        if [ -n "$public_backup_tag" ]; then
+            echo "Public Files:  $public_backup_tag"
+        else
+            echo "Public Files:  SKIP (no backup found)"
+        fi
+    fi
+    if [ "$restore_database" = "yes" ]; then
+        if [ -n "$db_backup_tag" ]; then
+            echo "Database:      $db_backup_tag"
+        else
+            echo "Database:      SKIP (no backup found)"
+        fi
+    fi
+
+    echo ""
+    print_status $RED "WARNING: This will overwrite current data!"
+    print_status $YELLOW "Are you sure you want to proceed with this restore? (y/N)"
     read -r confirmation
 
     if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
@@ -380,29 +592,94 @@ restore_backup() {
         exit 0
     fi
 
-    # Restore static site
-    print_status $YELLOW "Restoring static site from backup: $backup_tag"
-    if aws s3 sync s3://$BUCKET_NAME/web-backup/$backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
-        print_status $GREEN "Static site restore completed successfully"
-    else
-        print_status $RED "ERROR: Static site restore failed"
-        exit 1
-    fi
+    echo ""
+    print_status $BLUE "EXECUTING RESTORE"
+    print_status $BLUE "================="
 
-    # Restore public files if available
-    if [ -n "$public_backup_tag" ]; then
-        print_status $YELLOW "Restoring public files from backup: $public_backup_tag"
-        if aws s3 sync s3://$BUCKET_NAME/public_backup/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
-            print_status $GREEN "Public files restore completed successfully"
+    # Restore static site
+    if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
+        print_status $YELLOW "Restoring static site from: $static_backup_tag"
+        if aws s3 sync s3://$BUCKET_NAME/web-backup/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
+            print_status $GREEN "✓ Static site restore completed successfully"
         else
-            print_status $RED "ERROR: Public files restore failed"
+            print_status $RED "✗ ERROR: Static site restore failed"
             exit 1
         fi
-    else
-        print_status $YELLOW "Skipping public files restore (no suitable backup found)"
     fi
 
-    print_status $GREEN "Restore completed successfully."
+    # Restore public files
+    if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
+        print_status $YELLOW "Restoring public files from: $public_backup_tag"
+        if aws s3 sync s3://$BUCKET_NAME/public_backup/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
+            print_status $GREEN "✓ Public files restore completed successfully"
+        else
+            print_status $RED "✗ ERROR: Public files restore failed"
+            exit 1
+        fi
+    fi
+
+    # Restore database
+    if [ "$restore_database" = "yes" ] && [ -n "$db_backup_tag" ]; then
+        print_status $YELLOW "Restoring database from: $db_backup_tag"
+
+        # Download and restore database backup
+        temp_db_file="/tmp/restore_db_$$.sql.gz"
+        temp_sql_file="/tmp/restore_db_$$.sql"
+
+        print_status $BLUE "Downloading database backup..."
+        if aws s3 cp s3://$BUCKET_NAME/database/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
+            print_status $BLUE "Decompressing database backup..."
+            if gunzip "$temp_db_file" 2>/dev/null; then
+                print_status $BLUE "Importing database..."
+                if command -v drush >/dev/null 2>&1; then
+                    # Use drush for database import
+                    if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
+                        print_status $GREEN "✓ Database restore completed successfully"
+                    else
+                        print_status $RED "✗ ERROR: Database import failed"
+                        rm -f "$temp_sql_file" 2>/dev/null
+                        exit 1
+                    fi
+                else
+                    print_status $RED "✗ ERROR: drush command not available for database restore"
+                    rm -f "$temp_sql_file" 2>/dev/null
+                    exit 1
+                fi
+            else
+                print_status $RED "✗ ERROR: Failed to decompress database backup"
+                rm -f "$temp_db_file" 2>/dev/null
+                exit 1
+            fi
+        else
+            print_status $RED "✗ ERROR: Failed to download database backup"
+            exit 1
+        fi
+
+        # Clean up temp files
+        rm -f "$temp_sql_file" 2>/dev/null
+    fi
+
+    echo ""
+    print_status $GREEN "🎉 UNIFIED RESTORE COMPLETED SUCCESSFULLY!"
+
+    # Summary of what was restored
+    restored_items=""
+    if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
+        restored_items="${restored_items}static site, "
+    fi
+    if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
+        restored_items="${restored_items}public files, "
+    fi
+    if [ "$restore_database" = "yes" ] && [ -n "$db_backup_tag" ]; then
+        restored_items="${restored_items}database, "
+    fi
+
+    # Remove trailing comma and space
+    restored_items=$(echo "$restored_items" | sed 's/, $//')
+
+    if [ -n "$restored_items" ]; then
+        print_status $GREEN "Restored: $restored_items"
+    fi
 }
 
 # List database backups
@@ -608,7 +885,8 @@ case "${1:-}" in
         clean_old_db_backups "${2:-30}"
         ;;
     "restore")
-        restore_backup "$2"
+        shift  # Remove the 'restore' command
+        restore_backup "$@"  # Pass all remaining arguments
         ;;
     "backup-db")
         backup_db

@@ -1,0 +1,26 @@
+# Example output of the new ./scripts/tome-backup-manager.sh list command
+
+BACKUPS ORGANIZED BY RESTORE TAG
+=================================
+
+BACKUP TAG                       STATIC   PUBLIC   DATABASE RESTORE COMMAND
+-------------------------------- -------- -------- -------- --------------------
+AUTO-prod-2024_10_08_18_45_00    ✓        ✗        ✗        restore AUTO-prod-2024_10_08_18_45_00
+AUTO-prod-2024_10_08_16_30_00    ✓        ✗        ✗        restore AUTO-prod-2024_10_08_16_30_00
+AUTO-prod-2024_10_08_14_30_00    ✓        ✓        ✗        restore AUTO-prod-2024_10_08_14_30_00
+AUTO-prod-2024_10_08_12_15_00    ✓        ✗        ✗        restore AUTO-prod-2024_10_08_12_15_00
+AUTO-prod-2024_10_08_10_00_00    ✓        ✓        ✗        restore AUTO-prod-2024_10_08_10_00_00
+AUTO-prod-2024_10_07_19_45_00    ✓        ✗        ✗        restore AUTO-prod-2024_10_07_19_45_00
+AUTO-prod-2024_10_07_17_30_00    ✓        ✓        ✗        restore AUTO-prod-2024_10_07_17_30_00
+DB-AUTO-prod-2024_10_08_19_00_00 ✗        ✗        ✓        (database only - use info-db command)
+DB-AUTO-prod-2024_10_07_19_00_00 ✗        ✗        ✓        (database only - use info-db command)
+DB-AUTO-prod-2024_10_06_19_00_00 ✗        ✗        ✓        (database only - use info-db command)
+
+Legend:
+  ✓ = Backup available    ✗ = No backup (may use smart fallback for public files)
+  Database backups have independent timestamps from static/public backups
+
+Usage Examples:
+  ./scripts/tome-backup-manager.sh restore <BACKUP_TAG>    # Restore static + public files
+  ./scripts/tome-backup-manager.sh info <BACKUP_TAG>       # Show backup details
+  ./scripts/tome-backup-manager.sh info-db <DB_BACKUP>     # Show database backup details

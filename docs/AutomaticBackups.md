@@ -44,7 +44,7 @@ BACKUP_RETENTION_DAYS=7
 ENABLE_STATIC_AUTO_BACKUPS=true
 ENABLE_PUBLIC_AUTO_BACKUPS=true
 
-# Enable/disable automatic cleanup of old backups (true/false)  
+# Enable/disable automatic cleanup of old backups (true/false)
 ENABLE_STATIC_AUTO_CLEANUP=true
 ENABLE_PUBLIC_AUTO_CLEANUP=true
 
@@ -65,10 +65,10 @@ ENABLE_SMART_PUBLIC_BACKUP=true
 The `scripts/tome-backup-manager.sh` script provides utilities for managing backups:
 
 ```bash
-# List all automatic backups
+# List all backups organized by restore tag (shows what's available for each tag)
 ./scripts/tome-backup-manager.sh list
 
-# List backups older than 14 days  
+# List backups older than 14 days
 ./scripts/tome-backup-manager.sh list-old 14
 
 # Clean up backups older than 30 days
@@ -77,8 +77,172 @@ The `scripts/tome-backup-manager.sh` script provides utilities for managing back
 # Get information about a specific backup
 ./scripts/tome-backup-manager.sh info AUTO-prod-2024_03_15_14_30_00
 
-# Restore from a specific backup (WARNING: Destructive!)
+# Unified restore from a specific backup (WARNING: Destructive!)
 ./scripts/tome-backup-manager.sh restore AUTO-prod-2024_03_15_14_30_00
+
+# Restore only specific components
+./scripts/tome-backup-manager.sh restore AUTO-prod-2024_03_15_14_30_00 --only=static
+./scripts/tome-backup-manager.sh restore AUTO-prod-2024_03_15_14_30_00 --only=static,public
+./scripts/tome-backup-manager.sh restore AUTO-prod-2024_03_15_14_30_00 --only=database
+```
+
+#### Enhanced List View
+
+The `list` command now shows backups organized by restore tag with clear indicators:
+
+```text
+BACKUP TAG                       STATIC   PUBLIC   DATABASE RESTORE COMMAND
+-------------------------------- -------- -------- -------- --------------------
+AUTO-prod-2024_10_01_18_45_00    ✓        ✗        ✗        restore AUTO-prod-2024_10_01_18_45_00
+AUTO-prod-2024_10_01_14_30_00    ✓        ✓        ✗        restore AUTO-prod-2024_10_01_14_30_00
+AUTO-prod-2024_10_01_12_15_00    ✓        ✗        ✗        restore AUTO-prod-2024_10_01_12_15_00
+DB-AUTO-prod-2024_10_01_19_00_00 ✗        ✗        ✓        (database only - use info-db command)
+
+Legend:
+  ✓ = Backup available    ✗ = No backup (may use smart fallback for public files)
+  Database backups have independent timestamps from static/public backups
+```
+
+### Unified Smart Restore Functionality
+
+The restore function is now **unified** and handles all three backup types (static site, public files, and database) with intelligent fallback logic:
+
+#### How Unified Smart Restore Works
+
+1. **All-in-One by Default**: `restore <tag>` attempts to restore static site + public files + database
+2. **Selective Restore Options**: Use `--only` to restore specific components
+3. **Smart Fallback for All Types**:
+   - **Static Site**: Must exist with exact tag match
+   - **Public Files**: Finds most recent backup before/at the static backup time
+   - **Database**: Finds most recent database backup before/at the static backup time
+4. **Transparent Analysis**: Shows exactly which backups will be used before proceeding
+5. **Graceful Degradation**: Skips components where no suitable backup exists
+
+#### Unified Restore Options
+
+- `--only=static` - Restore only static site
+- `--only=public` - Restore only public files
+- `--only=database` - Restore only database
+- `--only=static,public` - Restore static site + public files
+- `--only=static,database` - Restore static site + database
+- `--only=public,database` - Restore public files + database
+- (no --only) - Restore all three (default behavior)
+
+#### Unified Restore Scenarios
+
+##### Scenario 1: Full Restore with Exact Matches
+
+```bash
+./scripts/tome-backup-manager.sh restore AUTO-prod-2024_10_01_14_30_00
+# UNIFIED RESTORE ANALYSIS
+# ========================
+# ✓ Static site backup found: AUTO-prod-2024_10_01_14_30_00
+# ✓ Exact public backup match: AUTO-prod-2024_10_01_14_30_00
+# ✓ Exact database backup match: DB-AUTO-prod-2024_10_01_14_30_00.sql.gz
+#
+# RESTORE PLAN SUMMARY
+# ====================
+# Static Site:   AUTO-prod-2024_10_01_14_30_00
+# Public Files:  AUTO-prod-2024_10_01_14_30_00
+# Database:      DB-AUTO-prod-2024_10_01_14_30_00.sql.gz
+```
+
+##### Scenario 2: Smart Fallback for Public and Database
+
+```bash
+./scripts/tome-backup-manager.sh restore AUTO-prod-2024_10_01_18_45_00
+# UNIFIED RESTORE ANALYSIS
+# ========================
+# ✓ Static site backup found: AUTO-prod-2024_10_01_18_45_00
+# ⚠ No exact public backup match found
+# ✓ Smart fallback public backup: AUTO-prod-2024_10_01_14_30_00
+# ⚠ No exact database backup match found
+# ✓ Smart fallback database backup: DB-AUTO-prod-2024_10_01_19_00_00.sql.gz
+#
+# RESTORE PLAN SUMMARY
+# ====================
+# Static Site:   AUTO-prod-2024_10_01_18_45_00
+# Public Files:  AUTO-prod-2024_10_01_14_30_00
+# Database:      DB-AUTO-prod-2024_10_01_19_00_00.sql.gz
+```
+
+##### Scenario 3: Selective Restore
+
+```bash
+./scripts/tome-backup-manager.sh restore AUTO-prod-2024_10_01_18_45_00 --only=static,database
+# UNIFIED RESTORE ANALYSIS
+# ========================
+# ✓ Static site backup found: AUTO-prod-2024_10_01_18_45_00
+# ✓ Smart fallback database backup: DB-AUTO-prod-2024_10_01_19_00_00.sql.gz
+#
+# RESTORE PLAN SUMMARY
+# ====================
+# Static Site:   AUTO-prod-2024_10_01_18_45_00
+# Database:      DB-AUTO-prod-2024_10_01_19_00_00.sql.gz
+```
+
+#### Understanding Smart Backup Analysis
+
+Use the `info` command to understand backup relationships:
+
+```bash
+./scripts/tome-backup-manager.sh info AUTO-prod-2024_10_01_18_45_00
+# Static Site Backup:
+# [backup details shown]
+#
+# Public Files Backup:
+#   No public files backup found with this tag
+#
+# Smart Backup Analysis:
+# =======================
+# This static site backup has no corresponding public files backup.
+# This is normal when public files were unchanged (smart optimization).
+#
+# ✓ Restore would use public backup: AUTO-prod-2024_10_01_14_30_00
+```
+
+## Database Backup Management
+
+The backup system also includes automated database backups that run independently from the static site backups.
+
+### Database Backup Commands
+
+```bash
+# List all database backups
+./scripts/tome-backup-manager.sh list-db
+
+# List database backups older than 60 days
+./scripts/tome-backup-manager.sh list-db-old 60
+
+# Clean database backups older than 90 days
+./scripts/tome-backup-manager.sh clean-db 90
+
+# Get information about a specific database backup
+./scripts/tome-backup-manager.sh info-db DB-AUTO-prod-2024_10_01_19_00_00.sql.gz
+
+# Create an immediate database backup
+./scripts/tome-backup-manager.sh backup-db
+```
+
+### Database Backup Features
+
+- **Automated Schedule**: Runs daily at 7:00 PM EST via cron
+- **Independent Operation**: Database backups are separate from static site backups
+- **Different Retention**: Default 30-day retention (vs 7 days for static/public backups)
+- **Compressed Storage**: Database dumps are gzipped before upload to S3
+- **Naming Convention**: `DB-AUTO-{environment}-{timestamp}.sql.gz`
+
+### Database Backup Configuration
+
+Database backup settings are in `scripts/auto-backup-system.conf`:
+
+```bash
+# Database backup settings
+ENABLE_DB_BACKUPS=true
+ENABLE_DB_AUTO_CLEANUP=true
+DB_BACKUP_TIME="19:00"
+DB_BACKUP_RETENTION_DAYS=30
+DB_BACKUP_PREFIX=DB-AUTO
 ```
 
 ### Manual Backup Operations
@@ -89,7 +253,7 @@ You can also use AWS CLI directly:
 # List static site backups
 aws s3 ls s3://bucket/web-backup/
 
-# List public files backups  
+# List public files backups
 aws s3 ls s3://bucket/public_backup/
 
 # Download a backup locally
@@ -149,7 +313,7 @@ s3://bucket/
 │   ├── AUTO-dev-2024_03_15_12_15_30/  # More frequent
 │   ├── AUTO-dev-2024_03_15_10_00_00/
 │   └── ...
-├── public_backup/          # Public files backups  
+├── public_backup/          # Public files backups
 │   ├── AUTO-dev-2024_03_15_14_30_00/  # Less frequent
 │   ├── AUTO-dev-2024_03_12_09_15_00/  # (only when files change)
 │   └── ...
