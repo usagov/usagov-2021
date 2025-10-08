@@ -91,26 +91,42 @@ if [ "\${CF_INSTANCE_INDEX:-''}" != "0" ]; then
 fi
 
 # Check if it's time to run the backup
-CURRENT_HOUR=\$(date +%H)
-CURRENT_MINUTE=\$(date +%M)
+# Convert EST time to UTC since Cloud Foundry containers run in UTC
+# EST is UTC-5, EDT is UTC-4. We'll use a simple approach:
+# Check if we're in EST (Nov-Mar) or EDT (Mar-Nov) period
+
+# Get current time in UTC
+CURRENT_HOUR_UTC=\$(date +%H)
+CURRENT_MINUTE_UTC=\$(date +%M)
+
+# Convert target EST time to UTC
+# For simplicity, we'll assume EST (UTC-5) year-round
+# EST 19:00 = UTC 00:00 next day (19 + 5 = 24 = 0)
+TARGET_HOUR_EST=$DB_HOUR
+TARGET_MINUTE_EST=$DB_MINUTE
+TARGET_HOUR_UTC=\$((TARGET_HOUR_EST + 5))
+
+# Handle day rollover (EST evening = UTC next day)
+if [ \$TARGET_HOUR_UTC -ge 24 ]; then
+    TARGET_HOUR_UTC=\$((TARGET_HOUR_UTC - 24))
+fi
 
 # Remove leading zeros to avoid octal interpretation
-CURRENT_HOUR=\$(echo "\$CURRENT_HOUR" | sed 's/^0*//')
-CURRENT_MINUTE=\$(echo "\$CURRENT_MINUTE" | sed 's/^0*//')
-TARGET_HOUR=$DB_HOUR
-TARGET_MINUTE=$DB_MINUTE
-
-# Remove leading zeros from target time too
-TARGET_HOUR=\$(echo "\$TARGET_HOUR" | sed 's/^0*//')
-TARGET_MINUTE=\$(echo "\$TARGET_MINUTE" | sed 's/^0*//')
+CURRENT_HOUR_UTC=\$(echo "\$CURRENT_HOUR_UTC" | sed 's/^0*//')
+CURRENT_MINUTE_UTC=\$(echo "\$CURRENT_MINUTE_UTC" | sed 's/^0*//')
+TARGET_HOUR_UTC=\$(echo "\$TARGET_HOUR_UTC" | sed 's/^0*//')
+TARGET_MINUTE_UTC=\$(echo "\$TARGET_MINUTE_EST" | sed 's/^0*//')
 
 # Set defaults if empty after removing zeros
-CURRENT_HOUR=\${CURRENT_HOUR:-0}
-CURRENT_MINUTE=\${CURRENT_MINUTE:-0}
-TARGET_HOUR=\${TARGET_HOUR:-0}
-TARGET_MINUTE=\${TARGET_MINUTE:-0}
+CURRENT_HOUR_UTC=\${CURRENT_HOUR_UTC:-0}
+CURRENT_MINUTE_UTC=\${CURRENT_MINUTE_UTC:-0}
+TARGET_HOUR_UTC=\${TARGET_HOUR_UTC:-0}
+TARGET_MINUTE_UTC=\${TARGET_MINUTE_UTC:-0}
 
-if [ "\$CURRENT_HOUR" -eq "\$TARGET_HOUR" ] && [ "\$CURRENT_MINUTE" -eq "\$TARGET_MINUTE" ]; then
+if [ "\$CURRENT_HOUR_UTC" -eq "\$TARGET_HOUR_UTC" ] && [ "\$CURRENT_MINUTE_UTC" -eq "\$TARGET_MINUTE_UTC" ]; then
+    # Ensure log directory exists
+    mkdir -p /tmp/tome-log
+    
     # Change to the correct directory
     cd /var/www
     
