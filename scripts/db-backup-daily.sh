@@ -92,40 +92,13 @@ setup_s3_env() {
 create_db_backup() {
     log_message "Creating database backup..." | tee -a "$LOGFILE"
 
-    # Ensure we're in the right working directory
+    # Ensure we're in the right working directory for drush commands
     # In Cloud Foundry, we should be in /var/www
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
         log_message "Cloud Foundry detected, changing to /var/www directory" | tee -a "$LOGFILE"
         cd /var/www
         log_message "New working directory: $(pwd)" | tee -a "$LOGFILE"
     fi
-
-    # Use the existing database backup script from bin/snapshot-backups
-    # Try multiple possible paths to find the script
-    # In Cloud Foundry, the bin directory might be in different locations
-    DB_SCRIPT_PATHS="
-        $SCRIPT_PATH/../bin/snapshot-backups/db-dump-to-snapshot
-        ./bin/snapshot-backups/db-dump-to-snapshot
-        /var/www/bin/snapshot-backups/db-dump-to-snapshot
-        $(pwd)/bin/snapshot-backups/db-dump-to-snapshot
-        /home/vcap/app/bin/snapshot-backups/db-dump-to-snapshot
-        /home/vcap/deps/0/bin/snapshot-backups/db-dump-to-snapshot
-        /usr/local/bin/db-dump-to-snapshot
-        /opt/bin/snapshot-backups/db-dump-to-snapshot
-    "
-
-    log_message "Current working directory: $(pwd)" | tee -a "$LOGFILE"
-    log_message "SCRIPT_PATH: $SCRIPT_PATH" | tee -a "$LOGFILE"
-
-    DB_SCRIPT_PATH=""
-    for path in $DB_SCRIPT_PATHS; do
-        log_message "Checking for database script at: $path" | tee -a "$LOGFILE"
-        if [ -f "$path" ]; then
-            DB_SCRIPT_PATH="$path"
-            log_message "Found database script at: $DB_SCRIPT_PATH" | tee -a "$LOGFILE"
-            break
-        fi
-    done
 
     # Instead of using the bash-dependent scripts, implement database backup directly
     log_message "Implementing database backup directly (POSIX compatible)" | tee -a "$LOGFILE"
@@ -172,41 +145,6 @@ create_db_backup() {
         return 0
     else
         log_message "ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
-            return 1
-        fi
-    else
-        log_message "ERROR: Database backup script not found in any expected location" | tee -a "$LOGFILE"
-        log_message "Searched paths:" | tee -a "$LOGFILE"
-        for path in $DB_SCRIPT_PATHS; do
-            if [ -f "$path" ]; then
-                log_message "  $path - EXISTS" | tee -a "$LOGFILE"
-            else
-                log_message "  $path - NOT FOUND" | tee -a "$LOGFILE"
-            fi
-        done
-
-        log_message "Debugging directory structure:" | tee -a "$LOGFILE"
-        log_message "Current working directory contents:" | tee -a "$LOGFILE"
-        ls -la "." 2>&1 | head -10 | tee -a "$LOGFILE"
-
-        # Search for any bin directories in the system
-        log_message "Searching for bin directories in Cloud Foundry container:" | tee -a "$LOGFILE"
-        find /var/www -name "bin" -type d 2>/dev/null | head -5 | tee -a "$LOGFILE" || log_message "No bin directories found in /var/www" | tee -a "$LOGFILE"
-        find /home/vcap -name "bin" -type d 2>/dev/null | head -5 | tee -a "$LOGFILE" || log_message "No bin directories found in /home/vcap" | tee -a "$LOGFILE"
-
-        # Search specifically for the db-dump-to-snapshot script anywhere
-        log_message "Searching for db-dump-to-snapshot script anywhere in container:" | tee -a "$LOGFILE"
-        find /var/www -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /var/www" | tee -a "$LOGFILE"
-        find /home/vcap -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /home/vcap" | tee -a "$LOGFILE"
-        find /usr -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /usr" | tee -a "$LOGFILE"
-        find /opt -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /opt" | tee -a "$LOGFILE"
-
-        # Show environment variables that might help locate scripts
-        log_message "Relevant environment variables:" | tee -a "$LOGFILE"
-        env | grep -E "(PATH|HOME|VCAP)" | head -10 | tee -a "$LOGFILE"
-
-        log_message "Attempting to resolve path issue..." | tee -a "$LOGFILE"
-        log_message "Note: Ensure you're running this from the project root directory (/var/www in CF)" | tee -a "$LOGFILE"
         return 1
     fi
 }
@@ -225,7 +163,7 @@ cleanup_old_db_backups() {
 
     if [ -n "$CUTOFF_DATE" ]; then
         # List and delete old database backups
-        aws s3 ls s3://$BUCKET_NAME/db_backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
+        aws s3 ls s3://$BUCKET_NAME/database/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
             backup_path=$(echo "$line" | awk '{print $4}')
             backup_date=$(echo "$backup_path" | grep -o "${DB_BACKUP_PREFIX}-[0-9_]*" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
             if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
