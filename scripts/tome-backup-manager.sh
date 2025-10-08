@@ -22,26 +22,30 @@ print_status() {
 show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
-    echo "Static Site & Public Files Commands:"
-    echo "  list                     List all automatic backups"
-    echo "  list-old [days]          List backups older than N days (default: 7)"
-    echo "  clean [days]             Remove backups older than N days (default: 7)"
-    echo "  restore <backup_tag>     Restore from a specific backup"
-    echo "  info <backup_tag>        Show information about a specific backup"
+    echo "Listing Commands:"
+    echo "  list                     List ALL backups (static site, public files, and database)"
+    echo "  list-static              List static site backups only"
+    echo "  list-public              List public file backups only"
+    echo "  list-db                  List database backups only"
     echo ""
-    echo "Database Commands:"
-    echo "  list-db                  List all database backups"
+    echo "Management Commands:"
+    echo "  list-old [days]          List static/public backups older than N days (default: 7)"
     echo "  list-db-old [days]       List database backups older than N days (default: 30)"
+    echo "  clean [days]             Remove static/public backups older than N days (default: 7)"
     echo "  clean-db [days]          Remove database backups older than N days (default: 30)"
+    echo "  restore <backup_tag>     Restore from a specific backup"
     echo "  backup-db                Create an immediate database backup"
+    echo ""
+    echo "Information Commands:"
+    echo "  info <backup_tag>        Show information about a static/public backup"
     echo "  info-db <backup_tag>     Show information about a database backup"
     echo ""
     echo "Examples:"
-    echo "  $0 list"
-    echo "  $0 list-db"
-    echo "  $0 clean 30"
-    echo "  $0 clean-db 60"
-    echo "  $0 backup-db"
+    echo "  $0 list                  # Show all backup types"
+    echo "  $0 list-static           # Show only static site backups"
+    echo "  $0 list-db               # Show only database backups"
+    echo "  $0 clean 30              # Clean old static/public backups"
+    echo "  $0 backup-db             # Create immediate database backup"
     echo "  $0 restore AUTO-dev-2024_03_15_14_30_00"
     echo "  $0 info-db DB-AUTO-2024_03_15_19_00_00"
 }
@@ -77,16 +81,56 @@ setup_s3_vars() {
 
 # Function to list all automatic backups
 list_backups() {
+    # Now calls the all backups function to show everything
+    list_all_backups
+}
+
+# Function to list static site backups only
+list_static_backups() {
     setup_s3_vars
 
     print_status $GREEN "Static Site Backups:"
     echo "===================="
     aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+}
 
-    echo ""
+# Function to list public file backups only
+list_public_backups() {
+    setup_s3_vars
+
     print_status $GREEN "Public Files Backups:"
     echo "====================="
     aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+}
+
+# Function to list all backup types (new behavior for 'list' command)
+list_all_backups() {
+    setup_s3_vars
+
+    print_status $BLUE "ALL BACKUP TYPES"
+    print_status $BLUE "================"
+    echo ""
+
+    print_status $GREEN "Static Site Backups:"
+    echo "--------------------"
+    aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+
+    echo ""
+    print_status $GREEN "Public Files Backups:"
+    echo "---------------------"
+    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+
+    echo ""
+    print_status $GREEN "Database Backups:"
+    echo "-----------------"
+    aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | while read -r line; do
+        # Extract backup name from S3 listing
+        backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
+        backup_size=$(echo "$line" | awk '{print $3}')
+        backup_date=$(echo "$line" | awk '{print $1" "$2}')
+
+        echo "  $backup_file ($backup_size bytes) - $backup_date"
+    done | sort -r
 
     echo ""
     print_status $YELLOW "Note: Some static site backups may not have corresponding public file backups"
@@ -385,29 +429,35 @@ case "${1:-}" in
     "list")
         list_backups
         ;;
-    "list-old")
-        list_old_backups "${2:-7}"
+    "list-static")
+        list_static_backups
         ;;
-    "clean")
-        clean_old_backups "${2:-7}"
-        ;;
-    "restore")
-        restore_backup "$2"
-        ;;
-    "info")
-        backup_info "$2"
+    "list-public")
+        list_public_backups
         ;;
     "list-db")
         list_db_backups
         ;;
+    "list-old")
+        list_old_backups "${2:-7}"
+        ;;
     "list-db-old")
         list_old_db_backups "${2:-30}"
+        ;;
+    "clean")
+        clean_old_backups "${2:-7}"
         ;;
     "clean-db")
         clean_old_db_backups "${2:-30}"
         ;;
+    "restore")
+        restore_backup "$2"
+        ;;
     "backup-db")
         backup_db
+        ;;
+    "info")
+        backup_info "$2"
         ;;
     "info-db")
         db_backup_info "$2"
