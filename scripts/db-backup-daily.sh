@@ -102,11 +102,16 @@ create_db_backup() {
 
     # Use the existing database backup script from bin/snapshot-backups
     # Try multiple possible paths to find the script
+    # In Cloud Foundry, the bin directory might be in different locations
     DB_SCRIPT_PATHS="
         $SCRIPT_PATH/../bin/snapshot-backups/db-dump-to-snapshot
         ./bin/snapshot-backups/db-dump-to-snapshot
         /var/www/bin/snapshot-backups/db-dump-to-snapshot
         $(pwd)/bin/snapshot-backups/db-dump-to-snapshot
+        /home/vcap/app/bin/snapshot-backups/db-dump-to-snapshot
+        /home/vcap/deps/0/bin/snapshot-backups/db-dump-to-snapshot
+        /usr/local/bin/db-dump-to-snapshot
+        /opt/bin/snapshot-backups/db-dump-to-snapshot
     "
 
     log_message "Current working directory: $(pwd)" | tee -a "$LOGFILE"
@@ -150,19 +155,21 @@ create_db_backup() {
         log_message "Current working directory contents:" | tee -a "$LOGFILE"
         ls -la "." 2>&1 | head -10 | tee -a "$LOGFILE"
 
-        if [ -d "bin" ]; then
-            log_message "bin/ directory contents:" | tee -a "$LOGFILE"
-            ls -la "bin/" 2>&1 | tee -a "$LOGFILE"
-
-            if [ -d "bin/snapshot-backups" ]; then
-                log_message "bin/snapshot-backups/ directory contents:" | tee -a "$LOGFILE"
-                ls -la "bin/snapshot-backups/" 2>&1 | tee -a "$LOGFILE"
-            else
-                log_message "bin/snapshot-backups/ directory does not exist" | tee -a "$LOGFILE"
-            fi
-        else
-            log_message "bin/ directory does not exist in current working directory" | tee -a "$LOGFILE"
-        fi
+        # Search for any bin directories in the system
+        log_message "Searching for bin directories in Cloud Foundry container:" | tee -a "$LOGFILE"
+        find /var/www -name "bin" -type d 2>/dev/null | head -5 | tee -a "$LOGFILE" || log_message "No bin directories found in /var/www" | tee -a "$LOGFILE"
+        find /home/vcap -name "bin" -type d 2>/dev/null | head -5 | tee -a "$LOGFILE" || log_message "No bin directories found in /home/vcap" | tee -a "$LOGFILE"
+        
+        # Search specifically for the db-dump-to-snapshot script anywhere
+        log_message "Searching for db-dump-to-snapshot script anywhere in container:" | tee -a "$LOGFILE"
+        find /var/www -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /var/www" | tee -a "$LOGFILE"
+        find /home/vcap -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /home/vcap" | tee -a "$LOGFILE"
+        find /usr -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /usr" | tee -a "$LOGFILE"
+        find /opt -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /opt" | tee -a "$LOGFILE"
+        
+        # Show environment variables that might help locate scripts
+        log_message "Relevant environment variables:" | tee -a "$LOGFILE"
+        env | grep -E "(PATH|HOME|VCAP)" | head -10 | tee -a "$LOGFILE"
 
         log_message "Attempting to resolve path issue..." | tee -a "$LOGFILE"
         log_message "Note: Ensure you're running this from the project root directory (/var/www in CF)" | tee -a "$LOGFILE"
