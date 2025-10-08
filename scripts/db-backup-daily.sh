@@ -107,12 +107,12 @@ create_db_backup() {
     TEMP_SQL="/tmp/${DB_BACKUP_TAG}.sql"
     TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
 
-    # Step 1: Create database dump using drush
+    # Step 1: Create database dump using drush (without --gzip to avoid bash dependency)
     log_message "Creating database dump with drush..." | tee -a "$LOGFILE"
     if command -v drush >/dev/null 2>&1; then
-        # Clear cache first, then create dump
+        # Clear cache first, then create dump to SQL file
         drush cr 2>&1 | tee -a "$LOGFILE"
-        drush sql:dump --gzip --result-file="$TEMP_GZIP" 2>&1 | tee -a "$LOGFILE"
+        drush sql:dump --result-file="$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
         DUMP_EXIT_CODE=$?
     else
         log_message "ERROR: drush command not found" | tee -a "$LOGFILE"
@@ -124,9 +124,25 @@ create_db_backup() {
         return 1
     fi
 
-    # Step 2: Verify the dump file was created and has content
+    # Step 2: Verify the SQL dump file was created and has content
+    if [ ! -f "$TEMP_SQL" ] || [ ! -s "$TEMP_SQL" ]; then
+        log_message "ERROR: Database dump file was not created or is empty: $TEMP_SQL" | tee -a "$LOGFILE"
+        return 1
+    fi
+
+    # Step 2.5: Compress the SQL file using gzip (POSIX compatible)
+    log_message "Compressing database dump..." | tee -a "$LOGFILE"
+    gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
+    GZIP_EXIT_CODE=$?
+    
+    if [ $GZIP_EXIT_CODE -ne 0 ]; then
+        log_message "ERROR: Database compression failed with exit code: $GZIP_EXIT_CODE" | tee -a "$LOGFILE"
+        return 1
+    fi
+
+    # Verify the compressed file was created
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
-        log_message "ERROR: Database dump file was not created or is empty: $TEMP_GZIP" | tee -a "$LOGFILE"
+        log_message "ERROR: Compressed database file was not created or is empty: $TEMP_GZIP" | tee -a "$LOGFILE"
         return 1
     fi
 
