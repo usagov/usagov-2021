@@ -243,11 +243,94 @@ backup_info() {
 
     # Check static site backup
     echo "Static Site Backup:"
-    aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize
+    if aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
+        static_exists="yes"
+    else
+        echo "  No static site backup found with this tag"
+        static_exists="no"
+    fi
 
     echo ""
     echo "Public Files Backup:"
-    aws s3 ls s3://$BUCKET_NAME/public_backup/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize
+    if aws s3 ls s3://$BUCKET_NAME/public_backup/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
+        public_exists="yes"
+    else
+        echo "  No public files backup found with this tag"
+        public_exists="no"
+        
+        # If static exists but public doesn't, show the smart relationship
+        if [ "$static_exists" = "yes" ]; then
+            echo ""
+            print_status $YELLOW "Smart Backup Analysis:"
+            echo "======================="
+            echo "This static site backup has no corresponding public files backup."
+            echo "This is normal when public files were unchanged (smart optimization)."
+            echo ""
+            
+            corresponding_public=$(find_corresponding_public_backup "$backup_tag")
+            if [ -n "$corresponding_public" ]; then
+                if [ "$corresponding_public" != "$backup_tag" ]; then
+                    print_status $GREEN "Restore would use public backup: $corresponding_public"
+                    echo "Public Files Backup (would be used for restore):"
+                    aws s3 ls s3://$BUCKET_NAME/public_backup/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null
+                fi
+            else
+                print_status $YELLOW "No suitable public backup found for this time period."
+            fi
+        fi
+    fi
+}
+
+# Function to find the appropriate public backup for a static site backup
+find_corresponding_public_backup() {
+    local static_backup_tag=$1
+    
+    # First, check if there's an exact match
+    if aws s3 ls s3://$BUCKET_NAME/public_backup/$static_backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        echo "$static_backup_tag"
+        return 0
+    fi
+    
+    # If no exact match, find the most recent public backup before or at the static backup time
+    # Extract timestamp from static backup tag (format: AUTO-space-YYYY_MM_DD_HH_MM_SS)
+    static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
+    
+    if [ -z "$static_timestamp" ]; then
+        return 1
+    fi
+    
+    # Use a temp file to avoid subshell variable issues
+    temp_list="/tmp/public_backup_search_$$"
+    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-" > "$temp_list" 2>/dev/null
+    
+    best_public_backup=""
+    best_timestamp=""
+    
+    while read -r line; do
+        if [ -n "$line" ]; then
+            public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
+            public_timestamp=$(echo "$public_backup_name" | grep -o '[0-9_]*$')
+            
+            # Compare timestamps (lexicographic comparison works for YYYY_MM_DD_HH_MM_SS format)
+            if [ -n "$public_timestamp" ] && [ "$public_timestamp" \< "$static_timestamp" ] || [ "$public_timestamp" = "$static_timestamp" ]; then
+                # This public backup is at or before the static backup time
+                if [ -z "$best_timestamp" ] || [ "$public_timestamp" \> "$best_timestamp" ]; then
+                    best_public_backup="$public_backup_name"
+                    best_timestamp="$public_timestamp"
+                fi
+            fi
+        fi
+    done < "$temp_list"
+    
+    # Clean up temp file
+    rm -f "$temp_list" 2>/dev/null
+    
+    if [ -n "$best_public_backup" ]; then
+        echo "$best_public_backup"
+        return 0
+    else
+        return 1
+    fi
 }
 
 # Function to restore from backup (WARNING: This is destructive)
@@ -260,8 +343,36 @@ restore_backup() {
 
     setup_s3_vars
 
-    print_status $YELLOW "WARNING: This will overwrite current static site and public files!"
-    print_status $YELLOW "Are you sure you want to restore from backup: $backup_tag? (y/N)"
+    # Check if the static site backup exists
+    if ! aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        print_status $RED "Error: Static site backup not found: $backup_tag"
+        exit 1
+    fi
+
+    # Find the appropriate public backup (smart logic for skipped backups)
+    print_status $BLUE "Finding appropriate public files backup for static site backup: $backup_tag"
+    public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
+    
+    if [ -n "$public_backup_tag" ]; then
+        if [ "$public_backup_tag" = "$backup_tag" ]; then
+            print_status $GREEN "Found exact public backup match: $public_backup_tag"
+        else
+            print_status $YELLOW "No exact public backup match found."
+            print_status $GREEN "Using most recent public backup from that time: $public_backup_tag"
+        fi
+    else
+        print_status $YELLOW "Warning: No suitable public backup found for the selected time period."
+        print_status $YELLOW "Only static site will be restored. Public files will remain unchanged."
+    fi
+
+    print_status $YELLOW "WARNING: This will overwrite current static site and potentially public files!"
+    echo "Static site backup: $backup_tag"
+    if [ -n "$public_backup_tag" ]; then
+        echo "Public files backup: $public_backup_tag"
+    else
+        echo "Public files backup: NONE (will be skipped)"
+    fi
+    print_status $YELLOW "Are you sure you want to proceed? (y/N)"
     read -r confirmation
 
     if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
@@ -269,6 +380,7 @@ restore_backup() {
         exit 0
     fi
 
+    # Restore static site
     print_status $YELLOW "Restoring static site from backup: $backup_tag"
     if aws s3 sync s3://$BUCKET_NAME/web-backup/$backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
         print_status $GREEN "Static site restore completed successfully"
@@ -277,15 +389,20 @@ restore_backup() {
         exit 1
     fi
 
-    print_status $YELLOW "Restoring public files from backup: $backup_tag"
-    if aws s3 sync s3://$BUCKET_NAME/public_backup/$backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
-        print_status $GREEN "Public files restore completed successfully"
+    # Restore public files if available
+    if [ -n "$public_backup_tag" ]; then
+        print_status $YELLOW "Restoring public files from backup: $public_backup_tag"
+        if aws s3 sync s3://$BUCKET_NAME/public_backup/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
+            print_status $GREEN "Public files restore completed successfully"
+        else
+            print_status $RED "ERROR: Public files restore failed"
+            exit 1
+        fi
     else
-        print_status $RED "ERROR: Public files restore failed"
-        exit 1
+        print_status $YELLOW "Skipping public files restore (no suitable backup found)"
     fi
 
-    print_status $GREEN "Full restore completed successfully."
+    print_status $GREEN "Restore completed successfully."
 }
 
 # List database backups
