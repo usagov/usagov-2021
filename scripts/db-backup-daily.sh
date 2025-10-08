@@ -141,6 +141,7 @@ create_db_backup() {
     # Step 2: Verify the SQL dump file was created and has content
     if [ ! -f "$TEMP_SQL" ] || [ ! -s "$TEMP_SQL" ]; then
         log_message "ERROR: Database dump file was not created or is empty: $TEMP_SQL" | tee -a "$LOGFILE"
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         return 1
     fi
 
@@ -151,12 +152,14 @@ create_db_backup() {
 
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
         log_message "ERROR: Database compression failed with exit code: $GZIP_EXIT_CODE" | tee -a "$LOGFILE"
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         return 1
     fi
 
     # Verify the compressed file was created
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
         log_message "ERROR: Compressed database file was not created or is empty: $TEMP_GZIP" | tee -a "$LOGFILE"
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         return 1
     fi
 

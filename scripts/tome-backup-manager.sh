@@ -331,9 +331,10 @@ list_old_db_backups() {
             # Extract date from backup name (YYYY_MM_DD_HH_MM_SS format)
             timestamp_part=$(echo "$backup_file" | sed "s/.*$DB_BACKUP_PREFIX-[^-]*-//")
             if [ -n "$timestamp_part" ]; then
-                # Convert to epoch time for comparison
+                # Convert to epoch time for comparison (cross-platform)
                 date_str=$(echo "$timestamp_part" | sed 's/_/ /g' | sed 's/ /:/' | sed 's/ /:/' | sed 's/ / /')
-                backup_time=$(date -j -f "%Y %m %d %H:%M:%S" "$date_str" +%s 2>/dev/null || echo "0")
+                # Try BSD/macOS date first, then GNU date
+                backup_time=$(date -j -f "%Y %m %d %H:%M:%S" "$date_str" +%s 2>/dev/null || date -d "$date_str" +%s 2>/dev/null || echo "0")
 
                 if [ "$backup_time" -gt 0 ] && [ "$backup_time" -lt "$cutoff_time" ]; then
                     backup_size=$(echo "$line" | awk '{print $3}')
@@ -370,9 +371,10 @@ clean_old_db_backups() {
             # Extract date from backup name (YYYY_MM_DD_HH_MM_SS format)
             timestamp_part=$(echo "$backup_name" | sed "s/.*$DB_BACKUP_PREFIX-[^-]*-//")
             if [ -n "$timestamp_part" ]; then
-                # Convert to epoch time for comparison
+                # Convert to epoch time for comparison (cross-platform)
                 date_str=$(echo "$timestamp_part" | sed 's/_/ /g' | sed 's/ /:/' | sed 's/ /:/' | sed 's/ / /')
-                backup_time=$(date -j -f "%Y %m %d %H:%M:%S" "$date_str" +%s 2>/dev/null || echo "0")
+                # Try BSD/macOS date first, then GNU date
+                backup_time=$(date -j -f "%Y %m %d %H:%M:%S" "$date_str" +%s 2>/dev/null || date -d "$date_str" +%s 2>/dev/null || echo "0")
 
                 if [ "$backup_time" -gt 0 ] && [ "$backup_time" -lt "$cutoff_time" ]; then
                     print_status $YELLOW "Deleting old database backup: $backup_name"
