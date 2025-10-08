@@ -30,7 +30,7 @@ Successfully implemented automated database backups for USA.gov with the followi
   - `backup-db` - Create immediate database backup
   - `info-db <backup_tag>` - Show information about specific database backup
 
-### 4. Extended Configuration (`scripts/tome-backup.conf`)
+### 4. Extended Configuration (`scripts/auto-backup-system.conf`)
 - **New Database Settings**:
   ```bash
   ENABLE_DB_BACKUPS=true
@@ -170,7 +170,7 @@ All 11 test categories pass:
 - `docs/BackupSystem.md` - Comprehensive documentation
 
 ### Modified Files
-- `scripts/tome-backup.conf` - Added database backup configuration
+- `scripts/auto-backup-system.conf` - Added database backup configuration
 - `scripts/tome-backup-manager.sh` - Added database backup commands
 - `scripts/test-backup-system.sh` - Added database backup tests
 

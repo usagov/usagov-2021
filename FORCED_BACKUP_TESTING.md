@@ -140,11 +140,11 @@ Forced Backups: 1 of 1 completed successfully
 #### For Static Site and Public Files Backups
 - S3 credentials configured (VCAP_SERVICES or AWS environment variables)
 - `BUCKET_NAME` environment variable or Cloud Foundry S3 service
-- `ENABLE_AUTO_BACKUPS=true` in `tome-backup.conf`
+- `ENABLE_AUTO_BACKUPS=true` in `auto-backup-system.conf`
 - AWS CLI available and functional
 
 #### For Database Backups
-- `ENABLE_DB_BACKUPS=true` in `tome-backup.conf`
+- `ENABLE_DB_BACKUPS=true` in `auto-backup-system.conf`
 - Database backup infrastructure available (`db-dump-to-snapshot`)
 - S3 credentials for uploading compressed database dumps
 - Backup manager (`tome-backup-manager.sh`) available

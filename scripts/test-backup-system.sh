@@ -234,7 +234,7 @@ test_backup_integration() {
     local tome_sync_script="./scripts/tome-sync.sh"
 
     # Check for backup-related code in tome-sync.sh
-    for pattern in "auto-backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating automatic backups" "web-backup" "public_backup" "BACKUP_PREFIX"; do
+    for pattern in "auto-backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating static site backup" "web-backup" "public_backup" "BACKUP_PREFIX"; do
         if grep -q "$pattern" "$tome_sync_script"; then
             echo "✓ Found backup integration: $pattern"
         else

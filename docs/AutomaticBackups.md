@@ -34,7 +34,7 @@ The backup functionality is seamlessly integrated into `scripts/tome-sync.sh`. A
 
 ### Configuration
 
-Backup behavior is controlled by `scripts/tome-backup.conf`:
+Backup behavior is controlled by `scripts/auto-backup-system.conf`:
 
 ```bash
 # Number of days to retain automatic backups (default: 7)
@@ -174,7 +174,7 @@ Monitor Tome logs for backup-related messages:
 ### Common Issues
 
 **Backups not being created:**
-- Check that `ENABLE_AUTO_BACKUPS=true` in `tome-backup.conf`
+- Check that `ENABLE_AUTO_BACKUPS=true` in `auto-backup-system.conf`
 - Verify S3 permissions allow copying between buckets
 - Check Tome logs for error messages
 

@@ -43,7 +43,7 @@ S3 Bucket/
 
 ## Configuration
 
-All backup settings are configured in `scripts/tome-backup.conf`:
+All backup settings are configured in `scripts/auto-backup-system.conf`:
 
 ### Static Site & Public File Settings
 
@@ -247,18 +247,18 @@ You can also force immediate backups for testing purposes:
    - Or set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 
 2. **Backup not triggered during Tome sync**
-   - Check that `ENABLE_AUTO_BACKUPS=true` in tome-backup.conf
+   - Check that `ENABLE_AUTO_BACKUPS=true` in auto-backup-system.conf
    - Verify tome-sync.sh completed successfully
    - Check backup logs for error messages
 
 3. **Database backups not running**
    - Verify cron job is set up: `crontab -l`
-   - Check that `ENABLE_DB_BACKUPS=true` in tome-backup.conf
+   - Check that `ENABLE_DB_BACKUPS=true` in auto-backup-system.conf
    - Ensure db-dump-to-snapshot script is available
    - Check database backup logs
 
 4. **Old backups not being cleaned up**
-   - Verify `ENABLE_AUTO_CLEANUP=true` in tome-backup.conf
+   - Verify `AUTO_CLEANUP_STATIC=true` and `AUTO_CLEANUP_DB=true` in auto-backup-system.conf
    - Check retention day settings
    - Manually run cleanup: `./scripts/tome-backup-manager.sh clean`
 

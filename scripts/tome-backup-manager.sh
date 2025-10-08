@@ -5,6 +5,21 @@
 
 SCRIPT_PATH=$(dirname "$0")
 
+# Load configuration
+CONFIG_FILE="$SCRIPT_PATH/auto-backup-system.conf"
+if [ -f "$CONFIG_FILE" ]; then
+    . "$CONFIG_FILE"
+else
+    echo "ERROR: Configuration file not found: $CONFIG_FILE"
+    exit 1
+fi
+
+# Set defaults if not defined in config
+BACKUP_PREFIX=${BACKUP_PREFIX:-AUTO}
+DB_BACKUP_PREFIX=${DB_BACKUP_PREFIX:-DB-AUTO}
+BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
+DB_BACKUP_RETENTION_DAYS=${DB_BACKUP_RETENTION_DAYS:-30}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
