@@ -160,13 +160,13 @@ create_db_backup() {
 
     # Step 3: Upload to S3
     log_message "Uploading database backup to S3..." | tee -a "$LOGFILE"
-    
-    # Use BUCKET_NAME (consistent with existing scripts) 
+
+    # Use BUCKET_NAME (consistent with existing scripts)
     if [ -z "$BUCKET_NAME" ]; then
         log_message "ERROR: BUCKET_NAME not set - cannot upload to S3" | tee -a "$LOGFILE"
         return 1
     fi
-    
+
     S3_DB_PATH="s3://${BUCKET_NAME}/database/${DB_BACKUP_TAG}.sql.gz"
     log_message "Uploading to: $S3_DB_PATH" | tee -a "$LOGFILE"
 
