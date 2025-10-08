@@ -127,17 +127,51 @@ create_db_backup() {
         fi
     done
 
-    if [ -n "$DB_SCRIPT_PATH" ] && [ -f "$DB_SCRIPT_PATH" ]; then
-        log_message "Using database backup script: $DB_SCRIPT_PATH" | tee -a "$LOGFILE"
+    # Instead of using the bash-dependent scripts, implement database backup directly
+    log_message "Implementing database backup directly (POSIX compatible)" | tee -a "$LOGFILE"
 
-        # The db-dump-to-snapshot script expects a tag parameter
-        "$DB_SCRIPT_PATH" "$DB_BACKUP_TAG" 2>&1 | tee -a "$LOGFILE"
+    # Create temporary files for database backup
+    TEMP_SQL="/tmp/${DB_BACKUP_TAG}.sql"
+    TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
 
-        if [ $? -eq 0 ]; then
-            log_message "Database backup completed successfully" | tee -a "$LOGFILE"
-            return 0
-        else
-            log_message "ERROR: Database backup failed" | tee -a "$LOGFILE"
+    # Step 1: Create database dump using drush
+    log_message "Creating database dump with drush..." | tee -a "$LOGFILE"
+    if command -v drush >/dev/null 2>&1; then
+        # Clear cache first, then create dump
+        drush cr 2>&1 | tee -a "$LOGFILE"
+        drush sql:dump --gzip --result-file="$TEMP_GZIP" 2>&1 | tee -a "$LOGFILE"
+        DUMP_EXIT_CODE=$?
+    else
+        log_message "ERROR: drush command not found" | tee -a "$LOGFILE"
+        return 1
+    fi
+
+    if [ $DUMP_EXIT_CODE -ne 0 ]; then
+        log_message "ERROR: Database dump failed with exit code: $DUMP_EXIT_CODE" | tee -a "$LOGFILE"
+        return 1
+    fi
+
+    # Step 2: Verify the dump file was created and has content
+    if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
+        log_message "ERROR: Database dump file was not created or is empty: $TEMP_GZIP" | tee -a "$LOGFILE"
+        return 1
+    fi
+
+    # Step 3: Upload to S3
+    log_message "Uploading database backup to S3..." | tee -a "$LOGFILE"
+    S3_DB_PATH="s3://${S3_BUCKET}/database/${DB_BACKUP_TAG}.sql.gz"
+
+    aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
+    UPLOAD_EXIT_CODE=$?
+
+    # Step 4: Clean up temporary files
+    rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+
+    if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
+        log_message "Database backup completed successfully: $S3_DB_PATH" | tee -a "$LOGFILE"
+        return 0
+    else
+        log_message "ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
             return 1
         fi
     else
@@ -159,14 +193,14 @@ create_db_backup() {
         log_message "Searching for bin directories in Cloud Foundry container:" | tee -a "$LOGFILE"
         find /var/www -name "bin" -type d 2>/dev/null | head -5 | tee -a "$LOGFILE" || log_message "No bin directories found in /var/www" | tee -a "$LOGFILE"
         find /home/vcap -name "bin" -type d 2>/dev/null | head -5 | tee -a "$LOGFILE" || log_message "No bin directories found in /home/vcap" | tee -a "$LOGFILE"
-        
+
         # Search specifically for the db-dump-to-snapshot script anywhere
         log_message "Searching for db-dump-to-snapshot script anywhere in container:" | tee -a "$LOGFILE"
         find /var/www -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /var/www" | tee -a "$LOGFILE"
         find /home/vcap -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /home/vcap" | tee -a "$LOGFILE"
         find /usr -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /usr" | tee -a "$LOGFILE"
         find /opt -name "db-dump-to-snapshot" -type f 2>/dev/null | tee -a "$LOGFILE" || log_message "db-dump-to-snapshot not found in /opt" | tee -a "$LOGFILE"
-        
+
         # Show environment variables that might help locate scripts
         log_message "Relevant environment variables:" | tee -a "$LOGFILE"
         env | grep -E "(PATH|HOME|VCAP)" | head -10 | tee -a "$LOGFILE"
