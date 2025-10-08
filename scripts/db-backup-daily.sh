@@ -24,7 +24,7 @@ log_message() {
 }
 
 # Load configuration
-CONFIG_FILE="$SCRIPT_PATH/tome-backup.conf"
+CONFIG_FILE="$SCRIPT_PATH/auto-backup-system.conf"
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
@@ -188,8 +188,8 @@ create_db_backup() {
 
 # Function to cleanup old database backups
 cleanup_old_db_backups() {
-    if [ "$ENABLE_AUTO_CLEANUP" != "true" ]; then
-        log_message "Automatic cleanup is disabled" | tee -a "$LOGFILE"
+    if [ "$ENABLE_DB_AUTO_CLEANUP" != "true" ]; then
+        log_message "Database automatic cleanup is disabled" | tee -a "$LOGFILE"
         return 0
     fi
 
@@ -204,9 +204,8 @@ cleanup_old_db_backups() {
             backup_path=$(echo "$line" | awk '{print $4}')
             backup_date=$(echo "$backup_path" | grep -o "${DB_BACKUP_PREFIX}-[0-9_]*" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
             if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
-                backup_prefix=$(echo "$backup_path" | cut -d'/' -f1-2)
-                log_message "Removing old database backup: $backup_prefix" | tee -a "$LOGFILE"
-                aws s3 rm s3://$BUCKET_NAME/$backup_prefix --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a "$LOGFILE"
+                log_message "Removing old database backup: $backup_path" | tee -a "$LOGFILE"
+                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1 | tee -a "$LOGFILE"
             fi
         done
         log_message "Database backup cleanup completed" | tee -a "$LOGFILE"

@@ -18,7 +18,7 @@ print_status() {
 }
 
 # Load configuration
-CONFIG_FILE="$SCRIPT_PATH/tome-backup.conf"
+CONFIG_FILE="$SCRIPT_PATH/auto-backup-system.conf"
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
@@ -208,4 +208,4 @@ fi
 print_status $GREEN "Database backup cron setup completed!"
 print_status $YELLOW ""
 print_status $YELLOW "Note: Time is configured for EST. If your server is in a different timezone,"
-print_status $YELLOW "you may need to adjust the DB_BACKUP_TIME setting in tome-backup.conf"
+print_status $YELLOW "you may need to adjust the DB_BACKUP_TIME setting in auto-backup-system.conf"

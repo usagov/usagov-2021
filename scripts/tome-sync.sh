@@ -316,25 +316,26 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       echo "      $TOME_COUNT" | tee -a $TOMELOG
 
       # Load backup configuration
-      BACKUP_CONFIG_FILE="$SCRIPT_PATH/tome-backup.conf"
+      BACKUP_CONFIG_FILE="$SCRIPT_PATH/auto-backup-system.conf"
       if [ -f "$BACKUP_CONFIG_FILE" ]; then
           source "$BACKUP_CONFIG_FILE"
       fi
 
       # Set defaults if not defined in config
-      ENABLE_AUTO_BACKUPS=${ENABLE_AUTO_BACKUPS:-true}
-      ENABLE_AUTO_CLEANUP=${ENABLE_AUTO_CLEANUP:-true}
+      ENABLE_STATIC_AUTO_BACKUPS=${ENABLE_STATIC_AUTO_BACKUPS:-true}
+      ENABLE_PUBLIC_AUTO_BACKUPS=${ENABLE_PUBLIC_AUTO_BACKUPS:-true}
+      ENABLE_STATIC_AUTO_CLEANUP=${ENABLE_STATIC_AUTO_CLEANUP:-true}
+      ENABLE_PUBLIC_AUTO_CLEANUP=${ENABLE_PUBLIC_AUTO_CLEANUP:-true}
       BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
       BACKUP_PREFIX=${BACKUP_PREFIX:-AUTO}
       ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
       BACKUP_S3_EXTRA_PARAMS=${BACKUP_S3_EXTRA_PARAMS:-""}
 
       # Create automatic backups after successful sync (if enabled)
-      if [ "$ENABLE_AUTO_BACKUPS" = "true" ]; then
-          echo "Creating automatic backups after successful sync..." | tee -a $TOMELOG
-          BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${YMDHMS}"
-
-          # Static site backup
+      BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${YMDHMS}"
+      
+      # Static site backup (if enabled)
+      if [ "$ENABLE_STATIC_AUTO_BACKUPS" = "true" ]; then
           echo "Creating static site backup with tag: $BACKUP_TAG" | tee -a $TOMELOG
           aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/web-backup/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
           if [ $? -eq 0 ]; then
@@ -342,7 +343,12 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
           else
               echo "Warning: Static site backup failed." | tee -a $TOMELOG
           fi
+      else
+          echo "Static site automatic backups are disabled." | tee -a $TOMELOG
+      fi
 
+      # Public files backup (if enabled)
+      if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" = "true" ]; then
           # Public files backup with optional change detection
           PUBLIC_BACKUP_NEEDED=true
 
@@ -384,16 +390,20 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
           else
               echo "Public files backup skipped (no changes detected)." | tee -a $TOMELOG
           fi
+      else
+          echo "Public files automatic backups are disabled." | tee -a $TOMELOG
+      fi
 
-          echo "Automatic backup process completed." | tee -a $TOMELOG
+      echo "Automatic backup process completed." | tee -a $TOMELOG
 
-          # Cleanup old automatic backups (if enabled)
-          if [ "$ENABLE_AUTO_CLEANUP" = "true" ]; then
-              echo "Cleaning up old automatic backups (older than $BACKUP_RETENTION_DAYS days)..." | tee -a $TOMELOG
-              CUTOFF_DATE=$(date -u -d "${BACKUP_RETENTION_DAYS} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${BACKUP_RETENTION_DAYS}d '+%Y_%m_%d' 2>/dev/null)
-              if [ -n "$CUTOFF_DATE" ]; then
-                  # List and delete old static site backups
-                  aws s3 ls s3://$BUCKET_NAME/web-backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
+      # Cleanup old automatic backups (if enabled)
+      CUTOFF_DATE=$(date -u -d "${BACKUP_RETENTION_DAYS} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${BACKUP_RETENTION_DAYS}d '+%Y_%m_%d' 2>/dev/null)
+      
+      # Static site backup cleanup (if enabled)
+      if [ "$ENABLE_STATIC_AUTO_CLEANUP" = "true" ] && [ -n "$CUTOFF_DATE" ]; then
+          echo "Cleaning up old static site backups (older than $BACKUP_RETENTION_DAYS days)..." | tee -a $TOMELOG
+          # List and delete old static site backups
+          aws s3 ls s3://$BUCKET_NAME/web-backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
                       backup_path=$(echo "$line" | awk '{print $4}')
                       backup_date=$(echo "$backup_path" | grep -o "${BACKUP_PREFIX}-[^/]*-[0-9_]*" | tail -c 11 | head -c 10)
                       if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
@@ -402,22 +412,33 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
                           aws s3 rm s3://$BUCKET_NAME/web-backup/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
                       fi
                   done
+      else
+          echo "Static site backup cleanup is disabled." | tee -a $TOMELOG
+      fi
 
-                  # List and delete old public file backups
-                  aws s3 ls s3://$BUCKET_NAME/public_backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
-                      backup_path=$(echo "$line" | awk '{print $4}')
-                      backup_date=$(echo "$backup_path" | grep -o "${BACKUP_PREFIX}-[^/]*-[0-9_]*" | tail -c 11 | head -c 10)
-                      if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
-                          backup_prefix=$(echo "$backup_path" | cut -d'/' -f1)
-                          echo "Removing old backup: $backup_prefix" | tee -a $TOMELOG
-                          aws s3 rm s3://$BUCKET_NAME/public_backup/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-                      fi
-                  done
-                  echo "Backup cleanup completed." | tee -a $TOMELOG
-              else
-                  echo "Warning: Could not determine cutoff date for backup cleanup." | tee -a $TOMELOG
+      # Public files backup cleanup (if enabled)
+      if [ "$ENABLE_PUBLIC_AUTO_CLEANUP" = "true" ] && [ -n "$CUTOFF_DATE" ]; then
+          echo "Cleaning up old public files backups (older than $BACKUP_RETENTION_DAYS days)..." | tee -a $TOMELOG
+          # List and delete old public file backups
+          aws s3 ls s3://$BUCKET_NAME/public_backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
+              backup_path=$(echo "$line" | awk '{print $4}')
+              backup_date=$(echo "$backup_path" | grep -o "${BACKUP_PREFIX}-[^/]*-[0-9_]*" | tail -c 11 | head -c 10)
+              if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
+                  backup_prefix=$(echo "$backup_path" | cut -d'/' -f1)
+                  echo "Removing old public files backup: $backup_prefix" | tee -a $TOMELOG
+                  aws s3 rm s3://$BUCKET_NAME/public_backup/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
               fi
-          else
+          done
+      else
+          echo "Public files backup cleanup is disabled." | tee -a $TOMELOG
+      fi
+
+      if [ -n "$CUTOFF_DATE" ]; then
+          echo "Backup cleanup completed." | tee -a $TOMELOG
+      else
+          echo "Warning: Could not determine cutoff date for backup cleanup." | tee -a $TOMELOG
+      fi
+  else
               echo "Automatic cleanup is disabled." | tee -a $TOMELOG
           fi
       else

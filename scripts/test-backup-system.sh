@@ -123,7 +123,7 @@ setup_test_env() {
 
 # Function to test configuration loading
 test_config_loading() {
-    local config_file="./scripts/tome-backup.conf"
+    local config_file="./scripts/auto-backup-system.conf"
 
     check_file "$config_file" "backup configuration file" || return 1
 
@@ -131,7 +131,7 @@ test_config_loading() {
     . "$config_file"
 
     # Check required variables are set
-    local required_vars="BACKUP_RETENTION_DAYS ENABLE_AUTO_BACKUPS ENABLE_AUTO_CLEANUP BACKUP_PREFIX ENABLE_SMART_PUBLIC_BACKUP"
+    local required_vars="BACKUP_RETENTION_DAYS ENABLE_STATIC_AUTO_BACKUPS ENABLE_PUBLIC_AUTO_BACKUPS ENABLE_STATIC_AUTO_CLEANUP ENABLE_PUBLIC_AUTO_CLEANUP BACKUP_PREFIX ENABLE_SMART_PUBLIC_BACKUP"
     for var in $required_vars; do
         eval "var_value=\$$var"
         if [ -n "$var_value" ]; then
@@ -234,7 +234,7 @@ test_backup_integration() {
     local tome_sync_script="./scripts/tome-sync.sh"
 
     # Check for backup-related code in tome-sync.sh
-    for pattern in "tome-backup.conf" "ENABLE_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating automatic backups" "web-backup" "public_backup" "BACKUP_PREFIX"; do
+    for pattern in "auto-backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating automatic backups" "web-backup" "public_backup" "BACKUP_PREFIX"; do
         if grep -q "$pattern" "$tome_sync_script"; then
             echo "✓ Found backup integration: $pattern"
         else
@@ -320,7 +320,7 @@ test_date_calculations() {
 
 # Function to test backup naming pattern
 test_backup_naming() {
-    . "./scripts/tome-backup.conf"
+    . "./scripts/auto-backup-system.conf"
 
     local test_space="test"
     local test_timestamp="2024_03_15_14_30_00"
@@ -427,7 +427,7 @@ test_database_backup_system() {
     fi
 
     # Load config to test database backup settings
-    . "./scripts/tome-backup.conf"
+    . "./scripts/auto-backup-system.conf"
 
     # Test database backup configuration
     echo "Testing database backup configuration..."
@@ -474,7 +474,7 @@ test_database_backup_system() {
 
     # Check if daily backup script has required components
     local db_script="./scripts/db-backup-daily.sh"
-    for component in "tome-backup.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
+    for component in "auto-backup-system.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
         if grep -q "$component" "$db_script"; then
             echo "✓ Database backup script includes: $component"
         else
@@ -502,11 +502,11 @@ force_static_backup() {
     print_status $BLUE "============================================"
 
     # Load configuration
-    . "./scripts/tome-backup.conf"
+    . "./scripts/auto-backup-system.conf"
 
-    if [ "$ENABLE_AUTO_BACKUPS" != "true" ]; then
-        print_status $RED "Error: Auto backups are disabled in configuration"
-        print_status $YELLOW "Set ENABLE_AUTO_BACKUPS=true in scripts/tome-backup.conf"
+    if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ] && [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
+        print_status $RED "Error: Both static and public auto backups are disabled in configuration"
+        print_status $YELLOW "Set ENABLE_STATIC_AUTO_BACKUPS=true and/or ENABLE_PUBLIC_AUTO_BACKUPS=true in scripts/auto-backup-system.conf"
         return 1
     fi
 
@@ -566,11 +566,11 @@ force_public_backup() {
     print_status $BLUE "============================================"
 
     # Load configuration
-    . "./scripts/tome-backup.conf"
+    . "./scripts/auto-backup-system.conf"
 
-    if [ "$ENABLE_AUTO_BACKUPS" != "true" ]; then
-        print_status $RED "Error: Auto backups are disabled in configuration"
-        print_status $YELLOW "Set ENABLE_AUTO_BACKUPS=true in scripts/tome-backup.conf"
+    if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
+        print_status $RED "Error: Public files auto backups are disabled in configuration"
+        print_status $YELLOW "Set ENABLE_PUBLIC_AUTO_BACKUPS=true in scripts/auto-backup-system.conf"
         return 1
     fi
 
@@ -621,11 +621,11 @@ force_db_backup() {
     print_status $BLUE "============================================"
 
     # Load configuration
-    . "./scripts/tome-backup.conf"
+    . "./scripts/auto-backup-system.conf"
 
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         print_status $RED "Error: Database backups are disabled in configuration"
-        print_status $YELLOW "Set ENABLE_DB_BACKUPS=true in scripts/tome-backup.conf"
+        print_status $YELLOW "Set ENABLE_DB_BACKUPS=true in scripts/auto-backup-system.conf"
         return 1
     fi
 
