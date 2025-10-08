@@ -37,6 +37,18 @@ ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 DB_BACKUP_RETENTION_DAYS=${DB_BACKUP_RETENTION_DAYS:-30}
 DB_BACKUP_PREFIX=${DB_BACKUP_PREFIX:-DB-AUTO}
 
+# Set up AWS S3 credentials (same as tome-sync.sh)
+export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
+export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
+export AWS_ACCESS_KEY_ID=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.access_key_id')
+export AWS_SECRET_ACCESS_KEY=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.secret_access_key')
+export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.hostname')
+if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
+  export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint');
+fi
+
+log_message "AWS S3 Configuration: BUCKET_NAME=$BUCKET_NAME, AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
+
 # Check if database backups are enabled
 if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
     log_message "Database backups are disabled in configuration"
@@ -134,7 +146,7 @@ create_db_backup() {
     log_message "Compressing database dump..." | tee -a "$LOGFILE"
     gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
     GZIP_EXIT_CODE=$?
-    
+
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
         log_message "ERROR: Database compression failed with exit code: $GZIP_EXIT_CODE" | tee -a "$LOGFILE"
         return 1
@@ -148,7 +160,15 @@ create_db_backup() {
 
     # Step 3: Upload to S3
     log_message "Uploading database backup to S3..." | tee -a "$LOGFILE"
-    S3_DB_PATH="s3://${S3_BUCKET}/database/${DB_BACKUP_TAG}.sql.gz"
+    
+    # Use BUCKET_NAME (consistent with existing scripts) 
+    if [ -z "$BUCKET_NAME" ]; then
+        log_message "ERROR: BUCKET_NAME not set - cannot upload to S3" | tee -a "$LOGFILE"
+        return 1
+    fi
+    
+    S3_DB_PATH="s3://${BUCKET_NAME}/database/${DB_BACKUP_TAG}.sql.gz"
+    log_message "Uploading to: $S3_DB_PATH" | tee -a "$LOGFILE"
 
     aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
     UPLOAD_EXIT_CODE=$?
@@ -161,6 +181,7 @@ create_db_backup() {
         return 0
     else
         log_message "ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
+        log_message "Check that BUCKET_NAME is set and AWS credentials are configured" | tee -a "$LOGFILE"
         return 1
     fi
 }
