@@ -406,6 +406,13 @@ backup_db() {
     script_dir="$(dirname "$0")"
     if [ -f "$script_dir/db-backup-daily.sh" ]; then
         "$script_dir/db-backup-daily.sh"
+        backup_exit_code=$?
+        if [ $backup_exit_code -ne 0 ]; then
+            print_status $RED "Database backup failed with exit code: $backup_exit_code"
+            exit $backup_exit_code
+        else
+            print_status $GREEN "Database backup completed successfully"
+        fi
     else
         print_status $RED "Error: Database backup script not found at $script_dir/db-backup-daily.sh"
         exit 1
