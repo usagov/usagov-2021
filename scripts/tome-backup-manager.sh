@@ -270,12 +270,22 @@ restore_backup() {
     fi
 
     print_status $YELLOW "Restoring static site from backup: $backup_tag"
-    aws s3 sync s3://$BUCKET_NAME/web-backup/$backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS
+    if aws s3 sync s3://$BUCKET_NAME/web-backup/$backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
+        print_status $GREEN "Static site restore completed successfully"
+    else
+        print_status $RED "ERROR: Static site restore failed"
+        exit 1
+    fi
 
     print_status $YELLOW "Restoring public files from backup: $backup_tag"
-    aws s3 sync s3://$BUCKET_NAME/public_backup/$backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS
+    if aws s3 sync s3://$BUCKET_NAME/public_backup/$backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
+        print_status $GREEN "Public files restore completed successfully"
+    else
+        print_status $RED "ERROR: Public files restore failed"
+        exit 1
+    fi
 
-    print_status $GREEN "Restore completed."
+    print_status $GREEN "Full restore completed successfully."
 }
 
 # List database backups

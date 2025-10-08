@@ -49,13 +49,15 @@ All backup settings are configured in `scripts/auto-backup-system.conf`:
 
 ```bash
 # Enable/disable automatic backups during Tome runs
-ENABLE_AUTO_BACKUPS=true
+ENABLE_STATIC_AUTO_BACKUPS=true
+ENABLE_PUBLIC_AUTO_BACKUPS=true
 
 # Enable smart public file backup (only when changes detected)
 ENABLE_SMART_PUBLIC_BACKUP=true
 
 # Automatic cleanup of old backups
-ENABLE_AUTO_CLEANUP=true
+ENABLE_STATIC_AUTO_CLEANUP=true
+ENABLE_PUBLIC_AUTO_CLEANUP=true
 
 # How many days to keep backups
 BACKUP_RETENTION_DAYS=7
@@ -247,7 +249,7 @@ You can also force immediate backups for testing purposes:
    - Or set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 
 2. **Backup not triggered during Tome sync**
-   - Check that `ENABLE_AUTO_BACKUPS=true` in auto-backup-system.conf
+   - Check that `ENABLE_STATIC_AUTO_BACKUPS=true` and `ENABLE_PUBLIC_AUTO_BACKUPS=true` in auto-backup-system.conf
    - Verify tome-sync.sh completed successfully
    - Check backup logs for error messages
 

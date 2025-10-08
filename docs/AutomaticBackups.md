@@ -41,10 +41,12 @@ Backup behavior is controlled by `scripts/auto-backup-system.conf`:
 BACKUP_RETENTION_DAYS=7
 
 # Enable/disable automatic backups (true/false)
-ENABLE_AUTO_BACKUPS=true
+ENABLE_STATIC_AUTO_BACKUPS=true
+ENABLE_PUBLIC_AUTO_BACKUPS=true
 
 # Enable/disable automatic cleanup of old backups (true/false)  
-ENABLE_AUTO_CLEANUP=true
+ENABLE_STATIC_AUTO_CLEANUP=true
+ENABLE_PUBLIC_AUTO_CLEANUP=true
 
 # Backup naming prefix (default: AUTO)
 BACKUP_PREFIX=AUTO
@@ -174,14 +176,14 @@ Monitor Tome logs for backup-related messages:
 ### Common Issues
 
 **Backups not being created:**
-- Check that `ENABLE_AUTO_BACKUPS=true` in `auto-backup-system.conf`
+- Check that `ENABLE_STATIC_AUTO_BACKUPS=true` and `ENABLE_PUBLIC_AUTO_BACKUPS=true` in `auto-backup-system.conf`
 - Verify S3 permissions allow copying between buckets
 - Check Tome logs for error messages
 
 **Cleanup not working:**
-- Verify `ENABLE_AUTO_CLEANUP=true` in configuration
+- Verify `ENABLE_STATIC_AUTO_CLEANUP=true` and `ENABLE_PUBLIC_AUTO_CLEANUP=true` in configuration
 - **Date command compatibility:**
-- Verify `ENABLE_AUTO_CLEANUP=true` in configuration
+- Verify cleanup settings are properly configured
 - Check date command compatibility (Linux vs macOS vs minimal containers)
 - In environments with limited date commands, cleanup will be disabled automatically
 - Ensure AWS CLI has delete permissions

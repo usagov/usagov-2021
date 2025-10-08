@@ -27,7 +27,7 @@ Options:
 #### 2. **Force Functions**
 
 **Static Site Backup (`force_static_backup`):**
-- Loads configuration and validates `ENABLE_AUTO_BACKUPS=true`
+- Loads configuration and validates static/public backup settings
 - Sets up S3 environment variables from VCAP_SERVICES or environment
 - Creates timestamped backup using `aws s3 sync`
 - Syncs current static site to `s3://bucket/web-backup/AUTO-space-timestamp/`
@@ -140,7 +140,7 @@ Forced Backups: 1 of 1 completed successfully
 #### For Static Site and Public Files Backups
 - S3 credentials configured (VCAP_SERVICES or AWS environment variables)
 - `BUCKET_NAME` environment variable or Cloud Foundry S3 service
-- `ENABLE_AUTO_BACKUPS=true` in `auto-backup-system.conf`
+- `ENABLE_STATIC_AUTO_BACKUPS=true` and `ENABLE_PUBLIC_AUTO_BACKUPS=true` in `auto-backup-system.conf`
 - AWS CLI available and functional
 
 #### For Database Backups
