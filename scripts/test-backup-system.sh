@@ -474,7 +474,7 @@ test_database_backup_system() {
     
     # Check if daily backup script has required components
     local db_script="./scripts/db-backup-daily.sh"
-    for component in "tome-backup.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX" "db-dump-to-snapshot"; do
+    for component in "tome-backup.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
         if grep -q "$component" "$db_script"; then
             echo "✓ Database backup script includes: $component"
         else
@@ -482,6 +482,14 @@ test_database_backup_system() {
             return 1
         fi
     done
+    
+    # Check for direct database backup implementation (POSIX compatible)
+    if grep -q "drush sql:dump" "$db_script" && grep -q "POSIX compatible" "$db_script"; then
+        echo "✓ Database backup script uses direct POSIX-compatible implementation"
+    else
+        echo "✗ Database backup script missing direct implementation"
+        return 1
+    fi
     
     echo "✓ Database backup system test passed"
     return 0
