@@ -1,0 +1,39 @@
+##################################################
+# The project_conf/fluentbit.conf file is for extended configuration
+# specific to your project. This file is @INCLUDEd at the end of
+# the base fluentbit.conf, so any FILTERs you include here will run after the
+# ones in that file.
+#
+# cg-logshipper's base configuration leaves anything it doesn't know
+# about in a "message" field, so it's likely that's the key your
+# additional parsers will focus on.
+#
+# Fluent Bit's documentation of the configuration file:
+#   https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
+# Fluent Bit's "Filter" documentation:
+#   https://docs.fluentbit.io/manual/pipeline/filters
+##################################################
+
+[FILTER]
+    name parser
+    match tcp.*
+    key_name message
+    parser my-custom-parser
+    reserve_data On
+    preserve_key On
+
+# A script. Note that the path to the file is included in the "script" parameter,
+# so you can name your script files arbitrarily. project_conf/scripts/
+# is a sensible place to put them.
+[FILTER]
+    name lua
+    match tcp.*
+    time_as_table On
+    script project_conf/scripts/parse_drupal_keys.lua
+    call parse_drupal_keys
+
+# Add this to see the parsed messages in the logshipper's logs (not
+# recommended in production, but can be handy when troubleshooting):
+[OUTPUT]
+    name stdout
+    match *

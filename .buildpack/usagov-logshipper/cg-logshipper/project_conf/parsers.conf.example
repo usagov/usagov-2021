@@ -1,0 +1,24 @@
+##################################################
+# The project_conf/parsers.conf file is for parsers you define for your project.
+# fluentbit.conf references this as one of several parsers files.
+#
+# You must also add a [PARSER] section to project_conf/fluentbit.conf for each parser
+# you want Fluent Bit to run on your logs.
+#
+# Parsers are an important component of Fluent Bit. With them you can
+# take any unstructured log entry and give it a structure that makes
+# easier it processing and further filtering.
+#
+# The parser engine is fully configurable and can process log entries
+# based in two types of format: json & regex
+#
+# Fluent Bit parser documentation: https://docs.fluentbit.io/manual/pipeline/parsers/configuring-parser
+# Fluent Bit example parsers: https://github.com/fluent/fluent-bit/blob/master/conf/parsers.conf (and
+# other files whose names start with "parser")
+##################################################
+
+[PARSER]
+    Name   json
+    Format json
+    Time_Key time
+    Time_Format %d/%b/%Y:%H:%M:%S %z

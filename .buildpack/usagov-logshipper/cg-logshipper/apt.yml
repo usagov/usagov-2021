@@ -1,0 +1,7 @@
+---
+keys:
+- https://packages.fluentbit.io/fluentbit.key
+repos:
+- deb https://packages.fluentbit.io/ubuntu/jammy jammy main
+packages:
+- fluent-bit=3.1.10
