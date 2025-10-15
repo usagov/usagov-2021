@@ -8,16 +8,14 @@ commands:
         type: string
     steps:
       - run:
-          name: Deploy Logshipper for << parameters.envname >>
+          name: CloudGov Deploy Logshipper
           command: |
             cd .buildpack/usagov-logshipper
+            cf target -s << parameters.envname >>
+            ./bin/setup-services.sh
             export SPACE=<< parameters.envname >>
             export USAGOV_ENVIRONMENT=<< parameters.envname >>
             ./bin/deploy-logshipper.sh << pipeline.number >> << parameters.envname >>
-      - run:
-          name: Create Route for Logshipper << parameters.envname >>
-          command: |
-            cf target -s << parameters.envname >>
             # Create and map route for the logshipper
             if ! cf routes | grep -q "usagov-<< parameters.envname >>-logshipper"; then
               cf create-route app.cloud.gov --hostname usagov-<< parameters.envname >>-logshipper
@@ -25,32 +23,6 @@ commands:
             if ! cf routes | grep -q "log-shipper-<< parameters.envname >>.*usagov-<< parameters.envname >>-logshipper"; then
               cf map-route log-shipper-<< parameters.envname >> app.cloud.gov --hostname usagov-<< parameters.envname >>-logshipper
             fi
-
-  setup-logshipper-services:
-    parameters:
-      envname:
-        default: "dev"
-        type: string
-    steps:
-      - run:
-          name: Setup Logshipper Services for << parameters.envname >>
-          command: |
-            cd .buildpack/usagov-logshipper
-            cf target -s << parameters.envname >>
-            ./bin/setup-services.sh
-
-  setup-log-drains:
-    parameters:
-      envname:
-        default: "dev"
-        type: string
-    steps:
-      - run:
-          name: Setup Log Drains for << parameters.envname >>
-          command: |
-            cd .buildpack/usagov-logshipper
-            export SPACE=<< parameters.envname >>
-            cf target -s << parameters.envname >>
             ./bin/add-log-drains-for-space.sh
 
   deploy-cloudgov:
@@ -119,11 +91,7 @@ commands:
             ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
             PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP,$DPROXY_APP" \
             ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
-      - setup-logshipper-services:
-          envname: << parameters.envname >>
       - deploy-logshipper:
-          envname: << parameters.envname >>
-      - setup-log-drains:
           envname: << parameters.envname >>
 
   save-image-digest:
