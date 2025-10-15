@@ -1,21 +1,6 @@
 #!/bin/sh
 
 # Automated Database Backup Script
-# Check if database backups are enabled
-if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
-    log_message "Database backups disabled"
-    exit 0
-fi
-
-# Generate backup tag with timestamp
-TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
-DB_BACKUP_TAG="${DB_BACKUP_PREFIX}-${TIMESTAMP}"
-
-# Get environment info
-APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
-APP_SPACE=${APP_SPACE:-local}
-
-log_message "Starting DB backup: $DB_BACKUP_TAG ($APP_SPACE)"database snapshots
 
 SCRIPT_PATH=$(dirname "$0")
 
@@ -52,6 +37,22 @@ ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 DB_BACKUP_RETENTION_DAYS=${DB_BACKUP_RETENTION_DAYS:-30}
 DB_BACKUP_PREFIX=${DB_BACKUP_PREFIX:-DB-AUTO}
+
+# Check if database backups are enabled
+if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
+    log_message "Database backups disabled"
+    exit 0
+fi
+
+# Generate backup tag with timestamp
+TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
+DB_BACKUP_TAG="${DB_BACKUP_PREFIX}-${TIMESTAMP}"
+
+# Get environment info
+APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
+APP_SPACE=${APP_SPACE:-local}
+
+log_message "Starting DB backup: $DB_BACKUP_TAG ($APP_SPACE)"database snapshots
 
 # Set up AWS S3 credentials (same as tome-sync.sh)
 export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
