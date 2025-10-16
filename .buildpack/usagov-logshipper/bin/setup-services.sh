@@ -15,12 +15,12 @@ VAR_MISSING=0
 
 # Only require variables if we need to create services that don't exist
 if [ "$CREDS_EXISTS" = "FAILED" ]; then
-    if [ -z "$HTTP_USER" ]; then
-        echo "  HTTP_USER variable is absent (needed to create cg-logshipper-creds service)"
+    if [ -z "$LOGSHIPPER_HTTP_USER" ]; then
+        echo "  LOGSHIPPER_HTTP_USER variable is absent (needed to create cg-logshipper-creds service)"
         VAR_MISSING=1
     fi
-    if [ -z "$HTTP_PASS" ]; then
-        echo "  HTTP_PASS variable is absent (needed to create cg-logshipper-creds service)"
+    if [ -z "$LOGSHIPPER_HTTP_PASS" ]; then
+        echo "  LOGSHIPPER_HTTP_PASS variable is absent (needed to create cg-logshipper-creds service)"
         VAR_MISSING=1
     fi
 fi
@@ -42,7 +42,7 @@ SERVICE_EXISTS=`cf service cg-logshipper-creds --guid`
 
 if [ "$SERVICE_EXISTS" = "FAILED" ]; then
     echo "Creating cg-logshipper-creds service"
-    cf create-user-provided-service cg-logshipper-creds -p "{\"HTTP_USER\": \"$HTTP_USER\", \"HTTP_PASS\": \"$HTTP_PASS\"}" -t "logshipper-creds"
+    cf create-user-provided-service cg-logshipper-creds -p "{\"HTTP_USER\": \"$LOGSHIPPER_HTTP_USER\", \"HTTP_PASS\": \"$LOGSHIPPER_HTTP_PASS\"}" -t "logshipper-creds"
 fi
 
 SERVICE_EXISTS=`cf service newrelic-creds --guid`

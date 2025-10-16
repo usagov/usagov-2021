@@ -10,7 +10,7 @@ SERVICE_EXISTS=`cf service log-shipper-drain-${SPACE} --guid`
 
 if [ "$SERVICE_EXISTS" = "FAILED" ]; then
     echo "Creating log-shipper-drain-${SPACE} service"
-    cf create-user-provided-service log-shipper-drain-${SPACE} -l "https://${HTTP_USER}:${HTTP_PASS}@usagov-${SPACE}-logshipper.app.cloud.gov/?drain-type=all"
+    cf create-user-provided-service log-shipper-drain-${SPACE} -l "https://${LOGSHIPPER_HTTP_USER}:${LOGSHIPPER_HTTP_PASS}@usagov-${SPACE}-logshipper.app.cloud.gov/?drain-type=all"
 else
     echo "Service log-shipper-drain-${SPACE} already exists."
 fi
