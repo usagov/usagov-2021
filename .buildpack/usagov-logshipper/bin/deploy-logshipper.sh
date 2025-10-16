@@ -67,4 +67,4 @@ sed "s/log-shipper-((envname))/log-shipper-${SPACE}/g" manifest.yml > manifest-$
 
 # And push the app from the cg-logshipper directory
 # Use environment-specific app name through modified manifest
-cf push -f manifest-${SPACE}.yml --instances 2 --random-route --strategy rolling
+cf push -f manifest-${SPACE}.yml --instances 1 --random-route --strategy rolling

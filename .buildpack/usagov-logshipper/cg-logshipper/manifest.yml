@@ -1,7 +1,7 @@
 ---
 applications:
 - name: log-shipper-((envname))
-  memory: 256M
+  memory: 128M
   buildpacks:
   - https://github.com/cloudfoundry/apt-buildpack
   - nginx_buildpack
