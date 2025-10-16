@@ -62,6 +62,9 @@ echo "    cg-logshipper commit:" $(git log -1 --pretty=format:"%H") >> ./DEPLOYE
 echo "    containertag:" $CONTAINERTAG >> ./DEPLOYED_VERSION.txt
 echo "    environment:" $SPACE >> ./DEPLOYED_VERSION.txt
 
+# Create a temporary manifest with the environment-specific app name
+sed "s/log-shipper-((envname))/log-shipper-${SPACE}/g" manifest.yml > manifest-${SPACE}.yml
+
 # And push the app from the cg-logshipper directory
-# Use environment-specific app name through manifest variable substitution
-cf push --instances 2 --random-route --strategy rolling --var envname=${SPACE}
+# Use environment-specific app name through modified manifest
+cf push -f manifest-${SPACE}.yml --instances 2 --random-route --strategy rolling
