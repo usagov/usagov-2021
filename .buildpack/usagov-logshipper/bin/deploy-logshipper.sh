@@ -76,9 +76,9 @@ sed -e "s/fluentbit-drain/log-shipper-${SPACE}/g" \
 # Add environment variables to the manifest for identification
 cat >> manifest-${SPACE}.yml << EOF
   env:
-    CF_SPACE: ${SPACE}
-    LOGSHIPPER_VERSION: environment-specific
-    LOGSHIPPER_DEPLOYMENT_TYPE: integrated-pipeline
+    CF_SPACE: "${SPACE}"
+    LOGSHIPPER_VERSION: "environment-specific"
+    LOGSHIPPER_DEPLOYMENT_TYPE: "integrated-pipeline"
 EOF
 
 # And push the app from the cg-logshipper directory
