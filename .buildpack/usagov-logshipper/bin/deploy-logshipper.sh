@@ -38,8 +38,10 @@ sed -i.bak \
     -e "s|\[OUTPUT\]|\[OUTPUT\]\n    # Environment-specific output for ${SPACE}|" \
     ./fluentbit.conf
 
-# Set environment variable for the Lua script to use
+# Set environment variables for the Lua script and Fluent Bit to use
 echo "export USAGOV_ENVIRONMENT=${SPACE}" >> .profile
+echo "export CF_SPACE=${SPACE}" >> .profile
+echo "export LOGSHIPPER_VERSION=environment-specific" >> .profile
 
 # Add environment-specific configuration to the New Relic output
 cat >> ./fluentbit.conf << EOF
@@ -51,6 +53,8 @@ cat >> ./fluentbit.conf << EOF
     add environment ${SPACE}
     add usagov.environment ${SPACE}
     add usagov.logshipper.space ${SPACE}
+    add logshipper_version environment-specific
+    add logshipper_deployment_type integrated-pipeline
 EOF
 
 # Write a status file we can inspect if needed:
@@ -61,12 +65,21 @@ echo "    usagov-logshipper commit:" $USAGOV_COMMIT >> ./DEPLOYED_VERSION.txt
 echo "    cg-logshipper commit:" $(git log -1 --pretty=format:"%H") >> ./DEPLOYED_VERSION.txt
 echo "    containertag:" $CONTAINERTAG >> ./DEPLOYED_VERSION.txt
 echo "    environment:" $SPACE >> ./DEPLOYED_VERSION.txt
+echo "    deployment_type: environment-specific (not tools)" >> ./DEPLOYED_VERSION.txt
 
 # Create a temporary manifest with the environment-specific app name
 # Replace the original app name (likely "fluentbit-drain") with our environment-specific name
 sed -e "s/fluentbit-drain/log-shipper-${SPACE}/g" \
     -e "s/log-shipper-((envname))/log-shipper-${SPACE}/g" \
     manifest.yml > manifest-${SPACE}.yml
+
+# Add environment variables to the manifest for identification
+cat >> manifest-${SPACE}.yml << EOF
+  env:
+    CF_SPACE: ${SPACE}
+    LOGSHIPPER_VERSION: environment-specific
+    LOGSHIPPER_DEPLOYMENT_TYPE: integrated-pipeline
+EOF
 
 # And push the app from the cg-logshipper directory
 # Use environment-specific app name through modified manifest
