@@ -63,7 +63,10 @@ echo "    containertag:" $CONTAINERTAG >> ./DEPLOYED_VERSION.txt
 echo "    environment:" $SPACE >> ./DEPLOYED_VERSION.txt
 
 # Create a temporary manifest with the environment-specific app name
-sed "s/log-shipper-((envname))/log-shipper-${SPACE}/g" manifest.yml > manifest-${SPACE}.yml
+# Replace the original app name (likely "fluentbit-drain") with our environment-specific name
+sed -e "s/fluentbit-drain/log-shipper-${SPACE}/g" \
+    -e "s/log-shipper-((envname))/log-shipper-${SPACE}/g" \
+    manifest.yml > manifest-${SPACE}.yml
 
 # And push the app from the cg-logshipper directory
 # Use environment-specific app name through modified manifest
