@@ -330,14 +330,16 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       BACKUP_PREFIX=${BACKUP_PREFIX:-AUTO}
       ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
       BACKUP_S3_EXTRA_PARAMS=${BACKUP_S3_EXTRA_PARAMS:-""}
+      AUTO_STATIC_BACKUP_PATH=${AUTO_STATIC_BACKUP_PATH:-auto-backups/web-backup}
+      AUTO_PUBLIC_BACKUP_PATH=${AUTO_PUBLIC_BACKUP_PATH:-auto-backups/public_backup}
 
       # Create automatic backups after successful sync (if enabled)
       BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${YMDHMS}"
-      
+
       # Static site backup (if enabled)
       if [ "$ENABLE_STATIC_AUTO_BACKUPS" = "true" ]; then
           echo "Creating static backup: $BACKUP_TAG" | tee -a $TOMELOG
-          aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/web-backup/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+          aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
           if [ $? -eq 0 ]; then
               echo "Static backup complete" | tee -a $TOMELOG
           else
@@ -354,14 +356,14 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
               echo "Checking if public backup needed..." | tee -a $TOMELOG
 
               # Find the most recent automatic public files backup
-              LATEST_PUBLIC_BACKUP=$(aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-${APP_SPACE}-" | sort -r | head -n1 | awk '{print $2}' | tr -d '/')
+              LATEST_PUBLIC_BACKUP=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-${APP_SPACE}-" | sort -r | head -n1 | awk '{print $2}' | tr -d '/')
 
               if [ -n "$LATEST_PUBLIC_BACKUP" ]; then
                   echo "Comparing with: $LATEST_PUBLIC_BACKUP" | tee -a $TOMELOG
 
                   # Get checksums of current public files and latest backup
                   CURRENT_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/cms/public/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/cms/public/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
-                  BACKUP_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/public_backup/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/public_backup/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
+                  BACKUP_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
 
                   if [ -n "$CURRENT_PUBLIC_CHECKSUM" ] && [ -n "$BACKUP_PUBLIC_CHECKSUM" ] && [ "$CURRENT_PUBLIC_CHECKSUM" = "$BACKUP_PUBLIC_CHECKSUM" ]; then
                       echo "Public files unchanged, skipping backup" | tee -a $TOMELOG
@@ -376,7 +378,7 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
 
           if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
               echo "Creating public backup: $BACKUP_TAG" | tee -a $TOMELOG
-              aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/public_backup/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+              aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
               if [ $? -eq 0 ]; then
                   echo "Public backup complete" | tee -a $TOMELOG
               else
@@ -391,18 +393,18 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
 
       # Cleanup old automatic backups (if enabled)
       CUTOFF_DATE=$(date -u -d "${BACKUP_RETENTION_DAYS} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${BACKUP_RETENTION_DAYS}d '+%Y_%m_%d' 2>/dev/null)
-      
+
       # Static site backup cleanup (if enabled)
       if [ "$ENABLE_STATIC_AUTO_CLEANUP" = "true" ] && [ -n "$CUTOFF_DATE" ]; then
           echo "Cleaning up old static site backups (older than $BACKUP_RETENTION_DAYS days)..." | tee -a $TOMELOG
           # List and delete old static site backups
-          aws s3 ls s3://$BUCKET_NAME/web-backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
+          aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
                       backup_path=$(echo "$line" | awk '{print $4}')
                       backup_date=$(echo "$backup_path" | grep -o "${BACKUP_PREFIX}-[^/]*-[0-9_]*" | tail -c 11 | head -c 10)
                       if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
                           backup_prefix=$(echo "$backup_path" | cut -d'/' -f1)
                           echo "Removing old backup: $backup_prefix" | tee -a $TOMELOG
-                          aws s3 rm s3://$BUCKET_NAME/web-backup/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+                          aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
                       fi
                   done
       else
@@ -413,13 +415,13 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       if [ "$ENABLE_PUBLIC_AUTO_CLEANUP" = "true" ] && [ -n "$CUTOFF_DATE" ]; then
           echo "Cleaning up old public files backups (older than $BACKUP_RETENTION_DAYS days)..." | tee -a $TOMELOG
           # List and delete old public file backups
-          aws s3 ls s3://$BUCKET_NAME/public_backup/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
+          aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
               backup_path=$(echo "$line" | awk '{print $4}')
               backup_date=$(echo "$backup_path" | grep -o "${BACKUP_PREFIX}-[^/]*-[0-9_]*" | tail -c 11 | head -c 10)
               if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
                   backup_prefix=$(echo "$backup_path" | cut -d'/' -f1)
                   echo "Removing old public files backup: $backup_prefix" | tee -a $TOMELOG
-                  aws s3 rm s3://$BUCKET_NAME/public_backup/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+                  aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_prefix/ --recursive $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
               fi
           done
       else

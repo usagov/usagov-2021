@@ -19,6 +19,8 @@ BACKUP_PREFIX=${BACKUP_PREFIX:-AUTO}
 DB_BACKUP_PREFIX=${DB_BACKUP_PREFIX:-DB-AUTO}
 BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
 DB_BACKUP_RETENTION_DAYS=${DB_BACKUP_RETENTION_DAYS:-30}
+AUTO_STATIC_BACKUP_PATH=${AUTO_STATIC_BACKUP_PATH:-auto-backups/web-backup}
+AUTO_PUBLIC_BACKUP_PATH=${AUTO_PUBLIC_BACKUP_PATH:-auto-backups/public_backup}
 
 # Colors for output
 RED='\033[0;31m'
@@ -96,7 +98,7 @@ list_static_backups() {
 
     print_status $GREEN "Static Site Backups:"
     echo "===================="
-    aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
 }
 
 
@@ -105,7 +107,7 @@ list_public_backups() {
 
     print_status $GREEN "Public Files Backups:"
     echo "====================="
-    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
 }
 
 
@@ -121,8 +123,8 @@ list_all_backups() {
     db_list="/tmp/db_backups_$$"
 
     # Get all backup lists
-    aws s3 ls s3://$BUCKET_NAME/web-backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | awk '{print $2}' | tr -d '/' | sort -r > "$static_list" 2>/dev/null
-    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | awk '{print $2}' | tr -d '/' | sort -r > "$public_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | awk '{print $2}' | tr -d '/' | sort -r > "$static_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | awk '{print $2}' | tr -d '/' | sort -r > "$public_list" 2>/dev/null
     aws s3 ls s3://"$BUCKET_NAME"/database/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | awk '{print $4}' | xargs -I {} basename {} | sort -r > "$db_list" 2>/dev/null
 
     # Create unified list of all backup tags (timestamps)
@@ -206,7 +208,7 @@ list_old_backups() {
 
     echo ""
     print_status $GREEN "Public Files Backups:"
-    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
         backup_date=$(echo "$backup_name" | grep -o '[0-9_]*$' | head -c 10)
         if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
@@ -241,12 +243,12 @@ clean_old_backups() {
     done
 
     # Clean public files backups
-    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
         backup_date=$(echo "$backup_name" | grep -o '[0-9_]*$' | head -c 10)
         if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
             print_status $YELLOW "Removing public files backup: $backup_name"
-            aws s3 rm s3://$BUCKET_NAME/public_backup/$backup_name/ --recursive $S3_EXTRA_PARAMS
+            aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
         fi
     done
 
@@ -268,7 +270,7 @@ backup_info() {
 
     # Check static site backup
     echo "Static Site Backup:"
-    if aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
+    if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
         static_exists="yes"
     else
         echo "  No static site backup found with this tag"
@@ -277,7 +279,7 @@ backup_info() {
 
     echo ""
     echo "Public Files Backup:"
-    if aws s3 ls s3://$BUCKET_NAME/public_backup/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
+    if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
         public_exists="yes"
     else
         echo "  No public files backup found with this tag"
@@ -297,7 +299,7 @@ backup_info() {
                 if [ "$corresponding_public" != "$backup_tag" ]; then
                     print_status $GREEN "Restore would use public backup: $corresponding_public"
                     echo "Public Files Backup (would be used for restore):"
-                    aws s3 ls s3://$BUCKET_NAME/public_backup/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null
+                    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null
                 fi
             else
                 print_status $YELLOW "No suitable public backup found for this time period."
@@ -311,7 +313,7 @@ find_corresponding_public_backup() {
     local static_backup_tag=$1
 
     # First, check if there's an exact match
-    if aws s3 ls s3://$BUCKET_NAME/public_backup/$static_backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+    if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$static_backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
         echo "$static_backup_tag"
         return 0
     fi
@@ -326,7 +328,7 @@ find_corresponding_public_backup() {
 
     # Use a temp file to avoid subshell variable issues
     temp_list="/tmp/public_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/public_backup/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-" > "$temp_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-" > "$temp_list" 2>/dev/null
 
     best_public_backup=""
     best_timestamp=""
@@ -480,7 +482,7 @@ restore_backup() {
 
     # Static site backup analysis
     if [ "$restore_static" = "yes" ]; then
-        if aws s3 ls s3://$BUCKET_NAME/web-backup/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
             static_backup_tag="$backup_tag"
             print_status $GREEN "✓ Static site backup found: $static_backup_tag"
         else
@@ -566,7 +568,7 @@ restore_backup() {
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "Restoring static site from: $static_backup_tag"
-        if aws s3 sync s3://$BUCKET_NAME/web-backup/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
             print_status $GREEN "✓ Static site restore completed successfully"
         else
             print_status $RED "✗ ERROR: Static site restore failed"
@@ -577,7 +579,7 @@ restore_backup() {
     # Restore public files
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "Restoring public files from: $public_backup_tag"
-        if aws s3 sync s3://$BUCKET_NAME/public_backup/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
             print_status $GREEN "✓ Public files restore completed successfully"
         else
             print_status $RED "✗ ERROR: Public files restore failed"
