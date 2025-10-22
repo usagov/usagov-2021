@@ -103,8 +103,8 @@ show_usage() {
     echo "  $0 backup db USAGOV-456 pre-update     # Database backup with custom tags"
     echo "  $0 clean                               # Clean all old backups (30 days)"
     echo "  $0 clean static 7                      # Clean static backups older than 7 days"
-    echo "  $0 info static USAGOV-123-dev-git-abc123-2024_03_15_14_30_00-post-deploy"
-    echo "  $0 restore USAGOV-123-dev-git-abc123-2024_03_15_14_30_00-post-deploy --only=static,db"
+    echo "  $0 info static USAGOV-123-dev-abc123-2024_03_15_14_30_00-post-deploy"
+    echo "  $0 restore USAGOV-123-dev-abc123-2024_03_15_14_30_00-post-deploy --only=static,db"
 }
 
 get_container_tag() {
@@ -1289,22 +1289,6 @@ case "${1:-}" in
     "info")
         # info [types] <tag> - e.g., "info db" or "info all backup-tag"
         run_info_command "$2" "$3"
-        ;;
-    # Legacy commands for backward compatibility
-    "list-static")
-        list_static_backups
-        ;;
-    "list-public")
-        list_public_backups
-        ;;
-    "list-db")
-        list_db_backups
-        ;;
-    "backup-db")
-        create_db_backup
-        ;;
-    "backup-all")
-        run_backup_command "all" "$2" "$3"
         ;;
     *)
         show_usage
