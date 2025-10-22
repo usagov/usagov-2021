@@ -498,63 +498,21 @@ force_static_backup() {
     print_status $BLUE "    FORCING STATIC SITE BACKUP"
     print_status $BLUE "============================================"
 
-    # Load configuration
-    . "$BACKUP_DIR/backup-system.conf"
-
-    if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ] && [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
-        print_status $RED "Error: Both static and public auto backups are disabled in configuration"
-        print_status $YELLOW "Set ENABLE_STATIC_AUTO_BACKUPS=true and/or ENABLE_PUBLIC_AUTO_BACKUPS=true in scripts/backup/backup-system.conf"
+    # Check if backup manager exists
+    if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
+        print_status $RED "Error: Backup manager not found"
         return 1
     fi
 
-    # Check if tome-sync.sh exists
-    if [ ! -f "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
-        print_status $RED "Error: tome-sync.sh not found"
-        return 1
-    fi
+    print_status $YELLOW "Running static site backup..."
 
-    print_status $YELLOW "Setting up S3 environment for backup..."
-
-    # Set up S3 environment variables if in CF
-    if [ -n "$VCAP_SERVICES" ]; then
-        eval $(echo "$VCAP_SERVICES" | jq -r '.s3[0].credentials | "export AWS_ACCESS_KEY_ID=" + .access_key_id + " AWS_SECRET_ACCESS_KEY=" + .secret_access_key + " AWS_DEFAULT_REGION=" + .region + " BUCKET_NAME=" + .bucket')
-    fi
-
-    if [ -z "$BUCKET_NAME" ]; then
-        print_status $RED "Error: BUCKET_NAME not configured"
-        print_status $YELLOW "Configure S3 credentials or set BUCKET_NAME environment variable"
-        return 1
-    fi
-
-    # Get current space for backup naming
-    SPACE="test"
-    if [ -n "$VCAP_APPLICATION" ]; then
-        SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
-    fi
-
-    # Create a timestamp for the backup
-    TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
-    CONTAINER_TAG="test-manual"
-    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
-
-    print_status $YELLOW "Creating static backup: $BACKUP_TAG"
-
-    # Force create static site backup by calling tome-sync.sh backup functions directly
-    SCRIPT_PATH="./scripts"
-
-    # Create the backup directory structure and sync
-    print_status $YELLOW "Backing up static site..."
-    if command -v aws >/dev/null 2>&1; then
-        # Create backup of current static site
-        aws s3 sync s3://"$BUCKET_NAME"/web/ s3://"$BUCKET_NAME"/web-backup/"$BACKUP_TAG"/ --delete 2>/dev/null && \
-        print_status $GREEN "✓ Static site backup created: $BACKUP_TAG" || \
-        print_status $RED "✗ Static site backup failed"
+    if "$BACKUP_DIR/manager.sh" backup static TEST forced; then
+        print_status $GREEN "✓ Static site backup completed successfully"
+        return 0
     else
-        print_status $RED "Error: aws cli not available"
+        print_status $RED "✗ Static site backup failed"
         return 1
     fi
-
-    return 0
 }
 
 # Function to force public files backup
@@ -563,54 +521,21 @@ force_public_backup() {
     print_status $BLUE "    FORCING PUBLIC FILES BACKUP"
     print_status $BLUE "============================================"
 
-    # Load configuration
-    . "$BACKUP_DIR/backup-system.conf"
-
-    if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
-        print_status $RED "Error: Public files auto backups are disabled in configuration"
-        print_status $YELLOW "Set ENABLE_PUBLIC_AUTO_BACKUPS=true in scripts/backup/backup-system.conf"
+    # Check if backup manager exists
+    if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
+        print_status $RED "Error: Backup manager not found"
         return 1
     fi
 
-    print_status $YELLOW "Setting up S3 environment for backup..."
+    print_status $YELLOW "Running public files backup..."
 
-    # Set up S3 environment variables if in CF
-    if [ -n "$VCAP_SERVICES" ]; then
-        eval $(echo "$VCAP_SERVICES" | jq -r '.s3[0].credentials | "export AWS_ACCESS_KEY_ID=" + .access_key_id + " AWS_SECRET_ACCESS_KEY=" + .secret_access_key + " AWS_DEFAULT_REGION=" + .region + " BUCKET_NAME=" + .bucket')
-    fi
-
-    if [ -z "$BUCKET_NAME" ]; then
-        print_status $RED "Error: BUCKET_NAME not configured"
-        print_status $YELLOW "Configure S3 credentials or set BUCKET_NAME environment variable"
-        return 1
-    fi
-
-    # Get current space for backup naming
-    SPACE="test"
-    if [ -n "$VCAP_APPLICATION" ]; then
-        SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
-    fi
-
-    # Create a timestamp for the backup
-    TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
-    CONTAINER_TAG="test-manual"
-    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
-
-    print_status $YELLOW "Creating public files backup: $BACKUP_TAG"
-
-    # Force create public files backup
-    print_status $YELLOW "Backing up public files..."
-    if command -v aws >/dev/null 2>&1; then
-        # Create backup of current public files
-        aws s3 sync s3://"$BUCKET_NAME"/cms/public/ s3://"$BUCKET_NAME"/public_backup/"$BACKUP_TAG"/ --delete 2>/dev/null && \
-        print_status $GREEN "✓ Public files backup created: $BACKUP_TAG" || \
-        print_status $RED "✗ Public files backup failed"
+    if "$BACKUP_DIR/manager.sh" backup public TEST forced; then
+        print_status $GREEN "✓ Public files backup completed successfully"
+        return 0
     else
-        print_status $RED "Error: aws cli not available"
+        print_status $RED "✗ Public files backup failed"
         return 1
     fi
-
-    return 0
 }
 
 # Function to force database backup
@@ -619,24 +544,15 @@ force_db_backup() {
     print_status $BLUE "    FORCING DATABASE BACKUP"
     print_status $BLUE "============================================"
 
-    # Load configuration
-    . "$BACKUP_DIR/backup-system.conf"
-
-    if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
-        print_status $RED "Error: Database backups are disabled in configuration"
-        print_status $YELLOW "Set ENABLE_DB_BACKUPS=true in scripts/backup/backup-system.conf"
-        return 1
-    fi
-
-    # Check if automatic backup manager exists
+    # Check if backup manager exists
     if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
-        print_status $RED "Error: Automatic backup manager not found"
+        print_status $RED "Error: Backup manager not found"
         return 1
     fi
 
-    print_status $YELLOW "Running immediate database backup via automatic backup manager..."
+    print_status $YELLOW "Running database backup..."
 
-    if "$BACKUP_DIR/manager.sh" backup db; then
+    if "$BACKUP_DIR/manager.sh" backup db TEST forced; then
         print_status $GREEN "✓ Database backup completed successfully"
         return 0
     else
@@ -651,33 +567,19 @@ force_all_backups() {
     print_status $BLUE "    FORCING ALL BACKUP TYPES"
     print_status $BLUE "============================================"
 
-    local success=0
-
-    echo ""
-    if force_static_backup; then
-        success=$((success + 1))
+    # Check if backup manager exists
+    if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
+        print_status $RED "Error: Backup manager not found"
+        return 1
     fi
 
-    echo ""
-    if force_public_backup; then
-        success=$((success + 1))
-    fi
+    print_status $YELLOW "Running all backup types..."
 
-    echo ""
-    if force_db_backup; then
-        success=$((success + 1))
-    fi
-
-    echo ""
-    print_status $BLUE "============================================"
-    print_status $BLUE "    BACKUP SUMMARY"
-    print_status $BLUE "============================================"
-
-    if [ $success -eq 3 ]; then
-        print_status $GREEN "✓ All 3 backup types completed successfully"
+    if "$BACKUP_DIR/manager.sh" backup all TEST forced; then
+        print_status $GREEN "✓ All backup types completed successfully"
         return 0
     else
-        print_status $RED "✗ Only $success out of 3 backup types succeeded"
+        print_status $RED "✗ All backup types operation failed"
         return 1
     fi
 }
