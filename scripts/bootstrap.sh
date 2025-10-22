@@ -241,6 +241,6 @@ fi
 echo "Setting lightweight cron key"
 drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"
 
-# Set up database backup cron system
-echo "Setting up database backup cron system"
-/var/www/scripts/setup-db-backup-cron.sh
+# Set up automatic backup cron system
+echo "Setting up automatic backup cron system"
+/var/www/scripts/setup-automatic-backup-cron.sh setup
