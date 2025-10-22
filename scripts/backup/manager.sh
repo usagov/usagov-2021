@@ -100,6 +100,34 @@ show_usage() {
     echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,db"
 }
 
+get_container_tag() {
+    # Try to get container tag from /etc/motd if in CF environment
+    if [ -n "$VCAP_APPLICATION" ] && [ -f "/etc/motd" ]; then
+        CONTAINER_TAG=$(grep containertag /etc/motd 2>/dev/null | sed 's/containertag\:[[:space:]]*//' | sed 's/^[[:space:]]*//')
+        if [ -n "$CONTAINER_TAG" ]; then
+            echo "$CONTAINER_TAG"
+            return 0
+        fi
+    fi
+
+    # Fallback: try to get from environment variable or git if available
+    if [ -n "$CONTAINER_TAG" ]; then
+        echo "$CONTAINER_TAG"
+        return 0
+    elif command -v git >/dev/null 2>&1; then
+        # Use short git commit hash as fallback
+        git_hash=$(git rev-parse --short HEAD 2>/dev/null)
+        if [ -n "$git_hash" ]; then
+            echo "git-$git_hash"
+            return 0
+        fi
+    fi
+
+    # Final fallback: use "unknown"
+    echo "unknown"
+    return 0
+}
+
 setup_s3_vars() {
     if [ -z "$BUCKET_NAME" ]; then
         export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
@@ -286,11 +314,12 @@ create_db_backup() {
         return 0
     fi
 
-    # Generate backup tag with timestamp
+    # Generate backup tag with timestamp and container tag
     TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
-    DB_BACKUP_TAG="${DB_BACKUP_PREFIX}-${TIMESTAMP}"
+    CONTAINER_TAG=$(get_container_tag)
+    DB_BACKUP_TAG="${DB_BACKUP_PREFIX}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
 
-    log_message "Starting database backup: $DB_BACKUP_TAG ($APP_SPACE)"
+    log_message "Starting database backup: $DB_BACKUP_TAG ($APP_SPACE, container: $CONTAINER_TAG)"
 
     # Setup log file
     LOG_DIR="/tmp/tome-log"
@@ -393,7 +422,8 @@ create_static_backup() {
 
     # Generate backup tag
     TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
-    BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${TIMESTAMP}"
+    CONTAINER_TAG=$(get_container_tag)
+    BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
 
     log_message "Creating static site backup: $BACKUP_TAG"
 
@@ -417,7 +447,8 @@ create_public_backup() {
 
     # Generate backup tag
     TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
-    BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${TIMESTAMP}"
+    CONTAINER_TAG=$(get_container_tag)
+    BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true
@@ -588,7 +619,7 @@ list_all_backups() {
     (
         cat "$static_list" 2>/dev/null
         cat "$public_list" 2>/dev/null
-        cat "$db_list" 2>/dev/null | sed "s/^$DB_BACKUP_PREFIX-/$BACKUP_PREFIX-/" | sed 's/\.sql\.gz$//'
+        cat "$db_list" 2>/dev/null | sed 's/\.sql\.gz$//'
     ) | sort -ru > "$all_tags"
 
     printf "%-32s %-8s %-8s %-8s %s\n" "BACKUP TAG" "STATIC" "PUBLIC" "DATABASE" "RESTORE COMMAND"
@@ -615,8 +646,8 @@ list_all_backups() {
                 has_public="✗"
             fi
 
-            # Check database backup (convert tag format)
-            db_tag=$(echo "$tag" | sed "s/^$BACKUP_PREFIX-/$DB_BACKUP_PREFIX-/").sql.gz
+            # Check database backup
+            db_tag="${tag}.sql.gz"
             if grep -q "^$db_tag$" "$db_list" 2>/dev/null; then
                 has_database="✓"
             else
@@ -656,7 +687,7 @@ cleanup_old_db_backups() {
         # List and delete old database backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
             backup_path=$(echo "$line" | awk '{print $4}')
-            backup_date=$(echo "$backup_path" | grep -o "${DB_BACKUP_PREFIX}-[0-9_]*" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
+            backup_date=$(echo "$backup_path" | grep -o "${DB_BACKUP_PREFIX}-[^-]*-[^-]*-[0-9_]*" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
             if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
                 log_message "Removing old database backup: $backup_path"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
@@ -766,7 +797,7 @@ find_corresponding_public_backup() {
     fi
 
     # If no exact match, find the most recent public backup before or at the static backup time
-    # Extract timestamp from static backup tag (format: AUTO-space-YYYY_MM_DD_HH_MM_SS)
+    # Extract timestamp from static backup tag (format: AUTO-space-containertag-YYYY_MM_DD_HH_MM_SS)
     static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
 
     if [ -z "$static_timestamp" ]; then
@@ -811,15 +842,15 @@ find_corresponding_public_backup() {
 find_corresponding_db_backup() {
     local static_backup_tag=$1
 
-    # Extract timestamp from static backup tag (format: AUTO-space-YYYY_MM_DD_HH_MM_SS)
+    # Extract timestamp from static backup tag (format: AUTO-space-containertag-YYYY_MM_DD_HH_MM_SS)
     static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
 
     if [ -z "$static_timestamp" ]; then
         return 1
     fi
 
-    # First, check if there's an exact match (convert tag format)
-    exact_db_tag=$(echo "$static_backup_tag" | sed "s/^$BACKUP_PREFIX-/$DB_BACKUP_PREFIX-/").sql.gz
+    # First, check if there's an exact match
+    exact_db_tag="${static_backup_tag}.sql.gz"
     if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$exact_db_tag $S3_EXTRA_PARAMS >/dev/null 2>&1; then
         echo "$exact_db_tag"
         return 0
@@ -834,8 +865,8 @@ find_corresponding_db_backup() {
 
     while read -r line; do
         if [ -n "$line" ]; then
-            # Extract timestamp from database backup name (DB-AUTO-env-YYYY_MM_DD_HH_MM_SS.sql.gz)
-            db_timestamp=$(echo "$line" | sed "s/^$DB_BACKUP_PREFIX-[^-]*-//" | sed 's/\.sql\.gz$//')
+            # Extract timestamp from database backup name (AUTO-env-containertag-YYYY_MM_DD_HH_MM_SS.sql.gz)
+            db_timestamp=$(echo "$line" | sed "s/^$DB_BACKUP_PREFIX-[^-]*-[^-]*-//" | sed 's/\.sql\.gz$//')
 
             # Compare timestamps (lexicographic comparison works for YYYY_MM_DD_HH_MM_SS format)
             if [ -n "$db_timestamp" ] && [ "$db_timestamp" \< "$static_timestamp" ] || [ "$db_timestamp" = "$static_timestamp" ]; then
@@ -963,7 +994,7 @@ restore_backup() {
 
         if [ -n "$db_backup_tag" ]; then
             # Convert to expected database tag format for comparison
-            expected_db_tag=$(echo "$backup_tag" | sed "s/^$BACKUP_PREFIX-/$DB_BACKUP_PREFIX-/").sql.gz
+            expected_db_tag="${backup_tag}.sql.gz"
             if [ "$db_backup_tag" = "$expected_db_tag" ]; then
                 print_status $GREEN "✓ Exact database backup match: $db_backup_tag"
             else

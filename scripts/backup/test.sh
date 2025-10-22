@@ -319,13 +319,14 @@ test_backup_naming() {
     . "$BACKUP_DIR/backup-system.conf"
 
     local test_space="test"
+    local test_container_tag="git-abc123"
     local test_timestamp="2024_03_15_14_30_00"
-    local expected_pattern="${BACKUP_PREFIX}-${test_space}-${test_timestamp}"
+    local expected_pattern="${BACKUP_PREFIX}-${test_space}-${test_container_tag}-${test_timestamp}"
 
     echo "Testing backup naming pattern: $expected_pattern"
 
     # Test pattern matching (used in cleanup)
-    if echo "$expected_pattern" | grep -q "${BACKUP_PREFIX}-[^/]*-[0-9_]*"; then
+    if echo "$expected_pattern" | grep -q "${BACKUP_PREFIX}-[^/]*-[^/]*-[0-9_]*"; then
         echo "✓ Backup naming pattern matches cleanup regex"
     else
         echo "✗ Backup naming pattern doesn't match cleanup regex"
@@ -533,7 +534,8 @@ force_static_backup() {
 
     # Create a timestamp for the backup
     TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
-    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${TIMESTAMP}"
+    CONTAINER_TAG="test-manual"
+    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
 
     print_status $YELLOW "Creating static backup: $BACKUP_TAG"
 
@@ -591,7 +593,8 @@ force_public_backup() {
 
     # Create a timestamp for the backup
     TIMESTAMP=$(date +%Y_%m_%d_%H_%M_%S)
-    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${TIMESTAMP}"
+    CONTAINER_TAG="test-manual"
+    BACKUP_TAG="${BACKUP_PREFIX}-${SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
 
     print_status $YELLOW "Creating public files backup: $BACKUP_TAG"
 
@@ -879,7 +882,7 @@ else
         fi
         current_dir=$(dirname "$current_dir")
     done
-    
+
     if [ -z "$PROJECT_ROOT" ]; then
         print_status $RED "Error: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
         print_status $YELLOW "Usage: cd /path/to/usagov-2021 && scripts/backup/test.sh"
