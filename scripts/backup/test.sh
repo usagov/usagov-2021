@@ -119,7 +119,7 @@ setup_test_env() {
 
 # Function to test configuration loading
 test_config_loading() {
-    local config_file="./backup-system.conf"
+    local config_file="$BACKUP_DIR/backup-system.conf"
 
     check_file "$config_file" "backup configuration file" || return 1
 
@@ -144,20 +144,20 @@ test_config_loading() {
 # Function to test script files existence and permissions
 test_script_files() {
     # Check tome-sync.sh
-    check_file "../tome-sync.sh" "script file" || return 1
-    if [ -x "../tome-sync.sh" ]; then
-        echo "✓ Script is executable: ../tome-sync.sh"
+    check_file "$PROJECT_ROOT/scripts/tome-sync.sh" "script file" || return 1
+    if [ -x "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
+        echo "✓ Script is executable: $PROJECT_ROOT/scripts/tome-sync.sh"
     else
-        echo "✗ Script is not executable: ../tome-sync.sh"
+        echo "✗ Script is not executable: $PROJECT_ROOT/scripts/tome-sync.sh"
         return 1
     fi
 
     # Check manager.sh
-    check_file "./manager.sh" "script file" || return 1
-    if [ -x "./manager.sh" ]; then
-        echo "✓ Script is executable: ./manager.sh"
+    check_file "$BACKUP_DIR/manager.sh" "script file" || return 1
+    if [ -x "$BACKUP_DIR/manager.sh" ]; then
+        echo "✓ Script is executable: $BACKUP_DIR/manager.sh"
     else
-        echo "✗ Script is not executable: ./manager.sh"
+        echo "✗ Script is not executable: $BACKUP_DIR/manager.sh"
         return 1
     fi
 
@@ -227,7 +227,7 @@ test_aws_connectivity() {
 
 # Function to test backup integration in tome-sync.sh
 test_backup_integration() {
-    local tome_sync_script="../tome-sync.sh"
+    local tome_sync_script="$PROJECT_ROOT/scripts/tome-sync.sh"
 
     # Check for backup-related code in tome-sync.sh
     for pattern in "backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating static backup" "web-backup" "public_backup" "BACKUP_PREFIX"; do
@@ -244,7 +244,7 @@ test_backup_integration() {
 
 # Function to test backup manager functionality
 test_backup_manager() {
-    local manager_script="./manager.sh"
+    local manager_script="$BACKUP_DIR/manager.sh"
 
     # Test help functionality (backup manager shows usage and exits with code 1, which is expected)
     "$manager_script" >/dev/null 2>&1
@@ -316,7 +316,7 @@ test_date_calculations() {
 
 # Function to test backup naming pattern
 test_backup_naming() {
-    . "./backup-system.conf"
+    . "$BACKUP_DIR/backup-system.conf"
 
     local test_space="test"
     local test_timestamp="2024_03_15_14_30_00"
@@ -411,19 +411,19 @@ test_database_backup_system() {
     echo "Testing database backup system..."
 
     # Check if automatic backup manager exists
-    if [ ! -f "./manager.sh" ]; then
+    if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
         echo "✗ Automatic backup manager not found"
         return 1
     fi
 
     # Check if cron setup script exists
-    if [ ! -f "./setup-cron.sh" ]; then
+    if [ ! -f "$BACKUP_DIR/setup-cron.sh" ]; then
         echo "✗ Automatic backup cron setup script not found"
         return 1
     fi
 
     # Load config to test database backup settings
-    . "./backup-system.conf"
+    . "$BACKUP_DIR/backup-system.conf"
 
     # Test database backup configuration
     echo "Testing database backup configuration..."
@@ -457,8 +457,8 @@ test_database_backup_system() {
         return 1
     fi
 
-    # Test database backup manager functions
-    local manager_script="./manager.sh"
+    # Test backup manager functions
+    local manager_script="$BACKUP_DIR/manager.sh"
     for func in "list_db_backups" "cleanup_old_db_backups" "create_db_backup" "backup_info" "db_backup_info"; do
         if grep -q "$func" "$manager_script"; then
             echo "✓ Found database backup manager function: $func"
@@ -469,7 +469,7 @@ test_database_backup_system() {
     done
 
     # Check if automatic backup manager has required components
-    local db_script="./manager.sh"
+    local db_script="$BACKUP_DIR/manager.sh"
     for component in "backup-system.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
         if grep -q "$component" "$db_script"; then
             echo "✓ Automatic backup manager includes: $component"
@@ -498,7 +498,7 @@ force_static_backup() {
     print_status $BLUE "============================================"
 
     # Load configuration
-    . "./backup-system.conf"
+    . "$BACKUP_DIR/backup-system.conf"
 
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ] && [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
         print_status $RED "Error: Both static and public auto backups are disabled in configuration"
@@ -507,7 +507,7 @@ force_static_backup() {
     fi
 
     # Check if tome-sync.sh exists
-    if [ ! -f "../tome-sync.sh" ]; then
+    if [ ! -f "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
         print_status $RED "Error: tome-sync.sh not found"
         return 1
     fi
@@ -562,7 +562,7 @@ force_public_backup() {
     print_status $BLUE "============================================"
 
     # Load configuration
-    . "./backup-system.conf"
+    . "$BACKUP_DIR/backup-system.conf"
 
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
         print_status $RED "Error: Public files auto backups are disabled in configuration"
@@ -617,7 +617,7 @@ force_db_backup() {
     print_status $BLUE "============================================"
 
     # Load configuration
-    . "./backup-system.conf"
+    . "$BACKUP_DIR/backup-system.conf"
 
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         print_status $RED "Error: Database backups are disabled in configuration"
@@ -626,14 +626,14 @@ force_db_backup() {
     fi
 
     # Check if automatic backup manager exists
-    if [ ! -f "./manager.sh" ]; then
+    if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
         print_status $RED "Error: Automatic backup manager not found"
         return 1
     fi
 
     print_status $YELLOW "Running immediate database backup via automatic backup manager..."
 
-    if ./manager.sh backup db; then
+    if "$BACKUP_DIR/manager.sh" backup db; then
         print_status $GREEN "✓ Database backup completed successfully"
         return 0
     else
@@ -858,10 +858,39 @@ main() {
     fi
 }
 
-# Check if script is being run from the correct directory (now in scripts/backup)
-if [ ! -f "../tome-sync.sh" ]; then
-    print_status $RED "Error: Cannot find required files. Please run from scripts/backup directory"
-    print_status $YELLOW "Usage: cd /path/to/usagov-2021/scripts/backup && ./test.sh"
+# Find the script directory and project root
+SCRIPT_PATH=$(dirname "$0")
+if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
+    # Running from scripts/backup directory
+    PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
+    BACKUP_DIR="$SCRIPT_PATH"
+elif [ -d "scripts/backup" ]; then
+    # Running from project root
+    PROJECT_ROOT="$(pwd)"
+    BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
+else
+    # Try to find the project root by looking for scripts/backup
+    current_dir="$(pwd)"
+    while [ "$current_dir" != "/" ]; do
+        if [ -d "$current_dir/scripts/backup" ]; then
+            PROJECT_ROOT="$current_dir"
+            BACKUP_DIR="$current_dir/scripts/backup"
+            break
+        fi
+        current_dir=$(dirname "$current_dir")
+    done
+    
+    if [ -z "$PROJECT_ROOT" ]; then
+        print_status $RED "Error: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
+        print_status $YELLOW "Usage: cd /path/to/usagov-2021 && scripts/backup/test.sh"
+        exit 1
+    fi
+fi
+
+# Check if we can find tome-sync.sh
+if [ ! -f "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
+    print_status $RED "Error: Cannot find required files (tome-sync.sh not found at $PROJECT_ROOT/scripts/tome-sync.sh)"
+    print_status $YELLOW "Please ensure you're running from the project root or scripts/backup directory"
     exit 1
 fi
 

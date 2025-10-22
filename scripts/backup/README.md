@@ -13,17 +13,10 @@ This backup system provides automated and manual backup capabilities for the USA
 ## Quick Start
 
 ```bash
-# Navigate to the backup directory
-cd scripts/backup
-
-# List all current backups
-./manager.sh list
-
-# Create a full backup (all types)
-./manager.sh backup
-
-# Get system information
-./manager.sh info
+# From project root (recommended)
+scripts/backup/manager.sh list    # List all current backups
+scripts/backup/manager.sh backup  # Create a full backup (all types)
+scripts/backup/manager.sh info    # Get system information
 ```
 
 ## Commands
@@ -31,28 +24,31 @@ cd scripts/backup
 ### List Backups
 
 ```bash
-./manager.sh list                    # Show all backups
-./manager.sh list static             # Show only static backups
-./manager.sh list db,public          # Show database and public backups
-./manager.sh list all 7              # Show all backups from last 7 days
+# From project root
+scripts/backup/manager.sh list                    # Show all backups
+scripts/backup/manager.sh list static             # Show only static backups
+scripts/backup/manager.sh list db,public          # Show database and public backups
+scripts/backup/manager.sh list all 7              # Show all backups from last 7 days
 ```
 
 ### Create Backups
 
 ```bash
-./manager.sh backup                  # Create all backup types
-./manager.sh backup db               # Database backup only
-./manager.sh backup static           # Static site backup only
-./manager.sh backup public           # Public files backup only
-./manager.sh backup static,db        # Multiple specific types
+# From project root
+scripts/backup/manager.sh backup                  # Create all backup types
+scripts/backup/manager.sh backup db               # Database backup only
+scripts/backup/manager.sh backup static           # Static site backup only
+scripts/backup/manager.sh backup public           # Public files backup only
+scripts/backup/manager.sh backup static,db        # Multiple specific types
 ```
 
 ### Clean Old Backups
 
 ```bash
-./manager.sh clean                   # Clean all types (30 day retention)
-./manager.sh clean db 7              # Clean database backups older than 7 days
-./manager.sh clean static 14         # Clean static backups older than 14 days
+# From project root
+scripts/backup/manager.sh clean                   # Clean all types (30 day retention)
+scripts/backup/manager.sh clean db 7              # Clean database backups older than 7 days
+scripts/backup/manager.sh clean static 14         # Clean static backups older than 14 days
 ```
 
 > **Note:** Clean operations require confirmation before deleting files
@@ -60,15 +56,17 @@ cd scripts/backup
 ### Get Information
 
 ```bash
-./manager.sh info                    # Show system configuration and status
-./manager.sh info db                 # Show database-specific information
-./manager.sh info static backup-tag  # Show details for a specific backup
+# From project root
+scripts/backup/manager.sh info                    # Show system configuration and status
+scripts/backup/manager.sh info db                 # Show database-specific information
+scripts/backup/manager.sh info static backup-tag  # Show details for a specific backup
 ```
 
 ### Restore Backups
 
 ```bash
-./manager.sh restore backup-tag      # Interactive restore process
+# From project root
+scripts/backup/manager.sh restore backup-tag      # Interactive restore process
 ```
 
 ## File Structure
@@ -96,14 +94,10 @@ The system is configured through `backup-system.conf`. Key settings include:
 Database backups can be scheduled automatically using cron:
 
 ```bash
-# Set up daily database backups at 7 PM EST
-./setup-cron.sh install
-
-# Remove scheduled backups
-./setup-cron.sh remove
-
-# Check current cron status
-./setup-cron.sh status
+# From project root
+scripts/backup/setup-cron.sh setup    # Set up daily database backups at 7 PM EST
+scripts/backup/setup-cron.sh remove   # Remove scheduled backups
+scripts/backup/setup-cron.sh status   # Check current cron status
 ```
 
 ## Storage Structure
@@ -120,6 +114,10 @@ auto-backups/
 Run the comprehensive test suite to verify system functionality:
 
 ```bash
+# From project root
+scripts/backup/test.sh
+
+# From backup directory
 ./test.sh
 ```
 
@@ -151,12 +149,10 @@ The backup system integrates with:
 
 ### Getting Help
 
-1. Run `./manager.sh info` to check system status
-2. Run `./test.sh` to identify specific issues
+1. Run `scripts/backup/manager.sh info` to check system status
+2. Run `scripts/backup/test.sh` to identify specific issues
 3. Check Cloud Foundry logs for detailed error messages
-4. Review backup-system.conf for configuration issues
-
-## Security
+4. Review scripts/backup/backup-system.conf for configuration issues## Security
 
 - Backups are encrypted in transit to S3
 - Database backups are compressed to reduce storage costs

@@ -4,10 +4,36 @@
 # Unified manager for all backups (static site, public files, and database)
 # Handles backup creation, listing, restore, and cleanup operations
 
+# Find the script directory and project root
 SCRIPT_PATH=$(dirname "$0")
+if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
+    # Running from scripts/backup directory
+    PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
+    BACKUP_DIR="$SCRIPT_PATH"
+elif [ -d "scripts/backup" ]; then
+    # Running from project root
+    PROJECT_ROOT="$(pwd)"
+    BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
+else
+    # Try to find the project root by looking for scripts/backup
+    current_dir="$(pwd)"
+    while [ "$current_dir" != "/" ]; do
+        if [ -d "$current_dir/scripts/backup" ]; then
+            PROJECT_ROOT="$current_dir"
+            BACKUP_DIR="$current_dir/scripts/backup"
+            break
+        fi
+        current_dir=$(dirname "$current_dir")
+    done
+
+    if [ -z "$PROJECT_ROOT" ]; then
+        echo "ERROR: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
+        exit 1
+    fi
+fi
 
 # Load configuration
-CONFIG_FILE="$SCRIPT_PATH/backup-system.conf"
+CONFIG_FILE="$BACKUP_DIR/backup-system.conf"
 if [ -f "$CONFIG_FILE" ]; then
     . "$CONFIG_FILE"
 else
@@ -243,7 +269,7 @@ run_info_command() {
         fi
 
         echo "S3 Bucket: $BUCKET_NAME"
-        echo "Configuration: $(dirname "$0")/backup-system.conf"
+        echo "Configuration: $CONFIG_FILE"
     fi
 }
 
@@ -276,6 +302,9 @@ create_db_backup() {
     # Set working directory for drush
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
         cd /var/www
+    elif [ "$PROJECT_ROOT" != "$(pwd)" ]; then
+        # Change to project root if not already there
+        cd "$PROJECT_ROOT"
     fi
 
     # Create temporary files for database backup

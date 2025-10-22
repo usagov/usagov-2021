@@ -3,8 +3,35 @@
 # Setup Backup Cron Jobs
 # Configures cron jobs for the unified backup manager
 
+# Find the script directory and project root
 SCRIPT_PATH=$(dirname "$0")
-CONFIG_FILE="$SCRIPT_PATH/backup-system.conf"
+if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
+    # Running from scripts/backup directory
+    PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
+    BACKUP_DIR="$SCRIPT_PATH"
+elif [ -d "scripts/backup" ]; then
+    # Running from project root
+    PROJECT_ROOT="$(pwd)"
+    BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
+else
+    # Try to find the project root by looking for scripts/backup
+    current_dir="$(pwd)"
+    while [ "$current_dir" != "/" ]; do
+        if [ -d "$current_dir/scripts/backup" ]; then
+            PROJECT_ROOT="$current_dir"
+            BACKUP_DIR="$current_dir/scripts/backup"
+            break
+        fi
+        current_dir=$(dirname "$current_dir")
+    done
+    
+    if [ -z "$PROJECT_ROOT" ]; then
+        echo "ERROR: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
+        exit 1
+    fi
+fi
+
+CONFIG_FILE="$BACKUP_DIR/backup-system.conf"
 
 # Load configuration
 if [ -f "$CONFIG_FILE" ]; then
@@ -64,7 +91,9 @@ setup_cron() {
     crontab -l 2>/dev/null | grep -v "backup/manager.sh" | crontab -
 
     # Add new cron job (using new command format)
-    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd /var/www && $SCRIPT_PATH/manager.sh backup db >/dev/null 2>&1") | crontab -    print_status $GREEN "✓ Cron job setup complete"
+    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd /var/www && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
+    
+    print_status $GREEN "✓ Cron job setup complete"
 }
 
 remove_cron() {
@@ -86,8 +115,8 @@ show_status() {
 test_backup() {
     print_status $YELLOW "Testing automatic backup manager..."
 
-    if [ ! -x "$SCRIPT_PATH/manager.sh" ]; then
-        print_status $RED "Error: manager.sh not found or not executable at $SCRIPT_PATH"
+    if [ ! -x "$BACKUP_DIR/manager.sh" ]; then
+        print_status $RED "Error: manager.sh not found or not executable at $BACKUP_DIR"
         exit 1
     fi
 
@@ -95,7 +124,7 @@ test_backup() {
 
     # Test database backup
     print_status $YELLOW "Testing database backup..."
-    if $SCRIPT_PATH/manager.sh backup db; then
+    if "$BACKUP_DIR/manager.sh" backup db; then
         print_status $GREEN "✓ Database backup test successful"
     else
         print_status $RED "✗ Database backup test failed"
