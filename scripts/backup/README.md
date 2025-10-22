@@ -34,12 +34,23 @@ scripts/backup/manager.sh list all 7              # Show all backups from last 7
 ### Create Backups
 
 ```bash
-# From project root
-scripts/backup/manager.sh backup                  # Create all backup types
+# Basic backups (from project root)
+scripts/backup/manager.sh backup                  # Create all backup types (AUTO prefix)
 scripts/backup/manager.sh backup db               # Database backup only
 scripts/backup/manager.sh backup static           # Static site backup only
 scripts/backup/manager.sh backup public           # Public files backup only
 scripts/backup/manager.sh backup static,db        # Multiple specific types
+
+# Manual backups with custom prefix and suffix
+scripts/backup/manager.sh backup all USAGOV-123                # Custom prefix (ticket name)
+scripts/backup/manager.sh backup all USAGOV-123 post-deploy    # Custom prefix and suffix
+scripts/backup/manager.sh backup db USAGOV-456 pre-update      # Database with custom tags
+scripts/backup/manager.sh backup static RELEASE-v2.1 hotfix    # Static with release info
+
+# From backup directory
+./manager.sh backup                            # Create all backup types (AUTO prefix)
+./manager.sh backup all USAGOV-789             # Custom prefix
+./manager.sh backup all USAGOV-789 emergency   # Custom prefix and suffix
 ```
 
 ### Clean Old Backups
@@ -68,6 +79,50 @@ scripts/backup/manager.sh info static backup-tag  # Show details for a specific 
 # From project root
 scripts/backup/manager.sh restore backup-tag      # Interactive restore process
 ```
+
+## Backup Tag Format
+
+All backups use a standardized naming convention for traceability and organization:
+
+**Format**: `PREFIX-environment-containertag-timestamp-suffix`
+
+### Components
+
+- **PREFIX**: Identifies the backup source
+  - `AUTO`: Automated backups (cron, system triggers)
+  - `MANUAL`: Manual backups without custom prefix
+  - `USAGOV-123`: Ticket-based prefix for development work
+  - `RELEASE-v2.1`: Release-based prefix for deployment tracking
+
+- **environment**: Current deployment environment (`dev`, `staging`, `prod`)
+
+- **containertag**: Container version for deployment traceability
+  - Cloud.gov: Extracted from `/etc/motd` (e.g., `cf-abc123`)
+  - Development: Git short hash (e.g., `git-def456`)
+
+- **timestamp**: UTC timestamp in `YYYY_MM_DD_HH_MM_SS` format
+
+- **suffix**: Optional descriptive text
+  - `post-deploy`: After deployment operations
+  - `pre-update`: Before system updates
+  - `emergency`: Emergency backup scenarios
+  - `hotfix`: Hotfix-related backups
+
+### Examples
+
+```text
+AUTO-prod-cf-abc123-2024_03_15_14_30_00                    # Automated production backup
+USAGOV-456-dev-git-def789-2024_03_15_15_45_30-pre-update   # Manual backup before update
+RELEASE-v2.1-staging-cf-ghi012-2024_03_15_16_20_15-hotfix  # Release hotfix backup
+MANUAL-prod-cf-jkl345-2024_03_15_17_10_45-emergency        # Emergency manual backup
+```
+
+This format ensures:
+
+- Easy identification of backup source and purpose
+- Deployment traceability through container tags
+- Chronological sorting by timestamp
+- Clear association with tickets and releases
 
 ## File Structure
 

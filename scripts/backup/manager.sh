@@ -75,11 +75,11 @@ show_usage() {
     echo "Usage: $0 <command> [backup_types] [options]"
     echo ""
     echo "Main Commands:"
-    echo "  list [types] [days]      List backups (default: all types, 30 days)"
-    echo "  backup [types]           Create backups (default: all types)"
-    echo "  clean [types] [days]     Remove old backups (default: all types, 30 days)"
-    echo "  restore <tag> [--only=type,type]  Restore backups (unchanged)"
-    echo "  info [types] <tag>       Show backup details (default: all types)"
+    echo "  list [types] [days]                    List backups (default: all types, 30 days)"
+    echo "  backup [types] [prefix] [suffix]       Create backups (default: all types, AUTO prefix, empty suffix)"
+    echo "  clean [types] [days]                   Remove old backups (default: all types, 30 days)"
+    echo "  restore <tag> [--only=type,type]       Restore backups (unchanged)"
+    echo "  info [types] <tag>                     Show backup details (default: all types)"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -88,16 +88,23 @@ show_usage() {
     echo "  db                       Database backups"
     echo "  static,public            Multiple types (comma-separated)"
     echo ""
+    echo "Backup Parameters:"
+    echo "  prefix                   Custom prefix (replaces AUTO, e.g., USAGOV-123)"
+    echo "  suffix                   Custom suffix (e.g., post-deploy, pre-update)"
+    echo ""
     echo "Examples:"
-    echo "  $0 list                  # List all backups from last 30 days"
-    echo "  $0 list static,db        # List static and database backups"
-    echo "  $0 list all 7            # List all backups from last 7 days"
-    echo "  $0 backup                # Create all backups"
-    echo "  $0 backup db             # Create database backup only"
-    echo "  $0 clean                 # Clean all old backups (30 days)"
-    echo "  $0 clean static 7        # Clean static backups older than 7 days"
-    echo "  $0 info static AUTO-dev-2024_03_15_14_30_00"
-    echo "  $0 restore AUTO-dev-2024_03_15_14_30_00 --only=static,db"
+    echo "  $0 list                                # List all backups from last 30 days"
+    echo "  $0 list static,db                      # List static and database backups"
+    echo "  $0 list all 7                          # List all backups from last 7 days"
+    echo "  $0 backup                              # Create all backups with AUTO prefix"
+    echo "  $0 backup db                           # Create database backup only"
+    echo "  $0 backup all USAGOV-123               # Create all backups with custom prefix"
+    echo "  $0 backup all USAGOV-123 post-deploy   # Custom prefix and suffix"
+    echo "  $0 backup db USAGOV-456 pre-update     # Database backup with custom tags"
+    echo "  $0 clean                               # Clean all old backups (30 days)"
+    echo "  $0 clean static 7                      # Clean static backups older than 7 days"
+    echo "  $0 info static USAGOV-123-dev-git-abc123-2024_03_15_14_30_00-post-deploy"
+    echo "  $0 restore USAGOV-123-dev-git-abc123-2024_03_15_14_30_00-post-deploy --only=static,db"
 }
 
 get_container_tag() {
@@ -197,26 +204,41 @@ get_days_arg() {
 # Handle backup command
 run_backup_command() {
     local types_arg="${1:-all}"
+    local custom_prefix="${2:-}"
+    local custom_suffix="${3:-}"
     local backup_types=$(parse_backup_types "$types_arg")
 
-    print_status $BLUE "Starting automatic backups for: $backup_types"
+    # Determine backup prefix and suffix
+    local backup_prefix="${custom_prefix:-$BACKUP_PREFIX}"
+    local backup_suffix=""
+    if [ -n "$custom_suffix" ]; then
+        backup_suffix="-${custom_suffix}"
+    fi
+
+    print_status $BLUE "Starting backups for: $backup_types"
+    if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
+        print_status $YELLOW "Using custom prefix: $backup_prefix"
+    fi
+    if [ -n "$backup_suffix" ]; then
+        print_status $YELLOW "Using custom suffix: $custom_suffix"
+    fi
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
         print_status $GREEN "Creating static site backup..."
-        create_static_backup
+        create_static_backup "$backup_prefix" "$backup_suffix"
     fi
 
     # Run public backup if requested
     if has_backup_type "$backup_types" "public"; then
         print_status $GREEN "Creating public files backup..."
-        create_public_backup
+        create_public_backup "$backup_prefix" "$backup_suffix"
     fi
 
     # Run database backup if requested
     if has_backup_type "$backup_types" "db"; then
         print_status $GREEN "Creating database backup..."
-        create_db_backup
+        create_db_backup "$backup_prefix" "$backup_suffix"
     fi
 
     print_status $BLUE "Backup operations completed."
@@ -306,6 +328,9 @@ run_info_command() {
 # ===================================================================
 
 create_db_backup() {
+    local custom_prefix="${1:-$DB_BACKUP_PREFIX}"
+    local backup_suffix="${2:-}"
+
     setup_s3_vars
 
     # Check if database backups are enabled
@@ -317,7 +342,7 @@ create_db_backup() {
     # Generate backup tag with timestamp and container tag
     TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
     CONTAINER_TAG=$(get_container_tag)
-    DB_BACKUP_TAG="${DB_BACKUP_PREFIX}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
+    DB_BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
 
     log_message "Starting database backup: $DB_BACKUP_TAG ($APP_SPACE, container: $CONTAINER_TAG)"
 
@@ -413,6 +438,9 @@ create_db_backup() {
 
 # Create static site backup
 create_static_backup() {
+    local custom_prefix="${1:-$BACKUP_PREFIX}"
+    local backup_suffix="${2:-}"
+
     setup_s3_vars
 
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ]; then
@@ -423,7 +451,7 @@ create_static_backup() {
     # Generate backup tag
     TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
     CONTAINER_TAG=$(get_container_tag)
-    BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
+    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
 
     log_message "Creating static site backup: $BACKUP_TAG"
 
@@ -438,6 +466,9 @@ create_static_backup() {
 
 # Create public files backup with smart detection
 create_public_backup() {
+    local custom_prefix="${1:-$BACKUP_PREFIX}"
+    local backup_suffix="${2:-}"
+
     setup_s3_vars
 
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
@@ -448,7 +479,7 @@ create_public_backup() {
     # Generate backup tag
     TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
     CONTAINER_TAG=$(get_container_tag)
-    BACKUP_TAG="${BACKUP_PREFIX}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}"
+    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true
@@ -490,7 +521,16 @@ create_public_backup() {
 
 # Create all backups
 backup_all() {
-    print_status $BLUE "Creating all automatic backups..."
+    local custom_prefix="${1:-$BACKUP_PREFIX}"
+    local custom_suffix="${2:-}"
+
+    # Prepare backup suffix with proper formatting
+    local backup_suffix=""
+    if [ -n "$custom_suffix" ]; then
+        backup_suffix="-${custom_suffix}"
+    fi
+
+    print_status $BLUE "Creating all backups..."
 
     success_count=0
     total_count=0
@@ -498,7 +538,7 @@ backup_all() {
     # Create static backup
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" = "true" ]; then
         total_count=$((total_count + 1))
-        if create_static_backup; then
+        if create_static_backup "$custom_prefix" "$backup_suffix"; then
             success_count=$((success_count + 1))
         fi
     fi
@@ -506,7 +546,7 @@ backup_all() {
     # Create public backup
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" = "true" ]; then
         total_count=$((total_count + 1))
-        if create_public_backup; then
+        if create_public_backup "$custom_prefix" "$backup_suffix"; then
             success_count=$((success_count + 1))
         fi
     fi
@@ -514,7 +554,7 @@ backup_all() {
     # Create database backup
     if [ "$ENABLE_DB_BACKUPS" = "true" ]; then
         total_count=$((total_count + 1))
-        if create_db_backup; then
+        if create_db_backup "$custom_prefix" "$backup_suffix"; then
             success_count=$((success_count + 1))
         fi
     fi
@@ -1234,8 +1274,8 @@ case "${1:-}" in
         list_backups "$2" "$3"
         ;;
     "backup")
-        # backup [types] - e.g., "backup db" or "backup static,public"
-        run_backup_command "$2"
+        # backup [types] [prefix] [suffix] - e.g., "backup db" or "backup all USAGOV-123 post-deploy"
+        run_backup_command "$2" "$3" "$4"
         ;;
     "clean")
         # clean [types] [days] - e.g., "clean all 30" or "clean db 7"
@@ -1264,7 +1304,7 @@ case "${1:-}" in
         create_db_backup
         ;;
     "backup-all")
-        run_backup_command "all"
+        run_backup_command "all" "$2" "$3"
         ;;
     *)
         show_usage
