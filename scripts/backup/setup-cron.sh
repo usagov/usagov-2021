@@ -35,20 +35,37 @@ setup_cron() {
     hour=$(echo "$DB_BACKUP_TIME" | cut -d: -f1)
     minute=$(echo "$DB_BACKUP_TIME" | cut -d: -f2)
 
-    # Convert EST to UTC (EST is UTC-5, simple conversion)
+    # Validate time format
+    if [ -z "$hour" ] || [ -z "$minute" ] || [ "$hour" -lt 0 ] || [ "$hour" -gt 23 ] || [ "$minute" -lt 0 ] || [ "$minute" -gt 59 ]; then
+        print_status $RED "❌ Invalid time format: $DB_BACKUP_TIME (use HH:MM format)"
+        return 1
+    fi
+
+    # Convert Eastern Time to UTC (EST is UTC-5, EDT is UTC-4)
+    # Note: This is a simplified conversion. For production, consider using a proper timezone library
+    # In most cases, Cloud.gov servers run in UTC anyway, so this conversion may not be needed
     utc_hour=$((hour + 5))
     if [ $utc_hour -ge 24 ]; then
         utc_hour=$((utc_hour - 24))
     fi
 
     print_status $GREEN "Setting up database backup cron job..."
-    print_status $YELLOW "Schedule: $utc_hour:$minute UTC (${hour}:${minute} EST)"
+    print_status $YELLOW "⚠️ Time conversion: ${hour}:${minute} Eastern → ${utc_hour}:${minute} UTC"
+    print_status $YELLOW "📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed."
 
     # Remove existing backup cron jobs first
     crontab -l 2>/dev/null | grep -v "backup/manager.sh" | crontab -
 
+    # Determine working directory for cron job
+    CRON_WORK_DIR="/var/www"
+    if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
+        CRON_WORK_DIR="/var/www"
+    else
+        CRON_WORK_DIR="$PROJECT_ROOT"
+    fi
+
     # Add new cron job (using new command format)
-    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd /var/www && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
 
     print_status $GREEN "✅ Cron job setup complete"
 }

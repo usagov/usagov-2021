@@ -35,18 +35,18 @@ run_test() {
     local test_name="$1"
     local test_command="$2"
 
-    TESTS_TOTAL=`expr $TESTS_TOTAL + 1`
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
     echo ""
     print_status $BLUE "🧪 TEST $TESTS_TOTAL: $test_name"
     echo "----------------------------------------"
 
     if eval "$test_command"; then
         print_status $GREEN "✅ PASSED: $test_name"
-        TESTS_PASSED=`expr $TESTS_PASSED + 1`
+        TESTS_PASSED=$((TESTS_PASSED + 1))
         return 0
     else
         print_status $RED "❌ FAILED: $test_name"
-        TESTS_FAILED=`expr $TESTS_FAILED + 1`
+        TESTS_FAILED=$((TESTS_FAILED + 1))
         return 1
     fi
 }

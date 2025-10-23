@@ -252,10 +252,16 @@ create_db_backup() {
 
     # Set working directory for drush
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
-        cd /var/www
+        if ! cd /var/www; then
+            log_message "❌ ERROR: Cannot change to /var/www directory" | tee -a "$LOGFILE"
+            return 1
+        fi
     elif [ "$PROJECT_ROOT" != "$(pwd)" ]; then
         # Change to project root if not already there
-        cd "$PROJECT_ROOT"
+        if ! cd "$PROJECT_ROOT"; then
+            log_message "❌ ERROR: Cannot change to project root: $PROJECT_ROOT" | tee -a "$LOGFILE"
+            return 1
+        fi
     fi
 
     # Create temporary files for database backup
@@ -351,7 +357,8 @@ create_static_backup() {
 
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
-    if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS; then
+    # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
+    if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS; then
         print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
         return 0
     else
@@ -402,7 +409,8 @@ create_public_backup() {
 
     if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
         log_message "📁 Creating public files backup: $BACKUP_TAG"
-        if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS; then
+        # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
+        if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS; then
             print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
             return 0
         else
