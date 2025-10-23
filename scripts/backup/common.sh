@@ -59,7 +59,7 @@ init_backup_system() {
 print_status() {
     local color=$1
     local message=$2
-    echo -e "${color}${message}${NC}"
+    printf "${color}${message}${NC}\n"
 }
 
 # Consistent log message function

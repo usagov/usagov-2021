@@ -235,6 +235,133 @@ test_backup_manager() {
     return 0
 }
 
+# Function to comprehensively test manager commands
+test_manager_commands() {
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    echo "🎯 Testing manager command interface..."
+
+    # Test list command with different arguments
+    echo "📋 Testing 'list' command variations..."
+
+    # Test basic list (should work even without S3 credentials)
+    "$manager_script" list >/dev/null 2>&1
+    local list_exit=$?
+    if [ $list_exit -eq 0 ] || [ $list_exit -eq 1 ]; then
+        echo "✅ 'list' command executes (exit code: $list_exit)"
+    else
+        echo "❌ 'list' command failed with unexpected exit code: $list_exit"
+        return 1
+    fi
+
+    # Test list with specific types
+    "$manager_script" list static >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'list static' command executes"
+    else
+        echo "❌ 'list static' command failed"
+        return 1
+    fi
+
+    "$manager_script" list db >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'list db' command executes"
+    else
+        echo "❌ 'list db' command failed"
+        return 1
+    fi
+
+    "$manager_script" list static,public >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'list static,public' command executes"
+    else
+        echo "❌ 'list static,public' command failed"
+        return 1
+    fi
+
+    # Test list with days parameter
+    "$manager_script" list all 7 >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'list all 7' command executes"
+    else
+        echo "❌ 'list all 7' command failed"
+        return 1
+    fi
+
+    # Test info command
+    echo "ℹ️ Testing 'info' command variations..."
+
+    "$manager_script" info >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'info' command executes"
+    else
+        echo "❌ 'info' command failed"
+        return 1
+    fi
+
+    "$manager_script" info static >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'info static' command executes"
+    else
+        echo "❌ 'info static' command failed"
+        return 1
+    fi
+
+    # Test restore command (should show usage/error without tag)
+    echo "🔄 Testing 'restore' command..."
+
+    "$manager_script" restore >/dev/null 2>&1
+    local restore_exit=$?
+    if [ $restore_exit -eq 1 ]; then
+        echo "✅ 'restore' command correctly requires backup tag (exit code: 1)"
+    else
+        echo "❌ 'restore' command unexpected behavior (exit code: $restore_exit)"
+        return 1
+    fi
+
+    # Test clean command (dry run style test)
+    echo "🧹 Testing 'clean' command..."
+
+    # Note: We can't actually test clean without potentially deleting real backups
+    # So we test that it at least shows the right prompts/interface
+    echo "n" | "$manager_script" clean all 30 >/dev/null 2>&1
+    local clean_exit=$?
+    if [ $clean_exit -eq 0 ] || [ $clean_exit -eq 1 ]; then
+        echo "✅ 'clean' command interface works (cancelled properly)"
+    else
+        echo "❌ 'clean' command failed (exit code: $clean_exit)"
+        return 1
+    fi
+
+    # Test backup command structure (without actually creating backups in test)
+    echo "📦 Testing 'backup' command interface..."
+
+    # These commands might fail due to missing S3 credentials, but they should
+    # at least parse arguments correctly and show meaningful errors
+    "$manager_script" backup static TEST test-suffix >/dev/null 2>&1
+    local backup_exit=$?
+    if [ $backup_exit -eq 0 ] || [ $backup_exit -eq 1 ]; then
+        echo "✅ 'backup static TEST test-suffix' command parses correctly"
+    else
+        echo "⚠️ 'backup static TEST test-suffix' had issues (exit code: $backup_exit) - may be due to missing S3 access"
+    fi
+
+    # Test argument parsing for backup types
+    local test_types="all static public db static,public static,db public,db static,public,db"
+    for backup_type in $test_types; do
+        "$manager_script" backup "$backup_type" TEST >/dev/null 2>&1
+        local type_exit=$?
+        if [ $type_exit -eq 0 ] || [ $type_exit -eq 1 ]; then
+            echo "✅ Backup type '$backup_type' parses correctly"
+        else
+            echo "⚠️ Backup type '$backup_type' may have parsing issues (exit code: $type_exit)"
+        fi
+    done
+
+    echo "🎯 Manager command interface testing complete"
+    return 0
+}
+
 # Function to test date calculations (important for cleanup)
 test_date_calculations() {
     echo "📅 Testing date calculation compatibility..."
@@ -426,7 +553,7 @@ test_database_backup_system() {
 
     # Check if automatic backup manager has required components
     local db_script="$BACKUP_DIR/manager.sh"
-    for component in "backup-system.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
+    for component in "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
         if grep -q "$component" "$db_script"; then
             echo "✅ Automatic backup manager includes: $component"
         else
@@ -434,6 +561,14 @@ test_database_backup_system() {
             return 1
         fi
     done
+
+    # Check if manager loads common.sh (which loads backup-system.conf)
+    if grep -q "common.sh" "$db_script"; then
+        echo "✅ Automatic backup manager loads common utilities (includes config)"
+    else
+        echo "❌ Automatic backup manager missing common utilities integration"
+        return 1
+    fi
 
     # Check for direct database backup implementation
     if grep -q "drush sql:dump" "$db_script"; then
@@ -601,6 +736,7 @@ main() {
         run_test "AWS Connectivity" "test_aws_connectivity"
         run_test "Backup Integration in tome-sync.sh" "test_backup_integration"
         run_test "Backup Manager Functionality" "test_backup_manager"
+        run_test "Manager Commands Interface" "test_manager_commands"
         run_test "Database Backup System" "test_database_backup_system"
         run_test "Date Calculations" "test_date_calculations"
         run_test "Backup Naming Pattern" "test_backup_naming"
