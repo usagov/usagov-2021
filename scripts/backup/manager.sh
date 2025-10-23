@@ -4,42 +4,12 @@
 # Unified manager for all backups (static site, public files, and database)
 # Handles backup creation, listing, restore, and cleanup operations
 
-# Find the script directory and project root
-SCRIPT_PATH=$(dirname "$0")
-if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
-    # Running from scripts/backup directory
-    PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
-    BACKUP_DIR="$SCRIPT_PATH"
-elif [ -d "scripts/backup" ]; then
-    # Running from project root
-    PROJECT_ROOT="$(pwd)"
-    BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
-else
-    # Try to find the project root by looking for scripts/backup
-    current_dir="$(pwd)"
-    while [ "$current_dir" != "/" ]; do
-        if [ -d "$current_dir/scripts/backup" ]; then
-            PROJECT_ROOT="$current_dir"
-            BACKUP_DIR="$current_dir/scripts/backup"
-            break
-        fi
-        current_dir=$(dirname "$current_dir")
-    done
+# Load common utilities
+SCRIPT_DIR=$(dirname "$0")
+. "$SCRIPT_DIR/common.sh"
 
-    if [ -z "$PROJECT_ROOT" ]; then
-        echo "ERROR: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
-        exit 1
-    fi
-fi
-
-# Load configuration
-CONFIG_FILE="$BACKUP_DIR/backup-system.conf"
-if [ -f "$CONFIG_FILE" ]; then
-    . "$CONFIG_FILE"
-else
-    echo "ERROR: Configuration file not found: $CONFIG_FILE"
-    exit 1
-fi
+# Initialize backup system (sets PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE and loads config)
+init_backup_system
 
 # Set defaults if not defined in config
 BACKUP_PREFIX=${BACKUP_PREFIX:-AUTO}
@@ -54,22 +24,7 @@ ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-print_status() {
-    local color=$1
-    local message=$2
-    echo -e "${color}${message}${NC}"
-}
-
-log_message() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S'): $1"
-}
+# Color definitions and utility functions now in common.sh
 
 show_usage() {
     echo "Usage: $0 <command> [backup_types] [options]"
@@ -105,62 +60,6 @@ show_usage() {
     echo "  $0 clean static 7                      # Clean static backups older than 7 days"
     echo "  $0 info static USAGOV-123-dev-abc123-2024_03_15_14_30_00-post-deploy"
     echo "  $0 restore USAGOV-123-dev-abc123-2024_03_15_14_30_00-post-deploy --only=static,db"
-}
-
-get_container_tag() {
-    # Try to get container tag from /etc/motd if in CF environment
-    if [ -n "$VCAP_APPLICATION" ] && [ -f "/etc/motd" ]; then
-        CONTAINER_TAG=$(grep containertag /etc/motd 2>/dev/null | sed 's/containertag\:[[:space:]]*//' | sed 's/^[[:space:]]*//')
-        if [ -n "$CONTAINER_TAG" ]; then
-            echo "$CONTAINER_TAG"
-            return 0
-        fi
-    fi
-
-    # Fallback: try to get from environment variable or git if available
-    if [ -n "$CONTAINER_TAG" ]; then
-        echo "$CONTAINER_TAG"
-        return 0
-    elif command -v git >/dev/null 2>&1; then
-        # Use short git commit hash as fallback
-        git_hash=$(git rev-parse --short HEAD 2>/dev/null)
-        if [ -n "$git_hash" ]; then
-            echo "git-$git_hash"
-            return 0
-        fi
-    fi
-
-    # Final fallback: use "unknown"
-    echo "unknown"
-    return 0
-}
-
-setup_s3_vars() {
-    if [ -z "$BUCKET_NAME" ]; then
-        export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
-        export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
-        export AWS_ACCESS_KEY_ID=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.access_key_id')
-        export AWS_SECRET_ACCESS_KEY=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.secret_access_key')
-        export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.hostname')
-        if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
-            export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint')
-        fi
-
-        # grab the cloudgov space we are hosted in
-        APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
-        APP_SPACE=${APP_SPACE:-local}
-
-        # endpoint and ssl specifications only necessary on local for minio support
-        S3_EXTRA_PARAMS=""
-        if [ "${APP_SPACE}" = "local" ]; then
-            S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
-        fi
-    fi
-
-    if [ -z "$BUCKET_NAME" ]; then
-        print_status $RED "Error: Could not determine S3 bucket name. Make sure VCAP_SERVICES is set."
-        exit 1
-    fi
 }
 
 # ===================================================================
@@ -329,7 +228,7 @@ create_db_backup() {
     local custom_prefix="${1:-$DB_BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     # Check if database backups are enabled
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
@@ -438,7 +337,7 @@ create_static_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ]; then
         log_message "⚠️ Static site backups disabled"
@@ -466,7 +365,7 @@ create_public_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
         log_message "⚠️ Public files backups disabled"
@@ -600,7 +499,7 @@ list_backups() {
 }
 
 list_static_backups() {
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     print_status $GREEN "Static Site Backups:"
     echo "===================="
@@ -608,7 +507,7 @@ list_static_backups() {
 }
 
 list_public_backups() {
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     print_status $GREEN "Public Files Backups:"
     echo "====================="
@@ -616,7 +515,7 @@ list_public_backups() {
 }
 
 list_db_backups() {
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     print_status $GREEN "Database Backups:"
     echo "=================="
@@ -636,7 +535,7 @@ list_db_backups() {
 }
 
 list_all_backups() {
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     print_status $BLUE "Backups by Restore Tag"
     echo ""
@@ -714,7 +613,7 @@ cleanup_old_db_backups() {
         return 0
     fi
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
     log_message "🧹 Cleaning up database backups older than $days days..."
 
     # Calculate cutoff date
@@ -739,7 +638,7 @@ cleanup_old_db_backups() {
 # Function to list old backups
 list_old_backups() {
     local days=${1:-7}
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
@@ -775,7 +674,7 @@ list_old_backups() {
 # Function to clean old backups
 clean_old_backups() {
     local days=${1:-7}
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
@@ -980,7 +879,7 @@ restore_backup() {
         exit 1
     fi
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     # Determine what to restore
     restore_static=$(echo "$restore_types" | grep -q "static" && echo "yes" || echo "no")
@@ -1163,7 +1062,7 @@ backup_info() {
         exit 1
     fi
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     print_status $GREEN "Backup Information for: $backup_tag"
     echo "======================================"
@@ -1218,7 +1117,7 @@ db_backup_info() {
         exit 1
     fi
 
-    setup_s3_vars
+    setup_s3_vars || exit 1
 
     print_status $GREEN "Database Backup Information:"
     echo "============================"
@@ -1268,7 +1167,7 @@ case "${1:-}" in
         run_clean_command "$2" "$3"
         ;;
     "restore")
-        # restore (unchanged - interactive restore)
+        # restore
         shift  # Remove the 'restore' command
         restore_backup "$@"  # Pass all remaining arguments
         ;;

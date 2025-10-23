@@ -3,59 +3,16 @@
 # Setup Backup Cron Jobs
 # Configures cron jobs for the unified backup manager
 
-# Find the script directory and project root
-SCRIPT_PATH=$(dirname "$0")
-if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
-    # Running from scripts/backup directory
-    PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
-    BACKUP_DIR="$SCRIPT_PATH"
-elif [ -d "scripts/backup" ]; then
-    # Running from project root
-    PROJECT_ROOT="$(pwd)"
-    BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
-else
-    # Try to find the project root by looking for scripts/backup
-    current_dir="$(pwd)"
-    while [ "$current_dir" != "/" ]; do
-        if [ -d "$current_dir/scripts/backup" ]; then
-            PROJECT_ROOT="$current_dir"
-            BACKUP_DIR="$current_dir/scripts/backup"
-            break
-        fi
-        current_dir=$(dirname "$current_dir")
-    done
-    
-    if [ -z "$PROJECT_ROOT" ]; then
-        echo "ERROR: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
-        exit 1
-    fi
-fi
+# Load common utilities
+SCRIPT_DIR=$(dirname "$0")
+. "$SCRIPT_DIR/common.sh"
 
-CONFIG_FILE="$BACKUP_DIR/backup-system.conf"
-
-# Load configuration
-if [ -f "$CONFIG_FILE" ]; then
-    . "$CONFIG_FILE"
-else
-    echo "Error: Configuration file not found: $CONFIG_FILE"
-    exit 1
-fi
+# Initialize backup system (sets PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE and loads config)
+init_backup_system
 
 # Set defaults
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-print_status() {
-    local color=$1
-    local message=$2
-    echo -e "${color}${message}${NC}"
-}
 
 show_usage() {
     echo "Usage: $0 [command]"
@@ -92,14 +49,14 @@ setup_cron() {
 
     # Add new cron job (using new command format)
     (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd /var/www && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
-    
-    print_status $GREEN "✓ Cron job setup complete"
+
+    print_status $GREEN "✅ Cron job setup complete"
 }
 
 remove_cron() {
     print_status $YELLOW "Removing backup cron jobs..."
     crontab -l 2>/dev/null | grep -v "backup/manager.sh" | crontab -
-    print_status $GREEN "✓ Backup cron jobs removed"
+    print_status $GREEN "✅ Backup cron jobs removed"
 }
 
 show_status() {
@@ -120,18 +77,18 @@ test_backup() {
         exit 1
     fi
 
-    print_status $GREEN "✓ Automatic backup manager found"
+    print_status $GREEN "✅ Automatic backup manager found"
 
     # Test database backup
     print_status $YELLOW "Testing database backup..."
     if "$BACKUP_DIR/manager.sh" backup db; then
-        print_status $GREEN "✓ Database backup test successful"
+        print_status $GREEN "✅ Database backup test successful"
     else
-        print_status $RED "✗ Database backup test failed"
+        print_status $RED "❌ Database backup test failed"
         return 1
     fi
 
-    print_status $GREEN "All tests passed!"
+    print_status $GREEN "🎉 All tests passed!"
 }
 
 # Parse command

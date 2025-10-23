@@ -4,23 +4,14 @@
 
 set -e
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# Load common utilities
+SCRIPT_DIR=$(dirname "$0")
+. "$SCRIPT_DIR/common.sh"
 
 # Test tracking
 TESTS_PASSED=0
 TESTS_FAILED=0
 TESTS_TOTAL=0
-
-print_status() {
-    local color=$1
-    local message=$2
-    echo -e "${color}${message}${NC}"
-}
 
 # Function to show usage
 show_usage() {
@@ -60,48 +51,12 @@ run_test() {
     fi
 }
 
-# Function to check file exists and is readable
-check_file() {
-    local file_path="$1"
-    local description="$2"
-
-    if [ -f "$file_path" ] && [ -r "$file_path" ]; then
-        echo "✅ Found $description: $file_path"
-        return 0
-    else
-        echo "❌ Missing or unreadable $description: $file_path"
-        return 1
-    fi
-}
-
-# Function to check if a command exists
-check_command() {
-    local cmd="$1"
-    if command -v "$cmd" >/dev/null 2>&1; then
-        echo "✅ Command available: $cmd"
-        return 0
-    else
-        echo "❌ Command not found: $cmd"
-        return 1
-    fi
-}
-
 # Function to simulate S3 environment variables
 setup_test_env() {
     # Check if we're in a Cloud Foundry environment
     if [ -n "$VCAP_SERVICES" ]; then
         echo "✅ Cloud Foundry environment detected"
-        export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket' 2>/dev/null)
-        export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region' 2>/dev/null)
-        export AWS_ACCESS_KEY_ID=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.access_key_id' 2>/dev/null)
-        export AWS_SECRET_ACCESS_KEY=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.secret_access_key' 2>/dev/null)
-        export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.hostname' 2>/dev/null)
-        if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" == "null" ]; then
-            export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint' 2>/dev/null)
-        fi
-
-        APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
-        export APP_SPACE=${APP_SPACE:-local}
+        setup_s3_vars
 
         if [ "${APP_SPACE}" = "local" ]; then
             S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
@@ -763,34 +718,8 @@ main() {
     fi
 }
 
-# Find the script directory and project root
-SCRIPT_PATH=$(dirname "$0")
-if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
-    # Running from scripts/backup directory
-    PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
-    BACKUP_DIR="$SCRIPT_PATH"
-elif [ -d "scripts/backup" ]; then
-    # Running from project root
-    PROJECT_ROOT="$(pwd)"
-    BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
-else
-    # Try to find the project root by looking for scripts/backup
-    current_dir="$(pwd)"
-    while [ "$current_dir" != "/" ]; do
-        if [ -d "$current_dir/scripts/backup" ]; then
-            PROJECT_ROOT="$current_dir"
-            BACKUP_DIR="$current_dir/scripts/backup"
-            break
-        fi
-        current_dir=$(dirname "$current_dir")
-    done
-
-    if [ -z "$PROJECT_ROOT" ]; then
-        print_status $RED "❌ Error: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
-        print_status $YELLOW "💡 Usage: cd /path/to/usagov-2021 && scripts/backup/test.sh"
-        exit 1
-    fi
-fi
+# Initialize backup system paths
+init_backup_system
 
 # Check if we can find tome-sync.sh
 if [ ! -f "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
