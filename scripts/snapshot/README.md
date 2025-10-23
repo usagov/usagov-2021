@@ -14,9 +14,9 @@ This backup system provides automated and manual backup capabilities for the USA
 
 ```bash
 # From project root (recommended)
-scripts/backup/manager.sh list    # List all current backups
-scripts/backup/manager.sh backup  # Create a full backup (all types)
-scripts/backup/manager.sh info    # Get system information
+scripts/snapshot/manager.sh list    # List all current backups
+scripts/snapshot/manager.sh backup  # Create a full backup (all types)
+scripts/snapshot/manager.sh info    # Get system information
 ```
 
 ## Commands
@@ -25,27 +25,27 @@ scripts/backup/manager.sh info    # Get system information
 
 ```bash
 # From project root
-scripts/backup/manager.sh list                    # Show all backups
-scripts/backup/manager.sh list static             # Show only static backups
-scripts/backup/manager.sh list db,public          # Show database and public backups
-scripts/backup/manager.sh list all 7              # Show all backups from last 7 days
+scripts/snapshot/manager.sh list                    # Show all backups
+scripts/snapshot/manager.sh list static             # Show only static backups
+scripts/snapshot/manager.sh list db,public          # Show database and public backups
+scripts/snapshot/manager.sh list all 7              # Show all backups from last 7 days
 ```
 
 ### Create Backups
 
 ```bash
 # Basic backups (from project root)
-scripts/backup/manager.sh backup                  # Create all backup types (AUTO prefix)
-scripts/backup/manager.sh backup db               # Database backup only
-scripts/backup/manager.sh backup static           # Static site backup only
-scripts/backup/manager.sh backup public           # Public files backup only
-scripts/backup/manager.sh backup static,db        # Multiple specific types
+scripts/snapshot/manager.sh backup                  # Create all backup types (AUTO prefix)
+scripts/snapshot/manager.sh backup db               # Database backup only
+scripts/snapshot/manager.sh backup static           # Static site backup only
+scripts/snapshot/manager.sh backup public           # Public files backup only
+scripts/snapshot/manager.sh backup static,db        # Multiple specific types
 
 # Manual backups with custom prefix and suffix
-scripts/backup/manager.sh backup all USAGOV-123                # Custom prefix (ticket name)
-scripts/backup/manager.sh backup all USAGOV-123 post-deploy    # Custom prefix and suffix
-scripts/backup/manager.sh backup db USAGOV-456 pre-update      # Database with custom tags
-scripts/backup/manager.sh backup static RELEASE-v2.1 hotfix    # Static with release info
+scripts/snapshot/manager.sh backup all USAGOV-123                # Custom prefix (ticket name)
+scripts/snapshot/manager.sh backup all USAGOV-123 post-deploy    # Custom prefix and suffix
+scripts/snapshot/manager.sh backup db USAGOV-456 pre-update      # Database with custom tags
+scripts/snapshot/manager.sh backup static RELEASE-v2.1 hotfix    # Static with release info
 
 # From backup directory
 ./manager.sh backup                            # Create all backup types (AUTO prefix)
@@ -57,9 +57,9 @@ scripts/backup/manager.sh backup static RELEASE-v2.1 hotfix    # Static with rel
 
 ```bash
 # From project root
-scripts/backup/manager.sh clean                   # Clean all types (30 day retention)
-scripts/backup/manager.sh clean db 7              # Clean database backups older than 7 days
-scripts/backup/manager.sh clean static 14         # Clean static backups older than 14 days
+scripts/snapshot/manager.sh clean                   # Clean all types (30 day retention)
+scripts/snapshot/manager.sh clean db 7              # Clean database backups older than 7 days
+scripts/snapshot/manager.sh clean static 14         # Clean static backups older than 14 days
 ```
 
 > **Note:** Clean operations require confirmation before deleting files
@@ -68,16 +68,16 @@ scripts/backup/manager.sh clean static 14         # Clean static backups older t
 
 ```bash
 # From project root
-scripts/backup/manager.sh info                    # Show system configuration and status
-scripts/backup/manager.sh info db                 # Show database-specific information
-scripts/backup/manager.sh info static backup-tag  # Show details for a specific backup
+scripts/snapshot/manager.sh info                    # Show system configuration and status
+scripts/snapshot/manager.sh info db                 # Show database-specific information
+scripts/snapshot/manager.sh info static backup-tag  # Show details for a specific backup
 ```
 
 ### Restore Backups
 
 ```bash
 # From project root
-scripts/backup/manager.sh restore backup-tag      # Interactive restore process
+scripts/snapshot/manager.sh restore backup-tag      # Interactive restore process
 ```
 
 ## Backup Tag Format
@@ -127,7 +127,7 @@ This format ensures:
 ## File Structure
 
 ```text
-scripts/backup/
+scripts/snapshot/
 ├── manager.sh              # Main backup management script
 ├── backup-system.conf      # Configuration file
 ├── setup-cron.sh           # Cron job management
@@ -150,9 +150,9 @@ Database backups can be scheduled automatically using cron:
 
 ```bash
 # From project root
-scripts/backup/setup-cron.sh setup    # Set up daily database backups at 7 PM EST
-scripts/backup/setup-cron.sh remove   # Remove scheduled backups
-scripts/backup/setup-cron.sh status   # Check current cron status
+scripts/snapshot/setup-cron.sh setup    # Set up daily database backups at 7 PM EST
+scripts/snapshot/setup-cron.sh remove   # Remove scheduled backups
+scripts/snapshot/setup-cron.sh status   # Check current cron status
 ```
 
 ## Storage Structure
@@ -170,7 +170,7 @@ Run the comprehensive test suite to verify system functionality:
 
 ```bash
 # From project root
-scripts/backup/test.sh
+scripts/snapshot/test.sh
 
 # From backup directory
 ./test.sh
@@ -204,10 +204,10 @@ The backup system integrates with:
 
 ### Getting Help
 
-1. Run `scripts/backup/manager.sh info` to check system status
-2. Run `scripts/backup/test.sh` to identify specific issues
+1. Run `scripts/snapshot/manager.sh info` to check system status
+2. Run `scripts/snapshot/test.sh` to identify specific issues
 3. Check Cloud Foundry logs for detailed error messages
-4. Review scripts/backup/backup-system.conf for configuration issues## Security
+4. Review scripts/snapshot/backup-system.conf for configuration issues## Security
 
 - Backups are encrypted in transit to S3
 - Database backups are compressed to reduce storage costs

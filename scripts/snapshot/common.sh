@@ -16,28 +16,28 @@ NC='\033[0m'
 init_backup_system() {
     # Find the script directory and project root
     SCRIPT_PATH=$(dirname "$0")
-    if [ "$(basename "$SCRIPT_PATH")" = "backup" ]; then
-        # Running from scripts/backup directory
+    if [ "$(basename "$SCRIPT_PATH")" = "snapshot" ]; then
+        # Running from scripts/snapshot directory
         PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
         BACKUP_DIR="$SCRIPT_PATH"
-    elif [ -d "scripts/backup" ]; then
+    elif [ -d "scripts/snapshot" ]; then
         # Running from project root
         PROJECT_ROOT="$(pwd)"
-        BACKUP_DIR="$PROJECT_ROOT/scripts/backup"
+        BACKUP_DIR="$PROJECT_ROOT/scripts/snapshot"
     else
-        # Try to find the project root by looking for scripts/backup
+        # Try to find the project root by looking for scripts/snapshot
         current_dir="$(pwd)"
         while [ "$current_dir" != "/" ]; do
-            if [ -d "$current_dir/scripts/backup" ]; then
+            if [ -d "$current_dir/scripts/snapshot" ]; then
                 PROJECT_ROOT="$current_dir"
-                BACKUP_DIR="$current_dir/scripts/backup"
+                BACKUP_DIR="$current_dir/scripts/snapshot"
                 break
             fi
             current_dir=$(dirname "$current_dir")
         done
 
         if [ -z "$PROJECT_ROOT" ]; then
-            echo "❌ ERROR: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
+            echo "❌ ERROR: Cannot find scripts/snapshot directory. Please run from project root or scripts/snapshot directory."
             exit 1
         fi
     fi

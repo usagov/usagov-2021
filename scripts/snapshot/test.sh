@@ -860,7 +860,7 @@ init_backup_system
 # Check if we can find tome-sync.sh
 if [ ! -f "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
     print_status $RED "❌ Error: Cannot find required files (tome-sync.sh not found at $PROJECT_ROOT/scripts/tome-sync.sh)"
-    print_status $YELLOW "💡 Please ensure you're running from the project root or scripts/backup directory"
+    print_status $YELLOW "💡 Please ensure you're running from the project root or scripts/snapshot directory"
     exit 1
 fi
 

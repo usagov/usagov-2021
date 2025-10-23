@@ -316,7 +316,7 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       echo "      $TOME_COUNT" | tee -a $TOMELOG
 
       # Load backup configuration
-      BACKUP_CONFIG_FILE="$SCRIPT_PATH/backup/backup-system.conf"
+      BACKUP_CONFIG_FILE="$SCRIPT_PATH/snapshot/backup-system.conf"
       if [ -f "$BACKUP_CONFIG_FILE" ]; then
           source "$BACKUP_CONFIG_FILE"
       fi

@@ -54,7 +54,7 @@ setup_cron() {
     print_status $YELLOW "📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed."
 
     # Remove existing backup cron jobs first
-    crontab -l 2>/dev/null | grep -v "backup/manager.sh" | crontab -
+    crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
 
     # Determine working directory for cron job
     CRON_WORK_DIR="/var/www"
@@ -72,14 +72,14 @@ setup_cron() {
 
 remove_cron() {
     print_status $YELLOW "Removing backup cron jobs..."
-    crontab -l 2>/dev/null | grep -v "backup/manager.sh" | crontab -
+    crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
     print_status $GREEN "✅ Backup cron jobs removed"
 }
 
 show_status() {
     print_status $GREEN "Current backup cron jobs:"
     echo "========================="
-    crontab -l 2>/dev/null | grep "backup/manager" || echo "No backup cron jobs found"
+    crontab -l 2>/dev/null | grep "snapshot/manager" || echo "No backup cron jobs found"
     echo ""
     print_status $GREEN "Configuration:"
     echo "  Database backups enabled: $ENABLE_DB_BACKUPS"
