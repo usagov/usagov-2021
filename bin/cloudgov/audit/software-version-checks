@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+### OS Versions
+cf ssh cms   -c "cat /etc/os-release" | grep PRETTY_NAME | sed -e 's/PRETTY_NAME/cms-alpine/'
+cf ssh www   -c "cat /etc/os-release" | grep PRETTY_NAME | sed -e 's/PRETTY_NAME/wwws-alpine/'
+cf ssh cron  -c "cat /etc/os-release" | grep PRETTY_NAME | sed -e 's/PRETTY_NAME/cron-alpine/'
+echo -n "waf-debian: " && cf ssh waf -c "cat /etc/debian_version"
+
+### Nginx versions
+cf ssh cms -c "/usr/sbin/nginx -v" 2>&1 | sed -e 's/nginx version/cms-nginx/'
+cf ssh www -c "/usr/sbin/nginx -v" 2>&1 | sed -e 's/nginx version/www-nginx/'
+cf ssh waf -c "/usr/sbin/nginx -v" 2>&1 | sed -e 's/nginx version/waf-nginx/'
+
