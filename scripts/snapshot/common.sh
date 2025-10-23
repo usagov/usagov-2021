@@ -71,6 +71,14 @@ log_message() {
 get_container_tag() {
     # Try to get container tag from Cloud Foundry environment
     if [ -f /etc/motd ]; then
+        # First try the containertag: format used in Cloud Foundry
+        container_tag=$(grep -i 'containertag' /etc/motd 2>/dev/null | sed 's/containertag\:[[:space:]]*//' | sed 's/^[[:space:]]*//' | head -1)
+        if [ -n "$container_tag" ]; then
+            echo "$container_tag"
+            return 0
+        fi
+
+        # Fallback to cf-XXXXXX pattern
         container_tag=$(grep -oE 'cf-[a-f0-9]{6}' /etc/motd | head -1 2>/dev/null)
         if [ -n "$container_tag" ]; then
             echo "$container_tag"
