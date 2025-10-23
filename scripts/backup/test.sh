@@ -46,15 +46,15 @@ run_test() {
 
     TESTS_TOTAL=`expr $TESTS_TOTAL + 1`
     echo ""
-    print_status $BLUE "TEST $TESTS_TOTAL: $test_name"
+    print_status $BLUE "🧪 TEST $TESTS_TOTAL: $test_name"
     echo "----------------------------------------"
 
     if eval "$test_command"; then
-        print_status $GREEN "✓ PASSED: $test_name"
+        print_status $GREEN "✅ PASSED: $test_name"
         TESTS_PASSED=`expr $TESTS_PASSED + 1`
         return 0
     else
-        print_status $RED "✗ FAILED: $test_name"
+        print_status $RED "❌ FAILED: $test_name"
         TESTS_FAILED=`expr $TESTS_FAILED + 1`
         return 1
     fi
@@ -66,10 +66,10 @@ check_file() {
     local description="$2"
 
     if [ -f "$file_path" ] && [ -r "$file_path" ]; then
-        echo "✓ Found $description: $file_path"
+        echo "✅ Found $description: $file_path"
         return 0
     else
-        echo "✗ Missing or unreadable $description: $file_path"
+        echo "❌ Missing or unreadable $description: $file_path"
         return 1
     fi
 }
@@ -78,10 +78,10 @@ check_file() {
 check_command() {
     local cmd="$1"
     if command -v "$cmd" >/dev/null 2>&1; then
-        echo "✓ Command available: $cmd"
+        echo "✅ Command available: $cmd"
         return 0
     else
-        echo "✗ Command not found: $cmd"
+        echo "❌ Command not found: $cmd"
         return 1
     fi
 }
@@ -90,7 +90,7 @@ check_command() {
 setup_test_env() {
     # Check if we're in a Cloud Foundry environment
     if [ -n "$VCAP_SERVICES" ]; then
-        echo "✓ Cloud Foundry environment detected"
+        echo "✅ Cloud Foundry environment detected"
         export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket' 2>/dev/null)
         export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region' 2>/dev/null)
         export AWS_ACCESS_KEY_ID=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.access_key_id' 2>/dev/null)
@@ -110,9 +110,9 @@ setup_test_env() {
         fi
         export S3_EXTRA_PARAMS
     else
-        echo "✓ Non-CF environment - checking for AWS credentials"
+        echo "✅ Non-CF environment - checking for AWS credentials"
         if [ -z "$BUCKET_NAME" ]; then
-            echo "⚠ BUCKET_NAME not set - some tests may fail"
+            echo "⚠️️ BUCKET_NAME not set - some tests may fail"
         fi
     fi
 }
@@ -131,9 +131,9 @@ test_config_loading() {
     for var in $required_vars; do
         eval "var_value=\$$var"
         if [ -n "$var_value" ]; then
-            echo "✓ Config variable $var = $var_value"
+            echo "✅ Config variable $var = $var_value"
         else
-            echo "✗ Config variable $var is not set"
+            echo "❌ Config variable $var is not set"
             return 1
         fi
     done
@@ -146,18 +146,18 @@ test_script_files() {
     # Check tome-sync.sh
     check_file "$PROJECT_ROOT/scripts/tome-sync.sh" "script file" || return 1
     if [ -x "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
-        echo "✓ Script is executable: $PROJECT_ROOT/scripts/tome-sync.sh"
+        echo "✅ Script is executable: $PROJECT_ROOT/scripts/tome-sync.sh"
     else
-        echo "✗ Script is not executable: $PROJECT_ROOT/scripts/tome-sync.sh"
+        echo "❌ Script is not executable: $PROJECT_ROOT/scripts/tome-sync.sh"
         return 1
     fi
 
     # Check manager.sh
     check_file "$BACKUP_DIR/manager.sh" "script file" || return 1
     if [ -x "$BACKUP_DIR/manager.sh" ]; then
-        echo "✓ Script is executable: $BACKUP_DIR/manager.sh"
+        echo "✅ Script is executable: $BACKUP_DIR/manager.sh"
     else
-        echo "✗ Script is not executable: $BACKUP_DIR/manager.sh"
+        echo "❌ Script is not executable: $BACKUP_DIR/manager.sh"
         return 1
     fi
 
@@ -175,7 +175,7 @@ test_dependencies() {
             case "$cmd" in
                 "md5sum")
                     if check_command "md5"; then
-                        echo "✓ Using 'md5' instead of 'md5sum'"
+                        echo "✅ Using 'md5' instead of 'md5sum'"
                     else
                         missing_commands="$missing_commands $cmd"
                     fi
@@ -190,7 +190,7 @@ test_dependencies() {
     if [ -z "$missing_commands" ]; then
         return 0
     else
-        echo "✗ Missing required commands:$missing_commands"
+        echo "❌ Missing required commands:$missing_commands"
         return 1
     fi
 }
@@ -198,17 +198,17 @@ test_dependencies() {
 # Function to test AWS connectivity
 test_aws_connectivity() {
     if [ -z "$BUCKET_NAME" ]; then
-        echo "⚠ BUCKET_NAME not set - skipping AWS connectivity test"
+        echo "⚠️️ BUCKET_NAME not set - skipping AWS connectivity test"
         return 0
     fi
 
-    echo "Testing AWS S3 connectivity to bucket: $BUCKET_NAME"
+    echo "🔗 Testing AWS S3 connectivity to bucket: $BUCKET_NAME"
 
     # Test basic S3 access
     if aws s3 ls "s3://$BUCKET_NAME/" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        echo "✓ Successfully connected to S3 bucket"
+        echo "✅ Successfully connected to S3 bucket"
     else
-        echo "✗ Failed to connect to S3 bucket"
+        echo "❌ Failed to connect to S3 bucket"
         return 1
     fi
 
@@ -216,9 +216,9 @@ test_aws_connectivity() {
     for dir in web-backup public_backup; do
         aws s3 ls "s3://$BUCKET_NAME/$dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo "✓ Backup directory exists: $dir"
+            echo "✅ Backup directory exists: $dir"
         else
-            echo "✓ Backup directory will be created when needed: $dir"
+            echo "✅ Backup directory will be created when needed: $dir"
         fi
     done
 
@@ -232,9 +232,9 @@ test_backup_integration() {
     # Check for backup-related code in tome-sync.sh
     for pattern in "backup-system.conf" "ENABLE_STATIC_AUTO_BACKUPS" "ENABLE_PUBLIC_AUTO_BACKUPS" "ENABLE_SMART_PUBLIC_BACKUP" "Creating static backup" "web-backup" "public_backup" "BACKUP_PREFIX"; do
         if grep -q "$pattern" "$tome_sync_script"; then
-            echo "✓ Found backup integration: $pattern"
+            echo "✅ Found backup integration: $pattern"
         else
-            echo "✗ Missing backup integration: $pattern"
+            echo "❌ Missing backup integration: $pattern"
             return 1
         fi
     done
@@ -250,29 +250,29 @@ test_backup_manager() {
     "$manager_script" >/dev/null 2>&1
     local exit_code=$?
     if [ $exit_code -eq 1 ] || [ $exit_code -eq 0 ]; then
-        echo "✓ Backup manager script runs and shows usage correctly"
+        echo "✅ Backup manager script runs and shows usage correctly"
     elif [ $exit_code -eq 127 ]; then
         # Try with sh if bash is not available
-        echo "⚠ Trying backup manager with sh instead of bash..."
+        echo "⚠️ Trying backup manager with sh instead of bash..."
         sh "$manager_script" >/dev/null 2>&1
         local sh_exit_code=$?
         if [ $sh_exit_code -eq 1 ] || [ $sh_exit_code -eq 0 ]; then
-            echo "✓ Backup manager script runs with sh"
+            echo "✅ Backup manager script runs with sh"
         else
-            echo "✗ Backup manager script fails even with sh (exit code: $sh_exit_code)"
+            echo "❌ Backup manager script fails even with sh (exit code: $sh_exit_code)"
             return 1
         fi
     else
-        echo "✗ Backup manager script has execution errors (exit code: $exit_code)"
+        echo "❌ Backup manager script has execution errors (exit code: $exit_code)"
         return 1
     fi
 
     # Check for required functions in the script
     for func in "list_backups" "list_old_backups" "clean_old_backups" "backup_info" "restore_backup"; do
         if grep -q "$func" "$manager_script"; then
-            echo "✓ Found backup manager function: $func"
+            echo "✅ Found backup manager function: $func"
         else
-            echo "✗ Missing backup manager function: $func"
+            echo "❌ Missing backup manager function: $func"
             return 1
         fi
     done
@@ -282,7 +282,7 @@ test_backup_manager() {
 
 # Function to test date calculations (important for cleanup)
 test_date_calculations() {
-    echo "Testing date calculation compatibility..."
+    echo "📅 Testing date calculation compatibility..."
 
     # Show what date command we have
     echo "Date command info: $(date --version 2>/dev/null || date 2>/dev/null | head -1 || echo 'unknown')"
@@ -293,22 +293,22 @@ test_date_calculations() {
     local cutoff_date_macos=$(date -u -v-${test_days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -n "$cutoff_date_linux" ]; then
-        echo "✓ Linux date format works: $cutoff_date_linux"
+        echo "✅ Linux date format works: $cutoff_date_linux"
         return 0
     elif [ -n "$cutoff_date_macos" ]; then
-        echo "✓ macOS date format works: $cutoff_date_macos"
+        echo "✅ macOS date format works: $cutoff_date_macos"
         return 0
     else
-        echo "⚠ Advanced date calculations not available"
-        echo "⚠ Backup cleanup will be disabled in this environment"
-        echo "✓ Basic date command works: $(date '+%Y_%m_%d' 2>/dev/null || echo 'unavailable')"
+        echo "⚠️ Advanced date calculations not available"
+        echo "Backup cleanup will be disabled in this environment"
+        echo "Basic date command works: $(date '+%Y_%m_%d' 2>/dev/null || echo 'unavailable')"
 
         # Test if at least basic date formatting works
         if date '+%Y_%m_%d' >/dev/null 2>&1; then
-            echo "✓ Date calculations test passed with limited functionality"
+            echo "✅ Date calculations test passed with limited functionality"
             return 0
         else
-            echo "✗ Even basic date formatting fails"
+            echo "❌ Even basic date formatting fails"
             return 1
         fi
     fi
@@ -323,22 +323,22 @@ test_backup_naming() {
     local test_timestamp="2024_03_15_14_30_00"
     local expected_pattern="${BACKUP_PREFIX}-${test_space}-${test_container_tag}-${test_timestamp}"
 
-    echo "Testing backup naming pattern: $expected_pattern"
+    echo "🏷️ Testing backup naming pattern: $expected_pattern"
 
     # Test pattern matching (used in cleanup)
     if echo "$expected_pattern" | grep -q "${BACKUP_PREFIX}-[^/]*-[^/]*-[0-9_]*"; then
-        echo "✓ Backup naming pattern matches cleanup regex"
+        echo "✅ Backup naming pattern matches cleanup regex"
     else
-        echo "✗ Backup naming pattern doesn't match cleanup regex"
+        echo "❌ Backup naming pattern doesn't match cleanup regex"
         return 1
     fi
 
     # Test date extraction (extract the date part from the pattern)
     local extracted_date=$(echo "$expected_pattern" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
     if [ "$extracted_date" = "2024_03_15" ]; then
-        echo "✓ Date extraction works correctly: $extracted_date"
+        echo "✅ Date extraction works correctly: $extracted_date"
     else
-        echo "✗ Date extraction failed: $extracted_date"
+        echo "❌ Date extraction failed: $extracted_date"
         return 1
     fi
 
@@ -348,25 +348,25 @@ test_backup_naming() {
 # Function to simulate a backup scenario (dry run)
 test_backup_simulation() {
     if [ -z "$BUCKET_NAME" ]; then
-        echo "⚠ BUCKET_NAME not set - skipping backup simulation"
+        echo "⚠️ BUCKET_NAME not set - skipping backup simulation"
         return 0
     fi
 
-    echo "Simulating backup process (dry run)..."
+    echo "🔄 Simulating backup process (dry run)..."
 
     # Test if we can list current web and public directories
     aws s3 ls "s3://$BUCKET_NAME/web/" $S3_EXTRA_PARAMS >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "✓ Can access current static site directory"
+        echo "✅ Can access current static site directory"
     else
-        echo "⚠ Cannot access static site directory (may not exist yet)"
+        echo "⚠️ Cannot access static site directory (may not exist yet)"
     fi
 
     aws s3 ls "s3://$BUCKET_NAME/cms/public/" $S3_EXTRA_PARAMS >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "✓ Can access current public files directory"
+        echo "✅ Can access current public files directory"
     else
-        echo "⚠ Cannot access public files directory (may not exist yet)"
+        echo "⚠️ Cannot access public files directory (may not exist yet)"
     fi
 
     # Test if we can create a test file and copy it (actual backup simulation)
@@ -376,12 +376,12 @@ test_backup_simulation() {
     local test_backup_path="s3://$BUCKET_NAME/backup-test/test-backup/"
     aws s3 cp "$test_file" "$test_backup_path" $S3_EXTRA_PARAMS >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "✓ Can perform S3 copy operations (backup simulation successful)"
+        echo "✅ Can perform S3 copy operations (backup simulation successful)"
         # Clean up test file
         aws s3 rm "$test_backup_path$(basename "$test_file")" $S3_EXTRA_PARAMS >/dev/null 2>&1
         aws s3 rm "s3://$BUCKET_NAME/backup-test/" --recursive $S3_EXTRA_PARAMS >/dev/null 2>&1
     else
-        echo "✗ Cannot perform S3 copy operations"
+        echo "❌ Cannot perform S3 copy operations"
         return 1
     fi
 
@@ -394,32 +394,32 @@ test_log_directory() {
     local log_dir="/tmp/tome-log"
 
     if [ ! -d "$log_dir" ]; then
-        echo "Creating log directory: $log_dir"
+        echo "📁 Creating log directory: $log_dir"
         mkdir -p "$log_dir" 2>/dev/null
     fi
 
     if [ -d "$log_dir" ] && [ -w "$log_dir" ]; then
-        echo "✓ Log directory is accessible and writable: $log_dir"
+        echo "✅ Log directory is accessible and writable: $log_dir"
         return 0
     else
-        echo "✗ Log directory is not accessible or writable: $log_dir"
+        echo "❌ Log directory is not accessible or writable: $log_dir"
         return 1
     fi
 }
 
 # Function to test database backup system
 test_database_backup_system() {
-    echo "Testing database backup system..."
+    echo "💾 Testing database backup system..."
 
     # Check if automatic backup manager exists
     if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
-        echo "✗ Automatic backup manager not found"
+        echo "❌ Automatic backup manager not found"
         return 1
     fi
 
     # Check if cron setup script exists
     if [ ! -f "$BACKUP_DIR/setup-cron.sh" ]; then
-        echo "✗ Automatic backup cron setup script not found"
+        echo "❌ Automatic backup cron setup script not found"
         return 1
     fi
 
@@ -427,34 +427,34 @@ test_database_backup_system() {
     . "$BACKUP_DIR/backup-system.conf"
 
     # Test database backup configuration
-    echo "Testing database backup configuration..."
+    echo "⚙️ Testing database backup configuration..."
     if [ "$ENABLE_DB_BACKUPS" = "true" ]; then
-        echo "✓ Database backups are enabled"
+        echo "✅ Database backups are enabled"
     else
-        echo "✓ Database backups are disabled (as configured)"
+        echo "✅ Database backups are disabled (as configured)"
     fi
 
     # Test backup time configuration
     if [ -n "$DB_BACKUP_TIME" ]; then
-        echo "✓ Database backup time is configured: $DB_BACKUP_TIME"
+        echo "✅ Database backup time is configured: $DB_BACKUP_TIME"
     else
-        echo "✗ Database backup time not configured"
+        echo "❌ Database backup time not configured"
         return 1
     fi
 
     # Test retention configuration
     if [ -n "$DB_BACKUP_RETENTION_DAYS" ] && [ "$DB_BACKUP_RETENTION_DAYS" -gt 0 ]; then
-        echo "✓ Database backup retention configured: $DB_BACKUP_RETENTION_DAYS days"
+        echo "✅ Database backup retention configured: $DB_BACKUP_RETENTION_DAYS days"
     else
-        echo "✗ Database backup retention not properly configured"
+        echo "❌ Database backup retention not properly configured"
         return 1
     fi
 
     # Test backup prefix configuration
     if [ -n "$DB_BACKUP_PREFIX" ]; then
-        echo "✓ Database backup prefix configured: $DB_BACKUP_PREFIX"
+        echo "✅ Database backup prefix configured: $DB_BACKUP_PREFIX"
     else
-        echo "✗ Database backup prefix not configured"
+        echo "❌ Database backup prefix not configured"
         return 1
     fi
 
@@ -462,9 +462,9 @@ test_database_backup_system() {
     local manager_script="$BACKUP_DIR/manager.sh"
     for func in "list_db_backups" "cleanup_old_db_backups" "create_db_backup" "backup_info" "db_backup_info"; do
         if grep -q "$func" "$manager_script"; then
-            echo "✓ Found database backup manager function: $func"
+            echo "✅ Found database backup manager function: $func"
         else
-            echo "✗ Missing database backup manager function: $func"
+            echo "❌ Missing database backup manager function: $func"
             return 1
         fi
     done
@@ -473,44 +473,44 @@ test_database_backup_system() {
     local db_script="$BACKUP_DIR/manager.sh"
     for component in "backup-system.conf" "ENABLE_DB_BACKUPS" "DB_BACKUP_PREFIX"; do
         if grep -q "$component" "$db_script"; then
-            echo "✓ Automatic backup manager includes: $component"
+            echo "✅ Automatic backup manager includes: $component"
         else
-            echo "✗ Automatic backup manager missing: $component"
+            echo "❌ Automatic backup manager missing: $component"
             return 1
         fi
     done
 
     # Check for direct database backup implementation
     if grep -q "drush sql:dump" "$db_script"; then
-        echo "✓ Database backup script uses direct implementation"
+        echo "✅ Database backup script uses direct implementation"
     else
-        echo "✗ Database backup script missing direct implementation"
+        echo "❌ Database backup script missing direct implementation"
         return 1
     fi
 
-    echo "✓ Database backup system test passed"
+    echo "✅ Database backup system test passed"
     return 0
 }
 
 # Function to force static site backup
 force_static_backup() {
     print_status $BLUE "============================================"
-    print_status $BLUE "    FORCING STATIC SITE BACKUP"
+    print_status $BLUE "🌐 FORCING STATIC SITE BACKUP"
     print_status $BLUE "============================================"
 
     # Check if backup manager exists
     if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
-        print_status $RED "Error: Backup manager not found"
+        print_status $RED "❌ Error: Backup manager not found"
         return 1
     fi
 
-    print_status $YELLOW "Running static site backup..."
+    print_status $YELLOW "🔄 Running static site backup..."
 
     if "$BACKUP_DIR/manager.sh" backup static TEST forced; then
-        print_status $GREEN "✓ Static site backup completed successfully"
+        print_status $GREEN "✅ Static site backup complete"
         return 0
     else
-        print_status $RED "✗ Static site backup failed"
+        print_status $RED "❌ Static site backup failed"
         return 1
     fi
 }
@@ -518,22 +518,22 @@ force_static_backup() {
 # Function to force public files backup
 force_public_backup() {
     print_status $BLUE "============================================"
-    print_status $BLUE "    FORCING PUBLIC FILES BACKUP"
+    print_status $BLUE "📁 FORCING PUBLIC FILES BACKUP"
     print_status $BLUE "============================================"
 
     # Check if backup manager exists
     if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
-        print_status $RED "Error: Backup manager not found"
+        print_status $RED "❌ Error: Backup manager not found"
         return 1
     fi
 
-    print_status $YELLOW "Running public files backup..."
+    print_status $YELLOW "🔄 Running public files backup..."
 
     if "$BACKUP_DIR/manager.sh" backup public TEST forced; then
-        print_status $GREEN "✓ Public files backup completed successfully"
+        print_status $GREEN "✅ Public files backup complete"
         return 0
     else
-        print_status $RED "✗ Public files backup failed"
+        print_status $RED "❌ Public files backup failed"
         return 1
     fi
 }
@@ -541,22 +541,22 @@ force_public_backup() {
 # Function to force database backup
 force_db_backup() {
     print_status $BLUE "============================================"
-    print_status $BLUE "    FORCING DATABASE BACKUP"
+    print_status $BLUE "💾 FORCING DATABASE BACKUP"
     print_status $BLUE "============================================"
 
     # Check if backup manager exists
     if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
-        print_status $RED "Error: Backup manager not found"
+        print_status $RED "❌ Error: Backup manager not found"
         return 1
     fi
 
-    print_status $YELLOW "Running database backup..."
+    print_status $YELLOW "🔄 Running database backup..."
 
     if "$BACKUP_DIR/manager.sh" backup db TEST forced; then
-        print_status $GREEN "✓ Database backup completed successfully"
+        print_status $GREEN "✅ Database backup complete"
         return 0
     else
-        print_status $RED "✗ Database backup failed"
+        print_status $RED "❌ Database backup failed"
         return 1
     fi
 }
@@ -564,22 +564,22 @@ force_db_backup() {
 # Function to force all backup types
 force_all_backups() {
     print_status $BLUE "============================================"
-    print_status $BLUE "    FORCING ALL BACKUP TYPES"
+    print_status $BLUE "📦 FORCING ALL BACKUP TYPES"
     print_status $BLUE "============================================"
 
     # Check if backup manager exists
     if [ ! -f "$BACKUP_DIR/manager.sh" ]; then
-        print_status $RED "Error: Backup manager not found"
+        print_status $RED "❌ Error: Backup manager not found"
         return 1
     fi
 
-    print_status $YELLOW "Running all backup types..."
+    print_status $YELLOW "🔄 Running all backup types..."
 
     if "$BACKUP_DIR/manager.sh" backup all TEST forced; then
-        print_status $GREEN "✓ All backup types completed successfully"
+        print_status $GREEN "✅ All backup types complete"
         return 0
     else
-        print_status $RED "✗ All backup types operation failed"
+        print_status $RED "❌ All backup types operation failed"
         return 1
     fi
 }
@@ -632,11 +632,11 @@ main() {
 
     # Run the test suite first if any tests should run
     if [ "$run_tests" = true ]; then
-        print_status $BLUE "Backup System Test Suite"
-        print_status $BLUE "========================"
+        print_status $BLUE "🧪 Backup System Test Suite"
+        print_status $BLUE "========================="
 
         echo ""
-        print_status $YELLOW "Setting up test environment..."
+        print_status $YELLOW "🔧 Setting up test environment..."
         setup_test_env
 
         # Run all tests
@@ -654,12 +654,12 @@ main() {
 
     # Test results summary
     echo ""
-    print_status $BLUE "Test Results"
-    print_status $BLUE "============"
+    print_status $BLUE "📊 Test Results"
+    print_status $BLUE "=============="
 
-    echo "Total Tests: $TESTS_TOTAL"
-    print_status $GREEN "Tests Passed: $TESTS_PASSED"
-    print_status $RED "Tests Failed: $TESTS_FAILED"
+    echo "📊 Total Tests: $TESTS_TOTAL"
+    print_status $GREEN "✅ Tests Passed: $TESTS_PASSED"
+    print_status $RED "❌ Tests Failed: $TESTS_FAILED"
 
         # Handle forced backups after tests complete
         local test_success=true
@@ -715,7 +715,7 @@ main() {
     if [ $total_forced -gt 0 ]; then
         echo ""
         print_status $BLUE "============================================"
-        print_status $BLUE "              FINAL SUMMARY"
+        print_status $BLUE "📋 FINAL SUMMARY"
         print_status $BLUE "============================================"
 
         if [ "$run_tests" = true ]; then
@@ -724,12 +724,12 @@ main() {
 
         if [ "$force_all" = true ]; then
             if [ $backup_results -eq 0 ]; then
-                echo "Forced Backups: All 3 types completed successfully"
+                echo "Forced Backups: All 3 types complete"
             else
                 echo "Forced Backups: Some backups failed"
             fi
         else
-            echo "Forced Backups: $backup_results of $total_forced completed successfully"
+            echo "Forced Backups: $backup_results of $total_forced complete"
         fi
 
         # Return appropriate exit code
@@ -746,7 +746,7 @@ main() {
         # Only tests were run
         if [ "$test_success" = true ]; then
             echo ""
-            print_status $YELLOW "Next steps:"
+            print_status $YELLOW "👉 Next steps:"
             echo "1. Run a Tome sync to test automatic backups in action"
             echo "2. Monitor the logs for backup creation messages"
             echo "3. Use './manager.sh list' to see created backups"
@@ -754,7 +754,7 @@ main() {
             return 0
         else
             echo ""
-            print_status $YELLOW "Common fixes:"
+            print_status $YELLOW "🔧 Common fixes:"
             echo "1. Ensure all dependencies are installed (aws cli, jq, etc.)"
             echo "2. Verify AWS credentials and S3 access"
             echo "3. Check file permissions on script files"
@@ -786,16 +786,16 @@ else
     done
 
     if [ -z "$PROJECT_ROOT" ]; then
-        print_status $RED "Error: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
-        print_status $YELLOW "Usage: cd /path/to/usagov-2021 && scripts/backup/test.sh"
+        print_status $RED "❌ Error: Cannot find scripts/backup directory. Please run from project root or scripts/backup directory."
+        print_status $YELLOW "💡 Usage: cd /path/to/usagov-2021 && scripts/backup/test.sh"
         exit 1
     fi
 fi
 
 # Check if we can find tome-sync.sh
 if [ ! -f "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
-    print_status $RED "Error: Cannot find required files (tome-sync.sh not found at $PROJECT_ROOT/scripts/tome-sync.sh)"
-    print_status $YELLOW "Please ensure you're running from the project root or scripts/backup directory"
+    print_status $RED "❌ Error: Cannot find required files (tome-sync.sh not found at $PROJECT_ROOT/scripts/tome-sync.sh)"
+    print_status $YELLOW "💡 Please ensure you're running from the project root or scripts/backup directory"
     exit 1
 fi
 

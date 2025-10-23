@@ -215,33 +215,33 @@ run_backup_command() {
         backup_suffix="-${custom_suffix}"
     fi
 
-    print_status $BLUE "Starting backups for: $backup_types"
+    print_status $BLUE "📦 Creating backup: $backup_types"
     if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
-        print_status $YELLOW "Using custom prefix: $backup_prefix"
+        print_status $YELLOW "Prefix: $backup_prefix"
     fi
     if [ -n "$backup_suffix" ]; then
-        print_status $YELLOW "Using custom suffix: $custom_suffix"
+        print_status $YELLOW "Suffix: $custom_suffix"
     fi
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
-        print_status $GREEN "Creating static site backup..."
+        print_status $GREEN "🌐 Backing up static site..."
         create_static_backup "$backup_prefix" "$backup_suffix"
     fi
 
     # Run public backup if requested
     if has_backup_type "$backup_types" "public"; then
-        print_status $GREEN "Creating public files backup..."
+        print_status $GREEN "📁 Backing up public files..."
         create_public_backup "$backup_prefix" "$backup_suffix"
     fi
 
     # Run database backup if requested
     if has_backup_type "$backup_types" "db"; then
-        print_status $GREEN "Creating database backup..."
+        print_status $GREEN "💾 Backing up database..."
         create_db_backup "$backup_prefix" "$backup_suffix"
     fi
 
-    print_status $BLUE "Backup operations completed."
+    print_status $BLUE "🎉 Done."
 }
 
 # Handle clean command
@@ -252,30 +252,28 @@ run_clean_command() {
     local backup_types=$(parse_backup_types "$types_arg")
     local days=$(get_days_arg "$days_arg" "30")
 
-    print_status $YELLOW "WARNING: This will delete backups older than $days days for: $backup_types"
-    printf "Are you sure you want to continue? [y/N]: "
+    print_status $YELLOW "⚠️ This will delete $backup_types backups older than $days days"
+    printf "Continue? [y/N]: "
     read -r confirm
 
     if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-        print_status $RED "Clean operation cancelled."
+        print_status $RED "❌ Cancelled."
         return 1
     fi
 
-    print_status $BLUE "Cleaning backups older than $days days..."
+    print_status $BLUE "🧹 Cleaning up old backups..."
 
     # Clean static and public backups if requested (they share the same function)
     if has_backup_type "$backup_types" "static" || has_backup_type "$backup_types" "public"; then
-        print_status $GREEN "Cleaning static/public backups..."
         clean_old_backups "$days"
     fi
 
     # Clean database backups if requested
     if has_backup_type "$backup_types" "db"; then
-        print_status $GREEN "Cleaning database backups..."
         cleanup_old_db_backups "$days"
     fi
 
-    print_status $BLUE "Clean operations completed."
+    print_status $BLUE "🎉 Cleanup complete."
 }
 
 # Handle info command
@@ -335,7 +333,7 @@ create_db_backup() {
 
     # Check if database backups are enabled
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
-        log_message "Database backups disabled"
+        log_message "⚠️ Database backups disabled"
         return 0
     fi
 
@@ -344,14 +342,14 @@ create_db_backup() {
     CONTAINER_TAG=$(get_container_tag)
     DB_BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
 
-    log_message "Starting database backup: $DB_BACKUP_TAG ($APP_SPACE, container: $CONTAINER_TAG)"
+    log_message "💾 Database backup: $DB_BACKUP_TAG"
 
     # Setup log file
     LOG_DIR="/tmp/tome-log"
     mkdir -p "$LOG_DIR"
     LOGFILE="$LOG_DIR/db-backup-${TIMESTAMP}.log"
 
-    log_message "Creating database backup..." | tee -a "$LOGFILE"
+    log_message "🔄 Dumping database..." | tee -a "$LOGFILE"
 
     # Set working directory for drush
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
@@ -366,52 +364,51 @@ create_db_backup() {
     TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
 
     # Create database dump using drush
-    log_message "Creating database dump..." | tee -a "$LOGFILE"
     if command -v drush >/dev/null 2>&1; then
         # Clear cache first, then create dump to SQL file
         drush cr 2>&1 | tee -a "$LOGFILE"
         drush sql:dump --result-file="$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
         DUMP_EXIT_CODE=$?
     else
-        log_message "ERROR: drush command not found" | tee -a "$LOGFILE"
+        log_message "❌ ERROR: drush not found" | tee -a "$LOGFILE"
         return 1
     fi
 
     if [ $DUMP_EXIT_CODE -ne 0 ]; then
-        log_message "ERROR: Database dump failed with exit code: $DUMP_EXIT_CODE" | tee -a "$LOGFILE"
+        log_message "❌ ERROR: Database dump failed" | tee -a "$LOGFILE"
         return 1
     fi
 
     # Verify the SQL dump file was created and has content
     if [ ! -f "$TEMP_SQL" ] || [ ! -s "$TEMP_SQL" ]; then
-        log_message "ERROR: Database dump file was not created or is empty: $TEMP_SQL" | tee -a "$LOGFILE"
+        log_message "❌ ERROR: Database dump empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         return 1
     fi
 
     # Compress the SQL file using gzip
-    log_message "Compressing dump..." | tee -a "$LOGFILE"
+    log_message "🗜️ Compressing..." | tee -a "$LOGFILE"
     gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
     GZIP_EXIT_CODE=$?
 
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
-        log_message "ERROR: Database compression failed with exit code: $GZIP_EXIT_CODE" | tee -a "$LOGFILE"
+        log_message "❌ ERROR: Compression failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         return 1
     fi
 
     # Verify the compressed file was created
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
-        log_message "ERROR: Compressed database file was not created or is empty: $TEMP_GZIP" | tee -a "$LOGFILE"
+        log_message "❌ ERROR: Compressed file empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         return 1
     fi
 
     # Upload compressed file to S3
-    log_message "Uploading to S3..." | tee -a "$LOGFILE"
+    log_message "☁️ Uploading..." | tee -a "$LOGFILE"
 
     S3_DB_PATH="s3://${BUCKET_NAME}/${AUTO_DB_BACKUP_PATH}/${DB_BACKUP_TAG}.sql.gz"
-    log_message "Target: $S3_DB_PATH" | tee -a "$LOGFILE"
+    log_message "📍 Target: $S3_DB_PATH" | tee -a "$LOGFILE"
 
     aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
     UPLOAD_EXIT_CODE=$?
@@ -420,8 +417,8 @@ create_db_backup() {
     rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
 
     if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
-        log_message "Database backup completed successfully: $S3_DB_PATH" | tee -a "$LOGFILE"
-        print_status $GREEN "✓ Database backup created: $DB_BACKUP_TAG"
+        log_message "✅ Database backup complete: $S3_DB_PATH" | tee -a "$LOGFILE"
+        print_status $GREEN "✅ Database backup saved: $DB_BACKUP_TAG"
 
         # Upload log to S3
         if [ -f "$LOGFILE" ]; then
@@ -430,8 +427,8 @@ create_db_backup() {
 
         return 0
     else
-        log_message "ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
-        print_status $RED "✗ Database backup failed: $DB_BACKUP_TAG"
+        log_message "❌ ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
+        print_status $RED "❌ Database backup failed: $DB_BACKUP_TAG"
         return 1
     fi
 }
@@ -444,7 +441,7 @@ create_static_backup() {
     setup_s3_vars
 
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ]; then
-        log_message "Static site backups disabled"
+        log_message "⚠️ Static site backups disabled"
         return 0
     fi
 
@@ -453,13 +450,13 @@ create_static_backup() {
     CONTAINER_TAG=$(get_container_tag)
     BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
 
-    log_message "Creating static site backup: $BACKUP_TAG"
+    log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
     if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS; then
-        print_status $GREEN "✓ Static site backup created: $BACKUP_TAG"
+        print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
         return 0
     else
-        print_status $RED "✗ Static site backup failed: $BACKUP_TAG"
+        print_status $RED "❌ Static site backup failed: $BACKUP_TAG"
         return 1
     fi
 }
@@ -472,7 +469,7 @@ create_public_backup() {
     setup_s3_vars
 
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
-        log_message "Public files backups disabled"
+        log_message "⚠️ Public files backups disabled"
         return 0
     fi
 
@@ -485,36 +482,36 @@ create_public_backup() {
     PUBLIC_BACKUP_NEEDED=true
 
     if [ "$ENABLE_SMART_PUBLIC_BACKUP" = "true" ]; then
-        log_message "Checking if public files backup needed..."
+        log_message "🔍 Checking if public files backup needed..."
 
         # Find the most recent automatic public files backup
         LATEST_PUBLIC_BACKUP=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-${APP_SPACE}-" | sort -r | head -n1 | awk '{print $2}' | tr -d '/')
 
         if [ -n "$LATEST_PUBLIC_BACKUP" ]; then
-            log_message "Comparing with latest backup: $LATEST_PUBLIC_BACKUP"
+            log_message "🔄 Comparing with latest backup: $LATEST_PUBLIC_BACKUP"
 
             # Get checksums of current public files and latest backup
             CURRENT_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/cms/public/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/cms/public/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
             BACKUP_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
 
             if [ -n "$CURRENT_PUBLIC_CHECKSUM" ] && [ -n "$BACKUP_PUBLIC_CHECKSUM" ] && [ "$CURRENT_PUBLIC_CHECKSUM" = "$BACKUP_PUBLIC_CHECKSUM" ]; then
-                log_message "Public files unchanged, skipping backup"
+                log_message "⏭️ Public files unchanged, skipping backup"
                 PUBLIC_BACKUP_NEEDED=false
             fi
         fi
     fi
 
     if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
-        log_message "Creating public files backup: $BACKUP_TAG"
+        log_message "📁 Creating public files backup: $BACKUP_TAG"
         if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS $BACKUP_S3_EXTRA_PARAMS; then
-            print_status $GREEN "✓ Public files backup created: $BACKUP_TAG"
+            print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
             return 0
         else
-            print_status $RED "✗ Public files backup failed: $BACKUP_TAG"
+            print_status $RED "❌ Public files backup failed: $BACKUP_TAG"
             return 1
         fi
     else
-        print_status $YELLOW "⚠ Public files backup skipped (no changes)"
+        print_status $YELLOW "⚠️ Public files unchanged - skipped"
         return 0
     fi
 }
@@ -530,7 +527,7 @@ backup_all() {
         backup_suffix="-${custom_suffix}"
     fi
 
-    print_status $BLUE "Creating all backups..."
+    print_status $BLUE "📦 Creating all backups..."
 
     success_count=0
     total_count=0
@@ -560,11 +557,11 @@ backup_all() {
     fi
 
     if [ $success_count -eq $total_count ]; then
-        print_status $GREEN "✓ All backups completed successfully ($success_count/$total_count)"
+        print_status $GREEN "✅ All backups complete ($success_count/$total_count)"
         # Run cleanup
         cleanup_all_old_backups
     else
-        print_status $RED "✗ Some backups failed ($success_count/$total_count succeeded)"
+        print_status $RED "❌ Some backups failed ($success_count/$total_count ok)"
         return 1
     fi
 }
@@ -634,7 +631,7 @@ list_db_backups() {
             echo "  $backup_file ($backup_size bytes) - $backup_date"
         done
     else
-        print_status $RED "Error: AWS credentials not available"
+        print_status $RED "❌ Error: AWS credentials not available"
     fi
 }
 
@@ -674,24 +671,24 @@ list_all_backups() {
 
             # Check static backup
             if grep -q "^$tag$" "$static_list" 2>/dev/null; then
-                has_static="✓"
+                has_static="✅"
             else
-                has_static="✗"
+                has_static="❌"
             fi
 
             # Check public backup
             if grep -q "^$tag$" "$public_list" 2>/dev/null; then
-                has_public="✓"
+                has_public="✅"
             else
-                has_public="✗"
+                has_public="❌"
             fi
 
             # Check database backup
             db_tag="${tag}.sql.gz"
             if grep -q "^$db_tag$" "$db_list" 2>/dev/null; then
-                has_database="✓"
+                has_database="✅"
             else
-                has_database="✗"
+                has_database="❌"
             fi
 
             # Format restore command
@@ -705,7 +702,7 @@ list_all_backups() {
     rm -f "$static_list" "$public_list" "$db_list" "$all_tags" 2>/dev/null
 
     echo ""
-    print_status $YELLOW "✓ = Available    ✗ = Missing (smart fallback may apply)"
+    print_status $YELLOW "✅ = Available    ❌ = Missing (smart fallback may apply)"
 }
 
 # Function to cleanup old database backups
@@ -713,12 +710,12 @@ cleanup_old_db_backups() {
     local days=${1:-$DB_BACKUP_RETENTION_DAYS}
 
     if [ "$ENABLE_DB_AUTO_CLEANUP" != "true" ]; then
-        log_message "Database automatic cleanup is disabled"
+        log_message "⚠️ Database automatic cleanup is disabled"
         return 0
     fi
 
     setup_s3_vars
-    log_message "Cleaning up database backups older than $days days..."
+    log_message "🧹 Cleaning up database backups older than $days days..."
 
     # Calculate cutoff date
     CUTOFF_DATE=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
@@ -729,13 +726,13 @@ cleanup_old_db_backups() {
             backup_path=$(echo "$line" | awk '{print $4}')
             backup_date=$(echo "$backup_path" | grep -o "${DB_BACKUP_PREFIX}-[^-]*-[^-]*-[0-9_]*" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
             if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
-                log_message "Removing old database backup: $backup_path"
+                log_message "🗑️ Removing old database backup: $backup_path"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
             fi
         done
-        log_message "Database backup cleanup completed"
+        log_message "✅ Database backup cleanup complete"
     else
-        log_message "WARNING: Could not determine cutoff date for database backup cleanup"
+        log_message "⚠️ WARNING: Could not determine cutoff date for database backup cleanup"
     fi
 }
 
@@ -747,8 +744,8 @@ list_old_backups() {
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -z "$cutoff_date" ]; then
-        print_status $RED "Error: Date calculation not supported on this system"
-        print_status $YELLOW "Use 'list' command and manual cleanup required."
+        print_status $RED "❌ Error: Date calculation not supported on this system"
+        print_status $YELLOW "⚠️ Use 'list' command and manual cleanup required."
         exit 1
     fi
 
@@ -783,12 +780,12 @@ clean_old_backups() {
     local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
 
     if [ -z "$cutoff_date" ]; then
-        print_status $RED "Error: Date calculation not supported on this system"
-        print_status $YELLOW "Use 'list' command for manual cleanup with AWS CLI."
+        print_status $RED "❌ Error: Date calculation not supported on this system"
+        print_status $YELLOW "⚠️ Use 'list' command for manual cleanup with AWS CLI."
         exit 1
     fi
 
-    print_status $YELLOW "Removing static/public backups older than ${days} days (before ${cutoff_date})..."
+    print_status $YELLOW "🧹 Removing static/public backups older than ${days} days (before ${cutoff_date})..."
 
     # Clean static site backups
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
@@ -810,7 +807,7 @@ clean_old_backups() {
         fi
     done
 
-    print_status $GREEN "Static/public backup cleanup completed."
+    print_status $GREEN "✅ Static/public backup cleanup completed."
 }
 
 # Clean all backup types
@@ -818,12 +815,12 @@ cleanup_all_old_backups() {
     local static_days=${1:-$BACKUP_RETENTION_DAYS}
     local db_days=${2:-$DB_BACKUP_RETENTION_DAYS}
 
-    print_status $BLUE "Cleaning up all old automatic backups..."
+    print_status $BLUE "🧹 Cleaning up all old automatic backups..."
 
     clean_old_backups $static_days
     cleanup_old_db_backups $db_days
 
-    print_status $GREEN "All backup cleanup completed."
+    print_status $GREEN "✅ All backup cleanup completed."
 }
 
 # Find corresponding public backup for smart restore
@@ -945,7 +942,7 @@ parse_restore_options() {
                     restore_types="$2"
                     shift 2
                 else
-                    print_status $RED "Error: --only requires a value (e.g., --only=static,public)"
+                    print_status $RED "❌ Error: --only requires a value (e.g., --only=static,public)"
                     exit 1
                 fi
                 ;;
@@ -969,8 +966,8 @@ restore_backup() {
 
     # Parse arguments
     if [ $# -eq 0 ]; then
-        print_status $RED "Error: Backup tag is required"
-        print_status $YELLOW "Usage: restore <backup_tag> [--only=static,public,database]"
+        print_status $RED "❌ Error: Backup tag is required"
+        print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,database]"
         exit 1
     fi
 
@@ -979,7 +976,7 @@ restore_backup() {
     backup_tag=$(parse_restore_options "$@" 2>/dev/null | head -n1)
 
     if [ -z "$backup_tag" ]; then
-        print_status $RED "Error: Backup tag is required"
+        print_status $RED "❌ Error: Backup tag is required"
         exit 1
     fi
 
@@ -990,7 +987,7 @@ restore_backup() {
     restore_public=$(echo "$restore_types" | grep -q "public" && echo "yes" || echo "no")
     restore_database=$(echo "$restore_types" | grep -q "database" && echo "yes" || echo "no")
 
-    print_status $BLUE "Restore Analysis"
+    print_status $BLUE "🔄 Checking restore options"
     echo ""
 
     # Find appropriate backups for each type
@@ -1002,143 +999,132 @@ restore_backup() {
     if [ "$restore_static" = "yes" ]; then
         if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
             static_backup_tag="$backup_tag"
-            print_status $GREEN "✓ Static site backup found: $static_backup_tag"
+            print_status $GREEN "✅ Static site backup found: $static_backup_tag"
         else
-            print_status $RED "✗ Static site backup not found: $backup_tag"
+            print_status $RED "❌ Static site backup not found: $backup_tag"
             exit 1
         fi
     fi
 
     # Public files backup analysis
     if [ "$restore_public" = "yes" ]; then
-        print_status $BLUE "Analyzing public files backup options..."
         public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
 
         if [ -n "$public_backup_tag" ]; then
             if [ "$public_backup_tag" = "$backup_tag" ]; then
-                print_status $GREEN "✓ Exact public backup match: $public_backup_tag"
+                print_status $GREEN "✅ Public backup found: $public_backup_tag"
             else
-                print_status $YELLOW "⚠ No exact public backup match found"
-                print_status $GREEN "✓ Smart fallback public backup: $public_backup_tag"
+                print_status $YELLOW "⚠️ Using closest public backup: $public_backup_tag"
             fi
         else
-            print_status $YELLOW "⚠ No suitable public backup found for time period"
-            print_status $YELLOW "  Public files will remain unchanged"
+            print_status $YELLOW "⚠️ No public backup found - files will stay as-is"
         fi
     fi
 
     # Database backup analysis
     if [ "$restore_database" = "yes" ]; then
-        print_status $BLUE "Analyzing database backup options..."
         db_backup_tag=$(find_corresponding_db_backup "$backup_tag")
 
         if [ -n "$db_backup_tag" ]; then
             # Convert to expected database tag format for comparison
             expected_db_tag="${backup_tag}.sql.gz"
             if [ "$db_backup_tag" = "$expected_db_tag" ]; then
-                print_status $GREEN "✓ Exact database backup match: $db_backup_tag"
+                print_status $GREEN "✅ Database backup found: $db_backup_tag"
             else
-                print_status $YELLOW "⚠ No exact database backup match found"
-                print_status $GREEN "✓ Smart fallback database backup: $db_backup_tag"
+                print_status $YELLOW "⚠️ Using closest database backup: $db_backup_tag"
             fi
         else
-            print_status $YELLOW "⚠ No suitable database backup found for time period"
-            print_status $YELLOW "  Database will remain unchanged"
+            print_status $YELLOW "⚠️ No database backup found - database will stay as-is"
         fi
     fi
 
     echo ""
-    print_status $YELLOW "RESTORE PLAN SUMMARY"
-    print_status $YELLOW "===================="
+    print_status $YELLOW "Restore plan:"
 
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
-        echo "Static Site:   $static_backup_tag"
+        echo "Static site:   $static_backup_tag"
     fi
     if [ "$restore_public" = "yes" ]; then
         if [ -n "$public_backup_tag" ]; then
-            echo "Public Files:  $public_backup_tag"
+            echo "Public files:  $public_backup_tag"
         else
-            echo "Public Files:  SKIP (no backup found)"
+            echo "Public files:  skip (no backup)"
         fi
     fi
     if [ "$restore_database" = "yes" ]; then
         if [ -n "$db_backup_tag" ]; then
             echo "Database:      $db_backup_tag"
         else
-            echo "Database:      SKIP (no backup found)"
+            echo "Database:      skip (no backup)"
         fi
     fi
 
     echo ""
-    print_status $RED "WARNING: This will overwrite current data!"
-    print_status $YELLOW "Are you sure you want to proceed with this restore? (y/N)"
+    print_status $RED "This will overwrite current data!"
+    printf "Continue with restore? (y/N): "
     read -r confirmation
 
     if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "Restore cancelled."
+        print_status $GREEN "❌ Cancelled."
         exit 0
     fi
 
     echo ""
-    print_status $BLUE "EXECUTING RESTORE"
-    print_status $BLUE "================="
+    print_status $BLUE "🔄 Restoring..."
 
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
-        print_status $YELLOW "Restoring static site from: $static_backup_tag"
+        print_status $YELLOW "🔄 Restoring static site..."
         if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
-            print_status $GREEN "✓ Static site restore completed successfully"
+            print_status $GREEN "✅ Static site restored"
         else
-            print_status $RED "✗ ERROR: Static site restore failed"
+            print_status $RED "❌ ERROR: Static site restore failed"
             exit 1
         fi
     fi
 
     # Restore public files
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
-        print_status $YELLOW "Restoring public files from: $public_backup_tag"
+        print_status $YELLOW "🔄 Restoring public files..."
         if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
-            print_status $GREEN "✓ Public files restore completed successfully"
+            print_status $GREEN "✅ Public files restored"
         else
-            print_status $RED "✗ ERROR: Public files restore failed"
+            print_status $RED "❌ ERROR: Public files restore failed"
             exit 1
         fi
     fi
 
     # Restore database
     if [ "$restore_database" = "yes" ] && [ -n "$db_backup_tag" ]; then
-        print_status $YELLOW "Restoring database from: $db_backup_tag"
+        print_status $YELLOW "🔄 Restoring database..."
 
         # Download and restore database backup
         temp_db_file="/tmp/restore_db_$$.sql.gz"
         temp_sql_file="/tmp/restore_db_$$.sql"
 
-        print_status $BLUE "Downloading database backup..."
         if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
-            print_status $BLUE "Decompressing database backup..."
             if gunzip "$temp_db_file" 2>/dev/null; then
-                print_status $BLUE "Importing database..."
                 if command -v drush >/dev/null 2>&1; then
                     # Use drush for database import
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
-                        print_status $GREEN "✓ Database restore completed successfully"
+                        print_status $GREEN "✅ Database restored"
                     else
-                        print_status $RED "✗ ERROR: Database import failed"
+                        print_status $RED "❌ ERROR: Database import failed"
                         rm -f "$temp_sql_file" 2>/dev/null
                         exit 1
                     fi
                 else
-                    print_status $RED "✗ ERROR: drush command not available for database restore"
+                    print_status $RED "❌ ERROR: Drush not available for database restore"
                     rm -f "$temp_sql_file" 2>/dev/null
                     exit 1
                 fi
             else
-                print_status $RED "✗ ERROR: Failed to decompress database backup"
+                print_status $RED "❌ ERROR: Failed to decompress database backup"
                 rm -f "$temp_db_file" 2>/dev/null
                 exit 1
             fi
         else
-            print_status $RED "✗ ERROR: Failed to download database backup"
+            print_status $RED "❌ ERROR: Failed to download database backup"
             exit 1
         fi
 
@@ -1147,7 +1133,7 @@ restore_backup() {
     fi
 
     echo ""
-    print_status $GREEN "🎉 UNIFIED RESTORE COMPLETED SUCCESSFULLY!"
+    print_status $GREEN "🎉 Restore complete!"
 
     # Summary of what was restored
     restored_items=""
