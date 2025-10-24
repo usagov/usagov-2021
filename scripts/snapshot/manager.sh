@@ -829,14 +829,6 @@ clean_old_backups() {
 
     print_status $GREEN "✅ Static/public backup cleanup completed."
 }
-        if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
-            print_status $YELLOW "Removing public files backup: $backup_name"
-            aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
-        fi
-    done
-
-    print_status $GREEN "✅ Static/public backup cleanup completed."
-}
 
 # Clean all backup types
 cleanup_all_old_backups() {
