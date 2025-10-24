@@ -32,7 +32,7 @@ show_usage() {
     echo "Main Commands:"
     echo "  list [types] [days]                    List backups (default: all types, 30 days)"
     echo "  backup [types] [prefix] [suffix]       Create backups (default: all types, AUTO prefix, empty suffix)"
-    echo "  clean [types] [days]                   Remove old backups (default: all types, 30 days)"
+    echo "  clean [types] [days|all|0]             Remove old backups (default: all types, 30 days)"
     echo "  restore <tag> [--only=type,type]       Restore backups (unchanged)"
     echo "  info [types] <tag>                     Show backup details (default: all types)"
     echo ""
@@ -47,6 +47,11 @@ show_usage() {
     echo "  prefix                   Custom prefix (replaces AUTO, e.g., USAGOV-123)"
     echo "  suffix                   Custom suffix (e.g., post-deploy, pre-update)"
     echo ""
+    echo "Backup Tag Format:"
+    echo "  PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY[-SUFFIX]"
+    echo "  Example: AUTO-dev-cf-a1b2c3-Oct-24-25"
+    echo "  Example: USAGOV-123-prod-cf-d4e5f6-Oct-24-25-post-deploy"
+    echo ""
     echo "Examples:"
     echo "  $0 list                                # List all backups from last 30 days"
     echo "  $0 list static,db                      # List static and database backups"
@@ -58,6 +63,8 @@ show_usage() {
     echo "  $0 backup db USAGOV-456 pre-update     # Database backup with custom tags"
     echo "  $0 clean                               # Clean all old backups (30 days)"
     echo "  $0 clean static 7                      # Clean static backups older than 7 days"
+    echo "  $0 clean all 0                         # ⚠️  DELETE ALL backups (requires 'DELETE ALL' confirmation)"
+    echo "  $0 clean all all                       # ⚠️  DELETE ALL backups (same as clean all 0)"
     echo "  $0 info static USAGOV-123-dev-abc123-2024_03_15_14_30_00-post-deploy"
     echo "  $0 restore USAGOV-123-dev-abc123-2024_03_15_14_30_00-post-deploy --only=static,db"
 }
@@ -114,6 +121,9 @@ run_backup_command() {
         backup_suffix="-${custom_suffix}"
     fi
 
+    # Generate single timestamp for this backup event (format: Oct-24-25)
+    local backup_timestamp=$(date +"%b-%d-%y")
+
     print_status $BLUE "📦 Creating backup: $backup_types"
     if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
         print_status $YELLOW "Prefix: $backup_prefix"
@@ -121,23 +131,24 @@ run_backup_command() {
     if [ -n "$backup_suffix" ]; then
         print_status $YELLOW "Suffix: $custom_suffix"
     fi
+    print_status $YELLOW "Timestamp: $backup_timestamp"
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
         print_status $GREEN "🌐 Backing up static site..."
-        create_static_backup "$backup_prefix" "$backup_suffix"
+        create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
     fi
 
     # Run public backup if requested
     if has_backup_type "$backup_types" "public"; then
         print_status $GREEN "📁 Backing up public files..."
-        create_public_backup "$backup_prefix" "$backup_suffix"
+        create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
     fi
 
     # Run database backup if requested
     if has_backup_type "$backup_types" "db"; then
         print_status $GREEN "💾 Backing up database..."
-        create_db_backup "$backup_prefix" "$backup_suffix"
+        create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
     fi
 
     print_status $BLUE "🎉 Done."
@@ -149,18 +160,48 @@ run_clean_command() {
     local days_arg="${2:-30}"
 
     local backup_types=$(parse_backup_types "$types_arg")
-    local days=$(get_days_arg "$days_arg" "30")
 
-    print_status $YELLOW "⚠️ This will delete $backup_types backups older than $days days"
-    printf "Continue? [y/N]: "
-    read -r confirm
-
-    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-        print_status $RED "❌ Cancelled."
-        return 1
+    # Handle special "all" keyword or 0 to delete everything
+    local days
+    local delete_all=false
+    if [ "$days_arg" = "all" ] || [ "$days_arg" = "0" ]; then
+        days=0
+        delete_all=true
+    else
+        days=$(get_days_arg "$days_arg" "30")
     fi
 
-    print_status $BLUE "🧹 Cleaning up old backups..."
+    # Show appropriate warning based on scope
+    if [ "$delete_all" = "true" ]; then
+        echo ""
+        print_status $RED "╔════════════════════════════════════════════════════════════════╗"
+        print_status $RED "║                    ⚠️  DANGER ZONE  ⚠️                         ║"
+        print_status $RED "║                                                                ║"
+        print_status $RED "║  This will DELETE ALL $backup_types backups                    ║"
+        print_status $RED "║  regardless of age!                                            ║"
+        print_status $RED "║                                                                ║"
+        print_status $RED "║  THIS ACTION CANNOT BE UNDONE!                                 ║"
+        print_status $RED "╚════════════════════════════════════════════════════════════════╝"
+        echo ""
+        printf "Type 'DELETE ALL' to confirm (or anything else to cancel): "
+        read -r confirm
+
+        if [ "$confirm" != "DELETE ALL" ]; then
+            print_status $GREEN "✅ Cancelled. No backups were deleted."
+            return 1
+        fi
+    else
+        print_status $YELLOW "⚠️ This will delete $backup_types backups older than $days days"
+        printf "Continue? [y/N]: "
+        read -r confirm
+
+        if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+            print_status $RED "❌ Cancelled."
+            return 1
+        fi
+    fi
+
+    print_status $BLUE "🧹 Cleaning up backups..."
 
     # Clean static and public backups if requested (they share the same function)
     if has_backup_type "$backup_types" "static" || has_backup_type "$backup_types" "public"; then
@@ -227,6 +268,7 @@ run_info_command() {
 create_db_backup() {
     local custom_prefix="${1:-$DB_BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
+    local backup_timestamp="${3:-$(date +"%b-%d-%y")}"
 
     setup_s3_vars || exit 1
 
@@ -237,16 +279,15 @@ create_db_backup() {
     fi
 
     # Generate backup tag with timestamp and container tag
-    TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
     CONTAINER_TAG=$(get_container_tag)
-    DB_BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
+    DB_BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}${backup_suffix}"
 
     log_message "💾 Database backup: $DB_BACKUP_TAG"
 
     # Setup log file
     LOG_DIR="/tmp/tome-log"
     mkdir -p "$LOG_DIR"
-    LOGFILE="$LOG_DIR/db-backup-${TIMESTAMP}.log"
+    LOGFILE="$LOG_DIR/db-backup-${backup_timestamp}.log"
 
     log_message "🔄 Dumping database..." | tee -a "$LOGFILE"
 
@@ -342,6 +383,7 @@ create_db_backup() {
 create_static_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
+    local backup_timestamp="${3:-$(date +"%b-%d-%y")}"
 
     setup_s3_vars || exit 1
 
@@ -351,9 +393,8 @@ create_static_backup() {
     fi
 
     # Generate backup tag
-    TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
     CONTAINER_TAG=$(get_container_tag)
-    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
+    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}${backup_suffix}"
 
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
@@ -371,6 +412,7 @@ create_static_backup() {
 create_public_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
+    local backup_timestamp="${3:-$(date +"%b-%d-%y")}"
 
     setup_s3_vars || exit 1
 
@@ -380,9 +422,8 @@ create_public_backup() {
     fi
 
     # Generate backup tag
-    TIMESTAMP=$(date +"%Y_%m_%d_%H_%M_%S")
     CONTAINER_TAG=$(get_container_tag)
-    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${TIMESTAMP}${backup_suffix}"
+    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}${backup_suffix}"
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true
@@ -434,6 +475,9 @@ backup_all() {
         backup_suffix="-${custom_suffix}"
     fi
 
+    # Generate single timestamp for this backup event (format: Oct-24-25)
+    local backup_timestamp=$(date +"%b-%d-%y")
+
     print_status $BLUE "📦 Creating all backups..."
 
     success_count=0
@@ -442,7 +486,7 @@ backup_all() {
     # Create static backup
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" = "true" ]; then
         total_count=$((total_count + 1))
-        if create_static_backup "$custom_prefix" "$backup_suffix"; then
+        if create_static_backup "$custom_prefix" "$backup_suffix" "$backup_timestamp"; then
             success_count=$((success_count + 1))
         fi
     fi
@@ -450,7 +494,7 @@ backup_all() {
     # Create public backup
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" = "true" ]; then
         total_count=$((total_count + 1))
-        if create_public_backup "$custom_prefix" "$backup_suffix"; then
+        if create_public_backup "$custom_prefix" "$backup_suffix" "$backup_timestamp"; then
             success_count=$((success_count + 1))
         fi
     fi
@@ -458,7 +502,7 @@ backup_all() {
     # Create database backup
     if [ "$ENABLE_DB_BACKUPS" = "true" ]; then
         total_count=$((total_count + 1))
-        if create_db_backup "$custom_prefix" "$backup_suffix"; then
+        if create_db_backup "$custom_prefix" "$backup_suffix" "$backup_timestamp"; then
             success_count=$((success_count + 1))
         fi
     fi
@@ -622,19 +666,46 @@ cleanup_old_db_backups() {
     fi
 
     setup_s3_vars || exit 1
+
+    # Special handling for deleting ALL database backups (days=0)
+    if [ "$days" = "0" ]; then
+        log_message "🧹 Removing ALL database backups..."
+
+        # Delete ALL database backups (any prefix)
+        aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
+            backup_path=$(echo "$line" | awk '{print $4}')
+            if [ -n "$backup_path" ]; then
+                log_message "🗑️ Removing database backup: $backup_path"
+                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
+            fi
+        done
+        log_message "✅ All database backups removed"
+        return 0
+    fi
+
+    # Normal date-based cleanup - calculate cutoff date as epoch timestamp
     log_message "🧹 Cleaning up database backups older than $days days..."
 
-    # Calculate cutoff date
-    CUTOFF_DATE=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
+    cutoff_epoch=$(date -u -d "${days} days ago" '+%s' 2>/dev/null || date -u -v-${days}d '+%s' 2>/dev/null)
 
-    if [ -n "$CUTOFF_DATE" ]; then
-        # List and delete old database backups
-        aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | while read -r line; do
+    if [ -n "$cutoff_epoch" ]; then
+        cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+        log_message "Cutoff date: $cutoff_display"
+
+        # List and delete old database backups (any prefix)
+        aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
             backup_path=$(echo "$line" | awk '{print $4}')
-            backup_date=$(echo "$backup_path" | grep -o "${DB_BACKUP_PREFIX}-[^-]*-[^-]*-[0-9_]*" | sed 's/.*-\([0-9_]*\).*/\1/' | cut -c 1-10)
-            if [ -n "$backup_date" ] && [ "$backup_date" \< "$CUTOFF_DATE" ]; then
-                log_message "🗑️ Removing old database backup: $backup_path"
-                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
+            # Extract date from backup filename (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz or PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY-SUFFIX.sql.gz)
+            backup_date=$(echo "$backup_path" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+
+            if [ -n "$backup_date" ]; then
+                # Convert backup date to epoch for comparison
+                backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+
+                if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
+                    log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
+                    aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
+                fi
             fi
         done
         log_message "✅ Database backup cleanup complete"
@@ -684,30 +755,80 @@ clean_old_backups() {
     local days=${1:-7}
     setup_s3_vars || exit 1
 
-    local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
+    # Special handling for deleting ALL backups (days=0)
+    if [ "$days" = "0" ]; then
+        print_status $YELLOW "🧹 Removing ALL static/public backups..."
 
-    if [ -z "$cutoff_date" ]; then
+        # Clean ALL static site backups (any prefix)
+        aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
+            backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
+            if [ -n "$backup_name" ]; then
+                print_status $YELLOW "Removing static site backup: $backup_name"
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+            fi
+        done
+
+        # Clean ALL public files backups (any prefix)
+        aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
+            backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
+            if [ -n "$backup_name" ]; then
+                print_status $YELLOW "Removing public files backup: $backup_name"
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+            fi
+        done
+
+        print_status $GREEN "✅ All static/public backups removed."
+        return 0
+    fi
+
+    # Normal date-based cleanup - calculate cutoff date as epoch timestamp
+    cutoff_epoch=$(date -u -d "${days} days ago" '+%s' 2>/dev/null || date -u -v-${days}d '+%s' 2>/dev/null)
+
+    if [ -z "$cutoff_epoch" ]; then
         print_status $RED "❌ Error: Date calculation not supported on this system"
         print_status $YELLOW "⚠️ Use 'list' command for manual cleanup with AWS CLI."
         exit 1
     fi
 
-    print_status $YELLOW "🧹 Removing static/public backups older than ${days} days (before ${cutoff_date})..."
+    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+    print_status $YELLOW "🧹 Removing static/public backups older than ${days} days (before ${cutoff_display})..."
 
-    # Clean static site backups
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
+    # Clean static site backups (any prefix)
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -o '[0-9_]*$' | head -c 10)
-        if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
-            print_status $YELLOW "Removing static site backup: $backup_name"
-            aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+        # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY-SUFFIX or PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY)
+        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+
+        if [ -n "$backup_date" ]; then
+            # Convert backup date to epoch for comparison
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
+                print_status $YELLOW "Removing static site backup: $backup_name (date: $backup_date)"
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+            fi
         fi
     done
 
-    # Clean public files backups
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
+    # Clean public files backups (any prefix)
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -o '[0-9_]*$' | head -c 10)
+        # Extract date from backup name
+        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+
+        if [ -n "$backup_date" ]; then
+            # Convert backup date to epoch for comparison
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
+                print_status $YELLOW "Removing public files backup: $backup_name (date: $backup_date)"
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+            fi
+        fi
+    done
+
+    print_status $GREEN "✅ Static/public backup cleanup completed."
+}
         if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
             print_status $YELLOW "Removing public files backup: $backup_name"
             aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
