@@ -115,16 +115,20 @@ test_cron_command() {
     # Cron format: minute hour day month weekday command
     JUST_COMMAND=$(echo "$CRON_CMD" | awk '{for(i=6;i<=NF;i++) printf "%s ", $i; print ""}')
 
+    # Strip output redirects for testing so we can see errors
+    JUST_COMMAND=$(echo "$JUST_COMMAND" | sed 's/ *>[^ ]* *2>&1 *$//' | sed 's/ *2>&1 *$//')
+
     print_status $YELLOW "Executing cron command in minimal environment..."
     print_status $BLUE "Command: $JUST_COMMAND"
     echo ""
 
     # Execute the command in a minimal environment similar to cron
     # Cron typically has minimal PATH and environment variables
+    # But we need to include /var/www/vendor/bin for drush
     env -i \
         HOME="$HOME" \
         SHELL=/bin/sh \
-        PATH=/usr/local/bin:/usr/bin:/bin \
+        PATH=/var/www/vendor/bin:/usr/local/bin:/usr/bin:/bin \
         USER="$USER" \
         sh -c "$JUST_COMMAND"
 
