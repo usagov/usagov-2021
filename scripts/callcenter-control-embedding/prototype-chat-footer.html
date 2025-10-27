@@ -1,0 +1,38 @@
+<script>
+	function launchChat_00Dco000003abqX() {
+		embeddedservice_bootstrap.utilAPI.launchChat()
+		.then(() => {
+			console.log(
+				'Inside Launch Chat'
+			);
+		}).catch(() => {
+			console.log(
+				'Inside Launch Chat catch Block'
+			);
+		}).finally(() => {
+			console.log(
+				'Inside Launch Chat finally Block'
+			);
+		});
+		}
+</script>
+<script type='text/javascript'>
+	function initEmbeddedMessaging() {
+		try {
+			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+			console.log('Loading Embedded Messaging...');
+			embeddedservice_bootstrap.init(
+				'00Dco000003abqX',
+				'FCIC_USA_gov_MIAW_Embedded_Service_Deployment',
+				'https://gsa-peo--peodv4dvn.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1758768682881',
+				{
+					scrt2URL: 'https://gsa-peo--peodv4dvn.sandbox.my.salesforce-scrt.com'
+				}
+			);
+			console.log('Loaded Embedded Messaging');
+		} catch (err) {
+			console.error('Error loading Embedded Messaging: ', err);
+		}
+	};
+</script>
+<script type='text/javascript' src='https://gsa-peo--peodv4dvn.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1758768682881/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
