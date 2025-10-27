@@ -123,13 +123,15 @@ test_cron_command() {
     echo ""
 
     # Execute the command in a minimal environment similar to cron
-    # Cron typically has minimal PATH and environment variables
+    # Cron in Cloud Foundry has access to VCAP_* environment variables
     # But we need to include /var/www/vendor/bin for drush
     env -i \
         HOME="$HOME" \
         SHELL=/bin/sh \
         PATH=/var/www/vendor/bin:/usr/local/bin:/usr/bin:/bin \
         USER="$USER" \
+        VCAP_SERVICES="$VCAP_SERVICES" \
+        VCAP_APPLICATION="$VCAP_APPLICATION" \
         sh -c "$JUST_COMMAND"
 
     EXIT_CODE=$?
