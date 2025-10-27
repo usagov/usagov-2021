@@ -598,17 +598,19 @@ list_all_backups() {
     db_list="/tmp/db_backups_$$"
 
     # Get all backup lists (don't filter by prefix to show all backups including manual ones)
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort -r > "$static_list" 2>/dev/null
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort -r > "$public_list" 2>/dev/null
-    aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} | sort -r > "$db_list" 2>/dev/null
+    # Sort in chronological order (oldest first, newest last)
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort > "$static_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort > "$public_list" 2>/dev/null
+    aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} | sort > "$db_list" 2>/dev/null
 
     # Create unified list of all backup tags (timestamps)
+    # Sort in chronological order (oldest first, newest last)
     all_tags="/tmp/all_backup_tags_$$"
     (
         cat "$static_list" 2>/dev/null
         cat "$public_list" 2>/dev/null
         cat "$db_list" 2>/dev/null | sed 's/\.sql\.gz$//'
-    ) | sort -ru > "$all_tags"
+    ) | sort -u > "$all_tags"
 
     printf "%-32s %-8s %-8s %-8s %s\n" "BACKUP TAG" "STATIC" "PUBLIC" "DATABASE" "RESTORE COMMAND"
     printf "%-32s %-8s %-8s %-8s %s\n" "$(printf '%*s' 32 '' | tr ' ' '-')" "$(printf '%*s' 8 '' | tr ' ' '-')" "$(printf '%*s' 8 '' | tr ' ' '-')" "$(printf '%*s' 8 '' | tr ' ' '-')" "$(printf '%*s' 20 '' | tr ' ' '-')"
