@@ -51,6 +51,11 @@ init_backup_system() {
         exit 1
     fi
 
+    # Add vendor/bin to PATH for drush and other tools
+    if [ -d "$PROJECT_ROOT/vendor/bin" ]; then
+        export PATH="$PROJECT_ROOT/vendor/bin:$PATH"
+    fi
+
     # Export for use by other scripts
     export PROJECT_ROOT BACKUP_DIR CONFIG_FILE
 }
