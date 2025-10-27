@@ -21,7 +21,7 @@ show_usage() {
     echo "  setup       Setup database backup cron job"
     echo "  remove      Remove backup cron jobs"
     echo "  status      Show current cron jobs"
-    echo "  test        Test the backup system"
+    echo "  test        Test the exact cron command (simulates cron environment)"
     echo ""
 }
 
@@ -86,26 +86,59 @@ show_status() {
     echo "  Backup time: $DB_BACKUP_TIME EST"
 }
 
-test_backup() {
-    print_status $YELLOW "Testing automatic backup manager..."
+test_cron_command() {
+    print_status $YELLOW "Testing cron command execution..."
+    print_status $BLUE "This simulates the exact environment and command that cron will use"
+    echo ""
 
-    if [ ! -x "$BACKUP_DIR/manager.sh" ]; then
-        print_status $RED "Error: manager.sh not found or not executable at $BACKUP_DIR"
-        exit 1
+    # Determine working directory (same as setup_cron)
+    CRON_WORK_DIR="/var/www"
+    if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
+        CRON_WORK_DIR="/var/www"
+    else
+        CRON_WORK_DIR="$PROJECT_ROOT"
     fi
 
-    print_status $GREEN "✅ Automatic backup manager found"
+    # Get the actual cron command
+    CRON_CMD=$(crontab -l 2>/dev/null | grep "snapshot/manager.sh backup db" | grep -v "^#")
 
-    # Test database backup
-    print_status $YELLOW "Testing database backup..."
-    if "$BACKUP_DIR/manager.sh" backup db; then
-        print_status $GREEN "✅ Database backup test successful"
-    else
-        print_status $RED "❌ Database backup test failed"
+    if [ -z "$CRON_CMD" ]; then
+        print_status $RED "❌ No cron job found! Run 'setup-cron.sh setup' first."
         return 1
     fi
 
-    print_status $GREEN "🎉 All tests passed!"
+    print_status $GREEN "Found cron job:"
+    echo "  $CRON_CMD"
+    echo ""
+
+    # Extract just the command part (everything after the time fields)
+    # Cron format: minute hour day month weekday command
+    JUST_COMMAND=$(echo "$CRON_CMD" | awk '{for(i=6;i<=NF;i++) printf "%s ", $i; print ""}')
+
+    print_status $YELLOW "Executing cron command in minimal environment..."
+    print_status $BLUE "Command: $JUST_COMMAND"
+    echo ""
+
+    # Execute the command in a minimal environment similar to cron
+    # Cron typically has minimal PATH and environment variables
+    env -i \
+        HOME="$HOME" \
+        SHELL=/bin/sh \
+        PATH=/usr/local/bin:/usr/bin:/bin \
+        USER="$USER" \
+        sh -c "$JUST_COMMAND"
+
+    EXIT_CODE=$?
+
+    echo ""
+    if [ $EXIT_CODE -eq 0 ]; then
+        print_status $GREEN "✅ Cron command test successful!"
+        print_status $GREEN "The automated backup should work when cron triggers it."
+    else
+        print_status $RED "❌ Cron command test failed with exit code: $EXIT_CODE"
+        print_status $YELLOW "Check the output above for errors."
+        return 1
+    fi
 }
 
 # Parse command
@@ -122,7 +155,7 @@ case $COMMAND in
         show_status
         ;;
     test)
-        test_backup
+        test_cron_command
         ;;
     help|--help|-h)
         show_usage
