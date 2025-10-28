@@ -1,26 +1,17 @@
-<script>
-	function launchChat_00Dco000003abqX() {
+<script type='text/javascript'>
+	function launchChat() {
 		embeddedservice_bootstrap.utilAPI.launchChat()
-		.then(() => {
-			console.log(
-				'Inside Launch Chat'
-			);
-		}).catch(() => {
-			console.log(
-				'Inside Launch Chat catch Block'
-			);
-		}).finally(() => {
-			console.log(
-				'Inside Launch Chat finally Block'
+		.catch((err) => {
+			console.error(
+				'Launch Chat failed: ', err
 			);
 		});
-		}
-</script>
-<script type='text/javascript'>
+	}
+
 	function initEmbeddedMessaging() {
 		try {
+			embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
 			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
-			console.log('Loading Embedded Messaging...');
 			embeddedservice_bootstrap.init(
 				'00Dco000003abqX',
 				'FCIC_USA_gov_MIAW_Embedded_Service_Deployment',
@@ -29,10 +20,44 @@
 					scrt2URL: 'https://gsa-peo--peodv4dvn.sandbox.my.salesforce-scrt.com'
 				}
 			);
-			console.log('Loaded Embedded Messaging');
 		} catch (err) {
 			console.error('Error loading Embedded Messaging: ', err);
 		}
 	};
+
+	function updateChatVisibility() {
+		var openElement = document.getElementById("liveagent_button_online");
+		var closedElement = document.getElementById("liveagent_button_offline");
+		if (!openElement || !closedElement) return;
+
+		// Get current time in Eastern Time (handles EDT/EST automatically)
+		var now = new Date();
+		var easternTime = new Date(
+			now.toLocaleString("en-US", { timeZone: "America/New_York" })
+		);
+		var hours = easternTime.getHours();
+
+		// Visible between 8 AM (08:00) and 5 PM (17:00)
+		var isOpen = hours >= 8 && hours < 17;
+
+		// Toggle visibility
+		openElement.style.display = isOpen ? "block" : "none";
+		closedElement.style.display = isOpen ? "none" : "block";
+	}
+
+	function chatPageInit() {
+		try {
+			initEmbeddedMessaging();
+		} catch (err) {
+			console.error('Error initializing Embedded Messaging: ', err);
+		}
+
+		try {
+			updateChatVisibility();
+		} catch (err) {
+			console.error('Error updating chat visibility: ', err);
+		}
+}
 </script>
-<script type='text/javascript' src='https://gsa-peo--peodv4dvn.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1758768682881/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+
+<script type='text/javascript' src='https://gsa-peo--peodv4dvn.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1758768682881/assets/js/bootstrap.min.js' onload='chatPageInit()'></script>
