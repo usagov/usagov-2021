@@ -129,7 +129,7 @@ ENV BUILD_ENV=${BUILD_ENV:-none}
 # Users and dependencies.
 # Note: we used to use adduser and addgroup to set up the nginx user (if not already present).
 #       alpine linux adduser/addgroup don't accept numbers over 256000 so now we update
-#       /etc/passwd and /etc/group directly; see 
+#       /etc/passwd and /etc/group directly; see
 #       https://stackoverflow.com/questions/41807026/cant-add-a-user-with-a-high-uid-in-docker-alpine
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
@@ -289,7 +289,13 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
-    && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
+    && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh \
+    && echo '#!/bin/sh' > /etc/profile.d/setup-cron.sh \
+    && echo '# Auto-setup database backup cron job on container start' >> /etc/profile.d/setup-cron.sh \
+    && echo 'if [ -f /var/www/scripts/snapshot/setup-cron.sh ]; then' >> /etc/profile.d/setup-cron.sh \
+    && echo '    /var/www/scripts/snapshot/setup-cron.sh setup >/dev/null 2>&1' >> /etc/profile.d/setup-cron.sh \
+    && echo 'fi' >> /etc/profile.d/setup-cron.sh \
+    && chmod +x /etc/profile.d/setup-cron.sh
 
 RUN if pgrep nginx; then pkill nginx; fi
 
