@@ -208,6 +208,16 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
 
     drush cr
     drush updatedb --no-cache-clear -y
+    
+    # USAGOV-1685: Ensure config_pages module is enabled before config import
+    echo "Checking if config_pages module needs to be enabled..."
+    if ! drush pm:list --status=enabled --format=list | grep -q "^config_pages$"; then
+        echo "Enabling config_pages module..."
+        drush pm:enable config_pages -y
+    else
+        echo "config_pages module is already enabled"
+    fi
+    
     drush cim -y || drush cim -y
     drush cim -y
     echo "Notice: If a TXNDATA error is seen above this line, we believe it is likely NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
