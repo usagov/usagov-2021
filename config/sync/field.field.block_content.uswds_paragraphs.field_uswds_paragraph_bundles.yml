@@ -1,0 +1,96 @@
+uuid: 85cc45e3-2cda-4c95-b54e-da405083ef54
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.uswds_paragraphs
+    - field.storage.block_content.field_uswds_paragraph_bundles
+    - paragraphs.paragraphs_type.uswds_accordion
+    - paragraphs.paragraphs_type.uswds_alert
+    - paragraphs.paragraphs_type.uswds_card_group_flag
+    - paragraphs.paragraphs_type.uswds_card_group_regular
+    - paragraphs.paragraphs_type.uswds_column_equal_size
+    - paragraphs.paragraphs_type.uswds_columns_2_uneven
+    - paragraphs.paragraphs_type.uswds_columns_3_uneven
+    - paragraphs.paragraphs_type.uswds_process_list
+    - paragraphs.paragraphs_type.uswds_step_indicator_list
+    - paragraphs.paragraphs_type.uswds_summary_box
+  module:
+    - entity_reference_revisions
+_core:
+  default_config_hash: D7f1lgFUItVBVBJukp-4HB1OHify1lvqZRiseJCPoaw
+id: block_content.uswds_paragraphs.field_uswds_paragraph_bundles
+field_name: field_uswds_paragraph_bundles
+entity_type: block_content
+bundle: uswds_paragraphs
+label: 'USWDS Paragraph Bundles'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      uswds_accordion: uswds_accordion
+      uswds_alert: uswds_alert
+      uswds_card_group_flag: uswds_card_group_flag
+      uswds_card_group_regular: uswds_card_group_regular
+      uswds_columns_2_uneven: uswds_columns_2_uneven
+      uswds_columns_3_uneven: uswds_columns_3_uneven
+      uswds_column_equal_size: uswds_column_equal_size
+      uswds_process_list: uswds_process_list
+      uswds_step_indicator_list: uswds_step_indicator_list
+      uswds_summary_box: uswds_summary_box
+    negate: 0
+    target_bundles_drag_drop:
+      text_field:
+        weight: 8
+        enabled: false
+      uswds_accordion:
+        weight: 9
+        enabled: true
+      uswds_accordion_section:
+        weight: 11
+        enabled: false
+      uswds_alert:
+        weight: 10
+        enabled: true
+      uswds_card_group_flag:
+        weight: 12
+        enabled: true
+      uswds_card_group_regular:
+        weight: 13
+        enabled: true
+      uswds_card_regular:
+        weight: 14
+        enabled: false
+      uswds_cards_flag:
+        weight: 15
+        enabled: false
+      uswds_column_equal_size:
+        weight: 27
+        enabled: true
+      uswds_columns_2_uneven:
+        weight: 25
+        enabled: true
+      uswds_columns_3_uneven:
+        weight: 26
+        enabled: true
+      uswds_process_item:
+        weight: 28
+        enabled: false
+      uswds_process_list:
+        weight: 29
+        enabled: true
+      uswds_step_indicator_item:
+        weight: 30
+        enabled: false
+      uswds_step_indicator_list:
+        weight: 31
+        enabled: true
+      uswds_summary_box:
+        weight: 32
+        enabled: true
+field_type: entity_reference_revisions
