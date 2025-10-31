@@ -5,8 +5,6 @@
  * Install, update and uninstall functions for the USAGov Extra Functions module.
  */
 
-use Drupal\block_content\Entity\BlockContent;
-
 /**
  * Delete site_banner block content entities before converting to config_pages.
  */
