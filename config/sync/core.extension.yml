@@ -108,6 +108,7 @@ module:
   usagov_blog_date_menu: 0
   usagov_ckeditor5_source_editing_fixup: 0
   usagov_directories: 0
+  usagov_extra_functions: 0
   usagov_login: 0
   usagov_menus: 0
   usagov_redirect: 0

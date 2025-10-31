@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the USAGov Extra Functions module.
+ */
+
+use Drupal\block_content\Entity\BlockContent;
+
+/**
+ * Delete site_banner block content entities before converting to config_pages.
+ */
+function usagov_extra_functions_update_10001() {
+  // Load all site_banner block content entities.
+  $storage = \Drupal::entityTypeManager()->getStorage('block_content');
+  $query = $storage->getQuery()
+    ->condition('type', 'site_banner')
+    ->accessCheck(FALSE);
+  $entity_ids = $query->execute();
+
+  if (!empty($entity_ids)) {
+    $entities = $storage->loadMultiple($entity_ids);
+    foreach ($entities as $entity) {
+      $entity->delete();
+    }
+    \Drupal::logger('usagov_extra_functions')->notice('Deleted @count site_banner block content entities.', ['@count' => count($entity_ids)]);
+    return t('Deleted @count site_banner block content entities.', ['@count' => count($entity_ids)]);
+  }
+
+  return t('No site_banner block content entities found to delete.');
+}
