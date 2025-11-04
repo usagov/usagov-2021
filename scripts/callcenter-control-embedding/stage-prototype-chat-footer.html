@@ -12,13 +12,13 @@
 		try {
 			embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
 			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
-			embeddedservice_bootstrap.init(
-				'00Dco000003abqX',
-				'FCIC_USA_gov_MIAW_Embedded_Service_Deployment',
-				'https://gsa-peo--peodv4dvn.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1758768682881',
-				{
-					scrt2URL: 'https://gsa-peo--peodv4dvn.sandbox.my.salesforce-scrt.com'
-				}
+            embeddedservice_bootstrap.init(
+                '00Dcq0000036273',
+                'FCIC_USA_gov_MIAW_Embedded_Service_Deployment',
+                'https://gsa-peo--peofl3qap.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1761939112933',
+                {
+                    scrt2URL: 'https://gsa-peo--peofl3qap.sandbox.my.salesforce-scrt.com'
+                }
 			);
 		} catch (err) {
 			console.error('Error loading Embedded Messaging: ', err);
@@ -37,8 +37,8 @@
 		);
 		var hours = easternTime.getHours();
 
-		// Visible between 8 AM (08:00) and 5 PM (17:00)
-		var isOpen = hours >= 8 && hours < 17;
+		// Visible between 8 AM (08:00) and 8 PM (20:00)
+		var isOpen = hours >= 8 && hours < 20;
 
 		// Toggle visibility
 		openElement.style.display = isOpen ? "block" : "none";
@@ -60,4 +60,4 @@
 }
 </script>
 
-<script type='text/javascript' src='https://gsa-peo--peodv4dvn.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1758768682881/assets/js/bootstrap.min.js' onload='chatPageInit()'></script>
+<script type='text/javascript' src='https://gsa-peo--peofl3qap.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1761939112933/assets/js/bootstrap.min.js' onload='chatPageInit()'></script>
