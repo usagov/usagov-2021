@@ -156,7 +156,7 @@ for app in $applist; do
       popspace
       exit $RETVAL
     fi
-    
+
     cfSetEnv "$app" PROXYROUTE $proxyroute
     cfSetEnv "$app" AWS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
     cfSetEnv "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
