@@ -418,7 +418,7 @@ function cfSetEnv {
   RETVAL=0
   if [ -n "$var" ] && [ -n "$val" ] && [ -n "$app" ]; then
     echo cf set-env $app $var $val
-    $echo cf set-env $app $var $val
+    $echo cf set-env $app $var $val > /dev/null 2>&1
     RETVAL=$?
   else
     echo "NOTICE: cf set-env requires app, var and val to be set"
@@ -433,7 +433,7 @@ function cfUnSetEnv {
   RETVAL=0
   if [ -n "$var" ] && [ -n "$app" ]; then
     echo cf unset-env $app $var
-    $echo cf unset-env $app $var
+    $echo cf unset-env $app $var > /dev/null 2>&1
     RETVAL=$?
   else
     echo "NOTICE: cf unset-env requires app and var to be set"
