@@ -23,9 +23,13 @@ commands:
             if ! cf routes | grep -q "log-shipper-<< parameters.envname >>.*usagov-<< parameters.envname >>-logshipper"; then
               cf map-route log-shipper-<< parameters.envname >> app.cloud.gov --hostname usagov-<< parameters.envname >>-logshipper
             fi
+            # Set up egress proxy for New Relic connectivity
+            cd ../..
+            ./bin/cloudgov/setup-egress-for-apps log-shipper-<< parameters.envname >>
             # Set up log drains (needs HTTP credentials for drain URLs)
             export LOGSHIPPER_HTTP_USER=$LOGSHIPPER_HTTP_USER
             export LOGSHIPPER_HTTP_PASS=$LOGSHIPPER_HTTP_PASS
+            cd .buildpack/usagov-logshipper
             ./bin/add-log-drains-for-space.sh
 
   deploy-cloudgov:

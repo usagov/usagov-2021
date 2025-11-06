@@ -32,10 +32,11 @@ sed -i.bak \
     -e "s|client_max_body_size 8K;|client_max_body_size 16K;|" \
     ./nginx.conf
 
-# Modify the fluentbit config to make outputs environment-specific
+# Modify the fluentbit config to make outputs environment-specific and add proxy support
 sed -i.bak \
     -e "s|s3_key_format /fluent-bit-logs/%Y/%m/%d/%H/%M/%S|s3_key_format /fluent-bit-logs/${SPACE}/%Y/%m/%d/%H/%M/%S|" \
     -e "s|\[OUTPUT\]|\[OUTPUT\]\n    # Environment-specific output for ${SPACE}|" \
+    -e "/Name newrelic/,/endpoint/ s|endpoint \${NEW_RELIC_LOGS_ENDPOINT}|endpoint \${NEW_RELIC_LOGS_ENDPOINT}\n    Proxy \${PROXYROUTE}|" \
     ./fluentbit.conf
 
 # Set environment variables for the Lua script and Fluent Bit to use
