@@ -12,7 +12,7 @@ for f in /home/circleci/project/env.local $SCRIPT_DIR/env.local ./env.local; do
 done
 
 # Mandatory includes:
-for inc in $SCRIPT_DIR/../bin/deploy/includes; do
+for inc in $SCRIPT_DIR/../deploy/includes; do
   if [ ! -f $inc ]; then
     echo "Cannot find $inc"
     exit 1
@@ -134,7 +134,7 @@ for storage_service in $STATE_STORAGE_SERVICE $EVENT_STORAGE_SERVICE $CALLWAIT_S
   fi
 done
 
-function cf_push() {
+function cf_push {
   appspec=$1
   instances=${2:-1} ### Always spawn a single app instance unless told otherwise
   if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
@@ -155,7 +155,8 @@ function cf_push() {
       echo "ERROR: 'cf push ${APP_NAME} --docker-image ${appspec} --docker-username $DOCKERHUB_USERNAME --strategy rolling' failed ($retval)"
       exit $retval
     fi
-}
+  fi
+  }
 
 if existsCFApp ${APP_NAME} ; then
   $SCRIPT_DIR/setup-egress-for-apps ${APP_NAME} --no-restart
@@ -228,6 +229,7 @@ if existsCFService "secrets" ; then
       retval=$?
     else
       echo "create-user-provided-service cron-secrets -p " "{\"CRON_KEY\": \"$CRON_KEY\"}"
+    fi
   else
     echo  cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
     $echo cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
