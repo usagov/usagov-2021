@@ -14,18 +14,24 @@ NC='\033[0m'
 # Sets: PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE
 # Loads: backup-system.conf
 init_backup_system() {
-    # Find the script directory and project root
-    SCRIPT_PATH=$(dirname "$0")
-    if [ "$(basename "$SCRIPT_PATH")" = "snapshot" ]; then
-        # Running from scripts/snapshot directory
-        PROJECT_ROOT="$(cd "$SCRIPT_PATH/../.." && pwd)"
-        BACKUP_DIR="$SCRIPT_PATH"
-    elif [ -d "scripts/snapshot" ]; then
+    # When sourced, BASH_SOURCE points to this file, $0 points to the calling script
+    # We need to find scripts/snapshot directory from current working directory
+
+    # First, try to find from current directory
+    if [ -d "scripts/snapshot" ]; then
         # Running from project root
         PROJECT_ROOT="$(pwd)"
         BACKUP_DIR="$PROJECT_ROOT/scripts/snapshot"
+    elif [ -d "snapshot" ] && [ -f "snapshot/common.sh" ]; then
+        # Running from scripts directory
+        PROJECT_ROOT="$(cd .. && pwd)"
+        BACKUP_DIR="$PROJECT_ROOT/scripts/snapshot"
+    elif [ "$(basename "$(pwd)")" = "snapshot" ] && [ -f "common.sh" ]; then
+        # Running from scripts/snapshot directory
+        PROJECT_ROOT="$(cd ../.. && pwd)"
+        BACKUP_DIR="$(pwd)"
     else
-        # Try to find the project root by looking for scripts/snapshot
+        # Try to find the project root by walking up the directory tree
         current_dir="$(pwd)"
         while [ "$current_dir" != "/" ]; do
             if [ -d "$current_dir/scripts/snapshot" ]; then
@@ -38,6 +44,8 @@ init_backup_system() {
 
         if [ -z "$PROJECT_ROOT" ]; then
             echo "❌ ERROR: Cannot find scripts/snapshot directory. Please run from project root or scripts/snapshot directory."
+            echo "   Current directory: $(pwd)"
+            echo "   Available directories: $(ls -la)"
             exit 1
         fi
     fi
