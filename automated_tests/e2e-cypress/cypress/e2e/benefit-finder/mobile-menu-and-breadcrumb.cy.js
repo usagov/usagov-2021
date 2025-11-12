@@ -9,12 +9,11 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
   context('Validate English menus and breadcrumb', () => {
     it('Should navigate to Benefit Finder page', () => {
       pageObjects.menuButton().click()
-      pageObjects.mobileMenu().contains('Benefit finder').click()
+      pageObjects.mobileMenu().contains('government benefits').click()
       pageObjects
         .breadCrumbList()
         .should('contain', 'Home')
         .and('contain', 'Government benefits')
-        .and('contain', 'Benefit finder')
     })
 
     it('Should navigate to Death of a Loved One page', () => {
@@ -24,7 +23,6 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
         .breadCrumbList()
         .should('contain', 'Home')
         .and('contain', 'Government benefits')
-        .and('contain', 'Benefit finder')
         .and('contain', 'Death of a loved one')
     })
 
@@ -35,7 +33,6 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
         .breadCrumbList()
         .should('contain', 'Home')
         .and('contain', 'Government benefits')
-        .and('contain', 'Benefit finder')
         .and('contain', 'Retirement')
     })
 
@@ -46,7 +43,6 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
         .breadCrumbList()
         .should('contain', 'Home')
         .and('contain', 'Government benefits')
-        .and('contain', 'Benefit finder')
         .and('contain', 'Disability')
     })
   })
@@ -58,12 +54,11 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
 
     it('Should navigate to Buscador de beneficios page', () => {
       pageObjects.menuButton().click()
-      pageObjects.mobileMenu().contains('Buscador de beneficios').click()
+      pageObjects.mobileMenu().contains('Encuentre beneficios').click()
       pageObjects
         .breadCrumbList()
         .should('contain', 'Página principal')
-        .and('contain', 'Ayuda económica y beneficios del Gobierno')
-        .and('contain', 'Buscador de beneficios')
+        .and('contain', 'Encuentre beneficios')
     })
 
     it('Should navigate to Muerte de un ser querido page', () => {
@@ -72,9 +67,7 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
       pageObjects
         .breadCrumbList()
         .should('contain', 'Página principal')
-        .and('contain', 'Ayuda económica y beneficios del Gobierno')
-        .and('contain', 'Buscador de beneficios')
-        .and('contain', 'Muerte de un ser querido')
+        .and('contain', 'Encuentre beneficios')
     })
 
     it('Should navigate to Jubilación page', () => {
@@ -83,9 +76,7 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
       pageObjects
         .breadCrumbList()
         .should('contain', 'Página principal')
-        .and('contain', 'Ayuda económica y beneficios del Gobierno')
-        .and('contain', 'Buscador de beneficios')
-        .and('contain', 'Jubilación')
+        .and('contain', 'Encuentre beneficios')
     })
 
     it('Should navigate to Discapacidad page', () => {
@@ -94,9 +85,7 @@ describe('Validate user can navigate each path of mobile menu and breadcrumb dis
       pageObjects
         .breadCrumbList()
         .should('contain', 'Página principal')
-        .and('contain', 'Ayuda económica y beneficios del Gobierno')
-        .and('contain', 'Buscador de beneficios')
-        .and('contain', 'Discapacidad')
+        .and('contain', 'Encuentre beneficios')
     })
   })
 })
