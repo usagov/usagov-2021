@@ -174,12 +174,14 @@ LCF=0
 echo "Lower-casing files:"
 old_IFS="$IFS"
 IFS=$'\n'
-for f in `find $RENDER_DIR/*`; do
+# Process paths in reverse depth order (deepest first) to avoid "No such file or directory" errors
+# when parent directories are renamed before their children
+for f in `find $RENDER_DIR/* -depth`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
   if [ "$f" != "$ff" ]; then
     # VERBOSE MODE
     # mv -v "$f" "$fff"
-    mv -v "$f" "$ff" > /dev/null
+    mv -v "$f" "$ff" > /dev/null 2>&1
     LCF=$((LCF+1))
   fi
 done
