@@ -153,6 +153,26 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
     $xpath = new \DOMXPath($document);
     $changes = FALSE;
+
+    // --- USAGOV-2515: Replace spaces with '+' in image/media src and srcset attributes ---
+    // img[src], source[src], and any srcset attributes
+    $img_nodes = $xpath->query('//*[@src]');
+    foreach ($img_nodes as $node) {
+      if ($node instanceof \DOMElement) {
+        $src = $node->getAttribute('src');
+        if (strpos($src, ' ') !== FALSE || strpos($src, '%20') !== FALSE) {
+          $new_src = str_replace([' ', '%20'], '+', $src);
+          $node->setAttribute('src', $new_src);
+          $changes = TRUE;
+          file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] Replaced src: ' . $src . ' -> ' . $new_src . "\n", FILE_APPEND);
+        }
+        else {
+          file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] No change src: ' . $src . "\n", FILE_APPEND);
+        }
+      }
+    }
+
+    // Existing logic: fix /es links
     $nodes = $xpath->query('//a[starts-with(@href,"/es")]');
 
     /** @var \DOMElement $node */
@@ -183,7 +203,12 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     if ($changes) {
       // Render it as HTML5:
       $modifiedHtml = $html5->saveHTML($document);
-      $modifiedHtml = str_replace('xmlns:xlink="http://www.w3.org/1999/xlink"', '', $modifiedHtml); // QuickFix for USAGOV-2312. We want to remove this meta-data.
+      // QuickFix for USAGOV-2312. We want to remove this meta-data.
+      $modifiedHtml = str_replace(
+        'xmlns:xlink="http://www.w3.org/1999/xlink"',
+        '',
+        $modifiedHtml
+      );
       $event->setHtml($modifiedHtml);
     }
   }

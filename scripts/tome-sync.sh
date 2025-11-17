@@ -65,9 +65,18 @@ touch $TOMELOG
 # Tome is failing to pull in these assets so we will pull them in ourself
 echo "Add in any extra or missing files ... "
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+
 cp -rfp /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+
+# --- USAGOV-2515: Copy Drupal image styles to static output ---
+if [ -d /var/www/web/sites/default/files/styles ]; then
+  echo "Copying Drupal image styles to static output ..."
+  mkdir -p "$RENDER_DIR/s3/files/"
+  cp -rfp /var/www/web/sites/default/files/styles "$RENDER_DIR/s3/files/styles" 2>&1 | tee -a $TOMELOG
+fi
+
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
 cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
@@ -147,6 +156,18 @@ do
   i=$((i+1))
 done
 
+
+################################################################################
+# USAGOV-2515: Sync static images referenced in HTML from S3FS/public:// to static output
+# and rewrite HTML references to use static file paths. This is done via Drush command.
+################################################################################
+echo "Running Drush static image sync (usagov:ssg-sync-images) ..." | tee -a $TOMELOG
+if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" 2>&1 | tee -a $TOMELOG; then
+  echo "Drush static image sync completed successfully." | tee -a $TOMELOG
+else
+  echo "ERROR: Drush static image sync failed!" | tee -a $TOMELOG
+  exit 1
+fi
 
 # lower case all filenames in the copied dir before uploading
 LCF=0
