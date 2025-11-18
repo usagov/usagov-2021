@@ -278,20 +278,34 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
     // Get site banners from config_pages entities.
     $config_pages_site_banners = \Drupal::entityTypeManager()->getStorage('config_pages')->loadByProperties(['type' => 'site_banner']);
     if ($config_pages_site_banners) {
+      $paragraph_view_builder = \Drupal::entityTypeManager()->getViewBuilder('paragraph');
+
       foreach ($config_pages_site_banners as $config_page) {
+        // Check language matches current site language.
+        if ($config_page->language()->getId() !== $site_language) {
+          continue;
+        }
+
         // Check if the config page has alert field with content.
         if ($config_page->hasField('field_alert') && !$config_page->get('field_alert')->isEmpty()) {
           // Iterate through all alert paragraphs in the field.
           $alert_field = $config_page->get('field_alert');
+
           foreach ($alert_field as $delta => $alert_item) {
             if ($alert_item->entity) {
               // Get the referenced paragraph entity (uswds_alert).
               $alert_paragraph = $alert_item->entity;
 
-              // Store the paragraph reference for template usage.
+              // Pre-render the paragraph for static site generation.
+              // This ensures the full HTML is available during Tome export,
+              // rather than relying on lazy-loading via drupal_entity() which
+              // doesn't work correctly in static sites.
+              $rendered_paragraph = $paragraph_view_builder->view($alert_paragraph, 'default');
+
+              // Store the rendered paragraph for template usage.
               // Use a unique key to handle multiple paragraphs.
               $banner_key = 'config_page_' . $config_page->id() . '_' . $delta;
-              $variables['config_page_alerts'][$banner_key] = $alert_paragraph;
+              $variables['config_page_alerts'][$banner_key] = $rendered_paragraph;
             }
           }
         }
