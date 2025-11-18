@@ -281,8 +281,10 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
       $paragraph_view_builder = \Drupal::entityTypeManager()->getViewBuilder('paragraph');
 
       foreach ($config_pages_site_banners as $config_page) {
-        // Check language matches current site language.
-        if ($config_page->language()->getId() !== $site_language) {
+        // Check language matches current site language or is undefined.
+        // Config_pages can be language-neutral (und), which should appear on all language variants.
+        $config_page_lang = $config_page->language()->getId();
+        if ($config_page_lang !== $site_language && $config_page_lang !== 'und') {
           continue;
         }
 
