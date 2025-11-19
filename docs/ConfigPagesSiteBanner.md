@@ -11,7 +11,18 @@ This document describes the Config Pages site banner system, which provides cent
 1. **Config Pages site banner system** using the Config Pages module for centralized banner management
 2. **Multiple banner support** allowing multiple alert paragraphs to display as separate banners
 3. **Custom template system** for config_pages site banners with analytics tracking
-4. **Complete block system removal** eliminating the previous block-based site banner implementation
+4. **Static site generation support** by pre-rendering paragraphs in the preprocess function
+5. **Complete block system removal** eliminating the previous block-based site banner implementation
+
+### Why Pre-rendering is Required for Static Sites
+
+Config_pages entities don't have canonical URLs like nodes or taxonomy terms, so Tome's normal entity discovery process doesn't include them. Instead, config_pages content is embedded within actual pages (like every page that includes the header_top region).
+
+When using `{{ drupal_entity('paragraph', id) }}` in Twig templates:
+- **On the CMS**: Drupal dynamically loads and renders the entity at request time ✓
+- **On the static site**: The entity reference can't be resolved because the page HTML is pre-generated ✗
+
+**Solution**: Pre-render the paragraph entities in `usa_twig_vars_preprocess_region()` so the full HTML is generated during Tome's static site export, rather than relying on lazy-loading which doesn't work in static HTML files.
 
 ### Files Modified/Created
 
@@ -20,9 +31,16 @@ This document describes the Config Pages site banner system, which provides cent
 **Modified the `usa_twig_vars_preprocess_region()` function to:**
 
 - Load config_pages entities of type 'site_banner'
-- Extract multiple referenced alert paragraphs from the config_pages field_uswds_paragraphs field
-- Add config_pages site banners to the `config_page_alerts` array for template rendering
+- Check language matches the current site language (or is undefined/language-neutral)
+- **Pre-render paragraph entities using the paragraph view builder** for static site compatibility
+- Extract multiple referenced alert paragraphs from the config_pages field_alert field
+- Add pre-rendered config_pages site banners to the `config_page_alerts` array for template rendering
 - Support multiple paragraphs displaying as separate banners
+
+**Language Handling:**
+- Config_pages can be language-specific (`en`, `es`) or language-neutral (`und`)
+- Language-neutral config_pages appear on all language variants of the site
+- Language-specific config_pages only appear on matching language pages
 
 **Added `usa_twig_vars_theme_suggestions_paragraph_alter()` function to:**
 
@@ -33,9 +51,10 @@ This document describes the Config Pages site banner system, which provides cent
 
 **Updated to:**
 
-- Render config_pages site banners using their referenced alert paragraphs
+- Render pre-rendered config_pages site banners (already rendered in preprocess)
 - Loop through multiple paragraphs when present
 - Remove all references to block-based site banners (completely removed)
+- No longer uses `drupal_entity()` - receives pre-rendered HTML instead
 
 #### 3. `/web/themes/custom/usagov/templates/paragraph--uswds-alert--config-pages-site-banner.html.twig`
 
