@@ -14,9 +14,13 @@ This backup system provides automated and manual backup capabilities for the USA
 
 ```bash
 # From project root (recommended)
-scripts/snapshot/manager.sh list    # List all current backups
-scripts/snapshot/manager.sh backup  # Create a full backup (all types)
-scripts/snapshot/manager.sh info    # Get system information
+scripts/snapshot/manager.sh list                        # List all current backups
+scripts/snapshot/manager.sh backup                      # Create a full backup (all types)
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25  # Download a backup to current directory
+scripts/snapshot/manager.sh info                        # Get system information
+
+# Download backups to local machine
+scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/
 ```
 
 ## Commands
@@ -46,11 +50,6 @@ scripts/snapshot/manager.sh backup all USAGOV-123                # Custom prefix
 scripts/snapshot/manager.sh backup all USAGOV-123 post-deploy    # Custom prefix and suffix
 scripts/snapshot/manager.sh backup db USAGOV-456 pre-update      # Database with custom tags
 scripts/snapshot/manager.sh backup static RELEASE-v2.1 hotfix    # Static with release info
-
-# From backup directory
-./manager.sh backup                            # Create all backup types (AUTO prefix)
-./manager.sh backup all USAGOV-789             # Custom prefix
-./manager.sh backup all USAGOV-789 emergency   # Custom prefix and suffix
 ```
 
 ### Clean Old Backups
@@ -80,59 +79,98 @@ scripts/snapshot/manager.sh info static backup-tag  # Show details for a specifi
 scripts/snapshot/manager.sh restore backup-tag      # Interactive restore process
 ```
 
+### Download Backups
+
+Download backups from Cloud Foundry to your local machine:
+
+```bash
+# On Cloud Foundry (direct download to container)
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25                    # Download all types to current directory
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db                 # Download database only
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db,static          # Download multiple types
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/     # Download all types to specific directory
+
+# From local machine (streams through SSH, no CF disk usage)
+scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25                  # Download all types to current directory
+scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/       # Download all types to ./backups/
+scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/ db    # Download database only
+scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/ db,static  # Download multiple types
+```
+
+**Download Modes:**
+
+- **Local Download** (default): Downloads backup files directly to the filesystem
+  - On CF: Downloads to container storage (useful for quick access)
+  - Via wrapper: Streams through SSH to local machine (no CF disk usage)
+
+- **Stream Mode**: Outputs backup data to stdout for piping
+
+  ```bash
+  scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db - --stream > backup.sql.gz
+  ```
+
+**Local Wrapper Features:**
+
+- Requires Cloud Foundry CLI (`cf`) installed and logged in
+- Streams data through SSH - no temporary storage on CF container
+- Downloads to current working directory by default
+- Supports comma-separated backup types (any order)
+- Shows download progress and file sizes
+- Automatic cleanup of failed downloads
+
 ## Backup Tag Format
 
 All backups use a standardized naming convention for traceability and organization:
 
-**Format**: `PREFIX-environment-containertag-timestamp-suffix`
+**Format**: `PREFIX-space-containertag-timestamp-suffix`
 
 ### Components
 
-- **PREFIX**: Identifies the backup source
+- **PREFIX**: Identifies the backup source, entirely arbitrary, some examples uses:
   - `AUTO`: Automated backups (cron, system triggers)
   - `MANUAL`: Manual backups without custom prefix
-  - `USAGOV-123`: Ticket-based prefix for development work
-  - `RELEASE-v2.1`: Release-based prefix for deployment tracking
+  - `USAGOV-123`: Ticket-based prefix for deployments
 
-- **environment**: Current deployment environment (`dev`, `staging`, `prod`)
+- **space**: Cloud Foundry space name (`dev`, `staging`, `prod`) or `local` for development
 
 - **containertag**: Container version for deployment traceability
-  - Cloud.gov: Extracted from `/etc/motd` (e.g., `cf-abc123`)
-  - Development: Git short hash (e.g., `git-def456`)
+  - Cloud.gov: Numeric container tag from `/etc/motd` (e.g., `14850`)
+  - Development: Git short hash (e.g., `git-a1b2c3`)
 
-- **timestamp**: UTC timestamp in `YYYY_MM_DD_HH_MM_SS` format
+- **timestamp**: Date in `MMM-DD-YY` format (e.g., `Oct-28-25`)
 
-- **suffix**: Optional descriptive text
-  - `post-deploy`: After deployment operations
-  - `pre-update`: Before system updates
-  - `emergency`: Emergency backup scenarios
-  - `hotfix`: Hotfix-related backups
+- **suffix**: Optional descriptive text, entirely arbitrary, some examples uses:
+  - `-pre-deploy`: Before deployment operations
+  - `-post-deploy`: After deployment operations
+  - `-hotfix`: Hotfix-related backups
 
 ### Examples
 
 ```text
-AUTO-prod-cf-abc123-2024_03_15_14_30_00                    # Automated production backup
-USAGOV-456-dev-git-def789-2024_03_15_15_45_30-pre-update   # Manual backup before update
-RELEASE-v2.1-staging-cf-ghi012-2024_03_15_16_20_15-hotfix  # Release hotfix backup
-MANUAL-prod-cf-jkl345-2024_03_15_17_10_45-emergency        # Emergency manual backup
+AUTO-prod-14850-Oct-28-25                        # Automated production backup
+USAGOV-456-dev-git-a1b2c3-Oct-28-25-pre-update   # Manual backup before update
+RELEASE-v2.1-staging-14851-Oct-28-25-hotfix      # Release hotfix backup
+MANUAL-prod-14852-Oct-28-25-emergency            # Emergency manual backup
 ```
 
 This format ensures:
 
 - Easy identification of backup source and purpose
 - Deployment traceability through container tags
-- Chronological sorting by timestamp
+- Human-readable date format for quick identification
+- Chronological sorting by date
 - Clear association with tickets and releases
 
 ## File Structure
 
 ```text
 scripts/snapshot/
-├── manager.sh              # Main backup management script
-├── backup-system.conf      # Configuration file
-├── setup-cron.sh           # Cron job management
-├── test.sh                 # Test suite
-└── README.md               # This file
+├── manager.sh                  # Main backup management script
+├── local-backup-download       # Local download wrapper (streams from CF)
+├── backup-system.conf          # Configuration file
+├── setup-cron.sh               # Cron job management
+├── test.sh                     # Test suite
+└── README.md                   # This file
 ```
 
 ## Configuration
@@ -164,7 +202,19 @@ auto-backups/
 ├── web-backup/        # Static site backups
 ├── public_backup/     # Public file backups
 └── database/          # Database backups
-```## Testing
+```
+
+**Download Storage:**
+
+- **Database backups**: Downloaded as `.sql.gz` files (compressed SQL dumps)
+- **Static backups**: Downloaded as `.tar.gz` archives (directory structure preserved)
+- **Public backups**: Downloaded as `.tar.gz` archives (directory structure preserved)
+
+**Local Storage Notes:**
+
+- Downloads via wrapper script save to local machine (no CF container disk usage)
+- Direct downloads on CF use temporary directories, automatically cleaned up
+- Stream mode never uses disk storage - data flows directly through pipes## Testing
 
 Run the comprehensive test suite to verify system functionality:
 

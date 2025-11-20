@@ -35,6 +35,7 @@ show_usage() {
     echo "  clean [types] [days|all|0]             Remove old backups (default: all types, 30 days)"
     echo "  restore <tag> [--only=type,type]       Restore backups (unchanged)"
     echo "  info [types] <tag>                     Show backup details (default: all types)"
+    echo "  download <tag> <type>                  Stream backup to stdout for download (use wrapper script)"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -1275,6 +1276,198 @@ db_backup_info() {
     fi
 }
 
+# ===================================================================
+# DOWNLOAD FUNCTIONS
+# ===================================================================
+
+# Download a backup to local disk or stream to stdout
+# Can download to current machine or stream for remote download
+download_backup() {
+    local backup_tag=$1
+    local backup_type=${2:-all}
+    local output_path=$3
+    local stream_mode=${4:-false}
+
+    if [ -z "$backup_tag" ]; then
+        log_message "❌ Error: backup tag required"
+        log_message "Usage: $0 download <backup-tag> [type] [output-path] [--stream]"
+        log_message "Types: all, db, static, public, or comma-separated (default: all)"
+        log_message ""
+        log_message "Examples:"
+        log_message "  $0 download AUTO-prod-14850-Oct-28-25                        # Download all types to current dir"
+        log_message "  $0 download AUTO-prod-14850-Oct-28-25 db                    # Download db only to current dir"
+        log_message "  $0 download AUTO-prod-14850-Oct-28-25 db,static ./backups/  # Download db and static to ./backups/"
+        log_message "  $0 download AUTO-prod-14850-Oct-28-25 all ./backups/        # Download all types to ./backups/"
+        log_message "  $0 download AUTO-prod-14850-Oct-28-25 db - --stream         # Stream db to stdout"
+        return 1
+    fi
+
+    # Check if streaming mode (output_path is "-" or --stream flag is present)
+    if [ "$output_path" = "-" ] || [ "$stream_mode" = "--stream" ] || [ "$output_path" = "--stream" ]; then
+        stream_mode=true
+        output_path=""
+    else
+        stream_mode=false
+    fi
+
+    setup_s3_vars || return 1
+
+    # Parse backup types (handle comma-separated list)
+    local types_to_download=""
+    if [ "$backup_type" = "all" ]; then
+        types_to_download="db,static,public"
+    else
+        types_to_download="$backup_type"
+    fi
+
+    # Process each type
+    local failed=0
+    local IFS=','
+    for type in $types_to_download; do
+        # Trim whitespace
+        type=$(echo "$type" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+        case "$type" in
+            db|static|public)
+                download_single_backup "$backup_tag" "$type" "$output_path" "$stream_mode" || failed=$((failed + 1))
+                ;;
+            *)
+                log_message "❌ Error: Invalid backup type: $type" >&2
+                log_message "Valid types: db, static, public, all" >&2
+                failed=$((failed + 1))
+                ;;
+        esac
+    done
+
+    if [ $failed -gt 0 ]; then
+        log_message "⚠️  Download completed with $failed error(s)"
+        return 1
+    fi
+    return 0
+}
+
+# Download a single backup type (internal function)
+download_single_backup() {
+    local backup_tag=$1
+    local backup_type=$2
+    local output_path=$3
+    local stream_mode=$4
+
+    case "$backup_type" in
+        "db")
+            # Find database backup file
+            db_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ $S3_EXTRA_PARAMS 2>/dev/null | grep "$backup_tag" | awk '{print $4}')
+
+            if [ -z "$db_file" ]; then
+                log_message "❌ Error: Database backup not found for tag: $backup_tag" >&2
+                return 1
+            fi
+
+            if [ "$stream_mode" = true ]; then
+                # Stream mode: output to stdout
+                log_message "📥 Streaming database backup: $db_file" >&2
+                aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file - $S3_EXTRA_PARAMS 2>/dev/null
+            else
+                # Local download mode - default to current working directory
+                output_dir=${output_path:-$(pwd)}
+                mkdir -p "$output_dir"
+                output_file="$output_dir/${backup_tag}-database.sql.gz"
+
+                log_message "📥 Downloading database backup: $db_file"
+                if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file "$output_file" $S3_EXTRA_PARAMS; then
+                    log_message "✅ Database backup saved: $output_file"
+                    return 0
+                else
+                    log_message "❌ Database backup download failed"
+                    return 1
+                fi
+            fi
+            ;;
+
+        "static")
+            # Check if static backup exists
+            if ! aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                log_message "❌ Error: Static backup not found for tag: $backup_tag" >&2
+                return 1
+            fi
+
+            if [ "$stream_mode" = true ]; then
+                # Stream mode: create tar.gz and output to stdout
+                log_message "📥 Streaming static backup: $backup_tag" >&2
+
+                # Download to temp dir, create tar, stream, cleanup
+                temp_dir=$(mktemp -d)
+                aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
+                tar -czf - -C "$temp_dir" .
+                rm -rf "$temp_dir"
+            else
+                # Local download mode - default to current working directory
+                output_dir=${output_path:-$(pwd)}
+                mkdir -p "$output_dir"
+                output_file="$output_dir/${backup_tag}-static.tar.gz"
+
+                log_message "📥 Downloading static backup: $backup_tag"
+
+                # Download to temp dir, create tar.gz, move to output
+                temp_dir=$(mktemp -d)
+                if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS; then
+                    tar -czf "$output_file" -C "$temp_dir" .
+                    rm -rf "$temp_dir"
+                    log_message "✅ Static backup saved: $output_file"
+                    return 0
+                else
+                    rm -rf "$temp_dir"
+                    log_message "❌ Static backup download failed"
+                    return 1
+                fi
+            fi
+            ;;
+
+        "public")
+            # Check if public backup exists
+            if ! aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                log_message "❌ Error: Public backup not found for tag: $backup_tag" >&2
+                return 1
+            fi
+
+            if [ "$stream_mode" = true ]; then
+                # Stream mode: create tar.gz and output to stdout
+                log_message "📥 Streaming public backup: $backup_tag" >&2
+
+                # Download to temp dir, create tar, stream, cleanup
+                temp_dir=$(mktemp -d)
+                aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
+                tar -czf - -C "$temp_dir" .
+                rm -rf "$temp_dir"
+            else
+                # Local download mode - default to current working directory
+                output_dir=${output_path:-$(pwd)}
+                mkdir -p "$output_dir"
+                output_file="$output_dir/${backup_tag}-public.tar.gz"
+
+                log_message "📥 Downloading public backup: $backup_tag"
+
+                # Download to temp dir, create tar.gz, move to output
+                temp_dir=$(mktemp -d)
+                if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS; then
+                    tar -czf "$output_file" -C "$temp_dir" .
+                    rm -rf "$temp_dir"
+                    log_message "✅ Public backup saved: $output_file"
+                    return 0
+                else
+                    rm -rf "$temp_dir"
+                    log_message "❌ Public backup download failed"
+                    return 1
+                fi
+            fi
+            ;;        *)
+            log_message "❌ Error: Invalid backup type: $backup_type" >&2
+            log_message "Valid types: db, static, public" >&2
+            return 1
+            ;;
+    esac
+}
+
 # Main script logic
 case "${1:-}" in
     "list")
@@ -1297,6 +1490,11 @@ case "${1:-}" in
     "info")
         # info [types] <tag> - e.g., "info db" or "info all backup-tag"
         run_info_command "$2" "$3"
+        ;;
+    "download")
+        # download <tag> <type> [output-path] [--stream]
+        # e.g., "download AUTO-prod-14850-Oct-28-25 db ./backups/" or "download AUTO-prod-14850-Oct-28-25 db - --stream"
+        download_backup "$2" "$3" "$4" "$5"
         ;;
     *)
         show_usage
