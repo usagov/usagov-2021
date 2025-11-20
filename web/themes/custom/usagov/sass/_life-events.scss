@@ -117,9 +117,10 @@
   @include u-text('white');
 
   font-size: 1.13rem;
-
+  font-weight: normal;
   height: 3.5rem;
   padding: 1rem;
+  margin: 0;
 }
 
 .usa-card:hover {
