@@ -1472,6 +1472,10 @@ download_single_backup() {
 
 # Main script logic
 case "${1:-}" in
+    "-h"|"--help"|"help")
+        show_usage
+        exit 0
+        ;;
     "list")
         # list [types] [days] - e.g., "list static,db" or "list all 7"
         list_backups "$2" "$3"

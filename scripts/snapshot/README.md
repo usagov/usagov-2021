@@ -1,6 +1,6 @@
 # Backup System
 
-A unified backup management system for USA.gov that handles static site backups, public file backups, and database backups through a single, easy-to-use interface.
+A complete backup management system for USA.gov that handles static site backups, public file backups, and database backups through a single, easy-to-use interface.
 
 ## Overview
 
@@ -12,53 +12,77 @@ This backup system provides automated and manual backup capabilities for the USA
 
 ## Quick Start
 
+### On Cloud Foundry
+
 ```bash
-# From project root (recommended)
+# SSH into Cloud Foundry first
+cf ssh cms
+
+# From /var/www directory
 scripts/snapshot/manager.sh list                        # List all current backups
 scripts/snapshot/manager.sh backup                      # Create a full backup (all types)
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25  # Download a backup to current directory
 scripts/snapshot/manager.sh info                        # Get system information
+```
 
-# Download backups to local machine
-scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/
+### From Local Machine
+
+```bash
+# From project root - control CF backups remotely
+scripts/snapshot/local-manager.sh list                              # List all backups
+scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy  # Create backup on CF
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/  # Download to local
+scripts/snapshot/local-manager.sh info                              # Get system info from CF
 ```
 
 ## Commands
 
+All commands can be run either on Cloud Foundry (via `manager.sh`) or from your local machine (via `local-manager.sh`).
+
 ### List Backups
 
 ```bash
-# From project root
+# On Cloud Foundry
 scripts/snapshot/manager.sh list                    # Show all backups
 scripts/snapshot/manager.sh list static             # Show only static backups
 scripts/snapshot/manager.sh list db,public          # Show database and public backups
 scripts/snapshot/manager.sh list all 7              # Show all backups from last 7 days
+
+# From local machine
+scripts/snapshot/local-manager.sh list              # Show all backups on CF
+scripts/snapshot/local-manager.sh list db 7         # Show database backups from last 7 days
 ```
 
 ### Create Backups
 
 ```bash
-# Basic backups (from project root)
+# On Cloud Foundry - Basic backups
 scripts/snapshot/manager.sh backup                  # Create all backup types (AUTO prefix)
 scripts/snapshot/manager.sh backup db               # Database backup only
 scripts/snapshot/manager.sh backup static           # Static site backup only
 scripts/snapshot/manager.sh backup public           # Public files backup only
 scripts/snapshot/manager.sh backup static,db        # Multiple specific types
 
-# Manual backups with custom prefix and suffix
+# On Cloud Foundry - Manual backups with custom prefix and suffix
 scripts/snapshot/manager.sh backup all USAGOV-123                # Custom prefix (ticket name)
 scripts/snapshot/manager.sh backup all USAGOV-123 post-deploy    # Custom prefix and suffix
 scripts/snapshot/manager.sh backup db USAGOV-456 pre-update      # Database with custom tags
-scripts/snapshot/manager.sh backup static RELEASE-v2.1 hotfix    # Static with release info
+
+# From local machine - same commands, executed remotely
+scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy    # Create backup on CF
+scripts/snapshot/local-manager.sh backup db                           # Database backup only on CF
 ```
 
 ### Clean Old Backups
 
 ```bash
-# From project root
+# On Cloud Foundry
 scripts/snapshot/manager.sh clean                   # Clean all types (30 day retention)
 scripts/snapshot/manager.sh clean db 7              # Clean database backups older than 7 days
 scripts/snapshot/manager.sh clean static 14         # Clean static backups older than 14 days
+scripts/snapshot/manager.sh clean all 0             # ⚠️  DELETE ALL backups (requires confirmation)
+
+# From local machine
+scripts/snapshot/local-manager.sh clean db 30       # Clean database backups on CF
 ```
 
 > **Note:** Clean operations require confirmation before deleting files
@@ -66,57 +90,69 @@ scripts/snapshot/manager.sh clean static 14         # Clean static backups older
 ### Get Information
 
 ```bash
-# From project root
+# On Cloud Foundry
 scripts/snapshot/manager.sh info                    # Show system configuration and status
 scripts/snapshot/manager.sh info db                 # Show database-specific information
-scripts/snapshot/manager.sh info static backup-tag  # Show details for a specific backup
+scripts/snapshot/manager.sh info all AUTO-prod-14850-Oct-28-25  # Show details for specific backup
+
+# From local machine
+scripts/snapshot/local-manager.sh info                          # Show system configuration from CF
+scripts/snapshot/local-manager.sh info db AUTO-prod-14850-Oct-28-25  # Show specific backup details
 ```
 
 ### Restore Backups
 
 ```bash
-# From project root
-scripts/snapshot/manager.sh restore backup-tag      # Interactive restore process
+# On Cloud Foundry
+scripts/snapshot/manager.sh restore AUTO-prod-14850-Oct-28-25              # Interactive restore
+scripts/snapshot/manager.sh restore AUTO-prod-14850-Oct-28-25 --only=db    # Restore database only
+
+# From local machine (restores on CF, not locally)
+scripts/snapshot/local-manager.sh restore AUTO-prod-14850-Oct-28-25        # Restore on CF (interactive)
+scripts/snapshot/local-manager.sh restore AUTO-prod-14850-Oct-28-25 --only=static,db  # Selective restore
 ```
 
 ### Download Backups
 
-Download backups from Cloud Foundry to your local machine:
+Download backups from Cloud Foundry to your local machine or to the CF container filesystem.
+
+#### From Local Machine (Recommended)
 
 ```bash
-# On Cloud Foundry (direct download to container)
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25                    # Download all types to current directory
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db                 # Download database only
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db,static          # Download multiple types
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/     # Download all types to specific directory
-
-# From local machine (streams through SSH, no CF disk usage)
-scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25                  # Download all types to current directory
-scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/       # Download all types to ./backups/
-scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/ db    # Download database only
-scripts/snapshot/local-backup-download AUTO-prod-14850-Oct-28-25 ./backups/ db,static  # Download multiple types
+# Download to local machine (streams through SSH - no CF disk usage)
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25              # All types to current dir
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 db           # Database only
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/  # All to ./backups/
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 db,static ./backups/  # Multiple types
 ```
 
-**Download Modes:**
+#### Direct on Cloud Foundry
 
-- **Local Download** (default): Downloads backup files directly to the filesystem
-  - On CF: Downloads to container storage (useful for quick access)
-  - Via wrapper: Streams through SSH to local machine (no CF disk usage)
+```bash
+# Download to CF container (uses container disk)
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25                    # All types to current dir
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db                 # Database only
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db,static          # Multiple types
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/     # All types to ./backups/
 
-- **Stream Mode**: Outputs backup data to stdout for piping
+# Stream mode (pipe to stdout)
+scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db - --stream > backup.sql.gz
+```
 
-  ```bash
-  scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db - --stream > backup.sql.gz
-  ```
+**Download Features:**
 
-**Local Wrapper Features:**
+- **Local Manager**: Streams data through SSH - no temporary storage on CF container
+- **Manager (on CF)**: Downloads directly to container filesystem
+- **Stream Mode**: Outputs to stdout for piping (CF only)
+- **Comma-separated types**: Download multiple types in one command (any order)
+- **Progress indicators**: Shows download status and file sizes
+- **Automatic cleanup**: Failed downloads are automatically removed
 
-- Requires Cloud Foundry CLI (`cf`) installed and logged in
-- Streams data through SSH - no temporary storage on CF container
-- Downloads to current working directory by default
-- Supports comma-separated backup types (any order)
-- Shows download progress and file sizes
-- Automatic cleanup of failed downloads
+**Downloaded File Formats:**
+
+- **Database backups**: `.sql.gz` files (compressed SQL dumps)
+- **Static backups**: `.tar.gz` archives (directory structure preserved)
+- **Public backups**: `.tar.gz` archives (directory structure preserved)
 
 ## Backup Tag Format
 
@@ -165,13 +201,22 @@ This format ensures:
 
 ```text
 scripts/snapshot/
-├── manager.sh                  # Main backup management script
-├── local-backup-download       # Local download wrapper (streams from CF)
+├── manager.sh                  # Main backup management script (runs on CF)
+├── local-manager.sh            # Local wrapper for remote CF control
+├── common.sh                   # Shared utilities and functions
 ├── backup-system.conf          # Configuration file
 ├── setup-cron.sh               # Cron job management
 ├── test.sh                     # Test suite
 └── README.md                   # This file
 ```
+
+### Script Purposes
+
+- **manager.sh**: Core backup operations - runs on Cloud Foundry containers
+- **local-manager.sh**: Remote control wrapper - runs on local machine, executes commands via `cf ssh`
+- **common.sh**: Shared functions, configuration loading, and utilities
+- **setup-cron.sh**: Automated backup scheduling
+- **test.sh**: Comprehensive test suite for validation
 
 ## Configuration
 
@@ -184,14 +229,22 @@ The system is configured through `backup-system.conf`. Key settings include:
 
 ## Automated Backups
 
-Database backups can be scheduled automatically using cron:
+Database backups can be scheduled automatically using cron (on Cloud Foundry only):
 
 ```bash
-# From project root
+# On Cloud Foundry
 scripts/snapshot/setup-cron.sh setup    # Set up daily database backups at 7 PM EST
 scripts/snapshot/setup-cron.sh remove   # Remove scheduled backups
 scripts/snapshot/setup-cron.sh status   # Check current cron status
 ```
+
+**Automated Features:**
+
+- Runs daily at configured time (default: 7 PM EST)
+- Creates database backups with AUTO prefix
+- Automatically cleans old backups based on retention policy
+- Logs all operations for monitoring
+- Independent of static site generation backups
 
 ## Storage Structure
 
@@ -200,29 +253,36 @@ Backups are stored in S3 with the following structure:
 ```text
 auto-backups/
 ├── web-backup/        # Static site backups
+│   └── [backup-tag]/  # Each backup in its own directory
 ├── public_backup/     # Public file backups
+│   └── [backup-tag]/  # Each backup in its own directory
 └── database/          # Database backups
+    └── [backup-tag]-database.sql.gz  # Compressed SQL dumps
 ```
 
 **Download Storage:**
 
-- **Database backups**: Downloaded as `.sql.gz` files (compressed SQL dumps)
-- **Static backups**: Downloaded as `.tar.gz` archives (directory structure preserved)
-- **Public backups**: Downloaded as `.tar.gz` archives (directory structure preserved)
+- **Database backups**: Single `.sql.gz` file per backup
+- **Static backups**: Directory structure archived as `.tar.gz` on download
+- **Public backups**: Directory structure archived as `.tar.gz` on download
 
-**Local Storage Notes:**
+**Storage Locations:**
 
-- Downloads via wrapper script save to local machine (no CF container disk usage)
-- Direct downloads on CF use temporary directories, automatically cleaned up
-- Stream mode never uses disk storage - data flows directly through pipes## Testing
+- **S3**: Primary storage for all backups (persistent, scalable)
+- **Local Machine**: Downloads via `local-manager.sh` save to local filesystem
+- **CF Container**: Direct downloads via `manager.sh` use temporary container storage
+  - Automatically cleaned up after operations
+  - Stream mode never uses container disk## Testing
 
 Run the comprehensive test suite to verify system functionality:
 
 ```bash
-# From project root
+# On Cloud Foundry
+cd /var/www
 scripts/snapshot/test.sh
 
-# From backup directory
+# From snapshot directory
+cd scripts/snapshot
 ./test.sh
 ```
 
@@ -233,6 +293,7 @@ The test suite covers:
 - Backup creation and listing
 - Storage connectivity
 - Integration with Drupal Tome
+- Command argument parsing
 
 ## Integration
 
@@ -247,19 +308,68 @@ The backup system integrates with:
 
 ### Common Issues
 
-- **Permission Errors**: Ensure scripts are executable (`chmod +x manager.sh`)
-- **S3 Access**: Verify AWS credentials and bucket permissions
-- **Space Issues**: Check available disk space before large backups
-- **Network Issues**: Ensure CF environment has S3 connectivity
+#### Permission Errors
+
+- Ensure scripts are executable: `chmod +x scripts/snapshot/*.sh`
+- Check file ownership in Cloud Foundry environment
+
+#### S3 Access Issues
+
+- Verify AWS credentials in Cloud Foundry environment
+- Check bucket permissions and service bindings
+- Ensure VCAP_SERVICES is properly configured
+
+#### Space Issues
+
+- Check available disk space before large backups
+- Use `local-manager.sh download` to avoid CF disk usage
+- Stream mode for direct piping without disk storage
+
+#### Network Issues
+
+- Ensure CF environment has S3 connectivity
+- Check security group rules
+- Verify DNS resolution for S3 endpoints
+
+#### Local Manager Issues
+
+- Ensure CF CLI is installed: `cf --version`
+- Login to Cloud Foundry: `bin/cloudgov/login --sso`
+- Check SSH access: `cf ssh cms`
+- Verify you're not running on CF itself (script will prevent this)
 
 ### Getting Help
 
-1. Run `scripts/snapshot/manager.sh info` to check system status
-2. Run `scripts/snapshot/test.sh` to identify specific issues
-3. Check Cloud Foundry logs for detailed error messages
-4. Review scripts/snapshot/backup-system.conf for configuration issues## Security
+1. **Check system status**:
+
+   ```bash
+   scripts/snapshot/manager.sh info              # On CF
+   scripts/snapshot/local-manager.sh info        # From local
+   ```
+
+2. **Run test suite**:
+
+   ```bash
+   scripts/snapshot/test.sh                      # On CF
+   ```
+
+3. **Check Cloud Foundry logs**:
+
+   ```bash
+   cf logs cms --recent                          # From local
+   ```
+
+4. **Review configuration**:
+
+   ```bash
+   cat scripts/snapshot/backup-system.conf       # Check settings
+   ```
+
+## Security
 
 - Backups are encrypted in transit to S3
 - Database backups are compressed to reduce storage costs
 - Temporary files are cleaned up automatically
 - Restore operations require manual confirmation
+- Local manager prevents execution on CF containers
+- SSH streaming for secure data transfer

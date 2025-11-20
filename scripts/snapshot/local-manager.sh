@@ -186,6 +186,12 @@ if [ -z "$COMMAND" ]; then
     exit 1
 fi
 
+# Handle help flags immediately
+if [ "$COMMAND" = "-h" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "help" ]; then
+    show_usage
+    exit 0
+fi
+
 # Check that we're not on CF before proceeding
 check_not_on_cf
 
