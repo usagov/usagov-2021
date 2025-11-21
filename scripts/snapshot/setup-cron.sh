@@ -5,6 +5,8 @@
 
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
+CURDIR=$(pwd)
+
 . "$SCRIPT_DIR/common.sh"
 
 # Initialize backup system (sets PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE and loads config)
@@ -169,6 +171,9 @@ case $COMMAND in
     *)
         print_status $RED "Unknown command: $COMMAND"
         show_usage
+        cd $CURDIR
         exit 1
         ;;
 esac
+
+cd $CURDIR

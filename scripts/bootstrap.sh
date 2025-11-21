@@ -243,4 +243,4 @@ drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CR
 
 # Set up automatic backup cron system
 echo "Setting up automatic backup cron system"
-/var/www/scripts/setup-automatic-backup-cron.sh setup
+/var/www/scripts/snapshot/setup-cron.sh
