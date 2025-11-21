@@ -192,15 +192,18 @@ function faq_process_components(DOMDocument &$dom): void {
         $element->parentNode->insertBefore($accordionHeading, $element);
 
         // Get this panel's body content
-        $accordionPanelBodyNodeID = $accordionPanelNode->get('field_accordion_section_body')[0]->get('target_id')->getValue();
-        $accordionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelBodyNodeID);
+        $accordionPanelBodyNodeBody = $accordionPanelNode->get('field_accordion_section_body')[0];
+        if ($accordionPanelBodyNodeBody) {
+          $accordionPanelBodyNodeID = $accordionPanelBodyNodeBody->get('target_id')->getValue();
+          $accordionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelBodyNodeID);
 
-        // append accordion body content
-        $accordionBody = new DOMDocument();
-        $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
-        foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
-          $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
-          $element->parentNode->insertBefore($accordionBodyElement, $element);
+          // append accordion body content
+          $accordionBody = new DOMDocument();
+          $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
+          foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
+            $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
+            $element->parentNode->insertBefore($accordionBodyElement, $element);
+          }
         }
       }
     }
