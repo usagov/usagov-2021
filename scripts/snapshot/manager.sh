@@ -1169,7 +1169,9 @@ restore_backup() {
         fi
 
         rm -f "$temp_sql_file" 2>/dev/null
-    fi    echo ""
+    fi
+
+    echo ""
     print_status $GREEN "🎉 Restore complete!"
 
     # Summary of what was restored
