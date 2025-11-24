@@ -25,7 +25,6 @@ show_usage() {
     echo "Examples:"
     echo "  $0                      # Run full test suite"
     echo "  $0 --help               # Show this help message"
-    echo ""
 }
 
 # Function to run a test

@@ -1290,20 +1290,6 @@ download_backup() {
     local output_path=$3
     local stream_mode=${4:-false}
 
-    if [ -z "$backup_tag" ]; then
-        log_message "❌ Error: backup tag required"
-        log_message "Usage: $0 download <backup-tag> [type] [output-path] [--stream]"
-        log_message "Types: all, db, static, public, or comma-separated (default: all)"
-        log_message ""
-        log_message "Examples:"
-        log_message "  $0 download AUTO-prod-14850-Oct-28-25                        # Download all types to current dir"
-        log_message "  $0 download AUTO-prod-14850-Oct-28-25 db                    # Download db only to current dir"
-        log_message "  $0 download AUTO-prod-14850-Oct-28-25 db,static ./backups/  # Download db and static to ./backups/"
-        log_message "  $0 download AUTO-prod-14850-Oct-28-25 all ./backups/        # Download all types to ./backups/"
-        log_message "  $0 download AUTO-prod-14850-Oct-28-25 db - --stream         # Stream db to stdout"
-        return 1
-    fi
-
     # Check if streaming mode (output_path is "-" or --stream flag is present)
     if [ "$output_path" = "-" ] || [ "$stream_mode" = "--stream" ] || [ "$output_path" = "--stream" ]; then
         stream_mode=true

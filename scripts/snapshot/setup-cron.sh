@@ -151,6 +151,9 @@ test_cron_command() {
 COMMAND=${1:-status}
 
 case $COMMAND in
+    help|--help|-h)
+        show_usage
+        ;;
     setup)
         setup_cron
         ;;
@@ -162,9 +165,6 @@ case $COMMAND in
         ;;
     test)
         test_cron_command
-        ;;
-    help|--help|-h)
-        show_usage
         ;;
     *)
         print_status $RED "Unknown command: $COMMAND"
