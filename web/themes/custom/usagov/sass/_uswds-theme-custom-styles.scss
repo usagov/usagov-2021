@@ -126,19 +126,23 @@ To update existing content buttons:
 .usa-button--secondary {
   border: 2px solid $secondary-border;
 }
+
 .usa-button--secondary:hover {
   background-color: $secondary-background;
   border: 2px solid $secondary-border;
 }
+
 .usa-button--secondary.usa-button--big {
   @include u-font-size('sans', 'md');
 }
+
 /****************************************************************************************
   AFTER UPDATING CONTENT BUTTONS, KEEP STYLES FOR .usagov-button
 ****************************************************************************************/
 .usagov-button{
   border: 2px solid $secondary-border;
   @include u-font-size('sans', 'md');
+
   padding: units(2) units(3);
   @include set-text-and-bg("secondary", $context: "Button");
 
@@ -147,6 +151,7 @@ To update existing content buttons:
     border: 2px solid $secondary-border;
   }
 }
+
 /****************************************************************************************
   END OF CONTENT BUTTON UPDATE CODE
 ****************************************************************************************/
@@ -552,6 +557,7 @@ div[class^="QSIUserDefinedHTML"] {
 #pagesurvey-qual-hdr {
   @include u-bg('cyan-10');
   @include u-font('serif', 'lg');
+
   display: block;
   @include u-text('gray-90');
 
@@ -644,6 +650,7 @@ a,
 
 // Alignment of recaptcha error message and recaptcha box.
 .recaptcha-container {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .ceo-button-container;
 
   margin-bottom: 1em;
@@ -652,6 +659,7 @@ a,
 
 // Centers the recaptcha error message
 .err-label-captcha {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .usa-error;
 
   text-align: center;
@@ -670,6 +678,7 @@ a,
 }
 
 .issue-button {
+  /* stylelint-disable-next-line scss/at-extend-no-missing-placeholder */
   @extend .ceo-button;
 
   margin-top: 1.5rem;
@@ -700,9 +709,11 @@ div div.field--name-field-offices-near-you {
 }
 
 // Add padding for feedback button
+/* stylelint-disable */
 button#QSIFeedbackButton-btn {
   padding: 2px !important;
 }
+/* stylelint-enable */
 
 [href]:focus,
 button:not([disabled]):focus,
@@ -795,14 +806,14 @@ select:not([disabled]):focus,
 
     &:hover{
       @include u-text('gray-90');
+
       background-color:#768FB3;
       border-color: #768FB3;
     }
 }
 
   .usa-pagination__link {
-    text-decoration-color: color('blue-warm-70v');
-    text-decoration: underline;
+    text-decoration: underline color('blue-warm-70v');
 
     &:hover{
       color: color('blue-warm-70v');
@@ -892,7 +903,7 @@ input::-webkit-textfield-decoration-container {
 // reduces space below the breadcrumb on benefits pages
 #block-usagov-breadcrumbs {
   min-height: 5rem;
-  
+
   @include at-media("mobile-lg") {
     min-height: 4rem;
   }
@@ -902,6 +913,7 @@ input::-webkit-textfield-decoration-container {
   .usa-prose>p.usa-intro {
     @include u-margin(0);
     @include u-font-size('serif', 'md');
+
     max-width: 100%;
   }
 }
@@ -911,6 +923,229 @@ input::-webkit-textfield-decoration-container {
     top: 5vh !important;
     min-height: 80vh !important;
 }
+
 .ui-dialog.ckeditor5-paragraph-embed-modal > .ui-dialog-content {
     height: 80vh !important;
+}
+
+/* Blog post styles */
+.usa-section .usa-prose .blog-post {
+  margin-bottom: -85px;
+
+  .field--name-field-featured-image {
+    float: right;
+    margin-left: 10px;
+    margin-bottom: 10px;
+
+    img {
+      max-width: 300px;
+    }
+  }
+
+  .align-left {
+    margin-top: 0;
+  }
+}
+
+/* Blog view styles */
+.usa-section .usa-prose.blog-view {
+  .views-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    min-height: 200px;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    border-color: #ddd;
+    margin-top: 0px;
+    margin-bottom: 22px;
+    padding: 12px 12px 12px 16px;
+    border-radius: 4px 4px 4px 4px;
+
+    &:hover {
+      background-color: #ebe6de;
+    }
+
+    .views-field-title {
+      grid-column: 1 / -1;
+    }
+
+    .views-field-title h2 {
+      font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
+      font-size: 1.95rem;
+      color: #d83933;
+      line-height: 1.2;
+      font-weight: 700;
+      text-decoration: none;
+
+      &:hover {
+        color: #a62a26;
+      }
+    }
+
+    .views-field-field-featured-image {
+      grid-column: 1 / -1;
+      margin-top: 15px;
+      margin-right: 5px;
+    }
+
+    .views-field-body {
+      grid-column: 1 / -1;
+    }
+
+    .views-field-created {
+      justify-self: start;
+      align-self: start;
+      margin-top: 10px;
+    }
+
+    .usa-button::after {
+      content: " >";
+      position: relative;
+      top: 1px;
+      left: 3px;
+      aria-hidden: true;
+    }
+
+    .views-field-view-node {
+      justify-self: end;
+      align-self: end;
+    }
+
+    // Mobile styles for blog view
+    @media (max-width: 40em) {
+      .views-field-created {
+        font-size: 1rem;
+      }
+
+      .views-field-view-node a {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  // Blog view pagination styling
+  .usa-pagination {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+
+    .usa-pagination__list {
+      justify-content: center;
+    }
+  }
+}
+
+// Mini pager specific styles
+.usa-pagination {
+  // Ensure pager is visible on all screen sizes
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+
+  .usa-pagination__list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .usa-pagination__item {
+    display: flex;
+    align-items: center;
+  }
+
+  .usa-pagination__arrow {
+    .usa-pagination__link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      border: 2px solid color('blue-warm-70v');
+      border-radius: 4px;
+      background-color: white;
+      color: color('blue-warm-70v');
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover,
+      &:focus {
+        background-color: color('blue-warm-70v');
+        color: white;
+        text-decoration: none;
+      }
+
+      &:focus {
+        outline: 2px solid color('orange-warm-50v');
+        outline-offset: 2px;
+      }
+
+      .usa-icon {
+        width: 1rem;
+        height: 1rem;
+        fill: currentColor;
+      }
+
+      .usa-pagination__link-text {
+        margin: 0 0.5rem;
+
+        // Hide text on mobile, show only icons
+        @media (max-width: 479px) {
+          position: absolute;
+          left: -10000px;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+
+  .usa-pagination__page-no {
+    .usa-pagination__button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1rem;
+      border: 2px solid color('blue-warm-70v');
+      border-radius: 4px;
+      background-color: color('blue-warm-70v');
+      color: white;
+      font-weight: 600;
+      min-width: 3rem;
+    }
+  }
+
+  // Mobile-specific adjustments
+  @media (max-width: 479px) {
+    .usa-pagination__list {
+      gap: 0.5rem;
+    }
+
+    .usa-pagination__arrow {
+      .usa-pagination__link {
+        padding: 0.75rem;
+        min-width: 3rem;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// Blog instruction text responsive display utilities
+.blog-instruction-text {
+  &.display-none {
+    display: none;
+  }
+
+  @include at-media('desktop') {
+    &.desktop\:display-block {
+      display: block !important;
+    }
+  }
 }

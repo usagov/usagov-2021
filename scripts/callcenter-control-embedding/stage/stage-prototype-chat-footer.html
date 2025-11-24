@@ -1,0 +1,63 @@
+<script type='text/javascript'>
+	function launchChat() {
+		embeddedservice_bootstrap.utilAPI.launchChat()
+		.catch((err) => {
+			console.error(
+				'Launch Chat failed: ', err
+			);
+		});
+	}
+
+	function initEmbeddedMessaging() {
+		try {
+			embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
+			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+			embeddedservice_bootstrap.init(
+			'00Dcq0000035wJN',
+			'FCIC_USA_gov_MIAW_Embedded_Service_Deployment',
+			'https://gsa-peo--peofl1uatp.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1762807142933',
+			{
+				scrt2URL: 'https://gsa-peo--peofl1uatp.sandbox.my.salesforce-scrt.com'
+			}
+			);
+		} catch (err) {
+			console.error('Error loading Embedded Messaging: ', err);
+		}
+	};
+
+	function updateChatVisibility() {
+		var openElement = document.getElementById("liveagent_button_online");
+		var closedElement = document.getElementById("liveagent_button_offline");
+		if (!openElement || !closedElement) return;
+
+		// Get current time in Eastern Time (handles EDT/EST automatically)
+		var now = new Date();
+		var easternTime = new Date(
+			now.toLocaleString("en-US", { timeZone: "America/New_York" })
+		);
+		var hours = easternTime.getHours();
+
+		// Visible between 8 AM (08:00) and 8 PM (20:00)
+		var isOpen = hours >= 8 && hours < 20;
+
+		// Toggle visibility
+		openElement.style.display = isOpen ? "block" : "none";
+		closedElement.style.display = isOpen ? "none" : "block";
+	}
+
+	function chatPageInit() {
+		try {
+			initEmbeddedMessaging();
+		} catch (err) {
+			console.error('Error initializing Embedded Messaging: ', err);
+		}
+
+		try {
+			updateChatVisibility();
+		} catch (err) {
+			console.error('Error updating chat visibility: ', err);
+		}
+}
+</script>
+
+<script type='text/javascript' src='https://gsa-peo--peofl1uatp.sandbox.my.site.com/ESWFCICUSAgovMIAWEmbe1762807142933/assets/js/bootstrap.min.js' onload='chatPageInit()'></script>

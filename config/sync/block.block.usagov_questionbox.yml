@@ -1,0 +1,56 @@
+uuid: 75126d6d-6500-41fb-9fdb-922b88bac0b2
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:html_block:d9012c83-2e04-46f2-9971-a3d6d5149de1'
+  module:
+    - block_content
+    - language
+    - node
+    - system
+    - term_condition
+  theme:
+    - usagov
+id: usagov_questionbox
+theme: usagov
+region: question_box
+weight: 0
+provider: null
+plugin: 'block_content:d9012c83-2e04-46f2-9971-a3d6d5149de1'
+settings:
+  id: 'block_content:d9012c83-2e04-46f2-9971-a3d6d5149de1'
+  label: 'Question Box'
+  label_display: '0'
+  provider: block_content
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  language:
+    id: language
+    negate: false
+    context_mapping:
+      language: '@language.current_language_context:language_interface'
+    langcodes:
+      en: en
+  request_path:
+    id: request_path
+    negate: true
+    pages: "/agency-index\r\n/chat\r\n/check-tax-status\r\n/contact-irs\r\n/elected-officials-email\r\n/elected-officials-results\r\n/phone\r\n/tax-refund-direct-deposit\r\n/tax-refund-offset\r\n/tax-refunds\r\n/unclaimed-tax-refunds"
+  term:
+    id: term
+    negate: true
+    context_mapping: {  }
+    term_uuids:
+      - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
+      - 5d427eb4-eaf0-4735-a6c9-6968c85545f9
+      - 98da5ec5-e08a-4d6d-832e-0eb027282728
+      - e81abe40-3c39-4457-a5de-265513e423be
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+    bundles:
+      basic_page: basic_page

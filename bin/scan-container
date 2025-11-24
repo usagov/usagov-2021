@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -32,4 +32,5 @@ docker run --disable-content-trust -it --rm \
     $DOCKERUSER/$DOCKERREPO:$APPNAME-$CTAG \
     --file=/app/Dockerfile-$APPNAME \
     --print-deps \
-    --severity-threshold=$THRESHOLD
+    --severity-threshold=$THRESHOLD \
+    --policy-path=/app/.snyk

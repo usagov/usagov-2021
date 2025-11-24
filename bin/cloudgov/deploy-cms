@@ -3,46 +3,49 @@
 # This script will attempt to deploy a cms app by tag
 #
 
-# we might be running in circleci
-if [ -f /home/circleci/project/env.local ]; then
-  . /home/circleci/project/env.local
-fi
-# we might be running from a local dev machine
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f $SCRIPT_DIR/env.local ]; then
-  . $SCRIPT_DIR/env.local
-fi
-if [ -f ./env.local ]; then
-  . ./env.local
+# Optional includes: we might be running in circleci, or a local dev machine
+for f in /home/circleci/project/env.local $SCRIPT_DIR/env.local ./env.local; do
+  if [ -f $f ]; then
+    . $f
+  fi
+done
+
+# Mandatory includes:
+for inc in $SCRIPT_DIR/../deploy/includes; do
+  if [ ! -f $inc ]; then
+    echo "Cannot find $inc"
+    exit 1
+  fi
+  . $inc
+done
+
+# just testing?
+if [ x$1 = x"--dryrun" ]; then
+  echo=echo
+  dryrun=$1
+  shift
 fi
 
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 
+APP_SPACE=${1:-please-provide-space-name-as-first-argument}
+APP_SPACE=$(echo "$APP_SPACE" | tr '[:upper:]' '[:lower:]')
+assertCurSpace $APP_SPACE
+shift
+
+APP_ORG=getOrg
+
+export APP_NAME="cms"
+
 CTAG=${1:-latest}
 CDIGEST=${2:-}
-
-APP_SPACE=$( cf target | grep space: | awk '{ print $2 }')
-APP_ORG=$(   cf target | grep org:   | awk '{ print $2 }')
 
 EGRESS_SPACE='shared-egress'
 #if [ "$APP_SPACE" == "dev-dr" ]; then
 #    EGRESS_SPACE='shared-egress-dr'
 #fi
-
-# The Image digest for this tag should be looked up from cloud.gov storage
-# Any tag with a stored Image digest should be referenced by hash instead of tag
-
-function appExists {  # appname
-  app=$1
-  if [ -z "$app" ]; then
-    echo "ERROR: appname is required"
-    exit 1
-  fi
-  echo cf app $app > /dev/null 2>&1
-  cf app $app > /dev/null 2>&1
-  return $?
-}
 
 function restartApp { #appname
   app=$1
@@ -50,7 +53,8 @@ function restartApp { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
-  cf restart $app --no-wait --strategy rolling
+  echo cf restart $app --no-wait --strategy rolling
+  $echo cf restart $app --no-wait --strategy rolling
 }
 
 function pushApp { #appname
@@ -69,20 +73,46 @@ function pushApp { #appname
     instances="-i 1"
   fi
 
+  if existsCFApp $app; then
+    echo "App $app already exists - use normal cf routing"
+    no_route=""
+  else
+    no_route="--no-route"
+    echo "App $app does not exist - will push with --no-route to prevent failure on first push"
+  fi
+
+  # The Image digest for this tag should be looked up from cloud.gov storage
+  # Any tag with a stored Image digest should be referenced by hash instead of tag
   if [ -z "$CDIGEST" ]; then
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-      cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --strategy rolling
+      RETVAL=$?
     else
-      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME
+      export CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      RETVAL=$?
+      unset CF_DOCKER_PASSWORD
     fi
   else
     echo "Deploying ${DOCKERUSER}/${DOCKERREPO} ${app}-${CTAG} via digest ${CDIGEST}"
     if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-	cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST}
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --strategy rolling
+      RETVAL=$?
     else
-      CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push $app $instances --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME
+      export CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN
+      echo  cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      $echo cf push $app $instances $no_route --docker-image ${DOCKERUSER}/${DOCKERREPO}${CDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
+      RETVAL=$?
+      unset CF_DOCKER_PASSWORD
     fi
+  fi
+  if [ $RETVAL -ne 0 ]; then
+    echo "ERROR: cf push failed ($RETVAL)"
+    exit $RETVAL
   fi
 }
 
@@ -93,19 +123,16 @@ function setupRoutes { #appname
     exit 1
   fi
 
-  cf create-route apps.internal --hostname cms-$APP_SPACE-usagov
-  cf map-route $app apps.internal --hostname cms-$APP_SPACE-usagov
+  createRoute apps.internal ${app}-$APP_SPACE-usagov
+  mapRoute $app apps.internal ${app}-$APP_SPACE-usagov
 
   if [ "$APP_SPACE" == "prod" ]; then
-     cf create-route usa.gov --hostname cms
-     cf map-route $app usa.gov --hostname cms
-
+     createRoute usa.gov $app
+     mapRoute $app usa.gov $app
   else
-    cf create-route usa.gov --hostname cms-$APP_SPACE
-    cf map-route $app usa.gov --hostname cms-$APP_SPACE
-
+    createRoute usa.gov ${app}-$APP_SPACE
+    mapRoute $app usa.gov ${app}-$APP_SPACE
   fi
-
 }
 
 function setupEgress { #appname
@@ -114,31 +141,58 @@ function setupEgress { #appname
     echo "ERROR: appname is required"
     exit 1
   fi
-  $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+
+  if [ x$echo != x ]; then
+    echo DRYRUN=yes $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+    DRYRUN=yes $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+  else
+    echo $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+    $SCRIPT_DIR/setup-egress-for-apps $app --no-restart
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ]; then
+      echo "ERROR: setup-egress-for-apps failed ($RETVAL)"
+      exit $RETVAL
+    fi
+  fi
 }
 
 function setUSPSCreds {
-  cf set-env cms USPS_USERID $USPS_USERID
-  cf set-env cms USPS_PASSWORD $USPS_PASSWORD
+  app=$1
+  cfSetEnv $app USPS_API_ENV $USPS_API_ENV
+  cfSetEnv $app USPS_USERID $USPS_USERID
+  cfSetEnv $app USPS_PASSWORD $USPS_PASSWORD
 }
 
 function setCallCenterEWTBucket {
-  cf set-env cms CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
+  app=$1
+  cfSetEnv $app CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
 }
 
-if appExists cms; then
-  setupRoutes cms
-  setupEgress cms
-  setUSPSCreds
-  setCallCenterEWTBucket
-  pushApp cms
+if existsCFApp $APP_NAME; then
+  setupRoutes $APP_NAME
+  setupEgress $APP_NAME
+  setUSPSCreds $APP_NAME
+  setCallCenterEWTBucket $APP_NAME
+  if existsCFService "cache-service"; then
+      bindServiceToApp $APP_NAME cache-service
+  fi
+  if existsCFService "s3forAnalyticsReporter"; then
+      bindServiceToApp $APP_NAME s3forAnalyticsReporter
+  fi
+  pushApp $APP_NAME
 else
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP "skip"
-  pushApp cms
-  setupRoutes cms
-  setupEgress cms
-  setUSPSCreds
-  setCallCenterEWTBucket
-  cf set-env cms SKIP_DRUPAL_BOOTSTRAP ""
-  restartApp cms
+  cf set-env $APP_NAME SKIP_DRUPAL_BOOTSTRAP "skip" &> /dev/null ### redirect error message - we know app doesn't exist
+  pushApp $APP_NAME
+  setupRoutes $APP_NAME
+  setupEgress $APP_NAME
+  if existsCFService "cache-service"; then
+      bindServiceToApp $APP_NAME cache-service
+  fi
+  if existsCFService "s3forAnalyticsReporter"; then
+      bindServiceToApp $APP_NAME s3forAnalyticsReporter
+  fi
+  setUSPSCreds $APP_NAME
+  setCallCenterEWTBucket $APP_NAME
+  cfSetEnv $APP_NAME SKIP_DRUPAL_BOOTSTRAP ""
+  restartApp $APP_NAME
 fi

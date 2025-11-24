@@ -43,8 +43,29 @@ services:
               "bucket": "local",
               "fips_endpoint": "minio:9000",
               "endpoint": "minio:9000"
+               }
+             },
+             {
+               "credentials": {
+                 "access_key_id": "REPLACE_THIS_IF_YOU_NEED_TO_WRITE_TO_THE_BUCKET",
+                 "additional_buckets": [],
+                 "bucket": "cg-c4ae21db-2fd9-4501-bce8-549dc06ab668",
+                 "endpoint": "s3-fips.us-gov-west-1.amazonaws.com",
+                 "fips_endpoint": "s3-fips.us-gov-west-1.amazonaws.com",
+                 "insecure_skip_verify": false,
+                 "region": "us-gov-west-1",
+                 "secret_access_key": "REPLACE_THIS_IF_YOU_NEED_TO_WRITE_TO_THE_BUCKET"
+               },
+               "instance_name": "s3forAnalyticsReporter",
+               "label": "s3",
+               "name": "s3forAnalyticsReporter",
+               "tags": [
+                 "AWS",
+                 "S3",
+                 "object-storage"
+               ]
             }
-          }],
+          ],
           "aws-rds": [{
             "name": "database",
             "credentials": {
@@ -71,11 +92,32 @@ services:
               "SPKEY": "SPKey",
               "SPCRT": "SPCert"
             }
-          }]
+          }],
+         "aws-elasticache-redis": [
+          {
+            "credentials": {
+              "current_redis_engine_version": "6.2",
+              "host": "cache",
+              "hostname": "cache",
+              "password": "CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV",
+              "port": "6379",
+              "uri": "redis://:CACHE_SERVICE_PASSWORD_FOR_LOCAL_DEV@cache:6379",
+              "IS_LOCAL_DEV": 1
+            },
+            "name": "cache-service",
+            "tags": [
+                        "redis",
+                        "Elasticache",
+                        "AWS",
+                        "cache-service"
+                ]
+          }
+        ]
         }
     depends_on:
       - database
       - minio
+      - cache
 
   database:
     container_name: database
@@ -169,6 +211,14 @@ services:
     networks:
       - gsa-gov
 
+  cache:
+    container_name: cache
+    build:
+      dockerfile: .docker/Dockerfile-cache
+    ports:
+      - 6379:6379
+    networks:
+      - gsa-gov
 
 volumes:
   database_data:

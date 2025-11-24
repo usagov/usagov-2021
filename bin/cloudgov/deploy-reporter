@@ -4,6 +4,7 @@ set -o pipefail
 DOCKERUSER=${DOCKERUSER:-gsatts}
 DOCKERREPO=${DOCKERREPO:-usagov-2021}
 CTAG=${1:-latest}
+RDIGEST=${2:-}
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -35,8 +36,11 @@ function popspace() {
 # trap popspace exit
 trap popspace err
 
-cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
-    (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
+# NOTE: The following lines were commented out because it was forcing us to place the reporter in the Tools space,
+#       and since USAGOV-2278, we now want to deploy to dev/stage/prod instead.
+#
+# cf target -o "$startorg" -s tools > /dev/null 2>&1 ||
+#     (echo "ERROR: Space ${startorg}/tools is not available!" && exit 1)
 
 # Content checks
 if ! command -v jq >/dev/null; then
@@ -106,12 +110,20 @@ else
 fi
 cf create-service s3 basic-public-sandbox s3for${APPNAME}
 
+# Set the CORS policy so web clients can consume data for pages we serve:
+source bin/cloudgov/get-s3-access s3for${APPNAME}
+aws s3api put-bucket-cors --bucket $S3_BUCKET --cors-configuration file://bin/cloudgov/s3-cors-policy-usagov-sites-and-localhost.json
+
 # launch the app
-echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG"
+echo "Deploying ${DOCKERUSER}/${DOCKERREPO}:reporter-${CTAG} via digest ${RDIGEST}"
+echo "Will use the command: CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling"
+
 if [ -z "$DOCKERHUB_ACCESS_TOKEN" ]; then
-    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG
+    echo "testing this is a test - test 1"
+    cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --strategy rolling
 else
-    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}:reporter-$CTAG --docker-username $DOCKERHUB_USERNAME
+    echo "testing this is a test - test 2"
+    CF_DOCKER_PASSWORD=$DOCKERHUB_ACCESS_TOKEN cf push ${APPNAME} -f ./manifest-reporter.yml --docker-image ${DOCKERUSER}/${DOCKERREPO}@${RDIGEST} --docker-username $DOCKERHUB_USERNAME --strategy rolling
 fi
 
 
@@ -166,8 +178,12 @@ echo $S3_SERVICE_DATA | jq '.' > reporter-vcapsecrets.json
 
 cf uups ${APPNAME}Services -p reporter-vcapsecrets.json
 
+# Make sure the app has the PROXYROUTE variable for the egress proxy, and is
+# bound to the log-shipper-drain:
+$SCRIPT_DIR/setup-egress-for-apps ${APPNAME} --no-restart
+
 # restart for variables
 echo Restarting ${APPNAME}
-cf restart ${APPNAME}
+cf restart ${APPNAME} --strategy rolling
 
 popspace

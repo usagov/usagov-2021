@@ -95,6 +95,8 @@ paths.forEach((path, idx) => {
       // font-size: 1.95rem;
       cy.get("h2")
         .not(".usa-card__heading")
+        .not(".usa-accordion__heading")
+        .not(".usa-alert__heading")
         .each((h2) => {
           cy.wrap(h2)
             .then((el) => {

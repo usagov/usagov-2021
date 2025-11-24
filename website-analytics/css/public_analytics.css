@@ -277,6 +277,10 @@ header img {
   width: 140px;
   padding: 20px;
 }
+.header-logo a:focus {
+  outline: 3px solid #005ea2;
+  outline-offset: 4px;
+}
 
 .header-right {
   display: flex;
@@ -857,7 +861,9 @@ g.axis .tick text {
 }
 .time-series text.label {
   fill: #323a45;
-  font-size: 0.6rem;
+  font-size: 10px;
+  transform: rotate(45deg) translateY(-10px) translateX(10px);
+  font-weight: bold;
 }
 
 #site-wide-alert {
@@ -917,10 +923,9 @@ a {
   flex-wrap: nowrap;
 
   label {
-    position: absolute;
-    left: -999em;
-    width: 0;
-    margin: 0;
+    color: black;
+    width: 200px;
+    margin: auto;
   }
 }
 
@@ -957,4 +962,63 @@ a {
 
 .windows-div {
   flex-basis: 85%;
+}
+
+.bar rect {
+  fill: #0066cc; /* Ensure this color has at least 4.5:1 contrast ratio with background */
+}
+.axis text {
+  fill: #333333; /* Ensure readable text */
+}
+
+figure#time_series figcaption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.sr-only {
+  position: absolute;
+  left: -999em;
+}
+
+.tooltip {
+  font-size: 12px;
+  color: #ffffff;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.focus-info {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 20px 25px;
+  text-align: center;
+  font-weight: bold;
+  min-height: 24px;
+}
+
+.summary {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
 }

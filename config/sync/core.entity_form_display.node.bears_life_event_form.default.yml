@@ -13,6 +13,7 @@ dependencies:
     - field.field.node.bears_life_event_form.field_b_title_prefix
     - field.field.node.bears_life_event_form.field_language_toggle
     - node.type.bears_life_event_form
+    - workflows.workflow.basic_workflow
   module:
     - content_moderation
     - paragraphs
@@ -190,3 +191,7 @@ content:
     third_party_settings: {  }
 hidden:
   field_b_json_file: true
+  publish_on: true
+  publish_state: true
+  unpublish_on: true
+  unpublish_state: true

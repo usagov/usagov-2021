@@ -101,31 +101,6 @@ generate_cert_json()
   NEW_RELIC_API_KEY=${NEW_RELIC_API_KEY:-}
 }
 
-## DATABASE SERVICE
-{
-  echo "Configuring Database Service"
-  if service_exists "database" ; then
-    echo database already created
-  else
-    if [ "$SPACE" = "dev" ] ; then
-       RDS_PLAN=small-mysql
-    else
-	RDS_PLAN=small-mysql-redundant
-    fi
-    cf create-service aws-rds \
-      $RDS_PLAN \
-      database \
-      -c '{"version": "8.0"}'
-  fi
-
-  # wait until the db is fully provisioned
-  until cf create-service-key database test-db-ok ; do
-    echo waiting until database is live...
-    sleep 20
-  done
-  cf delete-service-key database test-db-ok -f
-}
-
 ## STORAGE SERVICE
 {
   echo "Configuring Storage Service"
@@ -165,14 +140,14 @@ generate_cert_json()
 
     # Only allow update of new relic vars, all others match the existing values
     yes '' | cf update-user-provided-service secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\", \"HASH_SALT\": \"$CURR_HASH_SALT\", \"ROOT_USER_NAME\": \"$CURR_ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$CURR_ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$CURR_NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$CURR_NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$CURR_NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$CURR_NEW_RELIC_API_KEY\"}"
-    # do we need to reattach this service to the apps individually?
+    # Appls would need to be restarted if they rely on any of the changed parameters.
 
   else
     yes '' | cf create-user-provided-service secrets -p "{\"CRON_KEY\": \"$CRON_KEY\", \"HASH_SALT\": \"$HASH_SALT\", \"ROOT_USER_NAME\": \"$ROOT_USER_NAME\", \"ROOT_USER_PASS\": \"$ROOT_USER_PASS\", \"NEW_RELIC_DISPLAY_NAME\": \"$NEW_RELIC_DISPLAY_NAME\", \"NEW_RELIC_APP_NAME\": \"$NEW_RELIC_APP_NAME\", \"NEW_RELIC_LICENSE_KEY\": \"$NEW_RELIC_LICENSE_KEY\", \"NEW_RELIC_API_KEY\": \"$NEW_RELIC_API_KEY\"}"
   fi
 
   if service_exists "secauthsecrets" ; then
-    # check for existance of spcrt and spkey in secrets service
+    # check for existence of spcrt and spkey in secrets service
     # if not found generate
     echo "Secauthsecrets service already created"
     if generate_cert_json; then
@@ -182,6 +157,15 @@ generate_cert_json()
     if generate_cert_json; then
       yes '' | cf create-user-provided-service secauthsecrets -p "$CERT_JSON"
     fi
+  fi
+
+  if service_exists "cron-secrets" ; then
+    echo "cron-secrets service already created"
+    CURR_SECRETS=$(cf curl /v3/service_instances/$(cf service secrets --guid)/credentials)
+    CURR_CRON_KEY=$(echo $CURR_SECRETS | jq -r '.CRON_KEY')
+    yes '' | cf update-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CURR_CRON_KEY\"}"
+  else
+    cf create-user-provided-service cron-secrets -p "{\"CRON_KEY\": \"$CRON_KEY\"}"
   fi
 }
 
