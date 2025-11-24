@@ -24,8 +24,6 @@ ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
 
-# Color definitions and utility functions now in common.sh
-
 show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
@@ -308,7 +306,6 @@ create_db_backup() {
         fi
     fi
 
-    # Create temporary files for database backup
     TEMP_SQL="/tmp/${DB_BACKUP_TAG}.sql"
     TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
 
@@ -362,7 +359,6 @@ create_db_backup() {
     aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
     UPLOAD_EXIT_CODE=$?
 
-    # Clean up temporary files
     rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
 
     if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
@@ -520,10 +516,6 @@ backup_all() {
     fi
 }
 
-# ===================================================================
-# EXISTING FUNCTIONS FROM TOME-BACKUP-MANAGER.SH
-# ===================================================================
-
 list_backups() {
     local types_arg="${1:-all}"
     local days_arg="${2:-}"
@@ -558,7 +550,21 @@ list_static_backups() {
 
     print_status $GREEN "Static Site Backups:"
     echo "===================="
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+
+    # Get list of backup directories with metadata
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
+        backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
+        backup_date=$(echo "$line" | awk '{print $1" "$2}')
+
+        # Get total size of backup directory
+        backup_size=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | awk '{sum+=$3} END {print sum}')
+
+        if [ -z "$backup_size" ]; then
+            backup_size="0"
+        fi
+
+        echo "  $backup_tag ($backup_size bytes) - $backup_date"
+    done
 }
 
 list_public_backups() {
@@ -566,7 +572,21 @@ list_public_backups() {
 
     print_status $GREEN "Public Files Backups:"
     echo "====================="
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | sort -r
+
+    # Get list of backup directories with metadata
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
+        backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
+        backup_date=$(echo "$line" | awk '{print $1" "$2}')
+
+        # Get total size of backup directory
+        backup_size=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | awk '{sum+=$3} END {print sum}')
+
+        if [ -z "$backup_size" ]; then
+            backup_size="0"
+        fi
+
+        echo "  $backup_tag ($backup_size bytes) - $backup_date"
+    done
 }
 
 list_db_backups() {
@@ -576,7 +596,7 @@ list_db_backups() {
     echo "=================="
 
     if [ -n "$AWS_ACCESS_KEY_ID" ]; then
-        aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | while read -r line; do
+        aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | sort -r | while read -r line; do
             # Extract backup name from S3 listing
             backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
             backup_size=$(echo "$line" | awk '{print $3}')
@@ -654,7 +674,6 @@ list_all_backups() {
         fi
     done < "$all_tags"
 
-    # Clean up temporary files
     rm -f "$static_list" "$public_list" "$db_list" "$all_tags" 2>/dev/null
 
     echo ""
@@ -889,7 +908,6 @@ find_corresponding_public_backup() {
         fi
     done < "$temp_list"
 
-    # Clean up temp file
     rm -f "$temp_list" 2>/dev/null
 
     if [ -n "$best_public_backup" ]; then
@@ -941,7 +959,6 @@ find_corresponding_db_backup() {
         fi
     done < "$temp_list"
 
-    # Clean up temp file
     rm -f "$temp_list" 2>/dev/null
 
     if [ -n "$best_db_backup" ]; then
@@ -952,7 +969,6 @@ find_corresponding_db_backup() {
     fi
 }
 
-# Parse restore options (same as before)
 parse_restore_options() {
     local restore_types="static,public,database"  # default: restore all
 
@@ -984,7 +1000,6 @@ parse_restore_options() {
     echo "$restore_types" >&2
 }
 
-# Unified restore function (same as before but integrated)
 restore_backup() {
     local backup_tag=""
     local restore_types=""
@@ -1144,7 +1159,7 @@ restore_backup() {
                     exit 1
                 fi
             else
-                print_status $RED "❌ ERROR: Failed to decompress database backup"
+                    print_status $RED "❌ ERROR: Failed to decompress database backup"
                 rm -f "$temp_db_file" 2>/dev/null
                 exit 1
             fi
@@ -1153,11 +1168,8 @@ restore_backup() {
             exit 1
         fi
 
-        # Clean up temp files
         rm -f "$temp_sql_file" 2>/dev/null
-    fi
-
-    echo ""
+    fi    echo ""
     print_status $GREEN "🎉 Restore complete!"
 
     # Summary of what was restored
@@ -1180,7 +1192,6 @@ restore_backup() {
     fi
 }
 
-# Get backup info (existing function)
 backup_info() {
     local backup_tag=$1
     if [ -z "$backup_tag" ]; then

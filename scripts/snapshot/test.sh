@@ -320,8 +320,7 @@ test_manager_commands() {
     # Test clean command (dry run style test)
     echo "🧹 Testing 'clean' command..."
 
-    # Note: We can't actually test clean without potentially deleting real backups
-    # So we test that it at least shows the right prompts/interface
+    # Clean command validation only (no actual deletion testing)
     echo "n" | "$manager_script" clean all 30 >/dev/null 2>&1
     local clean_exit=$?
     if [ $clean_exit -eq 0 ] || [ $clean_exit -eq 1 ]; then
@@ -595,7 +594,6 @@ test_backup_download() {
         return 0
     }
 
-    # Create temporary test directory
     local test_dir="/tmp/backup_download_test_$$"
     mkdir -p "$test_dir"
 

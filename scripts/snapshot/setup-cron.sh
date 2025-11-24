@@ -44,8 +44,6 @@ setup_cron() {
     fi
 
     # Convert Eastern Time to UTC (EST is UTC-5, EDT is UTC-4)
-    # Note: This is a simplified conversion. For production, consider using a proper timezone library
-    # In most cases, Cloud.gov servers run in UTC anyway, so this conversion may not be needed
     utc_hour=$((hour + 5))
     if [ $utc_hour -ge 24 ]; then
         utc_hour=$((utc_hour - 24))
@@ -55,7 +53,6 @@ setup_cron() {
     print_status $YELLOW "⚠️ Time conversion: ${hour}:${minute} Eastern → ${utc_hour}:${minute} UTC"
     print_status $YELLOW "📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed."
 
-    # Remove existing backup cron jobs first
     crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
 
     # Determine working directory for cron job
