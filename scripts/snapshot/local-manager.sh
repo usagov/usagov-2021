@@ -21,6 +21,13 @@ show_usage() {
     echo "  info [types] [tag]                     Show backup info from CF (config or specific backup)"
     echo "  download <tag> [type] [output-dir]     Download backups to local (default: all types, current dir)"
     echo "  test                                   Run backup system test suite on CF"
+    echo "  cron <subcommand>                      Manage automated database backup cron jobs"
+    echo ""
+    echo "Cron Subcommands:"
+    echo "  setup                    Configure automated database backups (uses DB_BACKUP_TIME env var)"
+    echo "  remove                   Remove all cron jobs"
+    echo "  status                   Show current cron jobs (default)"
+    echo "  test                     Test the cron backup command"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -45,6 +52,10 @@ show_usage() {
     echo "  local-manager.sh restore AUTO-prod-14850-Oct-28-25                  # Restore all (interactive)"
     echo "  local-manager.sh restore AUTO-prod-14850-Oct-28-25 --only=db        # Restore db only"
     echo "  local-manager.sh test                                               # Run test suite on CF"
+    echo "  local-manager.sh cron status                                        # Show current cron jobs"
+    echo "  local-manager.sh cron setup                                         # Setup automated db backups"
+    echo "  local-manager.sh cron test                                          # Test cron backup command"
+    echo "  local-manager.sh cron remove                                        # Remove all cron jobs"
     echo ""
     echo "Note: Requires Cloud Foundry CLI (cf) installed and logged in"
     echo "      Login with: bin/cloudgov/login --sso"
@@ -232,6 +243,23 @@ case "$COMMAND" in
         echo "🧪 Running backup system test suite on Cloud Foundry..."
         echo ""
         cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/test.sh"
+        ;;
+    "cron")
+        # cron <subcommand> - manage cron jobs on CF
+        CRON_SUBCOMMAND=${2:-status}
+        case $CRON_SUBCOMMAND in
+            setup|remove|status|test)
+                echo "⚙️  Managing cron jobs on Cloud Foundry..."
+                echo ""
+                cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh $CRON_SUBCOMMAND"
+                ;;
+            *)
+                echo "❌ Unknown cron subcommand: $CRON_SUBCOMMAND"
+                echo ""
+                echo "Valid subcommands: setup, remove, status, test"
+                exit 1
+                ;;
+        esac
         ;;
     *)
         echo "❌ Unknown command: $COMMAND"
