@@ -20,6 +20,7 @@ show_usage() {
     echo "  restore <tag> [--only=type,type]       Restore backups on CF (interactive)"
     echo "  info [types] [tag]                     Show backup info from CF (config or specific backup)"
     echo "  download <tag> [type] [output-dir]     Download backups to local (default: all types, current dir)"
+    echo "  test                                   Run backup system test suite on CF"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -43,6 +44,7 @@ show_usage() {
     echo "  local-manager.sh download AUTO-prod-14850-Oct-28-25 db              # Download db only"
     echo "  local-manager.sh restore AUTO-prod-14850-Oct-28-25                  # Restore all (interactive)"
     echo "  local-manager.sh restore AUTO-prod-14850-Oct-28-25 --only=db        # Restore db only"
+    echo "  local-manager.sh test                                               # Run test suite on CF"
     echo ""
     echo "Note: Requires Cloud Foundry CLI (cf) installed and logged in"
     echo "      Login with: bin/cloudgov/login --sso"
@@ -224,6 +226,12 @@ case "$COMMAND" in
         # download <tag> [type] [output-dir] - special handling for local streaming
         shift
         download_command "$@"
+        ;;
+    "test")
+        # test - run test suite on CF
+        echo "🧪 Running backup system test suite on Cloud Foundry..."
+        echo ""
+        cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/test.sh"
         ;;
     *)
         echo "❌ Unknown command: $COMMAND"
