@@ -555,15 +555,18 @@ list_static_backups() {
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
         backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
 
-        # Get total size of backup directory
+        # Get total size and first file date from backup directory
+        first_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | head -1)
         backup_size=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | awk '{sum+=$3} END {print sum}')
+        backup_date=$(echo "$first_file" | awk '{print $1" "$2}')
 
         if [ -z "$backup_size" ]; then
             backup_size="0"
         fi
 
-        # Get the actual directory listing date
-        backup_date=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE $backup_tag" | awk '{print $1" "$2}')
+        if [ -z "$backup_date" ]; then
+            backup_date="unknown"
+        fi
 
         echo "  $backup_tag ($backup_size bytes) - $backup_date"
     done
@@ -579,15 +582,18 @@ list_public_backups() {
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
         backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
 
-        # Get total size of backup directory
+        # Get total size and first file date from backup directory
+        first_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | head -1)
         backup_size=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | awk '{sum+=$3} END {print sum}')
+        backup_date=$(echo "$first_file" | awk '{print $1" "$2}')
 
         if [ -z "$backup_size" ]; then
             backup_size="0"
         fi
 
-        # Get the actual directory listing date
-        backup_date=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE $backup_tag" | awk '{print $1" "$2}')
+        if [ -z "$backup_date" ]; then
+            backup_date="unknown"
+        fi
 
         echo "  $backup_tag ($backup_size bytes) - $backup_date"
     done
