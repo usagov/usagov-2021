@@ -81,7 +81,7 @@ check_cf_cli() {
 
 # Execute remote command on CF
 remote_command() {
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh $*"
+    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh $*"
 }
 
 # Download command with local streaming
@@ -122,7 +122,7 @@ download_command() {
         case "$type" in
             db)
                 echo "📥 Downloading database backup..."
-                if cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh download $backup_tag db - --stream" > "$output_dir/${backup_tag}-database.sql.gz" 2>/dev/null; then
+                if cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag db - --stream" > "$output_dir/${backup_tag}-database.sql.gz" 2>/dev/null; then
                     size=$(du -h "$output_dir/${backup_tag}-database.sql.gz" | awk '{print $1}')
                     echo "   ✅ Database backup saved: ${backup_tag}-database.sql.gz ($size)"
                 else
@@ -134,7 +134,7 @@ download_command() {
                 ;;
             static)
                 echo "📥 Downloading static backup..."
-                if cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh download $backup_tag static - --stream" > "$output_dir/${backup_tag}-static.tar.gz" 2>/dev/null; then
+                if cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag static - --stream" > "$output_dir/${backup_tag}-static.tar.gz" 2>/dev/null; then
                     size=$(du -h "$output_dir/${backup_tag}-static.tar.gz" | awk '{print $1}')
                     echo "   ✅ Static backup saved: ${backup_tag}-static.tar.gz ($size)"
                 else
@@ -146,7 +146,7 @@ download_command() {
                 ;;
             public)
                 echo "📥 Downloading public backup..."
-                if cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh download $backup_tag public - --stream" > "$output_dir/${backup_tag}-public.tar.gz" 2>/dev/null; then
+                if cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag public - --stream" > "$output_dir/${backup_tag}-public.tar.gz" 2>/dev/null; then
                     size=$(du -h "$output_dir/${backup_tag}-public.tar.gz" | awk '{print $1}')
                     echo "   ✅ Public backup saved: ${backup_tag}-public.tar.gz ($size)"
                 else
