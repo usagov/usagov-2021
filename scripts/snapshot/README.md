@@ -31,6 +31,8 @@ scripts/snapshot/manager.sh info                        # Get system information
 scripts/snapshot/local-manager.sh list                              # List all backups
 scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy  # Create backup on CF
 scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/  # Download to local
+scripts/snapshot/local-manager.sh cron status                       # Check automated backup schedule
+scripts/snapshot/local-manager.sh test                              # Run test suite on CF
 scripts/snapshot/local-manager.sh info                              # Get system info from CF
 ```
 
@@ -173,9 +175,9 @@ All backups use a standardized naming convention for traceability and organizati
   - Cloud.gov: Numeric container tag from `/etc/motd` (e.g., `14850`)
   - Development: Git short hash (e.g., `git-a1b2c3`)
 
-- **timestamp**: Date in `MMM-DD-YY` format (e.g., `Oct-28-25`)
+- **timestamp**: Date in `MMM-DD-YY` format with 24-hour time (e.g., `Nov-24-25`)
 
-- **suffix**: Optional descriptive text, entirely arbitrary, some examples uses:
+- **suffix**: Optional descriptive text, entirely arbitrary, some example uses:
   - `-pre-deploy`: Before deployment operations
   - `-post-deploy`: After deployment operations
   - `-hotfix`: Hotfix-related backups
@@ -213,9 +215,9 @@ scripts/snapshot/
 ### Script Purposes
 
 - **manager.sh**: Core backup operations - runs on Cloud Foundry containers
-- **local-manager.sh**: Remote control wrapper - runs on local machine, executes commands via `cf ssh`
+- **local-manager.sh**: Remote control wrapper - runs on local machine, executes all commands via `cf ssh`
 - **common.sh**: Shared functions, configuration loading, and utilities
-- **setup-cron.sh**: Automated backup scheduling
+- **setup-cron.sh**: Automated backup scheduling - runs on CF, controlled via local-manager.sh or directly
 - **test.sh**: Comprehensive test suite for validation
 
 ## Configuration
@@ -229,18 +231,26 @@ The system is configured through `backup-system.conf`. Key settings include:
 
 ## Automated Backups
 
-Database backups can be scheduled automatically using cron (on Cloud Foundry only):
+Database backups can be scheduled automatically using cron:
 
 ```bash
-# On Cloud Foundry
-scripts/snapshot/setup-cron.sh setup    # Set up daily database backups at 7 PM EST
+# From local machine (recommended)
+scripts/snapshot/local-manager.sh cron setup    # Set up daily database backups (uses DB_BACKUP_TIME env var)
+scripts/snapshot/local-manager.sh cron remove   # Remove scheduled backups
+scripts/snapshot/local-manager.sh cron status   # Check current cron status
+scripts/snapshot/local-manager.sh cron test     # Test the cron backup command
+
+# On Cloud Foundry (direct)
+scripts/snapshot/setup-cron.sh setup    # Set up daily database backups
 scripts/snapshot/setup-cron.sh remove   # Remove scheduled backups
 scripts/snapshot/setup-cron.sh status   # Check current cron status
+scripts/snapshot/setup-cron.sh test     # Test the cron backup command
 ```
 
 **Automated Features:**
 
-- Runs daily at configured time (default: 7 PM EST)
+- Runs daily at configured time (set via DB_BACKUP_TIME environment variable in EST, default: 19:00)
+- Automatically converts EST to UTC for cron scheduling
 - Creates database backups with AUTO prefix
 - Automatically cleans old backups based on retention policy
 - Logs all operations for monitoring
@@ -277,11 +287,14 @@ auto-backups/
 Run the comprehensive test suite to verify system functionality:
 
 ```bash
-# On Cloud Foundry
+# From local machine (recommended)
+scripts/snapshot/local-manager.sh test
+
+# On Cloud Foundry (direct)
 cd /var/www
 scripts/snapshot/test.sh
 
-# From snapshot directory
+# From snapshot directory on CF
 cd scripts/snapshot
 ./test.sh
 ```
@@ -338,6 +351,13 @@ The backup system integrates with:
 - Check SSH access: `cf ssh cms`
 - Verify you're not running on CF itself (script will prevent this)
 
+#### Cron Issues
+
+- Check DB_BACKUP_TIME environment variable is set (format: HH:MM in EST)
+- Verify cron status: `scripts/snapshot/local-manager.sh cron status`
+- Test cron command: `scripts/snapshot/local-manager.sh cron test`
+- Check CF instance index (cron only runs on instance 0)
+
 ### Getting Help
 
 1. **Check system status**:
@@ -350,6 +370,7 @@ The backup system integrates with:
 2. **Run test suite**:
 
    ```bash
+   scripts/snapshot/local-manager.sh test        # From local
    scripts/snapshot/test.sh                      # On CF
    ```
 
