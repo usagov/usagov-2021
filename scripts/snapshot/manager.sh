@@ -743,33 +743,42 @@ list_old_backups() {
     local days=${1:-7}
     setup_s3_vars || exit 1
 
-    local cutoff_date=$(date -u -d "${days} days ago" '+%Y_%m_%d' 2>/dev/null || date -u -v-${days}d '+%Y_%m_%d' 2>/dev/null)
+    local cutoff_epoch=$(date -u -d "${days} days ago" '+%s' 2>/dev/null || date -u -v-${days}d '+%s' 2>/dev/null)
 
-    if [ -z "$cutoff_date" ]; then
+    if [ -z "$cutoff_epoch" ]; then
         print_status $RED "❌ Error: Date calculation not supported on this system"
         print_status $YELLOW "⚠️ Use 'list' command and manual cleanup required."
         exit 1
     fi
 
-    print_status $YELLOW "Backups older than ${days} days (before ${cutoff_date}):"
+    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+    print_status $YELLOW "Backups older than ${days} days (before ${cutoff_display}):"
     echo "========================================================"
 
     print_status $GREEN "Static Site Backups:"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -o '[0-9_]*$' | head -c 10)
-        if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
-            echo "$line"
+        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+
+        if [ -n "$backup_date" ]; then
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
+                echo "$line"
+            fi
         fi
     done
 
     echo ""
     print_status $GREEN "Public Files Backups:"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "AUTO-" | while read -r line; do
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -o '[0-9_]*$' | head -c 10)
-        if [ -n "$backup_date" ] && [ "$backup_date" \< "$cutoff_date" ]; then
-            echo "$line"
+        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+
+        if [ -n "$backup_date" ]; then
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
+                echo "$line"
+            fi
         fi
     done
 }
@@ -878,31 +887,38 @@ find_corresponding_public_backup() {
     fi
 
     # If no exact match, find the most recent public backup before or at the static backup time
-    # Extract timestamp from static backup tag (format: AUTO-space-containertag-YYYY_MM_DD_HH_MM_SS)
-    static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
+    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY)
+    static_date=$(echo "$static_backup_tag" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
 
-    if [ -z "$static_timestamp" ]; then
+    if [ -z "$static_date" ]; then
+        return 1
+    fi
+
+    # Convert to epoch for comparison
+    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$static_date" '+%s' 2>/dev/null)
+    if [ -z "$static_epoch" ]; then
         return 1
     fi
 
     # Use a temp file to avoid subshell variable issues
     temp_list="/tmp/public_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-" > "$temp_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " > "$temp_list" 2>/dev/null
 
     best_public_backup=""
-    best_timestamp=""
+    best_epoch=0
 
     while read -r line; do
         if [ -n "$line" ]; then
             public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            public_timestamp=$(echo "$public_backup_name" | grep -o '[0-9_]*$')
+            public_date=$(echo "$public_backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
 
-            # Compare timestamps (lexicographic comparison works for YYYY_MM_DD_HH_MM_SS format)
-            if [ -n "$public_timestamp" ] && [ "$public_timestamp" \< "$static_timestamp" ] || [ "$public_timestamp" = "$static_timestamp" ]; then
-                # This public backup is at or before the static backup time
-                if [ -z "$best_timestamp" ] || [ "$public_timestamp" \> "$best_timestamp" ]; then
+            if [ -n "$public_date" ]; then
+                public_epoch=$(date -u -d "$public_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$public_date" '+%s' 2>/dev/null)
+
+                # Find most recent backup at or before static backup time
+                if [ -n "$public_epoch" ] && [ "$public_epoch" -le "$static_epoch" ] && [ "$public_epoch" -gt "$best_epoch" ]; then
                     best_public_backup="$public_backup_name"
-                    best_timestamp="$public_timestamp"
+                    best_epoch="$public_epoch"
                 fi
             fi
         fi
@@ -922,10 +938,16 @@ find_corresponding_public_backup() {
 find_corresponding_db_backup() {
     local static_backup_tag=$1
 
-    # Extract timestamp from static backup tag (format: AUTO-space-containertag-YYYY_MM_DD_HH_MM_SS)
-    static_timestamp=$(echo "$static_backup_tag" | grep -o '[0-9_]*$')
+    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY)
+    static_date=$(echo "$static_backup_tag" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
 
-    if [ -z "$static_timestamp" ]; then
+    if [ -z "$static_date" ]; then
+        return 1
+    fi
+
+    # Convert to epoch for comparison
+    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$static_date" '+%s' 2>/dev/null)
+    if [ -z "$static_epoch" ]; then
         return 1
     fi
 
@@ -938,22 +960,23 @@ find_corresponding_db_backup() {
 
     # Use a temp file to avoid subshell variable issues
     temp_list="/tmp/db_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "$DB_BACKUP_PREFIX" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
 
     best_db_backup=""
-    best_timestamp=""
+    best_epoch=0
 
     while read -r line; do
         if [ -n "$line" ]; then
-            # Extract timestamp from database backup name (AUTO-env-containertag-YYYY_MM_DD_HH_MM_SS.sql.gz)
-            db_timestamp=$(echo "$line" | sed "s/^$DB_BACKUP_PREFIX-[^-]*-[^-]*-//" | sed 's/\.sql\.gz$//')
+            # Extract date from database backup name (PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz)
+            db_date=$(echo "$line" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
 
-            # Compare timestamps (lexicographic comparison works for YYYY_MM_DD_HH_MM_SS format)
-            if [ -n "$db_timestamp" ] && [ "$db_timestamp" \< "$static_timestamp" ] || [ "$db_timestamp" = "$static_timestamp" ]; then
-                # This database backup is at or before the static backup time
-                if [ -z "$best_timestamp" ] || [ "$db_timestamp" \> "$best_timestamp" ]; then
+            if [ -n "$db_date" ]; then
+                db_epoch=$(date -u -d "$db_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$db_date" '+%s' 2>/dev/null)
+
+                # Find most recent backup at or before static backup time
+                if [ -n "$db_epoch" ] && [ "$db_epoch" -le "$static_epoch" ] && [ "$db_epoch" -gt "$best_epoch" ]; then
                     best_db_backup="$line"
-                    best_timestamp="$db_timestamp"
+                    best_epoch="$db_epoch"
                 fi
             fi
         fi
@@ -1275,11 +1298,10 @@ db_backup_info() {
             echo "Size: $backup_size bytes"
             echo "Created: $backup_date"
 
-            # Extract date from backup name if possible
-            timestamp_part=$(echo "$backup_name" | sed "s/.*$DB_BACKUP_PREFIX-[^-]*-//")
-            if [ -n "$timestamp_part" ]; then
-                formatted_date=$(echo "$timestamp_part" | sed 's/_/-/g' | sed 's/-/ /' | sed 's/-/ /' | sed 's/-/:/' | sed 's/-/:/')
-                echo "Backup Timestamp: $formatted_date"
+            # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz)
+            backup_tag_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+            if [ -n "$backup_tag_date" ]; then
+                echo "Backup Tag Date: $backup_tag_date"
             fi
         else
             print_status $RED "Error: Database backup '$backup_name' not found"
