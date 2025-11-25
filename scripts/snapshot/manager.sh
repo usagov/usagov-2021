@@ -720,28 +720,26 @@ cleanup_old_db_backups() {
     # Normal date-based cleanup - calculate cutoff date as epoch timestamp
     log_message "🧹 Cleaning up database backups older than $days days..."
 
-    cutoff_epoch=$(date -u -d "${days} days ago" '+%s' 2>/dev/null || date -u -v-${days}d '+%s' 2>/dev/null)
+    cutoff_epoch=$(get_days_ago_epoch "$days")
+    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+    log_message "Cutoff date: $cutoff_display"
 
-    if [ -n "$cutoff_epoch" ]; then
-        cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
-        log_message "Cutoff date: $cutoff_display"
+    # List and delete old database backups (any prefix)
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
+        backup_path=$(echo "$line" | awk '{print $4}')
+        # Extract date from backup filename (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz or PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY-SUFFIX.sql.gz)
+        backup_date=$(echo "$backup_path" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
 
-        # List and delete old database backups (any prefix)
-        aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
-            backup_path=$(echo "$line" | awk '{print $4}')
-            # Extract date from backup filename (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz or PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY-SUFFIX.sql.gz)
-            backup_date=$(echo "$backup_path" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+        if [ -n "$backup_date" ]; then
+            # Convert backup date to epoch for comparison
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
 
-            if [ -n "$backup_date" ]; then
-                # Convert backup date to epoch for comparison
-                backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
-
-                if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
-                    log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
-                    aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
-                fi
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
+                log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
+                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
             fi
-        done
+        fi
+    done
         log_message "✅ Database backup cleanup complete"
     else
         log_message "⚠️ WARNING: Could not determine cutoff date for database backup cleanup"
@@ -753,13 +751,7 @@ list_old_backups() {
     local days=${1:-7}
     setup_s3_vars || exit 1
 
-    local cutoff_epoch=$(date -u -d "${days} days ago" '+%s' 2>/dev/null || date -u -v-${days}d '+%s' 2>/dev/null)
-
-    if [ -z "$cutoff_epoch" ]; then
-        print_status $RED "❌ Error: Date calculation not supported on this system"
-        print_status $YELLOW "⚠️ Use 'list' command and manual cleanup required."
-        exit 1
-    fi
+    local cutoff_epoch=$(get_days_ago_epoch "$days")
 
     cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
     print_status $YELLOW "Backups older than ${days} days (before ${cutoff_display}):"
@@ -825,13 +817,7 @@ clean_old_backups() {
     fi
 
     # Normal date-based cleanup - calculate cutoff date as epoch timestamp
-    cutoff_epoch=$(date -u -d "${days} days ago" '+%s' 2>/dev/null || date -u -v-${days}d '+%s' 2>/dev/null)
-
-    if [ -z "$cutoff_epoch" ]; then
-        print_status $RED "❌ Error: Date calculation not supported on this system"
-        print_status $YELLOW "⚠️ Use 'list' command for manual cleanup with AWS CLI."
-        exit 1
-    fi
+    cutoff_epoch=$(get_days_ago_epoch "$days")
 
     cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
     print_status $YELLOW "🧹 Removing static/public backups older than ${days} days (before ${cutoff_display})..."

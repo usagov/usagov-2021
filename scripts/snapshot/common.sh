@@ -139,6 +139,15 @@ check_command() {
     fi
 }
 
+# Calculate epoch timestamp for N days ago (works on Alpine BusyBox, GNU, and BSD date)
+get_days_ago_epoch() {
+    local days=$1
+    local now_epoch=$(date -u '+%s')
+    local seconds_per_day=86400
+    local cutoff_epoch=$((now_epoch - (days * seconds_per_day)))
+    echo "$cutoff_epoch"
+}
+
 # Setup S3 environment variables from VCAP_SERVICES
 setup_s3_vars() {
     if [ -z "$BUCKET_NAME" ] && [ -n "$VCAP_SERVICES" ]; then
