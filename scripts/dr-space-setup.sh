@@ -75,7 +75,8 @@ CREATE_EGRESS_SPACE=0
 setVariables
 
 ### Check our current cloud foundry space for real, even if we're in dryrun mode
-assertCurSpace $APP_SPACE
+### sanityPreamble should do this, and this breaks when creating a new space
+###assertCurSpace $APP_SPACE
 
 ##############################################################
 # Snapshot (backup) tag to restore latest backup to DR space
@@ -87,27 +88,38 @@ else
 fi
 
 if [ $CREATE_APP_SPACE -ne 0 ]; then
+  echo "----------------------------------------"
+  echo "Removing existing DR space"
+  echo "----------------------------------------"
   clearExistingBuckets
   deleteExistingAppSpace
 fi
 
-if [ $CREATE_EGRESS_SPACE -ne 0 ]; then
-  deleteExistingEgressSpace
-  createNewEgressSpace
-  createS3KeyValueService
-fi
+###
+### Let's just make sure we will not accidentally delete the egress space, m'kay?
+###
+###if [ $CREATE_EGRESS_SPACE -ne 0 ]; then
+###  deleteExistingEgressSpace
+###  createNewEgressSpace
+###  createS3KeyValueService
+###fi
 
 if [ $CREATE_APP_SPACE -ne 0 ]; then
+  echo "----------------------------------------"
+  echo "Creating new DR space"
+  echo "----------------------------------------"
   createNewAppSpace
 fi
 
-deployServices 
-deployCacheAndRDSService 
+#deployServices
+#deployCacheAndRDSService 
+#createCCIServiceAccount 
+#createCFEventsServiceAccount 
+#setCCIUserRoles 
+#createDomainService 
 
-createCCIServiceAccount 
-createCFEventsServiceAccount 
-setCCIUserRoles 
-createDomainService 
+exit
+
 deployCMSApp 
 deployWWWApp 
 deployAPIProxyApp 

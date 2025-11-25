@@ -31,22 +31,24 @@ function clearExistingBuckets {
 }
 
 function deleteExistingAppSpace {
-  sanityPreamble
+ sanityPreamble
   echo  cf delete-space $APP_SPACE
   while [ 1 = 1 ]; do $echo cf delete-space $APP_SPACE; sleep 10; done
   exitOnFailure $?
   $exit
+ return 0
 }
 
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
 function deleteExistingEgressSpace {
-  echo "Deleting existing egress space: $EGRESS_SPACE ($CREATE_EGRESS_SPACE)"
-#  sanityPreamble
+  echo "(NOT) Deleting existing egress space: $EGRESS_SPACE ($CREATE_EGRESS_SPACE)"
+# sanityPreamble
 #  echo  cf delete-space $EGRESS_SPACE
 #  while [ 1 = 1 ]; do $echo cf delete-space $EGRESS_SPACE; sleep 10; done
 #  $exit
+ return 0
 }
 
 #####################################################
@@ -57,27 +59,28 @@ function deleteExistingEgressSpace {
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
 function createNewEgressSpace {
-  echo "Creating new egress space: $EGRESS_SPACE  ($CREATE_EGRESS_SPACE)"
+  echo "(NOT) Creating new egress space: $EGRESS_SPACE  ($CREATE_EGRESS_SPACE)"
 #  echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG  PIPE tee ce.org
 #  $echo bin/cloudgov/create-egress-space $EGRESS_SPACE $ORG | tee ce.log
 #  sanityPreamble
 #  $exit
+ return 0
 }
 
 function createNewAppSpace {
   echo "Creating new app space: $APP_SPACE  ($CREATE_APP_SPACE)"
-#  echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
-#  $echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
-#  echo assertSpaceExists $APP_SPACE
-#  $echo assertSpaceExists $APP_SPACE
-#  sanityPreamble
-#  echo "************************************************************************"
-#  echo "Please remember to add each developer to the SpaceDeveloper group in the"
-#  echo "newly created space."
-#  echo
-#  echo "Add devs in the CloudGov dashboard: https://dashboard.fr.cloud.gov/home"
-#  echo "************************************************************************"
-#  $exit
+  echo bin/cloudgov/create-app-space $APP_SPACE $ORG PIPE tee ca.log
+  $echo bin/cloudgov/create-app-space $APP_SPACE $ORG | tee ca.log
+  echo assertSpaceExists $APP_SPACE
+  $echo assertSpaceExists $APP_SPACE
+  sanityPreamble
+  echo "************************************************************************"
+  echo "Please remember to add each developer to the SpaceDeveloper group in the"
+  echo "newly created space."
+  echo
+  echo "Add devs in the CloudGov dashboard: https://dashboard.fr.cloud.gov/home"
+  echo "************************************************************************"
+  $exit
 }
 
 function deployServices {
