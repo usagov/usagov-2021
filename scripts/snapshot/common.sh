@@ -1,18 +1,31 @@
 #!/bin/sh
 
-# Common utilities for backup system
+# ===================================================================
+# COMMON UTILITIES FOR BACKUP SYSTEM
+# ===================================================================
 # Shared functions to eliminate redundancy across backup scripts
+# Provides: initialization, logging, status printing, date handling, S3 setup
+# ===================================================================
 
-# Colors for consistent output
+# ===================================================================
+# COLOR DEFINITIONS
+# ===================================================================
+# ANSI color codes for consistent terminal output across all scripts
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m'
+NC='\033[0m'  # No Color (reset)
+
+# ===================================================================
+# SYSTEM INITIALIZATION
+# ===================================================================
 
 # Initialize backup system paths and configuration
+# Automatically detects project root from various starting directories
 # Sets: PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE
 # Loads: backup-system.conf
+# Exit on error: Yes (if project root cannot be found)
 init_backup_system() {
     # When sourced, BASH_SOURCE points to this file, $0 points to the calling script
     # We need to find scripts/snapshot directory from current working directory
@@ -68,19 +81,39 @@ init_backup_system() {
     export PROJECT_ROOT BACKUP_DIR CONFIG_FILE
 }
 
-# Consistent status printing function
+# ===================================================================
+# OUTPUT AND LOGGING FUNCTIONS
+# ===================================================================
+
+# Print colored status messages to terminal
+# Args:
+#   $1: color - Color code (e.g., $GREEN, $RED, $YELLOW, $BLUE)
+#   $2: message - Text to display
 print_status() {
     local color=$1
     local message=$2
     printf "${color}${message}${NC}\n"
 }
 
-# Consistent log message function
+# Log message with timestamp for audit trail
+# Outputs: YYYY-MM-DD HH:MM:SS: <message>
+# Args:
+#   $1: message - Text to log
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S'): $1"
 }
 
-# Get container tag (consistent implementation)
+# ===================================================================
+# CONTAINER AND VERSION IDENTIFICATION
+# ===================================================================
+
+# Get container tag for backup identification and traceability
+# Tries multiple sources in order of preference:
+#   1. Cloud Foundry /etc/motd containertag field
+#   2. Cloud Foundry /etc/motd cf-XXXXXX pattern
+#   3. Git repository short hash
+#   4. Fallback to "unknown"
+# Returns: container tag string (e.g., "14850", "cf-a1b2c3", "git-d4e5f6")
 get_container_tag() {
     # Try to get container tag from Cloud Foundry environment
     if [ -f /etc/motd ]; then
@@ -112,7 +145,15 @@ get_container_tag() {
     echo "unknown"
 }
 
+# ===================================================================
+# VALIDATION FUNCTIONS
+# ===================================================================
+
 # Check if file exists and is readable
+# Args:
+#   $1: file_path - Absolute or relative path to file
+#   $2: description - Human-readable description (default: "file")
+# Returns: 0 if file is accessible, 1 otherwise
 check_file() {
     local file_path="$1"
     local description="${2:-file}"
@@ -126,7 +167,10 @@ check_file() {
     fi
 }
 
-# Check if command is available
+# Check if command is available in PATH
+# Args:
+#   $1: cmd - Command name to check
+# Returns: 0 if command is found, 1 otherwise
 check_command() {
     local cmd="$1"
 
@@ -139,7 +183,16 @@ check_command() {
     fi
 }
 
-# Calculate epoch timestamp for N days ago (works on Alpine BusyBox, GNU, and BSD date)
+# ===================================================================
+# DATE AND TIME UTILITIES
+# ===================================================================
+
+# Calculate epoch timestamp for N days ago
+# Portable implementation that works on Alpine BusyBox, GNU, and BSD date
+# Uses simple arithmetic instead of date command's relative date parsing
+# Args:
+#   $1: days - Number of days in the past
+# Returns: Epoch timestamp (seconds since 1970-01-01 00:00:00 UTC)
 get_days_ago_epoch() {
     local days=$1
     local now_epoch=$(date -u '+%s')
@@ -148,7 +201,15 @@ get_days_ago_epoch() {
     echo "$cutoff_epoch"
 }
 
-# Setup S3 environment variables from VCAP_SERVICES
+# ===================================================================
+# AWS S3 CONFIGURATION
+# ===================================================================
+
+# Setup S3 environment variables from VCAP_SERVICES (Cloud Foundry)
+# Extracts S3 credentials and configuration from Cloud Foundry environment
+# Sets: BUCKET_NAME, AWS_DEFAULT_REGION, AWS_ACCESS_KEY_ID,
+#       AWS_SECRET_ACCESS_KEY, AWS_ENDPOINT, APP_SPACE, S3_EXTRA_PARAMS
+# Returns: 0 on success, 1 if bucket name cannot be determined
 setup_s3_vars() {
     if [ -z "$BUCKET_NAME" ] && [ -n "$VCAP_SERVICES" ]; then
         export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket' 2>/dev/null)

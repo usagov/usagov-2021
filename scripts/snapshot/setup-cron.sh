@@ -1,7 +1,11 @@
 #!/bin/sh
 
-# Setup Backup Cron Jobs
-# Configures cron jobs for the unified backup manager
+# ===================================================================
+# CRON JOB SETUP FOR BACKUP SYSTEM
+# ===================================================================
+# Configures automated database backups via cron
+# Handles: time zone conversion (EST to UTC), cron job management
+# ===================================================================
 
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
@@ -12,9 +16,13 @@ CURDIR=$(pwd)
 # Initialize backup system (sets PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE and loads config)
 init_backup_system
 
-# Set defaults
+# Set defaults from configuration
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
+
+# ===================================================================
+# USAGE DOCUMENTATION
+# ===================================================================
 
 show_usage() {
     echo "Usage: $0 [command]"
@@ -22,11 +30,21 @@ show_usage() {
     echo "Commands:"
     echo "  setup       Setup database backup cron job"
     echo "  remove      Remove backup cron jobs"
-    echo "  status      Show current cron jobs"
+    echo "  status      Show current cron jobs (default)"
     echo "  test        Test the exact cron command (simulates cron environment)"
+    echo ""
+    echo "Configuration:"
+    echo "  DB_BACKUP_TIME: Set backup time in EST (format: HH:MM)"
+    echo "  Default: 19:00 EST (converts to UTC for cron)"
     echo ""
 }
 
+# ===================================================================
+# CRON MANAGEMENT FUNCTIONS
+# ===================================================================
+
+# Setup automated database backup cron job
+# Converts EST time to UTC, validates format, and configures cron
 setup_cron() {
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         print_status $YELLOW "Database backups are disabled in configuration"
@@ -69,12 +87,15 @@ setup_cron() {
     print_status $GREEN "✅ Cron job setup complete"
 }
 
+# Remove all backup-related cron jobs
+# Filters out any cron entries containing "snapshot/manager.sh"
 remove_cron() {
     print_status $YELLOW "Removing backup cron jobs..."
     crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
     print_status $GREEN "✅ Backup cron jobs removed"
 }
 
+# Display current backup cron jobs and configuration
 show_status() {
     print_status $GREEN "Current backup cron jobs:"
     echo "========================="
@@ -85,6 +106,8 @@ show_status() {
     echo "  Backup time: $DB_BACKUP_TIME EST"
 }
 
+# Test the cron backup command in a simulated cron environment
+# Executes the exact command that cron will run to verify functionality
 test_cron_command() {
     print_status $YELLOW "Testing cron command execution..."
     print_status $BLUE "This simulates the exact environment and command that cron will use"
@@ -146,7 +169,11 @@ test_cron_command() {
     fi
 }
 
-# Parse command
+# ===================================================================
+# COMMAND ROUTING
+# ===================================================================
+
+# Parse command (default to 'status' if not provided)
 COMMAND=${1:-status}
 
 case $COMMAND in

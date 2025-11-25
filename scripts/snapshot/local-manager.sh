@@ -1,13 +1,21 @@
 #!/bin/sh
 
-# Local Manager Script
-# Control the backup manager on Cloud Foundry from your local machine
-# All commands are executed via 'cf ssh cms -c' - requires CF CLI and login
+# ===================================================================
+# LOCAL BACKUP MANAGER
+# ===================================================================
+# Control Cloud Foundry backup operations from your local machine
+# All commands execute remotely via 'cf ssh cms -c' command
+# Requires: CF CLI installed and authenticated
+# ===================================================================
 
 COMMAND="${1:-}"
 
+# ===================================================================
+# USAGE DOCUMENTATION
+# ===================================================================
+
 show_usage() {
-    echo "WARNING: For local machine use only!"
+    echo "⚠️  WARNING: For local machine use only!"
     echo ""
     echo "Local Backup Manager - Control Cloud Foundry backups from local machine"
     echo ""
@@ -61,8 +69,12 @@ show_usage() {
     echo "      Login with: bin/cloudgov/login --sso"
 }
 
-# Check prerequisites
+# ===================================================================
+# PREREQUISITE VALIDATION
+# ===================================================================
 
+# Verify this script is not running on a Cloud Foundry container
+# Exit with error if CF environment variables are detected
 check_not_on_cf() {
     # Check for CF environment variables that indicate we're running on CF
     if [ -n "$VCAP_APPLICATION" ] || [ -n "$CF_INSTANCE_INDEX" ]; then
@@ -78,6 +90,8 @@ check_not_on_cf() {
     fi
 }
 
+# Verify Cloud Foundry CLI is installed and authenticated
+# Checks: cf command availability and current authentication status
 check_cf_cli() {
     if ! command -v cf >/dev/null 2>&1; then
         echo "❌ Error: Cloud Foundry CLI (cf) not found"
@@ -92,12 +106,23 @@ check_cf_cli() {
     fi
 }
 
-# Execute remote command on CF
+# ===================================================================
+# REMOTE COMMAND EXECUTION
+# ===================================================================
+
+# Execute a command on Cloud Foundry via SSH
+# Sources /etc/profile for environment, changes to /var/www, runs manager.sh
+# Args: All arguments are passed to manager.sh on CF
 remote_command() {
     cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh $*"
 }
 
-# Download command with local streaming
+# Download backups from CF to local machine with streaming support
+# Special handling: streams data through SSH to avoid using CF disk space
+# Args:
+#   $1: tag - Backup tag to download
+#   $2: types - Backup types (default: "all")
+#   $3: output_dir - Local directory for downloads (default: current directory)
 download_command() {
     local backup_tag=$1
     local backup_type=${2:-all}
@@ -193,23 +218,29 @@ download_command() {
     fi
 }
 
-# Main logic
+# ===================================================================
+# MAIN SCRIPT LOGIC
+# ===================================================================
+
+# Handle empty command or help flags
 if [ -z "$COMMAND" ]; then
     show_usage
     exit 1
 fi
 
-# Handle help flags immediately
+# Handle help flags immediately (before CF checks)
 if [ "$COMMAND" = "-h" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "help" ]; then
     show_usage
     exit 0
 fi
 
-# Check that we're not on CF before proceeding
+# Validate environment and prerequisites
 check_not_on_cf
-
-# Check CF CLI for all commands
 check_cf_cli
+
+# ===================================================================
+# COMMAND ROUTING
+# ===================================================================
 
 case "$COMMAND" in
     "list")
