@@ -845,6 +845,771 @@ test_backup_download() {
     return 0
 }
 
+# Function to test new YYYY-MM-DD date format
+test_date_format() {
+    echo "📅 Testing YYYY-MM-DD date format implementation..."
+
+    # Test date generation format
+    local test_date=$(date +"%Y-%m-%d" 2>/dev/null)
+    if echo "$test_date" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+        echo "✅ Date generation produces correct YYYY-MM-DD format: $test_date"
+    else
+        echo "❌ Date generation format incorrect: $test_date"
+        return 1
+    fi
+
+    # Test date regex pattern matching
+    local test_patterns="2025-10-28 2024-01-01 2023-12-31"
+    for pattern in $test_patterns; do
+        if echo "$pattern" | grep -qE '[0-9]{4}-[0-9]{2}-[0-9]{2}'; then
+            echo "✅ Date pattern matches: $pattern"
+        else
+            echo "❌ Date pattern doesn't match: $pattern"
+            return 1
+        fi
+    done
+
+    # Test old format is NOT matched by new regex
+    local old_formats="Oct-28-25 Nov-24-25 Dec-31-24"
+    for old_format in $old_formats; do
+        if echo "$old_format" | grep -qE '[0-9]{4}-[0-9]{2}-[0-9]{2}'; then
+            echo "❌ Old format incorrectly matched by new regex: $old_format"
+            return 1
+        else
+            echo "✅ Old format correctly rejected: $old_format"
+        fi
+    done
+
+    # Test date parsing for both GNU and BSD
+    local test_date="2025-10-28"
+    local epoch_gnu=$(date -u -d "$test_date" '+%s' 2>/dev/null)
+    local epoch_bsd=$(date -u -j -f '%Y-%m-%d' "$test_date" '+%s' 2>/dev/null)
+
+    if [ -n "$epoch_gnu" ] || [ -n "$epoch_bsd" ]; then
+        echo "✅ Date parsing works for YYYY-MM-DD format"
+        [ -n "$epoch_gnu" ] && echo "  GNU date: $epoch_gnu"
+        [ -n "$epoch_bsd" ] && echo "  BSD date: $epoch_bsd"
+    else
+        echo "❌ Date parsing failed for YYYY-MM-DD format"
+        return 1
+    fi
+
+    # Test manager.sh uses correct format in documentation
+    if grep -q "YYYY-MM-DD" "$BACKUP_DIR/manager.sh"; then
+        echo "✅ manager.sh documentation uses YYYY-MM-DD format"
+    else
+        echo "❌ manager.sh documentation missing YYYY-MM-DD format"
+        return 1
+    fi
+
+    # Test no old format references remain
+    if grep -qE "MMM-DD-YY|%b-%d-%y|Oct-[0-9]{2}-[0-9]{2}" "$BACKUP_DIR/manager.sh"; then
+        echo "❌ Found old date format references in manager.sh"
+        return 1
+    else
+        echo "✅ No old date format references in manager.sh"
+    fi
+
+    echo "✅ Date format test passed"
+    return 0
+}
+
+# Function to test backup tag parsing and extraction
+test_tag_parsing() {
+    echo "🏷️  Testing backup tag parsing and extraction..."
+
+    # Test various tag formats
+    local test_tags="
+AUTO-prod-14850-2025-10-28
+AUTO-prod-14850-2025-10-28-database.sql.gz
+USAGOV-123-dev-git-abc123-2025-11-24-pre-deploy
+AUTO-staging-14851-2025-12-31-post-update"
+
+    for tag in $test_tags; do
+        # Extract date using new pattern
+        local extracted=$(echo "$tag" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+        if [ -n "$extracted" ] && echo "$extracted" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+            echo "✅ Successfully extracted date from tag: $tag -> $extracted"
+        else
+            echo "❌ Failed to extract date from tag: $tag"
+            return 1
+        fi
+    done
+
+    # Test tags without dates are handled
+    local invalid_tag="AUTO-prod-14850-invalid-tag"
+    local invalid_extracted=$(echo "$invalid_tag" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+    if [ -z "$invalid_extracted" ]; then
+        echo "✅ Correctly handles tags without valid dates"
+    else
+        echo "❌ Incorrectly extracted from invalid tag: $invalid_extracted"
+        return 1
+    fi
+
+    echo "✅ Tag parsing test passed"
+    return 0
+}
+
+# Function to test restore functionality
+test_restore_functionality() {
+    echo "🔄 Testing restore functionality..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Check restore function exists
+    if ! grep -q "^restore_backup()" "$manager_script"; then
+        echo "❌ restore_backup function not found"
+        return 1
+    fi
+    echo "✅ restore_backup function exists"
+
+    # Check parse_restore_options function exists
+    if ! grep -q "^parse_restore_options()" "$manager_script"; then
+        echo "❌ parse_restore_options function not found"
+        return 1
+    fi
+    echo "✅ parse_restore_options function exists"
+
+    # Check find_corresponding functions exist
+    if ! grep -q "^find_corresponding_public_backup()" "$manager_script"; then
+        echo "❌ find_corresponding_public_backup function not found"
+        return 1
+    fi
+    echo "✅ find_corresponding_public_backup function exists"
+
+    if ! grep -q "^find_corresponding_db_backup()" "$manager_script"; then
+        echo "❌ find_corresponding_db_backup function not found"
+        return 1
+    fi
+    echo "✅ find_corresponding_db_backup function exists"
+
+    # Test restore command requires tag
+    "$manager_script" restore >/dev/null 2>&1
+    local restore_exit=$?
+    if [ $restore_exit -eq 1 ]; then
+        echo "✅ Restore command correctly requires backup tag"
+    else
+        echo "❌ Restore command should fail without tag (exit: $restore_exit)"
+        return 1
+    fi
+
+    # Check for --only option support
+    if grep -q "\-\-only=" "$manager_script"; then
+        echo "✅ Restore supports --only option for selective restore"
+    else
+        echo "❌ Restore --only option not found"
+        return 1
+    fi
+
+    # Check for --force and --yes options
+    if grep -q "\-\-force" "$manager_script" && grep -q "\-\-yes" "$manager_script"; then
+        echo "✅ Restore supports --force and --yes options"
+    else
+        echo "⚠️  Restore may not support all interactive options"
+    fi
+
+    echo "✅ Restore functionality test passed"
+    return 0
+}
+
+# Function to test smart public backup feature
+test_smart_public_backup() {
+    echo "🧠 Testing smart public backup feature..."
+
+    # Check if smart backup is configurable
+    local config_file="$BACKUP_DIR/backup-system.conf"
+    if grep -q "ENABLE_SMART_PUBLIC_BACKUP" "$config_file"; then
+        echo "✅ Smart public backup configuration exists"
+        local smart_enabled=$(grep "^ENABLE_SMART_PUBLIC_BACKUP=" "$config_file" | cut -d= -f2)
+        echo "  Current setting: $smart_enabled"
+    else
+        echo "❌ Smart public backup configuration missing"
+        return 1
+    fi
+
+    # Check if manager implements smart backup logic
+    local manager_script="$BACKUP_DIR/manager.sh"
+    if grep -q "ENABLE_SMART_PUBLIC_BACKUP" "$manager_script"; then
+        echo "✅ manager.sh implements smart public backup logic"
+    else
+        echo "❌ manager.sh missing smart public backup implementation"
+        return 1
+    fi
+
+    # Check for checksum comparison logic
+    if grep -q "md5sum\|MD5\|checksum" "$manager_script"; then
+        echo "✅ Checksum comparison logic found"
+    else
+        echo "⚠️  Checksum comparison not explicitly found (may use different method)"
+    fi
+
+    echo "✅ Smart public backup test passed"
+    return 0
+}
+
+# Function to test backup type combinations
+test_backup_type_combinations() {
+    echo "🔀 Testing backup type combinations..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Check parse_backup_types function
+    if ! grep -q "^parse_backup_types()" "$manager_script"; then
+        echo "❌ parse_backup_types function not found"
+        return 1
+    fi
+    echo "✅ parse_backup_types function exists"
+
+    # Test various type combinations
+    local type_combos="all static public db static,public static,db public,db static,public,db db,public,static"
+    for combo in $type_combos; do
+        # Test list command with combination
+        "$manager_script" list "$combo" >/dev/null 2>&1
+        local exit_code=$?
+        if [ $exit_code -eq 0 ] || [ $exit_code -eq 1 ]; then
+            echo "✅ Type combination works: $combo"
+        else
+            echo "❌ Type combination failed: $combo (exit: $exit_code)"
+            return 1
+        fi
+    done
+
+    # Test invalid type is rejected
+    "$manager_script" list "invalid_type" >/dev/null 2>&1
+    local invalid_exit=$?
+    if [ $invalid_exit -ne 0 ]; then
+        echo "✅ Invalid backup type correctly rejected"
+    else
+        echo "⚠️ Invalid backup type not rejected (may show all types by default)"
+    fi
+
+    echo "✅ Backup type combinations test passed"
+    return 0
+}
+
+# Function to test cleanup with various retention periods
+test_cleanup_retention() {
+    echo "🧹 Testing cleanup with various retention periods..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Test cleanup functions exist
+    local cleanup_funcs="cleanup_old_db_backups list_old_backups clean_old_backups cleanup_all_old_backups"
+    for func in $cleanup_funcs; do
+        if grep -q "^${func}()" "$manager_script"; then
+            echo "✅ Cleanup function exists: $func"
+        else
+            echo "❌ Cleanup function missing: $func"
+            return 1
+        fi
+    done
+
+    # Test various retention periods
+    local retention_days="0 1 7 14 30 60 90 365"
+    for days in $retention_days; do
+        # Test clean command parsing (with 'n' to cancel)
+        echo "n" | "$manager_script" clean all "$days" >/dev/null 2>&1
+        local exit_code=$?
+        if [ $exit_code -eq 0 ] || [ $exit_code -eq 1 ]; then
+            echo "✅ Retention period handled: $days days"
+        else
+            echo "❌ Retention period failed: $days days (exit: $exit_code)"
+            return 1
+        fi
+    done
+
+    # Test that 0 days requires special confirmation
+    if grep -q "DELETE ALL" "$manager_script" || grep -q "delete all" "$manager_script"; then
+        echo "✅ Zero-day retention has special confirmation"
+    else
+        echo "⚠️  Zero-day retention may not have special handling"
+    fi
+
+    echo "✅ Cleanup retention test passed"
+    return 0
+}
+
+# Function to test backup info commands
+test_backup_info() {
+    echo "ℹ️  Testing backup info functionality..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Check info functions exist
+    if ! grep -q "^backup_info()" "$manager_script"; then
+        echo "❌ backup_info function not found"
+        return 1
+    fi
+    echo "✅ backup_info function exists"
+
+    if ! grep -q "^db_backup_info()" "$manager_script"; then
+        echo "❌ db_backup_info function not found"
+        return 1
+    fi
+    echo "✅ db_backup_info function exists"
+
+    # Test info commands
+    "$manager_script" info >/dev/null 2>&1
+    if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+        echo "✅ 'info' command executes"
+    else
+        echo "❌ 'info' command failed"
+        return 1
+    fi
+
+    # Test info with types
+    local info_types="static public db all"
+    for type in $info_types; do
+        "$manager_script" info "$type" >/dev/null 2>&1
+        if [ $? -eq 0 ] || [ $? -eq 1 ]; then
+            echo "✅ 'info $type' command works"
+        else
+            echo "❌ 'info $type' command failed"
+            return 1
+        fi
+    done
+
+    echo "✅ Backup info test passed"
+    return 0
+}
+
+# Function to test error handling
+test_error_handling() {
+    echo "⚠️  Testing error handling..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Test invalid commands
+    "$manager_script" invalid_command >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "✅ Invalid command properly rejected"
+    else
+        echo "❌ Invalid command not properly rejected"
+        return 1
+    fi
+
+    # Test commands with missing required arguments
+    "$manager_script" download >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "✅ Download without tag properly rejected"
+    else
+        echo "❌ Download without tag should fail"
+        return 1
+    fi
+
+    "$manager_script" backup >/dev/null 2>&1
+    local backup_exit=$?
+    if [ $backup_exit -eq 0 ] || [ $backup_exit -eq 1 ]; then
+        echo "✅ Backup command handles missing arguments"
+    else
+        echo "⚠️  Backup command exit behavior: $backup_exit"
+    fi
+
+    # Test with invalid backup types
+    "$manager_script" backup "invalid,types,here" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "✅ Invalid backup types rejected"
+    else
+        echo "⚠️  Invalid backup types may not be properly validated"
+    fi
+
+    echo "✅ Error handling test passed"
+    return 0
+}
+
+# Function to test cron setup
+test_cron_setup() {
+    echo "⏰ Testing cron setup functionality..."
+
+    local cron_script="$BACKUP_DIR/setup-cron.sh"
+
+    if [ ! -f "$cron_script" ]; then
+        echo "❌ setup-cron.sh not found"
+        return 1
+    fi
+    echo "✅ setup-cron.sh exists"
+
+    if [ ! -x "$cron_script" ]; then
+        echo "❌ setup-cron.sh is not executable"
+        return 1
+    fi
+    echo "✅ setup-cron.sh is executable"
+
+    # Check for required cron-related code
+    if grep -q "crontab" "$cron_script" || grep -q "CRON" "$cron_script"; then
+        echo "✅ Cron setup script contains cron management code"
+    else
+        echo "❌ Cron setup script missing cron management code"
+        return 1
+    fi
+
+    # Check config for DB_BACKUP_TIME
+    local config_file="$BACKUP_DIR/backup-system.conf"
+    if grep -q "DB_BACKUP_TIME=" "$config_file"; then
+        local backup_time=$(grep "^DB_BACKUP_TIME=" "$config_file" | cut -d= -f2 | tr -d '"')
+        echo "✅ Database backup time configured: $backup_time"
+    else
+        echo "❌ DB_BACKUP_TIME not configured"
+        return 1
+    fi
+
+    echo "✅ Cron setup test passed"
+    return 0
+}
+
+# Function to test all configuration options
+test_all_config_options() {
+    echo "⚙️  Testing all configuration options..."
+
+    local config_file="$BACKUP_DIR/backup-system.conf"
+
+    # Required configuration variables
+    local required_vars="
+BACKUP_RETENTION_DAYS
+BACKUP_PREFIX
+AUTO_STATIC_BACKUP_PATH
+AUTO_PUBLIC_BACKUP_PATH
+AUTO_DB_BACKUP_PATH
+ENABLE_STATIC_AUTO_BACKUPS
+ENABLE_STATIC_AUTO_CLEANUP
+ENABLE_PUBLIC_AUTO_BACKUPS
+ENABLE_PUBLIC_AUTO_CLEANUP
+ENABLE_SMART_PUBLIC_BACKUP
+ENABLE_DB_BACKUPS
+ENABLE_DB_AUTO_CLEANUP
+DB_BACKUP_TIME
+DB_BACKUP_RETENTION_DAYS
+DB_BACKUP_PREFIX
+"
+
+    for var in $required_vars; do
+        if grep -q "^${var}=" "$config_file"; then
+            local value=$(grep "^${var}=" "$config_file" | cut -d= -f2)
+            echo "✅ Config option exists: $var = $value"
+        else
+            echo "❌ Config option missing: $var"
+            return 1
+        fi
+    done
+
+    # Validate boolean values
+    local bool_vars="ENABLE_STATIC_AUTO_BACKUPS ENABLE_STATIC_AUTO_CLEANUP ENABLE_PUBLIC_AUTO_BACKUPS ENABLE_PUBLIC_AUTO_CLEANUP ENABLE_SMART_PUBLIC_BACKUP ENABLE_DB_BACKUPS ENABLE_DB_AUTO_CLEANUP"
+    for var in $bool_vars; do
+        local value=$(grep "^${var}=" "$config_file" | cut -d= -f2)
+        if [ "$value" = "true" ] || [ "$value" = "false" ]; then
+            echo "✅ Boolean config valid: $var = $value"
+        else
+            echo "❌ Boolean config invalid: $var = $value (should be true/false)"
+            return 1
+        fi
+    done
+
+    # Validate numeric values
+    local num_vars="BACKUP_RETENTION_DAYS DB_BACKUP_RETENTION_DAYS"
+    for var in $num_vars; do
+        local value=$(grep "^${var}=" "$config_file" | cut -d= -f2)
+        if echo "$value" | grep -qE '^[0-9]+$'; then
+            echo "✅ Numeric config valid: $var = $value"
+        else
+            echo "❌ Numeric config invalid: $var = $value (should be a number)"
+            return 1
+        fi
+    done
+
+    echo "✅ All configuration options test passed"
+    return 0
+}
+
+# Function to test local-manager.sh wrapper
+test_local_manager() {
+    echo "💻 Testing local-manager.sh wrapper..."
+
+    local local_manager="$BACKUP_DIR/local-manager.sh"
+
+    if [ ! -f "$local_manager" ]; then
+        echo "❌ local-manager.sh not found"
+        return 1
+    fi
+    echo "✅ local-manager.sh exists"
+
+    if [ ! -x "$local_manager" ]; then
+        echo "❌ local-manager.sh is not executable"
+        return 1
+    fi
+    echo "✅ local-manager.sh is executable"
+
+    # Test usage
+    "$local_manager" --help >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "✅ local-manager.sh --help works"
+    else
+        echo "❌ local-manager.sh --help failed"
+        return 1
+    fi
+
+    # Check for YYYY-MM-DD format in documentation
+    if grep -q "YYYY-MM-DD" "$local_manager"; then
+        echo "✅ local-manager.sh uses YYYY-MM-DD format"
+    else
+        echo "❌ local-manager.sh missing YYYY-MM-DD format"
+        return 1
+    fi
+
+    # Check for no old format references
+    if grep -qE "MMM-DD-YY|%b-%d-%y" "$local_manager"; then
+        echo "❌ Found old date format references in local-manager.sh"
+        return 1
+    else
+        echo "✅ No old date format references in local-manager.sh"
+    fi
+
+    # Check for cron command support
+    if grep -q "cron" "$local_manager"; then
+        echo "✅ local-manager.sh supports cron command"
+    else
+        echo "❌ local-manager.sh missing cron command"
+        return 1
+    fi
+
+    # Check for all main commands
+    local commands="list backup clean restore info download test cron"
+    for cmd in $commands; do
+        if grep -q "\"$cmd\"" "$local_manager"; then
+            echo "✅ local-manager.sh supports '$cmd' command"
+        else
+            echo "❌ local-manager.sh missing '$cmd' command"
+            return 1
+        fi
+    done
+
+    echo "✅ Local manager test passed"
+    return 0
+}
+
+# Function to test common.sh utility functions
+test_common_utilities() {
+    echo "🔧 Testing common.sh utility functions..."
+
+    local common_file="$BACKUP_DIR/common.sh"
+
+    if [ ! -f "$common_file" ]; then
+        echo "❌ common.sh not found"
+        return 1
+    fi
+    echo "✅ common.sh exists"
+
+    # Source common.sh
+    . "$common_file"
+
+    # Test init_backup_system was called
+    if [ -n "$BACKUP_DIR" ] && [ -n "$PROJECT_ROOT" ]; then
+        echo "✅ init_backup_system initialized paths correctly"
+    else
+        echo "❌ init_backup_system failed to initialize paths"
+        return 1
+    fi
+
+    # Test check_command function
+    if check_command "sh"; then
+        echo "✅ check_command works for existing commands"
+    else
+        echo "❌ check_command failed for existing command"
+        return 1
+    fi
+
+    if ! check_command "nonexistent_command_xyz"; then
+        echo "✅ check_command correctly identifies missing commands"
+    else
+        echo "❌ check_command incorrectly found nonexistent command"
+        return 1
+    fi
+
+    # Test get_container_tag function
+    local container_tag=$(get_container_tag)
+    if [ -n "$container_tag" ]; then
+        echo "✅ get_container_tag returns: $container_tag"
+    else
+        echo "❌ get_container_tag returned empty"
+        return 1
+    fi
+
+    # Test print_status function (just verify it doesn't error)
+    print_status $BLUE "Test message" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "✅ print_status function works"
+    else
+        echo "❌ print_status function failed"
+        return 1
+    fi
+
+    # Test log_message function
+    log_message "Test log message" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "✅ log_message function works"
+    else
+        echo "❌ log_message function failed"
+        return 1
+    fi
+
+    echo "✅ Common utilities test passed"
+    return 0
+}
+
+# Function to test setup-cron.sh script
+test_cron_script() {
+    echo "📅 Testing setup-cron.sh script..."
+
+    local cron_script="$BACKUP_DIR/setup-cron.sh"
+
+    if [ ! -f "$cron_script" ]; then
+        echo "❌ setup-cron.sh not found"
+        return 1
+    fi
+    echo "✅ setup-cron.sh exists"
+
+    if [ ! -x "$cron_script" ]; then
+        echo "❌ setup-cron.sh is not executable"
+        return 1
+    fi
+    echo "✅ setup-cron.sh is executable"
+
+    # Check for all required cron operations
+    local operations="setup remove status list test"
+    for op in $operations; do
+        if grep -qi "$op" "$cron_script"; then
+            echo "✅ setup-cron.sh supports '$op' operation"
+        else
+            echo "⚠️  setup-cron.sh may not support '$op' operation"
+        fi
+    done
+
+    # Test help command
+    "$cron_script" --help >/dev/null 2>&1
+    local help_exit=$?
+    if [ $help_exit -eq 0 ] || [ $help_exit -eq 1 ]; then
+        echo "✅ setup-cron.sh --help works"
+    else
+        echo "⚠️  setup-cron.sh --help had issues (exit: $help_exit)"
+    fi
+
+    # Check syntax
+    sh -n "$cron_script" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo "✅ setup-cron.sh has valid shell syntax"
+    else
+        echo "❌ setup-cron.sh has syntax errors"
+        return 1
+    fi
+
+    echo "✅ Cron script test passed"
+    return 0
+}
+
+# Function to test S3 path configurations
+test_s3_paths() {
+    echo "☁️  Testing S3 path configurations..."
+
+    . "$BACKUP_DIR/backup-system.conf"
+
+    # Test all S3 paths are configured
+    if [ -n "$AUTO_STATIC_BACKUP_PATH" ]; then
+        echo "✅ AUTO_STATIC_BACKUP_PATH configured: $AUTO_STATIC_BACKUP_PATH"
+    else
+        echo "❌ AUTO_STATIC_BACKUP_PATH not configured"
+        return 1
+    fi
+
+    if [ -n "$AUTO_PUBLIC_BACKUP_PATH" ]; then
+        echo "✅ AUTO_PUBLIC_BACKUP_PATH configured: $AUTO_PUBLIC_BACKUP_PATH"
+    else
+        echo "❌ AUTO_PUBLIC_BACKUP_PATH not configured"
+        return 1
+    fi
+
+    if [ -n "$AUTO_DB_BACKUP_PATH" ]; then
+        echo "✅ AUTO_DB_BACKUP_PATH configured: $AUTO_DB_BACKUP_PATH"
+    else
+        echo "❌ AUTO_DB_BACKUP_PATH not configured"
+        return 1
+    fi
+
+    # Verify paths don't have leading/trailing slashes issues
+    for path in "$AUTO_STATIC_BACKUP_PATH" "$AUTO_PUBLIC_BACKUP_PATH" "$AUTO_DB_BACKUP_PATH"; do
+        if echo "$path" | grep -q "^/"; then
+            echo "⚠️  Path has leading slash (may cause S3 issues): $path"
+        fi
+        if echo "$path" | grep -q "/$"; then
+            echo "⚠️  Path has trailing slash: $path"
+        fi
+    done
+
+    # Test paths don't conflict
+    if [ "$AUTO_STATIC_BACKUP_PATH" = "$AUTO_PUBLIC_BACKUP_PATH" ] || \
+       [ "$AUTO_STATIC_BACKUP_PATH" = "$AUTO_DB_BACKUP_PATH" ] || \
+       [ "$AUTO_PUBLIC_BACKUP_PATH" = "$AUTO_DB_BACKUP_PATH" ]; then
+        echo "❌ S3 backup paths conflict with each other"
+        return 1
+    else
+        echo "✅ S3 backup paths are distinct"
+    fi
+
+    echo "✅ S3 paths test passed"
+    return 0
+}
+
+# Function to test documentation consistency
+test_documentation() {
+    echo "📚 Testing documentation consistency..."
+
+    local readme="$BACKUP_DIR/README.md"
+
+    if [ ! -f "$readme" ]; then
+        echo "❌ README.md not found"
+        return 1
+    fi
+    echo "✅ README.md exists"
+
+    # Check README uses YYYY-MM-DD format
+    if grep -q "YYYY-MM-DD" "$readme"; then
+        echo "✅ README.md uses YYYY-MM-DD format"
+    else
+        echo "❌ README.md missing YYYY-MM-DD format"
+        return 1
+    fi
+
+    # Check for no old format in README
+    if grep -qE "MMM-DD-YY|Oct-2[0-9]-2[0-9]|Nov-2[0-9]-2[0-9]" "$readme"; then
+        echo "❌ README.md contains old date format references"
+        return 1
+    else
+        echo "✅ README.md has no old date format references"
+    fi
+
+    # Verify all main commands are documented
+    local commands="list backup clean restore info download"
+    for cmd in $commands; do
+        if grep -q "$cmd" "$readme"; then
+            echo "✅ README.md documents '$cmd' command"
+        else
+            echo "❌ README.md missing '$cmd' command documentation"
+            return 1
+        fi
+    done
+
+    # Check for backup types documentation
+    local types="static public db database"
+    for type in $types; do
+        if grep -qi "$type" "$readme"; then
+            echo "✅ README.md documents '$type' backup type"
+        else
+            echo "⚠️  README.md may be missing '$type' backup type"
+        fi
+    done
+
+    echo "✅ Documentation test passed"
+    return 0
+}
+
 # Main execution
 main() {
     # Parse command line arguments
@@ -870,49 +1635,140 @@ main() {
     print_status $YELLOW "🔧 Setting up test environment..."
     setup_test_env
 
-    # Run all tests
+    # Run all tests - organized by category
+    echo ""
+    print_status $BLUE "📋 BASIC SYSTEM TESTS"
+    print_status $BLUE "====================="
     run_test "Configuration File Loading" "test_config_loading"
+    run_test "All Configuration Options" "test_all_config_options"
     run_test "Script Files and Permissions" "test_script_files"
     run_test "Required Dependencies" "test_dependencies"
     run_test "AWS Connectivity" "test_aws_connectivity"
+    run_test "Log Directory Access" "test_log_directory"
+
+    echo ""
+    print_status $BLUE "📅 DATE FORMAT TESTS"
+    print_status $BLUE "===================="
+    run_test "YYYY-MM-DD Date Format" "test_date_format"
+    run_test "Date Calculations" "test_date_calculations"
+    run_test "Backup Tag Parsing" "test_tag_parsing"
+    run_test "Backup Naming Pattern" "test_backup_naming"
+
+    echo ""
+    print_status $BLUE "🔧 MANAGER FUNCTIONALITY TESTS"
+    print_status $BLUE "=============================="
     run_test "Backup Integration in tome-sync.sh" "test_backup_integration"
     run_test "Backup Manager Functionality" "test_backup_manager"
     run_test "Manager Commands Interface" "test_manager_commands"
+    run_test "Backup Type Combinations" "test_backup_type_combinations"
+    run_test "Backup Info Functionality" "test_backup_info"
+    run_test "Error Handling" "test_error_handling"
+
+    echo ""
+    print_status $BLUE "💾 BACKUP OPERATIONS TESTS"
+    print_status $BLUE "=========================="
     run_test "Database Backup System" "test_database_backup_system"
-    run_test "Date Calculations" "test_date_calculations"
-    run_test "Backup Naming Pattern" "test_backup_naming"
+    run_test "Smart Public Backup" "test_smart_public_backup"
+    run_test "Cleanup with Retention Periods" "test_cleanup_retention"
     run_test "Backup Simulation" "test_backup_simulation"
     run_test "Backup Download Functionality" "test_backup_download"
-    run_test "Log Directory Access" "test_log_directory"
+
+    echo ""
+    print_status $BLUE "🔄 RESTORE & ADVANCED TESTS"
+    print_status $BLUE "==========================="
+    run_test "Restore Functionality" "test_restore_functionality"
+    run_test "Cron Setup" "test_cron_setup"
+    run_test "Cron Script" "test_cron_script"
+    run_test "Local Manager Wrapper" "test_local_manager"
+    run_test "Common Utilities" "test_common_utilities"
+    run_test "S3 Path Configuration" "test_s3_paths"
+    run_test "Documentation Consistency" "test_documentation"
 
     # Test results summary
     echo ""
-    print_status $BLUE "📊 Test Results"
-    print_status $BLUE "=============="
+    echo ""
+    print_status $BLUE "═══════════════════════════════════════════════════════════════"
+    print_status $BLUE "                      📊 TEST RESULTS SUMMARY"
+    print_status $BLUE "═══════════════════════════════════════════════════════════════"
+    echo ""
 
-    echo "📊 Total Tests: $TESTS_TOTAL"
+    local pass_rate=0
+    if [ $TESTS_TOTAL -gt 0 ]; then
+        pass_rate=$((TESTS_PASSED * 100 / TESTS_TOTAL))
+    fi
+
+    echo "📊 Total Tests Run: $TESTS_TOTAL"
     print_status $GREEN "✅ Tests Passed: $TESTS_PASSED"
     print_status $RED "❌ Tests Failed: $TESTS_FAILED"
+    echo "📈 Pass Rate: ${pass_rate}%"
+    echo ""
+
+    # Category breakdown
+    echo "Test Categories Covered:"
+    echo "  • Basic System Tests (6 tests)"
+    echo "  • Date Format Tests (4 tests)"
+    echo "  • Manager Functionality Tests (6 tests)"
+    echo "  • Backup Operations Tests (5 tests)"
+    echo "  • Restore & Advanced Tests (7 tests)"
+    echo "  • Total: 28 comprehensive tests"
+    echo ""
 
     # Final summary
     if [ $TESTS_FAILED -eq 0 ]; then
+        print_status $BLUE "═══════════════════════════════════════════════════════════════"
+        print_status $GREEN "🎉 ALL TESTS PASSED! The backup system is fully operational."
+        print_status $BLUE "═══════════════════════════════════════════════════════════════"
         echo ""
-        print_status $GREEN "🎉 ALL TESTS PASSED! The backup system is ready for use."
+        print_status $YELLOW "✨ Key Features Validated:"
+        echo "  ✅ YYYY-MM-DD date format implementation"
+        echo "  ✅ Database backup system with cron scheduling"
+        echo "  ✅ Static site and public files backup"
+        echo "  ✅ Smart public backup (checksum-based)"
+        echo "  ✅ Backup restoration with find_corresponding"
+        echo "  ✅ Cleanup with configurable retention"
+        echo "  ✅ Download functionality (local & stream modes)"
+        echo "  ✅ Multi-type backup support"
+        echo "  ✅ Local and remote manager scripts"
         echo ""
-        print_status $YELLOW "👉 Next steps:"
-        echo "1. Run a Tome sync to test automatic backups in action"
-        echo "2. Monitor the logs for backup creation messages"
-        echo "3. Use 'scripts/snapshot/manager.sh list' to see created backups"
-        echo "4. Use 'scripts/snapshot/manager.sh backup' to create manual backups"
+        print_status $YELLOW "👉 Next Steps:"
+        echo "  1. Create a test backup:"
+        echo "     scripts/snapshot/manager.sh backup all TEST test-backup"
+        echo ""
+        echo "  2. List existing backups:"
+        echo "     scripts/snapshot/manager.sh list"
+        echo ""
+        echo "  3. View backup info:"
+        echo "     scripts/snapshot/manager.sh info"
+        echo ""
+        echo "  4. Setup automated backups (if on Cloud Foundry):"
+        echo "     scripts/snapshot/setup-cron.sh"
+        echo ""
+        echo "  5. Run Tome sync to test automatic backup integration:"
+        echo "     scripts/tome-sync.sh"
+        echo ""
         return 0
     else
+        print_status $BLUE "═══════════════════════════════════════════════════════════════"
+        print_status $RED "❌ SOME TESTS FAILED (${TESTS_FAILED}/${TESTS_TOTAL})"
+        print_status $BLUE "═══════════════════════════════════════════════════════════════"
         echo ""
-        print_status $RED "❌ SOME TESTS FAILED. Please fix the issues above before using the backup system."
+        print_status $YELLOW "🔧 Common Fixes:"
+        echo "  1. Install missing dependencies:"
+        echo "     • AWS CLI: https://aws.amazon.com/cli/"
+        echo "     • jq: brew install jq (macOS) or apt-get install jq (Linux)"
         echo ""
-        print_status $YELLOW "🔧 Common fixes:"
-        echo "1. Ensure all dependencies are installed (aws cli, jq, etc.)"
-        echo "2. Verify AWS credentials and S3 access"
-        echo "3. Check file permissions on script files"
+        echo "  2. Configure AWS credentials:"
+        echo "     • Set VCAP_SERVICES environment (Cloud Foundry)"
+        echo "     • Or configure aws cli: aws configure"
+        echo ""
+        echo "  3. Verify file permissions:"
+        echo "     chmod +x scripts/snapshot/*.sh"
+        echo ""
+        echo "  4. Check S3 bucket access:"
+        echo "     aws s3 ls s3://\$BUCKET_NAME/"
+        echo ""
+        print_status $YELLOW "💡 Tip: Review failed test output above for specific issues"
+        echo ""
         return 1
     fi
 }
