@@ -30,7 +30,7 @@ scripts/snapshot/manager.sh info                        # Get system information
 # From project root - control CF backups remotely
 scripts/snapshot/local-manager.sh list                              # List all backups
 scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy  # Create backup on CF
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/  # Download to local
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/  # Download to local
 scripts/snapshot/local-manager.sh cron status                       # Check automated backup schedule
 scripts/snapshot/local-manager.sh test                              # Run test suite on CF
 scripts/snapshot/local-manager.sh info                              # Get system info from CF
@@ -95,23 +95,23 @@ scripts/snapshot/local-manager.sh clean db 30       # Clean database backups on 
 # On Cloud Foundry
 scripts/snapshot/manager.sh info                    # Show system configuration and status
 scripts/snapshot/manager.sh info db                 # Show database-specific information
-scripts/snapshot/manager.sh info all AUTO-prod-14850-Oct-28-25  # Show details for specific backup
+scripts/snapshot/manager.sh info all AUTO-prod-14850-2025-10-28  # Show details for specific backup
 
 # From local machine
 scripts/snapshot/local-manager.sh info                          # Show system configuration from CF
-scripts/snapshot/local-manager.sh info db AUTO-prod-14850-Oct-28-25  # Show specific backup details
+scripts/snapshot/local-manager.sh info db AUTO-prod-14850-2025-10-28  # Show specific backup details
 ```
 
 ### Restore Backups
 
 ```bash
 # On Cloud Foundry
-scripts/snapshot/manager.sh restore AUTO-prod-14850-Oct-28-25              # Interactive restore
-scripts/snapshot/manager.sh restore AUTO-prod-14850-Oct-28-25 --only=db    # Restore database only
+scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28              # Interactive restore
+scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28 --only=db    # Restore database only
 
 # From local machine (restores on CF, not locally)
-scripts/snapshot/local-manager.sh restore AUTO-prod-14850-Oct-28-25        # Restore on CF (interactive)
-scripts/snapshot/local-manager.sh restore AUTO-prod-14850-Oct-28-25 --only=static,db  # Selective restore
+scripts/snapshot/local-manager.sh restore AUTO-prod-14850-2025-10-28        # Restore on CF (interactive)
+scripts/snapshot/local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=static,db  # Selective restore
 ```
 
 ### Download Backups
@@ -122,23 +122,23 @@ Download backups from Cloud Foundry to your local machine or to the CF container
 
 ```bash
 # Download to local machine (streams through SSH - no CF disk usage)
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25              # All types to current dir
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 db           # Database only
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/  # All to ./backups/
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-Oct-28-25 db,static ./backups/  # Multiple types
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28              # All types to current dir
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 db           # Database only
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/  # All to ./backups/
+scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 db,static ./backups/  # Multiple types
 ```
 
 #### Direct on Cloud Foundry
 
 ```bash
 # Download to CF container (uses container disk)
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25                    # All types to current dir
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db                 # Database only
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db,static          # Multiple types
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 all ./backups/     # All types to ./backups/
+scripts/snapshot/manager.sh download AUTO-prod-14850-2025-10-28                    # All types to current dir
+scripts/snapshot/manager.sh download AUTO-prod-14850-2025-10-28 db                 # Database only
+scripts/snapshot/manager.sh download AUTO-prod-14850-2025-10-28 db,static          # Multiple types
+scripts/snapshot/manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/     # All types to ./backups/
 
 # Stream mode (pipe to stdout)
-scripts/snapshot/manager.sh download AUTO-prod-14850-Oct-28-25 db - --stream > backup.sql.gz
+scripts/snapshot/manager.sh download AUTO-prod-14850-2025-10-28 db - --stream > backup.sql.gz
 ```
 
 **Download Features:**
@@ -175,7 +175,7 @@ All backups use a standardized naming convention for traceability and organizati
   - Cloud.gov: Numeric container tag from `/etc/motd` (e.g., `14850`)
   - Development: Git short hash (e.g., `git-a1b2c3`)
 
-- **timestamp**: Date in `MMM-DD-YY` format with 24-hour time (e.g., `Nov-24-25`)
+- **timestamp**: Date in `YYYY-MM-DD` format (e.g., `2025-11-24`)
 
 - **suffix**: Optional descriptive text, entirely arbitrary, some example uses:
   - `-pre-deploy`: Before deployment operations
@@ -185,10 +185,10 @@ All backups use a standardized naming convention for traceability and organizati
 ### Examples
 
 ```text
-AUTO-prod-14850-Oct-28-25                        # Automated production backup
-USAGOV-456-dev-git-a1b2c3-Oct-28-25-pre-update   # Manual backup before update
-RELEASE-v2.1-staging-14851-Oct-28-25-hotfix      # Release hotfix backup
-MANUAL-prod-14852-Oct-28-25-emergency            # Emergency manual backup
+AUTO-prod-14850-2025-10-28                        # Automated production backup
+USAGOV-456-dev-git-a1b2c3-2025-10-28-pre-update   # Manual backup before update
+RELEASE-v2.1-staging-14851-2025-10-28-hotfix      # Release hotfix backup
+MANUAL-prod-14852-2025-10-28-emergency            # Emergency manual backup
 ```
 
 This format ensures:

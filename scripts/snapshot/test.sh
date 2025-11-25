@@ -598,7 +598,7 @@ test_backup_download() {
     mkdir -p "$test_dir"
 
     # Generate unique test backup tag
-    local test_tag="TEST-download-$$-$(date +%b-%d-%y)"
+    local test_tag="TEST-download-$$-$(date +%Y-%m-%d)"
 
     echo "🔄 Creating test backup for download testing: $test_tag"
 

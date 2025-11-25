@@ -43,9 +43,9 @@ show_usage() {
     echo "  static,public            Multiple types (comma-separated)"
     echo ""
     echo "Backup Tag Format:"
-    echo "  PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY[-SUFFIX]"
-    echo "  Example: AUTO-dev-cf-a1b2c3-Oct-24-25"
-    echo "  Example: USAGOV-123-prod-cf-d4e5f6-Oct-24-25-post-deploy"
+    echo "  PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD[-SUFFIX]"
+    echo "  Example: AUTO-dev-cf-a1b2c3-2025-10-24"
+    echo "  Example: USAGOV-123-prod-cf-d4e5f6-2025-10-24-post-deploy"
     echo ""
     echo "Examples:"
     echo "  $0 list                                                # List all backups from last 30 days"
@@ -62,12 +62,12 @@ show_usage() {
     echo "  $0 clean all all                                       # ⚠️  DELETE ALL backups (same as clean all 0)"
     echo "  $0 info                                                # Show backup system configuration"
     echo "  $0 info db                                             # Show database backup configuration"
-    echo "  $0 info all AUTO-prod-14850-Oct-28-25                  # Show details for specific backup"
-    echo "  $0 restore AUTO-prod-14850-Oct-28-25                   # Restore all from backup (interactive)"
-    echo "  $0 restore AUTO-prod-14850-Oct-28-25 --only=static,db  # Restore only static and db"
-    echo "  $0 download AUTO-prod-14850-Oct-28-25                  # Download all to current dir"
-    echo "  $0 download AUTO-prod-14850-Oct-28-25 db ./backups/    # Download db to ./backups/"
-    echo "  $0 download AUTO-prod-14850-Oct-28-25 db - --stream    # Stream db to stdout"
+    echo "  $0 info all AUTO-prod-14850-2025-10-28                  # Show details for specific backup"
+    echo "  $0 restore AUTO-prod-14850-2025-10-28                   # Restore all from backup (interactive)"
+    echo "  $0 restore AUTO-prod-14850-2025-10-28 --only=static,db  # Restore only static and db"
+    echo "  $0 download AUTO-prod-14850-2025-10-28                  # Download all to current dir"
+    echo "  $0 download AUTO-prod-14850-2025-10-28 db ./backups/    # Download db to ./backups/"
+    echo "  $0 download AUTO-prod-14850-2025-10-28 db - --stream    # Stream db to stdout"
 }
 
 # ===================================================================
@@ -122,8 +122,8 @@ run_backup_command() {
         backup_suffix="-${custom_suffix}"
     fi
 
-    # Generate single timestamp for this backup event (format: Oct-24-25)
-    local backup_timestamp=$(date +"%b-%d-%y")
+    # Generate single timestamp for this backup event (format: 2025-10-24)
+    local backup_timestamp=$(date +"%Y-%m-%d")
 
     print_status $BLUE "📦 Creating backup: $backup_types"
     if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
@@ -270,11 +270,11 @@ run_info_command() {
 # Args:
 #   $1: custom_prefix (default: DB_BACKUP_PREFIX from config)
 #   $2: backup_suffix (optional, e.g., "-post-deploy")
-#   $3: backup_timestamp (default: current date in MMM-DD-YY format)
+#   $3: backup_timestamp (default: current date in YYYY-MM-DD format)
 create_db_backup() {
     local custom_prefix="${1:-$DB_BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
-    local backup_timestamp="${3:-$(date +"%b-%d-%y")}"
+    local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
 
     setup_s3_vars || exit 1
 
@@ -392,11 +392,11 @@ create_db_backup() {
 # Args:
 #   $1: custom_prefix (default: BACKUP_PREFIX from config)
 #   $2: backup_suffix (optional, e.g., "-post-deploy")
-#   $3: backup_timestamp (default: current date in MMM-DD-YY format)
+#   $3: backup_timestamp (default: current date in YYYY-MM-DD format)
 create_static_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
-    local backup_timestamp="${3:-$(date +"%b-%d-%y")}"
+    local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
 
     setup_s3_vars || exit 1
 
@@ -430,11 +430,11 @@ create_static_backup() {
 # Args:
 #   $1: custom_prefix (default: BACKUP_PREFIX from config)
 #   $2: backup_suffix (optional, e.g., "-post-deploy")
-#   $3: backup_timestamp (default: current date in MMM-DD-YY format)
+#   $3: backup_timestamp (default: current date in YYYY-MM-DD format)
 create_public_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
-    local backup_timestamp="${3:-$(date +"%b-%d-%y")}"
+    local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
 
     setup_s3_vars || exit 1
 
@@ -497,8 +497,8 @@ backup_all() {
         backup_suffix="-${custom_suffix}"
     fi
 
-    # Generate single timestamp for this backup event (format: Oct-24-25)
-    local backup_timestamp=$(date +"%b-%d-%y")
+    # Generate single timestamp for this backup event (format: 2025-10-24)
+    local backup_timestamp=$(date +"%Y-%m-%d")
 
     print_status $BLUE "📦 Creating all backups..."
 
@@ -752,18 +752,18 @@ cleanup_old_db_backups() {
     log_message "🧹 Cleaning up database backups older than $days days..."
 
     cutoff_epoch=$(get_days_ago_epoch "$days")
-    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
     log_message "Cutoff date: $cutoff_display"
 
     # List and delete old database backups (any prefix)
     aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
         backup_path=$(echo "$line" | awk '{print $4}')
-        # Extract date from backup filename (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz or PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY-SUFFIX.sql.gz)
-        backup_date=$(echo "$backup_path" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+        # Extract date from backup filename (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz or PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD-SUFFIX.sql.gz)
+        backup_date=$(echo "$backup_path" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
             # Convert backup date to epoch for comparison
-            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
 
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
@@ -784,17 +784,17 @@ list_old_backups() {
 
     local cutoff_epoch=$(get_days_ago_epoch "$days")
 
-    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
     print_status $YELLOW "Backups older than ${days} days (before ${cutoff_display}):"
     echo "========================================================"
 
     print_status $GREEN "Static Site Backups:"
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
-            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
                 echo "$line"
             fi
@@ -805,10 +805,10 @@ list_old_backups() {
     print_status $GREEN "Public Files Backups:"
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
-            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
                 echo "$line"
             fi
@@ -854,18 +854,18 @@ clean_old_backups() {
     # Normal date-based cleanup - calculate cutoff date as epoch timestamp
     cutoff_epoch=$(get_days_ago_epoch "$days")
 
-    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%b-%d-%y' 2>/dev/null || date -u -r "$cutoff_epoch" '+%b-%d-%y' 2>/dev/null)
+    cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
     print_status $YELLOW "🧹 Removing static/public backups older than ${days} days (before ${cutoff_display})..."
 
     # Clean static site backups (any prefix)
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY-SUFFIX or PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY)
-        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+        # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD-SUFFIX or PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
+        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
             # Convert backup date to epoch for comparison
-            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
 
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
                 print_status $YELLOW "Removing static site backup: $backup_name (date: $backup_date)"
@@ -878,11 +878,11 @@ clean_old_backups() {
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
         # Extract date from backup name
-        backup_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
             # Convert backup date to epoch for comparison
-            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$backup_date" '+%s' 2>/dev/null)
+            backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
 
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
                 print_status $YELLOW "Removing public files backup: $backup_name (date: $backup_date)"
@@ -918,15 +918,15 @@ find_corresponding_public_backup() {
     fi
 
     # If no exact match, find the most recent public backup before or at the static backup time
-    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY)
-    static_date=$(echo "$static_backup_tag" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
+    static_date=$(echo "$static_backup_tag" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
     if [ -z "$static_date" ]; then
         return 1
     fi
 
     # Convert to epoch for comparison
-    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$static_date" '+%s' 2>/dev/null)
+    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
     if [ -z "$static_epoch" ]; then
         return 1
     fi
@@ -941,10 +941,10 @@ find_corresponding_public_backup() {
     while read -r line; do
         if [ -n "$line" ]; then
             public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            public_date=$(echo "$public_backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+            public_date=$(echo "$public_backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
             if [ -n "$public_date" ]; then
-                public_epoch=$(date -u -d "$public_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$public_date" '+%s' 2>/dev/null)
+                public_epoch=$(date -u -d "$public_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$public_date" '+%s' 2>/dev/null)
 
                 # Find most recent backup at or before static backup time
                 if [ -n "$public_epoch" ] && [ "$public_epoch" -le "$static_epoch" ] && [ "$public_epoch" -gt "$best_epoch" ]; then
@@ -969,15 +969,15 @@ find_corresponding_public_backup() {
 find_corresponding_db_backup() {
     local static_backup_tag=$1
 
-    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY)
-    static_date=$(echo "$static_backup_tag" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
+    static_date=$(echo "$static_backup_tag" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
     if [ -z "$static_date" ]; then
         return 1
     fi
 
     # Convert to epoch for comparison
-    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$static_date" '+%s' 2>/dev/null)
+    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
     if [ -z "$static_epoch" ]; then
         return 1
     fi
@@ -998,11 +998,11 @@ find_corresponding_db_backup() {
 
     while read -r line; do
         if [ -n "$line" ]; then
-            # Extract date from database backup name (PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz)
-            db_date=$(echo "$line" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+            # Extract date from database backup name (PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz)
+            db_date=$(echo "$line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
             if [ -n "$db_date" ]; then
-                db_epoch=$(date -u -d "$db_date" '+%s' 2>/dev/null || date -u -j -f '%b-%d-%y' "$db_date" '+%s' 2>/dev/null)
+                db_epoch=$(date -u -d "$db_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$db_date" '+%s' 2>/dev/null)
 
                 # Find most recent backup at or before static backup time
                 if [ -n "$db_epoch" ] && [ "$db_epoch" -le "$static_epoch" ] && [ "$db_epoch" -gt "$best_epoch" ]; then
@@ -1329,8 +1329,8 @@ db_backup_info() {
             echo "Size: $backup_size bytes"
             echo "Created: $backup_date"
 
-            # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-MMM-DD-YY.sql.gz)
-            backup_tag_date=$(echo "$backup_name" | grep -oE '[A-Z][a-z]{2}-[0-9]{2}-[0-9]{2}' | head -1)
+            # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz)
+            backup_tag_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
             if [ -n "$backup_tag_date" ]; then
                 echo "Backup Tag Date: $backup_tag_date"
             fi
@@ -1551,7 +1551,7 @@ case "${1:-}" in
         ;;
     "download")
         # download <tag> <type> [output-path] [--stream]
-        # e.g., "download AUTO-prod-14850-Oct-28-25 db ./backups/" or "download AUTO-prod-14850-Oct-28-25 db - --stream"
+        # e.g., "download AUTO-prod-14850-2025-10-28 db ./backups/" or "download AUTO-prod-14850-2025-10-28 db - --stream"
         download_backup "$2" "$3" "$4" "$5"
         ;;
     *)
