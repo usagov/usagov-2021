@@ -289,13 +289,7 @@ RUN chmod -R +x /etc/periodic \
     && echo >> /etc/motd \
     && cp /etc/motd /var/www/web/version.txt \
     && echo "PATH=$PATH" > /etc/profile.d/drupal.sh \
-    && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh \
-    && echo '#!/bin/sh' > /etc/profile.d/setup-cron.sh \
-    && echo '# Auto-setup database backup cron job on container start' >> /etc/profile.d/setup-cron.sh \
-    && echo 'if [ -f /var/www/scripts/snapshot/setup-cron.sh ]; then' >> /etc/profile.d/setup-cron.sh \
-    && echo '    /var/www/scripts/snapshot/setup-cron.sh setup >/dev/null 2>&1' >> /etc/profile.d/setup-cron.sh \
-    && echo 'fi' >> /etc/profile.d/setup-cron.sh \
-    && chmod +x /etc/profile.d/setup-cron.sh
+    && echo "alias tll='tail -f \$(ls -tr *.log | tail -1)'" > /etc/profile.d/usagov-aliases.sh
 
 RUN if pgrep nginx; then pkill nginx; fi
 
