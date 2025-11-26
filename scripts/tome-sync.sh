@@ -338,66 +338,31 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | grep -v "\bfiles/styles\/" | wc -l)
       echo "      $TOME_COUNT" | tee -a $TOMELOG
 
-      # Load backup system (uses common.sh which loads config and provides all functions)
+      # Run automatic backups using manager.sh
       BACKUP_MANAGER="$SCRIPT_PATH/snapshot/manager.sh"
-      BACKUP_COMMON="$SCRIPT_PATH/snapshot/common.sh"
 
-      if [ -f "$BACKUP_COMMON" ]; then
-          # Source common utilities which includes config loading
-          . "$BACKUP_COMMON"
+      if [ -f "$BACKUP_MANAGER" ]; then
+          echo "Starting automatic backups..." | tee -a $TOMELOG
 
-          # Initialize backup system (loads config and sets up paths)
-          init_backup_system
-
-          # Set S3 variables needed by backup functions
-          setup_s3_vars || {
-              echo "Warning: Could not setup S3 variables for backups" | tee -a $TOMELOG
-          }
-
-          # Create automatic backups after successful sync (if enabled)
-          # Generate unique backup tag using hash of YMDHMS to ensure consistency across all backup types
-          BACKUP_DATE=$(date +"%b-%d-%y")
-          # Create a short hash from YMDHMS for uniqueness (first 6 chars of md5)
-          BACKUP_HASH=$(echo "$YMDHMS" | md5sum 2>/dev/null | cut -c1-6 || echo "$YMDHMS" | md5 2>/dev/null | cut -c1-6)
-          BACKUP_TIMESTAMP="${BACKUP_DATE}-${BACKUP_HASH}"
-
-          echo "Starting automatic backups with tag: ${BACKUP_PREFIX}-${APP_SPACE}-${BACKUP_TIMESTAMP}" | tee -a $TOMELOG
-
-          # Static site backup (using centralized function)
-          if [ "$ENABLE_STATIC_AUTO_BACKUPS" = "true" ]; then
-              echo "Creating static backup..." | tee -a $TOMELOG
-              if create_static_backup "$BACKUP_PREFIX" "" "$BACKUP_TIMESTAMP"; then
-                  echo "Static backup complete" | tee -a $TOMELOG
-              else
-                  echo "Warning: Static backup failed" | tee -a $TOMELOG
-              fi
-          fi
-
-          # Public files backup (using centralized function with smart detection)
-          if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" = "true" ]; then
-              echo "Creating public files backup..." | tee -a $TOMELOG
-              if create_public_backup "$BACKUP_PREFIX" "" "$BACKUP_TIMESTAMP"; then
-                  echo "Public backup complete" | tee -a $TOMELOG
-              else
-                  echo "Warning: Public backup failed or skipped (no changes)" | tee -a $TOMELOG
-              fi
-          fi
-
-          echo "Automatic backup process completed." | tee -a $TOMELOG
-
-          # Cleanup old automatic backups (using centralized function)
-          if [ "$ENABLE_STATIC_AUTO_CLEANUP" = "true" ] || [ "$ENABLE_PUBLIC_AUTO_CLEANUP" = "true" ]; then
-              echo "Running automatic cleanup (retention: $BACKUP_RETENTION_DAYS days)..." | tee -a $TOMELOG
-              if clean_old_backups "$BACKUP_RETENTION_DAYS" 2>&1 | tee -a $TOMELOG; then
-                  echo "Cleanup completed." | tee -a $TOMELOG
-              else
-                  echo "Warning: Cleanup encountered issues." | tee -a $TOMELOG
-              fi
+          # Create static and public backups using manager.sh backup command
+          # The manager.sh script will handle all the logic, config loading, and smart detection
+          if $BACKUP_MANAGER backup all 2>&1 | tee -a $TOMELOG; then
+              echo "Automatic backup completed successfully." | tee -a $TOMELOG
           else
-              echo "Automatic cleanup is disabled." | tee -a $TOMELOG
+              echo "Warning: Backup process encountered issues." | tee -a $TOMELOG
+          fi
+
+          # Run cleanup using manager.sh clean command
+          # Clean static/public backups older than BACKUP_RETENTION_DAYS (default: 7 days)
+          # Use --non-interactive flag to skip confirmation prompts in automated context
+          echo "Running automatic cleanup (retention: 7 days for static/public)..." | tee -a $TOMELOG
+          if $BACKUP_MANAGER clean static,public 7 --non-interactive 2>&1 | tee -a $TOMELOG; then
+              echo "Cleanup completed." | tee -a $TOMELOG
+          else
+              echo "Warning: Cleanup encountered issues." | tee -a $TOMELOG
           fi
       else
-          echo "Warning: Backup system not found at $BACKUP_COMMON - skipping backups" | tee -a $TOMELOG
+          echo "Warning: Backup system not found at $BACKUP_MANAGER - skipping backups" | tee -a $TOMELOG
       fi
 
       # calculate the diff between s3 and tome

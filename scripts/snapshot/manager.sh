@@ -30,7 +30,8 @@ show_usage() {
     echo "Commands:"
     echo "  list [types] [days]                      List backups (default: all types, 30 days)"
     echo "  backup [types] [prefix] [suffix]         Create backups (default: all types, AUTO prefix)"
-    echo "  clean [types] [days|all|0]               Remove old backups (default: all types, 30 days)"
+    echo "  clean [types] [days|all|0] [-y]          Remove old backups (default: all types, 30 days)"
+    echo "                                           Use -y or --non-interactive to skip confirmation"
     echo "  restore <tag> [--only=type,type]         Restore backups from tag"
     echo "  info [types] [tag]                       Show backup system info or specific backup details"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
@@ -159,6 +160,14 @@ run_backup_command() {
 run_clean_command() {
     local types_arg="${1:-all}"
     local days_arg="${2:-30}"
+    local non_interactive=false
+
+    # Check for --non-interactive flag in any position
+    for arg in "$@"; do
+        if [ "$arg" = "--non-interactive" ] || [ "$arg" = "-y" ]; then
+            non_interactive=true
+        fi
+    done
 
     local backup_types=$(parse_backup_types "$types_arg")
 
@@ -172,33 +181,39 @@ run_clean_command() {
         days=$(get_days_arg "$days_arg" "30")
     fi
 
-    # Show appropriate warning based on scope
+    # Show appropriate warning based on scope (skip confirmation if non-interactive)
     if [ "$delete_all" = "true" ]; then
-        echo ""
-        print_status $RED "╔════════════════════════════════════════════════════════════════╗"
-        print_status $RED "║                    ⚠️  DANGER ZONE  ⚠️                         ║"
-        print_status $RED "║                                                                ║"
-        print_status $RED "║  This will DELETE ALL $backup_types backups                    ║"
-        print_status $RED "║  regardless of age!                                            ║"
-        print_status $RED "║                                                                ║"
-        print_status $RED "║  THIS ACTION CANNOT BE UNDONE!                                 ║"
-        print_status $RED "╚════════════════════════════════════════════════════════════════╝"
-        echo ""
-        printf "Type 'DELETE ALL' to confirm (or anything else to cancel): "
-        read -r confirm
+        if [ "$non_interactive" = "false" ]; then
+            echo ""
+            print_status $RED "╔════════════════════════════════════════════════════════════════╗"
+            print_status $RED "║                    ⚠️  DANGER ZONE  ⚠️                         ║"
+            print_status $RED "║                                                                ║"
+            print_status $RED "║  This will DELETE ALL $backup_types backups                    ║"
+            print_status $RED "║  regardless of age!                                            ║"
+            print_status $RED "║                                                                ║"
+            print_status $RED "║  THIS ACTION CANNOT BE UNDONE!                                 ║"
+            print_status $RED "╚════════════════════════════════════════════════════════════════╝"
+            echo ""
+            printf "Type 'DELETE ALL' to confirm (or anything else to cancel): "
+            read -r confirm
 
-        if [ "$confirm" != "DELETE ALL" ]; then
-            print_status $GREEN "✅ Cancelled. No backups were deleted."
-            return 1
+            if [ "$confirm" != "DELETE ALL" ]; then
+                print_status $GREEN "✅ Cancelled. No backups were deleted."
+                return 1
+            fi
         fi
     else
-        print_status $YELLOW "⚠️ This will delete $backup_types backups older than $days days"
-        printf "Continue? [y/N]: "
-        read -r confirm
+        if [ "$non_interactive" = "false" ]; then
+            print_status $YELLOW "⚠️ This will delete $backup_types backups older than $days days"
+            printf "Continue? [y/N]: "
+            read -r confirm
 
-        if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-            print_status $RED "❌ Cancelled."
-            return 1
+            if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+                print_status $RED "❌ Cancelled."
+                return 1
+            fi
+        else
+            print_status $YELLOW "⚠️ Cleaning $backup_types backups older than $days days (non-interactive mode)"
         fi
     fi
 
@@ -1557,7 +1572,10 @@ download_single_backup() {
     esac
 }
 
-# Main script logic
+# ===================================================================
+# MAIN SCRIPT LOGIC
+# ===================================================================
+
 case "${1:-}" in
     "-h"|"--help"|"help")
         show_usage
@@ -1572,8 +1590,8 @@ case "${1:-}" in
         run_backup_command "$2" "$3" "$4"
         ;;
     "clean")
-        # clean [types] [days] - e.g., "clean all 30" or "clean db 7"
-        run_clean_command "$2" "$3"
+        # clean [types] [days] [-y|--non-interactive] - e.g., "clean all 30" or "clean db 7 -y"
+        run_clean_command "$2" "$3" "$4"
         ;;
     "restore")
         # restore

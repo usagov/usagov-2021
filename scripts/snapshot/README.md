@@ -83,11 +83,16 @@ scripts/snapshot/manager.sh clean db 7              # Clean database backups old
 scripts/snapshot/manager.sh clean static 14         # Clean static backups older than 14 days
 scripts/snapshot/manager.sh clean all 0             # ⚠️  DELETE ALL backups (requires confirmation)
 
+# Non-interactive mode (for automation, skips confirmation)
+scripts/snapshot/manager.sh clean static,public 7 --non-interactive
+scripts/snapshot/manager.sh clean db 30 -y          # Short form
+
 # From local machine
 scripts/snapshot/local-manager.sh clean db 30       # Clean database backups on CF
+scripts/snapshot/local-manager.sh clean all 7 -y    # Non-interactive cleanup on CF
 ```
 
-> **Note:** Clean operations require confirmation before deleting files
+> **Note:** Clean operations require confirmation before deleting files (unless using `--non-interactive` or `-y` flag)
 
 ### Get Information
 
