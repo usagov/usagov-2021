@@ -591,7 +591,8 @@ list_static_backups() {
             backup_date="unknown"
         fi
 
-        echo "  $backup_tag ($backup_size bytes) - $backup_date"
+        local formatted_size=$(format_file_size "$backup_size")
+        echo "  $backup_tag ($formatted_size) - $backup_date"
     done
 }
 
@@ -618,7 +619,8 @@ list_public_backups() {
             backup_date="unknown"
         fi
 
-        echo "  $backup_tag ($backup_size bytes) - $backup_date"
+        local formatted_size=$(format_file_size "$backup_size")
+        echo "  $backup_tag ($formatted_size) - $backup_date"
     done
 }
 
@@ -635,7 +637,8 @@ list_db_backups() {
             backup_size=$(echo "$line" | awk '{print $3}')
             backup_date=$(echo "$line" | awk '{print $1" "$2}')
 
-            echo "  $backup_file ($backup_size bytes) - $backup_date"
+            local formatted_size=$(format_file_size "$backup_size")
+            echo "  $backup_file ($formatted_size) - $backup_date"
         done
     else
         print_status $RED "❌ Error: AWS credentials not available"
@@ -1262,8 +1265,11 @@ backup_info() {
 
     # Check static site backup
     echo "Static Site Backup:"
-    if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
+    local static_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+    if echo "$static_output" | grep -q "Total Objects:"; then
         static_exists="yes"
+        # Extract and format summary lines
+        format_s3_summary "$static_output" | sed 's/^/  /'
     else
         echo "  No static site backup found with this tag"
         static_exists="no"
@@ -1271,8 +1277,11 @@ backup_info() {
 
     echo ""
     echo "Public Files Backup:"
-    if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null; then
+    local public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+    if echo "$public_output" | grep -q "Total Objects:"; then
         public_exists="yes"
+        # Extract and format summary lines
+        format_s3_summary "$public_output" | sed 's/^/  /'
     else
         echo "  No public files backup found with this tag"
         public_exists="no"
@@ -1291,7 +1300,8 @@ backup_info() {
                 if [ "$corresponding_public" != "$backup_tag" ]; then
                     print_status $GREEN "Restore would use public backup: $corresponding_public"
                     echo "Public Files Backup (would be used for restore):"
-                    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>/dev/null
+                    local corr_public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+                    format_s3_summary "$corr_public_output" | sed 's/^/  /'
                 fi
             else
                 print_status $YELLOW "No suitable public backup found for this time period."
@@ -1326,7 +1336,8 @@ db_backup_info() {
             backup_file=$(echo "$backup_info" | awk '{print $4}')
 
             echo "File Path: s3://$BUCKET_NAME/$backup_file"
-            echo "Size: $backup_size bytes"
+            local formatted_size=$(format_file_size "$backup_size")
+            echo "Size: $formatted_size"
             echo "Created: $backup_date"
 
             # Extract date from backup name (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz)

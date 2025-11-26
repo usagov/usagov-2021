@@ -201,6 +201,71 @@ get_days_ago_epoch() {
     echo "$cutoff_epoch"
 }
 
+# Format file size to human-readable format with appropriate units
+# Automatically selects best unit (KB, MB, or GB) based on size
+# Args:
+#   $1: bytes - File size in bytes
+# Returns: Formatted string like "12345678 bytes (11.77 MB)"
+format_file_size() {
+    local bytes="$1"
+
+    if [ -z "$bytes" ] || [ "$bytes" = "0" ]; then
+        echo "0 bytes"
+        return
+    fi
+
+    # Use bc for floating point math if available, otherwise use awk
+    if command -v bc >/dev/null 2>&1; then
+        local kb=$(echo "scale=2; $bytes / 1024" | bc)
+        local mb=$(echo "scale=2; $bytes / 1048576" | bc)
+        local gb=$(echo "scale=2; $bytes / 1073741824" | bc)
+
+        if [ $(echo "$gb >= 1" | bc) -eq 1 ]; then
+            echo "$bytes bytes (${gb} GB)"
+        elif [ $(echo "$mb >= 1" | bc) -eq 1 ]; then
+            echo "$bytes bytes (${mb} MB)"
+        elif [ $(echo "$kb >= 1" | bc) -eq 1 ]; then
+            echo "$bytes bytes (${kb} KB)"
+        else
+            echo "$bytes bytes"
+        fi
+    else
+        # Fallback to awk if bc is not available
+        echo "$bytes" | awk '{
+            if ($1 >= 1073741824) {
+                printf "%d bytes (%.2f GB)", $1, $1/1073741824
+            } else if ($1 >= 1048576) {
+                printf "%d bytes (%.2f MB)", $1, $1/1048576
+            } else if ($1 >= 1024) {
+                printf "%d bytes (%.2f KB)", $1, $1/1024
+            } else {
+                printf "%d bytes", $1
+            }
+        }'
+    fi
+}
+
+# Format AWS S3 summary output with human-readable sizes
+# Extracts and formats Total Objects and Total Size from aws s3 ls --summarize output
+# Args:
+#   $1: output - Raw output from aws s3 ls --summarize command
+# Returns: Formatted summary with human-readable file sizes
+format_s3_summary() {
+    local output="$1"
+
+    # Extract Total Objects line
+    local objects_line=$(echo "$output" | grep "Total Objects:")
+    echo "$objects_line"
+
+    # Extract and format Total Size line
+    local size_line=$(echo "$output" | grep "Total Size:")
+    if [ -n "$size_line" ]; then
+        local bytes=$(echo "$size_line" | awk '{print $3}')
+        local formatted=$(format_file_size "$bytes")
+        echo "Total Size: $formatted"
+    fi
+}
+
 # ===================================================================
 # AWS S3 CONFIGURATION
 # ===================================================================
