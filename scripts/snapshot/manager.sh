@@ -1276,6 +1276,12 @@ backup_info() {
         local static_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
         if echo "$static_output" | grep -q "Total Objects:"; then
             static_exists="yes"
+            # Extract first file's creation date
+            local first_file=$(echo "$static_output" | grep -v "Total" | head -1)
+            local static_date=$(echo "$first_file" | awk '{print $1" "$2}')
+            if [ -n "$static_date" ]; then
+                echo "  Created: $static_date"
+            fi
             # Extract and format summary lines
             format_s3_summary "$static_output" | sed 's/^/  /'
         else
@@ -1290,6 +1296,12 @@ backup_info() {
         local public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
         if echo "$public_output" | grep -q "Total Objects:"; then
             public_exists="yes"
+            # Extract first file's creation date
+            local first_file=$(echo "$public_output" | grep -v "Total" | head -1)
+            local public_date=$(echo "$first_file" | awk '{print $1" "$2}')
+            if [ -n "$public_date" ]; then
+                echo "  Created: $public_date"
+            fi
             # Extract and format summary lines
             format_s3_summary "$public_output" | sed 's/^/  /'
         else
@@ -1310,6 +1322,11 @@ backup_info() {
                         echo ""
                         echo "  Public Files Backup (would be used for restore):"
                         local corr_public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+                        local corr_first_file=$(echo "$corr_public_output" | grep -v "Total" | head -1)
+                        local corr_date=$(echo "$corr_first_file" | awk '{print $1" "$2}')
+                        if [ -n "$corr_date" ]; then
+                            echo "    Created: $corr_date"
+                        fi
                         format_s3_summary "$corr_public_output" | sed 's/^/    /'
                     fi
                 else
