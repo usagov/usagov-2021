@@ -205,8 +205,8 @@ function faq_process_components(DOMDocument &$dom): void {
         // Get this panel's body content
         $accordionPanelBodyNodeBody = $accordionPanelNode->get('field_accordion_section_body')[0];
         if ($accordionPanelBodyNodeBody) {
-          $accordionPanelBodyNodeID = $accordionPanelBodyNodeBody->get('target_id')->getValue();
-          $accordionPanelBodyNode = $entityTypeManager->getStorage('paragraph')->load($accordionPanelBodyNodeID);
+          $accordionPanelBodyNodeRevisionID = $accordionPanelBodyNodeBody->get('target_revision_id')->getValue();
+          $accordionPanelBodyNode = $entityTypeManager->getStorage('paragraph')->loadRevision($accordionPanelBodyNodeRevisionID);
 
           // append accordion body content
           $accordionBody = new DOMDocument();
@@ -250,7 +250,7 @@ function faq_simplify_list(DOMDocument &$dom, object &$component, string $listTy
 
   // Iterate through component items by field name
   foreach ($component->get($itemsFieldName) as $process_item) {
-    $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($process_item->get('target_id')->getValue());
+    $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->loadRevision($process_item->get('target_revision_id')->getValue());
 
     // Create a new <li> for this list item
     $processItemContent = $dom->createElement('li');
