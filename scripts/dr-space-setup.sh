@@ -60,7 +60,7 @@ function setVariables() {
 # By default, exit after each task is successfully completed
 # Some day, we'll be able to set this to "" :)
 ##############################################################
-#exit=exit
+exit=exit
 
 ##############################################################
 # In general we want to avoid recreating the app space unless 
@@ -111,30 +111,24 @@ if [ $CREATE_APP_SPACE -ne 0 ]; then
   createNewAppSpace
 fi
 
-#deployServices
-#deployCacheAndRDSService 
-#createCCIServiceAccount 
-#createCFEventsServiceAccount 
-#setCCIUserRoles 
-#createDomainService 
+deployServices
+deployCacheAndRDSService 
+createCCIServiceAccount 
+createCFEventsServiceAccount 
+setCCIUserRoles 
+createDomainService 
 
-exit
+pushSnapshots 
+deployDBDump 
+deployPublicFiles 
+deploySiteFiles
 
 deployCMSApp 
 deployWWWApp 
-deployAPIProxyApp 
 deployWAFApp 
+deployAPIProxyApp 
 deployCronApp 
-deployAnalyticsReporterApp 
-
-exposeServers 
-
-### should not need this, as each app deploy calls it
-### setupEgressForSpace 
-
-pushSnapshots 
-deployPublicFiles 
-deploySiteFiles 
-deployDBDump 
+deployAnalyticsReporterApp
+#exposeServers
 
 exit $?
