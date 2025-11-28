@@ -201,6 +201,61 @@ get_days_ago_epoch() {
     echo "$cutoff_epoch"
 }
 
+# Convert a YYYY-MM-DD date string to epoch timestamp
+# Portable implementation that works on GNU and BSD date
+# Args:
+#   $1: date - Date string in YYYY-MM-DD format
+# Returns: Epoch timestamp or empty string if invalid
+date_to_epoch() {
+    local date_str="$1"
+
+    # Try GNU date format first
+    local epoch=$(date -u -d "$date_str" '+%s' 2>/dev/null)
+
+    # If that fails, try BSD date format
+    if [ -z "$epoch" ]; then
+        epoch=$(date -u -j -f '%Y-%m-%d' "$date_str" '+%s' 2>/dev/null)
+    fi
+
+    echo "$epoch"
+}
+
+# Check if a backup date falls within a date range
+# Args:
+#   $1: backup_date - Date from backup name (YYYY-MM-DD)
+#   $2: start_date - Start of range (YYYY-MM-DD) or empty for no start limit
+#   $3: end_date - End of range (YYYY-MM-DD) or empty for no end limit
+# Returns: 0 if in range, 1 if not in range
+is_date_in_range() {
+    local backup_date="$1"
+    local start_date="$2"
+    local end_date="$3"
+
+    # Convert backup date to epoch
+    local backup_epoch=$(date_to_epoch "$backup_date")
+    if [ -z "$backup_epoch" ]; then
+        return 1  # Invalid date
+    fi
+
+    # Check start date constraint
+    if [ -n "$start_date" ]; then
+        local start_epoch=$(date_to_epoch "$start_date")
+        if [ -n "$start_epoch" ] && [ "$backup_epoch" -lt "$start_epoch" ]; then
+            return 1  # Before start date
+        fi
+    fi
+
+    # Check end date constraint
+    if [ -n "$end_date" ]; then
+        local end_epoch=$(date_to_epoch "$end_date")
+        if [ -n "$end_epoch" ] && [ "$backup_epoch" -gt "$end_epoch" ]; then
+            return 1  # After end date
+        fi
+    fi
+
+    return 0  # In range
+}
+
 # Format file size to human-readable format with appropriate units
 # Automatically selects best unit (KB, MB, or GB) based on size
 # Args:
@@ -277,41 +332,41 @@ format_s3_summary() {
 # Returns: 0 if valid, 1 if invalid
 validate_sql_dump() {
     local sql_file="$1"
-    
+
     if [ ! -f "$sql_file" ] || [ ! -s "$sql_file" ]; then
         echo "❌ SQL file does not exist or is empty"
         return 1
     fi
-    
+
     # Read first few lines to check for SQL dump header
     local first_lines=$(head -n 20 "$sql_file")
-    
+
     # Check for MySQL/MariaDB dump markers
     if ! echo "$first_lines" | grep -q "MySQL dump\|MariaDB dump"; then
         echo "❌ SQL dump missing MySQL/MariaDB header"
         return 1
     fi
-    
+
     # Check for common SQL dump patterns in the beginning
     if ! echo "$first_lines" | grep -qE "-- (Host|Server|Database|Dump completed on|Table structure)"; then
         echo "⚠️  SQL dump header format unusual (missing standard comments)"
     fi
-    
+
     # Read last few lines to check for proper completion
     local last_lines=$(tail -n 10 "$sql_file")
-    
+
     # Check that dump was completed (should have "Dump completed on" or similar)
     if ! echo "$last_lines" | grep -qE "Dump completed on|-- Dump completed"; then
         echo "⚠️  SQL dump may be incomplete (missing completion marker)"
     fi
-    
+
     # Check for common end-of-dump patterns
     if ! echo "$first_lines" | grep -qE "CREATE TABLE|INSERT INTO|CREATE DATABASE" && \
        ! echo "$last_lines" | grep -qE "CREATE TABLE|INSERT INTO"; then
         echo "❌ SQL dump contains no CREATE or INSERT statements"
         return 1
     fi
-    
+
     echo "✅ SQL dump structure validated"
     return 0
 }

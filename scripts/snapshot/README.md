@@ -10,6 +10,15 @@ This backup system provides automated and manual backup capabilities for the USA
 - **Public File Backups**: Public media files and assets
 - **Database Backups**: Full database exports with compression
 
+### Key Features
+
+- **Date Range Filtering**: List and clean backups by specific date ranges (e.g., `2025-10-01:2025-10-31`) or relative days (e.g., `7` for last 7 days)
+- **Flexible Date Filters**: Use `YYYY-MM-DD:` for "from date onward", `:YYYY-MM-DD` for "up to date", or `YYYY-MM-DD:YYYY-MM-DD` for specific ranges
+- **Drupal State Management**: Automatic management of Tome and maintenance mode during database operations
+- **Smart Restore**: Automatically finds corresponding public backups when restoring static backups
+- **Remote Control**: Manage Cloud Foundry backups from your local machine via SSH
+- **Automated Cleanup**: Configurable retention policies with manual and automatic cleanup
+
 ## Quick Start
 
 ### On Cloud Foundry
@@ -49,9 +58,15 @@ scripts/snapshot/manager.sh list static             # Show only static backups
 scripts/snapshot/manager.sh list db,public          # Show database and public backups
 scripts/snapshot/manager.sh list all 7              # Show all backups from last 7 days
 
+# Date range filtering (YYYY-MM-DD:YYYY-MM-DD format)
+scripts/snapshot/manager.sh list all 2025-10-01:2025-10-31    # October 2025 backups
+scripts/snapshot/manager.sh list db 2025-11-01:               # Database backups from Nov 1st onward
+scripts/snapshot/manager.sh list static :2025-10-15           # Static backups up to Oct 15th
+
 # From local machine
 scripts/snapshot/local-manager.sh list              # Show all backups on CF
 scripts/snapshot/local-manager.sh list db 7         # Show database backups from last 7 days
+scripts/snapshot/local-manager.sh list all 2025-09-01:2025-09-30  # September 2025 backups
 ```
 
 ### Create Backups
@@ -93,19 +108,26 @@ Use `--skip-state-management` (or `--ssm` for short) to bypass this (e.g., when 
 ### Clean Old Backups
 
 ```bash
-# On Cloud Foundry
+# On Cloud Foundry - Days-based retention
 scripts/snapshot/manager.sh clean                   # Clean all types (30 day retention)
 scripts/snapshot/manager.sh clean db 7              # Clean database backups older than 7 days
 scripts/snapshot/manager.sh clean static 14         # Clean static backups older than 14 days
 scripts/snapshot/manager.sh clean all 0             # ⚠️  DELETE ALL backups (requires confirmation)
 
+# Date range filtering (YYYY-MM-DD:YYYY-MM-DD format)
+scripts/snapshot/manager.sh clean all 2024-01-01:2024-12-31  # Clean all 2024 backups
+scripts/snapshot/manager.sh clean db 2025-09-01:2025-09-30   # Clean Sept 2025 database backups
+scripts/snapshot/manager.sh clean static :2025-10-01         # Clean static backups up to Oct 1st
+
 # Non-interactive mode (for automation, skips confirmation)
 scripts/snapshot/manager.sh clean static,public 7 --non-interactive
 scripts/snapshot/manager.sh clean db 30 -y          # Short form
+scripts/snapshot/manager.sh clean all 2024-01-01:2024-12-31 -y  # Date range, non-interactive
 
 # From local machine
 scripts/snapshot/local-manager.sh clean db 30       # Clean database backups on CF
 scripts/snapshot/local-manager.sh clean all 7 -y    # Non-interactive cleanup on CF
+scripts/snapshot/local-manager.sh clean all 2025-01-01:2025-06-30 -y  # Clean H1 2025 backups
 ```
 
 > **Note:** Clean operations require confirmation before deleting files (unless using `--non-interactive` or `-y` flag)

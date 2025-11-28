@@ -184,7 +184,7 @@ test_backup_integration() {
     # Check for backup-related code in tome-sync.sh
     # tome-sync.sh now calls manager.sh instead of directly implementing backup logic
     echo "🔍 Checking tome-sync.sh integration with backup system..."
-    
+
     # Check that tome-sync calls the backup manager
     if grep -q "snapshot/manager.sh" "$tome_sync_script"; then
         echo "✅ Found backup manager reference: snapshot/manager.sh"
@@ -192,7 +192,7 @@ test_backup_integration() {
         echo "❌ Missing backup manager reference: snapshot/manager.sh"
         return 1
     fi
-    
+
     # Check for BACKUP_MANAGER variable
     if grep -q "BACKUP_MANAGER=" "$tome_sync_script"; then
         echo "✅ Found BACKUP_MANAGER variable"
@@ -200,7 +200,7 @@ test_backup_integration() {
         echo "❌ Missing BACKUP_MANAGER variable"
         return 1
     fi
-    
+
     # Check that it calls backup command
     if grep -q "backup all" "$tome_sync_script"; then
         echo "✅ Found backup all command call"
@@ -208,7 +208,7 @@ test_backup_integration() {
         echo "❌ Missing backup all command call"
         return 1
     fi
-    
+
     # Check that it calls clean command
     if grep -q "clean static,public" "$tome_sync_script"; then
         echo "✅ Found clean command call"
@@ -216,7 +216,7 @@ test_backup_integration() {
         echo "❌ Missing clean command call"
         return 1
     fi
-    
+
     # Check for --non-interactive flag usage
     if grep -q "\-\-non-interactive" "$tome_sync_script"; then
         echo "✅ Found --non-interactive flag for automation"
@@ -455,6 +455,159 @@ test_backup_naming() {
         return 1
     fi
 
+    return 0
+}
+
+# Function to test date range filtering utilities
+test_date_range_filtering() {
+    echo "📅 Testing date range filtering functionality..."
+
+    local common_script="$BACKUP_DIR/common.sh"
+
+    # Test 1: Check if date_to_epoch function exists
+    if ! grep -q "^date_to_epoch()" "$common_script"; then
+        echo "❌ date_to_epoch function not found in common.sh"
+        return 1
+    fi
+    echo "✅ date_to_epoch function exists"
+
+    # Test 2: Check if is_date_in_range function exists
+    if ! grep -q "^is_date_in_range()" "$common_script"; then
+        echo "❌ is_date_in_range function not found in common.sh"
+        return 1
+    fi
+    echo "✅ is_date_in_range function exists"
+
+    # Source common.sh to test the functions
+    . "$common_script"
+
+    # Test 3: Test date_to_epoch with valid dates
+    local epoch_result=$(date_to_epoch "2025-01-01")
+    if [ -n "$epoch_result" ] && [ "$epoch_result" -gt 0 ]; then
+        echo "✅ date_to_epoch converts valid date: 2025-01-01 -> $epoch_result"
+    else
+        echo "❌ date_to_epoch failed for valid date: 2025-01-01"
+        return 1
+    fi
+
+    # Test 4: Test date_to_epoch with invalid date
+    local invalid_result=$(date_to_epoch "invalid-date")
+    if [ -z "$invalid_result" ]; then
+        echo "✅ date_to_epoch correctly rejects invalid date"
+    else
+        echo "❌ date_to_epoch should return empty for invalid date"
+        return 1
+    fi
+
+    # Test 5: Test is_date_in_range - date within range
+    if is_date_in_range "2025-06-15" "2025-01-01" "2025-12-31"; then
+        echo "✅ is_date_in_range: 2025-06-15 in [2025-01-01, 2025-12-31]"
+    else
+        echo "❌ is_date_in_range failed: 2025-06-15 should be in range"
+        return 1
+    fi
+
+    # Test 6: Test is_date_in_range - date before range
+    if ! is_date_in_range "2024-12-01" "2025-01-01" "2025-12-31"; then
+        echo "✅ is_date_in_range: 2024-12-01 not in [2025-01-01, 2025-12-31]"
+    else
+        echo "❌ is_date_in_range failed: 2024-12-01 should be out of range"
+        return 1
+    fi
+
+    # Test 7: Test is_date_in_range - date after range
+    if ! is_date_in_range "2026-01-01" "2025-01-01" "2025-12-31"; then
+        echo "✅ is_date_in_range: 2026-01-01 not in [2025-01-01, 2025-12-31]"
+    else
+        echo "❌ is_date_in_range failed: 2026-01-01 should be out of range"
+        return 1
+    fi
+
+    # Test 8: Test is_date_in_range - only start date (no end)
+    if is_date_in_range "2025-06-15" "2025-01-01" ""; then
+        echo "✅ is_date_in_range: 2025-06-15 >= 2025-01-01 (no end date)"
+    else
+        echo "❌ is_date_in_range failed with only start date"
+        return 1
+    fi
+
+    # Test 9: Test is_date_in_range - only end date (no start)
+    if is_date_in_range "2025-06-15" "" "2025-12-31"; then
+        echo "✅ is_date_in_range: 2025-06-15 <= 2025-12-31 (no start date)"
+    else
+        echo "❌ is_date_in_range failed with only end date"
+        return 1
+    fi
+
+    # Test 10: Test is_date_in_range - no constraints
+    if is_date_in_range "2025-06-15" "" ""; then
+        echo "✅ is_date_in_range: 2025-06-15 matches with no constraints"
+    else
+        echo "❌ is_date_in_range failed with no constraints"
+        return 1
+    fi
+
+    # Test 11: Check manager.sh list_old_backups supports date ranges
+    local manager_script="$BACKUP_DIR/manager.sh"
+    if ! grep -q "list_old_backups()" "$manager_script"; then
+        echo "❌ list_old_backups function not found in manager.sh"
+        return 1
+    fi
+    
+    # Check that list_old_backups uses date range logic
+    local list_function=$(sed -n '/^list_old_backups()/,/^}/p' "$manager_script")
+    if echo "$list_function" | grep -q "is_date_in_range"; then
+        echo "✅ list_old_backups integrates date range filtering"
+    else
+        echo "❌ list_old_backups missing date range filtering"
+        return 1
+    fi
+
+    # Test 12: Check manager.sh clean_old_backups supports date ranges
+    if ! grep -q "clean_old_backups()" "$manager_script"; then
+        echo "❌ clean_old_backups function not found in manager.sh"
+        return 1
+    fi
+
+    local clean_function=$(sed -n '/^clean_old_backups()/,/^}/p' "$manager_script")
+    if echo "$clean_function" | grep -q "is_date_in_range"; then
+        echo "✅ clean_old_backups integrates date range filtering"
+    else
+        echo "❌ clean_old_backups missing date range filtering"
+        return 1
+    fi
+
+    # Test 13: Check cleanup_old_db_backups supports date ranges
+    if ! grep -q "cleanup_old_db_backups()" "$manager_script"; then
+        echo "❌ cleanup_old_db_backups function not found in manager.sh"
+        return 1
+    fi
+
+    local db_clean_function=$(sed -n '/^cleanup_old_db_backups()/,/^}/p' "$manager_script")
+    if echo "$db_clean_function" | grep -q "is_date_in_range"; then
+        echo "✅ cleanup_old_db_backups integrates date range filtering"
+    else
+        echo "❌ cleanup_old_db_backups missing date range filtering"
+        return 1
+    fi
+
+    # Test 14: Check usage documentation mentions date ranges
+    if grep -q "YYYY-MM-DD:YYYY-MM-DD" "$manager_script"; then
+        echo "✅ Usage documentation includes date range format"
+    else
+        echo "❌ Usage documentation missing date range format"
+        return 1
+    fi
+
+    # Test 15: Check for date range examples in usage
+    if grep -q "2025-.*:2025-.*" "$manager_script"; then
+        echo "✅ Usage includes date range examples"
+    else
+        echo "❌ Usage missing date range examples"
+        return 1
+    fi
+
+    echo "✅ Date range filtering test passed"
     return 0
 }
 
@@ -1831,6 +1984,7 @@ main() {
     run_test "Date Calculations" "test_date_calculations"
     run_test "Backup Tag Parsing" "test_tag_parsing"
     run_test "Backup Naming Pattern" "test_backup_naming"
+    run_test "Date Range Filtering" "test_date_range_filtering"
 
     echo ""
     print_status $BLUE "🔧 MANAGER FUNCTIONALITY TESTS"
@@ -1885,11 +2039,11 @@ main() {
     # Category breakdown
     echo "Test Categories Covered:"
     echo "  • Basic System Tests (6 tests)"
-    echo "  • Date Format Tests (4 tests)"
+    echo "  • Date Format Tests (5 tests)"
     echo "  • Manager Functionality Tests (6 tests)"
     echo "  • Backup Operations Tests (5 tests)"
     echo "  • Restore & Advanced Tests (8 tests)"
-    echo "  • Total: 29 comprehensive tests"
+    echo "  • Total: 30 comprehensive tests"
     echo ""
 
     # Final summary
@@ -1900,6 +2054,7 @@ main() {
         echo ""
         print_status $YELLOW "✨ Key Features Validated:"
         echo "  ✅ YYYY-MM-DD date format implementation"
+        echo "  ✅ Date range filtering (list & clean by date ranges)"
         echo "  ✅ Database backup system with cron scheduling"
         echo "  ✅ Static site and public files backup"
         echo "  ✅ Smart public backup (checksum-based)"
