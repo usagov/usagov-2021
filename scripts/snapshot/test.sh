@@ -182,16 +182,50 @@ test_backup_integration() {
     local tome_sync_script="$PROJECT_ROOT/scripts/tome-sync.sh"
 
     # Check for backup-related code in tome-sync.sh
-    # Updated to check for centralized backup system usage
-    for pattern in "snapshot/common.sh" "init_backup_system" "create_static_backup" "create_public_backup" "clean_old_backups" "setup_s3_vars" "BACKUP_PREFIX" "BACKUP_TIMESTAMP"; do
-        if grep -q "$pattern" "$tome_sync_script"; then
-            echo "✅ Found backup integration: $pattern"
-        else
-            echo "❌ Missing backup integration: $pattern"
-            return 1
-        fi
-    done
+    # tome-sync.sh now calls manager.sh instead of directly implementing backup logic
+    echo "🔍 Checking tome-sync.sh integration with backup system..."
+    
+    # Check that tome-sync calls the backup manager
+    if grep -q "snapshot/manager.sh" "$tome_sync_script"; then
+        echo "✅ Found backup manager reference: snapshot/manager.sh"
+    else
+        echo "❌ Missing backup manager reference: snapshot/manager.sh"
+        return 1
+    fi
+    
+    # Check for BACKUP_MANAGER variable
+    if grep -q "BACKUP_MANAGER=" "$tome_sync_script"; then
+        echo "✅ Found BACKUP_MANAGER variable"
+    else
+        echo "❌ Missing BACKUP_MANAGER variable"
+        return 1
+    fi
+    
+    # Check that it calls backup command
+    if grep -q "backup all" "$tome_sync_script"; then
+        echo "✅ Found backup all command call"
+    else
+        echo "❌ Missing backup all command call"
+        return 1
+    fi
+    
+    # Check that it calls clean command
+    if grep -q "clean static,public" "$tome_sync_script"; then
+        echo "✅ Found clean command call"
+    else
+        echo "❌ Missing clean command call"
+        return 1
+    fi
+    
+    # Check for --non-interactive flag usage
+    if grep -q "\-\-non-interactive" "$tome_sync_script"; then
+        echo "✅ Found --non-interactive flag for automation"
+    else
+        echo "❌ Missing --non-interactive flag"
+        return 1
+    fi
 
+    echo "✅ tome-sync.sh properly integrates with backup system via manager.sh"
     return 0
 }
 
