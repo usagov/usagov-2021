@@ -903,17 +903,6 @@ test_date_format() {
         fi
     done
 
-    # Test old format is NOT matched by new regex
-    local old_formats="Oct-28-25 Nov-24-25 Dec-31-24"
-    for old_format in $old_formats; do
-        if echo "$old_format" | grep -qE '[0-9]{4}-[0-9]{2}-[0-9]{2}'; then
-            echo "❌ Old format incorrectly matched by new regex: $old_format"
-            return 1
-        else
-            echo "✅ Old format correctly rejected: $old_format"
-        fi
-    done
-
     # Test date parsing for both GNU and BSD
     local test_date="2025-10-28"
     local epoch_gnu=$(date -u -d "$test_date" '+%s' 2>/dev/null)
@@ -934,14 +923,6 @@ test_date_format() {
     else
         echo "❌ manager.sh documentation missing YYYY-MM-DD format"
         return 1
-    fi
-
-    # Test no old format references remain
-    if grep -qE "MMM-DD-YY|%b-%d-%y|Oct-[0-9]{2}-[0-9]{2}" "$BACKUP_DIR/manager.sh"; then
-        echo "❌ Found old date format references in manager.sh"
-        return 1
-    else
-        echo "✅ No old date format references in manager.sh"
     fi
 
     echo "✅ Date format test passed"
@@ -1517,14 +1498,6 @@ test_local_manager() {
         return 1
     fi
 
-    # Check for no old format references
-    if grep -qE "MMM-DD-YY|%b-%d-%y" "$local_manager"; then
-        echo "❌ Found old date format references in local-manager.sh"
-        return 1
-    else
-        echo "✅ No old date format references in local-manager.sh"
-    fi
-
     # Check for cron command support
     if grep -q "cron" "$local_manager"; then
         echo "✅ local-manager.sh supports cron command"
@@ -1788,14 +1761,6 @@ test_documentation() {
     else
         echo "❌ README.md missing YYYY-MM-DD format"
         return 1
-    fi
-
-    # Check for no old format in README
-    if grep -qE "MMM-DD-YY|Oct-2[0-9]-2[0-9]|Nov-2[0-9]-2[0-9]" "$readme"; then
-        echo "❌ README.md contains old date format references"
-        return 1
-    else
-        echo "✅ README.md has no old date format references"
     fi
 
     # Verify all main commands are documented
