@@ -950,6 +950,125 @@ AUTO-staging-14851-2025-12-31-post-update"
     return 0
 }
 
+# Function to test Drupal state management
+test_state_management() {
+    echo "🔧 Testing Drupal state management..."
+
+    local common_script="$BACKUP_DIR/common.sh"
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Check if state management functions exist in common.sh
+    if ! grep -q "^is_tome_running()" "$common_script"; then
+        echo "❌ is_tome_running function not found in common.sh"
+        return 1
+    fi
+    echo "✅ is_tome_running function exists"
+
+    if ! grep -q "^prepare_drupal_for_backup()" "$common_script"; then
+        echo "❌ prepare_drupal_for_backup function not found in common.sh"
+        return 1
+    fi
+    echo "✅ prepare_drupal_for_backup function exists"
+
+    if ! grep -q "^restore_drupal_state()" "$common_script"; then
+        echo "❌ restore_drupal_state function not found in common.sh"
+        return 1
+    fi
+    echo "✅ restore_drupal_state function exists"
+
+    # Check that backup functions call state management
+    if ! grep -q "prepare_drupal_for_backup" "$manager_script"; then
+        echo "❌ manager.sh doesn't call prepare_drupal_for_backup"
+        return 1
+    fi
+    echo "✅ manager.sh integrates prepare_drupal_for_backup"
+
+    if ! grep -q "restore_drupal_state" "$manager_script"; then
+        echo "❌ manager.sh doesn't call restore_drupal_state"
+        return 1
+    fi
+    echo "✅ manager.sh integrates restore_drupal_state"
+
+    # Check for --skip-state-management flag in backup command
+    if ! grep -q "skip_state_management" "$manager_script"; then
+        echo "❌ skip_state_management flag not found in manager.sh"
+        return 1
+    fi
+    echo "✅ skip_state_management flag implemented"
+
+    # Check for --ssm shorthand
+    if ! grep -q '"--ssm"' "$manager_script"; then
+        echo "❌ --ssm shorthand flag not found in manager.sh"
+        return 1
+    fi
+    echo "✅ --ssm shorthand flag implemented"
+
+    # Verify state management is called in create_db_backup
+    if ! grep -q "create_db_backup" "$manager_script"; then
+        echo "⚠️  create_db_backup function not found (may have different name)"
+    else
+        # Check that create_db_backup has state management logic
+        local db_backup_section=$(sed -n '/^create_db_backup()/,/^}/p' "$manager_script")
+        if echo "$db_backup_section" | grep -q "prepare_drupal_for_backup"; then
+            echo "✅ Database backup integrates state preparation"
+        else
+            echo "❌ Database backup missing state preparation"
+            return 1
+        fi
+
+        if echo "$db_backup_section" | grep -q "restore_drupal_state"; then
+            echo "✅ Database backup integrates state restoration"
+        else
+            echo "❌ Database backup missing state restoration"
+            return 1
+        fi
+    fi
+
+    # Verify state management is called in restore_backup for database restores
+    if ! grep -q "restore_backup" "$manager_script"; then
+        echo "⚠️  restore_backup function not found"
+    else
+        local restore_section=$(sed -n '/^restore_backup()/,/^}/p' "$manager_script")
+        if echo "$restore_section" | grep -q "prepare_drupal_for_backup"; then
+            echo "✅ Database restore integrates state preparation"
+        else
+            echo "❌ Database restore missing state preparation"
+            return 1
+        fi
+
+        if echo "$restore_section" | grep -q "restore_drupal_state"; then
+            echo "✅ Database restore integrates state restoration"
+        else
+            echo "❌ Database restore missing state restoration"
+            return 1
+        fi
+    fi
+
+    # Check that state management checks for tome process
+    if ! grep -q "tome-run.sh" "$common_script"; then
+        echo "❌ State management doesn't check for tome-run.sh process"
+        return 1
+    fi
+    echo "✅ State management checks for tome-run.sh process"
+
+    # Check for maintenance mode management
+    if ! grep -q "system.maintenance_mode" "$common_script"; then
+        echo "❌ State management doesn't handle maintenance mode"
+        return 1
+    fi
+    echo "✅ State management handles maintenance mode"
+
+    # Check for tome disabled flag management
+    if ! grep -q "usagov.tome_run_disabled" "$common_script"; then
+        echo "❌ State management doesn't handle tome disabled flag"
+        return 1
+    fi
+    echo "✅ State management handles tome disabled flag"
+
+    echo "✅ Drupal state management test passed"
+    return 0
+}
+
 # Function to test restore functionality
 test_restore_functionality() {
     echo "🔄 Testing restore functionality..."
@@ -998,6 +1117,14 @@ test_restore_functionality() {
         echo "✅ Restore supports --only option for selective restore"
     else
         echo "❌ Restore --only option not found"
+        return 1
+    fi
+
+    # Check for --skip-state-management and --ssm flags
+    if grep -q "\-\-skip-state-management" "$manager_script" && grep -q "\-\-ssm" "$manager_script"; then
+        echo "✅ Restore supports --skip-state-management and --ssm flags"
+    else
+        echo "❌ Restore state management flags not found"
         return 1
     fi
 
@@ -1678,6 +1805,7 @@ main() {
     print_status $BLUE "🔄 RESTORE & ADVANCED TESTS"
     print_status $BLUE "==========================="
     run_test "Restore Functionality" "test_restore_functionality"
+    run_test "Drupal State Management" "test_state_management"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"
@@ -1710,8 +1838,8 @@ main() {
     echo "  • Date Format Tests (4 tests)"
     echo "  • Manager Functionality Tests (6 tests)"
     echo "  • Backup Operations Tests (5 tests)"
-    echo "  • Restore & Advanced Tests (7 tests)"
-    echo "  • Total: 28 comprehensive tests"
+    echo "  • Restore & Advanced Tests (8 tests)"
+    echo "  • Total: 29 comprehensive tests"
     echo ""
 
     # Final summary
@@ -1729,6 +1857,7 @@ main() {
         echo "  ✅ Cleanup with configurable retention"
         echo "  ✅ Download functionality (local & stream modes)"
         echo "  ✅ Multi-type backup support"
+        echo "  ✅ Drupal state management (tome & maintenance mode)"
         echo "  ✅ Local and remote manager scripts"
         echo ""
         print_status $YELLOW "👉 Next Steps:"
