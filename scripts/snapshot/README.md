@@ -69,10 +69,26 @@ scripts/snapshot/manager.sh backup all USAGOV-123                # Custom prefix
 scripts/snapshot/manager.sh backup all USAGOV-123 post-deploy    # Custom prefix and suffix
 scripts/snapshot/manager.sh backup db USAGOV-456 pre-update      # Database with custom tags
 
+# Skip Drupal state management (for automation or when Drupal state is already managed)
+scripts/snapshot/manager.sh backup db AUTO "" --skip-state-management
+scripts/snapshot/manager.sh backup db AUTO "" --ssm  # Shorthand
+
 # From local machine - same commands, executed remotely
 scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy    # Create backup on CF
 scripts/snapshot/local-manager.sh backup db                           # Database backup only on CF
 ```
+
+**Drupal State Management:**
+
+By default, database backups automatically manage Drupal state to ensure consistency:
+
+1. **Waits for Tome to stop** - Monitors for up to 25 minutes for tome-run.sh to finish
+2. **Disables Tome** - Sets `usagov.tome_run_disabled` to prevent new builds during backup
+3. **Enables maintenance mode** - Takes site offline for users during backup
+4. **Takes backup** - Creates the database dump
+5. **Restores state** - Disables maintenance mode first, then re-enables Tome
+
+Use `--skip-state-management` (or `--ssm` for short) to bypass this (e.g., when called from cron where state is already managed).
 
 ### Clean Old Backups
 
@@ -113,11 +129,14 @@ scripts/snapshot/local-manager.sh info db AUTO-prod-14850-2025-10-28  # Show spe
 # On Cloud Foundry
 scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28              # Interactive restore
 scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28 --only=db    # Restore database only
+scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28 --only=db --ssm  # Skip state management
 
 # From local machine (restores on CF, not locally)
 scripts/snapshot/local-manager.sh restore AUTO-prod-14850-2025-10-28        # Restore on CF (interactive)
 scripts/snapshot/local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=static,db  # Selective restore
 ```
+
+**Note:** Database restores automatically manage Drupal state (wait for tome, disable it, enable maintenance mode) before importing, then restore state after completion. Use `--skip-state-management` (or `--ssm`) to bypass this.
 
 ### Download Backups
 

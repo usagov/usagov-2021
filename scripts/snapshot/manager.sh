@@ -30,9 +30,10 @@ show_usage() {
     echo "Commands:"
     echo "  list [types] [days]                      List backups (default: all types, 30 days)"
     echo "  backup [types] [prefix] [suffix]         Create backups (default: all types, AUTO prefix)"
+    echo "                [--skip-state-management|--ssm]  Use --skip-state-management (or --ssm) to skip Drupal state checks"
     echo "  clean [types] [days|all|0] [-y]          Remove old backups (default: all types, 30 days)"
     echo "                                           Use -y or --non-interactive to skip confirmation"
-    echo "  restore <tag> [--only=type,type]         Restore backups from tag"
+    echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
     echo "  info [types] [tag]                       Show backup system info or specific backup details"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
     echo ""
@@ -65,6 +66,7 @@ show_usage() {
     echo "  $0 info db                                             # Show database backup configuration"
     echo "  $0 info all AUTO-prod-14850-2025-10-28                  # Show details for specific backup"
     echo "  $0 restore AUTO-prod-14850-2025-10-28                   # Restore all from backup (interactive)"
+    echo "  $0 restore AUTO-prod-14850-2025-10-28 --only=db --ssm  # Restore DB only, skip state management"
     echo "  $0 restore AUTO-prod-14850-2025-10-28 --only=static,db  # Restore only static and db"
     echo "  $0 download AUTO-prod-14850-2025-10-28                  # Download all to current dir"
     echo "  $0 download AUTO-prod-14850-2025-10-28 db ./backups/    # Download db to ./backups/"
@@ -114,6 +116,16 @@ run_backup_command() {
     local types_arg="${1:-all}"
     local custom_prefix="${2:-}"
     local custom_suffix="${3:-}"
+    local skip_state_management=false
+
+    # Check for --skip-state-management (or --ssm) flag in any position after the first 3 params
+    shift 3 2>/dev/null || true
+    for arg in "$@"; do
+        if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
+            skip_state_management=true
+        fi
+    done
+
     local backup_types=$(parse_backup_types "$types_arg")
 
     # Determine backup prefix and suffix
@@ -134,6 +146,9 @@ run_backup_command() {
         print_status $YELLOW "Suffix: $custom_suffix"
     fi
     print_status $YELLOW "Timestamp: $backup_timestamp"
+    if [ "$skip_state_management" = "true" ]; then
+        print_status $YELLOW "⚠️  Skipping Drupal state management"
+    fi
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
@@ -150,7 +165,7 @@ run_backup_command() {
     # Run database backup if requested
     if has_backup_type "$backup_types" "db"; then
         print_status $GREEN "💾 Backing up database..."
-        create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
     fi
 
     print_status $BLUE "🎉 Done."
@@ -288,10 +303,12 @@ run_info_command() {
 #   $1: custom_prefix (default: DB_BACKUP_PREFIX from config)
 #   $2: backup_suffix (optional, e.g., "-post-deploy")
 #   $3: backup_timestamp (default: current date in YYYY-MM-DD format)
+#   $4: skip_state_management (optional, "true" to skip Drupal state management)
 create_db_backup() {
     local custom_prefix="${1:-$DB_BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
     local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
+    local skip_state_management="${4:-false}"
 
     setup_s3_vars || exit 1
 
@@ -299,6 +316,17 @@ create_db_backup() {
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         log_message "⚠️ Database backups disabled"
         return 0
+    fi
+
+    # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_for_backup 25; then
+            drupal_state_prepared=true
+        else
+            log_message "❌ Failed to prepare Drupal state for backup"
+            return 1
+        fi
     fi
 
     # Generate backup tag with timestamp and container tag
@@ -318,12 +346,14 @@ create_db_backup() {
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
         if ! cd /var/www; then
             log_message "❌ ERROR: Cannot change to /var/www directory" | tee -a "$LOGFILE"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             return 1
         fi
     elif [ "$PROJECT_ROOT" != "$(pwd)" ]; then
         # Change to project root if not already there
         if ! cd "$PROJECT_ROOT"; then
             log_message "❌ ERROR: Cannot change to project root: $PROJECT_ROOT" | tee -a "$LOGFILE"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             return 1
         fi
     fi
@@ -339,11 +369,13 @@ create_db_backup() {
         DUMP_EXIT_CODE=$?
     else
         log_message "❌ ERROR: drush not found" | tee -a "$LOGFILE"
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
     fi
 
     if [ $DUMP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Database dump failed" | tee -a "$LOGFILE"
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
     fi
 
@@ -351,6 +383,7 @@ create_db_backup() {
     if [ ! -f "$TEMP_SQL" ] || [ ! -s "$TEMP_SQL" ]; then
         log_message "❌ ERROR: Database dump empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
     fi
 
@@ -362,6 +395,7 @@ create_db_backup() {
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Compression failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
     fi
 
@@ -369,6 +403,7 @@ create_db_backup() {
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
         log_message "❌ ERROR: Compressed file empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
     fi
 
@@ -382,6 +417,11 @@ create_db_backup() {
     UPLOAD_EXIT_CODE=$?
 
     rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+
+    # Restore Drupal state before checking results
+    if [ "$drupal_state_prepared" = "true" ]; then
+        restore_drupal_state  # Disable maintenance mode, then re-enable tome
+    fi
 
     if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
         log_message "✅ Database backup complete: $S3_DB_PATH" | tee -a "$LOGFILE"
@@ -1077,13 +1117,21 @@ parse_restore_options() {
 restore_backup() {
     local backup_tag=""
     local restore_types=""
+    local skip_state_management=false
 
     # Parse arguments
     if [ $# -eq 0 ]; then
         print_status $RED "❌ Error: Backup tag is required"
-        print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,database]"
+        print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,database] [--skip-state-management|--ssm]"
         exit 1
     fi
+
+    # Check for --skip-state-management or --ssm flag
+    for arg in "$@"; do
+        if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
+            skip_state_management=true
+        fi
+    done
 
     # Parse options and get backup tag
     restore_types=$(parse_restore_options "$@" 2>&1 >/dev/null | tail -n1)
@@ -1212,6 +1260,17 @@ restore_backup() {
     if [ "$restore_database" = "yes" ] && [ -n "$db_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring database..."
 
+        # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
+        local drupal_state_prepared=false
+        if [ "$skip_state_management" != "true" ]; then
+            if prepare_drupal_for_backup 25; then
+                drupal_state_prepared=true
+            else
+                print_status $RED "❌ Failed to prepare Drupal state for restore"
+                exit 1
+            fi
+        fi
+
         # Download and restore database backup
         temp_db_file="/tmp/restore_db_$$.sql.gz"
         temp_sql_file="/tmp/restore_db_$$.sql"
@@ -1221,24 +1280,30 @@ restore_backup() {
                 if command -v drush >/dev/null 2>&1; then
                     # Use drush for database import
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
+                        # Restore Drupal state before success message
+                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                         print_status $GREEN "✅ Database restored"
                     else
                         print_status $RED "❌ ERROR: Database import failed"
                         rm -f "$temp_sql_file" 2>/dev/null
+                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                         exit 1
                     fi
                 else
                     print_status $RED "❌ ERROR: Drush not available for database restore"
                     rm -f "$temp_sql_file" 2>/dev/null
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                     exit 1
                 fi
             else
                     print_status $RED "❌ ERROR: Failed to decompress database backup"
                 rm -f "$temp_db_file" 2>/dev/null
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                 exit 1
             fi
         else
             print_status $RED "❌ ERROR: Failed to download database backup"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             exit 1
         fi
 
@@ -1586,8 +1651,8 @@ case "${1:-}" in
         list_backups "$2" "$3"
         ;;
     "backup")
-        # backup [types] [prefix] [suffix] - e.g., "backup db" or "backup all USAGOV-123 post-deploy"
-        run_backup_command "$2" "$3" "$4"
+        # backup [types] [prefix] [suffix] [--skip-state-management|--ssm] - e.g., "backup db" or "backup all USAGOV-123 post-deploy"
+        run_backup_command "$2" "$3" "$4" "$5"
         ;;
     "clean")
         # clean [types] [days] [-y|--non-interactive] - e.g., "clean all 30" or "clean db 7 -y"

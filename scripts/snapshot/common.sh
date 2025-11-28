@@ -267,6 +267,115 @@ format_s3_summary() {
 }
 
 # ===================================================================
+# DRUPAL STATE MANAGEMENT
+# ===================================================================
+
+# Check if tome-run.sh is currently running
+# Returns: 0 if running, 1 if not running
+is_tome_running() {
+    local script_name="tome-run.sh"
+    local ps_aux=$(ps aux)
+    local running_count=$(echo "$ps_aux" | grep "$script_name" | grep -v grep | wc -l)
+
+    if [ "$running_count" -gt "0" ]; then
+        return 0  # Running
+    else
+        return 1  # Not running
+    fi
+}
+
+# Wait for tome to stop, disable it, then enable maintenance mode
+# This prepares Drupal for backup/restore operations
+# Args:
+#   $1: max_wait_minutes (optional, default: 25) - Maximum time to wait for tome to stop
+# Returns: 0 on success, 1 on failure or timeout
+prepare_drupal_for_backup() {
+    local max_wait_minutes=${1:-30}
+
+    # Validate max_wait_minutes
+    if ! echo "$max_wait_minutes" | grep -qE '^[0-9]+$' || [ "$max_wait_minutes" -gt 30 ]; then
+        print_status $RED "Error: max_wait_minutes must be an integer less than or equal to 30"
+        return 1
+    fi
+
+    local start_seconds=$(date +'%s')
+    local sleep_time=15
+
+    print_status $YELLOW "⏳ Waiting for Tome to stop (max: ${max_wait_minutes} minutes)..."
+
+    # Wait for tome to stop
+    while true; do
+        local current_seconds=$(date +'%s')
+        local diff_seconds=$((current_seconds - start_seconds))
+        local diff_minutes=$((diff_seconds / 60))
+
+        if [ $diff_minutes -gt $max_wait_minutes ]; then
+            print_status $RED "❌ Timeout: Tome still running after ${max_wait_minutes} minutes"
+            return 1
+        fi
+
+        if ! is_tome_running; then
+            print_status $GREEN "✅ Tome has stopped"
+            break
+        fi
+
+        echo "   Tome is still running... waiting ${sleep_time}s (elapsed: ${diff_minutes}m / ${max_wait_minutes}m)"
+        sleep $sleep_time
+    done
+
+    # Disable tome
+    print_status $YELLOW "🔒 Disabling Tome..."
+    if ! drush sset usagov.tome_run_disabled 1 2>/dev/null; then
+        print_status $RED "❌ Failed to disable Tome"
+        return 1
+    fi
+
+    local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+    print_status $GREEN "✅ Tome disabled: $tome_disabled"
+
+    # Enable maintenance mode
+    print_status $YELLOW "🚧 Enabling maintenance mode..."
+    if drush sset system.maintenance_mode 1 2>/dev/null && drush cr 2>/dev/null; then
+        local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
+        print_status $GREEN "✅ Maintenance mode enabled: $maint_mode"
+    else
+        print_status $RED "❌ Failed to enable maintenance mode"
+        # Try to re-enable tome before returning
+        drush sdel usagov.tome_run_disabled 2>/dev/null
+        return 1
+    fi
+
+    return 0
+}
+
+# Restore Drupal to normal operation after backup/restore
+# Disables maintenance mode first, then re-enables tome
+# Returns: 0 on success, 1 on failure
+restore_drupal_state() {
+    # Disable maintenance mode first
+    print_status $YELLOW "🚧 Disabling maintenance mode..."
+    if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
+        local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
+        print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
+    else
+        print_status $RED "❌ Failed to disable maintenance mode"
+        # Continue anyway
+    fi
+
+    # Re-enable tome
+    print_status $YELLOW "🔓 Re-enabling Tome..."
+    if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
+        print_status $RED "❌ Failed to re-enable Tome"
+        return 1
+    fi
+
+    local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+    print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
+
+    return 0
+}
+
+# ===================================================================
 # AWS S3 CONFIGURATION
 # ===================================================================
 
