@@ -629,7 +629,9 @@ test_explicit_clean_flags() {
 
     # Test 2: Test matches_clean_filter with "days" filter type (retention)
     # Backup from 5 days ago, keep last 3 days -> should DELETE (return 0)
-    local five_days_ago=$(date -u -v-5d "+%Y-%m-%d")
+    # Use portable date calculation (works on both GNU and BusyBox)
+    local five_days_ago_epoch=$(( $(date -u +%s) - (5 * 86400) ))
+    local five_days_ago=$(date -u -d "@$five_days_ago_epoch" "+%Y-%m-%d" 2>/dev/null || date -u -r "$five_days_ago_epoch" "+%Y-%m-%d" 2>/dev/null)
     if matches_clean_filter "$five_days_ago" "days" "3"; then
         echo "✅ matches_clean_filter: 5-day-old backup matches days=3 filter (delete)"
     else
@@ -639,7 +641,8 @@ test_explicit_clean_flags() {
 
     # Test 3: Test matches_clean_filter - backup within retention period
     # Backup from 1 day ago, keep last 3 days -> should KEEP (return 1)
-    local one_day_ago=$(date -u -v-1d "+%Y-%m-%d")
+    local one_day_ago_epoch=$(( $(date -u +%s) - 86400 ))
+    local one_day_ago=$(date -u -d "@$one_day_ago_epoch" "+%Y-%m-%d" 2>/dev/null || date -u -r "$one_day_ago_epoch" "+%Y-%m-%d" 2>/dev/null)
     if ! matches_clean_filter "$one_day_ago" "days" "3"; then
         echo "✅ matches_clean_filter: 1-day-old backup doesn't match days=3 filter (keep)"
     else
