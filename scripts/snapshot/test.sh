@@ -1579,6 +1579,57 @@ test_common_utilities() {
         return 1
     fi
 
+    # Test validate_sql_dump function exists
+    if ! grep -q "^validate_sql_dump()" "$common_file"; then
+        echo "❌ validate_sql_dump function not found"
+        return 1
+    fi
+    echo "✅ validate_sql_dump function exists"
+
+    # Test validate_sql_dump with a mock SQL file
+    local test_sql="/tmp/test_dump_$$.sql"
+
+    # Create a valid-looking SQL dump
+    cat > "$test_sql" << 'EOF'
+-- MySQL dump 10.13  Distrib 5.7.32, for Linux (x86_64)
+--
+-- Host: localhost    Database: drupal
+-- ------------------------------------------------------
+-- Server version	5.7.32
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+
+CREATE TABLE `users` (
+  `uid` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `users` VALUES (1,'admin');
+
+-- Dump completed on 2025-11-28
+EOF
+
+    if validate_sql_dump "$test_sql" >/dev/null 2>&1; then
+        echo "✅ validate_sql_dump accepts valid SQL dump"
+    else
+        echo "❌ validate_sql_dump rejected valid SQL dump"
+        rm -f "$test_sql"
+        return 1
+    fi
+
+    # Test with invalid content
+    echo "This is not a SQL dump" > "$test_sql"
+    if ! validate_sql_dump "$test_sql" >/dev/null 2>&1; then
+        echo "✅ validate_sql_dump rejects invalid SQL dump"
+    else
+        echo "❌ validate_sql_dump accepted invalid SQL dump"
+        rm -f "$test_sql"
+        return 1
+    fi
+
+    rm -f "$test_sql"
+
     echo "✅ Common utilities test passed"
     return 0
 }

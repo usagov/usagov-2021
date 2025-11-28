@@ -270,6 +270,52 @@ format_s3_summary() {
 # DRUPAL STATE MANAGEMENT
 # ===================================================================
 
+# Validate SQL dump file structure
+# Checks that the file looks like a valid MySQL/MariaDB dump
+# Args:
+#   $1: path to SQL file
+# Returns: 0 if valid, 1 if invalid
+validate_sql_dump() {
+    local sql_file="$1"
+    
+    if [ ! -f "$sql_file" ] || [ ! -s "$sql_file" ]; then
+        echo "❌ SQL file does not exist or is empty"
+        return 1
+    fi
+    
+    # Read first few lines to check for SQL dump header
+    local first_lines=$(head -n 20 "$sql_file")
+    
+    # Check for MySQL/MariaDB dump markers
+    if ! echo "$first_lines" | grep -q "MySQL dump\|MariaDB dump"; then
+        echo "❌ SQL dump missing MySQL/MariaDB header"
+        return 1
+    fi
+    
+    # Check for common SQL dump patterns in the beginning
+    if ! echo "$first_lines" | grep -qE "-- (Host|Server|Database|Dump completed on|Table structure)"; then
+        echo "⚠️  SQL dump header format unusual (missing standard comments)"
+    fi
+    
+    # Read last few lines to check for proper completion
+    local last_lines=$(tail -n 10 "$sql_file")
+    
+    # Check that dump was completed (should have "Dump completed on" or similar)
+    if ! echo "$last_lines" | grep -qE "Dump completed on|-- Dump completed"; then
+        echo "⚠️  SQL dump may be incomplete (missing completion marker)"
+    fi
+    
+    # Check for common end-of-dump patterns
+    if ! echo "$first_lines" | grep -qE "CREATE TABLE|INSERT INTO|CREATE DATABASE" && \
+       ! echo "$last_lines" | grep -qE "CREATE TABLE|INSERT INTO"; then
+        echo "❌ SQL dump contains no CREATE or INSERT statements"
+        return 1
+    fi
+    
+    echo "✅ SQL dump structure validated"
+    return 0
+}
+
 # Check if tome-run.sh is currently running
 # Returns: 0 if running, 1 if not running
 is_tome_running() {

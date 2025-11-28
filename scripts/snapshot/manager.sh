@@ -387,6 +387,15 @@ create_db_backup() {
         return 1
     fi
 
+    # Validate SQL dump structure
+    log_message "🔍 Validating SQL dump structure..." | tee -a "$LOGFILE"
+    if ! validate_sql_dump "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"; then
+        log_message "❌ ERROR: SQL dump validation failed" | tee -a "$LOGFILE"
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        return 1
+    fi
+
     # Compress the SQL file using gzip
     log_message "🗜️ Compressing..." | tee -a "$LOGFILE"
     gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
