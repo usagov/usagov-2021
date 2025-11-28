@@ -256,6 +256,66 @@ is_date_in_range() {
     return 0  # In range
 }
 
+# Extract date from backup name using standardized pattern
+# Args:
+#   $1: backup_name - Backup tag or filename
+# Returns: Date in YYYY-MM-DD format or empty string if not found
+extract_date_from_backup_name() {
+    local backup_name="$1"
+    echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1
+}
+
+# Display filter message based on filter type and value
+# Consolidates duplicate message logic used in cleanup functions
+# Args:
+#   $1: filter_type - Type of filter (days, in-range, except-range, older-date, newer-date, all)
+#   $2: filter_value - Filter value (days number, date range, or date)
+#   $3: backup_types - Types of backups being cleaned (for display)
+show_filter_message() {
+    local filter_type="$1"
+    local filter_value="$2"
+    local backup_types="${3:-backups}"
+
+    case "$filter_type" in
+        "days")
+            local cutoff_epoch=$(get_days_ago_epoch "$filter_value")
+            local cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
+            echo "🧹 Cleaning up $backup_types older than $filter_value days (before $cutoff_display)..."
+            ;;
+        "in-range")
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                echo "🧹 Cleaning up $backup_types from ${start_date} to ${end_date}..."
+            elif [ -n "$start_date" ]; then
+                echo "🧹 Cleaning up $backup_types from ${start_date} onward..."
+            elif [ -n "$end_date" ]; then
+                echo "🧹 Cleaning up $backup_types up to ${end_date}..."
+            fi
+            ;;
+        "except-range")
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                echo "🧹 Cleaning up $backup_types EXCEPT those from ${start_date} to ${end_date}..."
+            elif [ -n "$start_date" ]; then
+                echo "🧹 Cleaning up $backup_types before ${start_date}..."
+            elif [ -n "$end_date" ]; then
+                echo "🧹 Cleaning up $backup_types after ${end_date}..."
+            fi
+            ;;
+        "older-date")
+            echo "🧹 Cleaning up $backup_types older than ${filter_value}..."
+            ;;
+        "newer-date")
+            echo "🧹 Cleaning up $backup_types newer than ${filter_value}..."
+            ;;
+        "all")
+            echo "🧹 Removing ALL $backup_types..."
+            ;;
+    esac
+}
+
 # Check if a backup date matches the specified filter criteria
 # Supports: in-range, except-range, older-date, newer-date
 # Args:
@@ -267,12 +327,12 @@ matches_clean_filter() {
     local backup_date="$1"
     local filter_type="$2"
     local filter_value="$3"
-    
+
     [ -z "$backup_date" ] && return 1
-    
+
     local backup_epoch=$(date_to_epoch "$backup_date")
     [ -z "$backup_epoch" ] && return 1
-    
+
     case "$filter_type" in
         "in-range")
             # Delete if within range

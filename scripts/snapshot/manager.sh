@@ -526,15 +526,16 @@ create_db_backup() {
     log_message "🔄 Dumping database..." | tee -a "$LOGFILE"
 
     # Set working directory for drush
+    local original_dir=$(pwd)
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
-        if ! cd /var/www; then
+        if ! cd /var/www 2>/dev/null; then
             log_message "❌ ERROR: Cannot change to /var/www directory" | tee -a "$LOGFILE"
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             return 1
         fi
-    elif [ "$PROJECT_ROOT" != "$(pwd)" ]; then
+    elif [ "$PROJECT_ROOT" != "$original_dir" ]; then
         # Change to project root if not already there
-        if ! cd "$PROJECT_ROOT"; then
+        if ! cd "$PROJECT_ROOT" 2>/dev/null; then
             log_message "❌ ERROR: Cannot change to project root: $PROJECT_ROOT" | tee -a "$LOGFILE"
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             return 1
@@ -661,9 +662,15 @@ create_static_backup() {
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
     # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
-    if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS; then
-        print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
-        return 0
+    if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
+        local exit_code=$?
+        if [ $exit_code -eq 0 ]; then
+            print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
+            return 0
+        else
+            print_status $RED "❌ Static site backup failed with exit code: $exit_code"
+            return 1
+        fi
     else
         print_status $RED "❌ Static site backup failed: $BACKUP_TAG"
         return 1
@@ -722,9 +729,15 @@ create_public_backup() {
     if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
         log_message "📁 Creating public files backup: $BACKUP_TAG"
         # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
-        if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS; then
-            print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
-            return 0
+        if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
+            local exit_code=$?
+            if [ $exit_code -eq 0 ]; then
+                print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
+                return 0
+            else
+                print_status $RED "❌ Public files backup failed with exit code: $exit_code"
+                return 1
+            fi
         else
             print_status $RED "❌ Public files backup failed: $BACKUP_TAG"
             return 1
@@ -993,7 +1006,7 @@ cleanup_old_db_backups() {
 
     # Special handling for deleting ALL database backups
     if [ "$filter_type" = "all" ]; then
-        log_message "🧹 Removing ALL database backups..."
+        log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
 
         # Delete ALL database backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
@@ -1007,48 +1020,13 @@ cleanup_old_db_backups() {
         return 0
     fi
 
-    # Display what we're doing based on filter type
-    case "$filter_type" in
-        "days")
-            local cutoff_epoch=$(get_days_ago_epoch "$filter_value")
-            local cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
-            log_message "🧹 Cleaning up database backups older than $filter_value days..."
-            log_message "Cutoff date: $cutoff_display"
-            ;;
-        "in-range")
-            local start_date=$(echo "$filter_value" | cut -d: -f1)
-            local end_date=$(echo "$filter_value" | cut -d: -f2)
-            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
-                log_message "🧹 Cleaning up database backups from ${start_date} to ${end_date}..."
-            elif [ -n "$start_date" ]; then
-                log_message "🧹 Cleaning up database backups from ${start_date} onward..."
-            elif [ -n "$end_date" ]; then
-                log_message "🧹 Cleaning up database backups up to ${end_date}..."
-            fi
-            ;;
-        "except-range")
-            local start_date=$(echo "$filter_value" | cut -d: -f1)
-            local end_date=$(echo "$filter_value" | cut -d: -f2)
-            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
-                log_message "🧹 Cleaning up database backups EXCEPT those from ${start_date} to ${end_date}..."
-            elif [ -n "$start_date" ]; then
-                log_message "🧹 Cleaning up database backups before ${start_date}..."
-            elif [ -n "$end_date" ]; then
-                log_message "🧹 Cleaning up database backups after ${end_date}..."
-            fi
-            ;;
-        "older-date")
-            log_message "🧹 Cleaning up database backups older than ${filter_value}..."
-            ;;
-        "newer-date")
-            log_message "🧹 Cleaning up database backups newer than ${filter_value}..."
-            ;;
-    esac
+    # Display what we're doing using consolidated helper
+    log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
 
     # List and delete database backups matching filter
     aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
         backup_path=$(echo "$line" | awk '{print $4}')
-        backup_date=$(echo "$backup_path" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(extract_date_from_backup_name "$backup_path")
 
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
@@ -1138,7 +1116,7 @@ list_old_backups() {
     print_status $GREEN "Static Site Backups:"
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(extract_date_from_backup_name "$backup_name")
 
         if [ -n "$backup_date" ]; then
             if check_backup_date "$backup_date"; then
@@ -1151,7 +1129,7 @@ list_old_backups() {
     print_status $GREEN "Public Files Backups:"
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(extract_date_from_backup_name "$backup_name")
 
         if [ -n "$backup_date" ]; then
             if check_backup_date "$backup_date"; then
@@ -1172,7 +1150,7 @@ clean_old_backups() {
 
     # Special handling for deleting ALL backups
     if [ "$filter_type" = "all" ]; then
-        print_status $YELLOW "🧹 Removing ALL static/public backups..."
+        print_status $YELLOW "$(show_filter_message "$filter_type" "$filter_value" "static/public backups")"
 
         # Clean ALL static site backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
@@ -1196,47 +1174,13 @@ clean_old_backups() {
         return 0
     fi
 
-    # Display what we're doing based on filter type
-    case "$filter_type" in
-        "days")
-            local cutoff_epoch=$(get_days_ago_epoch "$filter_value")
-            local cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
-            print_status $YELLOW "🧹 Removing static/public backups older than ${filter_value} days (before ${cutoff_display})..."
-            ;;
-        "in-range")
-            local start_date=$(echo "$filter_value" | cut -d: -f1)
-            local end_date=$(echo "$filter_value" | cut -d: -f2)
-            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
-                print_status $YELLOW "🧹 Removing static/public backups from ${start_date} to ${end_date}..."
-            elif [ -n "$start_date" ]; then
-                print_status $YELLOW "🧹 Removing static/public backups from ${start_date} onward..."
-            elif [ -n "$end_date" ]; then
-                print_status $YELLOW "🧹 Removing static/public backups up to ${end_date}..."
-            fi
-            ;;
-        "except-range")
-            local start_date=$(echo "$filter_value" | cut -d: -f1)
-            local end_date=$(echo "$filter_value" | cut -d: -f2)
-            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
-                print_status $YELLOW "🧹 Removing static/public backups EXCEPT those from ${start_date} to ${end_date}..."
-            elif [ -n "$start_date" ]; then
-                print_status $YELLOW "🧹 Removing static/public backups before ${start_date}..."
-            elif [ -n "$end_date" ]; then
-                print_status $YELLOW "🧹 Removing static/public backups after ${end_date}..."
-            fi
-            ;;
-        "older-date")
-            print_status $YELLOW "🧹 Removing static/public backups older than ${filter_value}..."
-            ;;
-        "newer-date")
-            print_status $YELLOW "🧹 Removing static/public backups newer than ${filter_value}..."
-            ;;
-    esac
+    # Display what we're doing using consolidated helper
+    print_status $YELLOW "$(show_filter_message "$filter_type" "$filter_value" "static/public backups")"
 
     # Clean static site backups
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(extract_date_from_backup_name "$backup_name")
 
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
@@ -1249,7 +1193,7 @@ clean_old_backups() {
     # Clean public files backups
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+        backup_date=$(extract_date_from_backup_name "$backup_name")
 
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
@@ -1265,13 +1209,13 @@ clean_old_backups() {
 
 # Clean all backup types
 cleanup_all_old_backups() {
-    local static_days=${1:-$BACKUP_RETENTION_DAYS}
-    local db_days=${2:-$DB_BACKUP_RETENTION_DAYS}
+    local filter_type=${1:-days}
+    local filter_value=${2:-$BACKUP_RETENTION_DAYS}
 
     print_status $BLUE "🧹 Cleaning up all old automatic backups..."
 
-    clean_old_backups $static_days
-    cleanup_old_db_backups $db_days
+    clean_old_backups "$filter_type" "$filter_value"
+    cleanup_old_db_backups "$filter_type" "$filter_value"
 
     print_status $GREEN "✅ All backup cleanup completed."
 }
@@ -1288,7 +1232,7 @@ find_corresponding_public_backup() {
 
     # If no exact match, find the most recent public backup before or at the static backup time
     # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
-    static_date=$(echo "$static_backup_tag" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+    static_date=$(extract_date_from_backup_name "$static_backup_tag")
 
     if [ -z "$static_date" ]; then
         return 1
@@ -1310,7 +1254,7 @@ find_corresponding_public_backup() {
     while read -r line; do
         if [ -n "$line" ]; then
             public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            public_date=$(echo "$public_backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+            public_date=$(extract_date_from_backup_name "$public_backup_name")
 
             if [ -n "$public_date" ]; then
                 public_epoch=$(date -u -d "$public_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$public_date" '+%s' 2>/dev/null)
@@ -1339,7 +1283,7 @@ find_corresponding_db_backup() {
     local static_backup_tag=$1
 
     # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
-    static_date=$(echo "$static_backup_tag" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+    static_date=$(extract_date_from_backup_name "$static_backup_tag")
 
     if [ -z "$static_date" ]; then
         return 1
@@ -1368,7 +1312,7 @@ find_corresponding_db_backup() {
     while read -r line; do
         if [ -n "$line" ]; then
             # Extract date from database backup name (PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz)
-            db_date=$(echo "$line" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
+            db_date=$(extract_date_from_backup_name "$line")
 
             if [ -n "$db_date" ]; then
                 db_epoch=$(date -u -d "$db_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$db_date" '+%s' 2>/dev/null)
@@ -1580,9 +1524,9 @@ restore_backup() {
             fi
         fi
 
-        # Download and restore database backup
-        temp_db_file="/tmp/restore_db_$$.sql.gz"
-        temp_sql_file="/tmp/restore_db_$$.sql"
+        # Download and restore database backup (use secure temp files)
+        temp_db_file="$(mktemp /tmp/restore_db.XXXXXX.sql.gz)"
+        temp_sql_file="${temp_db_file%.gz}"
 
         if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
             if gunzip "$temp_db_file" 2>/dev/null; then
