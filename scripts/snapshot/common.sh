@@ -256,6 +256,68 @@ is_date_in_range() {
     return 0  # In range
 }
 
+# Check if a backup date matches the specified filter criteria
+# Supports: in-range, except-range, older-date, newer-date
+# Args:
+#   $1: backup_date - Date to check (YYYY-MM-DD)
+#   $2: filter_type - Type of filter (in-range, except-range, older-date, newer-date, days)
+#   $3: filter_value - Filter value (date range or date)
+# Returns: 0 if matches filter, 1 if doesn't match
+matches_clean_filter() {
+    local backup_date="$1"
+    local filter_type="$2"
+    local filter_value="$3"
+    
+    [ -z "$backup_date" ] && return 1
+    
+    local backup_epoch=$(date_to_epoch "$backup_date")
+    [ -z "$backup_epoch" ] && return 1
+    
+    case "$filter_type" in
+        "in-range")
+            # Delete if within range
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            is_date_in_range "$backup_date" "$start_date" "$end_date"
+            return $?
+            ;;
+        "except-range")
+            # Delete if OUTSIDE range (inverse of in-range)
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if is_date_in_range "$backup_date" "$start_date" "$end_date"; then
+                return 1  # Inside range, don't delete
+            else
+                return 0  # Outside range, delete
+            fi
+            ;;
+        "older-date")
+            # Delete if before this date
+            local cutoff_epoch=$(date_to_epoch "$filter_value")
+            [ -z "$cutoff_epoch" ] && return 1
+            [ "$backup_epoch" -lt "$cutoff_epoch" ] && return 0 || return 1
+            ;;
+        "newer-date")
+            # Delete if after this date
+            local cutoff_epoch=$(date_to_epoch "$filter_value")
+            [ -z "$cutoff_epoch" ] && return 1
+            [ "$backup_epoch" -gt "$cutoff_epoch" ] && return 0 || return 1
+            ;;
+        "days")
+            # Delete if older than N days (retention)
+            local cutoff_epoch=$(get_days_ago_epoch "$filter_value")
+            [ "$backup_epoch" -lt "$cutoff_epoch" ] && return 0 || return 1
+            ;;
+        "all")
+            # Delete everything
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 # Format file size to human-readable format with appropriate units
 # Automatically selects best unit (KB, MB, or GB) based on size
 # Args:

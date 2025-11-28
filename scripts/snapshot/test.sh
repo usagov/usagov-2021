@@ -563,51 +563,311 @@ test_date_range_filtering() {
         return 1
     fi
 
-    # Test 12: Check manager.sh clean_old_backups supports date ranges
+    # Test 12: Check manager.sh clean_old_backups supports new filter system
     if ! grep -q "clean_old_backups()" "$manager_script"; then
         echo "❌ clean_old_backups function not found in manager.sh"
         return 1
     fi
 
     local clean_function=$(sed -n '/^clean_old_backups()/,/^}/p' "$manager_script")
-    if echo "$clean_function" | grep -q "is_date_in_range"; then
-        echo "✅ clean_old_backups integrates date range filtering"
+    if echo "$clean_function" | grep -q "matches_clean_filter"; then
+        echo "✅ clean_old_backups integrates new filter system (matches_clean_filter)"
     else
-        echo "❌ clean_old_backups missing date range filtering"
+        echo "❌ clean_old_backups missing matches_clean_filter"
         return 1
     fi
 
-    # Test 13: Check cleanup_old_db_backups supports date ranges
+    # Test 13: Check cleanup_old_db_backups supports new filter system
     if ! grep -q "cleanup_old_db_backups()" "$manager_script"; then
         echo "❌ cleanup_old_db_backups function not found in manager.sh"
         return 1
     fi
 
     local db_clean_function=$(sed -n '/^cleanup_old_db_backups()/,/^}/p' "$manager_script")
-    if echo "$db_clean_function" | grep -q "is_date_in_range"; then
-        echo "✅ cleanup_old_db_backups integrates date range filtering"
+    if echo "$db_clean_function" | grep -q "matches_clean_filter"; then
+        echo "✅ cleanup_old_db_backups integrates new filter system (matches_clean_filter)"
     else
-        echo "❌ cleanup_old_db_backups missing date range filtering"
+        echo "❌ cleanup_old_db_backups missing matches_clean_filter"
         return 1
     fi
 
-    # Test 14: Check usage documentation mentions date ranges
-    if grep -q "YYYY-MM-DD:YYYY-MM-DD" "$manager_script"; then
-        echo "✅ Usage documentation includes date range format"
+    # Test 14: Check usage documentation mentions date format
+    if grep -q "YYYY-MM-DD" "$manager_script"; then
+        echo "✅ Usage documentation includes date format (YYYY-MM-DD)"
     else
-        echo "❌ Usage documentation missing date range format"
+        echo "❌ Usage documentation missing date format"
         return 1
     fi
 
-    # Test 15: Check for date range examples in usage
-    if grep -q "2025-.*:2025-.*" "$manager_script"; then
-        echo "✅ Usage includes date range examples"
+    # Test 15: Check for explicit flag examples in usage
+    if grep -q "\-\-in-range\|\-\-except-range" "$manager_script"; then
+        echo "✅ Usage includes explicit flag examples"
     else
-        echo "❌ Usage missing date range examples"
+        echo "❌ Usage missing explicit flag examples"
         return 1
     fi
 
     echo "✅ Date range filtering test passed"
+    return 0
+}
+
+test_explicit_clean_flags() {
+    echo "🎯 Testing explicit clean flags functionality..."
+
+    local common_script="$BACKUP_DIR/common.sh"
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Test 1: Check if matches_clean_filter function exists
+    if ! grep -q "^matches_clean_filter()" "$common_script"; then
+        echo "❌ matches_clean_filter function not found in common.sh"
+        return 1
+    fi
+    echo "✅ matches_clean_filter function exists"
+
+    # Source common.sh to test the function
+    . "$common_script"
+
+    # Test 2: Test matches_clean_filter with "days" filter type (retention)
+    # Backup from 5 days ago, keep last 3 days -> should DELETE (return 0)
+    local five_days_ago=$(date -u -v-5d "+%Y-%m-%d")
+    if matches_clean_filter "$five_days_ago" "days" "3"; then
+        echo "✅ matches_clean_filter: 5-day-old backup matches days=3 filter (delete)"
+    else
+        echo "❌ matches_clean_filter failed: 5-day-old backup should match days=3"
+        return 1
+    fi
+
+    # Test 3: Test matches_clean_filter - backup within retention period
+    # Backup from 1 day ago, keep last 3 days -> should KEEP (return 1)
+    local one_day_ago=$(date -u -v-1d "+%Y-%m-%d")
+    if ! matches_clean_filter "$one_day_ago" "days" "3"; then
+        echo "✅ matches_clean_filter: 1-day-old backup doesn't match days=3 filter (keep)"
+    else
+        echo "❌ matches_clean_filter failed: 1-day-old backup should not match days=3"
+        return 1
+    fi
+
+    # Test 4: Test matches_clean_filter with "in-range" filter (delete within)
+    if matches_clean_filter "2025-06-15" "in-range" "2025-06-01:2025-06-30"; then
+        echo "✅ matches_clean_filter: 2025-06-15 in range 2025-06-01:2025-06-30 (delete)"
+    else
+        echo "❌ matches_clean_filter failed: date should be in range"
+        return 1
+    fi
+
+    # Test 5: Test matches_clean_filter - outside in-range (keep)
+    if ! matches_clean_filter "2025-07-15" "in-range" "2025-06-01:2025-06-30"; then
+        echo "✅ matches_clean_filter: 2025-07-15 not in range (keep)"
+    else
+        echo "❌ matches_clean_filter failed: date should be outside range"
+        return 1
+    fi
+
+    # Test 6: Test matches_clean_filter with "except-range" filter (keep within)
+    if ! matches_clean_filter "2025-06-15" "except-range" "2025-06-01:2025-06-30"; then
+        echo "✅ matches_clean_filter: 2025-06-15 in except-range (keep)"
+    else
+        echo "❌ matches_clean_filter failed: date in except-range should be kept"
+        return 1
+    fi
+
+    # Test 7: Test matches_clean_filter - outside except-range (delete)
+    if matches_clean_filter "2025-07-15" "except-range" "2025-06-01:2025-06-30"; then
+        echo "✅ matches_clean_filter: 2025-07-15 outside except-range (delete)"
+    else
+        echo "❌ matches_clean_filter failed: date outside except-range should be deleted"
+        return 1
+    fi
+
+    # Test 8: Test matches_clean_filter with "older-date" filter
+    if matches_clean_filter "2024-12-01" "older-date" "2025-01-01"; then
+        echo "✅ matches_clean_filter: 2024-12-01 older than 2025-01-01 (delete)"
+    else
+        echo "❌ matches_clean_filter failed: older date should match"
+        return 1
+    fi
+
+    # Test 9: Test matches_clean_filter - newer than older-date boundary (keep)
+    if ! matches_clean_filter "2025-02-01" "older-date" "2025-01-01"; then
+        echo "✅ matches_clean_filter: 2025-02-01 newer than 2025-01-01 (keep)"
+    else
+        echo "❌ matches_clean_filter failed: newer date should not match older-date"
+        return 1
+    fi
+
+    # Test 10: Test matches_clean_filter with "newer-date" filter
+    if matches_clean_filter "2025-02-01" "newer-date" "2025-01-01"; then
+        echo "✅ matches_clean_filter: 2025-02-01 newer than 2025-01-01 (delete)"
+    else
+        echo "❌ matches_clean_filter failed: newer date should match"
+        return 1
+    fi
+
+    # Test 11: Test matches_clean_filter - older than newer-date boundary (keep)
+    if ! matches_clean_filter "2024-12-01" "newer-date" "2025-01-01"; then
+        echo "✅ matches_clean_filter: 2024-12-01 older than 2025-01-01 (keep)"
+    else
+        echo "❌ matches_clean_filter failed: older date should not match newer-date"
+        return 1
+    fi
+
+    # Test 12: Test matches_clean_filter with "all" filter (delete everything)
+    if matches_clean_filter "2025-06-15" "all" ""; then
+        echo "✅ matches_clean_filter: any date matches 'all' filter (delete)"
+    else
+        echo "❌ matches_clean_filter failed: 'all' should match any date"
+        return 1
+    fi
+
+    # Test 13: Check manager.sh has --in-range flag in usage
+    if grep -q "\-\-in-range" "$manager_script"; then
+        echo "✅ manager.sh documents --in-range flag"
+    else
+        echo "❌ manager.sh missing --in-range flag documentation"
+        return 1
+    fi
+
+    # Test 14: Check manager.sh has --except-range flag in usage
+    if grep -q "\-\-except-range" "$manager_script"; then
+        echo "✅ manager.sh documents --except-range flag"
+    else
+        echo "❌ manager.sh missing --except-range flag documentation"
+        return 1
+    fi
+
+    # Test 15: Check manager.sh has --older-than-date flag in usage
+    if grep -q "\-\-older-than-date" "$manager_script"; then
+        echo "✅ manager.sh documents --older-than-date flag"
+    else
+        echo "❌ manager.sh missing --older-than-date flag documentation"
+        return 1
+    fi
+
+    # Test 16: Check manager.sh has --newer-than-date flag in usage
+    if grep -q "\-\-newer-than-date" "$manager_script"; then
+        echo "✅ manager.sh documents --newer-than-date flag"
+    else
+        echo "❌ manager.sh missing --newer-than-date flag documentation"
+        return 1
+    fi
+
+    # Test 17: Check manager.sh has --older-than flag in usage
+    if grep -q "\-\-older-than" "$manager_script"; then
+        echo "✅ manager.sh documents --older-than flag"
+    else
+        echo "❌ manager.sh missing --older-than flag documentation"
+        return 1
+    fi
+
+    # Test 18: Check run_clean_command parses --in-range flag
+    local run_clean=$(sed -n '/^run_clean_command()/,/^}/p' "$manager_script")
+    if echo "$run_clean" | grep -q '\-\-in-range'; then
+        echo "✅ run_clean_command parses --in-range flag"
+    else
+        echo "❌ run_clean_command missing --in-range parsing"
+        return 1
+    fi
+
+    # Test 19: Check run_clean_command validates mutual exclusivity
+    if echo "$run_clean" | grep -q "filter_count"; then
+        echo "✅ run_clean_command validates mutual exclusivity (filter_count)"
+    else
+        echo "❌ run_clean_command missing mutual exclusivity validation"
+        return 1
+    fi
+
+    # Test 20: Check run_clean_command validates date format
+    if echo "$run_clean" | grep -q "Invalid date format"; then
+        echo "✅ run_clean_command validates date format"
+    else
+        echo "❌ run_clean_command missing date format validation"
+        return 1
+    fi
+
+    # Test 21: Check run_clean_command validates date range logic
+    if echo "$run_clean" | grep -q "start_date.*end_date"; then
+        echo "✅ run_clean_command validates date range logic"
+    else
+        echo "❌ run_clean_command missing date range logic validation"
+        return 1
+    fi
+
+    # Test 22: Check clean_old_backups uses filter_type parameter
+    local clean_func=$(sed -n '/^clean_old_backups()/,/^}/p' "$manager_script")
+    if echo "$clean_func" | grep -q "filter_type"; then
+        echo "✅ clean_old_backups uses filter_type parameter"
+    else
+        echo "❌ clean_old_backups missing filter_type parameter"
+        return 1
+    fi
+
+    # Test 23: Check clean_old_backups uses matches_clean_filter
+    if echo "$clean_func" | grep -q "matches_clean_filter"; then
+        echo "✅ clean_old_backups uses matches_clean_filter helper"
+    else
+        echo "❌ clean_old_backups missing matches_clean_filter call"
+        return 1
+    fi
+
+    # Test 24: Check cleanup_old_db_backups uses filter_type parameter
+    local db_clean_func=$(sed -n '/^cleanup_old_db_backups()/,/^}/p' "$manager_script")
+    if echo "$db_clean_func" | grep -q "filter_type"; then
+        echo "✅ cleanup_old_db_backups uses filter_type parameter"
+    else
+        echo "❌ cleanup_old_db_backups missing filter_type parameter"
+        return 1
+    fi
+
+    # Test 25: Check cleanup_old_db_backups uses matches_clean_filter
+    if echo "$db_clean_func" | grep -q "matches_clean_filter"; then
+        echo "✅ cleanup_old_db_backups uses matches_clean_filter helper"
+    else
+        echo "❌ cleanup_old_db_backups missing matches_clean_filter call"
+        return 1
+    fi
+
+    # Test 26: Check README.md documents --in-range examples
+    local readme="$BACKUP_DIR/README.md"
+    if grep -q "\-\-in-range" "$readme"; then
+        echo "✅ README.md documents --in-range examples"
+    else
+        echo "❌ README.md missing --in-range examples"
+        return 1
+    fi
+
+    # Test 27: Check README.md documents --except-range examples
+    if grep -q "\-\-except-range" "$readme"; then
+        echo "✅ README.md documents --except-range examples"
+    else
+        echo "❌ README.md missing --except-range examples"
+        return 1
+    fi
+
+    # Test 28: Check README.md documents date filter reference table
+    if grep -q "Date Filter Reference" "$readme" || grep -q "Filter.*Description.*Example" "$readme"; then
+        echo "✅ README.md includes date filter reference table"
+    else
+        echo "❌ README.md missing date filter reference table"
+        return 1
+    fi
+
+    # Test 29: Check usage includes "Clean Date Filters" section
+    if grep -q "Clean Date Filters" "$manager_script"; then
+        echo "✅ Usage includes 'Clean Date Filters' section"
+    else
+        echo "❌ Usage missing 'Clean Date Filters' section"
+        return 1
+    fi
+
+    # Test 30: Check usage shows explicit flag categories
+    if grep -qi "Retention.*days-based\|retention-based\|delete specific periods" "$manager_script"; then
+        echo "✅ Usage organizes flags by category"
+    else
+        echo "❌ Usage missing flag categorization"
+        return 1
+    fi
+
+    echo "✅ Explicit clean flags test passed"
     return 0
 }
 
@@ -1985,6 +2245,7 @@ main() {
     run_test "Backup Tag Parsing" "test_tag_parsing"
     run_test "Backup Naming Pattern" "test_backup_naming"
     run_test "Date Range Filtering" "test_date_range_filtering"
+    run_test "Explicit Clean Flags" "test_explicit_clean_flags"
 
     echo ""
     print_status $BLUE "🔧 MANAGER FUNCTIONALITY TESTS"

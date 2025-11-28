@@ -31,8 +31,7 @@ show_usage() {
     echo "  list [types] [days|start:end]            List backups (default: all types, 30 days)"
     echo "  backup [types] [prefix] [suffix]         Create backups (default: all types, AUTO prefix)"
     echo "                [--skip-state-management|--ssm]  Use --skip-state-management (or --ssm) to skip Drupal state checks"
-    echo "  clean [types] [days|start:end|all] [-y]  Remove old backups (default: all types, 30 days)"
-    echo "                                           Use -y or --non-interactive to skip confirmation"
+    echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
     echo "  info [types] [tag]                       Show backup system info or specific backup details"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
@@ -44,11 +43,23 @@ show_usage() {
     echo "  db                       Database backups"
     echo "  static,public            Multiple types (comma-separated)"
     echo ""
-    echo "Date Range Options:"
-    echo "  days                     Number of days (e.g., 7 for last 7 days)"
-    echo "  start:end                Date range in YYYY-MM-DD:YYYY-MM-DD format"
-    echo "  start:                   From start date to now (e.g., 2025-01-01:)"
-    echo "  :end                     From beginning to end date (e.g., :2025-12-31)"
+    echo "Clean Date Filters:"
+    echo "  Retention (days-based):"
+    echo "    [days]                           Keep last N days, delete older (default: 30)"
+    echo "    --older-than [days]              Explicit: delete older than N days"
+    echo "  "
+    echo "  Date Ranges (absolute):"
+    echo "    --in-range START:END             Delete backups within date range"
+    echo "    --except-range START:END         Keep backups within range, delete others"
+    echo "    --older-than-date DATE           Delete backups before this date"
+    echo "    --newer-than-date DATE           Delete backups after this date"
+    echo "  "
+    echo "  Date Format: YYYY-MM-DD (e.g., 2025-10-01)"
+    echo "  Range Format: START:END, START:, or :END (e.g., 2025-01-01:2025-12-31)"
+    echo "  "
+    echo "  Flags:"
+    echo "    -y, --non-interactive            Skip confirmation prompts"
+    echo "    all | 0                          Delete ALL backups (requires 'DELETE ALL')"
     echo ""
     echo "Backup Tag Format:"
     echo "  PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD[-SUFFIX]"
@@ -56,31 +67,44 @@ show_usage() {
     echo "  Example: USAGOV-123-prod-cf-d4e5f6-2025-10-24-post-deploy"
     echo ""
     echo "Examples:"
+    echo "  # List backups"
     echo "  $0 list                                                # List all backups from last 30 days"
     echo "  $0 list static,db                                      # List static and database backups"
     echo "  $0 list all 7                                          # List all backups from last 7 days"
     echo "  $0 list all 2025-10-01:2025-10-31                      # List October 2025 backups"
-    echo "  $0 list all 2025-11-01:                                # List backups from Nov 1st onward"
-    echo "  $0 list db :2025-10-15                                 # List db backups up to Oct 15th"
+    echo "  "
+    echo "  # Create backups"
     echo "  $0 backup                                              # Create all backups with AUTO prefix"
     echo "  $0 backup db                                           # Create database backup only"
-    echo "  $0 backup all USAGOV-123                               # Create all backups with custom prefix"
     echo "  $0 backup all USAGOV-123 post-deploy                   # Custom prefix and suffix"
-    echo "  $0 backup db USAGOV-456 pre-update                     # Database backup with custom tags"
-    echo "  $0 clean                                               # Clean all old backups (30 days)"
-    echo "  $0 clean static 7                                      # Clean static backups older than 7 days"
-    echo "  $0 clean all 2024-01-01:2024-12-31                     # Clean all 2024 backups"
-    echo "  $0 clean all 0                                         # ⚠️  DELETE ALL backups (requires confirmation)"
-    echo "  $0 clean all all                                       # ⚠️  DELETE ALL backups (same as clean all 0)"
+    echo "  "
+    echo "  # Clean backups (retention-based)"
+    echo "  $0 clean all 7                                         # Keep last 7 days, delete older"
+    echo "  $0 clean all --older-than 30                           # Keep last 30 days (explicit)"
+    echo "  $0 clean db 14 -y                                      # Non-interactive cleanup"
+    echo "  "
+    echo "  # Clean backups (delete specific periods)"
+    echo "  $0 clean all --in-range 2024-01-01:2024-12-31          # Delete all 2024 backups"
+    echo "  $0 clean static --in-range 2025-10-01:2025-10-31       # Delete October static backups"
+    echo "  $0 clean db --in-range 2025-11-01: -y                  # Delete Nov onward (non-interactive)"
+    echo "  "
+    echo "  # Clean backups (keep specific periods)"
+    echo "  $0 clean all --except-range 2025-10-01:2025-10-31      # Keep only October, delete rest"
+    echo "  $0 clean all --except-range 2025-11-01:                # Keep from Nov onward, delete older"
+    echo "  $0 clean db --except-range :2025-10-31                 # Keep up to Oct, delete newer"
+    echo "  "
+    echo "  # Clean backups (by date boundaries)"
+    echo "  $0 clean all --older-than-date 2025-01-01              # Delete everything before 2025"
+    echo "  $0 clean all --newer-than-date 2025-10-31              # Delete everything after Oct 31"
+    echo "  "
+    echo "  # Delete ALL backups (dangerous!)"
+    echo "  $0 clean all 0                                         # ⚠️  DELETE ALL (requires confirmation)"
+    echo "  $0 clean all all                                       # ⚠️  DELETE ALL (same as above)"
+    echo "  "
+    echo "  # Other commands"
     echo "  $0 info                                                # Show backup system configuration"
-    echo "  $0 info db                                             # Show database backup configuration"
-    echo "  $0 info all AUTO-prod-14850-2025-10-28                  # Show details for specific backup"
-    echo "  $0 restore AUTO-prod-14850-2025-10-28                   # Restore all from backup (interactive)"
-    echo "  $0 restore AUTO-prod-14850-2025-10-28 --only=db --ssm  # Restore DB only, skip state management"
-    echo "  $0 restore AUTO-prod-14850-2025-10-28 --only=static,db  # Restore only static and db"
-    echo "  $0 download AUTO-prod-14850-2025-10-28                  # Download all to current dir"
+    echo "  $0 restore AUTO-prod-14850-2025-10-28                   # Restore all from backup"
     echo "  $0 download AUTO-prod-14850-2025-10-28 db ./backups/    # Download db to ./backups/"
-    echo "  $0 download AUTO-prod-14850-2025-10-28 db - --stream    # Stream db to stdout"
 }
 
 # ===================================================================
@@ -184,33 +208,122 @@ run_backup_command() {
 # Handle clean command
 run_clean_command() {
     local types_arg="${1:-all}"
-    local filter_arg="${2:-30}"
-    local non_interactive=false
+    shift || true
 
-    # Check for --non-interactive flag in any position
-    for arg in "$@"; do
-        if [ "$arg" = "--non-interactive" ] || [ "$arg" = "-y" ]; then
-            non_interactive=true
-        fi
+    local non_interactive=false
+    local filter_type=""
+    local filter_value=""
+    local filter_count=0
+
+    # Parse all arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --non-interactive|-y)
+                non_interactive=true
+                shift
+                ;;
+            --older-than)
+                filter_type="days"
+                filter_value="$2"
+                filter_count=$((filter_count + 1))
+                shift 2
+                ;;
+            --in-range|-r)
+                filter_type="in-range"
+                filter_value="$2"
+                filter_count=$((filter_count + 1))
+                shift 2
+                ;;
+            --except-range|-x)
+                filter_type="except-range"
+                filter_value="$2"
+                filter_count=$((filter_count + 1))
+                shift 2
+                ;;
+            --older-than-date)
+                filter_type="older-date"
+                filter_value="$2"
+                filter_count=$((filter_count + 1))
+                shift 2
+                ;;
+            --newer-than-date)
+                filter_type="newer-date"
+                filter_value="$2"
+                filter_count=$((filter_count + 1))
+                shift 2
+                ;;
+            all|0)
+                filter_type="all"
+                filter_value="0"
+                filter_count=$((filter_count + 1))
+                shift
+                ;;
+            *)
+                # Assume it's a days value if it's a number
+                if echo "$1" | grep -qE '^[0-9]+$'; then
+                    filter_type="days"
+                    filter_value="$1"
+                    filter_count=$((filter_count + 1))
+                fi
+                shift
+                ;;
+        esac
     done
+
+    # Check for conflicting filters
+    if [ $filter_count -gt 1 ]; then
+        print_status $RED "❌ Error: Cannot mix multiple date filtering methods"
+        echo "   Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
+        return 1
+    fi
+
+    # Default to 30 days if no filter specified
+    if [ -z "$filter_type" ]; then
+        filter_type="days"
+        filter_value="30"
+    fi
+
+    # Validate date formats for date-based filters
+    if [ "$filter_type" = "in-range" ] || [ "$filter_type" = "except-range" ]; then
+        if ! echo "$filter_value" | grep -q ':'; then
+            print_status $RED "❌ Error: Invalid date range format: $filter_value"
+            echo "   Expected format: YYYY-MM-DD:YYYY-MM-DD (e.g., 2025-01-01:2025-12-31)"
+            return 1
+        fi
+        local start_date=$(echo "$filter_value" | cut -d: -f1)
+        local end_date=$(echo "$filter_value" | cut -d: -f2)
+        if [ -n "$start_date" ] && [ -z "$(date_to_epoch "$start_date")" ]; then
+            print_status $RED "❌ Error: Invalid start date format: $start_date"
+            echo "   Expected format: YYYY-MM-DD (e.g., 2025-01-01)"
+            return 1
+        fi
+        if [ -n "$end_date" ] && [ -z "$(date_to_epoch "$end_date")" ]; then
+            print_status $RED "❌ Error: Invalid end date format: $end_date"
+            echo "   Expected format: YYYY-MM-DD (e.g., 2025-12-31)"
+            return 1
+        fi
+        # Check that start <= end if both provided
+        if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+            local start_epoch=$(date_to_epoch "$start_date")
+            local end_epoch=$(date_to_epoch "$end_date")
+            if [ "$start_epoch" -gt "$end_epoch" ]; then
+                print_status $RED "❌ Error: Invalid date range: $filter_value"
+                echo "   Start date ($start_date) must be before or equal to end date ($end_date)"
+                return 1
+            fi
+        fi
+    elif [ "$filter_type" = "older-date" ] || [ "$filter_type" = "newer-date" ]; then
+        if [ -z "$(date_to_epoch "$filter_value")" ]; then
+            print_status $RED "❌ Error: Invalid date format: $filter_value"
+            echo "   Expected format: YYYY-MM-DD (e.g., 2025-01-01)"
+            return 1
+        fi
+    fi
 
     local backup_types=$(parse_backup_types "$types_arg")
 
-    # Check if filter_arg is a date range (contains colon)
-    local is_date_range=false
-    if echo "$filter_arg" | grep -q ':'; then
-        is_date_range=true
-    fi
-
-    # Handle special "all" keyword or 0 to delete everything
-    local delete_all=false
-    if [ "$filter_arg" = "all" ] || [ "$filter_arg" = "0" ]; then
-        delete_all=true
-        filter_arg=0
-    fi
-
-    # Show appropriate warning based on scope (skip confirmation if non-interactive)
-    if [ "$delete_all" = "true" ]; then
+    # Show appropriate warning based on filter type
+    if [ "$filter_type" = "all" ]; then
         if [ "$non_interactive" = "false" ]; then
             echo ""
             print_status $RED "╔════════════════════════════════════════════════════════════════╗"
@@ -232,11 +345,47 @@ run_clean_command() {
         fi
     else
         if [ "$non_interactive" = "false" ]; then
-            if [ "$is_date_range" = "true" ]; then
-                print_status $YELLOW "⚠️ This will delete $backup_types backups in date range: $filter_arg"
-            else
-                print_status $YELLOW "⚠️ This will delete $backup_types backups older than $filter_arg days"
-            fi
+            # Show context-specific warning
+            case "$filter_type" in
+                "days")
+                    local cutoff_date=$(date -u -d "@$(get_days_ago_epoch $filter_value)" '+%Y-%m-%d' 2>/dev/null || date -u -r "$(get_days_ago_epoch $filter_value)" '+%Y-%m-%d' 2>/dev/null)
+                    print_status $YELLOW "⚠️  This will delete all $backup_types backups older than $filter_value days (before $cutoff_date)"
+                    ;;
+                "in-range")
+                    local start_date=$(echo "$filter_value" | cut -d: -f1)
+                    local end_date=$(echo "$filter_value" | cut -d: -f2)
+                    if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                        print_status $YELLOW "⚠️  This will DELETE all $backup_types backups within the range $start_date to $end_date"
+                    elif [ -n "$start_date" ]; then
+                        print_status $YELLOW "⚠️  This will DELETE all $backup_types backups from $start_date onward"
+                    elif [ -n "$end_date" ]; then
+                        print_status $YELLOW "⚠️  This will DELETE all $backup_types backups up to $end_date"
+                    fi
+                    echo "   Backups OUTSIDE this range will be KEPT"
+                    ;;
+                "except-range")
+                    local start_date=$(echo "$filter_value" | cut -d: -f1)
+                    local end_date=$(echo "$filter_value" | cut -d: -f2)
+                    if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                        print_status $YELLOW "⚠️  This will DELETE all $backup_types backups EXCEPT those in the range $start_date to $end_date"
+                    elif [ -n "$start_date" ]; then
+                        print_status $YELLOW "⚠️  This will DELETE all $backup_types backups before $start_date"
+                        echo "   Backups from $start_date onward will be KEPT"
+                    elif [ -n "$end_date" ]; then
+                        print_status $YELLOW "⚠️  This will DELETE all $backup_types backups after $end_date"
+                        echo "   Backups up to $end_date will be KEPT"
+                    fi
+                    ;;
+                "older-date")
+                    print_status $YELLOW "⚠️  This will DELETE all $backup_types backups older than $filter_value (before $filter_value)"
+                    echo "   Backups from $filter_value onward will be KEPT"
+                    ;;
+                "newer-date")
+                    print_status $YELLOW "⚠️  This will DELETE all $backup_types backups newer than $filter_value (after $filter_value)"
+                    echo "   Backups before $filter_value will be KEPT"
+                    ;;
+            esac
+
             printf "Continue? [y/N]: "
             read -r confirm
 
@@ -245,24 +394,37 @@ run_clean_command() {
                 return 1
             fi
         else
-            if [ "$is_date_range" = "true" ]; then
-                print_status $YELLOW "⚠️ Cleaning $backup_types backups in date range: $filter_arg (non-interactive mode)"
-            else
-                print_status $YELLOW "⚠️ Cleaning $backup_types backups older than $filter_arg days (non-interactive mode)"
-            fi
+            # Non-interactive mode - just show what we're doing
+            case "$filter_type" in
+                "days")
+                    print_status $YELLOW "⚠️ Cleaning $backup_types backups older than $filter_value days (non-interactive mode)"
+                    ;;
+                "in-range")
+                    print_status $YELLOW "⚠️ Cleaning $backup_types backups in range: $filter_value (non-interactive mode)"
+                    ;;
+                "except-range")
+                    print_status $YELLOW "⚠️ Cleaning $backup_types backups except range: $filter_value (non-interactive mode)"
+                    ;;
+                "older-date")
+                    print_status $YELLOW "⚠️ Cleaning $backup_types backups older than: $filter_value (non-interactive mode)"
+                    ;;
+                "newer-date")
+                    print_status $YELLOW "⚠️ Cleaning $backup_types backups newer than: $filter_value (non-interactive mode)"
+                    ;;
+            esac
         fi
     fi
 
     print_status $BLUE "🧹 Cleaning up backups..."
 
-    # Clean static and public backups if requested (they share the same function)
+    # Clean static and public backups if requested
     if has_backup_type "$backup_types" "static" || has_backup_type "$backup_types" "public"; then
-        clean_old_backups "$filter_arg"
+        clean_old_backups "$filter_type" "$filter_value"
     fi
 
     # Clean database backups if requested
     if has_backup_type "$backup_types" "db"; then
-        cleanup_old_db_backups "$filter_arg"
+        cleanup_old_db_backups "$filter_type" "$filter_value"
     fi
 
     print_status $BLUE "🎉 Cleanup complete."
@@ -819,7 +981,8 @@ list_all_backups() {
 # Args:
 #   $1: days - Number of days to retain (default: DB_BACKUP_RETENTION_DAYS)
 cleanup_old_db_backups() {
-    local filter_arg=${1:-$DB_BACKUP_RETENTION_DAYS}
+    local filter_type="${1:-days}"
+    local filter_value="${2:-$DB_BACKUP_RETENTION_DAYS}"
 
     if [ "$ENABLE_DB_AUTO_CLEANUP" != "true" ]; then
         log_message "⚠️ Database automatic cleanup is disabled"
@@ -828,16 +991,11 @@ cleanup_old_db_backups() {
 
     setup_s3_vars || exit 1
 
-    local start_date=""
-    local end_date=""
-    local cutoff_epoch=""
-    local filter_mode=""
-
-    # Special handling for deleting ALL database backups (days=0 or "all")
-    if [ "$filter_arg" = "0" ] || [ "$filter_arg" = "all" ]; then
+    # Special handling for deleting ALL database backups
+    if [ "$filter_type" = "all" ]; then
         log_message "🧹 Removing ALL database backups..."
 
-        # Delete ALL database backups (any prefix)
+        # Delete ALL database backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
             backup_path=$(echo "$line" | awk '{print $4}')
             if [ -n "$backup_path" ]; then
@@ -849,72 +1007,51 @@ cleanup_old_db_backups() {
         return 0
     fi
 
-    # Check if argument contains a colon (date range format)
-    if echo "$filter_arg" | grep -q ':'; then
-        filter_mode="range"
-        start_date=$(echo "$filter_arg" | cut -d: -f1)
-        end_date=$(echo "$filter_arg" | cut -d: -f2)
-
-        # Convert to epochs if dates provided
-        local start_epoch=""
-        local end_epoch=""
-        if [ -n "$start_date" ]; then
-            start_epoch=$(date_to_epoch "$start_date")
-            if [ -z "$start_epoch" ]; then
-                log_message "❌ Invalid start date: $start_date (use YYYY-MM-DD)"
-                return 1
+    # Display what we're doing based on filter type
+    case "$filter_type" in
+        "days")
+            local cutoff_epoch=$(get_days_ago_epoch "$filter_value")
+            local cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
+            log_message "🧹 Cleaning up database backups older than $filter_value days..."
+            log_message "Cutoff date: $cutoff_display"
+            ;;
+        "in-range")
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                log_message "🧹 Cleaning up database backups from ${start_date} to ${end_date}..."
+            elif [ -n "$start_date" ]; then
+                log_message "🧹 Cleaning up database backups from ${start_date} onward..."
+            elif [ -n "$end_date" ]; then
+                log_message "🧹 Cleaning up database backups up to ${end_date}..."
             fi
-        fi
-        if [ -n "$end_date" ]; then
-            end_epoch=$(date_to_epoch "$end_date")
-            if [ -z "$end_epoch" ]; then
-                log_message "❌ Invalid end date: $end_date (use YYYY-MM-DD)"
-                return 1
+            ;;
+        "except-range")
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                log_message "🧹 Cleaning up database backups EXCEPT those from ${start_date} to ${end_date}..."
+            elif [ -n "$start_date" ]; then
+                log_message "🧹 Cleaning up database backups before ${start_date}..."
+            elif [ -n "$end_date" ]; then
+                log_message "🧹 Cleaning up database backups after ${end_date}..."
             fi
-        fi
+            ;;
+        "older-date")
+            log_message "🧹 Cleaning up database backups older than ${filter_value}..."
+            ;;
+        "newer-date")
+            log_message "🧹 Cleaning up database backups newer than ${filter_value}..."
+            ;;
+    esac
 
-        # Display header
-        if [ -n "$start_date" ] && [ -n "$end_date" ]; then
-            log_message "🧹 Cleaning up database backups from ${start_date} to ${end_date}..."
-        elif [ -n "$start_date" ]; then
-            log_message "🧹 Cleaning up database backups from ${start_date} onward..."
-        elif [ -n "$end_date" ]; then
-            log_message "🧹 Cleaning up database backups up to ${end_date}..."
-        else
-            log_message "🧹 Cleaning up all database backups..."
-        fi
-    else
-        # Days-based filtering (original behavior)
-        filter_mode="days"
-        cutoff_epoch=$(get_days_ago_epoch "$filter_arg")
-        cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
-        log_message "🧹 Cleaning up database backups older than $filter_arg days..."
-        log_message "Cutoff date: $cutoff_display"
-    fi
-
-    # Helper function to check if backup matches filter
-    check_backup_date() {
-        local backup_date="$1"
-        if [ "$filter_mode" = "range" ]; then
-            is_date_in_range "$backup_date" "$start_date" "$end_date"
-            return $?
-        else
-            # Days-based: check if older than cutoff
-            local backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
-            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
-                return 0
-            fi
-            return 1
-        fi
-    }
-
-    # List and delete old database backups (any prefix)
+    # List and delete database backups matching filter
     aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
         backup_path=$(echo "$line" | awk '{print $4}')
         backup_date=$(echo "$backup_path" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
-            if check_backup_date "$backup_date"; then
+            if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
             fi
@@ -1024,28 +1161,20 @@ list_old_backups() {
     done
 }
 
-# Clean up old static and public backups based on retention days or date range
-# Removes static site and public file backups matching date criteria from S3
-# Special case: days=0 or "all" deletes ALL static/public backups (requires confirmation)
+# Clean up old static and public backups based on filter criteria
 # Args:
-#   $1: days, date range, or "all" (format: YYYY-MM-DD:YYYY-MM-DD, YYYY-MM-DD:, or :YYYY-MM-DD)
-#       - days: Number of days to retain (0 = delete all)
-#       - "all": Delete ALL backups (same as 0)
-#       - date range: Delete backups within specified range (inclusive)
+#   $1: filter_type - Type of filter (days, in-range, except-range, older-date, newer-date, all)
+#   $2: filter_value - Filter value (days number, date range, or date)
 clean_old_backups() {
-    local filter_arg=${1:-7}
+    local filter_type="${1:-days}"
+    local filter_value="${2:-7}"
     setup_s3_vars || exit 1
 
-    local start_date=""
-    local end_date=""
-    local cutoff_epoch=""
-    local filter_mode=""
-
-    # Special handling for deleting ALL backups (days=0 or "all")
-    if [ "$filter_arg" = "0" ] || [ "$filter_arg" = "all" ]; then
+    # Special handling for deleting ALL backups
+    if [ "$filter_type" = "all" ]; then
         print_status $YELLOW "🧹 Removing ALL static/public backups..."
 
-        # Clean ALL static site backups (any prefix)
+        # Clean ALL static site backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
             backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             if [ -n "$backup_name" ]; then
@@ -1054,7 +1183,7 @@ clean_old_backups() {
             fi
         done
 
-        # Clean ALL public files backups (any prefix)
+        # Clean ALL public files backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
             backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             if [ -n "$backup_name" ]; then
@@ -1067,84 +1196,63 @@ clean_old_backups() {
         return 0
     fi
 
-    # Check if argument contains a colon (date range format)
-    if echo "$filter_arg" | grep -q ':'; then
-        filter_mode="range"
-        start_date=$(echo "$filter_arg" | cut -d: -f1)
-        end_date=$(echo "$filter_arg" | cut -d: -f2)
-
-        # Convert to epochs if dates provided
-        local start_epoch=""
-        local end_epoch=""
-        if [ -n "$start_date" ]; then
-            start_epoch=$(date_to_epoch "$start_date")
-            if [ -z "$start_epoch" ]; then
-                print_status $RED "Invalid start date: $start_date (use YYYY-MM-DD)"
-                return 1
+    # Display what we're doing based on filter type
+    case "$filter_type" in
+        "days")
+            local cutoff_epoch=$(get_days_ago_epoch "$filter_value")
+            local cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
+            print_status $YELLOW "🧹 Removing static/public backups older than ${filter_value} days (before ${cutoff_display})..."
+            ;;
+        "in-range")
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                print_status $YELLOW "🧹 Removing static/public backups from ${start_date} to ${end_date}..."
+            elif [ -n "$start_date" ]; then
+                print_status $YELLOW "🧹 Removing static/public backups from ${start_date} onward..."
+            elif [ -n "$end_date" ]; then
+                print_status $YELLOW "🧹 Removing static/public backups up to ${end_date}..."
             fi
-        fi
-        if [ -n "$end_date" ]; then
-            end_epoch=$(date_to_epoch "$end_date")
-            if [ -z "$end_epoch" ]; then
-                print_status $RED "Invalid end date: $end_date (use YYYY-MM-DD)"
-                return 1
+            ;;
+        "except-range")
+            local start_date=$(echo "$filter_value" | cut -d: -f1)
+            local end_date=$(echo "$filter_value" | cut -d: -f2)
+            if [ -n "$start_date" ] && [ -n "$end_date" ]; then
+                print_status $YELLOW "🧹 Removing static/public backups EXCEPT those from ${start_date} to ${end_date}..."
+            elif [ -n "$start_date" ]; then
+                print_status $YELLOW "🧹 Removing static/public backups before ${start_date}..."
+            elif [ -n "$end_date" ]; then
+                print_status $YELLOW "🧹 Removing static/public backups after ${end_date}..."
             fi
-        fi
+            ;;
+        "older-date")
+            print_status $YELLOW "🧹 Removing static/public backups older than ${filter_value}..."
+            ;;
+        "newer-date")
+            print_status $YELLOW "🧹 Removing static/public backups newer than ${filter_value}..."
+            ;;
+    esac
 
-        # Display header
-        if [ -n "$start_date" ] && [ -n "$end_date" ]; then
-            print_status $YELLOW "🧹 Removing static/public backups from ${start_date} to ${end_date}..."
-        elif [ -n "$start_date" ]; then
-            print_status $YELLOW "🧹 Removing static/public backups from ${start_date} onward..."
-        elif [ -n "$end_date" ]; then
-            print_status $YELLOW "🧹 Removing static/public backups up to ${end_date}..."
-        else
-            print_status $YELLOW "🧹 Removing all static/public backups..."
-        fi
-    else
-        # Days-based filtering (original behavior)
-        filter_mode="days"
-        cutoff_epoch=$(get_days_ago_epoch "$filter_arg")
-        cutoff_display=$(date -u -d "@$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null || date -u -r "$cutoff_epoch" '+%Y-%m-%d' 2>/dev/null)
-        print_status $YELLOW "🧹 Removing static/public backups older than ${filter_arg} days (before ${cutoff_display})..."
-    fi
-
-    # Helper function to check if backup matches filter
-    check_backup_date() {
-        local backup_date="$1"
-        if [ "$filter_mode" = "range" ]; then
-            is_date_in_range "$backup_date" "$start_date" "$end_date"
-            return $?
-        else
-            # Days-based: check if older than cutoff
-            local backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
-            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -lt "$cutoff_epoch" ]; then
-                return 0
-            fi
-            return 1
-        fi
-    }
-
-    # Clean static site backups (any prefix)
+    # Clean static site backups
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
         backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
-            if check_backup_date "$backup_date"; then
+            if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 print_status $YELLOW "Removing static site backup: $backup_name (date: $backup_date)"
                 aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
             fi
         fi
     done
 
-    # Clean public files backups (any prefix)
+    # Clean public files backups
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
         backup_date=$(echo "$backup_name" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)
 
         if [ -n "$backup_date" ]; then
-            if check_backup_date "$backup_date"; then
+            if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 print_status $YELLOW "Removing public files backup: $backup_name (date: $backup_date)"
                 aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
             fi
@@ -1153,6 +1261,7 @@ clean_old_backups() {
 
     print_status $GREEN "✅ Static/public backup cleanup completed."
 }
+
 
 # Clean all backup types
 cleanup_all_old_backups() {

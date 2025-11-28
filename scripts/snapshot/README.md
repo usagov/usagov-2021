@@ -107,30 +107,87 @@ Use `--skip-state-management` (or `--ssm` for short) to bypass this (e.g., when 
 
 ### Clean Old Backups
 
+The clean command supports multiple filtering methods to precisely control which backups to delete.
+
+#### Retention-Based (Days)
+
+Keep the last N days of backups, delete older ones:
+
 ```bash
-# On Cloud Foundry - Days-based retention
-scripts/snapshot/manager.sh clean                   # Clean all types (30 day retention)
-scripts/snapshot/manager.sh clean db 7              # Clean database backups older than 7 days
-scripts/snapshot/manager.sh clean static 14         # Clean static backups older than 14 days
-scripts/snapshot/manager.sh clean all 0             # ⚠️  DELETE ALL backups (requires confirmation)
-
-# Date range filtering (YYYY-MM-DD:YYYY-MM-DD format)
-scripts/snapshot/manager.sh clean all 2024-01-01:2024-12-31  # Clean all 2024 backups
-scripts/snapshot/manager.sh clean db 2025-09-01:2025-09-30   # Clean Sept 2025 database backups
-scripts/snapshot/manager.sh clean static :2025-10-01         # Clean static backups up to Oct 1st
-
-# Non-interactive mode (for automation, skips confirmation)
-scripts/snapshot/manager.sh clean static,public 7 --non-interactive
-scripts/snapshot/manager.sh clean db 30 -y          # Short form
-scripts/snapshot/manager.sh clean all 2024-01-01:2024-12-31 -y  # Date range, non-interactive
+# On Cloud Foundry
+scripts/snapshot/manager.sh clean all 7             # Keep last 7 days, delete older
+scripts/snapshot/manager.sh clean all --older-than 30  # Keep last 30 days (explicit)
+scripts/snapshot/manager.sh clean db 14 -y          # Database only, non-interactive
 
 # From local machine
-scripts/snapshot/local-manager.sh clean db 30       # Clean database backups on CF
 scripts/snapshot/local-manager.sh clean all 7 -y    # Non-interactive cleanup on CF
-scripts/snapshot/local-manager.sh clean all 2025-01-01:2025-06-30 -y  # Clean H1 2025 backups
 ```
 
-> **Note:** Clean operations require confirmation before deleting files (unless using `--non-interactive` or `-y` flag)
+#### Delete Specific Time Periods
+
+Delete backups within a specific date range:
+
+```bash
+# On Cloud Foundry
+scripts/snapshot/manager.sh clean all --in-range 2024-01-01:2024-12-31  # Delete all 2024 backups
+scripts/snapshot/manager.sh clean static --in-range 2025-10-01:2025-10-31  # Delete October static backups
+scripts/snapshot/manager.sh clean db --in-range 2025-11-01: -y  # Delete from Nov onward
+scripts/snapshot/manager.sh clean all --in-range :2025-09-30    # Delete up to September
+
+# From local machine
+scripts/snapshot/local-manager.sh clean all --in-range 2024-01-01:2024-12-31 -y
+```
+
+#### Keep Specific Time Periods
+
+Keep backups within a date range, delete everything else:
+
+```bash
+# On Cloud Foundry
+scripts/snapshot/manager.sh clean all --except-range 2025-10-01:2025-10-31  # Keep only October
+scripts/snapshot/manager.sh clean all --except-range 2025-11-01:  # Keep from Nov onward, delete older
+scripts/snapshot/manager.sh clean db --except-range :2025-10-31   # Keep up to Oct, delete newer
+
+# From local machine
+scripts/snapshot/local-manager.sh clean all --except-range 2025-11-01: -y  # Keep Q4, delete rest
+```
+
+#### Delete by Date Boundaries
+
+Delete backups before or after a specific date:
+
+```bash
+# On Cloud Foundry
+scripts/snapshot/manager.sh clean all --older-than-date 2025-01-01  # Delete everything before 2025
+scripts/snapshot/manager.sh clean all --newer-than-date 2025-10-31  # Delete everything after Oct 31
+scripts/snapshot/manager.sh clean db --older-than-date 2024-01-01 -y  # Delete 2023 and older
+
+# From local machine
+scripts/snapshot/local-manager.sh clean all --older-than-date 2024-01-01 -y
+```
+
+#### Delete All Backups (Dangerous!)
+
+```bash
+scripts/snapshot/manager.sh clean all 0             # ⚠️  DELETE ALL backups (requires "DELETE ALL")
+scripts/snapshot/manager.sh clean all all           # ⚠️  Same as above
+```
+
+#### Date Filter Reference
+
+| Filter | Description | Example |
+|--------|-------------|---------|
+| `[days]` | Keep last N days | `clean all 7` |
+| `--older-than [days]` | Explicit retention | `clean all --older-than 30` |
+| `--in-range START:END` | Delete within range | `clean all --in-range 2024-01-01:2024-12-31` |
+| `--except-range START:END` | Delete outside range | `clean all --except-range 2025-10-01:2025-10-31` |
+| `--older-than-date DATE` | Delete before date | `clean all --older-than-date 2025-01-01` |
+| `--newer-than-date DATE` | Delete after date | `clean all --newer-than-date 2025-10-31` |
+
+**Date Format:** YYYY-MM-DD (e.g., 2025-10-01)
+**Range Format:** START:END, START:, or :END (e.g., 2025-01-01:2025-12-31, 2025-11-01:, :2025-10-31)
+
+> **Note:** Clean operations require confirmation before deleting files (unless using `--non-interactive` or `-y` flag). Only ONE filter method can be used per command.
 
 ### Get Information
 
