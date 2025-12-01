@@ -526,7 +526,15 @@ create_db_backup() {
 
     # Generate backup tag with timestamp and container tag
     CONTAINER_TAG=$(get_container_tag)
-    DB_BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}${backup_suffix}"
+    # Generate base backup tag
+    CONTAINER_TAG=$(get_container_tag)
+    local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
+
+    # Get next available numeric suffix for same-day backups
+    local numeric_suffix=$(get_next_backup_suffix "db" "$base_tag")
+
+    # Construct final tag with user suffix (if any) and numeric suffix
+    DB_BACKUP_TAG="${base_tag}${backup_suffix}-${numeric_suffix}"
 
     log_message "💾 Database backup: $DB_BACKUP_TAG"
 
@@ -667,9 +675,15 @@ create_static_backup() {
         return 0
     fi
 
-    # Generate backup tag
+    # Generate base backup tag
     CONTAINER_TAG=$(get_container_tag)
-    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}${backup_suffix}"
+    local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
+
+    # Get next available numeric suffix for same-day backups
+    local numeric_suffix=$(get_next_backup_suffix "static" "$base_tag")
+
+    # Construct final tag with user suffix (if any) and numeric suffix
+    BACKUP_TAG="${base_tag}${backup_suffix}-${numeric_suffix}"
 
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
@@ -711,9 +725,15 @@ create_public_backup() {
         return 0
     fi
 
-    # Generate backup tag
+    # Generate base backup tag
     CONTAINER_TAG=$(get_container_tag)
-    BACKUP_TAG="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}${backup_suffix}"
+    local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
+
+    # Get next available numeric suffix for same-day backups
+    local numeric_suffix=$(get_next_backup_suffix "public" "$base_tag")
+
+    # Construct final tag with user suffix (if any) and numeric suffix
+    BACKUP_TAG="${base_tag}${backup_suffix}-${numeric_suffix}"
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true

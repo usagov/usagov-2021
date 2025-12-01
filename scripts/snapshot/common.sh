@@ -220,6 +220,74 @@ date_to_epoch() {
     echo "$epoch"
 }
 
+# Get the next available numeric suffix for a backup tag on the same day
+# Checks existing backups and returns the next number (0, 1, 2, etc.)
+# Args:
+#   $1: backup_type - Type of backup (static, public, db)
+#   $2: base_tag - Base tag without suffix (e.g., AUTO-dev-14845-2025-12-01)
+# Returns: Next available number as string
+get_next_backup_suffix() {
+    local backup_type="$1"
+    local base_tag="$2"
+    
+    setup_s3_vars || return 1
+    
+    local s3_path=""
+    local search_pattern=""
+    
+    case "$backup_type" in
+        "static")
+            s3_path="$AUTO_STATIC_BACKUP_PATH"
+            search_pattern="${base_tag}-"
+            ;;
+        "public")
+            s3_path="$AUTO_PUBLIC_BACKUP_PATH"
+            search_pattern="${base_tag}-"
+            ;;
+        "db")
+            s3_path="$AUTO_DB_BACKUP_PATH"
+            search_pattern="${base_tag}-"
+            ;;
+        *)
+            echo "0"
+            return 0
+            ;;
+    esac
+    
+    # List existing backups matching the pattern
+    local existing_numbers=""
+    if [ "$backup_type" = "db" ]; then
+        # For database, search for .sql.gz files
+        existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
+            grep "${search_pattern}" | \
+            grep ".sql.gz" | \
+            awk '{print $4}' | \
+            sed "s/^${base_tag}-//" | \
+            sed 's/.sql.gz$//' | \
+            grep '^[0-9]\+$')
+    else
+        # For static/public, search for directories
+        existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
+            grep "PRE ${search_pattern}" | \
+            awk '{print $2}' | \
+            tr -d '/' | \
+            sed "s/^${base_tag}-//" | \
+            grep '^[0-9]\+$')
+    fi
+    
+    # Find the highest number and add 1
+    local max_num=-1
+    if [ -n "$existing_numbers" ]; then
+        for num in $existing_numbers; do
+            if [ "$num" -gt "$max_num" ]; then
+                max_num=$num
+            fi
+        done
+    fi
+    
+    echo $((max_num + 1))
+}
+
 # Check if a backup date falls within a date range
 # Args:
 #   $1: backup_date - Date from backup name (YYYY-MM-DD)
