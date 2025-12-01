@@ -464,27 +464,49 @@ validate_sql_dump() {
     local first_lines=$(head -n 20 "$sql_file")
 
     # Check for MySQL/MariaDB dump markers
-    if ! echo "$first_lines" | grep -q "MySQL dump\|MariaDB dump"; then
+    if ! echo "$first_lines" | grep -q "MySQL dump" && \
+       ! echo "$first_lines" | grep -q "MariaDB dump"; then
         echo "❌ SQL dump missing MySQL/MariaDB header"
         return 1
     fi
 
     # Check for common SQL dump patterns in the beginning
-    if ! echo "$first_lines" | grep -qE "-- (Host|Server|Database|Dump completed on|Table structure)"; then
+    # Use multiple simple greps BusyBox compatibility
+    if ! echo "$first_lines" | grep -q "-- Host" && \
+       ! echo "$first_lines" | grep -q "-- Server" && \
+       ! echo "$first_lines" | grep -q "-- Database" && \
+       ! echo "$first_lines" | grep -q "-- Dump completed on" && \
+       ! echo "$first_lines" | grep -q "-- Table structure"; then
         echo "⚠️  SQL dump header format unusual (missing standard comments)"
     fi
 
     # Read last few lines to check for proper completion
     local last_lines=$(tail -n 10 "$sql_file")
 
-    # Check that dump was completed (should have "Dump completed on" or similar)
-    if ! echo "$last_lines" | grep -qE "Dump completed on|-- Dump completed"; then
+    # Check that dump was completed
+    if ! echo "$last_lines" | grep -q "Dump completed on" && \
+       ! echo "$last_lines" | grep -q "-- Dump completed"; then
         echo "⚠️  SQL dump may be incomplete (missing completion marker)"
     fi
 
     # Check for common end-of-dump patterns
-    if ! echo "$first_lines" | grep -qE "CREATE TABLE|INSERT INTO|CREATE DATABASE" && \
-       ! echo "$last_lines" | grep -qE "CREATE TABLE|INSERT INTO"; then
+    local has_create_in_first=false
+    local has_insert_in_first=false
+    local has_create_db_in_first=false
+    local has_create_in_last=false
+    local has_insert_in_last=false
+
+    echo "$first_lines" | grep -q "CREATE TABLE" && has_create_in_first=true
+    echo "$first_lines" | grep -q "INSERT INTO" && has_insert_in_first=true
+    echo "$first_lines" | grep -q "CREATE DATABASE" && has_create_db_in_first=true
+    echo "$last_lines" | grep -q "CREATE TABLE" && has_create_in_last=true
+    echo "$last_lines" | grep -q "INSERT INTO" && has_insert_in_last=true
+
+    if [ "$has_create_in_first" = "false" ] && \
+       [ "$has_insert_in_first" = "false" ] && \
+       [ "$has_create_db_in_first" = "false" ] && \
+       [ "$has_create_in_last" = "false" ] && \
+       [ "$has_insert_in_last" = "false" ]; then
         echo "❌ SQL dump contains no CREATE or INSERT statements"
         return 1
     fi

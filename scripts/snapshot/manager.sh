@@ -169,6 +169,18 @@ run_backup_command() {
         backup_suffix="-${custom_suffix}"
     fi
 
+    # Validate prefix and suffix don't contain spaces
+    if echo "$backup_prefix" | grep -q ' '; then
+        print_status $RED "❌ Error: Backup prefix cannot contain spaces"
+        print_status $YELLOW "   Use hyphens or underscores instead: 'MY-PREFIX' or 'MY_PREFIX'"
+        return 1
+    fi
+    if [ -n "$custom_suffix" ] && echo "$custom_suffix" | grep -q ' '; then
+        print_status $RED "❌ Error: Backup suffix cannot contain spaces"
+        print_status $YELLOW "   Use hyphens or underscores instead: 'my-suffix' or 'my_suffix'"
+        return 1
+    fi
+
     # Generate single timestamp for this backup event (format: 2025-10-24)
     local backup_timestamp=$(date +"%Y-%m-%d")
 
