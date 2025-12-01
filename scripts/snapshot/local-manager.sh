@@ -31,6 +31,8 @@ show_usage() {
     echo "  download <tag> [type] [output-dir]     Download backups to local (default: all types, current dir)"
     echo "  test                                   Run backup system test suite on CF"
     echo "  cron <subcommand>                      Manage automated database backup cron jobs"
+    echo "  try-tome-disable [max_wait_mins]       Disable Drupal/Tome for backup (wait for tome, disable, enable maintenance)"
+    echo "  try-tome-enable                        Re-enable Drupal/Tome (disable maintenance, re-enable tome)"
     echo ""
     echo "Cron Subcommands:"
     echo "  setup                    Configure automated database backups (uses DB_BACKUP_TIME env var)"
@@ -292,6 +294,14 @@ case "$COMMAND" in
                 exit 1
                 ;;
         esac
+        ;;
+    "try-tome-disable")
+        # try-tome-disable [max_wait_minutes] - Disable Drupal/Tome for backup
+        remote_command try-tome-disable "$2"
+        ;;
+    "try-tome-enable")
+        # try-tome-enable - Re-enable Drupal/Tome to normal operation
+        remote_command try-tome-enable
         ;;
     *)
         echo "❌ Unknown command: $COMMAND"
