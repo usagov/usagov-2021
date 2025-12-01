@@ -229,12 +229,12 @@ date_to_epoch() {
 get_next_backup_suffix() {
     local backup_type="$1"
     local base_tag="$2"
-    
+
     setup_s3_vars || return 1
-    
+
     local s3_path=""
     local search_pattern=""
-    
+
     case "$backup_type" in
         "static")
             s3_path="$AUTO_STATIC_BACKUP_PATH"
@@ -253,7 +253,7 @@ get_next_backup_suffix() {
             return 0
             ;;
     esac
-    
+
     # List existing backups matching the pattern
     local existing_numbers=""
     if [ "$backup_type" = "db" ]; then
@@ -274,7 +274,7 @@ get_next_backup_suffix() {
             sed "s/^${base_tag}-//" | \
             grep '^[0-9]\+$')
     fi
-    
+
     # Find the highest number and add 1
     local max_num=-1
     if [ -n "$existing_numbers" ]; then
@@ -284,7 +284,7 @@ get_next_backup_suffix() {
             fi
         done
     fi
-    
+
     echo $((max_num + 1))
 }
 
@@ -709,19 +709,22 @@ setup_s3_vars() {
         if [ -z "$AWS_ENDPOINT" ] || [ "$AWS_ENDPOINT" = "null" ]; then
             export AWS_ENDPOINT=$(echo "${VCAP_SERVICES}" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.endpoint' 2>/dev/null)
         fi
+    fi
 
-        # Get the Cloud.gov space we are hosted in
+    # Always set APP_SPACE if not already set (even if BUCKET_NAME was already exported)
+    if [ -z "$APP_SPACE" ] && [ -n "$VCAP_APPLICATION" ]; then
         APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
         APP_SPACE=${APP_SPACE:-local}
+        export APP_SPACE
+    fi
 
-        # endpoint and ssl specifications only necessary on local for minio support
+    # endpoint and ssl specifications only necessary on local for minio support
+    if [ -z "$S3_EXTRA_PARAMS" ]; then
         S3_EXTRA_PARAMS=""
         if [ "${APP_SPACE}" = "local" ]; then
             S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
         fi
-
-        # Export for use by other functions
-        export APP_SPACE S3_EXTRA_PARAMS
+        export S3_EXTRA_PARAMS
     fi
 
     # Validate that we have what we need

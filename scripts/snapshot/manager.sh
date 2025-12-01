@@ -536,7 +536,11 @@ create_db_backup() {
     local numeric_suffix=$(get_next_backup_suffix "db" "$base_tag")
 
     # Construct final tag with user suffix (if any) and numeric suffix
-    DB_BACKUP_TAG="${base_tag}${backup_suffix}-${numeric_suffix}"
+    if [ -n "$backup_suffix" ]; then
+        DB_BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
+    else
+        DB_BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    fi
 
     log_message "💾 Database backup: $DB_BACKUP_TAG"
 
@@ -685,7 +689,11 @@ create_static_backup() {
     local numeric_suffix=$(get_next_backup_suffix "static" "$base_tag")
 
     # Construct final tag with user suffix (if any) and numeric suffix
-    BACKUP_TAG="${base_tag}${backup_suffix}-${numeric_suffix}"
+    if [ -n "$backup_suffix" ]; then
+        BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
+    else
+        BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    fi
 
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
@@ -735,7 +743,11 @@ create_public_backup() {
     local numeric_suffix=$(get_next_backup_suffix "public" "$base_tag")
 
     # Construct final tag with user suffix (if any) and numeric suffix
-    BACKUP_TAG="${base_tag}${backup_suffix}-${numeric_suffix}"
+    if [ -n "$backup_suffix" ]; then
+        BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
+    else
+        BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    fi
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true
