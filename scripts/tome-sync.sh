@@ -347,7 +347,7 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
           # Create static and public backups using manager.sh backup command
           # The manager.sh script will handle all the logic, config loading, and smart detection
           # Run from /var/www to ensure manager.sh can find its dependencies
-          if (cd /var/www && $BACKUP_MANAGER backup all) 2>&1 | tee -a $TOMELOG; then
+          if (cd /var/www && $BACKUP_MANAGER backup static,public) 2>&1 | tee -a $TOMELOG; then
               echo "Automatic backup completed successfully." | tee -a $TOMELOG
           else
               echo "Warning: Backup process encountered issues." | tee -a $TOMELOG
