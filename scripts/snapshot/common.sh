@@ -540,11 +540,11 @@ validate_sql_dump() {
 
     # Check for common SQL dump patterns in the beginning
     # Use multiple simple greps BusyBox compatibility
-    if ! echo "$first_lines" | grep -q "-- Host" && \
-       ! echo "$first_lines" | grep -q "-- Server" && \
-       ! echo "$first_lines" | grep -q "-- Database" && \
-       ! echo "$first_lines" | grep -q "-- Dump completed on" && \
-       ! echo "$first_lines" | grep -q "-- Table structure"; then
+    if ! echo "$first_lines" | grep -q -e "-- Host" && \
+       ! echo "$first_lines" | grep -q -e "-- Server" && \
+       ! echo "$first_lines" | grep -q -e "-- Database" && \
+       ! echo "$first_lines" | grep -q -e "-- Dump completed on" && \
+       ! echo "$first_lines" | grep -q -e "-- Table structure"; then
         echo "⚠️  SQL dump header format unusual (missing standard comments)"
     fi
 
@@ -553,7 +553,7 @@ validate_sql_dump() {
 
     # Check that dump was completed
     if ! echo "$last_lines" | grep -q "Dump completed on" && \
-       ! echo "$last_lines" | grep -q "-- Dump completed"; then
+       ! echo "$last_lines" | grep -q -e "-- Dump completed"; then
         echo "⚠️  SQL dump may be incomplete (missing completion marker)"
     fi
 
