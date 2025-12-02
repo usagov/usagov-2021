@@ -557,24 +557,20 @@ validate_sql_dump() {
         echo "⚠️  SQL dump may be incomplete (missing completion marker)"
     fi
 
-    # Check for common end-of-dump patterns
-    local has_create_in_first=false
-    local has_insert_in_first=false
-    local has_create_db_in_first=false
-    local has_create_in_last=false
-    local has_insert_in_last=false
+    local has_create=false
+    local has_insert=false
 
-    echo "$first_lines" | grep -q "CREATE TABLE" && has_create_in_first=true
-    echo "$first_lines" | grep -q "INSERT INTO" && has_insert_in_first=true
-    echo "$first_lines" | grep -q "CREATE DATABASE" && has_create_db_in_first=true
-    echo "$last_lines" | grep -q "CREATE TABLE" && has_create_in_last=true
-    echo "$last_lines" | grep -q "INSERT INTO" && has_insert_in_last=true
+    # Check first 100 lines for CREATE statements
+    if head -n 100 "$sql_file" | grep -q "CREATE TABLE\|CREATE DATABASE"; then
+        has_create=true
+    fi
 
-    if [ "$has_create_in_first" = "false" ] && \
-       [ "$has_insert_in_first" = "false" ] && \
-       [ "$has_create_db_in_first" = "false" ] && \
-       [ "$has_create_in_last" = "false" ] && \
-       [ "$has_insert_in_last" = "false" ]; then
+    # Check for INSERT statements
+    if grep -q "INSERT INTO" "$sql_file"; then
+        has_insert=true
+    fi
+
+    if [ "$has_create" = "false" ] && [ "$has_insert" = "false" ]; then
         echo "❌ SQL dump contains no CREATE or INSERT statements"
         return 1
     fi
