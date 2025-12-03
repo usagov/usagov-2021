@@ -1191,7 +1191,7 @@ list_old_backups() {
 #   $2: filter_value - Filter value (days number, date range, or date)
 clean_old_backups() {
     local filter_type="${1:-days}"
-    local filter_value="${2:-7}"
+    local filter_value="${2:-$BACKUP_RETENTION_DAYS}"
     setup_s3_vars || exit 1
 
     # Special handling for deleting ALL backups
