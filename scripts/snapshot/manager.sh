@@ -1549,6 +1549,17 @@ restore_backup() {
         print_status $YELLOW "🔄 Restoring public files..."
         if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
             print_status $GREEN "✅ Public files restored"
+            # Refresh S3FS metadata cache so Drupal sees the restored files
+            if command -v drush >/dev/null 2>&1; then
+                print_status $YELLOW "🔄 Refreshing file metadata cache..."
+                if drush s3fs:refresh-cache 2>/dev/null; then
+                    print_status $GREEN "✅ File metadata cache refreshed"
+                else
+                    print_status $YELLOW "⚠️ Could not refresh file cache (drush s3fs:refresh-cache failed)"
+                fi
+            else
+                print_status $YELLOW "⚠️ Could not refresh file cache (drush not available)"
+            fi
         else
             print_status $RED "❌ ERROR: Public files restore failed"
             exit 1
@@ -1571,8 +1582,9 @@ restore_backup() {
         fi
 
         # Download and restore database backup (use secure temp files)
-        temp_db_file="$(mktemp /tmp/restore_db.XXXXXX.sql.gz)"
-        temp_sql_file="${temp_db_file%.gz}"
+        temp_db_base="$(mktemp /tmp/restore_db.XXXXXX)"
+        temp_db_file="${temp_db_base}.sql.gz"
+        temp_sql_file="${temp_db_base}.sql"
 
         if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
             if gunzip "$temp_db_file" 2>/dev/null; then
@@ -1584,29 +1596,30 @@ restore_backup() {
                         print_status $GREEN "✅ Database restored"
                     else
                         print_status $RED "❌ ERROR: Database import failed"
-                        rm -f "$temp_sql_file" 2>/dev/null
+                        rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
                         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                         exit 1
                     fi
                 else
                     print_status $RED "❌ ERROR: Drush not available for database restore"
-                    rm -f "$temp_sql_file" 2>/dev/null
+                    rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
                     [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                     exit 1
                 fi
             else
                     print_status $RED "❌ ERROR: Failed to decompress database backup"
-                rm -f "$temp_db_file" 2>/dev/null
+                rm -f "$temp_db_file" "$temp_db_base" 2>/dev/null
                 [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                 exit 1
             fi
         else
             print_status $RED "❌ ERROR: Failed to download database backup"
+            rm -f "$temp_db_base" 2>/dev/null
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             exit 1
         fi
 
-        rm -f "$temp_sql_file" 2>/dev/null
+        rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
     fi
 
     echo ""
