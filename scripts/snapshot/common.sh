@@ -58,7 +58,6 @@ init_backup_system() {
         if [ -z "$PROJECT_ROOT" ]; then
             echo "❌ ERROR: Cannot find scripts/snapshot directory. Please run from project root or scripts/snapshot directory."
             echo "   Current directory: $(pwd)"
-            echo "   Available directories: $(ls -la)"
             exit 1
         fi
     fi
