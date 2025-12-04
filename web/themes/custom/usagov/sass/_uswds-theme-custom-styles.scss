@@ -972,7 +972,7 @@ input::-webkit-textfield-decoration-container {
       grid-column: 1 / -1;
     }
 
-    .views-field-title a {
+    .views-field-title h2 {
       font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
       font-size: 1.95rem;
       color: #d83933;
@@ -1142,7 +1142,7 @@ input::-webkit-textfield-decoration-container {
   &.display-none {
     display: none;
   }
-  
+
   @include at-media('desktop') {
     &.desktop\:display-block {
       display: block !important;
