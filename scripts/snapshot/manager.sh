@@ -1384,7 +1384,9 @@ find_corresponding_db_backup() {
 
 parse_restore_options() {
     local restore_types="static,public,database"  # default: restore all
+    local backup_tag=""
 
+    # Parse all arguments, collecting both the tag and options
     while [ $# -gt 0 ]; do
         case "$1" in
             --only=*)
@@ -1400,16 +1402,23 @@ parse_restore_options() {
                     exit 1
                 fi
                 ;;
+            --skip-state-management|--ssm)
+                # Skip this flag, handled elsewhere
+                shift
+                ;;
             *)
                 # This should be the backup tag
-                echo "$1"
+                if [ -z "$backup_tag" ]; then
+                    backup_tag="$1"
+                fi
                 shift
-                break
                 ;;
         esac
     done
 
-    # Return the restore types for the caller to use
+    # Return the backup tag to stdout
+    echo "$backup_tag"
+    # Return the restore types to stderr
     echo "$restore_types" >&2
 }
 
