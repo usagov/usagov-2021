@@ -1383,7 +1383,7 @@ find_corresponding_db_backup() {
 }
 
 parse_restore_options() {
-    local restore_types="static,public,database"  # default: restore all
+    local restore_types="static,public,db"  # default: restore all
     local backup_tag=""
 
     # Parse all arguments, collecting both the tag and options
@@ -1430,7 +1430,7 @@ restore_backup() {
     # Parse arguments
     if [ $# -eq 0 ]; then
         print_status $RED "❌ Error: Backup tag is required"
-        print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,database] [--skip-state-management|--ssm]"
+        print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,db] [--skip-state-management|--ssm]"
         exit 1
     fi
 
@@ -1455,7 +1455,7 @@ restore_backup() {
     # Determine what to restore
     restore_static=$(echo "$restore_types" | grep -q "static" && echo "yes" || echo "no")
     restore_public=$(echo "$restore_types" | grep -q "public" && echo "yes" || echo "no")
-    restore_database=$(echo "$restore_types" | grep -q "database" && echo "yes" || echo "no")
+    restore_database=$(echo "$restore_types" | grep -qE "\<(db|database)\>" && echo "yes" || echo "no")
 
     print_status $BLUE "🔄 Checking restore options"
     echo ""
