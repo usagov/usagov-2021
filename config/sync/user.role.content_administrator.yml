@@ -25,6 +25,7 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - block_content
+    - config_pages
     - content_lock
     - content_moderation
     - content_translation
@@ -171,6 +172,7 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
+  - 'edit site_banner config page entity'
   - 'edit terms in benefits_category'
   - 'edit terms in wizard'
   - 'revert agency_synonym revisions'
@@ -224,6 +226,7 @@ permissions:
   - 'view scheduled content'
   - 'view scheduled media'
   - 'view scheduled taxonomy_term'
+  - 'view site_banner config page entity'
   - 'view state_directory_record revisions'
   - 'view term revisions in wizard'
   - 'view the administration theme'
