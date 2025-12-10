@@ -281,10 +281,27 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
       $paragraph_view_builder = \Drupal::entityTypeManager()->getViewBuilder('paragraph');
 
       foreach ($config_pages_site_banners as $config_page) {
-        // Check language matches current site language or is undefined.
-        // Config_pages can be language-neutral (und), which should appear on all language variants.
-        $config_page_lang = $config_page->language()->getId();
-        if ($config_page_lang !== $site_language && $config_page_lang !== 'und') {
+        // Check if context matches current site language.
+        // Config_pages uses a context field to store language-specific data.
+        // The context field contains serialized PHP data like: a:1:{i:0;a:1:{s:8:"language";s:2:"en";}}
+        $context_value = $config_page->get('context')->value;
+
+        $context_data = !empty($context_value) ? unserialize($context_value, ['allowed_classes' => FALSE]) : [];
+
+        // Extract language from context (if set).
+        $context_language = NULL;
+        if (!empty($context_data) && is_array($context_data)) {
+          foreach ($context_data as $context_item) {
+            if (is_array($context_item) && isset($context_item['language'])) {
+              $context_language = $context_item['language'];
+              break;
+            }
+          }
+        }
+
+        // Skip if context language doesn't match current language.
+        // Allow config_pages with no language context (NULL) to appear on all pages.
+        if ($context_language !== NULL && $context_language !== $site_language) {
           continue;
         }
 

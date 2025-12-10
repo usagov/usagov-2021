@@ -8,7 +8,7 @@ token: false
 context:
   show_warning: true
   group:
-    language: false
+    language: true
   fallback:
     language: ''
 menu:

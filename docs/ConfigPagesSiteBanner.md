@@ -38,9 +38,13 @@ When using `{{ drupal_entity('paragraph', id) }}` in Twig templates:
 - Support multiple paragraphs displaying as separate banners
 
 **Language Handling:**
-- Config_pages can be language-specific (`en`, `es`) or language-neutral (`und`)
-- Language-neutral config_pages appear on all language variants of the site
-- Language-specific config_pages only appear on matching language pages
+- Config_pages uses a **context field** (not entity langcode) to store language-specific data
+- When language context is enabled, the context field contains serialized data like: `a:1:{i:0;a:1:{s:8:"language";s:2:"en";}}`
+- The preprocess function extracts and checks the language from the context field
+- Config_pages with `NULL` context language appear on all language variants
+- Config_pages with `en` context appear only on English pages
+- Config_pages with `es` context appear only on Spanish pages
+- Each language version is a separate config_pages entity, managed independently through the context system
 
 **Added `usa_twig_vars_theme_suggestions_paragraph_alter()` function to:**
 
@@ -95,10 +99,36 @@ When using `{{ drupal_entity('paragraph', id) }}` in Twig templates:
 
 ### For Content Administrators
 
-1. Navigate to the Site Banner config page at `/admin/config/content/config-pages/site_banner/edit`
-2. Add or edit USWDS Alert paragraphs in the "USWDS Paragraphs" field
+#### Creating a Site Banner
+
+1. Navigate to the Site Banner config page at `/admin/content/site-banner`
+2. Add or edit USWDS Alert paragraphs in the "Alert" field
 3. Each paragraph will display as a separate banner in the header_top region
 4. To add multiple banners, simply add multiple alert paragraphs to the field
+
+#### Creating English and Spanish Versions
+
+**Using Language Context (Current Implementation)**
+
+Config Pages uses a "context" system to create language-specific versions. With language context enabled:
+
+1. **For English banner:**
+   - Go to `/admin/content/site-banner`
+   - When viewing/editing, you'll see this is the English (en) context
+   - Create your English alert banner(s)
+
+2. **For Spanish banner:**
+   - The system automatically creates a separate config_pages entity for Spanish
+   - You can access it by switching to the Spanish context
+   - Create your Spanish alert banner(s) separately
+
+3. **How it works:**
+   - The system loads the appropriate config_page based on the current site language
+   - English pages (`www.usa.gov`) show the English context banner
+   - Spanish pages (`www.usa.gov/es`) show the Spanish context banner
+   - Each is a completely separate entity
+
+**Note:** Config Pages v8.x-2.19 doesn't fully support Drupal's content translation system (it lacks `langcode` in entity_keys), so we use the language context feature instead. This provides the same functionality - separate English and Spanish banners that appear automatically on their respective language pages.
 
 ### For Developers
 
