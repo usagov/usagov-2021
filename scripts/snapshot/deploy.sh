@@ -26,6 +26,7 @@ show_usage() {
     echo "Status Commands:"
     echo "  last-backup                           Show when last backup of each type was taken"
     echo "  status                                Show CF target and recent activity"
+    echo "  motd                                  Show message of the day from CMS container"
     echo "  changes [from] [to]                   Show tickets between two commits/branches"
     echo "                                        Default: from=prod, to=stage"
     echo "                                        Uses DEPLOY_ENV if set (e.g., stage vs prod)"
@@ -174,6 +175,11 @@ show_status() {
     echo ""
     echo "Recent Activity (last 10 events):"
     cf events cms | head -15
+}
+
+# Show message of the day from CMS container
+show_motd() {
+    cf ssh cms -c "cat /etc/motd"
 }
 
 # Pre-deployment backup using context variables
@@ -444,6 +450,9 @@ case "$COMMAND" in
         ;;
     "status")
         show_status
+        ;;
+    "motd")
+        show_motd
         ;;
     "changes")
         shift
