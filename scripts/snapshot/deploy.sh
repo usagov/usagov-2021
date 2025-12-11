@@ -17,8 +17,9 @@ show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
     echo "Setup Commands:"
-    echo "  set-context <env> <ticket>            Set deployment context (creates env vars)"
+    echo "  set-context <env> <ticket> [post] [pre]  Set deployment context (creates env vars)"
     echo "                                        Example: deploy.sh set-context prod USAGOV-1234"
+    echo "                                        Optional: deploy.sh set-context prod USAGOV-1234 post-deploy pre-deploy"
     echo "                                        Sets: DEPLOY_ENV, DEPLOY_TICKET, DEPLOY_PRE_SUFFIX, DEPLOY_POST_SUFFIX"
     echo ""
     echo "  show-context                          Show current deployment context"
@@ -39,9 +40,13 @@ show_usage() {
     echo ""
     echo "Rollback Commands:"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  rollback <tag>                        Restore from backup (all types, with confirmation)"
-    echo "  rollback-static <tag>                 Restore static site only (with confirmation)"
-    echo "  rollback-db <tag>                     Restore database only (with confirmation)"
+    echo "  rollback [tag]                        Restore from backup (all types, with confirmation)"
+    echo "                                        Uses separate tags per type if set via set-context"
+    echo "                                        Or specify tag to use same tag for all types"
+    echo "  rollback-static [tag]                 Restore static site only (with confirmation)"
+    echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
+    echo "  rollback-db [tag]                     Restore database only (with confirmation)"
+    echo "                                        Tag optional if DEPLOY_ROLLBACK_DB_TAG is set"
     echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
@@ -73,31 +78,58 @@ show_usage() {
 set_context() {
     local env="$1"
     local ticket="$2"
-    local suffix="${3:-post-deploy}"
+    local post_suffix="${3:-post-deploy}"
+    local pre_suffix="${4:-pre-deploy}"
 
     if [ -z "$env" ] || [ -z "$ticket" ]; then
         print_status $RED "❌ Error: Environment and ticket required"
-        echo "Usage: deploy.sh set-context <env> <ticket> [suffix]"
+        echo "Usage: deploy.sh set-context <env> <ticket> [post-suffix] [pre-suffix]"
         exit 1
     fi
+
+    print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
+
+    # Query S3 to get the most recent valid backup tag for each type
+    local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/snapshot/common.sh && init_backup_system && setup_s3_vars && \
+        echo 'STATIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
+        echo 'PUBLIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
+        echo 'DB:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print \$4}' | sed 's/\.sql\.gz$//'")
+
+    local static_tag=$(echo "$backup_tags" | grep -A1 "^STATIC:" | tail -1)
+    local public_tag=$(echo "$backup_tags" | grep -A1 "^PUBLIC:" | tail -1)
+    local db_tag=$(echo "$backup_tags" | grep -A1 "^DB:" | tail -1)
 
     # Export variables for this session
     export DEPLOY_ENV="$env"
     export DEPLOY_TICKET="$ticket"
-    export DEPLOY_SUFFIX="$suffix"
+    export DEPLOY_PRE_SUFFIX="$pre_suffix"
+    export DEPLOY_POST_SUFFIX="$post_suffix"
+    export DEPLOY_ROLLBACK_STATIC_TAG="$static_tag"
+    export DEPLOY_ROLLBACK_PUBLIC_TAG="$public_tag"
+    export DEPLOY_ROLLBACK_DB_TAG="$db_tag"
 
     print_status $GREEN "✅ Deployment context set"
     echo ""
     echo "Environment variables:"
     echo "  DEPLOY_ENV=$DEPLOY_ENV"
     echo "  DEPLOY_TICKET=$DEPLOY_TICKET"
-    echo "  DEPLOY_SUFFIX=$DEPLOY_SUFFIX"
+    echo "  DEPLOY_PRE_SUFFIX=$DEPLOY_PRE_SUFFIX"
+    echo "  DEPLOY_POST_SUFFIX=$DEPLOY_POST_SUFFIX"
+    echo ""
+    echo "Captured backup tags for rollback:"
+    echo "  DEPLOY_ROLLBACK_STATIC_TAG=$DEPLOY_ROLLBACK_STATIC_TAG"
+    echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=$DEPLOY_ROLLBACK_PUBLIC_TAG"
+    echo "  DEPLOY_ROLLBACK_DB_TAG=$DEPLOY_ROLLBACK_DB_TAG"
     echo ""
     print_status $YELLOW "💡 To use these in your current shell, run:"
     echo ""
     echo "export DEPLOY_ENV='$env'"
     echo "export DEPLOY_TICKET='$ticket'"
-    echo "export DEPLOY_SUFFIX='$suffix'"
+    echo "export DEPLOY_POST_SUFFIX='$post_suffix'"
+    echo "export DEPLOY_PRE_SUFFIX='$pre_suffix'"
+    echo "export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
+    echo "export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
+    echo "export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
 }
 
 # Show current deployment context
@@ -109,6 +141,11 @@ show_context() {
         echo "  DEPLOY_TICKET=\${DEPLOY_TICKET:-(not set)}"
         echo "  DEPLOY_PRE_SUFFIX=\${DEPLOY_PRE_SUFFIX:-(not set)}"
         echo "  DEPLOY_POST_SUFFIX=\${DEPLOY_POST_SUFFIX:-(not set)}"
+        echo ""
+        echo "Rollback tags:"
+        echo "  DEPLOY_ROLLBACK_STATIC_TAG=\${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=\${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_DB_TAG=\${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
     else
         print_status $YELLOW "⚠️  No deployment context set"
         echo ""
@@ -254,16 +291,30 @@ list_backups() {
 
 # Rollback to a specific backup (with confirmation)
 rollback() {
-    local tag="$1"
+    # Allow explicit tag override, otherwise use context
+    local static_tag="${1:-$DEPLOY_ROLLBACK_STATIC_TAG}"
+    local public_tag="${1:-$DEPLOY_ROLLBACK_PUBLIC_TAG}"
+    local db_tag="${1:-$DEPLOY_ROLLBACK_DB_TAG}"
 
-    if [ -z "$tag" ]; then
-        print_status $RED "❌ Error: Backup tag required"
+    # If user provided a tag, use it for all types
+    if [ -n "$1" ]; then
+        static_tag="$1"
+        public_tag="$1"
+        db_tag="$1"
+    fi
+
+    if [ -z "$static_tag" ] || [ -z "$public_tag" ] || [ -z "$db_tag" ]; then
+        print_status $RED "❌ Error: Backup tags required"
         echo "Usage: deploy.sh rollback <tag>"
+        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
         exit 1
     fi
 
     print_status $YELLOW "⚠️  ROLLBACK: This will restore all backup types (static, public, database)"
-    print_status $YELLOW "Backup Tag: $tag"
+    echo "Tags:"
+    echo "  Static: $static_tag"
+    echo "  Public: $public_tag"
+    echo "  DB: $db_tag"
     echo ""
     printf "Continue with rollback? (y/N): "
     read -r confirmation
@@ -274,16 +325,24 @@ rollback() {
     fi
 
     echo ""
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag"
+    print_status $BLUE "Restoring static site..."
+    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $static_tag --only=static"
+
+    print_status $BLUE "Restoring public files..."
+    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $public_tag --only=public"
+
+    print_status $BLUE "Restoring database..."
+    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $db_tag --only=db"
 }
 
 # Rollback static site only (with confirmation)
 rollback_static() {
-    local tag="$1"
+    local tag="${1:-$DEPLOY_ROLLBACK_STATIC_TAG}"
 
     if [ -z "$tag" ]; then
         print_status $RED "❌ Error: Backup tag required"
         echo "Usage: deploy.sh rollback-static <tag>"
+        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
         exit 1
     fi
 
@@ -304,11 +363,12 @@ rollback_static() {
 
 # Rollback database only (with confirmation)
 rollback_db() {
-    local tag="$1"
+    local tag="${1:-$DEPLOY_ROLLBACK_DB_TAG}"
 
     if [ -z "$tag" ]; then
         print_status $RED "❌ Error: Backup tag required"
         echo "Usage: deploy.sh rollback-db <tag>"
+        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
         exit 1
     fi
 
@@ -454,7 +514,7 @@ case "$COMMAND" in
     "motd")
         show_motd
         ;;
-    "changes")
+    "ccb")
         shift
         show_changes "$@"
         ;;
