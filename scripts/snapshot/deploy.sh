@@ -26,6 +26,9 @@ show_usage() {
     echo "Status Commands:"
     echo "  last-backup                           Show when last backup of each type was taken"
     echo "  status                                Show CF target and recent activity"
+    echo "  changes [from] [to]                   Show tickets between two commits/branches"
+    echo "                                        Default: from=prod, to=stage"
+    echo "                                        Uses DEPLOY_ENV if set (e.g., stage vs prod)"
     echo ""
     echo "Deployment Backup Commands:"
     echo "  pre-deploy                            Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
@@ -331,46 +334,98 @@ switch_env() {
     cf target -s "$env"
 }
 
-ccb() {
-    COMMIT_A=${1:-stage}
-    COMMIT_B=${2:-prod}
+# Show what tickets/commits are between two refs (branches, commits, tags)
+show_changes() {
+    local from="${1:-prod}"
+    local to="${2:-stage}"
 
-    if ! git cat-file -t $COMMIT_A > /dev/null; then
-    echo "Commit '$COMMIT_A' not found in this repo"
-    exit 1
+    # Fetch latest from remote to ensure we have current refs
+    print_status $BLUE "🔄 Fetching latest changes..."
+    git fetch --all
+
+    # Validate that both refs exist
+    if ! git cat-file -t "$from" > /dev/null 2>&1; then
+        print_status $RED "❌ Error: '$from' not found in this repo"
+        exit 1
     fi
-    if ! git cat-file -t $COMMIT_B > /dev/null; then
-    echo "Commit '$COMMIT_B' not found in this repo"
-    exit 1
-    fi
-
-    # reorder the inputs by commit time
-    COMMITS_FROM_A=$(git show -s --format="%ct %S" $COMMIT_A)
-    COMMITS_FROM_B=$(git show -s --format="%ct %S" $COMMIT_B)
-    COMMITS_SORTED=$( { echo "$COMMITS_FROM_A" & echo "$COMMITS_FROM_B"; } | sort -n | awk '{print $2}' );
-
-    NEWEST=$(echo "$COMMITS_SORTED" | head -n 1)
-    OLDEST=$(echo "$COMMITS_SORTED" | tail -n 1)
-
-    if [ "$NEWEST" == "$OLDEST" ]; then
-        echo "Commits are the same $NEWEST..$OLDEST"
-        exit 0
+    if ! git cat-file -t "$to" > /dev/null 2>&1; then
+        print_status $RED "❌ Error: '$to' not found in this repo"
+        exit 1
     fi
 
-    echo
-    echo "Tickets between $NEWEST <-> $OLDEST"
-    echo
+    # Find the common ancestor (merge base) to handle non-linear history
+    local merge_base
+    merge_base=$(git merge-base "$from" "$to" 2>/dev/null)
 
-    # the name of the repo shows up as a ticket so we have to explicitly ignore it
-    # branch names have been sloppy so accept anything from "Usa 123" to "usa_123" to "USAGOV-123"
-    # be careful because [-_ 	] has a space and a tab inside of the brackets
-    COMMITS_BETWEEN=$(git log ${NEWEST}..${OLDEST})
-    if [ -z "$COMMITS_BETWEEN" ]; then
-    echo "  ... Same commits"
-    else
-    echo $COMMITS_BETWEEN | grep -Eio 'usa(gov)?[-_ 	]([0-9]+)' | sed -E 's/usa(gov)?[-_ 	]([0-9]+)/USAGOV-\2/ig' | grep -iv usagov-2021 | sort -u
+    if [ -z "$merge_base" ]; then
+        print_status $RED "❌ Error: No common ancestor found between $from and $to"
+        exit 1
     fi
-    echo
+
+    # Check if refs are the same
+    local from_sha
+    local to_sha
+    from_sha=$(git rev-parse "$from")
+    to_sha=$(git rev-parse "$to")
+
+    if [ "$from_sha" = "$to_sha" ]; then
+        print_status $YELLOW "ℹ️  $from and $to point to the same commit"
+        return 0
+    fi
+
+    print_status $BLUE "📋 Changes from $from to $to"
+    echo ""
+
+    # Show commits in 'to' that are not in 'from'
+    # Using --first-parent to follow main branch history and avoid seeing every merged commit
+    local commits_ahead
+    commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+
+    if [ -z "$commits_ahead" ]; then
+        print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
+
+        # Check if 'from' is ahead instead
+        local commits_behind
+        commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+        if [ -n "$commits_behind" ]; then
+            print_status $YELLOW "⚠️  Warning: $to is behind $from by $(echo "$commits_behind" | wc -l | tr -d ' ') commits"
+        fi
+        return 0
+    fi
+
+    # Extract tickets from commit messages
+    # Accept: "Usa 123", "usa_123", "USAGOV-123", etc.
+    # Pattern has space and tab in brackets: [-_ 	]
+    local tickets
+    tickets=$(git log --first-parent "$from..$to" | \
+        grep -Eio 'usa(gov)?[-_ 	]([0-9]+)' | \
+        sed -E 's/usa(gov)?[-_ 	]([0-9]+)/USAGOV-\2/ig' | \
+        grep -iv usagov-2021 | \
+        sort -u)
+
+    if [ -n "$tickets" ]; then
+        echo "Tickets:"
+        echo "$tickets" | while read -r ticket; do
+            echo "  • $ticket"
+        done
+        echo ""
+    fi
+
+    # Show commit count
+    local commit_count
+    commit_count=$(echo "$commits_ahead" | wc -l | tr -d ' ')
+    echo "Total commits: $commit_count"
+    echo ""
+
+    # Show recent commits (last 10)
+    echo "Recent commits:"
+    echo "$commits_ahead" | head -10 | while read -r line; do
+        echo "  $line"
+    done
+
+    if [ "$commit_count" -gt 10 ]; then
+        echo "  ... and $((commit_count - 10)) more"
+    fi
 }
 
 # Main command dispatcher
@@ -389,6 +444,10 @@ case "$COMMAND" in
         ;;
     "status")
         show_status
+        ;;
+    "changes")
+        shift
+        show_changes "$@"
         ;;
     "pre-deploy")
         pre_deploy
