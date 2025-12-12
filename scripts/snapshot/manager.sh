@@ -107,6 +107,9 @@ show_usage() {
     echo "  $0 info                                                # Show backup system configuration"
     echo "  $0 restore AUTO-prod-14850-2025-10-28                   # Restore all from backup"
     echo "  $0 download AUTO-prod-14850-2025-10-28 db ./backups/    # Download db to ./backups/"
+    echo "  "
+    echo "Note: Restored static files are set to public-read ACL for nginx access."
+    echo "      Browser caches may take up to 15 minutes to refresh cached content."
 }
 
 # ===================================================================
@@ -1545,7 +1548,7 @@ restore_backup() {
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS; then
             # Sync theme assets from current container to match deployed code version
             # Theme assets (logos, fonts, images) are part of the codebase, not dynamic content
             # So we need to ensure S3 has the current version from the container
@@ -1562,7 +1565,7 @@ restore_backup() {
                 cp -rfp /var/www/web/themes/custom/usagov/assets "$THEME_TMP_DIR/themes/custom/usagov/" 2>/dev/null || true
 
                 # Sync theme assets to S3
-                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" $S3_EXTRA_PARAMS 2>&1; then
+                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" --acl public-read $S3_EXTRA_PARAMS 2>&1; then
                     print_status $GREEN "✅ Theme assets synced"
                 else
                     print_status $YELLOW "⚠️ Theme asset sync had issues (non-fatal)"
@@ -1574,7 +1577,8 @@ restore_backup() {
                 print_status $YELLOW "⚠️ Theme directory not found, skipping asset sync"
             fi
 
-        print_status $GREEN "✅ Static site restored"
+            print_status $GREEN "✅ Static site restored"
+            print_status $YELLOW "ℹ️  Note: Browser caches may take up to 15 minutes to refresh"
         else
             print_status $RED "❌ ERROR: Static site restore failed"
             exit 1
