@@ -52,6 +52,15 @@ show_usage() {
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
     echo "  snapshot-db [suffix]                  Quick database-only backup"
     echo ""
+    echo "Validation Commands:"
+    echo "  validate [--only=app1,app2] [--commit=sha] [--skip-http]"
+    echo "                                        Validate deployment was successful"
+    echo "                                        Default: validates all apps (cms, www)"
+    echo "                                        Options:"
+    echo "                                          --only=cms,www    Validate specific apps only"
+    echo "                                          --commit=<sha>    Expected commit (default: HEAD)"
+    echo "                                          --skip-http       Skip HTTP endpoint checks"
+    echo ""
     echo "Environment Management:"
     echo "  switch <env>                          Switch cf target to environment"
     echo ""
@@ -494,6 +503,195 @@ show_changes() {
     fi
 }
 
+# Validate deployment
+validate_deployment() {
+    local only_apps=""
+    local expected_commit=""
+    local skip_http=false
+
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --only=*)
+                only_apps="${1#*=}"
+                shift
+                ;;
+            --commit=*)
+                expected_commit="${1#*=}"
+                shift
+                ;;
+            --skip-http)
+                skip_http=true
+                shift
+                ;;
+            *)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: validate [--only=app1,app2] [--commit=sha] [--skip-http]"
+                return 1
+                ;;
+        esac
+    done
+
+    # Default to current HEAD if no commit specified
+    if [ -z "$expected_commit" ]; then
+        expected_commit=$(git rev-parse HEAD 2>/dev/null)
+        if [ -z "$expected_commit" ]; then
+            print_status $YELLOW "⚠️  Could not determine current commit (not in git repo)"
+            expected_commit="unknown"
+        fi
+    fi
+
+    # Determine which apps to validate
+    local apps_to_validate
+    if [ -n "$only_apps" ]; then
+        apps_to_validate="$only_apps"
+    else
+        # Default: validate both cms and www
+        apps_to_validate="cms,www"
+    fi
+
+    print_status $BLUE "🔍 Validating deployment..."
+    echo "Expected commit: ${expected_commit:0:8}"
+    echo "Apps to validate: $apps_to_validate"
+    echo ""
+
+    local overall_success=true
+
+    # Split comma-separated apps and validate each
+    echo "$apps_to_validate" | tr ',' '\n' | while read -r app; do
+        [ -z "$app" ] && continue
+
+        print_status $BLUE "📦 Validating app: $app"
+        echo "----------------------------------------"
+
+        # Check if app exists and is running
+        local app_info
+        app_info=$(cf app "$app" 2>&1)
+
+        if [ $? -ne 0 ]; then
+            print_status $RED "❌ App '$app' not found or not accessible"
+            overall_success=false
+            echo ""
+            continue
+        fi
+
+        # Check app state
+        local app_state
+        app_state=$(echo "$app_info" | grep "^requested state:" | awk '{print $3}')
+
+        if [ "$app_state" != "started" ]; then
+            print_status $RED "❌ App is not started (state: $app_state)"
+            overall_success=false
+        else
+            print_status $GREEN "✅ App is started"
+        fi
+
+        # Check instances
+        local instances_info
+        instances_info=$(echo "$app_info" | grep "^instances:")
+
+        if echo "$instances_info" | grep -q "running"; then
+            local running_count
+            running_count=$(echo "$instances_info" | grep -o "running" | wc -l | tr -d ' ')
+            print_status $GREEN "✅ $running_count instance(s) running"
+        else
+            print_status $RED "❌ No running instances"
+            overall_success=false
+        fi
+
+        # Check deployed commit SHA
+        local deployed_commit
+        deployed_commit=$(cf ssh "$app" -c "cd /var/www && git rev-parse HEAD 2>/dev/null || echo 'unknown'" 2>/dev/null | tail -1 | tr -d '\r')
+
+        if [ "$deployed_commit" = "unknown" ] || [ -z "$deployed_commit" ]; then
+            print_status $YELLOW "⚠️  Could not determine deployed commit (git not available in container)"
+        elif [ "$expected_commit" = "unknown" ]; then
+            print_status $YELLOW "⚠️  Deployed commit: ${deployed_commit:0:8} (cannot verify - expected commit unknown)"
+        elif [ "$deployed_commit" = "$expected_commit" ]; then
+            print_status $GREEN "✅ Deployed commit matches expected: ${deployed_commit:0:8}"
+        else
+            print_status $RED "❌ Commit mismatch!"
+            echo "   Expected: ${expected_commit:0:8}"
+            echo "   Deployed: ${deployed_commit:0:8}"
+            overall_success=false
+        fi
+
+        # HTTP endpoint check (if not skipped)
+        if [ "$skip_http" = false ]; then
+            local app_url
+            app_url=$(cf app "$app" | grep "^routes:" | awk '{print $2}' | head -1)
+
+            if [ -n "$app_url" ]; then
+                local http_status
+                http_status=$(curl -s -o /dev/null -w "%{http_code}" -L "https://$app_url" --max-time 10 2>/dev/null)
+
+                if [ "$http_status" = "200" ]; then
+                    print_status $GREEN "✅ HTTP endpoint responding (200)"
+                elif [ -n "$http_status" ]; then
+                    print_status $YELLOW "⚠️  HTTP endpoint returned: $http_status"
+                else
+                    print_status $RED "❌ HTTP endpoint not responding"
+                    overall_success=false
+                fi
+            else
+                print_status $YELLOW "⚠️  Could not determine app URL for HTTP check"
+            fi
+        fi
+
+        echo ""
+    done
+
+    # Check if pre-deploy backups were created (if context is set)
+    if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ] || [ -n "$DEPLOY_ROLLBACK_PUBLIC_TAG" ] || [ -n "$DEPLOY_ROLLBACK_DB_TAG" ]; then
+        print_status $BLUE "📦 Checking pre-deploy backups..."
+        echo "----------------------------------------"
+
+        local backup_check_failed=false
+
+        if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ]; then
+            if "$SCRIPT_DIR/manager.sh" info static "$DEPLOY_ROLLBACK_STATIC_TAG" >/dev/null 2>&1; then
+                print_status $GREEN "✅ Static backup exists: $DEPLOY_ROLLBACK_STATIC_TAG"
+            else
+                print_status $RED "❌ Static backup not found: $DEPLOY_ROLLBACK_STATIC_TAG"
+                backup_check_failed=true
+            fi
+        fi
+
+        if [ -n "$DEPLOY_ROLLBACK_PUBLIC_TAG" ]; then
+            if "$SCRIPT_DIR/manager.sh" info public "$DEPLOY_ROLLBACK_PUBLIC_TAG" >/dev/null 2>&1; then
+                print_status $GREEN "✅ Public backup exists: $DEPLOY_ROLLBACK_PUBLIC_TAG"
+            else
+                print_status $RED "❌ Public backup not found: $DEPLOY_ROLLBACK_PUBLIC_TAG"
+                backup_check_failed=true
+            fi
+        fi
+
+        if [ -n "$DEPLOY_ROLLBACK_DB_TAG" ]; then
+            if "$SCRIPT_DIR/manager.sh" info db "$DEPLOY_ROLLBACK_DB_TAG" >/dev/null 2>&1; then
+                print_status $GREEN "✅ Database backup exists: $DEPLOY_ROLLBACK_DB_TAG"
+            else
+                print_status $RED "❌ Database backup not found: $DEPLOY_ROLLBACK_DB_TAG"
+                backup_check_failed=true
+            fi
+        fi
+
+        if [ "$backup_check_failed" = true ]; then
+            overall_success=false
+        fi
+
+        echo ""
+    fi
+
+    # Final summary
+    if [ "$overall_success" = true ]; then
+        print_status $GREEN "✅ Deployment validation PASSED"
+        return 0
+    else
+        print_status $RED "❌ Deployment validation FAILED"
+        return 1
+    fi
+}
+
 # Main command dispatcher
 COMMAND="${1:-}"
 
@@ -551,6 +749,10 @@ case "$COMMAND" in
     "switch")
         shift
         switch_env "$@"
+        ;;
+    "validate")
+        shift
+        validate_deployment "$@"
         ;;
     "help"|"--help"|"-h"|"")
         show_usage
