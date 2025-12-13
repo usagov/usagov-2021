@@ -159,14 +159,13 @@ if service_exists "secrets" ; then
   fi
 fi
 
-# Enable call center / cfevents  scripts on prod only. (We can manually update this in dev, etc. for testing)
+# Enable some actions on prod only. (We can manually update env vars in dev, etc. for testing)
 if [ $SPACE = "prod" ]; then
     cf set-env $APPNAME CALL_CENTER_RUN "true"
     cf set-env $APPNAME CFEVENT_RUN "true"
 
-    cf bind-service cms s3forAnalyticsReporter
-    cf bind-service cron log-storage
-
+    # The cron app needs to be able to access the log-storage bucket in
+    # order to trim logs.
     if cf services | grep -q '^log-storage'; then
       echo "log-storage is available in prod (shared already)"
     else
@@ -175,6 +174,8 @@ if [ $SPACE = "prod" ]; then
       cf share-service log-storage -s prod
       cf target -o gsa-tts-usagov -s prod
     fi
+    cf bind-service cron log-storage
+
 fi
 
 cf restage $APPNAME --strategy rolling
