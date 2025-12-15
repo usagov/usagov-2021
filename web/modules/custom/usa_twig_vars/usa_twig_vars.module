@@ -301,7 +301,7 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
 
         // Skip if context language doesn't match current language.
         // Allow config_pages with no language context (NULL) to appear on all pages.
-        if ($context_language !== NULL && $context_language !== $site_language) {
+        if ($context_language !== $site_language) {
           continue;
         }
 

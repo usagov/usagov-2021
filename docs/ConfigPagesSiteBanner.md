@@ -41,7 +41,8 @@ When using `{{ drupal_entity('paragraph', id) }}` in Twig templates:
 - Config_pages uses a **context field** (not entity langcode) to store language-specific data
 - When language context is enabled, the context field contains serialized data like: `a:1:{i:0;a:1:{s:8:"language";s:2:"en";}}`
 - The preprocess function extracts and checks the language from the context field
-- Config_pages with `NULL` context language appear on all language variants
+- Site banners with `NULL` context language will not be displayed
+- Editors cannot create site banners without language context anyway
 - Config_pages with `en` context appear only on English pages
 - Config_pages with `es` context appear only on Spanish pages
 - Each language version is a separate config_pages entity, managed independently through the context system
