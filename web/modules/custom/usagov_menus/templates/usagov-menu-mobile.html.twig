@@ -164,7 +164,15 @@
             {% endif %}
 
             {# Show the first item and up to 3 items at the end of the active trail #}
-            {% if loop.index == 1 or loop.index + 3 > active_trail|length %}
+            {# For blog menu, detect by checking if first item has /blog URL and show ALL items #}
+            {% set is_blog_menu = active_trail[0].url is defined and '/blog' in active_trail[0].url|render|striptags %}
+            {% if is_blog_menu %}
+              {% set show_this_item = true %}
+            {% else %}
+              {% set show_this_item = (loop.index == 1 or loop.index + 3 > active_trail|length) %}
+            {% endif %}
+
+            {% if show_this_item %}
               {% if found_active_item and not active_item_has_children and loop.index == active_trail|length %}
                 {# The current page has no children, so we should show its siblings instead #}
                 <li class="navigation__item">
@@ -185,15 +193,46 @@
               {% else %}
                 <li class="navigation__item{{ class }}">
                   <a href="{{ menu_item.active ? "#" : menu_item.url }}">{{ menu_item.title }}</a>
-                  {# Show any children of the active item #}
-                  {% if menu_item.active and menu_item.below is not empty %}
-                    <ul class="navigation__items children">
-                      {% for child in menu_item.below %}
-                        <li class="navigation__item child">
-                          <a href="{{ child.url }}">{{ child.title }}</a>
-                        </li>
-                      {% endfor %}
-                    </ul>
+                  {# Show children - for blog menu, show ALL children even if not active #}
+                  {% if menu_item.below is not empty %}
+                    {% if is_blog_menu %}
+                      {# Blog menu - show all years with custom structure #}
+                      <ul class="navigation__items children">
+                        {% for child in menu_item.below %}
+                          {# Year items - add active class if this is the active year #}
+                          <li class="navigation__item child blog-year{% if child.active %} active{% endif %}">
+                            <a href="{{ child.url }}" style="padding-left: 1rem;">{{ child.title }}</a>
+                          </li>
+                          {# If this year is in active trail or active, show its months #}
+                          {% if (child.in_active_trail or child.active) and child.below is not empty %}
+                            {% for grandchild in child.below %}
+                              {# Month items - only show indicator if month page is active #}
+                              <li class="navigation__item child blog-month{% if grandchild.active %} active{% endif %}">
+                                <a href="{{ grandchild.url }}" style="padding-left: 2rem;">{{ grandchild.title }}</a>
+                              </li>
+                              {# Show posts if this month is active #}
+                              {% if grandchild.in_active_trail and grandchild.below is not empty %}
+                                {% for post in grandchild.below %}
+                                  {# Post items - add active class if this is the active post #}
+                                  <li class="navigation__item child blog-post{% if post.active %} active{% endif %}">
+                                    <a href="{{ post.url }}" style="padding-left: 3rem;">{{ post.title }}</a>
+                                  </li>
+                                {% endfor %}
+                              {% endif %}
+                            {% endfor %}
+                          {% endif %}
+                        {% endfor %}
+                      </ul>
+                    {% elseif menu_item.active %}
+                      {# Non-blog menu - only show children if active #}
+                      <ul class="navigation__items children">
+                        {% for child in menu_item.below %}
+                          <li class="navigation__item child">
+                            <a href="{{ child.url }}">{{ child.title }}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
                   {% endif %}
 
                   {# Show the current page if this is the last iteration but the active item was never found #}
