@@ -23,6 +23,7 @@ ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
+BACKUP_THROTTLE_HOURS=${BACKUP_THROTTLE_HOURS:-4}
 
 show_usage() {
     echo "Usage: $0 <command> [options]"
@@ -31,6 +32,7 @@ show_usage() {
     echo "  list [types] [days|start:end]            List backups (default: all types, 30 days)"
     echo "  backup [types] [prefix] [suffix]         Create backups (default: all types, AUTO prefix)"
     echo "                [--skip-state-management|--ssm]  Use --skip-state-management (or --ssm) to skip Drupal state checks"
+    echo "                [--throttle]                     Skip backup if one exists within BACKUP_THROTTLE_HOURS (default: 4)"
     echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
     echo "  delete <tag> [types] [-y]                Delete specific backup by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
@@ -162,12 +164,15 @@ run_backup_command() {
     local custom_prefix="${2:-}"
     local custom_suffix="${3:-}"
     local skip_state_management=false
+    local enable_throttle=false
 
-    # Check for --skip-state-management (or --ssm) flag in any position after the first 3 params
+    # Check for flags in any position after the first 3 params
     shift 3 2>/dev/null || true
     for arg in "$@"; do
         if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
             skip_state_management=true
+        elif [ "$arg" = "--throttle" ]; then
+            enable_throttle=true
         fi
     done
 
@@ -209,14 +214,36 @@ run_backup_command() {
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
-        print_status $GREEN "🌐 Backing up static site..."
-        create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        # Check throttle if enabled
+        if [ "$enable_throttle" = true ]; then
+            local age_hours=$(get_last_backup_age_hours "static")
+            if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
+                print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+            else
+                print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
+                create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            fi
+        else
+            print_status $GREEN "🌐 Backing up static site..."
+            create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        fi
     fi
 
     # Run public backup if requested
     if has_backup_type "$backup_types" "public"; then
-        print_status $GREEN "📁 Backing up public files..."
-        create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        # Check throttle if enabled
+        if [ "$enable_throttle" = true ]; then
+            local age_hours=$(get_last_backup_age_hours "public")
+            if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
+                print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+            else
+                print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
+                create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            fi
+        else
+            print_status $GREEN "📁 Backing up public files..."
+            create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        fi
     fi
 
     # Run database backup if requested
@@ -854,6 +881,68 @@ backup_all() {
         print_status $RED "❌ Some backups failed ($success_count/$total_count ok)"
         return 1
     fi
+}
+
+# Get age in hours of the most recent backup for a given type
+# Args:
+#   $1: backup_type - Type of backup to check (static, public, db)
+# Returns:
+#   Age in hours of most recent backup, or 999 if no backups exist
+get_last_backup_age_hours() {
+    local backup_type="$1"
+    setup_s3_vars || return 999
+
+    local s3_path=""
+    case "$backup_type" in
+        static)
+            s3_path="s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/"
+            ;;
+        public)
+            s3_path="s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/"
+            ;;
+        db)
+            s3_path="s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/"
+            ;;
+        *)
+            return 999
+            ;;
+    esac
+
+    # Get the most recent backup's LastModified timestamp
+    # For directories (static/public), get the most recent directory
+    # For db, get the most recent .sql.gz file
+    local last_modified=""
+
+    if [ "$backup_type" = "db" ]; then
+        # For database backups, look for .sql.gz files
+        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep '\.sql\.gz$' | sort -r | head -n 1 | awk '{print $1, $2}')
+    else
+        # For static/public, look for directories (PRE)
+        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | sort -r | head -n 1 | awk '{print $1, $2}')
+    fi
+
+    if [ -z "$last_modified" ]; then
+        # No backups found
+        echo 999
+        return 0
+    fi
+
+    # Parse the date and time from S3 ls output (format: "2025-12-18 14:30:00")
+    # Convert to epoch seconds
+    local backup_epoch=$(date -d "$last_modified" +%s 2>/dev/null || date -j -f "%Y-%m-%d %H:%M:%S" "$last_modified" +%s 2>/dev/null)
+    local current_epoch=$(date +%s)
+
+    if [ -z "$backup_epoch" ]; then
+        # Date parsing failed
+        echo 999
+        return 0
+    fi
+
+    # Calculate age in hours
+    local age_seconds=$((current_epoch - backup_epoch))
+    local age_hours=$((age_seconds / 3600))
+
+    echo "$age_hours"
 }
 
 list_backups() {
