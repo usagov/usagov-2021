@@ -32,6 +32,7 @@ show_usage() {
     echo "  backup [types] [prefix] [suffix]         Create backups (default: all types, AUTO prefix)"
     echo "                [--skip-state-management|--ssm]  Use --skip-state-management (or --ssm) to skip Drupal state checks"
     echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
+    echo "  delete <tag> [types] [-y]                Delete specific backup by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
     echo "  info [types] [tag]                       Show backup system info or specific backup details"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
@@ -102,6 +103,11 @@ show_usage() {
     echo "  # Delete ALL backups (dangerous!)"
     echo "  $0 clean all 0                                         # ⚠️  DELETE ALL (requires confirmation)"
     echo "  $0 clean all all                                       # ⚠️  DELETE ALL (same as above)"
+    echo "  "
+    echo "  # Delete specific backups by name"
+    echo "  $0 delete TEST-dev-14913-2025-12-12-acl-test-0         # Delete all types for this tag"
+    echo "  $0 delete AUTO-prod-14850-2025-10-28 static            # Delete only static backup"
+    echo "  $0 delete AUTO-dev-123-2025-01-15 static,db -y         # Delete static and db (no confirm)"
     echo "  "
     echo "  # Other commands"
     echo "  $0 info                                                # Show backup system configuration"
@@ -1269,6 +1275,128 @@ cleanup_all_old_backups() {
     print_status $GREEN "✅ All backup cleanup completed."
 }
 
+# Delete a specific backup by tag name
+# Args:
+#   $1: backup_tag - The backup tag to delete
+#   $2: types - Backup types to delete (default: all)
+#   $3: non_interactive - Flag to skip confirmation (-y or --non-interactive)
+delete_backup() {
+    local backup_tag="$1"
+    local types_arg="${2:-all}"
+    local non_interactive="${3:-}"
+
+    if [ -z "$backup_tag" ]; then
+        print_status $RED "❌ Error: Backup tag required"
+        echo "Usage: $0 delete <tag> [types] [-y]"
+        echo "Example: $0 delete AUTO-dev-123-2025-01-15 static,db"
+        exit 1
+    fi
+
+    setup_s3_vars || exit 1
+
+    local backup_types=$(parse_backup_types "$types_arg")
+    local types_deleted=0
+    local types_not_found=0
+
+    print_status $BLUE "🗑️  Deleting backup: $backup_tag"
+
+    # Check what exists and confirm deletion
+    local items_to_delete=""
+
+    if has_backup_type "$backup_types" "static"; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            items_to_delete="${items_to_delete}  - Static site backup\n"
+        fi
+    fi
+
+    if has_backup_type "$backup_types" "public"; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            items_to_delete="${items_to_delete}  - Public files backup\n"
+        fi
+    fi
+
+    if has_backup_type "$backup_types" "db"; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            items_to_delete="${items_to_delete}  - Database backup\n"
+        fi
+    fi
+
+    if [ -z "$items_to_delete" ]; then
+        print_status $YELLOW "⚠️  No backups found for tag: $backup_tag"
+        return 0
+    fi
+
+    # Show what will be deleted
+    echo ""
+    print_status $YELLOW "The following backups will be deleted:"
+    printf "$items_to_delete"
+    echo ""
+
+    # Confirm deletion unless non-interactive
+    if [ "$non_interactive" != "-y" ] && [ "$non_interactive" != "--non-interactive" ]; then
+        printf "${YELLOW}Are you sure you want to delete these backups? (yes/no): ${NC}"
+        read -r confirmation
+        if [ "$confirmation" != "yes" ]; then
+            print_status $YELLOW "Deletion cancelled."
+            return 0
+        fi
+    fi
+
+    # Delete static backup
+    if has_backup_type "$backup_types" "static"; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            print_status $YELLOW "Deleting static site backup..."
+            if aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                print_status $GREEN "✅ Static backup deleted"
+                types_deleted=$((types_deleted + 1))
+            else
+                print_status $RED "❌ Failed to delete static backup"
+            fi
+        else
+            types_not_found=$((types_not_found + 1))
+        fi
+    fi
+
+    # Delete public backup
+    if has_backup_type "$backup_types" "public"; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            print_status $YELLOW "Deleting public files backup..."
+            if aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                print_status $GREEN "✅ Public files backup deleted"
+                types_deleted=$((types_deleted + 1))
+            else
+                print_status $RED "❌ Failed to delete public files backup"
+            fi
+        else
+            types_not_found=$((types_not_found + 1))
+        fi
+    fi
+
+    # Delete database backup
+    if has_backup_type "$backup_types" "db"; then
+        if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            print_status $YELLOW "Deleting database backup..."
+            if aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz --only-show-errors $S3_EXTRA_PARAMS; then
+                print_status $GREEN "✅ Database backup deleted"
+                types_deleted=$((types_deleted + 1))
+            else
+                print_status $RED "❌ Failed to delete database backup"
+            fi
+        else
+            types_not_found=$((types_not_found + 1))
+        fi
+    fi
+
+    # Summary
+    if [ $types_deleted -gt 0 ]; then
+        print_status $GREEN "✅ Backup deletion completed: $types_deleted type(s) deleted"
+    fi
+
+    if [ $types_not_found -gt 0 ]; then
+        print_status $YELLOW "⚠️  $types_not_found type(s) not found"
+    fi
+}
+
 # Find corresponding public backup for smart restore
 find_corresponding_public_backup() {
     local static_backup_tag=$1
@@ -2010,6 +2138,10 @@ case "${1:-}" in
     "clean")
         # clean [types] [days] [-y|--non-interactive] - e.g., "clean all 30" or "clean db 7 -y"
         run_clean_command "$2" "$3" "$4"
+        ;;
+    "delete")
+        # delete <tag> [types] [-y] - e.g., "delete AUTO-dev-123-2025-01-15" or "delete TEST-backup-0 static -y"
+        delete_backup "$2" "$3" "$4"
         ;;
     "restore")
         # restore
