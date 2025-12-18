@@ -1206,7 +1206,7 @@ clean_old_backups() {
             backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             if [ -n "$backup_name" ]; then
                 print_status $YELLOW "Removing static site backup: $backup_name"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         done
 
@@ -1215,7 +1215,7 @@ clean_old_backups() {
             backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             if [ -n "$backup_name" ]; then
                 print_status $YELLOW "Removing public files backup: $backup_name"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         done
 
@@ -1234,7 +1234,7 @@ clean_old_backups() {
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 print_status $YELLOW "Removing static site backup: $backup_name (date: $backup_date)"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         fi
     done
@@ -1247,7 +1247,7 @@ clean_old_backups() {
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 print_status $YELLOW "Removing public files backup: $backup_name (date: $backup_date)"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         fi
     done
@@ -1548,7 +1548,7 @@ restore_backup() {
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete --acl public-read $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
             # Sync theme assets from current container to match deployed code version
             # Theme assets (logos, fonts, images) are part of the codebase, not dynamic content
             # So we need to ensure S3 has the current version from the container
@@ -1565,7 +1565,7 @@ restore_backup() {
                 cp -rfp /var/www/web/themes/custom/usagov/assets "$THEME_TMP_DIR/themes/custom/usagov/" 2>/dev/null || true
 
                 # Sync theme assets to S3
-                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" --acl public-read $S3_EXTRA_PARAMS 2>&1; then
+                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" --only-show-errors --acl public-read $S3_EXTRA_PARAMS 2>&1; then
                     print_status $GREEN "✅ Theme assets synced"
                 else
                     print_status $YELLOW "⚠️ Theme asset sync had issues (non-fatal)"
@@ -1588,7 +1588,7 @@ restore_backup() {
     # Restore public files
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring public files..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete $S3_EXTRA_PARAMS; then
             print_status $GREEN "✅ Public files restored"
             # Refresh S3FS metadata cache so Drupal sees the restored files
             if command -v drush >/dev/null 2>&1; then
@@ -1919,7 +1919,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar, stream, cleanup
                 temp_dir=$(mktemp -d)
-                aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
+                aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
                 rm -rf "$temp_dir"
             else
@@ -1932,7 +1932,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar.gz, move to output
                 temp_dir=$(mktemp -d)
-                if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS; then
+                if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS; then
                     tar -czf "$output_file" -C "$temp_dir" .
                     rm -rf "$temp_dir"
                     log_message "✅ Static backup saved: $output_file"
@@ -1958,7 +1958,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar, stream, cleanup
                 temp_dir=$(mktemp -d)
-                aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
+                aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
                 rm -rf "$temp_dir"
             else
@@ -1971,7 +1971,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar.gz, move to output
                 temp_dir=$(mktemp -d)
-                if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS; then
+                if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS; then
                     tar -czf "$output_file" -C "$temp_dir" .
                     rm -rf "$temp_dir"
                     log_message "✅ Public backup saved: $output_file"
