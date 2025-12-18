@@ -38,3 +38,6 @@ parameters:
                 class: Drupal\paragraphs\Entity\Paragraph
             paragraphs_type:
                 class: Drupal\paragraphs\Entity\ParagraphsType
+            config_pages:
+                class: Drupal\config_pages\Entity\ConfigPages
+                storage: Drupal\config_pages\ConfigPagesStorage
