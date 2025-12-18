@@ -1,0 +1,5 @@
+name: 'USAGov Extra Functions'
+description: 'Miscellaneous helper functions and update hooks for USAGov'
+type: module
+core_version_requirement: ^9 || ^10
+package: USAGov
