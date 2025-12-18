@@ -1372,7 +1372,7 @@ cleanup_all_old_backups() {
 #   -y|--non-interactive - Flag to skip confirmation
 delete_backup() {
     # Parse arguments to separate tags from types and flags
-    local tags=()
+    local tags=""
     local types_arg="all"
     local non_interactive=""
 
@@ -1389,14 +1389,18 @@ delete_backup() {
                 shift
                 ;;
             *)
-                # Assume it's a tag
-                tags+=("$1")
+                # Assume it's a tag - append to space-separated list
+                if [ -z "$tags" ]; then
+                    tags="$1"
+                else
+                    tags="$tags $1"
+                fi
                 shift
                 ;;
         esac
     done
 
-    if [ ${#tags[@]} -eq 0 ]; then
+    if [ -z "$tags" ]; then
         print_status $RED "❌ Error: At least one backup tag required"
         echo "Usage: $0 delete <tag> [tag2 tag3...] [types] [-y]"
         echo "Example: $0 delete AUTO-dev-123-2025-01-15 static,db"
@@ -1407,15 +1411,20 @@ delete_backup() {
     setup_s3_vars || exit 1
 
     local backup_types=$(parse_backup_types "$types_arg")
-    local total_tags=${#tags[@]}
+    local total_tags=0
     local current_tag=0
     local types_deleted=0
     local types_not_found=0
     local items_to_delete=""
     local backup_tag=""
+    
+    # Count total tags
+    for tag in $tags; do
+        total_tags=$((total_tags + 1))
+    done
 
     # Process each tag
-    for backup_tag in "${tags[@]}"; do
+    for backup_tag in $tags; do
         current_tag=$((current_tag + 1))
         types_deleted=0
         types_not_found=0
