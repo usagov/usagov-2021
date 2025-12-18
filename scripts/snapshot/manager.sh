@@ -1409,12 +1409,16 @@ delete_backup() {
     local backup_types=$(parse_backup_types "$types_arg")
     local total_tags=${#tags[@]}
     local current_tag=0
+    local types_deleted=0
+    local types_not_found=0
+    local items_to_delete=""
+    local backup_tag=""
 
     # Process each tag
     for backup_tag in "${tags[@]}"; do
         current_tag=$((current_tag + 1))
-        local types_deleted=0
-        local types_not_found=0
+        types_deleted=0
+        types_not_found=0
 
         if [ $total_tags -gt 1 ]; then
             print_status $BLUE "🗑️  Deleting backup ($current_tag/$total_tags): $backup_tag"
@@ -1423,7 +1427,7 @@ delete_backup() {
         fi
 
         # Check what exists and confirm deletion
-        local items_to_delete=""
+        items_to_delete=""
 
         if has_backup_type "$backup_types" "static"; then
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
