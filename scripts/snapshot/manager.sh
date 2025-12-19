@@ -162,19 +162,33 @@ get_days_arg() {
 # Handle backup command
 run_backup_command() {
     local types_arg="${1:-all}"
-    local custom_prefix="${2:-}"
-    local custom_suffix="${3:-}"
+    local custom_prefix=""
+    local custom_suffix=""
     local skip_state_management=false
     local enable_throttle=false
 
-    # Check for flags in any position after the first 3 params
-    shift 3 2>/dev/null || true
-    for arg in "$@"; do
-        if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
-            skip_state_management=true
-        elif [ "$arg" = "--throttle" ]; then
-            enable_throttle=true
-        fi
+    # Parse all arguments to separate flags from positional params
+    shift  # Remove types_arg
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --skip-state-management|--ssm)
+                skip_state_management=true
+                shift
+                ;;
+            --throttle)
+                enable_throttle=true
+                shift
+                ;;
+            *)
+                # Positional argument - first is prefix, second is suffix
+                if [ -z "$custom_prefix" ]; then
+                    custom_prefix="$1"
+                elif [ -z "$custom_suffix" ]; then
+                    custom_suffix="$1"
+                fi
+                shift
+                ;;
+        esac
     done
 
     local backup_types=$(parse_backup_types "$types_arg")
@@ -1417,7 +1431,7 @@ delete_backup() {
     local types_not_found=0
     local items_to_delete=""
     local backup_tag=""
-    
+
     # Count total tags
     for tag in $tags; do
         total_tags=$((total_tags + 1))
