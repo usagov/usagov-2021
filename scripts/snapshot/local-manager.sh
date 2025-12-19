@@ -22,11 +22,12 @@ show_usage() {
     echo "Usage: local-manager.sh <command> [options]"
     echo ""
     echo "Commands:"
-    echo "  list [types] [days]                    List backups on CF (default: all types, 30 days)"
-    echo "  backup [types] [prefix] [suffix]       Create backups on CF (default: all types, AUTO prefix)"
-    echo "  clean [types] [days|all|0] [-y]        Remove old backups on CF (default: all types, 30 days)"
-    echo "                                         Use -y or --non-interactive to skip confirmation"
-    echo "  restore <tag> [--only=type,type]       Restore backups on CF (interactive)"
+    echo "  list [types] [days]                      List backups on CF (default: all types, 30 days)"
+    echo "  backup [types] [prefix] [suffix]         Create backups on CF (default: all types, AUTO prefix)"
+    echo "  clean [types] [days|all|0] [-y]          Remove old backups on CF (default: all types, 30 days)"
+    echo "                                           Use -y or --non-interactive to skip confirmation"
+    echo "  delete <tag> [tag2 tag3...] [types] [-y] Delete specific backup(s) by tag name (default: all types)"
+    echo "  restore <tag> [--only=type,type]         Restore backups on CF (interactive)"
     echo "  info [types] [tag]                     Show backup info from CF (config or specific backup)"
     echo "  download <tag> [type] [output-dir]     Download backups to local (default: all types, current dir)"
     echo "  test                                   Run backup system test suite on CF"
@@ -56,6 +57,9 @@ show_usage() {
     echo "  local-manager.sh list db 7                                             # List db backups (last 7 days)"
     echo "  local-manager.sh backup all USAGOV-123 pre-deploy                      # Create backup with custom tags"
     echo "  local-manager.sh clean db 30                                           # Clean db backups older than 30 days"
+    echo "  local-manager.sh delete AUTO-dev-123-2025-01-15                        # Delete specific backup (all types)"
+    echo "  local-manager.sh delete AUTO-dev-123-2025-01-15 static,db -y          # Delete static+db (no confirm)"
+    echo "  local-manager.sh delete TAG1 TAG2 TAG3 all -y                          # Delete multiple backups at once"
     echo "  local-manager.sh info                                                  # Show backup system configuration"
     echo "  local-manager.sh info db AUTO-prod-14850-2025-10-28                    # Show specific backup details"
     echo "  local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/    # Download all"
@@ -257,6 +261,11 @@ case "$COMMAND" in
     "clean")
         # clean [types] [days]
         remote_command clean "$2" "$3"
+        ;;
+    "delete")
+        # delete <tag> [tag2 tag3...] [types] [-y]
+        shift
+        remote_command delete "$@"
         ;;
     "restore")
         # restore <tag> [options]

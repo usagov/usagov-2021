@@ -23,6 +23,7 @@ ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
 ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
+BACKUP_THROTTLE_HOURS=${BACKUP_THROTTLE_HOURS:-4}
 
 show_usage() {
     echo "Usage: $0 <command> [options]"
@@ -31,7 +32,9 @@ show_usage() {
     echo "  list [types] [days|start:end]            List backups (default: all types, 30 days)"
     echo "  backup [types] [prefix] [suffix]         Create backups (default: all types, AUTO prefix)"
     echo "                [--skip-state-management|--ssm]  Use --skip-state-management (or --ssm) to skip Drupal state checks"
+    echo "                [--throttle]                     Skip backup if one exists within BACKUP_THROTTLE_HOURS (default: 4)"
     echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
+    echo "  delete <tag> [tag2 tag3...] [types] [-y]    Delete specific backup(s) by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
     echo "  info [types] [tag]                       Show backup system info or specific backup details"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
@@ -103,10 +106,19 @@ show_usage() {
     echo "  $0 clean all 0                                         # ⚠️  DELETE ALL (requires confirmation)"
     echo "  $0 clean all all                                       # ⚠️  DELETE ALL (same as above)"
     echo "  "
+    echo "  # Delete specific backups by name"
+    echo "  $0 delete TEST-dev-14913-2025-12-12-acl-test-0         # Delete all types for this tag"
+    echo "  $0 delete AUTO-prod-14850-2025-10-28 static            # Delete only static backup"
+    echo "  $0 delete AUTO-dev-123-2025-01-15 static,db -y         # Delete static and db (no confirm)"
+    echo "  $0 delete TAG1 TAG2 TAG3 all -y                        # Delete multiple backups at once"
+    echo "  "
     echo "  # Other commands"
     echo "  $0 info                                                # Show backup system configuration"
     echo "  $0 restore AUTO-prod-14850-2025-10-28                   # Restore all from backup"
     echo "  $0 download AUTO-prod-14850-2025-10-28 db ./backups/    # Download db to ./backups/"
+    echo "  "
+    echo "Note: Restored static files are set to public-read ACL for nginx access."
+    echo "      Browser caches may take up to 15 minutes to refresh cached content."
 }
 
 # ===================================================================
@@ -153,12 +165,15 @@ run_backup_command() {
     local custom_prefix="${2:-}"
     local custom_suffix="${3:-}"
     local skip_state_management=false
+    local enable_throttle=false
 
-    # Check for --skip-state-management (or --ssm) flag in any position after the first 3 params
+    # Check for flags in any position after the first 3 params
     shift 3 2>/dev/null || true
     for arg in "$@"; do
         if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
             skip_state_management=true
+        elif [ "$arg" = "--throttle" ]; then
+            enable_throttle=true
         fi
     done
 
@@ -200,14 +215,36 @@ run_backup_command() {
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
-        print_status $GREEN "🌐 Backing up static site..."
-        create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        # Check throttle if enabled
+        if [ "$enable_throttle" = true ]; then
+            local age_hours=$(get_last_backup_age_hours "static")
+            if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
+                print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+            else
+                print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
+                create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            fi
+        else
+            print_status $GREEN "🌐 Backing up static site..."
+            create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        fi
     fi
 
     # Run public backup if requested
     if has_backup_type "$backup_types" "public"; then
-        print_status $GREEN "📁 Backing up public files..."
-        create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        # Check throttle if enabled
+        if [ "$enable_throttle" = true ]; then
+            local age_hours=$(get_last_backup_age_hours "public")
+            if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
+                print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+            else
+                print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
+                create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            fi
+        else
+            print_status $GREEN "📁 Backing up public files..."
+            create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+        fi
     fi
 
     # Run database backup if requested
@@ -847,6 +884,68 @@ backup_all() {
     fi
 }
 
+# Get age in hours of the most recent backup for a given type
+# Args:
+#   $1: backup_type - Type of backup to check (static, public, db)
+# Returns:
+#   Age in hours of most recent backup, or 999 if no backups exist
+get_last_backup_age_hours() {
+    local backup_type="$1"
+    setup_s3_vars || return 999
+
+    local s3_path=""
+    case "$backup_type" in
+        static)
+            s3_path="s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/"
+            ;;
+        public)
+            s3_path="s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/"
+            ;;
+        db)
+            s3_path="s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/"
+            ;;
+        *)
+            return 999
+            ;;
+    esac
+
+    # Get the most recent backup's LastModified timestamp
+    # For directories (static/public), get the most recent directory
+    # For db, get the most recent .sql.gz file
+    local last_modified=""
+
+    if [ "$backup_type" = "db" ]; then
+        # For database backups, look for .sql.gz files
+        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep '\.sql\.gz$' | sort -r | head -n 1 | awk '{print $1, $2}')
+    else
+        # For static/public, look for directories (PRE)
+        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | sort -r | head -n 1 | awk '{print $1, $2}')
+    fi
+
+    if [ -z "$last_modified" ]; then
+        # No backups found
+        echo 999
+        return 0
+    fi
+
+    # Parse the date and time from S3 ls output (format: "2025-12-18 14:30:00")
+    # Convert to epoch seconds
+    local backup_epoch=$(date -d "$last_modified" +%s 2>/dev/null || date -j -f "%Y-%m-%d %H:%M:%S" "$last_modified" +%s 2>/dev/null)
+    local current_epoch=$(date +%s)
+
+    if [ -z "$backup_epoch" ]; then
+        # Date parsing failed
+        echo 999
+        return 0
+    fi
+
+    # Calculate age in hours
+    local age_seconds=$((current_epoch - backup_epoch))
+    local age_hours=$((age_seconds / 3600))
+
+    echo "$age_hours"
+}
+
 list_backups() {
     local types_arg="${1:-all}"
     local filter_arg="${2:-}"
@@ -1203,7 +1302,7 @@ clean_old_backups() {
             backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             if [ -n "$backup_name" ]; then
                 print_status $YELLOW "Removing static site backup: $backup_name"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         done
 
@@ -1212,7 +1311,7 @@ clean_old_backups() {
             backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
             if [ -n "$backup_name" ]; then
                 print_status $YELLOW "Removing public files backup: $backup_name"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         done
 
@@ -1231,7 +1330,7 @@ clean_old_backups() {
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 print_status $YELLOW "Removing static site backup: $backup_name (date: $backup_date)"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         fi
     done
@@ -1244,7 +1343,7 @@ clean_old_backups() {
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 print_status $YELLOW "Removing public files backup: $backup_name (date: $backup_date)"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --recursive $S3_EXTRA_PARAMS
+                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
             fi
         fi
     done
@@ -1264,6 +1363,179 @@ cleanup_all_old_backups() {
     cleanup_old_db_backups "$filter_type" "$filter_value"
 
     print_status $GREEN "✅ All backup cleanup completed."
+}
+
+# Delete a specific backup by tag name (supports multiple tags)
+# Args: Space-separated tags, followed by optional types and flags
+#   tags - One or more backup tags to delete
+#   types - Backup types to delete (default: all)
+#   -y|--non-interactive - Flag to skip confirmation
+delete_backup() {
+    # Parse arguments to separate tags from types and flags
+    local tags=""
+    local types_arg="all"
+    local non_interactive=""
+
+    # Collect all arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -y|--non-interactive)
+                non_interactive="$1"
+                shift
+                ;;
+            static|public|db|all|*,*)
+                # This looks like a types argument (single type or comma-separated)
+                types_arg="$1"
+                shift
+                ;;
+            *)
+                # Assume it's a tag - append to space-separated list
+                if [ -z "$tags" ]; then
+                    tags="$1"
+                else
+                    tags="$tags $1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    if [ -z "$tags" ]; then
+        print_status $RED "❌ Error: At least one backup tag required"
+        echo "Usage: $0 delete <tag> [tag2 tag3...] [types] [-y]"
+        echo "Example: $0 delete AUTO-dev-123-2025-01-15 static,db"
+        echo "Example: $0 delete TAG1 TAG2 TAG3 all -y"
+        exit 1
+    fi
+
+    setup_s3_vars || exit 1
+
+    local backup_types=$(parse_backup_types "$types_arg")
+    local total_tags=0
+    local current_tag=0
+    local types_deleted=0
+    local types_not_found=0
+    local items_to_delete=""
+    local backup_tag=""
+    
+    # Count total tags
+    for tag in $tags; do
+        total_tags=$((total_tags + 1))
+    done
+
+    # Process each tag
+    for backup_tag in $tags; do
+        current_tag=$((current_tag + 1))
+        types_deleted=0
+        types_not_found=0
+
+        if [ $total_tags -gt 1 ]; then
+            print_status $BLUE "🗑️  Deleting backup ($current_tag/$total_tags): $backup_tag"
+        else
+            print_status $BLUE "🗑️  Deleting backup: $backup_tag"
+        fi
+
+        # Check what exists and confirm deletion
+        items_to_delete=""
+
+        if has_backup_type "$backup_types" "static"; then
+            if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                items_to_delete="${items_to_delete}  - Static site backup\n"
+            fi
+        fi
+
+        if has_backup_type "$backup_types" "public"; then
+            if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                items_to_delete="${items_to_delete}  - Public files backup\n"
+            fi
+        fi
+
+        if has_backup_type "$backup_types" "db"; then
+            if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                items_to_delete="${items_to_delete}  - Database backup\n"
+            fi
+        fi
+
+        if [ -z "$items_to_delete" ]; then
+            print_status $YELLOW "⚠️  No backups found for tag: $backup_tag"
+            continue
+        fi
+
+        # Show what will be deleted
+        echo ""
+        print_status $YELLOW "The following backups will be deleted:"
+        printf "$items_to_delete"
+        echo ""
+
+        # Confirm deletion unless non-interactive
+        if [ "$non_interactive" != "-y" ] && [ "$non_interactive" != "--non-interactive" ]; then
+            printf "${YELLOW}Are you sure you want to delete these backups? (yes/no): ${NC}"
+            read -r confirmation
+            if [ "$confirmation" != "yes" ]; then
+                print_status $YELLOW "Deletion cancelled."
+                continue
+            fi
+        fi
+
+        # Delete static backup
+        if has_backup_type "$backup_types" "static"; then
+            if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                print_status $YELLOW "Deleting static site backup..."
+                if aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                    print_status $GREEN "✅ Static backup deleted"
+                    types_deleted=$((types_deleted + 1))
+                else
+                    print_status $RED "❌ Failed to delete static backup"
+                fi
+            else
+                types_not_found=$((types_not_found + 1))
+            fi
+        fi
+
+        # Delete public backup
+        if has_backup_type "$backup_types" "public"; then
+            if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                print_status $YELLOW "Deleting public files backup..."
+                if aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                    print_status $GREEN "✅ Public files backup deleted"
+                    types_deleted=$((types_deleted + 1))
+                else
+                    print_status $RED "❌ Failed to delete public files backup"
+                fi
+            else
+                types_not_found=$((types_not_found + 1))
+            fi
+        fi
+
+        # Delete database backup
+        if has_backup_type "$backup_types" "db"; then
+            if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                print_status $YELLOW "Deleting database backup..."
+                if aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz --only-show-errors $S3_EXTRA_PARAMS; then
+                    print_status $GREEN "✅ Database backup deleted"
+                    types_deleted=$((types_deleted + 1))
+                else
+                    print_status $RED "❌ Failed to delete database backup"
+                fi
+            else
+                types_not_found=$((types_not_found + 1))
+            fi
+        fi
+
+        # Summary for this tag
+        if [ $types_deleted -gt 0 ]; then
+            print_status $GREEN "✅ Backup deletion completed: $types_deleted type(s) deleted"
+        fi
+
+        if [ $types_not_found -gt 0 ]; then
+            print_status $YELLOW "⚠️  $types_not_found type(s) not found"
+        fi
+
+        # Add spacing between tags if processing multiple
+        if [ $total_tags -gt 1 ] && [ $current_tag -lt $total_tags ]; then
+            echo ""
+        fi
+    done
 }
 
 # Find corresponding public backup for smart restore
@@ -1545,7 +1817,7 @@ restore_backup() {
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --delete $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
             # Sync theme assets from current container to match deployed code version
             # Theme assets (logos, fonts, images) are part of the codebase, not dynamic content
             # So we need to ensure S3 has the current version from the container
@@ -1562,7 +1834,7 @@ restore_backup() {
                 cp -rfp /var/www/web/themes/custom/usagov/assets "$THEME_TMP_DIR/themes/custom/usagov/" 2>/dev/null || true
 
                 # Sync theme assets to S3
-                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" $S3_EXTRA_PARAMS 2>&1; then
+                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" --only-show-errors --acl public-read $S3_EXTRA_PARAMS 2>&1; then
                     print_status $GREEN "✅ Theme assets synced"
                 else
                     print_status $YELLOW "⚠️ Theme asset sync had issues (non-fatal)"
@@ -1574,7 +1846,8 @@ restore_backup() {
                 print_status $YELLOW "⚠️ Theme directory not found, skipping asset sync"
             fi
 
-        print_status $GREEN "✅ Static site restored"
+            print_status $GREEN "✅ Static site restored"
+            print_status $YELLOW "ℹ️  Note: Browser caches may take up to 15 minutes to refresh"
         else
             print_status $RED "❌ ERROR: Static site restore failed"
             exit 1
@@ -1584,7 +1857,7 @@ restore_backup() {
     # Restore public files
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring public files..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --delete $S3_EXTRA_PARAMS; then
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete $S3_EXTRA_PARAMS; then
             print_status $GREEN "✅ Public files restored"
             # Refresh S3FS metadata cache so Drupal sees the restored files
             if command -v drush >/dev/null 2>&1; then
@@ -1915,7 +2188,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar, stream, cleanup
                 temp_dir=$(mktemp -d)
-                aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
+                aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
                 rm -rf "$temp_dir"
             else
@@ -1928,7 +2201,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar.gz, move to output
                 temp_dir=$(mktemp -d)
-                if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS; then
+                if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS; then
                     tar -czf "$output_file" -C "$temp_dir" .
                     rm -rf "$temp_dir"
                     log_message "✅ Static backup saved: $output_file"
@@ -1954,7 +2227,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar, stream, cleanup
                 temp_dir=$(mktemp -d)
-                aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS >/dev/null 2>&1
+                aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
                 rm -rf "$temp_dir"
             else
@@ -1967,7 +2240,7 @@ download_single_backup() {
 
                 # Download to temp dir, create tar.gz, move to output
                 temp_dir=$(mktemp -d)
-                if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" $S3_EXTRA_PARAMS; then
+                if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS; then
                     tar -czf "$output_file" -C "$temp_dir" .
                     rm -rf "$temp_dir"
                     log_message "✅ Public backup saved: $output_file"
@@ -2006,6 +2279,11 @@ case "${1:-}" in
     "clean")
         # clean [types] [days] [-y|--non-interactive] - e.g., "clean all 30" or "clean db 7 -y"
         run_clean_command "$2" "$3" "$4"
+        ;;
+    "delete")
+        # delete <tag> [tag2 tag3...] [types] [-y] - e.g., "delete AUTO-dev-123-2025-01-15" or "delete TAG1 TAG2 static -y"
+        shift  # Remove the 'delete' command
+        delete_backup "$@"  # Pass all remaining arguments
         ;;
     "restore")
         # restore
