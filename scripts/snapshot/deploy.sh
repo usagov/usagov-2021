@@ -28,9 +28,14 @@ show_usage() {
     echo "  last-backup                           Show when last backup of each type was taken"
     echo "  status                                Show CF target and recent activity"
     echo "  motd                                  Show message of the day from CMS container"
-    echo "  changes [from] [to]                   Show tickets between two commits/branches"
+    echo "  ccb [from] [to]                       Show tickets between two commits/branches"
     echo "                                        Default: from=prod, to=stage"
     echo "                                        Uses DEPLOY_ENV if set (e.g., stage vs prod)"
+    echo ""
+    echo "Container/Build Information:"
+    echo "  show-build-info <env>                 Show latest build info from annotated git tags"
+    echo "                                        Displays CCI build number and container digests"
+    echo "                                        for CMS, WAF, and WWW"
     echo ""
     echo "Deployment Backup Commands:"
     echo "  pre-deploy                            Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
@@ -503,6 +508,110 @@ show_changes() {
     fi
 }
 
+# Show latest build information from git annotated tags
+show_build_info() {
+    local env="${1:-prod}"
+    env=$(echo "$env" | tr '[:upper:]' '[:lower:]')
+
+    print_status $BLUE "🔍 Searching for latest build information for: $env"
+    echo ""
+
+    # Find the most recent annotated tag for this environment
+    local annotated_tag
+    annotated_tag=$(git for-each-ref refs/tags/usagov-cci-build-*-${env} --sort='-*authordate' \
+        --format '%(objecttype) %(refname:short)' | \
+        while read ty name; do [ "$ty" = "tag" ] && echo "$name" && break; done)
+
+    if [ -z "$annotated_tag" ]; then
+        print_status $RED "❌ No git tag found matching pattern: usagov-cci-build-*-${env}"
+        echo ""
+        echo "Available tags:"
+        git tag -l "usagov-cci-build-*" | tail -10
+        return 1
+    fi
+
+    print_status $GREEN "✅ Found tag: $annotated_tag"
+    echo ""
+
+    # Parse the tag annotation
+    local tag_content
+    tag_content=$(git for-each-ref refs/tags/$annotated_tag --format "%(contents)" | sed "s/'//g")
+
+    if [ -z "$tag_content" ]; then
+        print_status $RED "❌ Tag annotation is empty"
+        return 1
+    fi
+
+    # Parse the fields
+    local cci_build=""
+    local cms_digest=""
+    local waf_digest=""
+    local www_digest=""
+
+    IFS='|' read -ra fields <<< "$tag_content"
+    for field in "${fields[@]}"; do
+        case "$field" in
+            CCI_BUILD=*)
+                cci_build="${field#CCI_BUILD=}"
+                ;;
+            CMS_DIGEST=*)
+                cms_digest="${field#CMS_DIGEST=}"
+                ;;
+            WAF_DIGEST=*)
+                waf_digest="${field#WAF_DIGEST=}"
+                ;;
+            WWW_DIGEST=*)
+                www_digest="${field#WWW_DIGEST=}"
+                ;;
+        esac
+    done
+
+    # Display the information
+    print_status $BLUE "📦 Build Information"
+    echo "----------------------------------------"
+    echo "Environment:    $env"
+    echo "Tag:            $annotated_tag"
+    echo "CCI Build:      $cci_build"
+    echo ""
+    echo "Container Digests:"
+    echo "  CMS:          $cms_digest"
+    echo "  WAF:          $waf_digest"
+    echo "  WWW:          $www_digest"
+    echo ""
+
+    # Generate deployment commands
+    print_status $BLUE "🚀 Deployment Commands"
+    echo "----------------------------------------"
+    echo ""
+    echo "To deploy WAF:"
+    echo "  ROUTE_SERVICE_APP_NAME=waf \\"
+    echo "  ROUTE_SERVICE_NAME=waf-route-${env}-usagov \\"
+    echo "  PROTECTED_APP_NAMES=cms \\"
+    echo "    bin/cloudgov/deploy-waf $cci_build $waf_digest"
+    echo ""
+    echo "To deploy CMS:"
+    echo "  bin/cloudgov/deploy-cms $env $cci_build $cms_digest"
+    echo ""
+    echo "To deploy WWW:"
+    echo "  bin/cloudgov/deploy-www $env $cci_build $www_digest"
+    echo ""
+
+    # Optionally set these as environment variables if DEPLOY_ENV matches
+    if [ -n "$DEPLOY_ENV" ] && [ "$DEPLOY_ENV" = "$env" ]; then
+        export DEPLOY_CCI_BUILD="$cci_build"
+        export DEPLOY_CMS_DIGEST="$cms_digest"
+        export DEPLOY_WAF_DIGEST="$waf_digest"
+        export DEPLOY_WWW_DIGEST="$www_digest"
+
+        print_status $GREEN "✅ Build info exported to environment variables"
+        echo "  DEPLOY_CCI_BUILD=$DEPLOY_CCI_BUILD"
+        echo "  DEPLOY_CMS_DIGEST=$DEPLOY_CMS_DIGEST"
+        echo "  DEPLOY_WAF_DIGEST=$DEPLOY_WAF_DIGEST"
+        echo "  DEPLOY_WWW_DIGEST=$DEPLOY_WWW_DIGEST"
+        echo ""
+    fi
+}
+
 # Validate deployment
 validate_deployment() {
     local only_apps=""
@@ -714,6 +823,10 @@ case "$COMMAND" in
     "ccb")
         shift
         show_changes "$@"
+        ;;
+    "show-build-info")
+        shift
+        show_build_info "$@"
         ;;
     "pre-deploy")
         pre_deploy
