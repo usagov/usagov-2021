@@ -923,21 +923,26 @@ get_last_backup_age_hours() {
             ;;
     esac
 
-    # Get the most recent backup's LastModified timestamp
-    # For directories (static/public), get the most recent directory
-    # For db, get the most recent .sql.gz file
+    # Get the most recent backup
+    local last_backup_name=""
     local last_modified=""
 
     if [ "$backup_type" = "db" ]; then
-        # For database backups, look for .sql.gz files
+        # For database backups, look for .sql.gz files and get timestamp directly
         last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep '\.sql\.gz$' | sort -r | head -n 1 | awk '{print $1, $2}')
     else
-        # For static/public, look for directories (PRE)
-        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | sort -r | head -n 1 | awk '{print $1, $2}')
+        # For static/public, directories don't show timestamps in aws s3 ls
+        # We need to get the directory name, then list files inside it
+        last_backup_name=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | awk '{print $2}' | tr -d '/' | sort -r | head -n 1)
+
+        if [ -n "$last_backup_name" ]; then
+            # Get timestamp from first file in the backup directory
+            last_modified=$(aws s3 ls "${s3_path}${last_backup_name}/" $S3_EXTRA_PARAMS 2>/dev/null | grep -v 'PRE' | head -n 1 | awk '{print $1, $2}')
+        fi
     fi
 
     if [ -z "$last_modified" ]; then
-        # No backups found
+        # No backups found or no files in backup
         echo 999
         return 0
     fi
