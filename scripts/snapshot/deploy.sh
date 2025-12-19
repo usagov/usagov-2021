@@ -143,7 +143,7 @@ set_context() {
 
 # Show current deployment context
 show_context() {
-    print_status \$BLUE "📋 Current Deployment Context"
+    print_status $BLUE "📋 Current Deployment Context"
     echo ""
     if [ -n "\$DEPLOY_ENV" ] || [ -n "\$DEPLOY_TICKET" ] || [ -n "\$DEPLOY_PRE_SUFFIX" ] || [ -n "\$DEPLOY_POST_SUFFIX" ]; then
         echo "  DEPLOY_ENV=\${DEPLOY_ENV:-(not set)}"
@@ -470,11 +470,11 @@ show_changes() {
 
     # Extract tickets from commit messages
     # Accept: "Usa 123", "usa_123", "USAGOV-123", etc.
-    # Pattern has space and tab in brackets: [-_ 	]
+    # Pattern matches: hyphen, underscore, space, or tab
     local tickets
     tickets=$(git log --first-parent "$from..$to" | \
-        grep -Eio 'usa(gov)?[-_ 	]([0-9]+)' | \
-        sed -E 's/usa(gov)?[-_ 	]([0-9]+)/USAGOV-\2/ig' | \
+        grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
+        sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
         grep -iv usagov-2021 | \
         sort -u)
 
@@ -556,9 +556,8 @@ validate_deployment() {
     echo ""
 
     local overall_success=true
-
-    # Split comma-separated apps and validate each
-    echo "$apps_to_validate" | tr ',' '\n' | while read -r app; do
+    local IFS=','
+    for app in $apps_to_validate; do
         [ -z "$app" ] && continue
 
         print_status $BLUE "📦 Validating app: $app"
