@@ -934,13 +934,13 @@ get_last_backup_age_hours() {
         last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep '\.sql\.gz$' | grep "$backup_filter" | sort -r | head -n 1 | awk '{print $1, $2}')
     else
         # For static/public, directories don't show timestamps in aws s3 ls
-        # We need to get the directory name, then list files inside it
+        # We need to get the directory name, then list files inside it recursively
         # Filter by prefix-space to only get relevant backups
         last_backup_name=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | grep "$backup_filter" | awk '{print $2}' | tr -d '/' | sort -r | head -n 1)
 
         if [ -n "$last_backup_name" ]; then
-            # Get timestamp from first file in the backup directory
-            last_modified=$(aws s3 ls "${s3_path}${last_backup_name}/" $S3_EXTRA_PARAMS 2>/dev/null | grep -v 'PRE' | head -n 1 | awk '{print $1, $2}')
+            # Get timestamp from first file in the backup directory (use --recursive to find files in subdirectories)
+            last_modified=$(aws s3 ls "${s3_path}${last_backup_name}/" $S3_EXTRA_PARAMS --recursive 2>/dev/null | head -n 1 | awk '{print $1, $2}')
         fi
     fi
 
@@ -2001,9 +2001,13 @@ backup_info() {
     local tag_date=$(extract_date_from_backup_name "$backup_tag")
     if [ -n "$tag_date" ]; then
         echo "  Date: $tag_date"
-        local days_ago=$(( ($(date +%s) - $(date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null || echo 0)) / 86400 ))
-        if [ $days_ago -ge 0 ]; then
-            echo "  Age: $days_ago days old"
+        # Parse date to epoch - try Linux format first, then macOS
+        local tag_epoch=$(date -d "$tag_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null)
+        if [ -n "$tag_epoch" ]; then
+            local days_ago=$(( ($(date +%s) - tag_epoch) / 86400 ))
+            if [ $days_ago -ge 0 ]; then
+                echo "  Age: $days_ago days old"
+            fi
         fi
     fi
 
