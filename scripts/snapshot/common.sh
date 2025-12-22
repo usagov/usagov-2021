@@ -145,6 +145,175 @@ get_container_tag() {
 }
 
 # ===================================================================
+# DEPLOYMENT METADATA FUNCTIONS
+# ===================================================================
+
+# Parse backup tag to extract ticket and backup type
+# Args:
+#   $1: tag - Backup tag to parse
+# Returns: ticket=VALUE and backup_type=VALUE on separate lines
+parse_backup_tag_metadata() {
+    local tag="$1"
+    local ticket="none"
+    local backup_type="manual"
+    local prefix=""
+
+    # Extract prefix (first segment before first hyphen)
+    prefix=$(echo "$tag" | cut -d'-' -f1)
+
+    # Determine backup type and ticket from prefix and suffix patterns
+    case "$prefix" in
+        AUTO)
+            backup_type="auto"
+            ticket="none"
+            ;;
+        HOTFIX)
+            backup_type="hotfix"
+            # Extract USAGOV ticket if present anywhere in tag
+            ticket=$(echo "$tag" | grep -oE 'USAGOV-[0-9]+' | head -1)
+            [ -z "$ticket" ] && ticket="none"
+            ;;
+        USAGOV*)
+            # Prefix starts with USAGOV (e.g., USAGOV-1234-prod-...)
+            ticket=$(echo "$prefix" | grep -oE 'USAGOV-[0-9]+')
+            # Check suffix for deployment type
+            if echo "$tag" | grep -q -- '-pre-deploy-'; then
+                backup_type="pre-deploy"
+            elif echo "$tag" | grep -q -- '-post-deploy-'; then
+                backup_type="post-deploy"
+            else
+                backup_type="manual"
+            fi
+            ;;
+        *)
+            # Unknown prefix - try to extract ticket
+            ticket=$(echo "$tag" | grep -oE 'USAGOV-[0-9]+' | head -1)
+            [ -z "$ticket" ] && ticket="none"
+
+            # Check for deployment suffixes
+            if echo "$tag" | grep -q -- '-pre-deploy'; then
+                backup_type="pre-deploy"
+            elif echo "$tag" | grep -q -- '-post-deploy'; then
+                backup_type="post-deploy"
+            else
+                backup_type="manual"
+            fi
+            ;;
+    esac
+
+    echo "ticket=$ticket"
+    echo "backup_type=$backup_type"
+}
+
+# Capture current deployment state and create metadata JSON
+# Args:
+#   $1: backup_tag - Tag for this backup
+#   $2: environment - Environment name (dev, stage, prod)
+# Returns: JSON string with deployment metadata
+capture_deployment_metadata() {
+    local backup_tag="$1"
+    local environment="$2"
+
+    # Parse backup tag to get ticket and type
+    local tag_info=$(parse_backup_tag_metadata "$backup_tag")
+    local ticket=$(echo "$tag_info" | grep '^ticket=' | cut -d= -f2)
+    local backup_type=$(echo "$tag_info" | grep '^backup_type=' | cut -d= -f2)
+
+    # Get git info
+    local git_commit=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+    local git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+
+    # Get currently deployed containers from CF
+    local cms_digest=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}' || echo "unknown")
+    local www_digest=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}' || echo "unknown")
+    local waf_digest=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}' || echo "unknown")
+
+    # Try to extract CCI build number from digest
+    # Format: registry/org/usagov_cms:BUILD@sha256:...
+    local cci_build="unknown"
+    if echo "$cms_digest" | grep -qE 'usagov_cms:[0-9]+@'; then
+        cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
+    fi
+
+    # Get username (circleci or actual user)
+    local created_by=$(whoami 2>/dev/null || echo "unknown")
+    if [ -n "$CIRCLECI" ]; then
+        created_by="circleci"
+    fi
+
+    # Build JSON (simple approach without jq dependency)
+    cat <<EOF
+{
+  "backup_tag": "$backup_tag",
+  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+  "environment": "$environment",
+  "ticket": "$ticket",
+  "backup_type": "$backup_type",
+  "git_commit": "$git_commit",
+  "git_branch": "$git_branch",
+  "deployed_containers": {
+    "cms": {
+      "cci_build": "$cci_build",
+      "digest": "$cms_digest"
+    },
+    "www": {
+      "cci_build": "$cci_build",
+      "digest": "$www_digest"
+    },
+    "waf": {
+      "cci_build": "$cci_build",
+      "digest": "$waf_digest"
+    }
+  },
+  "created_by": "$created_by"
+}
+EOF
+}
+
+# Upload deployment metadata to S3
+# Args:
+#   $1: backup_tag - Tag for this backup
+#   $2: metadata_json - JSON string to upload
+# Returns: 0 on success, 1 on failure
+upload_deployment_metadata() {
+    local backup_tag="$1"
+    local metadata_json="$2"
+
+    setup_s3_vars || return 1
+
+    # Store metadata in deployment-metadata path
+    local metadata_path="deployment-metadata/${backup_tag}.json"
+    local temp_file="/tmp/${backup_tag}-metadata.json"
+
+    # Write JSON to temp file
+    echo "$metadata_json" > "$temp_file"
+
+    # Upload to S3
+    if aws s3 cp "$temp_file" "s3://${BUCKET_NAME}/${metadata_path}" $S3_EXTRA_PARAMS 2>/dev/null; then
+        rm -f "$temp_file"
+        return 0
+    else
+        rm -f "$temp_file"
+        return 1
+    fi
+}
+
+# Fetch deployment metadata from S3
+# Args:
+#   $1: backup_tag - Tag to fetch metadata for
+# Returns: JSON string or empty if not found
+fetch_deployment_metadata() {
+    local backup_tag="$1"
+
+    setup_s3_vars || return 1
+
+    local metadata_path="deployment-metadata/${backup_tag}.json"
+
+    # Download from S3 to stdout
+    aws s3 cp "s3://${BUCKET_NAME}/${metadata_path}" - $S3_EXTRA_PARAMS 2>/dev/null
+}
+
+# ===================================================================
 # VALIDATION FUNCTIONS
 # ===================================================================
 

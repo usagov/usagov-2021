@@ -37,17 +37,25 @@ show_usage() {
     echo "                                        Displays CCI build number and container digests"
     echo "                                        for CMS, WAF, and WWW"
     echo ""
+    echo "Deployment Commands:"
+    echo "  deploy app <name> <build> <digest>    Deploy specific app with container digest"
+    echo "                                        Example: deploy app cms 5936 @sha256:abc..."
+    echo ""
     echo "Deployment Backup Commands:"
     echo "  pre-deploy                            Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
     echo "                                        Requires: DEPLOY_TICKET"
     echo "  post-deploy                           Create post-deployment backup using DEPLOY_POST_SUFFIX"
-    echo "                                        Requires: DEPLOY_TICKET"
+    echo "                                        Automatically creates annotated git tag for deployment tracking"
+    echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
     echo ""
     echo "Rollback Commands:"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  rollback [tag]                        Restore from backup (all types, with confirmation)"
-    echo "                                        Uses separate tags per type if set via set-context"
-    echo "                                        Or specify tag to use same tag for all types"
+    echo "  rollback [types] <tag>                Rollback code (always) + optional data types"
+    echo "                                        Types: db, static, public, full, or comma-separated"
+    echo "                                        Default: code only (no data restore)"
+    echo "                                        Example: rollback AUTO-prod-cf-123-2025-12-22-0"
+    echo "                                        Example: rollback db AUTO-prod-cf-123-2025-12-22-0"
+    echo "                                        Example: rollback full AUTO-prod-cf-123-2025-12-22-0"
     echo "  rollback-static [tag]                 Restore static site only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
     echo "  rollback-db [tag]                     Restore database only (with confirmation)"
@@ -253,6 +261,7 @@ pre_deploy() {
 }
 
 # Post-deployment backup using context variables
+# Now automatically creates annotated git tags for deployment tracking
 post_deploy() {
     local ticket="${DEPLOY_TICKET:-}"
     local suffix="${DEPLOY_POST_SUFFIX:-post-deploy}"
@@ -269,6 +278,35 @@ post_deploy() {
     echo ""
 
     cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup all $ticket $suffix"
+
+    # Automatically create git tag for this deployment
+    print_status $BLUE "🏷️ Capturing deployment metadata for git tag..."
+
+    # Get current environment
+    local env="${DEPLOY_ENV:-}"
+    if [ -z "$env" ]; then
+        log_message "⚠️ DEPLOY_ENV not set, skipping git tag creation"
+        return 0
+    fi
+
+    # Query CF for current container digests
+    local cms_digest=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+    local waf_digest=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+    local www_digest=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+
+    # Extract CCI build number from digest (format: {registry}/{org}/usagov_{app}:{cci_build}@sha256:...)
+    local cci_build=""
+    if [ -n "$cms_digest" ]; then
+        cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
+    fi
+
+    if [ -z "$cci_build" ] || [ -z "$cms_digest" ] || [ -z "$waf_digest" ] || [ -z "$www_digest" ]; then
+        log_message "⚠️ Could not extract deployment info, skipping git tag creation"
+        return 0
+    fi
+
+    # Create and push git tag
+    create_deployment_tag "$env" "$cci_build" "$cms_digest" "$waf_digest" "$www_digest"
 }
 
 # Quick snapshot with auto-generated suffix
@@ -303,8 +341,9 @@ list_backups() {
     cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh list all $days"
 }
 
-# Rollback to a specific backup (with confirmation)
-rollback() {
+# Rollback data only (legacy - use manager.sh restore instead)
+# This is kept for backward compatibility but the new rollback command is preferred
+rollback_data_only() {
     # Allow explicit tag override, otherwise use context
     local static_tag="${1:-$DEPLOY_ROLLBACK_STATIC_TAG}"
     local public_tag="${1:-$DEPLOY_ROLLBACK_PUBLIC_TAG}"
@@ -319,12 +358,12 @@ rollback() {
 
     if [ -z "$static_tag" ] || [ -z "$public_tag" ] || [ -z "$db_tag" ]; then
         print_status $RED "❌ Error: Backup tags required"
-        echo "Usage: deploy.sh rollback <tag>"
+        echo "Usage: deploy.sh rollback-data-only <tag>"
         echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
         exit 1
     fi
 
-    print_status $YELLOW "⚠️  ROLLBACK: This will restore all backup types (static, public, database)"
+    print_status $YELLOW "⚠️  DATA ROLLBACK: This will restore all backup types (static, public, database)"
     echo "Tags:"
     echo "  Static: $static_tag"
     echo "  Public: $public_tag"
@@ -583,17 +622,14 @@ show_build_info() {
     print_status $BLUE "🚀 Deployment Commands"
     echo "----------------------------------------"
     echo ""
-    echo "To deploy WAF:"
-    echo "  ROUTE_SERVICE_APP_NAME=waf \\"
-    echo "  ROUTE_SERVICE_NAME=waf-route-${env}-usagov \\"
-    echo "  PROTECTED_APP_NAMES=cms \\"
-    echo "    bin/cloudgov/deploy-waf $cci_build $waf_digest"
-    echo ""
     echo "To deploy CMS:"
-    echo "  bin/cloudgov/deploy-cms $env $cci_build $cms_digest"
+    echo "  deploy.sh deploy app cms $cci_build $cms_digest"
+    echo ""
+    echo "To deploy WAF:"
+    echo "  deploy.sh deploy app waf $cci_build $waf_digest"
     echo ""
     echo "To deploy WWW:"
-    echo "  bin/cloudgov/deploy-www $env $cci_build $www_digest"
+    echo "  deploy.sh deploy app www $cci_build $www_digest"
     echo ""
 
     # Optionally set these as environment variables if DEPLOY_ENV matches
@@ -610,6 +646,270 @@ show_build_info() {
         echo "  DEPLOY_WWW_DIGEST=$DEPLOY_WWW_DIGEST"
         echo ""
     fi
+}
+
+# Create and push annotated git tag for deployment tracking
+# Args:
+#   $1: env - Environment name
+#   $2: cci_build - CircleCI build number
+#   $3: cms_digest - CMS container digest
+#   $4: waf_digest - WAF container digest
+#   $5: www_digest - WWW container digest
+create_deployment_tag() {
+    local env="$1"
+    local cci_build="$2"
+    local cms_digest="$3"
+    local waf_digest="$4"
+    local www_digest="$5"
+
+    if [ -z "$env" ] || [ -z "$cci_build" ] || [ -z "$cms_digest" ] || [ -z "$waf_digest" ] || [ -z "$www_digest" ]; then
+        log_message "⚠️ Missing parameters for git tag creation, skipping"
+        return 0
+    fi
+
+    # Check if we're in a git repository
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        log_message "⚠️ Not in a git repository, skipping tag creation"
+        return 0
+    fi
+
+    local tag_name="usagov-cci-build-${cci_build}-${env}"
+    local tag_msg="CCI_BUILD=${cci_build}|CMS_DIGEST=${cms_digest}|WAF_DIGEST=${waf_digest}|WWW_DIGEST=${www_digest}"
+
+    print_status $BLUE "📌 Creating git tag: $tag_name"
+
+    # Delete local tag if exists (force recreate)
+    git tag -d "$tag_name" 2>/dev/null
+
+    # Create annotated tag
+    if ! git tag -a -m "$tag_msg" "$tag_name"; then
+        log_message "⚠️ Failed to create git tag (non-critical)"
+        return 0
+    fi
+
+    # Push to remote (OVERWRITES if exists)
+    if git push origin "$tag_name" --force 2>&1; then
+        print_status $GREEN "✅ Git tag pushed to origin: $tag_name"
+    else
+        log_message "⚠️ Failed to push git tag (non-critical)"
+    fi
+
+    return 0
+}
+
+# ===================================================================
+# DEPLOYMENT HELPER FUNCTIONS
+# ===================================================================
+
+# Deploy a single app with container digest
+# Args:
+#   $1: app_name - App to deploy (cms, www, waf)
+#   $2: env - Environment (dev, stage, prod)
+#   $3: cci_build - CircleCI build number
+#   $4: digest - Container digest
+_deploy_app() {
+    local app_name="$1"
+    local env="$2"
+    local cci_build="$3"
+    local digest="$4"
+
+    print_status $BLUE "🚀 Deploying $app_name to $env"
+    echo "  Build: $cci_build"
+    echo "  Digest: $digest"
+
+    # Determine instance count based on environment
+    local instances=1
+    case "$env" in
+        prod) instances=2 ;;
+        stage) instances=1 ;;
+        dev) instances=1 ;;
+    esac
+
+    # Check if app already exists
+    local app_exists=false
+    if cf app "$app_name" >/dev/null 2>&1; then
+        app_exists=true
+    fi
+
+    # Prepare push command
+    local push_opts="-i $instances --strategy rolling"
+    if [ "$app_exists" = "false" ]; then
+        push_opts="$push_opts --no-route"
+        print_status $YELLOW "⚠️ App doesn't exist yet, will push with --no-route"
+    fi
+
+    # Push the container
+    # Digest is expected to be full image path: registry/org/image:tag@sha256:...
+    print_status $BLUE "Pushing container..."
+    if [ -n "$DOCKERHUB_ACCESS_TOKEN" ]; then
+        export CF_DOCKER_PASSWORD="$DOCKERHUB_ACCESS_TOKEN"
+        cf push "$app_name" $push_opts --docker-image "$digest" --docker-username "${DOCKERHUB_USERNAME:-gsatts}"
+        local exit_code=$?
+        unset CF_DOCKER_PASSWORD
+    else
+        cf push "$app_name" $push_opts --docker-image "$digest"
+        local exit_code=$?
+    fi
+
+    if [ $exit_code -ne 0 ]; then
+        print_status $RED "❌ Failed to deploy $app_name"
+        return 1
+    fi
+
+    print_status $GREEN "✅ $app_name deployed successfully"
+    return 0
+}
+
+# Deploy command - deploy app with explicit parameters
+deploy_app() {
+    local app_name="$1"
+    local cci_build="$2"
+    local digest="$3"
+
+    if [ -z "$app_name" ] || [ -z "$cci_build" ] || [ -z "$digest" ]; then
+        print_status $RED "❌ Error: Missing required parameters"
+        echo "Usage: deploy.sh deploy app <app-name> <cci-build> <digest>"
+        echo "Example: deploy.sh deploy app cms 5936 @sha256:abc123..."
+        return 1
+    fi
+
+    # Use DEPLOY_ENV or current CF target
+    local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
+    if [ -z "$env" ]; then
+        print_status $RED "❌ Error: Could not determine environment"
+        echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
+        return 1
+    fi
+
+    _deploy_app "$app_name" "$env" "$cci_build" "$digest"
+}
+
+# Rollback command - redeploy containers from backup metadata
+rollback() {
+    local data_types=""
+    local backup_tag=""
+
+    # Parse: [types] [tag]
+    # If first arg looks like a data type, it's types; otherwise it's the tag
+    case "$1" in
+        db|static|public|full|*,*)
+            data_types="$1"
+            backup_tag="$2"
+            ;;
+        *)
+            # No type = code only (default)
+            backup_tag="$1"
+            ;;
+    esac
+
+    if [ -z "$backup_tag" ]; then
+        print_status $RED "❌ Error: Backup tag required"
+        echo "Usage: deploy.sh rollback [db|static|public|full] <backup-tag>"
+        echo "       deploy.sh rollback <backup-tag>  (defaults to code only)"
+        echo ""
+        echo "Examples:"
+        echo "  deploy.sh rollback AUTO-prod-cf-abc123-2025-12-22-0          # Code only"
+        echo "  deploy.sh rollback db AUTO-prod-cf-abc123-2025-12-22-0       # Code + DB"
+        echo "  deploy.sh rollback full AUTO-prod-cf-abc123-2025-12-22-0     # Code + All data"
+        return 1
+    fi
+
+    print_status $BLUE "🔍 Loading deployment metadata for: $backup_tag"
+
+    # Download and parse metadata JSON from S3
+    local metadata=$(fetch_deployment_metadata "$backup_tag")
+    if [ -z "$metadata" ]; then
+        print_status $RED "❌ No metadata found for backup: $backup_tag"
+        echo "This backup may have been created before metadata capture was implemented."
+        echo "Or the backup tag may not exist."
+        return 1
+    fi
+
+    # Parse container digests from metadata (using grep/sed since jq may not be available)
+    local cms_digest=$(echo "$metadata" | grep -A2 '"cms":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
+    local www_digest=$(echo "$metadata" | grep -A2 '"www":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
+    local waf_digest=$(echo "$metadata" | grep -A2 '"waf":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
+    local cci_build=$(echo "$metadata" | grep -A2 '"cms":' | grep '"cci_build":' | sed 's/.*"cci_build": "\([^"]*\)".*/\1/')
+
+    if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
+        print_status $RED "❌ Failed to parse container digests from metadata"
+        return 1
+    fi
+
+    # Determine environment
+    local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
+    if [ -z "$env" ]; then
+        print_status $RED "❌ Error: Could not determine environment"
+        echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
+        return 1
+    fi
+
+    # Show what will be rolled back
+    print_status $YELLOW "⚠️  CODE ROLLBACK"
+    echo "Will redeploy containers from backup: $backup_tag"
+    echo "Environment: $env"
+    echo ""
+    echo "  CMS: $cms_digest"
+    echo "  WWW: $www_digest"
+    echo "  WAF: $waf_digest"
+    echo "  Build: $cci_build"
+    echo ""
+
+    if [ -n "$data_types" ]; then
+        echo "Will also restore data: $data_types"
+        echo ""
+    fi
+
+    printf "Continue with rollback? (y/N): "
+    read -r confirmation
+
+    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
+        print_status $GREEN "❌ Rollback cancelled"
+        return 0
+    fi
+
+    # STEP 1: Rollback code (always)
+    print_status $BLUE "🚀 Redeploying containers..."
+    echo ""
+
+    if ! _deploy_app "cms" "$env" "$cci_build" "$cms_digest"; then
+        print_status $RED "❌ Failed to deploy CMS"
+        return 1
+    fi
+
+    if ! _deploy_app "www" "$env" "$cci_build" "$www_digest"; then
+        print_status $RED "❌ Failed to deploy WWW"
+        return 1
+    fi
+
+    if ! _deploy_app "waf" "$env" "$cci_build" "$waf_digest"; then
+        print_status $RED "❌ Failed to deploy WAF"
+        return 1
+    fi
+
+    print_status $GREEN "✅ Code rollback complete"
+
+    # STEP 2: Data rollback (if requested and not code-only)
+    if [ -n "$data_types" ]; then
+        echo ""
+        print_status $BLUE "📦 Restoring data..."
+
+        case "$data_types" in
+            full)
+                # Restore all data types using backup system
+                cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $backup_tag"
+                ;;
+            *)
+                # Restore specific types (db, static, public, or comma-separated)
+                cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $backup_tag --only=$data_types"
+                ;;
+        esac
+
+        print_status $GREEN "✅ Data restore complete"
+    fi
+
+    echo ""
+    print_status $GREEN "✅ Rollback complete!"
 }
 
 # Validate deployment
@@ -827,6 +1127,21 @@ case "$COMMAND" in
     "show-build-info")
         shift
         show_build_info "$@"
+        ;;
+    "deploy")
+        shift
+        DEPLOY_SUBCOMMAND="${1:-}"
+        shift
+        case "$DEPLOY_SUBCOMMAND" in
+            "app")
+                deploy_app "$@"
+                ;;
+            *)
+                print_status $RED "❌ Unknown deploy subcommand: $DEPLOY_SUBCOMMAND"
+                echo "Usage: deploy.sh deploy app <app-name> <cci-build> <digest>"
+                exit 1
+                ;;
+        esac
         ;;
     "pre-deploy")
         pre_deploy

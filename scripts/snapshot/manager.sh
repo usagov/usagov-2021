@@ -702,6 +702,12 @@ create_db_backup() {
             aws s3 cp "$LOGFILE" "s3://$BUCKET_NAME/db-backup-logs/$(basename "$LOGFILE")" $S3_EXTRA_PARAMS >/dev/null 2>&1
         fi
 
+        # Capture and upload deployment metadata
+        if command -v capture_deployment_metadata >/dev/null 2>&1; then
+            local metadata=$(capture_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE")
+            upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+        fi
+
         return 0
     else
         log_message "❌ ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
@@ -753,6 +759,13 @@ create_static_backup() {
         local exit_code=$?
         if [ $exit_code -eq 0 ]; then
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
+
+            # Capture and upload deployment metadata
+            if command -v capture_deployment_metadata >/dev/null 2>&1; then
+                local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
+                upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+            fi
+
             return 0
         else
             print_status $RED "❌ Static site backup failed with exit code: $exit_code"
@@ -830,6 +843,13 @@ create_public_backup() {
             local exit_code=$?
             if [ $exit_code -eq 0 ]; then
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
+
+                # Capture and upload deployment metadata
+                if command -v capture_deployment_metadata >/dev/null 2>&1; then
+                    local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
+                    upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+                fi
+
                 return 0
             else
                 print_status $RED "❌ Public files backup failed with exit code: $exit_code"
