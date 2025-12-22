@@ -162,19 +162,33 @@ get_days_arg() {
 # Handle backup command
 run_backup_command() {
     local types_arg="${1:-all}"
-    local custom_prefix="${2:-}"
-    local custom_suffix="${3:-}"
+    local custom_prefix=""
+    local custom_suffix=""
     local skip_state_management=false
     local enable_throttle=false
 
-    # Check for flags in any position after the first 3 params
-    shift 3 2>/dev/null || true
-    for arg in "$@"; do
-        if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
-            skip_state_management=true
-        elif [ "$arg" = "--throttle" ]; then
-            enable_throttle=true
-        fi
+    # Parse all arguments to separate flags from positional params
+    shift  # Remove types_arg
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --skip-state-management|--ssm)
+                skip_state_management=true
+                shift
+                ;;
+            --throttle)
+                enable_throttle=true
+                shift
+                ;;
+            *)
+                # Positional argument - first is prefix, second is suffix
+                if [ -z "$custom_prefix" ]; then
+                    custom_prefix="$1"
+                elif [ -z "$custom_suffix" ]; then
+                    custom_suffix="$1"
+                fi
+                shift
+                ;;
+        esac
     done
 
     local backup_types=$(parse_backup_types "$types_arg")
@@ -909,21 +923,29 @@ get_last_backup_age_hours() {
             ;;
     esac
 
-    # Get the most recent backup's LastModified timestamp
-    # For directories (static/public), get the most recent directory
-    # For db, get the most recent .sql.gz file
+# Get the most recent AUTO backup for the current space
+    # Filter by BACKUP_PREFIX-APP_SPACE to avoid picking up manual or other space backups
+    local backup_filter="${BACKUP_PREFIX}-${APP_SPACE}-"
+    local last_backup_name=""
     local last_modified=""
 
     if [ "$backup_type" = "db" ]; then
-        # For database backups, look for .sql.gz files
-        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep '\.sql\.gz$' | sort -r | head -n 1 | awk '{print $1, $2}')
+        # For database backups, look for .sql.gz files with matching prefix and get timestamp directly
+        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep '\.sql\.gz$' | grep "$backup_filter" | sort -r | head -n 1 | awk '{print $1, $2}')
     else
-        # For static/public, look for directories (PRE)
-        last_modified=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | sort -r | head -n 1 | awk '{print $1, $2}')
+        # For static/public, directories don't show timestamps in aws s3 ls
+        # We need to get the directory name, then list files inside it recursively
+        # Filter by prefix-space to only get relevant backups
+        last_backup_name=$(aws s3 ls "$s3_path" $S3_EXTRA_PARAMS 2>/dev/null | grep 'PRE' | grep "$backup_filter" | awk '{print $2}' | tr -d '/' | sort -r | head -n 1)
+
+        if [ -n "$last_backup_name" ]; then
+            # Get timestamp from first file in the backup directory (use --recursive to find files in subdirectories)
+            last_modified=$(aws s3 ls "${s3_path}${last_backup_name}/" $S3_EXTRA_PARAMS --recursive 2>/dev/null | head -n 1 | awk '{print $1, $2}')
+        fi
     fi
 
     if [ -z "$last_modified" ]; then
-        # No backups found
+        # No backups found or no files in backup
         echo 999
         return 0
     fi
@@ -1417,7 +1439,7 @@ delete_backup() {
     local types_not_found=0
     local items_to_delete=""
     local backup_tag=""
-    
+
     # Count total tags
     for tag in $tags; do
         total_tags=$((total_tags + 1))
@@ -1960,6 +1982,7 @@ backup_info() {
     local backup_types=${2:-"all"}
     local static_exists="no"
     local public_exists="no"
+    local db_exists="no"
 
     if [ -z "$backup_tag" ]; then
         print_status $RED "Error: Backup tag is required"
@@ -1968,71 +1991,169 @@ backup_info() {
 
     setup_s3_vars || exit 1
 
-    print_status $GREEN "Backup Information for: $backup_tag"
-    echo "======================================"
+    print_status $BLUE "╔════════════════════════════════════════════════════════════════╗"
+    print_status $BLUE "║ Backup Information: $backup_tag"
+    print_status $BLUE "╚════════════════════════════════════════════════════════════════╝"
+    echo ""
+
+    # Parse tag components
+    echo "Tag Analysis:"
+    local tag_date=$(extract_date_from_backup_name "$backup_tag")
+    if [ -n "$tag_date" ]; then
+        echo "  Date: $tag_date"
+        # Parse date to epoch - try Linux format first, then macOS
+        local tag_epoch=$(date -d "$tag_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null)
+        if [ -n "$tag_epoch" ]; then
+            local days_ago=$(( ($(date +%s) - tag_epoch) / 86400 ))
+            if [ $days_ago -ge 0 ]; then
+                echo "  Age: $days_ago days old"
+            fi
+        fi
+    fi
+
+    # Extract other tag components
+    local tag_prefix=$(echo "$backup_tag" | awk -F'-' '{print $1}')
+    local tag_space=$(echo "$backup_tag" | awk -F'-' '{print $2}')
+    if [ -n "$tag_prefix" ]; then
+        echo "  Prefix: $tag_prefix"
+    fi
+    if [ -n "$tag_space" ]; then
+        echo "  Space: $tag_space"
+    fi
+    echo ""
+
+    # Storage location
+    echo "Storage Information:"
+    echo "  Bucket: s3://$BUCKET_NAME"
     echo ""
 
     # Check static site backup
     if has_backup_type "$backup_types" "static"; then
-        echo "Static Site Backup:"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "📄 STATIC SITE BACKUP"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         local static_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
         if echo "$static_output" | grep -q "Total Objects:"; then
             static_exists="yes"
-            # Extract first file's creation date
-            local first_file=$(echo "$static_output" | grep -v "Total" | head -1)
+
+            # Extract creation time from first file
+            local first_file=$(echo "$static_output" | grep -v "Total" | grep -v "^$" | head -1)
             local static_date=$(echo "$first_file" | awk '{print $1" "$2}')
             if [ -n "$static_date" ]; then
-                echo "  Created: $static_date"
+                echo "  Created: $static_date UTC"
             fi
-            # Extract and format summary lines
-            format_s3_summary "$static_output" | sed 's/^/  /'
+
+            # S3 path
+            echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/"
+
+            # Extract summary information
+            local total_objects=$(echo "$static_output" | grep "Total Objects:" | awk '{print $3}')
+            local total_size=$(echo "$static_output" | grep "Total Size:" | awk '{print $3}')
+
+            if [ -n "$total_objects" ]; then
+                echo "  Total Files: $(printf "%'d" $total_objects)"
+            fi
+            if [ -n "$total_size" ]; then
+                local formatted_size=$(format_file_size "$total_size")
+                echo "  Total Size: $formatted_size"
+            fi
+
+            # Show sample files
+            echo ""
+            echo "  Sample Files (first 5):"
+            echo "$static_output" | grep -v "Total" | grep -v "^$" | head -5 | while read -r line; do
+                local file_size=$(echo "$line" | awk '{print $3}')
+                local file_name=$(echo "$line" | awk '{print $4}' | sed "s|$AUTO_STATIC_BACKUP_PATH/$backup_tag/||")
+                local formatted_file_size=$(format_file_size "$file_size")
+                echo "    - $file_name ($formatted_file_size)"
+            done
         else
-            echo "  No static site backup found with this tag"
+            echo "  Status: ❌ Not found"
+            echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/"
         fi
         echo ""
     fi
 
     # Check public files backup
     if has_backup_type "$backup_types" "public"; then
-        echo "Public Files Backup:"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "📁 PUBLIC FILES BACKUP"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         local public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
         if echo "$public_output" | grep -q "Total Objects:"; then
             public_exists="yes"
-            # Extract first file's creation date
-            local first_file=$(echo "$public_output" | grep -v "Total" | head -1)
+
+            # Extract creation time from first file
+            local first_file=$(echo "$public_output" | grep -v "Total" | grep -v "^$" | head -1)
             local public_date=$(echo "$first_file" | awk '{print $1" "$2}')
             if [ -n "$public_date" ]; then
-                echo "  Created: $public_date"
+                echo "  Created: $public_date UTC"
             fi
-            # Extract and format summary lines
-            format_s3_summary "$public_output" | sed 's/^/  /'
+
+            # S3 path
+            echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/"
+
+            # Extract summary information
+            local total_objects=$(echo "$public_output" | grep "Total Objects:" | awk '{print $3}')
+            local total_size=$(echo "$public_output" | grep "Total Size:" | awk '{print $3}')
+
+            if [ -n "$total_objects" ]; then
+                echo "  Total Files: $(printf "%'d" $total_objects)"
+            fi
+            if [ -n "$total_size" ]; then
+                local formatted_size=$(format_file_size "$total_size")
+                echo "  Total Size: $formatted_size"
+            fi
+
+            # Show sample files
+            echo ""
+            echo "  Sample Files (first 5):"
+            echo "$public_output" | grep -v "Total" | grep -v "^$" | head -5 | while read -r line; do
+                local file_size=$(echo "$line" | awk '{print $3}')
+                local file_name=$(echo "$line" | awk '{print $4}' | sed "s|$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/||")
+                local formatted_file_size=$(format_file_size "$file_size")
+                echo "    - $file_name ($formatted_file_size)"
+            done
         else
-            echo "  No public files backup found with this tag"
+            echo "  Status: ❌ Not found"
+            echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/"
 
             # If static exists but public doesn't, show the smart relationship
             if [ "$static_exists" = "yes" ]; then
                 echo ""
-                print_status $YELLOW "  Smart Backup Analysis:"
+                print_status $YELLOW "  💡 Smart Backup Optimization Detected"
+                echo "  ────────────────────────────────────────"
                 echo "  This static site backup has no corresponding public files backup."
-                echo "  This is normal when public files were unchanged (smart optimization)."
+                echo "  This means public files were unchanged at backup time (smart optimization)."
                 echo ""
 
                 local corresponding_public=$(find_corresponding_public_backup "$backup_tag")
                 if [ -n "$corresponding_public" ]; then
                     if [ "$corresponding_public" != "$backup_tag" ]; then
-                        print_status $GREEN "  Restore would use public backup: $corresponding_public"
+                        print_status $GREEN "  📍 Linked Public Backup: $corresponding_public"
+                        echo "  This is the public backup that would be used for restore operations."
                         echo ""
-                        echo "  Public Files Backup (would be used for restore):"
+                        echo "  Public Files Details:"
                         local corr_public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$corresponding_public/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
-                        local corr_first_file=$(echo "$corr_public_output" | grep -v "Total" | head -1)
+                        local corr_first_file=$(echo "$corr_public_output" | grep -v "Total" | grep -v "^$" | head -1)
                         local corr_date=$(echo "$corr_first_file" | awk '{print $1" "$2}')
                         if [ -n "$corr_date" ]; then
-                            echo "    Created: $corr_date"
+                            echo "    Created: $corr_date UTC"
                         fi
-                        format_s3_summary "$corr_public_output" | sed 's/^/    /'
+                        echo "    S3 Path: s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$corresponding_public/"
+
+                        local corr_total_objects=$(echo "$corr_public_output" | grep "Total Objects:" | awk '{print $3}')
+                        local corr_total_size=$(echo "$corr_public_output" | grep "Total Size:" | awk '{print $3}')
+                        if [ -n "$corr_total_objects" ]; then
+                            echo "    Total Files: $(printf "%'d" $corr_total_objects)"
+                        fi
+                        if [ -n "$corr_total_size" ]; then
+                            local corr_formatted_size=$(format_file_size "$corr_total_size")
+                            echo "    Total Size: $corr_formatted_size"
+                        fi
                     fi
                 else
-                    print_status $YELLOW "  No suitable public backup found for this time period."
+                    print_status $YELLOW "  ⚠️  No suitable public backup found for this time period."
                 fi
             fi
         fi
@@ -2041,9 +2162,101 @@ backup_info() {
 
     # Check database backup
     if has_backup_type "$backup_types" "db"; then
-        db_backup_info "${backup_tag}.sql.gz"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "💾 DATABASE BACKUP"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+        local backup_name="${backup_tag}.sql.gz"
+        local db_file_info=$(aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "$backup_name")
+
+        if [ -n "$db_file_info" ]; then
+            db_exists="yes"
+            local backup_size=$(echo "$db_file_info" | awk '{print $3}')
+            local backup_date=$(echo "$db_file_info" | awk '{print $1" "$2}')
+            local backup_file=$(echo "$db_file_info" | awk '{print $4}')
+
+            echo "  Created: $backup_date UTC"
+            echo "  S3 Path: s3://$BUCKET_NAME/$backup_file"
+            echo "  File: $backup_name"
+
+            local formatted_size=$(format_file_size "$backup_size")
+            echo "  Size: $formatted_size"
+
+            # Estimate uncompressed size (gzip typically achieves 10-20x compression for SQL)
+            local uncompressed_estimate=$((backup_size * 15))
+            local formatted_uncompressed=$(format_file_size "$uncompressed_estimate")
+            echo "  Estimated Uncompressed: ~$formatted_uncompressed"
+        else
+            echo "  Status: ❌ Not found"
+            echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz"
+        fi
         echo ""
     fi
+
+    # Overall backup summary
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📊 BACKUP SUMMARY"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    local components_found=0
+    local components_expected=0
+
+    if has_backup_type "$backup_types" "static"; then
+        components_expected=$((components_expected + 1))
+        [ "$static_exists" = "yes" ] && components_found=$((components_found + 1))
+    fi
+    if has_backup_type "$backup_types" "public"; then
+        components_expected=$((components_expected + 1))
+        [ "$public_exists" = "yes" ] && components_found=$((components_found + 1))
+    fi
+    if has_backup_type "$backup_types" "db"; then
+        components_expected=$((components_expected + 1))
+        [ "$db_exists" = "yes" ] && components_found=$((components_found + 1))
+    fi
+
+    echo "  Components Found: $components_found of $components_expected"
+    echo ""
+    echo "  Backup Components:"
+    if has_backup_type "$backup_types" "static"; then
+        if [ "$static_exists" = "yes" ]; then
+            echo "    ✅ Static Site Backup"
+        else
+            echo "    ❌ Static Site Backup"
+        fi
+    fi
+    if has_backup_type "$backup_types" "public"; then
+        if [ "$public_exists" = "yes" ]; then
+            echo "    ✅ Public Files Backup"
+        elif [ "$static_exists" = "yes" ]; then
+            echo "    🔗 Public Files Backup (using smart linked backup)"
+        else
+            echo "    ❌ Public Files Backup"
+        fi
+    fi
+    if has_backup_type "$backup_types" "db"; then
+        if [ "$db_exists" = "yes" ]; then
+            echo "    ✅ Database Backup"
+        else
+            echo "    ❌ Database Backup"
+        fi
+    fi
+
+    echo ""
+    echo "  Backup Completeness:"
+    if [ $components_found -eq $components_expected ]; then
+        if [ "$static_exists" = "yes" ] && [ "$public_exists" = "no" ] && has_backup_type "$backup_types" "public"; then
+            print_status $GREEN "    ✅ Complete (using smart backup optimization)"
+        else
+            print_status $GREEN "    ✅ Complete - all components present"
+        fi
+    elif [ $components_found -eq 0 ]; then
+        print_status $RED "    ❌ No backup components found"
+    else
+        print_status $YELLOW "    ⚠️  Partial - $components_found of $components_expected components present"
+    fi
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
 # Show database backup information
