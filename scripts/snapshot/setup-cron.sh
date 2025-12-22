@@ -11,7 +11,7 @@
 SCRIPT_DIR=$(dirname "$0")
 CURDIR=$(pwd)
 
-. "$SCRIPT_DIR/common.sh"
+. "$SCRIPT_DIR/../common.sh"
 
 # Initialize backup system (sets PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE and loads config)
 init_backup_system

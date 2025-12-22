@@ -6,7 +6,7 @@ set -e
 
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
-. "$SCRIPT_DIR/common.sh"
+. "$SCRIPT_DIR/../common.sh"
 
 # Test tracking
 TESTS_PASSED=0

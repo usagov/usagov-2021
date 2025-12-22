@@ -6,7 +6,7 @@
 
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
-. "$SCRIPT_DIR/common.sh"
+. "$SCRIPT_DIR/../common.sh"
 
 # Initialize backup system
 init_backup_system
@@ -112,7 +112,7 @@ set_context() {
     print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
 
     # Query S3 to get the most recent valid backup tag for each type
-    local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/snapshot/common.sh && init_backup_system && setup_s3_vars && \
+    local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && \
         echo 'STATIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
         echo 'PUBLIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
         echo 'DB:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print \$4}' | sed 's/\.sql\.gz$//'")
@@ -181,7 +181,7 @@ last_backup() {
     print_status $BLUE "🕒 Last Backup Times"
     echo ""
 
-    cf ssh cms -c 'cd /var/www && . scripts/snapshot/common.sh && init_backup_system && setup_s3_vars &&
+    cf ssh cms -c 'cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
     echo "Static Site Backups:"
     latest_static=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | head -n1)
     if [ -n "$latest_static" ]; then
