@@ -224,9 +224,9 @@ capture_deployment_metadata() {
     local git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
     # Get currently deployed containers from CF
-    local cms_digest=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}' || echo "unknown")
-    local www_digest=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}' || echo "unknown")
-    local waf_digest=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}' || echo "unknown")
+    local cms_digest=$(get_app_digest "cms" || echo "unknown")
+    local www_digest=$(get_app_digest "www" || echo "unknown")
+    local waf_digest=$(get_app_digest "waf" || echo "unknown")
 
     # Try to extract CCI build number from digest
     # Format: registry/org/usagov_cms:BUILD@sha256:...
@@ -311,6 +311,26 @@ fetch_deployment_metadata() {
 
     # Download from S3 to stdout
     aws s3 cp "s3://${BUCKET_NAME}/${metadata_path}" - $S3_EXTRA_PARAMS 2>/dev/null
+}
+
+# Get container digest for a specific app from Cloud Foundry
+# Args:
+#   $1: app_name - Name of app (cms, waf, www)
+# Returns: Full docker image digest or empty string on error
+get_app_digest() {
+    local app_name="$1"
+    cf app "$app_name" 2>/dev/null | grep 'docker image' | awk '{print $NF}'
+}
+
+# Get all app digests (cms, waf, www) from Cloud Foundry
+# Returns: Three lines: cms_digest, waf_digest, www_digest
+get_all_app_digests() {
+    local cms_digest=$(get_app_digest "cms")
+    local waf_digest=$(get_app_digest "waf")
+    local www_digest=$(get_app_digest "www")
+    echo "$cms_digest"
+    echo "$waf_digest"
+    echo "$www_digest"
 }
 
 # ===================================================================

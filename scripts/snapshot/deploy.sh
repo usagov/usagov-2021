@@ -241,10 +241,68 @@ show_motd() {
     cf ssh cms -c "cat /etc/motd"
 }
 
-# Pre-deployment backup using context variables
-pre_deploy() {
+# ===================================================================
+# HELPER FUNCTIONS
+# ===================================================================
+
+# Execute a backup command via cf ssh to cms container
+# Args:
+#   $1: ticket - Ticket number
+#   $2: suffix - Backup suffix
+#   $3: types - Backup types (all, db, etc.) - default: all
+exec_backup_command() {
+    local ticket="$1"
+    local suffix="$2"
+    local types="${3:-all}"
+    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup $types $ticket $suffix"
+}
+
+# Execute a restore command via cf ssh to cms container
+# Args:
+#   $1: tag - Backup tag
+#   $2: only_flag - Optional --only=type flag
+exec_restore_command() {
+    local tag="$1"
+    local only_flag="${2:-}"
+    if [ -n "$only_flag" ]; then
+        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag $only_flag"
+    else
+        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag"
+    fi
+}
+
+# Prompt for rollback confirmation
+# Args:
+#   $1: rollback_type - Description of what's being rolled back
+#   $2: tag - Backup tag
+# Returns: 0 if confirmed, exits if cancelled
+confirm_rollback() {
+    local rollback_type="$1"
+    local tag="$2"
+
+    print_status $YELLOW "⚠️  ROLLBACK: This will restore $rollback_type"
+    print_status $YELLOW "Backup Tag: $tag"
+    echo ""
+    printf "Continue with rollback? (y/N): "
+    read -r confirmation
+
+    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
+        print_status $GREEN "❌ Rollback cancelled"
+        exit 0
+    fi
+    echo ""
+}
+
+# Create a deployment backup (pre or post)
+# Args:
+#   $1: backup_type - "pre" or "post" deployment
+#   $2: default_suffix - Default suffix if not set in context
+create_deployment_backup() {
+    local backup_type="$1"
+    local default_suffix="$2"
     local ticket="${DEPLOY_TICKET:-}"
-    local suffix="${DEPLOY_PRE_SUFFIX:-pre-deploy}"
+    local suffix_var="DEPLOY_${backup_type}_SUFFIX"
+    local suffix="${!suffix_var:-$default_suffix}"
 
     if [ -z "$ticket" ]; then
         print_status $RED "❌ Error: DEPLOY_TICKET not set"
@@ -252,32 +310,23 @@ pre_deploy() {
         exit 1
     fi
 
-    print_status $BLUE "📦 Creating pre-deployment backup"
+    print_status $BLUE "📦 Creating ${backup_type}-deployment backup"
     print_status $YELLOW "Ticket: $ticket"
     print_status $YELLOW "Suffix: $suffix"
     echo ""
 
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup all $ticket $suffix"
+    exec_backup_command "$ticket" "$suffix" "all"
+}
+
+# Pre-deployment backup using context variables
+pre_deploy() {
+    create_deployment_backup "PRE" "pre-deploy"
 }
 
 # Post-deployment backup using context variables
 # Now automatically creates annotated git tags for deployment tracking
 post_deploy() {
-    local ticket="${DEPLOY_TICKET:-}"
-    local suffix="${DEPLOY_POST_SUFFIX:-post-deploy}"
-
-    if [ -z "$ticket" ]; then
-        print_status $RED "❌ Error: DEPLOY_TICKET not set"
-        echo "Run: deploy.sh set-context <env> <ticket>"
-        exit 1
-    fi
-
-    print_status $BLUE "📦 Creating post-deployment backup"
-    print_status $YELLOW "Ticket: $ticket"
-    print_status $YELLOW "Suffix: $suffix"
-    echo ""
-
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup all $ticket $suffix"
+    create_deployment_backup "POST" "post-deploy"
 
     # Automatically create git tag for this deployment
     print_status $BLUE "🏷️ Capturing deployment metadata for git tag..."
@@ -289,10 +338,11 @@ post_deploy() {
         return 0
     fi
 
-    # Query CF for current container digests
-    local cms_digest=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
-    local waf_digest=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}')
-    local www_digest=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+    # Query CF for current container digests using helper function
+    local digests=$(get_all_app_digests)
+    local cms_digest=$(echo "$digests" | sed -n '1p')
+    local waf_digest=$(echo "$digests" | sed -n '2p')
+    local www_digest=$(echo "$digests" | sed -n '3p')
 
     # Extract CCI build number from digest (format: {registry}/{org}/usagov_{app}:{cci_build}@sha256:...)
     local cci_build=""
@@ -317,7 +367,7 @@ snapshot() {
     print_status $YELLOW "Suffix: $suffix"
     echo ""
 
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup all SNAPSHOT $suffix"
+    exec_backup_command "SNAPSHOT" "$suffix" "all"
 }
 
 # Quick database snapshot
@@ -328,7 +378,7 @@ snapshot_db() {
     print_status $YELLOW "Suffix: $suffix"
     echo ""
 
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup db SNAPSHOT $suffix"
+    exec_backup_command "SNAPSHOT" "$suffix" "db"
 }
 
 # List backups for rollback
@@ -341,103 +391,44 @@ list_backups() {
     cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh list all $days"
 }
 
-# Rollback data only (legacy - use manager.sh restore instead)
-# This is kept for backward compatibility but the new rollback command is preferred
-rollback_data_only() {
-    # Allow explicit tag override, otherwise use context
-    local static_tag="${1:-$DEPLOY_ROLLBACK_STATIC_TAG}"
-    local public_tag="${1:-$DEPLOY_ROLLBACK_PUBLIC_TAG}"
-    local db_tag="${1:-$DEPLOY_ROLLBACK_DB_TAG}"
+# Rollback single data type only (with confirmation)
+# Args:
+#   $1: type - Type to restore (static, db, public)
+#   $2: tag - Backup tag (optional if DEPLOY_ROLLBACK_{TYPE}_TAG is set)
+rollback_single_type() {
+    local type="$1"
+    local tag="${2:-}"
 
-    # If user provided a tag, use it for all types
-    if [ -n "$1" ]; then
-        static_tag="$1"
-        public_tag="$1"
-        db_tag="$1"
+    # Map type to context variable if tag not provided
+    if [ -z "$tag" ]; then
+        case "$type" in
+            static) tag="$DEPLOY_ROLLBACK_STATIC_TAG" ;;
+            db) tag="$DEPLOY_ROLLBACK_DB_TAG" ;;
+            public) tag="$DEPLOY_ROLLBACK_PUBLIC_TAG" ;;
+        esac
     fi
 
-    if [ -z "$static_tag" ] || [ -z "$public_tag" ] || [ -z "$db_tag" ]; then
-        print_status $RED "❌ Error: Backup tags required"
-        echo "Usage: deploy.sh rollback-data-only <tag>"
+    if [ -z "$tag" ]; then
+        print_status $RED "❌ Error: Backup tag required"
+        echo "Usage: deploy.sh rollback-$type <tag>"
         echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
         exit 1
     fi
 
-    print_status $YELLOW "⚠️  DATA ROLLBACK: This will restore all backup types (static, public, database)"
-    echo "Tags:"
-    echo "  Static: $static_tag"
-    echo "  Public: $public_tag"
-    echo "  DB: $db_tag"
-    echo ""
-    printf "Continue with rollback? (y/N): "
-    read -r confirmation
+    # Use confirmation helper
+    confirm_rollback "$type only" "$tag"
 
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "❌ Rollback cancelled"
-        exit 0
-    fi
-
-    echo ""
-    print_status $BLUE "Restoring static site..."
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $static_tag --only=static"
-
-    print_status $BLUE "Restoring public files..."
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $public_tag --only=public"
-
-    print_status $BLUE "Restoring database..."
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $db_tag --only=db"
+    exec_restore_command "$tag" "--only=$type"
 }
 
 # Rollback static site only (with confirmation)
 rollback_static() {
-    local tag="${1:-$DEPLOY_ROLLBACK_STATIC_TAG}"
-
-    if [ -z "$tag" ]; then
-        print_status $RED "❌ Error: Backup tag required"
-        echo "Usage: deploy.sh rollback-static <tag>"
-        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
-        exit 1
-    fi
-
-    print_status $YELLOW "⚠️  ROLLBACK: This will restore static site only"
-    print_status $YELLOW "Backup Tag: $tag"
-    echo ""
-    printf "Continue with rollback? (y/N): "
-    read -r confirmation
-
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "❌ Rollback cancelled"
-        exit 0
-    fi
-
-    echo ""
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag --only=static"
+    rollback_single_type "static" "$1"
 }
 
 # Rollback database only (with confirmation)
 rollback_db() {
-    local tag="${1:-$DEPLOY_ROLLBACK_DB_TAG}"
-
-    if [ -z "$tag" ]; then
-        print_status $RED "❌ Error: Backup tag required"
-        echo "Usage: deploy.sh rollback-db <tag>"
-        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
-        exit 1
-    fi
-
-    print_status $YELLOW "⚠️  ROLLBACK: This will restore database only"
-    print_status $YELLOW "Backup Tag: $tag"
-    echo ""
-    printf "Continue with rollback? (y/N): "
-    read -r confirmation
-
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "❌ Rollback cancelled"
-        exit 0
-    fi
-
-    echo ""
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag --only=db"
+    rollback_single_type "db" "$1"
 }
 
 # Switch CF target to specified environment
@@ -897,11 +888,11 @@ rollback() {
         case "$data_types" in
             full)
                 # Restore all data types using backup system
-                cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $backup_tag"
+                exec_restore_command "$backup_tag"
                 ;;
             *)
                 # Restore specific types (db, static, public, or comma-separated)
-                cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $backup_tag --only=$data_types"
+                exec_restore_command "$backup_tag" "--only=$data_types"
                 ;;
         esac
 
