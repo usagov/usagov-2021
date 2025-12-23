@@ -202,10 +202,10 @@ test_backup_integration() {
     fi
 
     # Check that it calls backup command
-    if grep -q "backup all" "$tome_sync_script"; then
-        echo "✅ Found backup all command call"
+    if grep -q "backup static,public" "$tome_sync_script"; then
+        echo "✅ Found backup static,public command call"
     else
-        echo "❌ Missing backup all command call"
+        echo "❌ Missing backup static,public command call"
         return 1
     fi
 
