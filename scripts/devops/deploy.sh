@@ -158,16 +158,16 @@ set_context() {
 show_context() {
     print_status $BLUE "📋 Current Deployment Context"
     echo ""
-    if [ -n "\$DEPLOY_ENV" ] || [ -n "\$DEPLOY_TICKET" ] || [ -n "\$DEPLOY_PRE_SUFFIX" ] || [ -n "\$DEPLOY_POST_SUFFIX" ]; then
-        echo "  DEPLOY_ENV=\${DEPLOY_ENV:-(not set)}"
-        echo "  DEPLOY_TICKET=\${DEPLOY_TICKET:-(not set)}"
-        echo "  DEPLOY_PRE_SUFFIX=\${DEPLOY_PRE_SUFFIX:-(not set)}"
-        echo "  DEPLOY_POST_SUFFIX=\${DEPLOY_POST_SUFFIX:-(not set)}"
+    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
+        echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
+        echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
+        echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
+        echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
         echo ""
         echo "Rollback tags:"
-        echo "  DEPLOY_ROLLBACK_STATIC_TAG=\${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=\${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_DB_TAG=\${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
     else
         print_status $YELLOW "⚠️  No deployment context set"
         echo ""
