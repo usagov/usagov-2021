@@ -17,9 +17,9 @@ show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
     echo "Setup Commands:"
-    echo "  set-context <env> <ticket> [post] [pre]  Set deployment context (creates env vars)"
+    echo "  set-context <env> <ticket> [pre] [post]  Set deployment context (creates env vars)"
     echo "                                        Example: deploy.sh set-context prod USAGOV-1234"
-    echo "                                        Optional: deploy.sh set-context prod USAGOV-1234 post-deploy pre-deploy"
+    echo "                                        Optional: deploy.sh set-context prod USAGOV-1234 pre-deploy post-deploy"
     echo "                                        Sets: DEPLOY_ENV, DEPLOY_TICKET, DEPLOY_PRE_SUFFIX, DEPLOY_POST_SUFFIX"
     echo ""
     echo "  show-context                          Show current deployment context"
@@ -100,12 +100,12 @@ show_usage() {
 set_context() {
     local env="$1"
     local ticket="$2"
-    local post_suffix="${3:-post-deploy}"
-    local pre_suffix="${4:-pre-deploy}"
+    local pre_suffix="${3:-pre-deploy}"
+    local post_suffix="${4:-post-deploy}"
 
     if [ -z "$env" ] || [ -z "$ticket" ]; then
         print_status $RED "❌ Error: Environment and ticket required"
-        echo "Usage: deploy.sh set-context <env> <ticket> [post-suffix] [pre-suffix]"
+        echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix]"
         exit 1
     fi
 
