@@ -462,7 +462,7 @@ test_backup_naming() {
 test_date_range_filtering() {
     echo "📅 Testing date range filtering functionality..."
 
-    local common_script="$BACKUP_DIR/common.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
 
     # Test 1: Check if date_to_epoch function exists
     if ! grep -q "^date_to_epoch()" "$common_script"; then
@@ -614,7 +614,7 @@ test_date_range_filtering() {
 test_explicit_clean_flags() {
     echo "🎯 Testing explicit clean flags functionality..."
 
-    local common_script="$BACKUP_DIR/common.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
     local manager_script="$BACKUP_DIR/manager.sh"
 
     # Test 1: Check if matches_clean_filter function exists
@@ -1385,7 +1385,7 @@ AUTO-staging-14851-2025-12-31-post-update"
 test_state_management() {
     echo "🔧 Testing Drupal state management..."
 
-    local common_script="$BACKUP_DIR/common.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
     local manager_script="$BACKUP_DIR/manager.sh"
 
     # Check if state management functions exist in common.sh
@@ -1882,7 +1882,7 @@ DB_BACKUP_PREFIX
 test_local_manager() {
     echo "💻 Testing local-manager.sh wrapper..."
 
-    local local_manager="$BACKUP_DIR/local-manager.sh"
+    local local_manager="$PROJECT_ROOT/scripts/devops/local-manager.sh"
 
     if [ ! -f "$local_manager" ]; then
         echo "❌ local-manager.sh not found"
@@ -1941,7 +1941,7 @@ test_local_manager() {
 test_common_utilities() {
     echo "🔧 Testing common.sh utility functions..."
 
-    local common_file="$BACKUP_DIR/common.sh"
+    local common_file="$PROJECT_ROOT/scripts/common.sh"
 
     if [ ! -f "$common_file" ]; then
         echo "❌ common.sh not found"
