@@ -37,9 +37,9 @@ show_usage() {
     echo "                                        Displays CCI build number and container digests"
     echo "                                        for CMS, WAF, and WWW"
     echo ""
-    echo "Deployment Commands:"
+    echo "Deployment Commands (DESTRUCTIVE):"
     echo "  deploy app <name> <build> <digest> [--force]"
-    echo "                                        Deploy specific app with container digest"
+    echo "                                        🔥 DESTRUCTIVE: Deploy specific app with container digest"
     echo "                                        Example: deploy app cms 5936 @sha256:abc..."
     echo "                                        Use --force to skip space validation"
     echo ""
@@ -52,18 +52,18 @@ show_usage() {
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
     echo ""
-    echo "Rollback Commands:"
+    echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  rollback [types] <tag> [--force]      Rollback code (always) + optional data types"
+    echo "  rollback [types] <tag> [--force]      🔥 DESTRUCTIVE: Rollback code (always) + optional data types"
     echo "                                        Types: db, static, public, full, or comma-separated"
     echo "                                        Default: code only (no data restore)"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
     echo "                                        Example: rollback AUTO-prod-cf-123-2025-12-22-0"
     echo "                                        Example: rollback db AUTO-prod-cf-123-2025-12-22-0"
     echo "                                        Example: rollback full AUTO-prod-cf-123-2025-12-22-0"
-    echo "  rollback-static [tag] [--force]       Restore static site only (with confirmation)"
+    echo "  rollback-static [tag] [--force]       🔥 DESTRUCTIVE: Restore static site only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
-    echo "  rollback-db [tag] [--force]           Restore database only (with confirmation)"
+    echo "  rollback-db [tag] [--force]           🔥 DESTRUCTIVE: Restore database only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_DB_TAG is set"
     echo ""
     echo "Quick Backup Commands:"
@@ -265,12 +265,12 @@ validate_target_space() {
 
 # Get current CF space
     local current_space=$(cf target | grep "space:" | awk '{print $2}')
-    
+
     if [ -z "$current_space" ]; then
         print_status $RED "❌ Could not determine current CF space"
         exit 1
     fi
-    
+
     # Require DEPLOY_ENV to be set for safety
     if [ -z "$DEPLOY_ENV" ]; then
         print_status $RED "❌ DEPLOY_ENV NOT SET"
