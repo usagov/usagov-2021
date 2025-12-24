@@ -38,27 +38,32 @@ show_usage() {
     echo "                                        for CMS, WAF, and WWW"
     echo ""
     echo "Deployment Commands:"
-    echo "  deploy app <name> <build> <digest>    Deploy specific app with container digest"
+    echo "  deploy app <name> <build> <digest> [--force]"
+    echo "                                        Deploy specific app with container digest"
     echo "                                        Example: deploy app cms 5936 @sha256:abc..."
+    echo "                                        Use --force to skip space validation"
     echo ""
     echo "Deployment Backup Commands:"
-    echo "  pre-deploy                            Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
+    echo "  pre-deploy [--force]                  Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
     echo "                                        Requires: DEPLOY_TICKET"
-    echo "  post-deploy                           Create post-deployment backup using DEPLOY_POST_SUFFIX"
+    echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
+    echo "  post-deploy [--force]                 Create post-deployment backup using DEPLOY_POST_SUFFIX"
     echo "                                        Automatically creates annotated git tag for deployment tracking"
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
+    echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
     echo ""
     echo "Rollback Commands:"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  rollback [types] <tag>                Rollback code (always) + optional data types"
+    echo "  rollback [types] <tag> [--force]      Rollback code (always) + optional data types"
     echo "                                        Types: db, static, public, full, or comma-separated"
     echo "                                        Default: code only (no data restore)"
+    echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
     echo "                                        Example: rollback AUTO-prod-cf-123-2025-12-22-0"
     echo "                                        Example: rollback db AUTO-prod-cf-123-2025-12-22-0"
     echo "                                        Example: rollback full AUTO-prod-cf-123-2025-12-22-0"
-    echo "  rollback-static [tag]                 Restore static site only (with confirmation)"
+    echo "  rollback-static [tag] [--force]       Restore static site only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
-    echo "  rollback-db [tag]                     Restore database only (with confirmation)"
+    echo "  rollback-db [tag] [--force]           Restore database only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_DB_TAG is set"
     echo ""
     echo "Quick Backup Commands:"
@@ -245,6 +250,54 @@ show_motd() {
 # HELPER FUNCTIONS
 # ===================================================================
 
+# Validate CF target matches DEPLOY_ENV (safety check for destructive operations)
+# Args:
+#   $1: force - If "force" or "--force", skip validation
+# Returns: 0 if valid, exits if mismatch
+validate_target_space() {
+    local force="$1"
+
+    # Skip validation if force flag provided
+    if [ "$force" = "force" ] || [ "$force" = "--force" ]; then
+        print_status $YELLOW "⚠️  --force flag used, skipping space validation"
+        return 0
+    fi
+
+    # Only validate if DEPLOY_ENV is set
+    if [ -z "$DEPLOY_ENV" ]; then
+        print_status $YELLOW "💡 DEPLOY_ENV not set, skipping space validation"
+        return 0
+    fi
+
+    # Get current CF space
+    local current_space=$(cf target | grep "space:" | awk '{print $2}')
+
+    if [ -z "$current_space" ]; then
+        print_status $RED "❌ Could not determine current CF space"
+        exit 1
+    fi
+
+    # Compare with DEPLOY_ENV
+    if [ "$current_space" != "$DEPLOY_ENV" ]; then
+        print_status $RED "❌ SPACE MISMATCH DETECTED"
+        echo ""
+        echo "  Current CF space: $current_space"
+        echo "  DEPLOY_ENV:       $DEPLOY_ENV"
+        echo ""
+        print_status $YELLOW "This is a safety check to prevent deploying/rolling back to the wrong environment."
+        echo ""
+        echo "To proceed anyway, either:"
+        echo "  1. Switch spaces: deploy.sh switch $DEPLOY_ENV"
+        echo "  2. Update context: deploy.sh set-context $current_space <ticket>"
+        echo "  3. Use --force flag (NOT RECOMMENDED)"
+        echo ""
+        exit 1
+    fi
+
+    print_status $GREEN "✅ Space validation passed: $current_space"
+    return 0
+}
+
 # Execute a backup command via cf ssh to cms container
 # Args:
 #   $1: ticket - Ticket number
@@ -320,12 +373,18 @@ create_deployment_backup() {
 
 # Pre-deployment backup using context variables
 pre_deploy() {
+    # Validate CF space matches DEPLOY_ENV
+    validate_target_space "$1"
+
     create_deployment_backup "PRE" "pre-deploy"
 }
 
 # Post-deployment backup using context variables
 # Now automatically creates annotated git tags for deployment tracking
 post_deploy() {
+    # Validate CF space matches DEPLOY_ENV
+    validate_target_space "$1"
+
     create_deployment_backup "POST" "post-deploy"
 
     # Automatically create git tag for this deployment
@@ -395,9 +454,14 @@ list_backups() {
 # Args:
 #   $1: type - Type to restore (static, db, public)
 #   $2: tag - Backup tag (optional if DEPLOY_ROLLBACK_{TYPE}_TAG is set)
+#   $3: force - Optional "force" flag to skip validation
 rollback_single_type() {
     local type="$1"
     local tag="${2:-}"
+    local force="$3"
+
+    # Validate CF space matches DEPLOY_ENV
+    validate_target_space "$force"
 
     # Map type to context variable if tag not provided
     if [ -z "$tag" ]; then
@@ -423,12 +487,12 @@ rollback_single_type() {
 
 # Rollback static site only (with confirmation)
 rollback_static() {
-    rollback_single_type "static" "$1"
+    rollback_single_type "static" "$1" "$2"
 }
 
 # Rollback database only (with confirmation)
 rollback_db() {
-    rollback_single_type "db" "$1"
+    rollback_single_type "db" "$1" "$2"
 }
 
 # Switch CF target to specified environment
@@ -756,6 +820,10 @@ deploy_app() {
     local app_name="$1"
     local cci_build="$2"
     local digest="$3"
+    local force="$4"
+
+    # Validate CF space matches DEPLOY_ENV
+    validate_target_space "$force"
 
     if [ -z "$app_name" ] || [ -z "$cci_build" ] || [ -z "$digest" ]; then
         print_status $RED "❌ Error: Missing required parameters"
@@ -779,6 +847,18 @@ deploy_app() {
 rollback() {
     local data_types=""
     local backup_tag=""
+    local force=""
+
+    # Parse: [types] [tag] [--force]
+    # Check for --force flag in any position
+    for arg in "$@"; do
+        if [ "$arg" = "--force" ]; then
+            force="force"
+        fi
+    done
+
+    # Validate CF space matches DEPLOY_ENV
+    validate_target_space "$force"
 
     # Parse: [types] [tag]
     # If first arg looks like a data type, it's types; otherwise it's the tag
@@ -1135,10 +1215,12 @@ case "$COMMAND" in
         esac
         ;;
     "pre-deploy")
-        pre_deploy
+        shift
+        pre_deploy "$@"
         ;;
     "post-deploy")
-        post_deploy
+        shift
+        post_deploy "$@"
         ;;
     "list-backups")
         shift
