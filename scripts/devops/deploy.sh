@@ -263,17 +263,27 @@ validate_target_space() {
         return 0
     fi
 
-    # Only validate if DEPLOY_ENV is set
-    if [ -z "$DEPLOY_ENV" ]; then
-        print_status $YELLOW "💡 DEPLOY_ENV not set, skipping space validation"
-        return 0
-    fi
-
-    # Get current CF space
+# Get current CF space
     local current_space=$(cf target | grep "space:" | awk '{print $2}')
-
+    
     if [ -z "$current_space" ]; then
         print_status $RED "❌ Could not determine current CF space"
+        exit 1
+    fi
+    
+    # Require DEPLOY_ENV to be set for safety
+    if [ -z "$DEPLOY_ENV" ]; then
+        print_status $RED "❌ DEPLOY_ENV NOT SET"
+        echo ""
+        echo "  Current CF space: $current_space"
+        echo "  DEPLOY_ENV:       (not set)"
+        echo ""
+        print_status $YELLOW "This is a safety check to ensure you have deployment context set."
+        echo ""
+        echo "To proceed, either:"
+        echo "  1. Set context: deploy.sh set-context $current_space <ticket>"
+        echo "  2. Use --force flag to skip validation (NOT RECOMMENDED)"
+        echo ""
         exit 1
     fi
 
