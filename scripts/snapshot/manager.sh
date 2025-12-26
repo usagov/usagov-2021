@@ -817,7 +817,7 @@ create_public_backup() {
     PUBLIC_BACKUP_NEEDED=true
 
     if [ "$ENABLE_SMART_PUBLIC_BACKUP" = "true" ]; then
-        log_message "🔍 Checking if public files backup needed..."
+        local loader=$(show_loading "Checking if public files backup needed")
 
         # Find the most recent automatic public files backup
         LATEST_PUBLIC_BACKUP=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-${APP_SPACE}-" | sort -r | head -n1 | awk '{print $2}' | tr -d '/')
@@ -830,9 +830,14 @@ create_public_backup() {
             BACKUP_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
 
             if [ -n "$CURRENT_PUBLIC_CHECKSUM" ] && [ -n "$BACKUP_PUBLIC_CHECKSUM" ] && [ "$CURRENT_PUBLIC_CHECKSUM" = "$BACKUP_PUBLIC_CHECKSUM" ]; then
+                stop_loading "$loader"
                 log_message "⏭️ Public files unchanged, skipping backup"
                 PUBLIC_BACKUP_NEEDED=false
+            else
+                stop_loading "$loader"
             fi
+        else
+            stop_loading "$loader"
         fi
     fi
 
@@ -1029,6 +1034,7 @@ list_static_backups() {
     print_status $GREEN "Static Site Backups:"
     echo "===================="
 
+    local loader=$(show_loading "Loading backup list")
     # Get list of backup directories with metadata
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
         backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
@@ -1057,6 +1063,7 @@ list_public_backups() {
     print_status $GREEN "Public Files Backups:"
     echo "====================="
 
+    local loader=$(show_loading "Loading backup list")
     # Get list of backup directories with metadata
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
         backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
@@ -1074,6 +1081,12 @@ list_public_backups() {
             backup_date="unknown"
         fi
 
+        # Stop loader on first iteration (public backups)
+        if [ -n "$loader" ]; then
+            stop_loading "$loader"
+            loader=""
+        fi
+
         local formatted_size=$(format_file_size "$backup_size")
         echo "  $backup_tag ($formatted_size) - $backup_date"
     done
@@ -1086,11 +1099,18 @@ list_db_backups() {
     echo "=================="
 
     if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+        local loader=$(show_loading "Loading backup list")
         aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | sort -r | while read -r line; do
             # Extract backup name from S3 listing
             backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
             backup_size=$(echo "$line" | awk '{print $3}')
             backup_date=$(echo "$line" | awk '{print $1" "$2}')
+
+            # Stop loader on first iteration (db backups)
+            if [ -n "$loader" ]; then
+                stop_loading "$loader"
+                loader=""
+            fi
 
             local formatted_size=$(format_file_size "$backup_size")
             echo "  $backup_file ($formatted_size) - $backup_date"

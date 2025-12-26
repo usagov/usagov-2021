@@ -94,6 +94,21 @@ print_status() {
     printf "${color}${message}${NC}\n"
 }
 
+# Show loading message (static, no animation)
+# Args:
+#   $1: message - The message to display
+show_loading() {
+    local message="$1"
+    printf "  %s...\n" "$message" >&2
+}
+
+# Clear/update loading message (no-op, kept for compatibility)
+# Args:
+#   $1: ignored (kept for compatibility with animation version)
+stop_loading() {
+    :  # no-op
+}
+
 # Log message with timestamp for audit trail
 # Outputs: YYYY-MM-DD HH:MM:SS: <message>
 # Args:

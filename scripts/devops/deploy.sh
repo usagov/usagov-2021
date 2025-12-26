@@ -195,6 +195,7 @@ last_backup() {
     print_status $BLUE "🕒 Last Backup Times"
     echo ""
 
+    local loader=$(show_loading "Checking backup timestamps")
     cf ssh cms -c 'cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
     echo "Static Site Backups:"
     latest_static=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | head -n1)
@@ -237,6 +238,7 @@ last_backup() {
         echo "  No backups found"
     fi
     '
+    stop_loading "$loader"
 }
 
 # Show current status
@@ -244,10 +246,14 @@ show_status() {
     print_status $BLUE "📊 Current Status"
     echo ""
     echo "CF Target:"
+    local loader=$(show_loading "Fetching Cloud Foundry status")
     cf target
+    stop_loading "$loader"
     echo ""
     echo "Recent Activity (last 10 events):"
+    loader=$(show_loading "Loading recent events")
     cf events cms | head -15
+    stop_loading "$loader"
 }
 
 # Show message of the day from CMS container
@@ -597,7 +603,7 @@ _show_current_and_previous_digests() {
     local env="$1"
 
     print_status $GREEN "CURRENTLY DEPLOYED:"
-    echo "  Querying Cloud Foundry..." >&2
+    show_loading "Querying Cloud Foundry"
     # Get current digests for all apps
     local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
     local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
@@ -607,9 +613,6 @@ _show_current_and_previous_digests() {
         echo "  Unable to query CF (check 'cf target' and login)"
         return 1
     fi
-
-    # Clear wait indicator
-    echo -ne "\r  \033[K" >&2
 
     # Get deployment time from app info
     local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
@@ -683,19 +686,13 @@ _show_current_and_previous_digests() {
                 ROLLBACK_CMS="$cms_prev"
                 ROLLBACK_WWW="$www_prev"
                 ROLLBACK_WAF="$waf_prev"
-
-                # Clear wait indicator
-                echo -ne "\r  \033[K" >&2
             else
-                echo -ne "\r  \033[K" >&2
                 echo "  No previous deployment found in CF history"
             fi
         else
-            echo -ne "\r  \033[K" >&2
             echo "  No previous deployment found in CF history"
         fi
     else
-        echo -ne "\r  \033[K" >&2
         echo "  Unable to query CF API"
     fi
 }
@@ -815,7 +812,7 @@ _show_backup_digests() {
     local days="$2"
 
     print_status $MAGENTA "BACKUPS WITH DIGESTS (last $days days):"
-    echo "  Scanning S3 backup metadata..." >&2
+    show_loading "Scanning S3 backup metadata"
     # Get S3 bucket name from CF environment
     local bucket_name=$(cf curl "/v3/apps/$(cf app cms --guid 2>/dev/null)/env" 2>/dev/null | grep -o '"bucket":"[^"]*"' | head -1 | cut -d'"' -f4)
 
@@ -902,9 +899,6 @@ _show_backup_digests() {
     done <<EOF
 $metadata_files
 EOF
-
-    # Clear the "Scanning..." message
-    echo -ne "\r  \033[K" >&2
 
     # If no backups with digests were found, show a message
     if [ $shown -eq 0 ]; then
@@ -1588,10 +1582,12 @@ validate_deployment() {
 
         print_status $BLUE "📦 Validating app: $app"
         echo "----------------------------------------"
+        local loader=$(show_loading "Checking deployment status")
 
         # Check if app exists and is running
         local app_info
         app_info=$(cf app "$app" 2>&1)
+        stop_loading "$loader"
 
         if [ $? -ne 0 ]; then
             print_status $RED "❌ App '$app' not found or not accessible"
@@ -1643,12 +1639,14 @@ validate_deployment() {
 
         # HTTP endpoint check (if not skipped)
         if [ "$skip_http" = false ]; then
+            loader=$(show_loading "Testing HTTP endpoint")
             local app_url
             app_url=$(cf app "$app" | grep "^routes:" | awk '{print $2}' | head -1)
 
             if [ -n "$app_url" ]; then
                 local http_status
                 http_status=$(curl -s -o /dev/null -w "%{http_code}" -L "https://$app_url" --max-time 10 2>/dev/null)
+                stop_loading "$loader"
 
                 if [ "$http_status" = "200" ]; then
                     print_status $GREEN "✅ HTTP endpoint responding (200)"
@@ -1659,6 +1657,7 @@ validate_deployment() {
                     overall_success=false
                 fi
             else
+                stop_loading "$loader"
                 print_status $YELLOW "⚠️  Could not determine app URL for HTTP check"
             fi
         fi
