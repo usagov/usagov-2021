@@ -75,6 +75,13 @@ show_usage() {
     echo "  rollback-db [tag] [--force]           🔥 DESTRUCTIVE: Restore database only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_DB_TAG is set"
     echo ""
+    echo "Downsync Commands (DESTRUCTIVE):"
+    echo "  downsync <from> <to> [tag]            🔥 DESTRUCTIVE: Copy data from one space to another"
+    echo "                                        Example: downsync prod dev"
+    echo "                                        Copies database and public files from FROM space to TO space"
+    echo "                                        Uses latest backup from FROM space if tag not specified"
+    echo "                                        Automatically fixes MFA configuration after restore"
+    echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
     echo "  snapshot-db [suffix]                  Quick database-only backup"
@@ -488,6 +495,275 @@ snapshot_db() {
     echo ""
 
     exec_backup_command "SNAPSHOT" "$suffix" "db"
+}
+
+# Downsync data from one space to another
+# Args:
+#   $1: from_space - Source environment (e.g., prod)
+#   $2: to_space - Destination environment (e.g., dev)
+#   $3: backup_tag - Optional backup tag (uses latest from FROM space if not specified)
+downsync() {
+    local from_space="$1"
+    local to_space="$2"
+    local backup_tag="$3"
+
+    if [ -z "$from_space" ] || [ -z "$to_space" ]; then
+        print_status $RED "❌ Error: Both FROM and TO spaces required"
+        echo "Usage: deploy.sh downsync <from-space> <to-space> [backup-tag]"
+        echo "Example: deploy.sh downsync prod dev"
+        exit 1
+    fi
+
+    # Validate space names
+    if [ "$from_space" != "dev" ] && [ "$from_space" != "stage" ] && [ "$from_space" != "prod" ]; then
+        print_status $RED "❌ Error: FROM space must be dev, stage, or prod"
+        exit 1
+    fi
+
+    if [ "$to_space" != "dev" ] && [ "$to_space" != "stage" ] && [ "$to_space" != "prod" ]; then
+        print_status $RED "❌ Error: TO space must be dev, stage, or prod"
+        exit 1
+    fi
+
+    if [ "$from_space" = "$to_space" ]; then
+        print_status $RED "❌ Error: FROM and TO spaces must be different"
+        exit 1
+    fi
+
+    # Save current space to restore later
+    local original_space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
+
+    # If no backup tag specified, get latest from FROM space
+    if [ -z "$backup_tag" ]; then
+        print_status $BLUE "🔍 Finding latest backup from $from_space..."
+
+        # Switch to FROM space to query backups
+        cf target -s "$from_space" >/dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            print_status $RED "❌ Error: Failed to target FROM space: $from_space"
+            exit 1
+        fi
+
+        # Get latest DB backup tag
+        backup_tag=$(cf ssh cms -c "
+            export AWS_DEFAULT_REGION='us-gov-west-1'
+            . /home/vcap/app/scripts/snapshot/includes
+            setup_s3_vars >/dev/null 2>&1
+            aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ --recursive \$S3_EXTRA_PARAMS | \
+            grep '\.sql\.gz\$' | \
+            sort -r | \
+            head -1 | \
+            awk '{print \$4}' | \
+            xargs basename | \
+            sed 's/\.sql\.gz\$/'" 2>/dev/null | tail -1)
+
+        if [ -z "$backup_tag" ]; then
+            print_status $RED "❌ Error: No backups found in $from_space"
+            [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+            exit 1
+        fi
+
+        print_status $GREEN "✅ Found latest backup: $backup_tag"
+    fi
+
+    # Show confirmation
+    print_status $YELLOW "⚠️  DOWNSYNC CONFIRMATION"
+    echo ""
+    echo "  FROM:   $from_space"
+    echo "  TO:     $to_space"
+    echo "  BACKUP: $backup_tag"
+    echo ""
+    print_status $YELLOW "This will:"
+    echo "  1. Copy database from $from_space to $to_space"
+    echo "  2. Copy public files from $from_space to $to_space"
+    echo "  3. Run database updates and config imports"
+    echo "  4. Fix MFA configuration for $to_space"
+    echo ""
+    print_status $RED "⚠️  WARNING: This will OVERWRITE all data in $to_space!"
+    echo ""
+    read -p "Type 'yes' to proceed: " confirm
+
+    if [ "$confirm" != "yes" ]; then
+        print_status $YELLOW "❌ Downsync cancelled"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 0
+    fi
+
+    print_status $BLUE "🚀 Starting downsync..."
+    echo ""
+
+    # Create temporary directory for downloads
+    local temp_dir=$(mktemp -d)
+    local db_file="$temp_dir/${backup_tag}.sql.gz"
+    local public_dir="$temp_dir/${backup_tag}_public"
+
+    # Switch to FROM space and download backups
+    print_status $BLUE "📥 Downloading backups from $from_space..."
+    cf target -s "$from_space" >/dev/null 2>&1
+
+    # Download via CMS container
+    print_status $BLUE "  Downloading database..."
+    cf ssh cms -c "
+        export AWS_DEFAULT_REGION='us-gov-west-1'
+        . /home/vcap/app/scripts/snapshot/includes
+        setup_s3_vars >/dev/null 2>&1
+        aws s3 cp s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz - \$S3_EXTRA_PARAMS
+    " > "$db_file" 2>/dev/null
+
+    if [ ! -s "$db_file" ]; then
+        print_status $RED "❌ Error: Failed to download database backup"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 1
+    fi
+
+    print_status $GREEN "  ✅ Database downloaded ($(du -h "$db_file" | cut -f1))"
+
+    print_status $BLUE "  Downloading public files..."
+    mkdir -p "$public_dir"
+    cf ssh cms -c "
+        export AWS_DEFAULT_REGION='us-gov-west-1'
+        . /home/vcap/app/scripts/snapshot/includes
+        setup_s3_vars >/dev/null 2>&1
+        cd /tmp
+        aws s3 sync s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/ . \$S3_EXTRA_PARAMS
+        tar czf - .
+    " > "$temp_dir/public.tar.gz" 2>/dev/null
+
+    if [ ! -s "$temp_dir/public.tar.gz" ]; then
+        print_status $RED "❌ Error: Failed to download public files backup"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 1
+    fi
+
+    tar xzf "$temp_dir/public.tar.gz" -C "$public_dir" 2>/dev/null
+    rm "$temp_dir/public.tar.gz"
+    print_status $GREEN "  ✅ Public files downloaded ($(du -sh "$public_dir" | cut -f1))"
+
+    # Switch to TO space
+    print_status $BLUE "🎯 Targeting $to_space..."
+    cf target -s "$to_space" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        print_status $RED "❌ Error: Failed to target TO space: $to_space"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 1
+    fi
+
+    # Get tome state before restore
+    print_status $BLUE "📋 Checking tome state..."
+    local tome_disabled=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null | tail -1)
+
+    # Disable tome and enable maintenance mode
+    print_status $BLUE "🔒 Enabling maintenance mode..."
+    cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 1" >/dev/null 2>&1
+    cf ssh cms -c ". /etc/profile; drush sset usagov.tome_run_disabled 1" >/dev/null 2>&1
+
+    # Upload and restore database
+    print_status $BLUE "📤 Uploading and restoring database..."
+    cf ssh cms -c "cat > /tmp/${backup_tag}.sql.gz" < "$db_file"
+    cf ssh cms -c "
+        . /etc/profile
+        cd /tmp
+        gunzip -f ${backup_tag}.sql.gz
+        drush sql-cli < ${backup_tag}.sql
+        rm -f ${backup_tag}.sql
+    " >/dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        print_status $RED "❌ Error: Failed to restore database"
+        print_status $YELLOW "⚠️  Site may be in maintenance mode - check manually"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 1
+    fi
+    print_status $GREEN "  ✅ Database restored"
+
+    # Upload and restore public files
+    print_status $BLUE "📤 Uploading public files to S3..."
+    cf ssh cms -c "
+        export AWS_DEFAULT_REGION='us-gov-west-1'
+        . /home/vcap/app/scripts/snapshot/includes
+        setup_s3_vars >/dev/null 2>&1
+        cd /tmp
+        rm -rf public_restore
+        mkdir public_restore
+    " >/dev/null 2>&1
+
+    # Upload files in chunks via tar
+    (cd "$public_dir" && tar czf - .) | cf ssh cms -c "cd /tmp/public_restore && tar xzf -" 2>/dev/null
+
+    cf ssh cms -c "
+        export AWS_DEFAULT_REGION='us-gov-west-1'
+        . /home/vcap/app/scripts/snapshot/includes
+        setup_s3_vars >/dev/null 2>&1
+        aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --acl public-read \$S3_EXTRA_PARAMS
+        rm -rf /tmp/public_restore
+    " >/dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        print_status $RED "❌ Error: Failed to restore public files"
+        print_status $YELLOW "⚠️  Database restored but public files failed"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 1
+    fi
+    print_status $GREEN "  ✅ Public files restored"
+
+    # Run database updates
+    print_status $BLUE "🔄 Running database updates..."
+    cf ssh cms -c "
+        . /etc/profile
+        drush cr
+        drush updatedb --no-cache-clear -y
+        drush cim -y || drush cim -y
+        drush cim -y
+        drush php-eval 'node_access_rebuild();' -y
+    " >/dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        print_status $YELLOW "⚠️  Warning: Some database updates may have failed"
+    else
+        print_status $GREEN "  ✅ Database updates complete"
+    fi
+
+    # Disable maintenance mode
+    print_status $BLUE "🔓 Disabling maintenance mode..."
+    cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0" >/dev/null 2>&1
+
+    # Restore tome state
+    if [ "$tome_disabled" != "1" ]; then
+        cf ssh cms -c ". /etc/profile; drush sset usagov.tome_run_disabled 0" >/dev/null 2>&1
+    fi
+
+    # Fix MFA configuration
+    print_status $BLUE "🔐 Fixing MFA configuration for $to_space..."
+    cf ssh cms -c "
+        . /etc/profile
+        /var/www/scripts/gsaauth/configset.sh $to_space
+    " >/dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        print_status $YELLOW "⚠️  Warning: MFA configuration may have failed"
+    else
+        print_status $GREEN "  ✅ MFA configuration updated"
+    fi
+
+    # Cleanup
+    rm -rf "$temp_dir"
+
+    # Restore original space
+    if [ -n "$original_space" ] && [ "$original_space" != "$to_space" ]; then
+        cf target -s "$original_space" >/dev/null 2>&1
+    fi
+
+    echo ""
+    print_status $GREEN "✅ Downsync complete!"
+    echo ""
+    echo "  Data from $from_space has been copied to $to_space"
+    echo "  Backup used: $backup_tag"
+    echo ""
 }
 
 # List backups for rollback
@@ -1797,6 +2073,10 @@ case "$COMMAND" in
     "snapshot-db")
         shift
         snapshot_db "$@"
+        ;;
+    "downsync")
+        shift
+        downsync "$@"
         ;;
     "switch")
         shift
