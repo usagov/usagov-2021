@@ -224,51 +224,12 @@ capture_deployment_metadata() {
     local git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
     # Get currently deployed containers
-    # Priority order:
-    # 1. Environment variables (if set)
-    # 2. S3 digest file (written by deploy.sh for manual backups)
-    # 3. CF CLI (only works outside container)
+    # Try environment variables first, then CF CLI if available
     local cms_digest="$BACKUP_CMS_DIGEST"
     local www_digest="$BACKUP_WWW_DIGEST"
     local waf_digest="$BACKUP_WAF_DIGEST"
     
-    # If not set via env vars, try reading from S3
-    if [ -z "$cms_digest" ]; then
-        # Get S3 credentials and bucket name from VCAP_SERVICES (works in container)
-        bucket_name_temp=$(echo "$VCAP_SERVICES" | jq -r '."s3"[]? | select(.name == "storage") | .credentials.bucket' 2>/dev/null)
-        aws_key_temp=$(echo "$VCAP_SERVICES" | jq -r '."s3"[]? | select(.name == "storage") | .credentials.access_key_id' 2>/dev/null)
-        aws_secret_temp=$(echo "$VCAP_SERVICES" | jq -r '."s3"[]? | select(.name == "storage") | .credentials.secret_access_key' 2>/dev/null)
-        aws_region_temp=$(echo "$VCAP_SERVICES" | jq -r '."s3"[]? | select(.name == "storage") | .credentials.region' 2>/dev/null)
-        
-        if [ -n "$bucket_name_temp" ] && [ -n "$aws_key_temp" ] && [ -n "$aws_secret_temp" ]; then
-            local digest_file="/tmp/digest_read_${RANDOM}_${backup_tag}.json"
-            if command -v aws >/dev/null 2>&1; then
-                # Temporarily set AWS credentials for this operation
-                AWS_ACCESS_KEY_ID="$aws_key_temp"
-                AWS_SECRET_ACCESS_KEY="$aws_secret_temp"
-                AWS_DEFAULT_REGION="${aws_region_temp:-us-gov-west-1}"
-                export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION
-                
-                # Try to download digest file (suppress output to avoid conflicts with function's stdout)
-                aws s3 cp "s3://${bucket_name_temp}/deployment-metadata/.current_digests.json" "$digest_file" --no-progress 2>/dev/null
-                if [ -f "$digest_file" ]; then
-                    # Parse JSON (simple grep approach)
-                    cms_digest=$(grep '"cms"' "$digest_file" | sed 's/.*: "\([^"]*\)".*/\1/')
-                    www_digest=$(grep '"www"' "$digest_file" | sed 's/.*: "\([^"]*\)".*/\1/')
-                    waf_digest=$(grep '"waf"' "$digest_file" | sed 's/.*: "\([^"]*\)".*/\1/')
-                    
-                    # Note: Keep the S3 file for now - multiple backup types call this function
-                    # The file will be cleaned up after all backups complete
-                    rm -f "$digest_file"
-                fi
-                
-                # Unset temporary credentials
-                unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION
-            fi
-        fi
-    fi
-    
-    # Last resort: try CF CLI (only works outside container)
+    # If not set via env vars, try CF CLI (only works outside container)
     if [ -z "$cms_digest" ] && command -v cf >/dev/null 2>&1; then
         cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "")
     fi

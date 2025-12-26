@@ -267,11 +267,6 @@ run_backup_command() {
         create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
     fi
 
-    # Clean up the digest file from S3 (was used for metadata capture)
-    if command -v aws >/dev/null 2>&1 && [ -n "$BUCKET_NAME" ]; then
-        aws s3 rm "s3://${BUCKET_NAME}/deployment-metadata/.current_digests.json" 2>/dev/null || true
-    fi
-
     print_status $BLUE "🎉 Done."
 }
 
@@ -707,13 +702,10 @@ create_db_backup() {
             aws s3 cp "$LOGFILE" "s3://$BUCKET_NAME/db-backup-logs/$(basename "$LOGFILE")" $S3_EXTRA_PARAMS >/dev/null 2>&1
         fi
 
-        # Capture and upload deployment metadata (skip if already exists for this tag)
+        # Capture and upload deployment metadata
         if command -v capture_deployment_metadata >/dev/null 2>&1; then
-            # Check if metadata already exists (from earlier backup type)
-            if ! aws s3 ls "s3://$BUCKET_NAME/deployment-metadata/${DB_BACKUP_TAG}.json" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-                local metadata=$(capture_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE")
-                upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
-            fi
+            local metadata=$(capture_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE")
+            upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
         fi
 
         return 0
@@ -768,13 +760,10 @@ create_static_backup() {
         if [ $exit_code -eq 0 ]; then
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
 
-            # Capture and upload deployment metadata (skip if already exists for this tag)
+            # Capture and upload deployment metadata
             if command -v capture_deployment_metadata >/dev/null 2>&1; then
-                # Check if metadata already exists (from earlier backup type)
-                if ! aws s3 ls "s3://$BUCKET_NAME/deployment-metadata/${BACKUP_TAG}.json" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-                    local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
-                    upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
-                fi
+                local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
+                upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
             fi
 
             return 0
@@ -855,13 +844,10 @@ create_public_backup() {
             if [ $exit_code -eq 0 ]; then
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
 
-                # Capture and upload deployment metadata (skip if already exists for this tag)
+                # Capture and upload deployment metadata
                 if command -v capture_deployment_metadata >/dev/null 2>&1; then
-                    # Check if metadata already exists (from earlier backup type)
-                    if ! aws s3 ls "s3://$BUCKET_NAME/deployment-metadata/${BACKUP_TAG}.json" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-                        local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
-                        upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
-                    fi
+                    local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
+                    upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
                 fi
 
                 return 0

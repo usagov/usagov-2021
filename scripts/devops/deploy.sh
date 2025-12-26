@@ -55,13 +55,16 @@ show_usage() {
     echo ""
     echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  rollback [types] <tag> [--force]      🔥 DESTRUCTIVE: Rollback code (always) + optional data types"
+    echo "  list-digests                          Show available container digests and their connection to backups"
+    echo "  rollback [types] <cms> <www> <waf> [tag] [--force]"
+    echo "                                        🔥 DESTRUCTIVE: Rollback code (always) + optional data types"
+    echo "                                        Requires: Full container digests for cms, www, and waf"
     echo "                                        Types: db, static, public, full, or comma-separated"
     echo "                                        Default: code only (no data restore)"
+    echo "                                        Backup tag required if restoring data"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
-    echo "                                        Example: rollback AUTO-prod-cf-123-2025-12-22-0"
-    echo "                                        Example: rollback db AUTO-prod-cf-123-2025-12-22-0"
-    echo "                                        Example: rollback full AUTO-prod-cf-123-2025-12-22-0"
+    echo "                                        Example: rollback gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi..."
+    echo "                                        Example: rollback db gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi... AUTO-prod-2025-12-22-0"
     echo "  rollback-static [tag] [--force]       🔥 DESTRUCTIVE: Restore static site only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
     echo "  rollback-db [tag] [--force]           🔥 DESTRUCTIVE: Restore database only (with confirmation)"
@@ -319,42 +322,7 @@ exec_backup_command() {
     local suffix="$2"
     local types="${3:-all}"
 
-    # Capture container digests locally (CF CLI only works from outside container)
-    print_status $BLUE "Capturing current container digests..."
-    local digests=$(get_all_app_digests)
-    local cms_digest=$(echo "$digests" | sed -n '1p')
-    local waf_digest=$(echo "$digests" | sed -n '2p')
-    local www_digest=$(echo "$digests" | sed -n '3p')
-
-    # Write digests to temporary S3 file that manager.sh can read
-    local digest_file="/tmp/backup_digests_$$.json"
-    cat > "$digest_file" <<EOF
-{
-  "cms": "$cms_digest",
-  "waf": "$waf_digest",
-  "www": "$www_digest",
-  "captured_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-  "captured_by": "deploy.sh"
-}
-EOF
-
-    # Upload to S3 (manager.sh will read and delete this)
-    if command -v aws >/dev/null 2>&1; then
-        # Get S3 bucket from VCAP_SERVICES (same as manager.sh)
-        local bucket_name=$(cf curl "/v3/apps/$(cf app cms --guid)/environment_variables" 2>/dev/null | grep -o '"bucket":"[^"]*"' | head -1 | cut -d'"' -f4)
-        if [ -z "$bucket_name" ]; then
-            # Fallback: hardcode known bucket for dev
-            bucket_name="cg-33ba2c88-f377-4249-8b26-0a9d24caf3f5"
-        fi
-        print_status $BLUE "Uploading digest info to S3..."
-        aws s3 cp "$digest_file" "s3://${bucket_name}/deployment-metadata/.current_digests.json" --no-progress 2>/dev/null || true
-        rm -f "$digest_file"
-    else
-        print_status $YELLOW "AWS CLI not found - backup metadata will not include container digests"
-        rm -f "$digest_file"
-    fi
-
-    # Run backup command (will read digests from S3 if available)
+    # Run backup command
     cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup $types $ticket $suffix"
 
     # Determine the backup tag that was created
@@ -971,13 +939,16 @@ deploy_app() {
     _deploy_app "$app_name" "$env" "$cci_build" "$digest"
 }
 
-# Rollback command - redeploy containers from backup metadata
+# Rollback command - redeploy containers with specified digests
 rollback() {
     local data_types=""
+    local cms_digest=""
+    local www_digest=""
+    local waf_digest=""
     local backup_tag=""
     local force=""
 
-    # Parse: [types] [tag] [--force]
+    # Parse: [types] <cms-digest> <www-digest> <waf-digest> [backup-tag] [--force]
     # Check for --force flag in any position
     for arg in "$@"; do
         if [ "$arg" = "--force" ]; then
@@ -988,50 +959,35 @@ rollback() {
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$force"
 
-    # Parse: [types] [tag]
-    # If first arg looks like a data type, it's types; otherwise it's the tag
+    # Parse: [types] <cms-digest> <www-digest> <waf-digest> [backup-tag]
+    # If first arg looks like a data type, it's types; otherwise first digest
     case "$1" in
         db|static|public|full|*,*)
             data_types="$1"
-            backup_tag="$2"
+            cms_digest="$2"
+            www_digest="$3"
+            waf_digest="$4"
+            backup_tag="$5"
             ;;
         *)
             # No type = code only (default)
-            backup_tag="$1"
+            cms_digest="$1"
+            www_digest="$2"
+            waf_digest="$3"
+            backup_tag="$4"
             ;;
     esac
 
-    if [ -z "$backup_tag" ]; then
-        print_status $RED "❌ Error: Backup tag required"
-        echo "Usage: deploy.sh rollback [db|static|public|full] <backup-tag>"
-        echo "       deploy.sh rollback <backup-tag>  (defaults to code only)"
+    if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
+        print_status $RED "❌ Error: Container digests required"
+        echo "Usage: deploy.sh rollback [db|static|public|full] <cms-digest> <www-digest> <waf-digest> [backup-tag]"
+        echo "       deploy.sh rollback <cms-digest> <www-digest> <waf-digest>  (defaults to code only)"
         echo ""
         echo "Examples:"
-        echo "  deploy.sh rollback AUTO-prod-cf-abc123-2025-12-22-0          # Code only"
-        echo "  deploy.sh rollback db AUTO-prod-cf-abc123-2025-12-22-0       # Code + DB"
-        echo "  deploy.sh rollback full AUTO-prod-cf-abc123-2025-12-22-0     # Code + All data"
-        return 1
-    fi
-
-    print_status $BLUE "🔍 Loading deployment metadata for: $backup_tag"
-
-    # Download and parse metadata JSON from S3
-    local metadata=$(fetch_deployment_metadata "$backup_tag")
-    if [ -z "$metadata" ]; then
-        print_status $RED "❌ No metadata found for backup: $backup_tag"
-        echo "This backup may have been created before metadata capture was implemented."
-        echo "Or the backup tag may not exist."
-        return 1
-    fi
-
-    # Parse container digests from metadata (using grep/sed since jq may not be available)
-    local cms_digest=$(echo "$metadata" | grep -A2 '"cms":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
-    local www_digest=$(echo "$metadata" | grep -A2 '"www":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
-    local waf_digest=$(echo "$metadata" | grep -A2 '"waf":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
-    local cci_build=$(echo "$metadata" | grep -A2 '"cms":' | grep '"cci_build":' | sed 's/.*"cci_build": "\([^"]*\)".*/\1/')
-
-    if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
-        print_status $RED "❌ Failed to parse container digests from metadata"
+        echo "  deploy.sh rollback gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi..."
+        echo "  deploy.sh rollback db gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi... AUTO-prod-2025-12-22-0"
+        echo ""
+        echo "Use 'deploy.sh list-digests' to see available container digests."
         return 1
     fi
 
@@ -1043,19 +999,33 @@ rollback() {
         return 1
     fi
 
+    # Extract CCI build from digest if possible
+    local cci_build="unknown"
+    if echo "$cms_digest" | grep -qE 'usagov_cms:[0-9]+@'; then
+        cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
+    fi
+
     # Show what will be rolled back
     print_status $YELLOW "⚠️  CODE ROLLBACK"
-    echo "Will redeploy containers from backup: $backup_tag"
+    echo "Will redeploy containers with specified digests"
     echo "Environment: $env"
     echo ""
     echo "  CMS: $cms_digest"
     echo "  WWW: $www_digest"
     echo "  WAF: $waf_digest"
     echo "  Build: $cci_build"
+    if [ -n "$backup_tag" ]; then
+        echo "  Data backup: $backup_tag"
+    fi
     echo ""
 
     if [ -n "$data_types" ]; then
         echo "Will also restore data: $data_types"
+        if [ -z "$backup_tag" ]; then
+            print_status $RED "❌ Error: Backup tag required for data restoration"
+            echo "Usage: deploy.sh rollback $data_types <cms-digest> <www-digest> <waf-digest> <backup-tag>"
+            return 1
+        fi
         echo ""
     fi
 
