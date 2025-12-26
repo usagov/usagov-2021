@@ -94,19 +94,21 @@ print_status() {
     printf "${color}${message}${NC}\n"
 }
 
-# Show loading message (static, no animation)
+# Show loading message
 # Args:
 #   $1: message - The message to display
 show_loading() {
     local message="$1"
+    # Print to stderr so it doesn't interfere with function return values
     printf "  %s...\n" "$message" >&2
 }
 
-# Clear/update loading message (no-op, kept for compatibility)
+# Clear loading message (no-op since terminal doesn't support ANSI clear)
 # Args:
-#   $1: ignored (kept for compatibility with animation version)
+#   $1: ignored (kept for compatibility)
 stop_loading() {
-    :  # no-op
+    # no-op
+    :
 }
 
 # Log message with timestamp for audit trail
@@ -243,7 +245,7 @@ capture_deployment_metadata() {
     local cms_digest="$BACKUP_CMS_DIGEST"
     local www_digest="$BACKUP_WWW_DIGEST"
     local waf_digest="$BACKUP_WAF_DIGEST"
-    
+
     # If not set via env vars, try CF CLI (only works outside container)
     if [ -z "$cms_digest" ] && command -v cf >/dev/null 2>&1; then
         cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "")

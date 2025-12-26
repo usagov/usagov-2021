@@ -608,6 +608,7 @@ _show_current_and_previous_digests() {
     local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
     local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
     local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "")
+    stop_loading
 
     if [ -z "$cms_current" ]; then
         echo "  Unable to query CF (check 'cf target' and login)"
@@ -899,6 +900,8 @@ _show_backup_digests() {
     done <<EOF
 $metadata_files
 EOF
+
+    stop_loading
 
     # If no backups with digests were found, show a message
     if [ $shown -eq 0 ]; then

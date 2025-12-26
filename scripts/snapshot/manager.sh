@@ -1052,6 +1052,12 @@ list_static_backups() {
             backup_date="unknown"
         fi
 
+        # Stop loader on first iteration (static backups)
+        if [ -n "$loader" ]; then
+            stop_loading "$loader"
+            loader=""
+        fi
+
         local formatted_size=$(format_file_size "$backup_size")
         echo "  $backup_tag ($formatted_size) - $backup_date"
     done
