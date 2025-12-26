@@ -76,6 +76,195 @@ show_usage() {
     echo "      Login with: bin/cloudgov/login --sso"
 }
 
+# Show command-specific help
+show_command_help() {
+    local command="$1"
+    
+    case "$command" in
+        "list")
+            echo "List Backups"
+            echo ""
+            echo "Usage: local-manager.sh list [types] [days]"
+            echo ""
+            echo "Description:"
+            echo "  List available backups in Cloud Foundry by type and time range."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Backup types: all, static, public, db, or comma-separated (default: all)"
+            echo "  days   - Number of days to show (default: 30)"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh list"
+            echo "  local-manager.sh list db 7"
+            echo ""
+            ;;
+        "backup")
+            echo "Create Backup"
+            echo ""
+            echo "Usage: local-manager.sh backup [types] [prefix] [suffix]"
+            echo ""
+            echo "Description:"
+            echo "  Create new backups in Cloud Foundry of specified types."
+            echo ""
+            echo "Arguments:"
+            echo "  types   - Backup types: all, static, public, db, or comma-separated (default: all)"
+            echo "  prefix  - Backup prefix (default: AUTO)"
+            echo "  suffix  - Optional backup suffix"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh backup"
+            echo "  local-manager.sh backup db"
+            echo "  local-manager.sh backup all USAGOV-123 post-deploy"
+            echo ""
+            ;;
+        "clean")
+            echo "Clean Old Backups"
+            echo ""
+            echo "Usage: local-manager.sh clean [types] [days|all|0] [-y]"
+            echo ""
+            echo "Description:"
+            echo "  Remove backups based on retention policy."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Backup types: all, static, public, db (default: all)"
+            echo "  days   - Keep last N days (default: 30), or 'all'/'0' to delete everything"
+            echo "  -y     - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh clean all 30"
+            echo "  local-manager.sh clean db 7 -y"
+            echo ""
+            ;;
+        "delete")
+            echo "Delete Specific Backups"
+            echo ""
+            echo "Usage: local-manager.sh delete <tag> [tag2 tag3...] [types] [-y]"
+            echo ""
+            echo "Description:"
+            echo "  Delete specific backups by tag name."
+            echo ""
+            echo "Arguments:"
+            echo "  tag    - Backup tag(s) to delete"
+            echo "  types  - Backup types to delete: all, static, public, db (default: all)"
+            echo "  -y     - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh delete AUTO-prod-14850-2025-10-28"
+            echo "  local-manager.sh delete TAG1 TAG2 TAG3 all -y"
+            echo ""
+            ;;
+        "restore")
+            echo "Restore Backup"
+            echo ""
+            echo "Usage: local-manager.sh restore <tag> [--only=type,type]"
+            echo ""
+            echo "Description:"
+            echo "  Restore backups from specified tag."
+            echo ""
+            echo "Arguments:"
+            echo "  tag  - Backup tag to restore"
+            echo ""
+            echo "Options:"
+            echo "  --only=type,type  - Restore only specific types"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh restore AUTO-prod-14850-2025-10-28"
+            echo "  local-manager.sh restore AUTO-prod-14850 --only=db"
+            echo ""
+            ;;
+        "info")
+            echo "Show Backup Information"
+            echo ""
+            echo "Usage: local-manager.sh info [types] [tag]"
+            echo ""
+            echo "Description:"
+            echo "  Show backup system information or details about specific backup."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Show info for specific types: all, static, public, db"
+            echo "  tag    - Show details for specific backup tag"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh info"
+            echo "  local-manager.sh info db AUTO-prod-14850-2025-10-28"
+            echo ""
+            ;;
+        "download")
+            echo "Download Backup"
+            echo ""
+            echo "Usage: local-manager.sh download <tag> [type] [output-dir]"
+            echo ""
+            echo "Description:"
+            echo "  Download backups from Cloud Foundry to local filesystem."
+            echo ""
+            echo "Arguments:"
+            echo "  tag         - Backup tag to download"
+            echo "  type        - Type to download: all, static, public, db (default: all)"
+            echo "  output-dir  - Output directory (default: current directory)"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh download AUTO-prod-14850-2025-10-28"
+            echo "  local-manager.sh download AUTO-prod-14850 db ./backups/"
+            echo ""
+            ;;
+        "test")
+            echo "Run Test Suite"
+            echo ""
+            echo "Usage: local-manager.sh test"
+            echo ""
+            echo "Description:"
+            echo "  Run the backup system test suite on Cloud Foundry."
+            echo ""
+            ;;
+        "cron")
+            echo "Manage Cron Jobs"
+            echo ""
+            echo "Usage: local-manager.sh cron <subcommand>"
+            echo ""
+            echo "Description:"
+            echo "  Manage automated database backup cron jobs."
+            echo ""
+            echo "Subcommands:"
+            echo "  setup   - Configure automated database backups"
+            echo "  remove  - Remove all cron jobs"
+            echo "  status  - Show current cron jobs (default)"
+            echo "  test    - Test the cron backup command"
+            echo ""
+            echo "Examples:"
+            echo "  local-manager.sh cron status"
+            echo "  local-manager.sh cron setup"
+            echo ""
+            ;;
+        "try-tome-disable")
+            echo "Disable Tome for Backup"
+            echo ""
+            echo "Usage: local-manager.sh try-tome-disable [max_wait_mins]"
+            echo ""
+            echo "Description:"
+            echo "  Disable Drupal/Tome for safe backup."
+            echo ""
+            echo "Arguments:"
+            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25)"
+            echo ""
+            ;;
+        "try-tome-enable")
+            echo "Re-enable Tome"
+            echo ""
+            echo "Usage: local-manager.sh try-tome-enable"
+            echo ""
+            echo "Description:"
+            echo "  Re-enable Drupal/Tome after backup."
+            echo ""
+            ;;
+        *)
+            echo "No help available for command: $command"
+            echo ""
+            echo "Run 'local-manager.sh' for list of all commands"
+            exit 1
+            ;;
+    esac
+}
+
 # ===================================================================
 # PREREQUISITE VALIDATION
 # ===================================================================
@@ -238,6 +427,12 @@ fi
 # Handle help flags immediately (before CF checks)
 if [ "$COMMAND" = "-h" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "help" ]; then
     show_usage
+    exit 0
+fi
+
+# Check if second arg is -h/--help for command-specific help
+if [ "$2" = "-h" ] || [ "$2" = "--help" ]; then
+    show_command_help "$COMMAND"
     exit 0
 fi
 

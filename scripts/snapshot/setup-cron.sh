@@ -39,6 +39,64 @@ show_usage() {
     echo ""
 }
 
+# Show command-specific help
+show_command_help() {
+    local command="$1"
+    
+    case "$command" in
+        "setup")
+            echo "Setup Database Backup Cron Job"
+            echo ""
+            echo "Usage: setup-cron.sh setup"
+            echo ""
+            echo "Description:"
+            echo "  Configures automated database backups via cron."
+            echo "  Converts EST time to UTC and creates cron job."
+            echo ""
+            echo "Configuration:"
+            echo "  DB_BACKUP_TIME environment variable sets backup time (default: 19:00 EST)"
+            echo ""
+            echo "Example:"
+            echo "  DB_BACKUP_TIME=19:00 setup-cron.sh setup"
+            echo ""
+            ;;
+        "remove")
+            echo "Remove Backup Cron Jobs"
+            echo ""
+            echo "Usage: setup-cron.sh remove"
+            echo ""
+            echo "Description:"
+            echo "  Removes all backup-related cron jobs."
+            echo ""
+            ;;
+        "status")
+            echo "Show Cron Job Status"
+            echo ""
+            echo "Usage: setup-cron.sh status"
+            echo ""
+            echo "Description:"
+            echo "  Displays current backup cron jobs and configuration."
+            echo ""
+            ;;
+        "test")
+            echo "Test Cron Command"
+            echo ""
+            echo "Usage: setup-cron.sh test"
+            echo ""
+            echo "Description:"
+            echo "  Tests the exact cron command in a simulated cron environment."
+            echo "  Useful for debugging cron job issues."
+            echo ""
+            ;;
+        *)
+            echo "No help available for command: $command"
+            echo ""
+            echo "Run 'setup-cron.sh' for list of all commands"
+            exit 1
+            ;;
+    esac
+}
+
 # ===================================================================
 # CRON MANAGEMENT FUNCTIONS
 # ===================================================================
@@ -175,6 +233,12 @@ test_cron_command() {
 
 # Parse command (default to 'status' if not provided)
 COMMAND=${1:-status}
+
+# Handle help for specific commands
+if [ "$2" = "-h" ] || [ "$2" = "--help" ]; then
+    show_command_help "$COMMAND"
+    exit 0
+fi
 
 case $COMMAND in
     help|--help|-h)

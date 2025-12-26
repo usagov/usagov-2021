@@ -38,9 +38,9 @@ show_usage() {
     echo "                                        for CMS, WAF, and WWW"
     echo ""
     echo "Deployment Commands (DESTRUCTIVE):"
-    echo "  deploy app <name> <build> [digest] [--force]"
+    echo "  push <name> <build> [digest] [--force]"
     echo "                                        🔥 DESTRUCTIVE: Deploy specific app with container digest"
-    echo "                                        Example: deploy app cms 5936 gsatts/usagov-2021@sha256:abc..."
+    echo "                                        Example: push cms 5936 gsatts/usagov-2021@sha256:abc..."
     echo "                                        Digest optional if DEPLOY_{APP}_DIGEST set or git tag exists"
     echo "                                        Use --force to skip space validation"
     echo ""
@@ -115,6 +115,336 @@ show_usage() {
     echo "  $0 list-backups 1"
     echo "  $0 rollback AUTO-prod-14855-2025-12-08-0"
     echo ""
+}
+
+# Show command-specific help
+show_command_help() {
+    local command="$1"
+
+    case "$command" in
+        "set-context")
+            echo "Set Deployment Context"
+            echo ""
+            echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix]"
+            echo ""
+            echo "Description:"
+            echo "  Creates environment variables for a deployment session. This sets up"
+            echo "  the context that other commands will use automatically."
+            echo ""
+            echo "Arguments:"
+            echo "  env          - Environment name (dev, stage, prod)"
+            echo "  ticket       - JIRA ticket number (e.g., USAGOV-1234)"
+            echo "  pre-suffix   - Optional pre-deployment backup suffix (default: 'pre')"
+            echo "  post-suffix  - Optional post-deployment backup suffix (default: 'post')"
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh set-context prod USAGOV-1234"
+            echo "  deploy.sh set-context stage USAGOV-5678 before after"
+            echo ""
+            ;;
+        "show-context")
+            echo "Show Deployment Context"
+            echo ""
+            echo "Usage: deploy.sh show-context"
+            echo ""
+            echo "Description:"
+            echo "  Displays current deployment context variables including environment,"
+            echo "  ticket number, and backup suffixes."
+            echo ""
+            ;;
+        "last-backup")
+            echo "Show Last Backup Times"
+            echo ""
+            echo "Usage: deploy.sh last-backup"
+            echo ""
+            echo "Description:"
+            echo "  Shows when each type of backup (db, static, public) was last taken."
+            echo "  Helps determine if backups are current before deployment."
+            echo ""
+            ;;
+        "status")
+            echo "Show Deployment Status"
+            echo ""
+            echo "Usage: deploy.sh status"
+            echo ""
+            echo "Description:"
+            echo "  Displays current Cloud Foundry target information and recent"
+            echo "  application events."
+            echo ""
+            ;;
+        "motd")
+            echo "Show Message of the Day"
+            echo ""
+            echo "Usage: deploy.sh motd"
+            echo ""
+            echo "Description:"
+            echo "  Displays the MOTD from the CMS container, showing system info"
+            echo "  and current deployment state."
+            echo ""
+            ;;
+        "ccb")
+            echo "Show Change Control Board Summary"
+            echo ""
+            echo "Usage: deploy.sh ccb [from] [to]"
+            echo ""
+            echo "Description:"
+            echo "  Shows tickets/commits between two branches or commits."
+            echo ""
+            echo "Arguments:"
+            echo "  from  - Starting branch/commit (default: prod)"
+            echo "  to    - Ending branch/commit (default: stage or DEPLOY_ENV)"
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh ccb"
+            echo "  deploy.sh ccb prod stage"
+            echo "  deploy.sh ccb abc123 def456"
+            echo ""
+            ;;
+        "show-build-info")
+            echo "Show Build Information"
+            echo ""
+            echo "Usage: deploy.sh show-build-info <env>"
+            echo ""
+            echo "Description:"
+            echo "  Shows latest CCI build number and container digests from git tags."
+            echo ""
+            echo "Arguments:"
+            echo "  env  - Environment (dev, stage, prod)"
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh show-build-info prod"
+            echo ""
+            ;;
+        "push")
+            echo "Push Application Deployment"
+            echo ""
+            echo "Usage: deploy.sh push <name> <build> [digest] [--force]"
+            echo ""
+            echo "Description:"
+            echo "  🔥 DESTRUCTIVE: Deploy a specific application with container digest."
+            echo "  Updates the app to use a specific container image."
+            echo ""
+            echo "Arguments:"
+            echo "  name    - App name (cms, www, waf)"
+            echo "  build   - CCI build number"
+            echo "  digest  - Container digest (optional if DEPLOY_{APP}_DIGEST set)"
+            echo "  --force - Skip space validation"
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh push cms 5936 gsatts/usagov-2021@sha256:abc123..."
+            echo "  deploy.sh push www 5936"
+            echo ""
+            ;;
+        "pre-deploy")
+            echo "Pre-Deployment Backup"
+            echo ""
+            echo "Usage: deploy.sh pre-deploy [--force]"
+            echo ""
+            echo "Description:"
+            echo "  Creates a pre-deployment backup using DEPLOY_PRE_SUFFIX."
+            echo "  Validates CF space matches DEPLOY_ENV."
+            echo ""
+            echo "Options:"
+            echo "  --force  - Skip space validation"
+            echo ""
+            echo "Requires: DEPLOY_TICKET environment variable"
+            echo ""
+            ;;
+        "post-deploy")
+            echo "Post-Deployment Backup"
+            echo ""
+            echo "Usage: deploy.sh post-deploy [--force]"
+            echo ""
+            echo "Description:"
+            echo "  Creates a post-deployment backup and annotated git tag."
+            echo "  Git tag includes CCI build and container digests for tracking."
+            echo ""
+            echo "Options:"
+            echo "  --force  - Skip space validation"
+            echo ""
+            echo "Requires: DEPLOY_TICKET, DEPLOY_ENV environment variables"
+            echo ""
+            ;;
+        "list-backups")
+            echo "List Available Backups"
+            echo ""
+            echo "Usage: deploy.sh list-backups [days]"
+            echo ""
+            echo "Description:"
+            echo "  Lists recent backups available for rollback."
+            echo ""
+            echo "Arguments:"
+            echo "  days  - Show backups from last N days (default: 7)"
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh list-backups 14"
+            echo ""
+            ;;
+        "digests")
+            echo "Show Available Container Digests"
+            echo ""
+            echo "Usage: deploy.sh digests [env] [days] [limit] [flags]"
+            echo ""
+            echo "Description:"
+            echo "  Shows available container digests from CF deployments, git tags,"
+            echo "  and backup metadata."
+            echo ""
+            echo "Arguments:"
+            echo "  env    - Environment filter: current, dev, stage, prod, all (default: current)"
+            echo "  days   - Show backups from last N days (default: 7)"
+            echo "  limit  - Limit results per category (default: 10)"
+            echo ""
+            echo "Flags:"
+            echo "  --backups-only        Show only backup digests"
+            echo "  --git-only            Show only git tag digests"
+            echo "  --format=json         Output in JSON format"
+            echo "  --show-all-history    Show deployments >1 year old"
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh digests"
+            echo "  deploy.sh digests prod 30 5"
+            echo "  deploy.sh digests all 7 10 --git-only"
+            echo ""
+            ;;
+        "rollback")
+            echo "Rollback Deployment"
+            echo ""
+            echo "Usage: deploy.sh rollback [types] <cms-digest> <www-digest> <waf-digest> [tag] [--force]"
+            echo ""
+            echo "Description:"
+            echo "  🔥 DESTRUCTIVE: Rollback code and optionally data."
+            echo "  Always rolls back code. Data restore is optional."
+            echo ""
+            echo "Arguments:"
+            echo "  types       - Data types to restore: db, static, public, full, or comma-separated"
+            echo "                (default: code only, no data restore)"
+            echo "  cms-digest  - Full CMS container digest"
+            echo "  www-digest  - Full WWW container digest"
+            echo "  waf-digest  - Full WAF container digest"
+            echo "  tag         - Backup tag (required if restoring data)"
+            echo "  --force     - Skip space validation"
+            echo ""
+            echo "Examples:"
+            echo "  # Code only"
+            echo "  deploy.sh rollback gsatts/usagov-2021@sha256:cms... gsatts/usagov-2021@sha256:www... gsatts/usagov-2021@sha256:waf..."
+            echo ""
+            echo "  # Code + database"
+            echo "  deploy.sh rollback db gsatts/usagov-2021@sha256:cms... gsatts/usagov-2021@sha256:www... gsatts/usagov-2021@sha256:waf... AUTO-prod-2025-12-22-0"
+            echo ""
+            ;;
+        "rollback-static")
+            echo "Rollback Static Site"
+            echo ""
+            echo "Usage: deploy.sh rollback-static [tag] [--force]"
+            echo ""
+            echo "Description:"
+            echo "  🔥 DESTRUCTIVE: Restore static site only."
+            echo ""
+            echo "Arguments:"
+            echo "  tag      - Backup tag (optional if DEPLOY_ROLLBACK_STATIC_TAG set)"
+            echo "  --force  - Skip space validation"
+            echo ""
+            ;;
+        "rollback-db")
+            echo "Rollback Database"
+            echo ""
+            echo "Usage: deploy.sh rollback-db [tag] [--force]"
+            echo ""
+            echo "Description:"
+            echo "  🔥 DESTRUCTIVE: Restore database only."
+            echo ""
+            echo "Arguments:"
+            echo "  tag      - Backup tag (optional if DEPLOY_ROLLBACK_DB_TAG set)"
+            echo "  --force  - Skip space validation"
+            echo ""
+            ;;
+        "downsync")
+            echo "Downsync Data Between Spaces"
+            echo ""
+            echo "Usage: deploy.sh downsync <from-space> <to-space> [backup-tag]"
+            echo ""
+            echo "Description:"
+            echo "  🔥 DESTRUCTIVE: Copy database and public files from one space to another."
+            echo "  Automatically finds latest backup if tag not specified."
+            echo "  Fixes MFA configuration after restore."
+            echo ""
+            echo "Arguments:"
+            echo "  from-space  - Source environment (dev, stage, prod)"
+            echo "  to-space    - Destination environment (dev, stage, prod)"
+            echo "  backup-tag  - Optional backup tag (uses latest if not specified)"
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh downsync prod dev"
+            echo "  deploy.sh downsync prod dev AUTO-prod-2025-12-22-0"
+            echo ""
+            ;;
+        "snapshot")
+            echo "Create Quick Snapshot"
+            echo ""
+            echo "Usage: deploy.sh snapshot [suffix]"
+            echo ""
+            echo "Description:"
+            echo "  Creates a quick backup with auto-generated tag."
+            echo ""
+            echo "Arguments:"
+            echo "  suffix  - Optional backup suffix (default: current time)"
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh snapshot before-test"
+            echo ""
+            ;;
+        "snapshot-db")
+            echo "Create Database Snapshot"
+            echo ""
+            echo "Usage: deploy.sh snapshot-db [suffix]"
+            echo ""
+            echo "Description:"
+            echo "  Creates a quick database-only backup."
+            echo ""
+            echo "Arguments:"
+            echo "  suffix  - Optional backup suffix (default: current time)"
+            echo ""
+            ;;
+        "switch")
+            echo "Switch Cloud Foundry Space"
+            echo ""
+            echo "Usage: deploy.sh switch <env>"
+            echo ""
+            echo "Description:"
+            echo "  Switches Cloud Foundry target to specified environment."
+            echo ""
+            echo "Arguments:"
+            echo "  env  - Environment (dev, stage, prod)"
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh switch stage"
+            echo ""
+            ;;
+        "validate")
+            echo "Validate Deployment"
+            echo ""
+            echo "Usage: deploy.sh validate [options]"
+            echo ""
+            echo "Description:"
+            echo "  Validates that deployment was successful."
+            echo ""
+            echo "Options:"
+            echo "  --only=app1,app2  - Validate specific apps only (cms, www)"
+            echo "  --commit=<sha>    - Expected commit SHA (default: HEAD)"
+            echo "  --skip-http       - Skip HTTP endpoint checks"
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh validate"
+            echo "  deploy.sh validate --only=cms --skip-http"
+            echo ""
+            ;;
+        *)
+            echo "No help available for command: $command"
+            echo ""
+            echo "Run 'deploy.sh help' for list of all commands"
+            exit 1
+            ;;
+    esac
 }
 
 # Set deployment context (stores in shell variables for session)
@@ -1997,10 +2327,22 @@ validate_deployment() {
 
 # Main command dispatcher
 COMMAND="${1:-}"
+shift || true
+
+# Handle -h/--help flag
+if [ "$COMMAND" = "-h" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "help" ] || [ -z "$COMMAND" ]; then
+    show_usage
+    exit 0
+fi
+
+# Check if first arg after command is -h/--help
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    show_command_help "$COMMAND"
+    exit 0
+fi
 
 case "$COMMAND" in
     "set-context")
-        shift
         set_context "$@"
         ;;
     "show-context")
@@ -2016,78 +2358,49 @@ case "$COMMAND" in
         show_motd
         ;;
     "ccb")
-        shift
         show_changes "$@"
         ;;
     "show-build-info")
-        shift
         show_build_info "$@"
         ;;
-    "deploy")
-        shift
-        DEPLOY_SUBCOMMAND="${1:-}"
-        shift
-        case "$DEPLOY_SUBCOMMAND" in
-            "app")
-                deploy_app "$@"
-                ;;
-            *)
-                print_status $RED "❌ Unknown deploy subcommand: $DEPLOY_SUBCOMMAND"
-                echo "Usage: deploy.sh deploy app <app-name> <cci-build> <digest>"
-                exit 1
-                ;;
-        esac
+    "push")
+        deploy_app "$@"
         ;;
     "pre-deploy")
-        shift
         pre_deploy "$@"
         ;;
     "post-deploy")
-        shift
         post_deploy "$@"
         ;;
     "list-backups")
-        shift
         list_backups "$@"
         ;;
     "digests")
-        shift
         list_digests "$@"
         ;;
     "rollback")
-        shift
         rollback "$@"
         ;;
     "rollback-static")
-        shift
         rollback_static "$@"
         ;;
     "rollback-db")
-        shift
         rollback_db "$@"
         ;;
     "snapshot")
-        shift
         snapshot "$@"
         ;;
     "snapshot-db")
-        shift
         snapshot_db "$@"
         ;;
     "downsync")
-        shift
         downsync "$@"
         ;;
     "switch")
-        shift
         switch_env "$@"
         ;;
     "validate")
-        shift
         validate_deployment "$@"
-        ;;
-    "help"|"--help"|"-h"|"")
-        show_usage
         ;;
     *)
         print_status $RED "❌ Unknown command: $COMMAND"

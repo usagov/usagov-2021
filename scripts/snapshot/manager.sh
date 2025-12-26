@@ -121,6 +121,189 @@ show_usage() {
     echo "      Browser caches may take up to 15 minutes to refresh cached content."
 }
 
+# Show command-specific help
+show_command_help() {
+    local command="$1"
+
+    case "$command" in
+        "list")
+            echo "List Backups"
+            echo ""
+            echo "Usage: manager.sh list [types] [days|start:end]"
+            echo ""
+            echo "Description:"
+            echo "  List available backups by type and time range."
+            echo ""
+            echo "Arguments:"
+            echo "  types      - Backup types: all, static, public, db, or comma-separated (default: all)"
+            echo "  days       - Number of days to show (default: 30)"
+            echo "  start:end  - Date range in YYYY-MM-DD:YYYY-MM-DD format"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh list"
+            echo "  manager.sh list db 7"
+            echo "  manager.sh list static,public 2025-10-01:2025-10-31"
+            echo ""
+            ;;
+        "backup")
+            echo "Create Backup"
+            echo ""
+            echo "Usage: manager.sh backup [types] [prefix] [suffix] [options]"
+            echo ""
+            echo "Description:"
+            echo "  Create new backups of specified types."
+            echo ""
+            echo "Arguments:"
+            echo "  types   - Backup types: all, static, public, db, or comma-separated (default: all)"
+            echo "  prefix  - Backup prefix (default: AUTO)"
+            echo "  suffix  - Optional backup suffix"
+            echo ""
+            echo "Options:"
+            echo "  --skip-state-management, --ssm  - Skip Drupal state checks"
+            echo "  --throttle                      - Skip if backup exists within BACKUP_THROTTLE_HOURS"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh backup"
+            echo "  manager.sh backup db"
+            echo "  manager.sh backup all USAGOV-123 post-deploy"
+            echo "  manager.sh backup db AUTO '' --throttle"
+            echo ""
+            ;;
+        "clean")
+            echo "Clean Old Backups"
+            echo ""
+            echo "Usage: manager.sh clean [types] [filters] [-y]"
+            echo ""
+            echo "Description:"
+            echo "  Remove backups based on retention policy or date range."
+            echo ""
+            echo "Arguments:"
+            echo "  types    - Backup types: all, static, public, db (default: all)"
+            echo "  filters  - Retention filters:"
+            echo "             N (number)                  - Keep last N days"
+            echo "             --older-than N              - Keep last N days"
+            echo "             --in-range START:END        - Delete specific range"
+            echo "  -y       - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh clean all 7"
+            echo "  manager.sh clean db --older-than 30 -y"
+            echo "  manager.sh clean all --in-range 2024-01-01:2024-12-31"
+            echo ""
+            ;;
+        "delete")
+            echo "Delete Specific Backups"
+            echo ""
+            echo "Usage: manager.sh delete <tag> [tag2 tag3...] [types] [-y]"
+            echo ""
+            echo "Description:"
+            echo "  Delete specific backups by tag name."
+            echo ""
+            echo "Arguments:"
+            echo "  tag    - Backup tag(s) to delete"
+            echo "  types  - Backup types to delete: all, static, public, db (default: all)"
+            echo "  -y     - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh delete AUTO-prod-14850-2025-10-28"
+            echo "  manager.sh delete AUTO-prod-14850 AUTO-prod-14851 -y"
+            echo "  manager.sh delete AUTO-prod-14850 db"
+            echo ""
+            ;;
+        "restore")
+            echo "Restore Backup"
+            echo ""
+            echo "Usage: manager.sh restore <tag> [options]"
+            echo ""
+            echo "Description:"
+            echo "  Restore backups from specified tag."
+            echo ""
+            echo "Arguments:"
+            echo "  tag  - Backup tag to restore"
+            echo ""
+            echo "Options:"
+            echo "  --only=type,type              - Restore only specific types"
+            echo "  --skip-state-management, --ssm - Skip Drupal state checks"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh restore AUTO-prod-14850-2025-10-28"
+            echo "  manager.sh restore AUTO-prod-14850 --only=db"
+            echo "  manager.sh restore AUTO-prod-14850 --only=static,public --ssm"
+            echo ""
+            ;;
+        "info")
+            echo "Show Backup Information"
+            echo ""
+            echo "Usage: manager.sh info [types] [tag]"
+            echo ""
+            echo "Description:"
+            echo "  Show backup system information or details about specific backup."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Show info for specific types: all, static, public, db"
+            echo "  tag    - Show details for specific backup tag"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh info"
+            echo "  manager.sh info db"
+            echo "  manager.sh info all AUTO-prod-14850-2025-10-28"
+            echo ""
+            ;;
+        "download")
+            echo "Download Backup"
+            echo ""
+            echo "Usage: manager.sh download <tag> [type] [path] [--stream]"
+            echo ""
+            echo "Description:"
+            echo "  Download backups to local filesystem or stream to stdout."
+            echo ""
+            echo "Arguments:"
+            echo "  tag    - Backup tag to download"
+            echo "  type   - Type to download: all, static, public, db (default: all)"
+            echo "  path   - Output directory (default: current directory, or '-' for stdout)"
+            echo "  --stream - Stream to stdout (requires path '-')"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh download AUTO-prod-14850-2025-10-28"
+            echo "  manager.sh download AUTO-prod-14850 db ./backups/"
+            echo "  manager.sh download AUTO-prod-14850 db - --stream | gzip > backup.sql.gz"
+            echo ""
+            ;;
+        "try-tome-disable")
+            echo "Disable Tome for Backup"
+            echo ""
+            echo "Usage: manager.sh try-tome-disable [max_wait_mins]"
+            echo ""
+            echo "Description:"
+            echo "  Disable Drupal/Tome for safe backup. Waits for Tome to stop,"
+            echo "  disables it, and enables maintenance mode."
+            echo ""
+            echo "Arguments:"
+            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25)"
+            echo ""
+            echo "Example:"
+            echo "  manager.sh try-tome-disable 30"
+            echo ""
+            ;;
+        "try-tome-enable")
+            echo "Re-enable Tome"
+            echo ""
+            echo "Usage: manager.sh try-tome-enable"
+            echo ""
+            echo "Description:"
+            echo "  Re-enable Drupal/Tome after backup. Disables maintenance mode"
+            echo "  and re-enables Tome."
+            echo ""
+            ;;
+        *)
+            echo "No help available for command: $command"
+            echo ""
+            echo "Run 'manager.sh' (no args) for list of all commands"
+            exit 1
+            ;;
+    esac
+}
+
 # ===================================================================
 # ARGUMENT PARSING FUNCTIONS
 # ===================================================================
@@ -2522,11 +2705,21 @@ download_single_backup() {
 # MAIN SCRIPT LOGIC
 # ===================================================================
 
-case "${1:-}" in
-    "-h"|"--help"|"help")
-        show_usage
-        exit 0
-        ;;
+COMMAND="${1:-}"
+
+# Handle help
+if [ "$COMMAND" = "-h" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "help" ] || [ -z "$COMMAND" ]; then
+    show_usage
+    exit 0
+fi
+
+# Check if second arg is -h/--help for command-specific help
+if [ "$2" = "-h" ] || [ "$2" = "--help" ]; then
+    show_command_help "$COMMAND"
+    exit 0
+fi
+
+case "$COMMAND" in
     "list")
         # list [types] [days] - e.g., "list static,db" or "list all 7"
         list_backups "$2" "$3"
@@ -2581,6 +2774,8 @@ case "${1:-}" in
         fi
         ;;
     *)
+        print_status $RED "❌ Unknown command: $COMMAND"
+        echo ""
         show_usage
         exit 1
         ;;
