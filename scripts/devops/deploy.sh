@@ -55,7 +55,12 @@ show_usage() {
     echo ""
     echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  list-digests                          Show available container digests and their connection to backups"
+    echo "  digests [env] [days] [limit]          Show available container digests with deployment history"
+    echo "                                        env: current (default), dev, stage, prod, or all"
+    echo "                                        days: show backups from last N days (default: 7)"
+    echo "                                        limit: limit results per category (default: 10)"
+    echo "                                        Flags: --backups-only, --git-only, --format=json,"
+    echo "                                               --show-all-history (show deployments >1yr old)"
     echo "  rollback [types] <cms> <www> <waf> [tag] [--force]"
     echo "                                        🔥 DESTRUCTIVE: Rollback code (always) + optional data types"
     echo "                                        Requires: Full container digests for cms, www, and waf"
@@ -487,6 +492,449 @@ list_backups() {
     echo ""
 
     cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh list all $days"
+}
+
+# List available container digests with deployment history
+# Args:
+#   $1: env - Environment filter (default: current from cf target)
+#   $2: days - Show backups from last N days (default: 7)
+#   $3: limit - Limit results per category (default: 10)
+#   Additional flags: --backups-only, --git-only, --format=json
+list_digests() {
+    local target_env=""
+    local days="7"
+    local limit="10"
+    local backups_only=false
+    local git_only=false
+    local format="table"
+    local show_all_history=false
+
+    # Parse all arguments (flags and positional)
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --backups-only) backups_only=true ;;
+            --git-only) git_only=true ;;
+            --format=*) format="${1#*=}" ;;
+            --show-all-history) show_all_history=true ;;
+            *)
+                # First non-flag arg is env, second is days, third is limit
+                if [ -z "$target_env" ]; then
+                    target_env="$1"
+                elif [ "$days" = "7" ]; then
+                    days="$1"
+                elif [ "$limit" = "10" ]; then
+                    limit="$1"
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    # Determine target environment
+    if [ -z "$target_env" ] || [ "$target_env" = "current" ]; then
+        target_env="${DEPLOY_ENV:-$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')}"
+        if [ -z "$target_env" ]; then
+            print_status $RED "❌ Error: Could not determine environment"
+            echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
+            return 1
+        fi
+    fi
+
+    # Validate environment
+    case "$target_env" in
+        dev|stage|prod|all) ;;
+        *)
+            print_status $RED "❌ Invalid environment: $target_env"
+            echo "Valid options: dev, stage, prod, all, current"
+            return 1
+            ;;
+    esac
+
+    print_status $BLUE "🔍 Container Digests - ${target_env} environment"
+    echo ""
+
+    # Determine which environments to query
+    local envs_to_query
+    if [ "$target_env" = "all" ]; then
+        envs_to_query="dev stage prod"
+    else
+        envs_to_query="$target_env"
+    fi
+
+    for env in $envs_to_query; do
+        if [ "$target_env" = "all" ]; then
+            print_status $YELLOW "=== $env ==="
+            echo ""
+        fi
+
+        # Get current and previous deployments from CF
+        if ! $git_only; then
+            _show_current_and_previous_digests "$env"
+            echo ""
+        fi
+
+        # Get recent deployments from git tags
+        if ! $backups_only; then
+            _show_git_tag_digests "$env" "$limit" "$show_all_history"
+            echo ""
+        fi
+
+        # Get backups with digest metadata
+        if ! $git_only; then
+            _show_backup_digests "$env" "$days"
+            echo ""
+        fi
+
+        # Show quick rollback command
+        if [ "$target_env" != "all" ]; then
+            _show_rollback_command "$env"
+        fi
+    done
+}
+
+# Helper: Show current and previous deployments from CF
+_show_current_and_previous_digests() {
+    local env="$1"
+
+    print_status $GREEN "CURRENTLY DEPLOYED:"
+    echo "  Querying Cloud Foundry..." >&2
+    # Get current digests for all apps
+    local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
+    local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
+    local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "")
+
+    if [ -z "$cms_current" ]; then
+        echo "  Unable to query CF (check 'cf target' and login)"
+        return 1
+    fi
+
+    # Clear wait indicator
+    echo -ne "\r  \033[K" >&2
+
+    # Get deployment time from app info
+    local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
+
+    # Extract build number if present (only in specific formats)
+    local build_num="unknown"
+    if echo "$cms_current" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
+        build_num=$(echo "$cms_current" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
+    fi
+
+    echo "  Deployed: ${cms_updated:-unknown}"
+    echo "  Build: $build_num"
+    echo "  ✓ CMS: $cms_current"
+    echo "  ✓ WWW: $www_current"
+    echo "  ✓ WAF: $waf_current"
+
+    # Try to get previous deployment from CF revisions API
+    print_status $YELLOW "PREVIOUSLY DEPLOYED:"
+
+    local cms_guid=$(cf app cms --guid 2>/dev/null)
+    if [ -n "$cms_guid" ]; then
+        # Get droplet history (current is index 0, previous is index 1)
+        local droplets=$(cf curl "/v3/apps/${cms_guid}/droplets?order_by=-created_at&per_page=5" 2>/dev/null)
+
+        # Extract second droplet (previous deployment)
+        local prev_droplet_guid=$(echo "$droplets" | grep -o '"guid":"[^"]*"' | head -2 | tail -1 | cut -d'"' -f4)
+
+        if [ -n "$prev_droplet_guid" ] && [ "$prev_droplet_guid" != "guid" ]; then
+            # Get droplet details to find docker image
+            local prev_droplet_info=$(cf curl "/v3/droplets/${prev_droplet_guid}" 2>/dev/null)
+            local cms_prev=$(echo "$prev_droplet_info" | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
+            local prev_created=$(echo "$prev_droplet_info" | grep -o '"created_at":"[^"]*"' | cut -d'"' -f4)
+
+            if [ -n "$cms_prev" ]; then
+                # Get corresponding www and waf from same time period
+                local www_guid=$(cf app www --guid 2>/dev/null)
+                local waf_guid=$(cf app waf --guid 2>/dev/null)
+
+                local www_prev=""
+                local waf_prev=""
+
+                if [ -n "$www_guid" ]; then
+                    local www_droplets=$(cf curl "/v3/apps/${www_guid}/droplets?order_by=-created_at&per_page=5" 2>/dev/null)
+                    local www_prev_guid=$(echo "$www_droplets" | grep -o '"guid":"[^"]*"' | head -2 | tail -1 | cut -d'"' -f4)
+                    if [ -n "$www_prev_guid" ]; then
+                        www_prev=$(cf curl "/v3/droplets/${www_prev_guid}" 2>/dev/null | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
+                    fi
+                fi
+
+                if [ -n "$waf_guid" ]; then
+                    local waf_droplets=$(cf curl "/v3/apps/${waf_guid}/droplets?order_by=-created_at&per_page=5" 2>/dev/null)
+                    local waf_prev_guid=$(echo "$waf_droplets" | grep -o '"guid":"[^"]*"' | head -2 | tail -1 | cut -d'"' -f4)
+                    if [ -n "$waf_prev_guid" ]; then
+                        waf_prev=$(cf curl "/v3/droplets/${waf_prev_guid}" 2>/dev/null | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
+                    fi
+                fi
+
+                # Extract build number
+                local prev_build="unknown"
+                if echo "$cms_prev" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
+                    prev_build=$(echo "$cms_prev" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
+                fi
+
+                echo "  Deployed: ${prev_created:-unknown}"
+                echo "  Build: $prev_build"
+                echo "  ← CMS: ${cms_prev} (rollback target)"
+                echo "  ← WWW: ${www_prev:-unknown} (rollback target)"
+                echo "  ← WAF: ${waf_prev:-unknown} (rollback target)"
+
+                # Store for rollback command generation
+                ROLLBACK_CMS="$cms_prev"
+                ROLLBACK_WWW="$www_prev"
+                ROLLBACK_WAF="$waf_prev"
+
+                # Clear wait indicator
+                echo -ne "\r  \033[K" >&2
+            else
+                echo -ne "\r  \033[K" >&2
+                echo "  No previous deployment found in CF history"
+            fi
+        else
+            echo -ne "\r  \033[K" >&2
+            echo "  No previous deployment found in CF history"
+        fi
+    else
+        echo -ne "\r  \033[K" >&2
+        echo "  Unable to query CF API"
+    fi
+}
+
+# Helper: Show git tag digests (excluding current and previous builds)
+_show_git_tag_digests() {
+    local env="$1"
+    local limit="$2"
+    local show_all_history="${3:-false}"
+
+    print_status $CYAN "RECENT DEPLOYMENTS (from git tags, excluding current/previous):"
+
+    # Calculate 1 year cutoff date unless showing all history
+    local cutoff_date=""
+    if [ "$show_all_history" != "true" ]; then
+        cutoff_date=$(date -u -v-1y +"%Y-%m-%d" 2>/dev/null || date -u -d "1 year ago" +"%Y-%m-%d" 2>/dev/null)
+    fi
+    local prev_build=""
+
+    if echo "$cms_current" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
+        current_build=$(echo "$cms_current" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
+    fi
+
+    # Try to get previous build from CF
+    local cms_guid=$(cf app cms --guid 2>/dev/null)
+    if [ -n "$cms_guid" ]; then
+        local droplets=$(cf curl "/v3/apps/${cms_guid}/droplets?order_by=-created_at&per_page=5" 2>/dev/null)
+        local prev_droplet_guid=$(echo "$droplets" | grep -o '"guid":"[^"]*"' | head -2 | tail -1 | cut -d'"' -f4)
+        if [ -n "$prev_droplet_guid" ] && [ "$prev_droplet_guid" != "guid" ]; then
+            local prev_droplet=$(cf curl "/v3/droplets/${prev_droplet_guid}" 2>/dev/null)
+            local cms_prev=$(echo "$prev_droplet" | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
+            if echo "$cms_prev" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
+                prev_build=$(echo "$cms_prev" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
+            fi
+        fi
+    fi
+
+    # List git tags for this environment
+    local tags=$(git tag -l "usagov-cci-build-*-${env}" --sort=-version:refname 2>/dev/null)
+
+    if [ -z "$tags" ]; then
+        echo "  No git tags found for $env environment"
+        return
+    fi
+
+    local count=0
+    local filtered_count=0
+    local total_tags=0
+    local has_output=false
+
+    while IFS= read -r tag; do
+        [ -z "$tag" ] && continue
+        total_tags=$((total_tags + 1))
+
+        # Extract build number from tag
+        local build=$(echo "$tag" | sed 's/usagov-cci-build-\([0-9]*\)-.*/\1/')
+
+        # Skip if this is current or previous build
+        if [ "$build" = "$current_build" ] || [ "$build" = "$prev_build" ]; then
+            continue
+        fi
+
+        # Get tag date for filtering
+        local tag_date_full=$(git log -1 --format=%ai "$tag" 2>/dev/null)
+        local tag_date_only=$(echo "$tag_date_full" | cut -d' ' -f1)
+
+        # Check if tag is within date range (skip if too old)
+        if [ -n "$cutoff_date" ] && [ -n "$tag_date_only" ] && [ "$tag_date_only" \< "$cutoff_date" ]; then
+            filtered_count=$((filtered_count + 1))
+            continue
+        fi
+
+        count=$((count + 1))
+        if [ $count -gt $limit ]; then
+            break
+        fi
+
+        has_output=true
+
+        # Get tag message with digests
+        local tag_msg=$(git tag -l --format='%(contents)' "$tag" 2>/dev/null)
+        local cms_digest=$(echo "$tag_msg" | grep -o 'CMS_DIGEST=[^|]*' | cut -d= -f2)
+        local www_digest=$(echo "$tag_msg" | grep -o 'WWW_DIGEST=[^|]*' | cut -d= -f2)
+        local waf_digest=$(echo "$tag_msg" | grep -o 'WAF_DIGEST=[^|]*' | cut -d= -f2)
+
+        # Handle missing digests (older tags may not have WWW)
+        [ -z "$www_digest" ] && www_digest="(not tracked in this build)"
+
+        # Format tag date (already fetched above)
+        local tag_date=$(echo "$tag_date_full" | cut -d' ' -f1,2)
+
+        echo "  Build $build ($env) - $tag_date"
+        echo "    CMS: $cms_digest"
+        echo "    WWW: $www_digest"
+        echo "    WAF: $waf_digest"
+        echo ""
+    done <<EOF
+$tags
+EOF
+
+    # Show summary message
+    if [ "$has_output" = "false" ]; then
+        if [ $filtered_count -gt 0 ]; then
+            echo "  No deployments found in the last year."
+            echo "  ($filtered_count older deployments hidden - use --show-all-history to view)"
+        elif [ $total_tags -gt 0 ]; then
+            echo "  No additional deployments found (only current/previous exist)"
+        fi
+    elif [ $filtered_count -gt 0 ]; then
+        echo "  ($filtered_count older deployments hidden - use --show-all-history to view)"
+    fi
+}
+
+# Helper: Show backups with digest metadata
+_show_backup_digests() {
+    local env="$1"
+    local days="$2"
+
+    print_status $MAGENTA "BACKUPS WITH DIGESTS (last $days days):"
+    echo "  Scanning S3 backup metadata..." >&2
+    # Get S3 bucket name from CF environment
+    local bucket_name=$(cf curl "/v3/apps/$(cf app cms --guid 2>/dev/null)/env" 2>/dev/null | grep -o '"bucket":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+    if [ -z "$bucket_name" ]; then
+        # Fallback to known bucket for dev
+        bucket_name="cg-33ba2c88-f377-4249-8b26-0a9d24caf3f5"
+    fi
+
+    # Get current digests for comparison
+    local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
+
+    # List recent metadata files from S3
+    if ! command -v aws >/dev/null 2>&1; then
+        echo "  AWS CLI not available"
+        return 1
+    fi
+
+    local cutoff_date=$(date -u -v-${days}d +"%Y-%m-%d" 2>/dev/null || date -u -d "${days} days ago" +"%Y-%m-%d" 2>/dev/null)
+    local metadata_files=$(aws s3 ls "s3://${bucket_name}/deployment-metadata/" --recursive 2>/dev/null | grep "\.json$" | grep -v "\.current_digests\.json" | awk '{print $4}')
+
+    if [ -z "$metadata_files" ]; then
+        echo "  No backup metadata found"
+        return
+    fi
+
+    # Download and parse each metadata file
+    local shown=0
+    local total_checked=0
+    while read -r file; do
+        [ -z "$file" ] && continue
+        local backup_tag=$(basename "$file" .json)
+
+        # Download metadata
+        local metadata=$(aws s3 cp "s3://${bucket_name}/${file}" - 2>/dev/null)
+
+        if [ -z "$metadata" ]; then
+            continue
+        fi
+
+        # Parse metadata
+        local created=$(echo "$metadata" | grep '"timestamp"' | sed 's/.*"timestamp": "\([^"]*\)".*/\1/')
+        local ticket=$(echo "$metadata" | grep '"ticket"' | sed 's/.*"ticket": "\([^"]*\)".*/\1/')
+        local backup_type=$(echo "$metadata" | grep '"backup_type"' | sed 's/.*"backup_type": "\([^"]*\)".*/\1/')
+        local cms_digest=$(echo "$metadata" | grep -A2 '"cms":' | grep '"digest":' | sed 's/.*"digest": "\([^"]*\)".*/\1/')
+
+        # Check if within date range
+        if [ -n "$cutoff_date" ] && [ -n "$created" ]; then
+            local backup_date=$(echo "$created" | cut -d'T' -f1)
+            if [ "$backup_date" \< "$cutoff_date" ]; then
+                continue
+            fi
+        fi
+
+        # Check environment match
+        if ! echo "$backup_tag" | grep -q -- "-${env}-"; then
+            continue
+        fi
+
+        total_checked=$((total_checked + 1))
+
+        # Skip backups without digests (only show backups WITH digests)
+        if [ -z "$cms_digest" ]; then
+            continue
+        fi
+
+        shown=$((shown + 1))
+
+        # Determine status
+        local status="✅"
+        local annotation=""
+        if [ "$cms_digest" = "$cms_current" ]; then
+            annotation=" ← CURRENT"
+        fi
+
+        echo "  $status $backup_tag"
+        echo "     Created: $created"
+        echo "     Ticket: $ticket | Type: $backup_type"
+        echo "     CMS: ${cms_digest}${annotation}"
+        echo ""
+
+        if [ $shown -ge 10 ]; then
+            break
+        fi
+    done <<EOF
+$metadata_files
+EOF
+
+    # Clear the "Scanning..." message
+    echo -ne "\r  \033[K" >&2
+
+    # If no backups with digests were found, show a message
+    if [ $shown -eq 0 ]; then
+        if [ $total_checked -eq 0 ]; then
+            echo "  No backups found in the last $days days"
+        else
+            echo "  No backups with digests found in the last $days days"
+        fi
+    fi
+}
+
+# Helper: Show quick rollback command
+_show_rollback_command() {
+    local env="$1"
+
+    if [ -n "$ROLLBACK_CMS" ] && [ -n "$ROLLBACK_WWW" ] && [ -n "$ROLLBACK_WAF" ]; then
+        print_status $BLUE "QUICK ROLLBACK:"
+        echo "  To rollback to previous deployment:"
+        echo "    ./scripts/devops/deploy.sh rollback \\"
+        echo "      $ROLLBACK_CMS \\"
+        echo "      $ROLLBACK_WWW \\"
+        echo "      $ROLLBACK_WAF"
+        echo ""
+        echo "  With data restore (requires backup tag):"
+        echo "    ./scripts/devops/deploy.sh rollback db \\"
+        echo "      $ROLLBACK_CMS \\"
+        echo "      $ROLLBACK_WWW \\"
+        echo "      $ROLLBACK_WAF \\"
+        echo "      <backup-tag>"
+    fi
 }
 
 # Rollback single data type only (with confirmation)
@@ -1323,6 +1771,10 @@ case "$COMMAND" in
     "list-backups")
         shift
         list_backups "$@"
+        ;;
+    "digests")
+        shift
+        list_digests "$@"
         ;;
     "rollback")
         shift
