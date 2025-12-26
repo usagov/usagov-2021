@@ -38,9 +38,10 @@ show_usage() {
     echo "                                        for CMS, WAF, and WWW"
     echo ""
     echo "Deployment Commands (DESTRUCTIVE):"
-    echo "  deploy app <name> <build> <digest> [--force]"
+    echo "  deploy app <name> <build> [digest] [--force]"
     echo "                                        🔥 DESTRUCTIVE: Deploy specific app with container digest"
-    echo "                                        Example: deploy app cms 5936 @sha256:abc..."
+    echo "                                        Example: deploy app cms 5936 gsatts/usagov-2021@sha256:abc..."
+    echo "                                        Digest optional if DEPLOY_{APP}_DIGEST set or git tag exists"
     echo "                                        Use --force to skip space validation"
     echo ""
     echo "Deployment Backup Commands:"
@@ -317,7 +318,67 @@ exec_backup_command() {
     local ticket="$1"
     local suffix="$2"
     local types="${3:-all}"
+
+    # Capture container digests locally (CF CLI only works from outside container)
+    print_status $BLUE "Capturing current container digests..."
+    local digests=$(get_all_app_digests)
+    local cms_digest=$(echo "$digests" | sed -n '1p')
+    local waf_digest=$(echo "$digests" | sed -n '2p')
+    local www_digest=$(echo "$digests" | sed -n '3p')
+
+    # Write digests to temporary S3 file that manager.sh can read
+    local digest_file="/tmp/backup_digests_$$.json"
+    cat > "$digest_file" <<EOF
+{
+  "cms": "$cms_digest",
+  "waf": "$waf_digest",
+  "www": "$www_digest",
+  "captured_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+  "captured_by": "deploy.sh"
+}
+EOF
+
+    # Upload to S3 (manager.sh will read and delete this)
+    if command -v aws >/dev/null 2>&1; then
+        # Get S3 bucket from VCAP_SERVICES (same as manager.sh)
+        local bucket_name=$(cf curl "/v3/apps/$(cf app cms --guid)/environment_variables" 2>/dev/null | grep -o '"bucket":"[^"]*"' | head -1 | cut -d'"' -f4)
+        if [ -z "$bucket_name" ]; then
+            # Fallback: hardcode known bucket for dev
+            bucket_name="cg-33ba2c88-f377-4249-8b26-0a9d24caf3f5"
+        fi
+        print_status $BLUE "Uploading digest info to S3..."
+        aws s3 cp "$digest_file" "s3://${bucket_name}/deployment-metadata/.current_digests.json" --no-progress 2>/dev/null || true
+        rm -f "$digest_file"
+    else
+        print_status $YELLOW "AWS CLI not found - backup metadata will not include container digests"
+        rm -f "$digest_file"
+    fi
+
+    # Run backup command (will read digests from S3 if available)
     cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup $types $ticket $suffix"
+
+    # Determine the backup tag that was created
+    # Format: {ticket}-{env}-{container}-{date}-{suffix}-{sequence}
+    local env="${DEPLOY_ENV:-dev}"
+    local container=$(cf app cms 2>/dev/null | grep 'name:' | awk '{print $2}' | grep -oE '[0-9]+$' || echo "unknown")
+    local date=$(date +%Y-%m-%d)
+    local backup_tag="${ticket}-${env}-${container}-${date}--${suffix}-0"
+
+    # Update metadata in S3 with container digests
+    # Download existing metadata, update it, and re-upload
+    local temp_metadata="/tmp/${backup_tag}-metadata-update.json"
+
+    if fetch_deployment_metadata "$backup_tag" > "$temp_metadata" 2>/dev/null; then
+        # Use sed to update the digest fields in place
+        sed -i.bak "s|\"cms\": {[^}]*}|\"cms\": { \"cci_build\": \"$cci_build\", \"digest\": \"$cms_digest\" }|" "$temp_metadata"
+        sed -i.bak "s|\"www\": {[^}]*}|\"www\": { \"cci_build\": \"$cci_build\", \"digest\": \"$www_digest\" }|" "$temp_metadata"
+        sed -i.bak "s|\"waf\": {[^}]*}|\"waf\": { \"cci_build\": \"$cci_build\", \"digest\": \"$waf_digest\" }|" "$temp_metadata"
+
+        # Re-upload updated metadata
+        cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && aws s3 cp - s3://\$BUCKET_NAME/deployment-metadata/${backup_tag}.json \$S3_EXTRA_PARAMS" < "$temp_metadata"
+
+        rm -f "$temp_metadata" "${temp_metadata}.bak"
+    fi
 }
 
 # Execute a restore command via cf ssh to cms container
@@ -835,11 +896,68 @@ deploy_app() {
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$force"
 
-    if [ -z "$app_name" ] || [ -z "$cci_build" ] || [ -z "$digest" ]; then
+    if [ -z "$app_name" ] || [ -z "$cci_build" ]; then
         print_status $RED "❌ Error: Missing required parameters"
-        echo "Usage: deploy.sh deploy app <app-name> <cci-build> <digest>"
-        echo "Example: deploy.sh deploy app cms 5936 @sha256:abc123..."
+        echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest]"
+        echo "Example: deploy.sh deploy app cms 5936 gsatts/usagov-2021@sha256:abc123..."
+        echo ""
+        echo "If digest not provided, will look up from:"
+        echo "  1. DEPLOY_{APP}_DIGEST environment variable (set by show-build-info)"
+        echo "  2. Git tag: usagov-cci-build-{build}-{env}"
         return 1
+    fi
+
+    # Digest fallback logic
+    if [ -z "$digest" ]; then
+        # Try environment variable first (set by show-build-info)
+        local env_var_name="DEPLOY_$(echo "$app_name" | tr '[:lower:]' '[:upper:]')_DIGEST"
+        digest=$(eval echo "\$$env_var_name")
+
+        if [ -z "$digest" ]; then
+            # Try looking up from git tag
+            local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
+            if [ -n "$env" ]; then
+                print_status $BLUE "🔍 Looking up digest from git tag: usagov-cci-build-${cci_build}-${env}"
+                local tag_name="usagov-cci-build-${cci_build}-${env}"
+
+                if git rev-parse "$tag_name" >/dev/null 2>&1; then
+                    local tag_msg=$(git tag -l --format='%(contents)' "$tag_name")
+
+                    case "$app_name" in
+                        cms)
+                            digest=$(echo "$tag_msg" | grep -o 'CMS_DIGEST=[^|]*' | cut -d= -f2)
+                            ;;
+                        waf)
+                            digest=$(echo "$tag_msg" | grep -o 'WAF_DIGEST=[^|]*' | cut -d= -f2)
+                            ;;
+                        www)
+                            digest=$(echo "$tag_msg" | grep -o 'WWW_DIGEST=[^|]*' | cut -d= -f2)
+                            ;;
+                    esac
+
+                    if [ -n "$digest" ]; then
+                        print_status $GREEN "✅ Found digest in git tag"
+                    fi
+                fi
+            fi
+        fi
+
+        if [ -z "$digest" ]; then
+            print_status $RED "❌ Error: Could not determine digest for $app_name"
+            echo ""
+            echo "Options:"
+            echo "  1. Provide digest as third argument"
+            echo "  2. Run 'deploy.sh show-build-info $env' first to set env vars"
+            echo "  3. Ensure git tag exists: usagov-cci-build-${cci_build}-${env}"
+            return 1
+        fi
+    fi
+
+    # Normalize digest format
+    # If digest doesn't contain '/', it's just @sha256:..., prepend default registry
+    if ! echo "$digest" | grep -q '/'; then
+        digest="gsatts/usagov-2021${digest}"
+        print_status $BLUE "📦 Using default registry: $digest"
     fi
 
     # Use DEPLOY_ENV or current CF target
