@@ -52,6 +52,8 @@ show_usage() {
     echo "                                        Automatically creates annotated git tag for deployment tracking"
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
+    echo "  download-backups [tag]                 Download latest backups locally (db/static/public)"
+    echo "                                        Default tag: newest backup in current CF space"
     echo ""
     echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
@@ -81,6 +83,11 @@ show_usage() {
     echo "                                        Copies database and public files from FROM space to TO space"
     echo "                                        Uses latest backup from FROM space if tag not specified"
     echo "                                        Automatically fixes MFA configuration after restore"
+    echo ""
+    echo "Tome Utilities:"
+    echo "  tome-log                              Tail the latest Tome log and stop when it finishes"
+    echo "  tome-disable [max_wait_mins]          Disable Tome + enable maintenance (via CMS container)"
+    echo "  tome-enable                           Re-enable Tome + disable maintenance"
     echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
@@ -376,6 +383,56 @@ show_command_help() {
             echo "Example:"
             echo "  deploy.sh downsync prod dev"
             echo "  deploy.sh downsync prod dev AUTO-prod-2025-12-22-0"
+            echo ""
+            ;;
+        "download-backups")
+            echo "Download Backups Locally"
+            echo ""
+            echo "Usage: deploy.sh download-backups [tag]"
+            echo ""
+            echo "Description:"
+            echo "  Downloads db/static/public backups to the current directory."
+            echo "  If no tag is provided, the newest backup for the current CF space is used."
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh download-backups"
+            echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0"
+            echo ""
+            ;;
+        "tome-log")
+            echo "Tail Latest Tome Log"
+            echo ""
+            echo "Usage: deploy.sh tome-log"
+            echo ""
+            echo "Description:"
+            echo "  Finds the newest Tome log on the CMS container and tails it."
+            echo "  Stops automatically when Tome finishes or reports no changes."
+            echo ""
+            echo "Matches stop on:"
+            echo "  'Tome static build looks fine', 'No changes detected', 'no changes', 'SYNC FINISHED'"
+            echo ""
+            ;;
+        "tome-disable")
+            echo "Disable Tome and Enable Maintenance"
+            echo ""
+            echo "Usage: deploy.sh tome-disable [max_wait_mins]"
+            echo ""
+            echo "Description:"
+            echo "  Runs manager's try-tome-disable inside the CMS container."
+            echo "  Waits for Tome to stop (up to max_wait_mins), disables Tome, enables maintenance."
+            echo ""
+            echo "Arguments:"
+            echo "  max_wait_mins - Optional max wait (default: 25)"
+            echo ""
+            ;;
+        "tome-enable")
+            echo "Re-enable Tome and Disable Maintenance"
+            echo ""
+            echo "Usage: deploy.sh tome-enable"
+            echo ""
+            echo "Description:"
+            echo "  Runs manager's try-tome-enable inside the CMS container."
+            echo "  Disables maintenance mode and re-enables Tome."
             echo ""
             ;;
         "snapshot")
@@ -1585,6 +1642,118 @@ rollback_db() {
     rollback_single_type "db" "$1" "$2"
 }
 
+# Download backups locally - defaults to latest backup for current space
+download_backups() {
+    local tag="${1:-}"
+    local output_dir="$(pwd)"
+
+    # If no tag provided, find the most recent backup
+    if [ -z "$tag" ]; then
+        print_status $BLUE "🔍 Finding most recent backup..."
+
+        # Query S3 to get the most recent backup tag
+        tag=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
+            aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS |
+            grep '\.sql\.gz$' |
+            sort -r |
+            head -1 |
+            awk '{print \$4}' |
+            sed 's/\.sql\.gz$//'" 2>/dev/null | tail -1 | tr -d '\r')
+
+        if [ -z "$tag" ]; then
+            print_status $RED "❌ Error: Could not find any backups"
+            return 1
+        fi
+
+        print_status $GREEN "✅ Found latest backup: $tag"
+    fi
+
+    print_status $BLUE "📥 Downloading backups for: $tag"
+    echo "Output directory: $output_dir"
+    echo ""
+
+    local failed=0
+
+    # Download database backup
+    print_status $YELLOW "📦 Downloading database..."
+    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $tag db - --stream" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
+    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-database.sql.gz" ]; then
+        print_status $GREEN "  ✅ Database downloaded ($(du -h "${output_dir}/${tag}-database.sql.gz" | cut -f1))"
+    else
+        print_status $RED "  ❌ Database download failed"
+        failed=$((failed + 1))
+    fi
+
+    # Download static site backup
+    print_status $YELLOW "📦 Downloading static site..."
+    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $tag static - --stream" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
+    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-static.tar.gz" ]; then
+        print_status $GREEN "  ✅ Static site downloaded ($(du -h "${output_dir}/${tag}-static.tar.gz" | cut -f1))"
+    else
+        print_status $RED "  ❌ Static site download failed"
+        failed=$((failed + 1))
+    fi
+
+    # Download public files backup
+    print_status $YELLOW "📦 Downloading public files..."
+    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $tag public - --stream" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
+    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-public.tar.gz" ]; then
+        print_status $GREEN "  ✅ Public files downloaded ($(du -h "${output_dir}/${tag}-public.tar.gz" | cut -f1))"
+    else
+        print_status $RED "  ❌ Public files download failed"
+        failed=$((failed + 1))
+    fi
+
+    echo ""
+    if [ $failed -eq 0 ]; then
+        print_status $GREEN "✅ Download complete!"
+        echo ""
+        echo "Downloaded files:"
+        ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        return 0
+    else
+        print_status $YELLOW "⚠️  Download completed with $failed error(s)"
+        echo ""
+        echo "Downloaded files:"
+        ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        return 1
+    fi
+}
+
+# Tail the latest Tome log and stop when it finishes
+tome_log() {
+    print_status $BLUE "🔍 Finding latest Tome log..."
+
+    # Find the most recent log file in /tmp/tome-log/YYYY/MM/DD/
+    local latest_log=$(cf ssh cms -c "find /tmp/tome-log -type f -name '*.log' 2>/dev/null | sort -r | head -1" 2>/dev/null | tail -1 | tr -d '\r')
+
+    if [ -z "$latest_log" ]; then
+        print_status $RED "❌ Error: No Tome logs found"
+        echo "Logs are stored in: /tmp/tome-log/YYYY/MM/DD/"
+        return 1
+    fi
+
+    print_status $GREEN "✅ Found log: $latest_log"
+    echo ""
+    print_status $YELLOW "📄 Tailing log (will stop when Tome finishes)..."
+    echo ""
+
+    # Tail the log and stop on completion markers
+    # Use cf ssh with tail -f, grep for completion markers
+    cf ssh cms -c "
+        tail -f -n 50 $latest_log 2>/dev/null |
+        while IFS= read -r line; do
+            echo \"\$line\"
+            # Check for completion markers
+            if echo \"\$line\" | grep -qiE '(Tome static build looks fine|No changes detected|no changes|SYNC FINISHED)'; then
+                echo ''
+                echo '✅ Tome process completed.'
+                break
+            fi
+        done
+    "
+}
+
 # Switch CF target to specified environment
 switch_env() {
     local env="$1"
@@ -2395,6 +2564,20 @@ case "$COMMAND" in
         ;;
     "downsync")
         downsync "$@"
+        ;;
+    "download-backups")
+        download_backups "$@"
+        ;;
+    "tome-log")
+        tome_log
+        ;;
+    "tome-disable")
+        # Call common.sh directly
+        cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && tome_disable ${1:-25}"
+        ;;
+    "tome-enable")
+        # Call common.sh directly
+        cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && tome_enable"
         ;;
     "switch")
         switch_env "$@"

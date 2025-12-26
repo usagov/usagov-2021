@@ -901,6 +901,37 @@ restore_drupal_state() {
     return 0
 }
 
+# Command wrapper: Disable Tome and enable maintenance mode
+# This is the user-facing command that can be called from scripts
+# Args:
+#   $1: max_wait_minutes (optional, default: 25)
+# Returns: 0 on success, 1 on failure
+tome_disable() {
+    local max_wait="${1:-25}"
+    print_status $BLUE "🔧 Disabling Drupal/Tome for backup..."
+    if prepare_drupal_for_backup "$max_wait"; then
+        print_status $GREEN "✅ Drupal/Tome disabled: Tome stopped and disabled, maintenance mode enabled"
+        return 0
+    else
+        print_status $RED "❌ Failed to disable Drupal/Tome"
+        return 1
+    fi
+}
+
+# Command wrapper: Re-enable Tome and disable maintenance mode
+# This is the user-facing command that can be called from scripts
+# Returns: 0 on success, 1 on failure
+tome_enable() {
+    print_status $BLUE "🔧 Re-enabling Drupal/Tome..."
+    if restore_drupal_state; then
+        print_status $GREEN "✅ Drupal/Tome enabled: Maintenance mode disabled, Tome re-enabled"
+        return 0
+    else
+        print_status $RED "❌ Failed to re-enable Drupal/Tome"
+        return 1
+    fi
+}
+
 # ===================================================================
 # AWS S3 CONFIGURATION
 # ===================================================================

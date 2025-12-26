@@ -2753,25 +2753,13 @@ case "$COMMAND" in
         ;;
     "try-tome-disable")
         # try-tome-disable [max_wait_minutes] - Disable Drupal/Tome for backup
-        print_status $BLUE "🔧 Disabling Drupal/Tome for backup..."
-        if prepare_drupal_for_backup "${2:-25}"; then
-            print_status $GREEN "✅ Drupal/Tome disabled: Tome stopped and disabled, maintenance mode enabled"
-            exit 0
-        else
-            print_status $RED "❌ Failed to disable Drupal/Tome"
-            exit 1
-        fi
+        tome_disable "${2:-25}"
+        exit $?
         ;;
     "try-tome-enable")
         # try-tome-enable - Re-enable Drupal/Tome to normal operation
-        print_status $BLUE "🔧 Re-enabling Drupal/Tome..."
-        if restore_drupal_state; then
-            print_status $GREEN "✅ Drupal/Tome enabled: Maintenance mode disabled, Tome re-enabled"
-            exit 0
-        else
-            print_status $RED "❌ Failed to re-enable Drupal/Tome"
-            exit 1
-        fi
+        tome_enable
+        exit $?
         ;;
     *)
         print_status $RED "❌ Unknown command: $COMMAND"
