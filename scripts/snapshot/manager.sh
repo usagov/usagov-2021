@@ -929,6 +929,7 @@ create_db_backup() {
     fi
 
     rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
+    cleanup_needed=false  # Disable cleanup trap since we cleaned up manually
 
     # Restore Drupal state before checking results
     if [ "$drupal_state_prepared" = "true" ]; then
@@ -945,12 +946,17 @@ create_db_backup() {
             aws s3 cp "$LOGFILE" "s3://$BUCKET_NAME/db-backup-logs/$(basename "$LOGFILE")" $S3_EXTRA_PARAMS >/dev/null 2>&1
         fi
 
-        # Capture and upload deployment metadata
+        # Capture and upload deployment metadata (REQUIRED for all backups)
         if command -v capture_deployment_metadata >/dev/null 2>&1; then
             local metadata=$(capture_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE")
-            upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+            if ! upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata"; then
+                log_message "❌ ERROR: Failed to upload metadata" | tee -a "$LOGFILE"
+                print_status $RED "❌ Backup metadata upload failed"
+                return 1
+            fi
         fi
 
+        trap - EXIT ERR  # Clear trap before successful return
         return 0
     else
         audit_log "backup_database_failed" "error" "Database backup upload failed" "backup_tag=$DB_BACKUP_TAG exit_code=$UPLOAD_EXIT_CODE"
@@ -1006,10 +1012,13 @@ create_static_backup() {
             audit_log "backup_static_success" "success" "Static site backup completed" "backup_tag=$BACKUP_TAG"
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
 
-            # Capture and upload deployment metadata
+            # Capture and upload deployment metadata (REQUIRED for all backups)
             if command -v capture_deployment_metadata >/dev/null 2>&1; then
                 local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
-                upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+                if ! upload_deployment_metadata "$BACKUP_TAG" "$metadata"; then
+                    print_status $RED "❌ Static backup metadata upload failed"
+                    return 1
+                fi
             fi
 
             return 0
@@ -1470,28 +1479,33 @@ cleanup_old_db_backups() {
 
     setup_s3_vars || exit 1
 
-    # Special handling for deleting ALL database backups
-    if [ "$filter_type" = "all" ]; then
-        audit_log "cleanup_database_started" "info" "Database cleanup initiated - delete all" "filter_type=all"
-        log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
+    # Reject 'all' and '0' - use delete command for bulk deletion
+    if [ "$filter_type" = "all" ] || [ "$filter_value" = "0" ] || [ "$filter_value" = "all" ]; then
+        log_message "❌ Error: Minimum retention is 2 days (48 hours)"
+        log_message "   To delete all backups, clean all but 2 days worth and"
+        log_message "   use the 'delete' command instead to remove remaining backups."
+        log_message "   This prevents accidental deletion of recent backups."
+        return 1
+    fi
 
-        # Delete ALL database backups
-        aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
-            backup_path=$(echo "$line" | awk '{print $4}')
-            if [ -n "$backup_path" ]; then
-                audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path"
-                log_message "🗑️ Removing database backup: $backup_path"
-                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
-            fi
-        done
-        audit_log "cleanup_database_success" "success" "All database backups removed" "filter_type=all"
-        log_message "✅ All database backups removed"
-        return 0
+    # Validate minimum retention of 2 days (48 hours) to protect deployment windows
+    if [ "$filter_type" = "days" ]; then
+        if [ "$filter_value" -lt 2 ]; then
+            log_message "❌ Error: Minimum retention is 2 days (48 hours)"
+            return 1
+        fi
     fi
 
     # Display what we're doing using consolidated helper
     audit_log "cleanup_database_started" "info" "Database cleanup initiated" "filter_type=$filter_type filter_value=$filter_value"
-    log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
+    log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"  
+    
+    # Calculate 48-hour cutoff (minimum retention)
+    local min_retention_epoch=$(date -u -v-48H +%s 2>/dev/null || date -u -d "48 hours ago" +%s 2>/dev/null)
+    if [ -z "$min_retention_epoch" ]; then
+        log_message "❌ Error: Could not calculate minimum retention date"
+        return 1
+    fi
 
     # List and delete database backups matching filter
     aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
@@ -1499,6 +1513,15 @@ cleanup_old_db_backups() {
         backup_date=$(extract_date_from_backup_name "$backup_path")
 
         if [ -n "$backup_date" ]; then
+            # Convert backup date to epoch for comparison
+            local backup_epoch=$(date_to_epoch "$backup_date")
+            
+            # Skip if backup is newer than 48 hours (safety check)
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -gt "$min_retention_epoch" ]; then
+                log_message "⏭️  Skipping recent backup (< 48 hours): $backup_path"
+                continue
+            fi
+            
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date"
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"

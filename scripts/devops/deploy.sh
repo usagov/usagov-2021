@@ -62,20 +62,20 @@ show_usage() {
     echo "                                        for CMS, WAF, and WWW"
     echo ""
     echo "Deployment Commands (DESTRUCTIVE):"
-    echo "  push <name> <build> [digest] [--force]"
+    echo "  push <name> <build> [digest] [--skip-validation]"
     echo "                                        🔥 DESTRUCTIVE: Deploy specific app with container digest"
     echo "                                        Example: push cms 5936 gsatts/usagov-2021@sha256:abc..."
     echo "                                        Digest optional if DEPLOY_{APP}_DIGEST set or git tag exists"
-    echo "                                        Use --force to skip space validation"
+    echo "                                        Use --skip-validation to skip space validation"
     echo ""
     echo "Deployment Backup Commands:"
-    echo "  pre-deploy [--force]                  Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
+    echo "  pre-deploy [--skip-validation]        Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
     echo "                                        Requires: DEPLOY_TICKET"
-    echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
-    echo "  post-deploy [--force]                 Create post-deployment backup using DEPLOY_POST_SUFFIX"
+    echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
+    echo "  post-deploy [--skip-validation]       Create post-deployment backup using DEPLOY_POST_SUFFIX"
     echo "                                        Automatically creates annotated git tag for deployment tracking"
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
-    echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
+    echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
     echo "  download-backups [tag]                 Download latest backups locally (db/static/public)"
     echo "                                        Default tag: newest backup in current CF space"
     echo ""
@@ -87,18 +87,21 @@ show_usage() {
     echo "                                        limit: limit results per category (default: 10)"
     echo "                                        Flags: --backups-only, --git-only, --format=json,"
     echo "                                               --show-all-history (show deployments >1yr old)"
-    echo "  rollback [types] <cms> <www> <waf> [tag] [--force]"
+    echo "  rollback [types] <cms> <www> <waf> [tag] [--skip-validation] [--skip-confirmation]"
     echo "                                        🔥 DESTRUCTIVE: Rollback code (always) + optional data types"
     echo "                                        Requires: Full container digests for cms, www, and waf"
     echo "                                        Types: db, static, public, full, or comma-separated"
     echo "                                        Default: code only (no data restore)"
     echo "                                        Backup tag required if restoring data"
-    echo "                                        Validates CF space matches DEPLOY_ENV (use --force to skip)"
+    echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
+    echo "                                        Use --skip-confirmation to bypass production confirmation prompt"
     echo "                                        Example: rollback gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi..."
     echo "                                        Example: rollback db gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi... AUTO-prod-2025-12-22-0"
-    echo "  rollback-static [tag] [--force]       🔥 DESTRUCTIVE: Restore static site only (with confirmation)"
+    echo "  rollback-static [tag] [--skip-validation] [--skip-confirmation]"
+    echo "                                        🔥 DESTRUCTIVE: Restore static site only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
-    echo "  rollback-db [tag] [--force]           🔥 DESTRUCTIVE: Restore database only (with confirmation)"
+    echo "  rollback-db [tag] [--skip-validation] [--skip-confirmation]"
+    echo "                                        🔥 DESTRUCTIVE: Restore database only (with confirmation)"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_DB_TAG is set"
     echo ""
     echo "Downsync Commands (DESTRUCTIVE):"
@@ -249,7 +252,7 @@ show_command_help() {
         "push")
             echo "Push Application Deployment"
             echo ""
-            echo "Usage: deploy.sh push <name> <build> [digest] [--force]"
+            echo "Usage: deploy.sh push <name> <build> [digest] [--skip-validation]"
             echo ""
             echo "Description:"
             echo "  🔥 DESTRUCTIVE: Deploy a specific application with container digest."
@@ -259,7 +262,7 @@ show_command_help() {
             echo "  name    - App name (cms, www, waf)"
             echo "  build   - CCI build number"
             echo "  digest  - Container digest (optional if DEPLOY_{APP}_DIGEST set)"
-            echo "  --force - Skip space validation"
+            echo "  --skip-validation - Skip space validation"
             echo ""
             echo "Examples:"
             echo "  deploy.sh push cms 5936 gsatts/usagov-2021@sha256:abc123..."
@@ -269,14 +272,14 @@ show_command_help() {
         "pre-deploy")
             echo "Pre-Deployment Backup"
             echo ""
-            echo "Usage: deploy.sh pre-deploy [--force]"
+            echo "Usage: deploy.sh pre-deploy [--skip-validation]"
             echo ""
             echo "Description:"
             echo "  Creates a pre-deployment backup using DEPLOY_PRE_SUFFIX."
             echo "  Validates CF space matches DEPLOY_ENV."
             echo ""
             echo "Options:"
-            echo "  --force  - Skip space validation"
+            echo "  --skip-validation  - Skip space validation"
             echo ""
             echo "Requires: DEPLOY_TICKET environment variable"
             echo ""
@@ -284,14 +287,14 @@ show_command_help() {
         "post-deploy")
             echo "Post-Deployment Backup"
             echo ""
-            echo "Usage: deploy.sh post-deploy [--force]"
+            echo "Usage: deploy.sh post-deploy [--skip-validation]"
             echo ""
             echo "Description:"
             echo "  Creates a post-deployment backup and annotated git tag."
             echo "  Git tag includes CCI build and container digests for tracking."
             echo ""
             echo "Options:"
-            echo "  --force  - Skip space validation"
+            echo "  --skip-validation  - Skip space validation"
             echo ""
             echo "Requires: DEPLOY_TICKET, DEPLOY_ENV environment variables"
             echo ""
@@ -340,7 +343,7 @@ show_command_help() {
         "rollback")
             echo "Rollback Deployment"
             echo ""
-            echo "Usage: deploy.sh rollback [types] <cms-digest> <www-digest> <waf-digest> [tag] [--force]"
+            echo "Usage: deploy.sh rollback [types] <cms-digest> <www-digest> <waf-digest> [tag] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
             echo "  🔥 DESTRUCTIVE: Rollback code and optionally data."
@@ -353,7 +356,8 @@ show_command_help() {
             echo "  www-digest  - Full WWW container digest"
             echo "  waf-digest  - Full WAF container digest"
             echo "  tag         - Backup tag (required if restoring data)"
-            echo "  --force     - Skip space validation"
+            echo "  --skip-validation     - Skip space validation"
+            echo "  --skip-confirmation   - Skip production confirmation prompt"
             echo ""
             echo "Examples:"
             echo "  # Code only"
@@ -366,27 +370,29 @@ show_command_help() {
         "rollback-static")
             echo "Rollback Static Site"
             echo ""
-            echo "Usage: deploy.sh rollback-static [tag] [--force]"
+            echo "Usage: deploy.sh rollback-static [tag] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
             echo "  🔥 DESTRUCTIVE: Restore static site only."
             echo ""
             echo "Arguments:"
-            echo "  tag      - Backup tag (optional if DEPLOY_ROLLBACK_STATIC_TAG set)"
-            echo "  --force  - Skip space validation"
+            echo "  tag                   - Backup tag (optional if DEPLOY_ROLLBACK_STATIC_TAG set)"
+            echo "  --skip-validation     - Skip space validation"
+            echo "  --skip-confirmation   - Skip production confirmation prompt"
             echo ""
             ;;
         "rollback-db")
             echo "Rollback Database"
             echo ""
-            echo "Usage: deploy.sh rollback-db [tag] [--force]"
+            echo "Usage: deploy.sh rollback-db [tag] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
             echo "  🔥 DESTRUCTIVE: Restore database only."
             echo ""
             echo "Arguments:"
-            echo "  tag      - Backup tag (optional if DEPLOY_ROLLBACK_DB_TAG set)"
-            echo "  --force  - Skip space validation"
+            echo "  tag                   - Backup tag (optional if DEPLOY_ROLLBACK_DB_TAG set)"
+            echo "  --skip-validation     - Skip space validation"
+            echo "  --skip-confirmation   - Skip production confirmation prompt"
             echo ""
             ;;
         "downsync")
@@ -702,14 +708,14 @@ show_motd() {
 
 # Validate CF target matches DEPLOY_ENV (safety check for destructive operations)
 # Args:
-#   $1: force - If "force" or "--force", skip validation
+#   $1: skip_validation - If "--skip-validation", skip validation
 # Returns: 0 if valid, exits if mismatch
 validate_target_space() {
-    local force="$1"
+    local skip_validation="$1"
 
-    # Skip validation if force flag provided
-    if [ "$force" = "force" ] || [ "$force" = "--force" ]; then
-        print_status $YELLOW "⚠️  --force flag used, skipping space validation"
+    # Skip validation if flag provided
+    if [ "$skip_validation" = "--skip-validation" ]; then
+        print_status $YELLOW "⚠️  --skip-validation flag used, skipping space validation"
         return 0
     fi
 
@@ -732,7 +738,7 @@ validate_target_space() {
         echo ""
         echo "To proceed, either:"
         echo "  1. Set context: deploy.sh set-context $current_space <ticket>"
-        echo "  2. Use --force flag to skip validation (NOT RECOMMENDED)"
+        echo "  2. Use --skip-validation flag to skip validation (NOT RECOMMENDED)"
         echo ""
         exit 1
     fi
@@ -749,7 +755,7 @@ validate_target_space() {
         echo "To proceed anyway, either:"
         echo "  1. Switch spaces: deploy.sh switch $DEPLOY_ENV"
         echo "  2. Update context: deploy.sh set-context $current_space <ticket>"
-        echo "  3. Use --force flag (NOT RECOMMENDED)"
+        echo "  3. Use --skip-validation flag (NOT RECOMMENDED)"
         echo ""
         exit 1
     fi
@@ -813,14 +819,23 @@ exec_restore_command() {
 # Args:
 #   $1: rollback_type - Description of what's being rolled back
 #   $2: tag - Backup tag
+#   $3: skip_confirmation - Optional "--skip-confirmation" flag to bypass confirmation
 # Returns: 0 if confirmed, exits if cancelled
 confirm_rollback() {
     local rollback_type="$1"
     local tag="$2"
+    local skip_confirmation="$3"
 
     # Validate tag
     if ! validate_backup_tag "$tag"; then
         exit 1
+    fi
+
+    # Check for --skip-confirmation flag (bypasses confirmation prompt)
+    if [ "$skip_confirmation" = "--skip-confirmation" ]; then
+        print_status $YELLOW "⚠️  --skip-confirmation flag detected, bypassing confirmation"
+        echo ""
+        return 0
     fi
 
     print_status $YELLOW "⚠️  ROLLBACK: This will restore $rollback_type"
@@ -835,15 +850,43 @@ confirm_rollback() {
     fi
 
     if [ "$is_prod" = "true" ]; then
-        # Production requires exact confirmation string
+        # Production requires exact confirmation string (with 3 attempts)
         print_status $RED "⚠️  PRODUCTION ENVIRONMENT DETECTED"
-        printf "Type 'CONFIRM PROD ROLLBACK' to continue: "
-        read -r confirmation
+        local required_text="CONFIRM PROD ROLLBACK"
+        local attempts=0
+        local max_attempts=3
+        local last_input=""
 
-        if [ "$confirmation" != "CONFIRM PROD ROLLBACK" ]; then
-            print_status $GREEN "❌ Rollback cancelled"
-            exit 0
-        fi
+        while [ $attempts -lt $max_attempts ]; do
+            attempts=$((attempts + 1))
+
+            if [ $attempts -eq 1 ]; then
+                printf "Type '$required_text' to continue: "
+            else
+                printf "Attempt %d/%d - Type '$required_text' to continue" "$attempts" "$max_attempts"
+                if [ -n "$last_input" ]; then
+                    printf " (you typed: '%s'): " "$last_input"
+                else
+                    printf ": "
+                fi
+            fi
+
+            read -r confirmation
+            last_input="$confirmation"
+
+            if [ "$confirmation" = "$required_text" ]; then
+                echo ""
+                return 0
+            fi
+
+            if [ $attempts -lt $max_attempts ]; then
+                print_status $YELLOW "⚠️  Text mismatch. Please try again."
+            fi
+        done
+
+        print_status $RED "❌ Maximum attempts reached. Rollback cancelled."
+        print_status $YELLOW "💡 Tip: Use --skip-confirmation flag to bypass this check"
+        exit 1
     else
         # Non-production uses simple y/N confirmation
         printf "Continue with rollback? (y/N): "
@@ -1668,14 +1711,16 @@ _show_rollback_command() {
 # Args:
 #   $1: type - Type to restore (static, db, public)
 #   $2: tag - Backup tag (optional if DEPLOY_ROLLBACK_{TYPE}_TAG is set)
-#   $3: force - Optional "force" flag to skip validation
+#   $3: skip_validation - Optional "--skip-validation" flag to skip validation
+#   $4: skip_confirmation - Optional "--skip-confirmation" flag to bypass confirmation
 rollback_single_type() {
     local type="$1"
     local tag="${2:-}"
-    local force="$3"
+    local skip_validation="$3"
+    local skip_confirmation="$4"
 
     # Validate CF space matches DEPLOY_ENV
-    validate_target_space "$force"
+    validate_target_space "$skip_validation"
 
     # Map type to context variable if tag not provided
     if [ -z "$tag" ]; then
@@ -1688,25 +1733,25 @@ rollback_single_type() {
 
     if [ -z "$tag" ]; then
         print_status $RED "❌ Error: Backup tag required"
-        echo "Usage: deploy.sh rollback-$type <tag>"
+        echo "Usage: deploy.sh rollback-$type <tag> [--skip-validation] [--skip-confirmation]"
         echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
         exit 1
     fi
 
-    # Use confirmation helper
-    confirm_rollback "$type only" "$tag"
+    # Use confirmation helper with skip_confirmation flag
+    confirm_rollback "$type only" "$tag" "$skip_confirmation"
 
     exec_restore_command "$tag" "--only=$type"
 }
 
 # Rollback static site only (with confirmation)
 rollback_static() {
-    rollback_single_type "static" "$1" "$2"
+    rollback_single_type "static" "$1" "$2" "$3"
 }
 
 # Rollback database only (with confirmation)
 rollback_db() {
-    rollback_single_type "db" "$1" "$2"
+    rollback_single_type "db" "$1" "$2" "$3"
 }
 
 # Download backups locally - defaults to latest backup for current space
@@ -2151,14 +2196,14 @@ deploy_app() {
     local app_name="$1"
     local cci_build="$2"
     local digest="$3"
-    local force="$4"
+    local skip_validation="$4"
 
     # Validate CF space matches DEPLOY_ENV
-    validate_target_space "$force"
+    validate_target_space "$skip_validation"
 
     if [ -z "$app_name" ] || [ -z "$cci_build" ]; then
         print_status $RED "❌ Error: Missing required parameters"
-        echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest]"
+        echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest] [--skip-validation]"
         echo "Example: deploy.sh deploy app cms 5936 gsatts/usagov-2021@sha256:abc123..."
         echo ""
         echo "If digest not provided, will look up from:"
@@ -2238,18 +2283,20 @@ rollback() {
     local www_digest=""
     local waf_digest=""
     local backup_tag=""
-    local force=""
+    local skip_validation=""
+    local skip_confirmation=""
 
-    # Parse: [types] <cms-digest> <www-digest> <waf-digest> [backup-tag] [--force]
-    # Check for --force flag in any position
+    # Parse flags in any position
     for arg in "$@"; do
-        if [ "$arg" = "--force" ]; then
-            force="force"
+        if [ "$arg" = "--skip-validation" ]; then
+            skip_validation="--skip-validation"
+        elif [ "$arg" = "--skip-confirmation" ]; then
+            skip_confirmation="--skip-confirmation"
         fi
     done
 
     # Validate CF space matches DEPLOY_ENV
-    validate_target_space "$force"
+    validate_target_space "$skip_validation"
 
     # Parse: [types] <cms-digest> <www-digest> <waf-digest> [backup-tag]
     # If first arg looks like a data type, it's types; otherwise first digest
@@ -2272,7 +2319,7 @@ rollback() {
 
     if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
         print_status $RED "❌ Error: Container digests required"
-        echo "Usage: deploy.sh rollback [db|static|public|full] <cms-digest> <www-digest> <waf-digest> [backup-tag]"
+        echo "Usage: deploy.sh rollback [db|static|public|full] <cms-digest> <www-digest> <waf-digest> [backup-tag] [--skip-validation] [--skip-confirmation]"
         echo "       deploy.sh rollback <cms-digest> <www-digest> <waf-digest>  (defaults to code only)"
         echo ""
         echo "Examples:"

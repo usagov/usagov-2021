@@ -600,13 +600,13 @@ get_next_backup_suffix() {
 
     setup_s3_vars || return 1
 
-    # Use file locking to prevent race conditions
+    # Use file locking to prevent race conditions (increased timeout to 15 seconds for reliability)
     local lockfile="/tmp/backup-suffix-${backup_type}.lock"
     local lockfd=200
 
     # Open lock file and acquire exclusive lock
     eval "exec $lockfd>$lockfile"
-    if ! flock -x -w 30 $lockfd 2>/dev/null; then
+    if ! flock -x -w 15 $lockfd 2>/dev/null; then
         print_status $YELLOW "⚠️  Could not acquire lock, proceeding without lock"
     fi
 
@@ -634,38 +634,59 @@ get_next_backup_suffix() {
             ;;
     esac
 
-    # List existing backups matching the pattern
+    # List existing backups matching the pattern (with max retry protection)
+    local max_attempts=100
+    local attempt=0
     local existing_numbers=""
-    if [ "$backup_type" = "db" ]; then
-        # For database, search for .sql.gz files
-        existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
-            grep "${search_pattern}" | \
-            grep ".sql.gz" | \
-            awk '{print $4}' | \
-            sed "s/^${base_tag}-//" | \
-            sed 's/.sql.gz$//' | \
-            grep '^[0-9]\+$')
-    else
-        # For static/public, search for directories
-        existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
-            grep "PRE ${search_pattern}" | \
-            awk '{print $2}' | \
-            tr -d '/' | \
-            sed "s/^${base_tag}-//" | \
-            grep '^[0-9]\+$')
-    fi
 
-    # Find the highest number and add 1
-    local max_num=-1
-    if [ -n "$existing_numbers" ]; then
-        for num in $existing_numbers; do
-            if [ "$num" -gt "$max_num" ]; then
-                max_num=$num
-            fi
-        done
-    fi
+    while [ $attempt -lt $max_attempts ]; do
+        if [ "$backup_type" = "db" ]; then
+            # For database, search for .sql.gz files
+            existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
+                grep "${search_pattern}" | \
+                grep ".sql.gz" | \
+                awk '{print $4}' | \
+                sed "s/^${base_tag}-//" | \
+                sed 's/.sql.gz$//' | \
+                grep '^[0-9]\+$')
+        else
+            # For static/public, search for directories
+            existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
+                grep "PRE ${search_pattern}" | \
+                awk '{print $2}' | \
+                tr -d '/' | \
+                sed "s/^${base_tag}-//" | \
+                grep '^[0-9]\+$')
+        fi
 
-    local result=$((max_num + 1))
+        # Find the highest number and add 1
+        local max_num=-1
+        if [ -n "$existing_numbers" ]; then
+            for num in $existing_numbers; do
+                if [ "$num" -gt "$max_num" ]; then
+                    max_num=$num
+                fi
+            done
+        fi
+
+        local result=$((max_num + 1))
+
+        # Safety check: if result seems reasonable (< 100), use it
+        if [ $result -lt 100 ]; then
+            break
+        fi
+
+        # If we get an unreasonably high number, something may be wrong
+        attempt=$((attempt + 1))
+        if [ $attempt -ge $max_attempts ]; then
+            print_status $RED "❌ Error: Exceeded maximum suffix attempts ($max_attempts)"
+            print_status $YELLOW "   Current max suffix found: $max_num"
+            result=0  # Fallback to 0
+            break
+        fi
+
+        sleep 1
+    done
 
     # Release lock
     flock -u $lockfd 2>/dev/null
