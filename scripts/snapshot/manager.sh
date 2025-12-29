@@ -809,6 +809,7 @@ create_db_backup() {
         return 1
     fi
 
+    audit_log "backup_database_started" "info" "Database backup initiated" "backup_tag=$DB_BACKUP_TAG"
     log_message "💾 Database backup: $DB_BACKUP_TAG"
 
     # Setup log file
@@ -865,6 +866,7 @@ create_db_backup() {
 
     # Verify the SQL dump file was created and has content
     if [ ! -f "$TEMP_SQL" ] || [ ! -s "$TEMP_SQL" ]; then
+        audit_log "backup_database_failed" "error" "Database dump empty or missing" "backup_tag=$DB_BACKUP_TAG"
         log_message "❌ ERROR: Database dump empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
@@ -874,6 +876,7 @@ create_db_backup() {
     # Validate SQL dump structure
     log_message "🔍 Validating SQL dump structure..." | tee -a "$LOGFILE"
     if ! validate_sql_dump "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"; then
+        audit_log "backup_database_failed" "error" "SQL dump validation failed" "backup_tag=$DB_BACKUP_TAG reason=invalid_structure"
         log_message "❌ ERROR: SQL dump validation failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
@@ -933,6 +936,7 @@ create_db_backup() {
     fi
 
     if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
+        audit_log "backup_database_success" "success" "Database backup completed and uploaded" "backup_tag=$DB_BACKUP_TAG s3_path=$S3_DB_PATH"
         log_message "✅ Database backup complete: $S3_DB_PATH" | tee -a "$LOGFILE"
         print_status $GREEN "✅ Database backup saved: $DB_BACKUP_TAG"
 
@@ -949,6 +953,7 @@ create_db_backup() {
 
         return 0
     else
+        audit_log "backup_database_failed" "error" "Database backup upload failed" "backup_tag=$DB_BACKUP_TAG exit_code=$UPLOAD_EXIT_CODE"
         log_message "❌ ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
         print_status $RED "❌ Database backup failed: $DB_BACKUP_TAG"
         return 1
@@ -991,12 +996,14 @@ create_static_backup() {
         BACKUP_TAG="${base_tag}-${numeric_suffix}"
     fi
 
+    audit_log "backup_static_started" "info" "Static site backup initiated" "backup_tag=$BACKUP_TAG"
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
     # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
     if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
         local exit_code=$?
         if [ $exit_code -eq 0 ]; then
+            audit_log "backup_static_success" "success" "Static site backup completed" "backup_tag=$BACKUP_TAG"
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
 
             # Capture and upload deployment metadata
@@ -1007,10 +1014,12 @@ create_static_backup() {
 
             return 0
         else
+            audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
             print_status $RED "❌ Static site backup failed with exit code: $exit_code"
             return 1
         fi
     else
+        audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG"
         print_status $RED "❌ Static site backup failed: $BACKUP_TAG"
         return 1
     fi
@@ -1081,11 +1090,13 @@ create_public_backup() {
     fi
 
     if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
+        audit_log "backup_public_started" "info" "Public files backup initiated" "backup_tag=$BACKUP_TAG"
         log_message "📁 Creating public files backup: $BACKUP_TAG"
         # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
         if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
             local exit_code=$?
             if [ $exit_code -eq 0 ]; then
+                audit_log "backup_public_success" "success" "Public files backup completed" "backup_tag=$BACKUP_TAG"
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
 
                 # Capture and upload deployment metadata
@@ -1096,14 +1107,17 @@ create_public_backup() {
 
                 return 0
             else
+                audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
                 print_status $RED "❌ Public files backup failed with exit code: $exit_code"
                 return 1
             fi
         else
+            audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG"
             print_status $RED "❌ Public files backup failed: $BACKUP_TAG"
             return 1
         fi
     else
+        audit_log "backup_public_skipped" "info" "Public files unchanged, backup skipped" "backup_tag=$BACKUP_TAG"
         print_status $YELLOW "⚠️ Public files unchanged - skipped"
         return 0
     fi
@@ -1458,21 +1472,25 @@ cleanup_old_db_backups() {
 
     # Special handling for deleting ALL database backups
     if [ "$filter_type" = "all" ]; then
+        audit_log "cleanup_database_started" "info" "Database cleanup initiated - delete all" "filter_type=all"
         log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
 
         # Delete ALL database backups
         aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
             backup_path=$(echo "$line" | awk '{print $4}')
             if [ -n "$backup_path" ]; then
+                audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path"
                 log_message "🗑️ Removing database backup: $backup_path"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
             fi
         done
+        audit_log "cleanup_database_success" "success" "All database backups removed" "filter_type=all"
         log_message "✅ All database backups removed"
         return 0
     fi
 
     # Display what we're doing using consolidated helper
+    audit_log "cleanup_database_started" "info" "Database cleanup initiated" "filter_type=$filter_type filter_value=$filter_value"
     log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
 
     # List and delete database backups matching filter
@@ -1482,11 +1500,13 @@ cleanup_old_db_backups() {
 
         if [ -n "$backup_date" ]; then
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
+                audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date"
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
             fi
         fi
     done
+    audit_log "cleanup_database_success" "success" "Database cleanup completed" "filter_type=$filter_type filter_value=$filter_value"
     log_message "✅ Database backup cleanup complete"
 }
 
@@ -1796,9 +1816,11 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting static site backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                    audit_log "backup_static_deleted" "info" "Static backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Static backup deleted"
                     types_deleted=$((types_deleted + 1))
                 else
+                    audit_log "backup_static_delete_failed" "error" "Failed to delete static backup" "backup_tag=$backup_tag"
                     print_status $RED "❌ Failed to delete static backup"
                 fi
             else
@@ -1811,9 +1833,11 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting public files backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                    audit_log "backup_public_deleted" "info" "Public backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Public files backup deleted"
                     types_deleted=$((types_deleted + 1))
                 else
+                    audit_log "backup_public_delete_failed" "error" "Failed to delete public backup" "backup_tag=$backup_tag"
                     print_status $RED "❌ Failed to delete public files backup"
                 fi
             else
@@ -1826,9 +1850,11 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting database backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz --only-show-errors $S3_EXTRA_PARAMS; then
+                    audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Database backup deleted"
                     types_deleted=$((types_deleted + 1))
                 else
+                    audit_log "backup_database_delete_failed" "error" "Failed to delete database backup" "backup_tag=$backup_tag"
                     print_status $RED "❌ Failed to delete database backup"
                 fi
             else
@@ -2128,6 +2154,8 @@ restore_backup() {
     echo ""
     print_status $BLUE "🔄 Restoring..."
 
+    audit_log "restore_started" "info" "Restore operation initiated" "backup_tag=$backup_tag static=$restore_static public=$restore_public database=$restore_database"
+
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
@@ -2161,8 +2189,10 @@ restore_backup() {
             fi
 
             print_status $GREEN "✅ Static site restored"
+            audit_log "restore_static_success" "success" "Static site restored successfully" "backup_tag=$static_backup_tag"
             print_status $YELLOW "ℹ️  Note: Browser caches may take up to 15 minutes to refresh"
         else
+            audit_log "restore_static_failed" "error" "Static site restore failed" "backup_tag=$static_backup_tag"
             print_status $RED "❌ ERROR: Static site restore failed"
             exit 1
         fi
@@ -2172,6 +2202,7 @@ restore_backup() {
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring public files..."
         if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete $S3_EXTRA_PARAMS; then
+            audit_log "restore_public_success" "success" "Public files restored successfully" "backup_tag=$public_backup_tag"
             print_status $GREEN "✅ Public files restored"
             # Refresh S3FS metadata cache so Drupal sees the restored files
             if command -v drush >/dev/null 2>&1; then
@@ -2185,6 +2216,7 @@ restore_backup() {
                 print_status $YELLOW "⚠️ Could not refresh file cache (drush not available)"
             fi
         else
+            audit_log "restore_public_failed" "error" "Public files restore failed" "backup_tag=$public_backup_tag"
             print_status $RED "❌ ERROR: Public files restore failed"
             exit 1
         fi
@@ -2192,6 +2224,7 @@ restore_backup() {
 
     # Restore database
     if [ "$restore_database" = "yes" ] && [ -n "$db_backup_tag" ]; then
+        audit_log "restore_database_started" "info" "Database restore initiated" "backup_tag=$db_backup_tag"
         print_status $YELLOW "🔄 Restoring database..."
 
         # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
@@ -2227,6 +2260,7 @@ restore_backup() {
                     print_status $GREEN "✓ Checksum verified"
                     checksum_verified=true
                 else
+                    audit_log "restore_database_failed" "error" "Checksum mismatch detected" "backup_tag=$db_backup_tag expected=$expected_checksum actual=$actual_checksum"
                     print_status $RED "❌ Checksum mismatch! Backup may be corrupted."
                     print_status $YELLOW "   Expected: $expected_checksum"
                     print_status $YELLOW "   Got:      $actual_checksum"
@@ -2241,6 +2275,7 @@ restore_backup() {
             if gunzip -c "$temp_db_file" > "$temp_sql_file" 2>/dev/null; then
                 # Validate SQL content for dangerous patterns
                 if ! validate_sql_content "$temp_sql_file"; then
+                    audit_log "restore_database_failed" "error" "SQL content validation failed" "backup_tag=$db_backup_tag"
                     print_status $RED "❌ SQL content validation failed"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
                     [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
@@ -2252,8 +2287,10 @@ restore_backup() {
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
                         # Restore Drupal state before success message
                         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                        audit_log "restore_database_success" "success" "Database restored successfully" "backup_tag=$db_backup_tag"
                         print_status $GREEN "✅ Database restored"
                     else
+                        audit_log "restore_database_failed" "error" "Database import failed" "backup_tag=$db_backup_tag"
                         print_status $RED "❌ ERROR: Database import failed"
                         rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
                         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
@@ -2300,6 +2337,7 @@ restore_backup() {
     restored_items=$(echo "$restored_items" | sed 's/, $//')
 
     if [ -n "$restored_items" ]; then
+        audit_log "restore_completed" "success" "Restore operation completed successfully" "backup_tag=$backup_tag restored_types=$restored_items"
         print_status $GREEN "Restored: $restored_items"
     fi
 }

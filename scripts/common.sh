@@ -127,6 +127,53 @@ log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S'): $msg"
 }
 
+# Log structured audit message for security events
+# Outputs in [tags@47450 ...] format for logshipper parsing
+# Creates JSON fields in New Relic for easy querying/visualization
+# Args:
+#   $1: event_type - Type of event (backup_create, backup_restore, tome_disable, etc.)
+#   $2: status - Event status (success, failure, started)
+#   $3: message - Human-readable message
+#   $4: additional_data - Optional additional key="value" pairs (space-separated)
+audit_log() {
+    local event_type="$1"
+    local status="$2"
+    local msg="$3"
+    local additional="${4:-}"
+
+    # Get current context
+    local user=$(whoami 2>/dev/null || echo "unknown")
+    local pid=$$
+    local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local space="${APP_SPACE:-unknown}"
+
+    # Redact sensitive data from message
+    msg=$(echo "$msg" | sed 's/AKIA[A-Z0-9]\{16\}/AKIA***REDACTED***/g')
+    msg=$(echo "$msg" | sed 's/\([A-Za-z0-9+/]\{40,\}\)/***REDACTED***/g')
+
+    # Build structured log in tags format for logshipper
+    # Format: [tags@47450 key="value" key2="value2" ...]
+    # Note: Space-separated, not comma-separated
+    local structured="[tags@47450 "
+    structured="${structured}event_type=\"${event_type}\" "
+    structured="${structured}status=\"${status}\" "
+    structured="${structured}message=\"${msg}\" "
+    structured="${structured}user=\"${user}\" "
+    structured="${structured}pid=\"${pid}\" "
+    structured="${structured}timestamp=\"${timestamp}\" "
+    structured="${structured}space=\"${space}\""
+
+    # Add additional data if provided (should already be space-separated)
+    if [ -n "$additional" ]; then
+        structured="${structured} ${additional}"
+    fi
+
+    structured="${structured}]"
+
+    # Output timestamp + structured data
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): $structured"
+}
+
 # ===================================================================
 # CONTAINER AND VERSION IDENTIFICATION
 # ===================================================================
@@ -380,12 +427,12 @@ get_all_app_digests() {
 # Returns: 0 if valid, 1 if invalid
 validate_backup_tag() {
     local tag="$1"
-    
+
     if [ -z "$tag" ]; then
         print_status $RED "❌ Backup tag cannot be empty"
         return 1
     fi
-    
+
     # Only allow alphanumeric, hyphens, underscores, and dots
     # This prevents command injection via shell metacharacters
     if ! echo "$tag" | grep -qE '^[a-zA-Z0-9._-]+$'; then
@@ -393,13 +440,13 @@ validate_backup_tag() {
         print_status $YELLOW "   Tags may only contain: letters, numbers, dots, hyphens, underscores"
         return 1
     fi
-    
+
     # Check reasonable length (max 200 characters)
     if [ ${#tag} -gt 200 ]; then
         print_status $RED "❌ Backup tag too long (max 200 characters)"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -409,24 +456,24 @@ validate_backup_tag() {
 # Returns: 0 if valid, 1 if invalid; echoes normalized path
 validate_output_path() {
     local path="$1"
-    
+
     if [ -z "$path" ]; then
         print_status $RED "❌ Output path cannot be empty"
         return 1
     fi
-    
+
     # Reject paths with suspicious patterns
     if echo "$path" | grep -qE '(\.\./|^/etc/|^/var/|^/usr/|^/bin/|^/sbin/)'; then
         print_status $RED "❌ Invalid output path: $path"
         print_status $YELLOW "   Path traversal or system directory access not allowed"
         return 1
     fi
-    
+
     # Convert to absolute path if relative
     if [ "${path:0:1}" != "/" ]; then
         path="$(pwd)/$path"
     fi
-    
+
     # Ensure path is under /tmp or current working directory
     local allowed=false
     if echo "$path" | grep -q "^/tmp/"; then
@@ -434,12 +481,12 @@ validate_output_path() {
     elif echo "$path" | grep -q "^$(pwd)"; then
         allowed=true
     fi
-    
+
     if [ "$allowed" = "false" ]; then
         print_status $RED "❌ Output path must be under /tmp or current directory"
         return 1
     fi
-    
+
     echo "$path"
     return 0
 }
@@ -450,22 +497,22 @@ validate_output_path() {
 # Returns: 0 if safe, 1 if dangerous patterns found
 validate_sql_content() {
     local sql_file="$1"
-    
+
     if [ ! -f "$sql_file" ]; then
         print_status $RED "❌ SQL file not found: $sql_file"
         return 1
     fi
-    
+
     # Check for dangerous SQL patterns that could be used for exploitation
     # Note: This is a basic check - more sophisticated validation may be needed
     local dangerous_patterns="INTO OUTFILE|INTO DUMPFILE|LOAD_FILE|LOAD DATA|SYSTEM|EXEC |GRANT ALL|CREATE USER"
-    
+
     if grep -qiE "($dangerous_patterns)" "$sql_file"; then
         print_status $RED "❌ Dangerous SQL patterns detected in dump file"
         print_status $YELLOW "   File may contain: OUTFILE, LOAD_FILE, SYSTEM, GRANT, or CREATE USER statements"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -556,7 +603,7 @@ get_next_backup_suffix() {
     # Use file locking to prevent race conditions
     local lockfile="/tmp/backup-suffix-${backup_type}.lock"
     local lockfd=200
-    
+
     # Open lock file and acquire exclusive lock
     eval "exec $lockfd>$lockfile"
     if ! flock -x -w 30 $lockfd 2>/dev/null; then
@@ -619,11 +666,11 @@ get_next_backup_suffix() {
     fi
 
     local result=$((max_num + 1))
-    
+
     # Release lock
     flock -u $lockfd 2>/dev/null
     eval "exec $lockfd>&-"
-    
+
     echo "$result"
 }
 
@@ -973,21 +1020,27 @@ prepare_drupal_for_backup() {
 
     # Disable tome
     print_status $YELLOW "🔒 Disabling Tome..."
+    audit_log "tome_disable" "started" "Tome disable requested" "max_wait_minutes=\"${max_wait_minutes}\""
     if ! drush sset usagov.tome_run_disabled 1 2>/dev/null; then
         print_status $RED "❌ Failed to disable Tome"
+        audit_log "tome_disable" "failure" "Failed to disable Tome"
         return 1
     fi
 
     local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
     print_status $GREEN "✅ Tome disabled: $tome_disabled"
+    audit_log "tome_disable" "success" "Tome disabled successfully" "tome_disabled_state=\"${tome_disabled}\""
 
     # Enable maintenance mode
     print_status $YELLOW "🚧 Enabling maintenance mode..."
+    audit_log "maintenance_mode_enable" "started" "Enabling maintenance mode"
     if drush sset system.maintenance_mode 1 2>/dev/null && drush cr 2>/dev/null; then
         local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
         print_status $GREEN "✅ Maintenance mode enabled: $maint_mode"
+        audit_log "maintenance_mode_enable" "success" "Maintenance mode enabled" "maint_mode_state=\"${maint_mode}\""
     else
         print_status $RED "❌ Failed to enable maintenance mode"
+        audit_log "maintenance_mode_enable" "failure" "Failed to enable maintenance mode, rolling back Tome disable"
         # Try to re-enable tome before returning
         drush sdel usagov.tome_run_disabled 2>/dev/null
         return 1
@@ -1002,23 +1055,29 @@ prepare_drupal_for_backup() {
 restore_drupal_state() {
     # Disable maintenance mode first
     print_status $YELLOW "🚧 Disabling maintenance mode..."
+    audit_log "maintenance_mode_disable" "started" "Restoring Drupal state"
     if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
         local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
         print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
+        audit_log "maintenance_mode_disable" "success" "Maintenance mode disabled" "maint_mode_state=\"${maint_mode}\""
     else
         print_status $RED "❌ Failed to disable maintenance mode"
+        audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
         # Continue anyway
     fi
 
     # Re-enable tome
     print_status $YELLOW "🔓 Re-enabling Tome..."
+    audit_log "tome_enable" "started" "Re-enabling Tome"
     if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
         print_status $RED "❌ Failed to re-enable Tome"
+        audit_log "tome_enable" "failure" "Failed to re-enable Tome"
         return 1
     fi
 
     local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
     print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
+    audit_log "tome_enable" "success" "Tome re-enabled" "tome_disabled_state=\"${tome_disabled:-none}\""
 
     return 0
 }
