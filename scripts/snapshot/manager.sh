@@ -4,6 +4,9 @@
 # Unified manager for all backups (static site, public files, and database)
 # Handles backup creation, listing, restore, and cleanup operations
 
+# Set restrictive permissions for all created files
+umask 077
+
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
 . "$SCRIPT_DIR/../common.sh"
@@ -350,6 +353,21 @@ run_backup_command() {
     local skip_state_management=false
     local enable_throttle=false
 
+    # Rate limiting check - prevent backup spam (max 1 backup per 5 minutes)
+    local rate_limit_file="/tmp/backup_rate_limit"
+    if [ -f "$rate_limit_file" ]; then
+        local last_backup=$(cat "$rate_limit_file")
+        local current_time=$(date +%s)
+        local time_diff=$((current_time - last_backup))
+        if [ $time_diff -lt 300 ]; then
+            print_status $RED "❌ Rate limit: Please wait $((300 - time_diff)) seconds before next backup"
+            return 1
+        fi
+    fi
+
+    # Update rate limit timestamp
+    date +%s > "$rate_limit_file"
+
     # Parse all arguments to separate flags from positional params
     shift  # Remove types_arg
     while [ $# -gt 0 ]; do
@@ -392,6 +410,14 @@ run_backup_command() {
     if [ -n "$custom_suffix" ] && echo "$custom_suffix" | grep -q ' '; then
         print_status $RED "❌ Error: Backup suffix cannot contain spaces"
         print_status $YELLOW "   Use hyphens or underscores instead: 'my-suffix' or 'my_suffix'"
+        return 1
+    fi
+
+    # Validate prefix format to prevent command injection
+    if ! validate_backup_tag "$backup_prefix"; then
+        return 1
+    fi
+    if [ -n "$custom_suffix" ] && ! validate_backup_tag "$custom_suffix"; then
         return 1
     fi
 
@@ -776,11 +802,19 @@ create_db_backup() {
         DB_BACKUP_TAG="${base_tag}-${numeric_suffix}"
     fi
 
+    # Validate final backup tag
+    if ! validate_backup_tag "$DB_BACKUP_TAG"; then
+        print_status $RED "❌ Invalid backup tag generated"
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        return 1
+    fi
+
     log_message "💾 Database backup: $DB_BACKUP_TAG"
 
     # Setup log file
     LOG_DIR="/tmp/tome-log"
     mkdir -p "$LOG_DIR"
+    chmod 700 "$LOG_DIR"
     LOGFILE="$LOG_DIR/db-backup-${backup_timestamp}.log"
 
     log_message "🔄 Dumping database..." | tee -a "$LOGFILE"
@@ -802,8 +836,14 @@ create_db_backup() {
         fi
     fi
 
-    TEMP_SQL="/tmp/${DB_BACKUP_TAG}.sql"
-    TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
+    # Use secure temp files with mktemp
+    TEMP_SQL=$(mktemp /tmp/db-backup.XXXXXX.sql)
+    TEMP_GZIP=$(mktemp /tmp/db-backup.XXXXXX.sql.gz)
+    TEMP_CHECKSUM=$(mktemp /tmp/db-backup.XXXXXX.sha256)
+    chmod 600 "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM"
+
+    # Ensure cleanup on exit
+    trap "rm -f '$TEMP_SQL' '$TEMP_GZIP' '$TEMP_CHECKSUM'" EXIT INT TERM
 
     # Create database dump using drush
     if command -v drush >/dev/null 2>&1; then
@@ -842,12 +882,15 @@ create_db_backup() {
 
     # Compress the SQL file using gzip
     log_message "🗜️ Compressing..." | tee -a "$LOGFILE"
-    gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
+    gzip -c "$TEMP_SQL" > "$TEMP_GZIP" 2>&1 | tee -a "$LOGFILE"
     GZIP_EXIT_CODE=$?
+
+    # Remove uncompressed file
+    rm -f "$TEMP_SQL"
 
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Compression failed" | tee -a "$LOGFILE"
-        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
     fi
@@ -855,9 +898,16 @@ create_db_backup() {
     # Verify the compressed file was created
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
         log_message "❌ ERROR: Compressed file empty or missing" | tee -a "$LOGFILE"
-        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
         return 1
+    fi
+
+    # Generate SHA-256 checksum for integrity verification
+    log_message "🔐 Generating checksum..." | tee -a "$LOGFILE"
+    sha256sum "$TEMP_GZIP" | awk '{print $1}' > "$TEMP_CHECKSUM"
+    if [ ! -s "$TEMP_CHECKSUM" ]; then
+        log_message "⚠️ Warning: Could not generate checksum" | tee -a "$LOGFILE"
     fi
 
     # Upload compressed file to S3
@@ -869,7 +919,13 @@ create_db_backup() {
     aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
     UPLOAD_EXIT_CODE=$?
 
-    rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+    # Upload checksum file if it exists
+    if [ -s "$TEMP_CHECKSUM" ]; then
+        S3_CHECKSUM_PATH="s3://${BUCKET_NAME}/${AUTO_DB_BACKUP_PATH}/${DB_BACKUP_TAG}.sql.gz.sha256"
+        aws s3 cp "$TEMP_CHECKSUM" "$S3_CHECKSUM_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
+    fi
+
+    rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
 
     # Restore Drupal state before checking results
     if [ "$drupal_state_prepared" = "true" ]; then
@@ -1659,6 +1715,13 @@ delete_backup() {
         exit 1
     fi
 
+    # Validate all tags
+    for tag in $tags; do
+        if ! validate_backup_tag "$tag"; then
+            exit 1
+        fi
+    done
+
     setup_s3_vars || exit 1
 
     local backup_types=$(parse_backup_types "$types_arg")
@@ -2146,9 +2209,44 @@ restore_backup() {
         temp_db_base="$(mktemp /tmp/restore_db.XXXXXX)"
         temp_db_file="${temp_db_base}.sql.gz"
         temp_sql_file="${temp_db_base}.sql"
+        temp_checksum_file="${temp_db_base}.sha256"
+        chmod 600 "$temp_db_base" "$temp_db_file" "$temp_sql_file" "$temp_checksum_file"
+
+        # Ensure cleanup
+        trap "rm -f '$temp_db_base' '$temp_db_file' '$temp_sql_file' '$temp_checksum_file'" EXIT INT TERM
 
         if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
-            if gunzip "$temp_db_file" 2>/dev/null; then
+            # Try to download and verify checksum
+            local checksum_verified=false
+            if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${db_backup_tag}.sha256 "$temp_checksum_file" $S3_EXTRA_PARAMS 2>/dev/null; then
+                print_status $YELLOW "🔐 Verifying backup integrity..."
+                local expected_checksum=$(cat "$temp_checksum_file")
+                local actual_checksum=$(sha256sum "$temp_db_file" | awk '{print $1}')
+
+                if [ "$expected_checksum" = "$actual_checksum" ]; then
+                    print_status $GREEN "✓ Checksum verified"
+                    checksum_verified=true
+                else
+                    print_status $RED "❌ Checksum mismatch! Backup may be corrupted."
+                    print_status $YELLOW "   Expected: $expected_checksum"
+                    print_status $YELLOW "   Got:      $actual_checksum"
+                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                    exit 1
+                fi
+            else
+                print_status $YELLOW "⚠️  No checksum file found, skipping integrity check"
+            fi
+
+            if gunzip -c "$temp_db_file" > "$temp_sql_file" 2>/dev/null; then
+                # Validate SQL content for dangerous patterns
+                if ! validate_sql_content "$temp_sql_file"; then
+                    print_status $RED "❌ SQL content validation failed"
+                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                    exit 1
+                fi
+
                 if command -v drush >/dev/null 2>&1; then
                     # Use drush for database import
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
@@ -2157,30 +2255,30 @@ restore_backup() {
                         print_status $GREEN "✅ Database restored"
                     else
                         print_status $RED "❌ ERROR: Database import failed"
-                        rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
+                        rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
                         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                         exit 1
                     fi
                 else
                     print_status $RED "❌ ERROR: Drush not available for database restore"
-                    rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
+                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
                     [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                     exit 1
                 fi
             else
                     print_status $RED "❌ ERROR: Failed to decompress database backup"
-                rm -f "$temp_db_file" "$temp_db_base" 2>/dev/null
+                rm -f "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
                 [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
                 exit 1
             fi
         else
             print_status $RED "❌ ERROR: Failed to download database backup"
-            rm -f "$temp_db_base" 2>/dev/null
+            rm -f "$temp_db_base" "$temp_checksum_file" 2>/dev/null
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
             exit 1
         fi
 
-        rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
+        rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
     fi
 
     echo ""
@@ -2586,6 +2684,11 @@ download_single_backup() {
     local output_path=$3
     local stream_mode=$4
 
+    # Validate backup tag
+    if ! validate_backup_tag "$backup_tag"; then
+        return 1
+    fi
+
     case "$backup_type" in
         "db")
             # Find database backup file
@@ -2601,13 +2704,33 @@ download_single_backup() {
                 log_message "📥 Streaming database backup: $db_file" >&2
                 aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file - $S3_EXTRA_PARAMS 2>/dev/null
             else
-                # Local download mode - default to current working directory
-                output_dir=${output_path:-$(pwd)}
-                mkdir -p "$output_dir"
-                output_file="$output_dir/${backup_tag}-database.sql.gz"
+                # Local download mode - validate and normalize output path
+                local validated_path
+                if [ -n "$output_path" ]; then
+                    validated_path=$(validate_output_path "$output_path")
+                    if [ $? -ne 0 ]; then
+                        log_message "❌ Invalid output path" >&2
+                        return 1
+                    fi
+                else
+                    validated_path=$(pwd)
+                fi
+
+                mkdir -p "$validated_path"
+                output_file="$validated_path/${backup_tag}-database.sql.gz"
 
                 log_message "📥 Downloading database backup: $db_file"
+
+                # Get expected file size
+                local expected_size=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3}')
+
                 if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file "$output_file" $S3_EXTRA_PARAMS; then
+                    # Verify downloaded file size
+                    local actual_size=$(stat -f%z "$output_file" 2>/dev/null || stat -c%s "$output_file" 2>/dev/null)
+                    if [ -n "$expected_size" ] && [ -n "$actual_size" ] && [ "$expected_size" != "$actual_size" ]; then
+                        log_message "⚠️  Warning: File size mismatch (expected: $expected_size, got: $actual_size)"
+                    fi
+
                     log_message "✅ Database backup saved: $output_file"
                     return 0
                 else

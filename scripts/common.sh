@@ -7,6 +7,9 @@
 # Provides: initialization, logging, status printing, date handling, S3 setup
 # ===================================================================
 
+# Set restrictive permissions for all created files
+umask 077
+
 # ===================================================================
 # COLOR DEFINITIONS
 # ===================================================================
@@ -116,7 +119,12 @@ stop_loading() {
 # Args:
 #   $1: message - Text to log
 log_message() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S'): $1"
+    local msg="$1"
+    # Redact AWS access keys (AKIA followed by 16 alphanumeric)
+    msg=$(echo "$msg" | sed 's/AKIA[A-Z0-9]\{16\}/AKIA***REDACTED***/g')
+    # Redact AWS secret keys (base64-like strings 40+ chars)
+    msg=$(echo "$msg" | sed 's/\([A-Za-z0-9+/]\{40,\}\)/***REDACTED***/g')
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): $msg"
 }
 
 # ===================================================================
@@ -366,6 +374,101 @@ get_all_app_digests() {
 # VALIDATION FUNCTIONS
 # ===================================================================
 
+# Validate backup tag format to prevent command injection
+# Args:
+#   $1: tag - Backup tag to validate
+# Returns: 0 if valid, 1 if invalid
+validate_backup_tag() {
+    local tag="$1"
+    
+    if [ -z "$tag" ]; then
+        print_status $RED "❌ Backup tag cannot be empty"
+        return 1
+    fi
+    
+    # Only allow alphanumeric, hyphens, underscores, and dots
+    # This prevents command injection via shell metacharacters
+    if ! echo "$tag" | grep -qE '^[a-zA-Z0-9._-]+$'; then
+        print_status $RED "❌ Invalid backup tag format: $tag"
+        print_status $YELLOW "   Tags may only contain: letters, numbers, dots, hyphens, underscores"
+        return 1
+    fi
+    
+    # Check reasonable length (max 200 characters)
+    if [ ${#tag} -gt 200 ]; then
+        print_status $RED "❌ Backup tag too long (max 200 characters)"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Validate output path to prevent path traversal attacks
+# Args:
+#   $1: path - Path to validate
+# Returns: 0 if valid, 1 if invalid; echoes normalized path
+validate_output_path() {
+    local path="$1"
+    
+    if [ -z "$path" ]; then
+        print_status $RED "❌ Output path cannot be empty"
+        return 1
+    fi
+    
+    # Reject paths with suspicious patterns
+    if echo "$path" | grep -qE '(\.\./|^/etc/|^/var/|^/usr/|^/bin/|^/sbin/)'; then
+        print_status $RED "❌ Invalid output path: $path"
+        print_status $YELLOW "   Path traversal or system directory access not allowed"
+        return 1
+    fi
+    
+    # Convert to absolute path if relative
+    if [ "${path:0:1}" != "/" ]; then
+        path="$(pwd)/$path"
+    fi
+    
+    # Ensure path is under /tmp or current working directory
+    local allowed=false
+    if echo "$path" | grep -q "^/tmp/"; then
+        allowed=true
+    elif echo "$path" | grep -q "^$(pwd)"; then
+        allowed=true
+    fi
+    
+    if [ "$allowed" = "false" ]; then
+        print_status $RED "❌ Output path must be under /tmp or current directory"
+        return 1
+    fi
+    
+    echo "$path"
+    return 0
+}
+
+# Validate SQL dump content for dangerous patterns
+# Args:
+#   $1: sql_file - Path to SQL file
+# Returns: 0 if safe, 1 if dangerous patterns found
+validate_sql_content() {
+    local sql_file="$1"
+    
+    if [ ! -f "$sql_file" ]; then
+        print_status $RED "❌ SQL file not found: $sql_file"
+        return 1
+    fi
+    
+    # Check for dangerous SQL patterns that could be used for exploitation
+    # Note: This is a basic check - more sophisticated validation may be needed
+    local dangerous_patterns="INTO OUTFILE|INTO DUMPFILE|LOAD_FILE|LOAD DATA|SYSTEM|EXEC |GRANT ALL|CREATE USER"
+    
+    if grep -qiE "($dangerous_patterns)" "$sql_file"; then
+        print_status $RED "❌ Dangerous SQL patterns detected in dump file"
+        print_status $YELLOW "   File may contain: OUTFILE, LOAD_FILE, SYSTEM, GRANT, or CREATE USER statements"
+        return 1
+    fi
+    
+    return 0
+}
+
 # Check if file exists and is readable
 # Args:
 #   $1: file_path - Absolute or relative path to file
@@ -439,6 +542,7 @@ date_to_epoch() {
 
 # Get the next available numeric suffix for a backup tag on the same day
 # Checks existing backups and returns the next number (0, 1, 2, etc.)
+# Uses file locking to prevent race conditions
 # Args:
 #   $1: backup_type - Type of backup (static, public, db)
 #   $2: base_tag - Base tag without suffix (e.g., AUTO-dev-14845-2025-12-01)
@@ -448,6 +552,16 @@ get_next_backup_suffix() {
     local base_tag="$2"
 
     setup_s3_vars || return 1
+
+    # Use file locking to prevent race conditions
+    local lockfile="/tmp/backup-suffix-${backup_type}.lock"
+    local lockfd=200
+    
+    # Open lock file and acquire exclusive lock
+    eval "exec $lockfd>$lockfile"
+    if ! flock -x -w 30 $lockfd 2>/dev/null; then
+        print_status $YELLOW "⚠️  Could not acquire lock, proceeding without lock"
+    fi
 
     local s3_path=""
     local search_pattern=""
@@ -466,6 +580,8 @@ get_next_backup_suffix() {
             search_pattern="${base_tag}-"
             ;;
         *)
+            flock -u $lockfd 2>/dev/null
+            eval "exec $lockfd>&-"
             echo "0"
             return 0
             ;;
@@ -502,7 +618,13 @@ get_next_backup_suffix() {
         done
     fi
 
-    echo $((max_num + 1))
+    local result=$((max_num + 1))
+    
+    # Release lock
+    flock -u $lockfd 2>/dev/null
+    eval "exec $lockfd>&-"
+    
+    echo "$result"
 }
 
 # Check if a backup date falls within a date range

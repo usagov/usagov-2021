@@ -4,12 +4,36 @@
 # Simplified commands for deployment workflows integrated with backup system
 # Usage: deploy.sh <command> [options]
 
+# Set restrictive permissions for all created files
+umask 077
+
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
 . "$SCRIPT_DIR/../common.sh"
 
 # Initialize backup system
 init_backup_system
+
+# Validate app name against whitelist
+validate_app_name() {
+    local app_name="$1"
+
+    # Get allowed app names from config, default to cms www waf
+    local allowed_apps="${ALLOWED_APP_NAMES:-cms}"
+
+    # Check if app name is in the allowed list
+    for allowed in $allowed_apps; do
+        if [ "$app_name" = "$allowed" ]; then
+            return 0
+        fi
+    done
+
+    # Not found in whitelist
+    print_status $RED "❌ Invalid app name: $app_name"
+    print_status $YELLOW "   Valid apps: $allowed_apps"
+    print_status $YELLOW "   To add more apps, edit ALLOWED_APP_NAMES in scripts/snapshot/backup-system.conf"
+    return 1
+}
 
 show_usage() {
     echo "Deployment Helper - Simplified deployment workflows"
@@ -517,6 +541,23 @@ set_context() {
         exit 1
     fi
 
+    # Validate ticket format (basic check)
+    if ! validate_backup_tag "$ticket"; then
+        print_status $RED "❌ Invalid ticket format"
+        exit 1
+    fi
+
+    # Validate suffix formats
+    if ! validate_backup_tag "$pre_suffix"; then
+        print_status $RED "❌ Invalid pre-suffix format"
+        exit 1
+    fi
+
+    if ! validate_backup_tag "$post_suffix"; then
+        print_status $RED "❌ Invalid post-suffix format"
+        exit 1
+    fi
+
     print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
 
     # Query S3 to get the most recent valid backup tag for each type
@@ -777,15 +818,41 @@ confirm_rollback() {
     local rollback_type="$1"
     local tag="$2"
 
+    # Validate tag
+    if ! validate_backup_tag "$tag"; then
+        exit 1
+    fi
+
     print_status $YELLOW "⚠️  ROLLBACK: This will restore $rollback_type"
     print_status $YELLOW "Backup Tag: $tag"
     echo ""
-    printf "Continue with rollback? (y/N): "
-    read -r confirmation
 
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "❌ Rollback cancelled"
-        exit 0
+    # Check if we're in production environment
+    local current_space=$(cf target | grep space: | awk '{print $2}')
+    local is_prod=false
+    if [ "$current_space" = "prod" ]; then
+        is_prod=true
+    fi
+
+    if [ "$is_prod" = "true" ]; then
+        # Production requires exact confirmation string
+        print_status $RED "⚠️  PRODUCTION ENVIRONMENT DETECTED"
+        printf "Type 'CONFIRM PROD ROLLBACK' to continue: "
+        read -r confirmation
+
+        if [ "$confirmation" != "CONFIRM PROD ROLLBACK" ]; then
+            print_status $GREEN "❌ Rollback cancelled"
+            exit 0
+        fi
+    else
+        # Non-production uses simple y/N confirmation
+        printf "Continue with rollback? (y/N): "
+        read -r confirmation
+
+        if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
+            print_status $GREEN "❌ Rollback cancelled"
+            exit 0
+        fi
     fi
     echo ""
 }
@@ -2026,6 +2093,11 @@ _deploy_app() {
     local env="$2"
     local cci_build="$3"
     local digest="$4"
+
+    # Validate app name against whitelist
+    if ! validate_app_name "$app_name"; then
+        return 1
+    fi
 
     print_status $BLUE "🚀 Deploying $app_name to $env"
     echo "  Build: $cci_build"

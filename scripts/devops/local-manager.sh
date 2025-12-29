@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Set restrictive permissions for all created files
+umask 077
+
 # ===================================================================
 # LOCAL BACKUP MANAGER
 # ===================================================================
@@ -329,9 +332,34 @@ download_command() {
         echo "Usage: local-manager.sh download <backup-tag> [type] [output-dir]"
         return 1
     fi
+    
+    # Load common utilities for validation
+    SCRIPT_DIR=$(dirname "$0")
+    if [ -f "$SCRIPT_DIR/../common.sh" ]; then
+        . "$SCRIPT_DIR/../common.sh"
+    fi
+    
+    # Validate backup tag to prevent command injection
+    if command -v validate_backup_tag >/dev/null 2>&1; then
+        if ! validate_backup_tag "$backup_tag"; then
+            return 1
+        fi
+    fi
+    
+    # Validate and normalize output path
+    if command -v validate_output_path >/dev/null 2>&1; then
+        local validated_path
+        validated_path=$(validate_output_path "$output_dir")
+        if [ $? -ne 0 ]; then
+            echo "❌ Invalid output path"
+            return 1
+        fi
+        output_dir="$validated_path"
+    fi
 
-    # Create output directory
+    # Create output directory with restrictive permissions
     mkdir -p "$output_dir"
+    chmod 700 "$output_dir"
 
     echo "📦 Downloading backup: $backup_tag"
     echo "📂 Output directory: $output_dir"
