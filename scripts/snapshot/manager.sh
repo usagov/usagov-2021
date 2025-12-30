@@ -468,9 +468,12 @@ run_clean_command() {
     local filter_count=0
 
     # Parse all arguments
+    echo "DEBUG: Parsing arguments, count=$#, args: $*" >&2
     while [ $# -gt 0 ]; do
+        echo "DEBUG: Processing arg: '$1'" >&2
         case "$1" in
             --non-interactive|-y)
+                echo "DEBUG: Found -y flag, setting non_interactive=true" >&2
                 non_interactive=true
                 shift
                 ;;
