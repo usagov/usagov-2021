@@ -574,6 +574,9 @@ run_clean_command() {
 
     local backup_types=$(parse_backup_types "$types_arg")
 
+    # Debug: show non_interactive value
+    echo "DEBUG: non_interactive=$non_interactive" >&2
+
     # Show appropriate warning based on filter type
     if [ "$filter_type" = "all" ]; then
         if [ "$non_interactive" != "true" ]; then
