@@ -311,28 +311,6 @@ show_command_help() {
 # ARGUMENT PARSING FUNCTIONS
 # ===================================================================
 
-# Parse backup types from argument (e.g., "static,db" or "all" or empty)
-parse_backup_types() {
-    local types_arg="$1"
-
-    # Default to all if empty
-    if [ -z "$types_arg" ] || [ "$types_arg" = "all" ]; then
-        echo "static,public,db"
-        return 0
-    fi
-
-    # Return the types as provided
-    echo "$types_arg"
-}
-
-# Check if a backup type is in the list
-has_backup_type() {
-    local backup_types="$1"
-    local check_type="$2"
-
-    echo "$backup_types" | grep -q "$check_type"
-}
-
 # Get days argument with default
 get_days_arg() {
     local days_arg="$1"
@@ -359,8 +337,8 @@ run_backup_command() {
         local last_backup=$(cat "$rate_limit_file")
         local current_time=$(date +%s)
         local time_diff=$((current_time - last_backup))
-        if [ $time_diff -lt 300 ]; then
-            print_status $RED "❌ Rate limit: Please wait $((300 - time_diff)) seconds before next backup"
+        if [ $time_diff -lt $RATE_LIMIT_SECONDS ]; then
+            print_status $RED "❌ Rate limit: Please wait $(($RATE_LIMIT_SECONDS - time_diff)) seconds before next backup"
             return 1
         fi
     fi
@@ -1473,17 +1451,17 @@ cleanup_old_db_backups() {
 
     # Reject 'all' and '0' - use delete command for bulk deletion
     if [ "$filter_type" = "all" ] || [ "$filter_value" = "0" ] || [ "$filter_value" = "all" ]; then
-        log_message "❌ Error: Minimum retention is 2 days (48 hours)"
+        log_message "❌ Error: Minimum retention is 2 days ($RETENTION_MIN_HOURS hours)"
         log_message "   To delete all backups, clean all but 2 days worth and"
         log_message "   use the 'delete' command instead to remove remaining backups."
         log_message "   This prevents accidental deletion of recent backups."
         return 1
     fi
 
-    # Validate minimum retention of 2 days (48 hours) to protect deployment windows
+    # Validate minimum retention to protect deployment windows
     if [ "$filter_type" = "days" ]; then
         if [ "$filter_value" -lt 2 ]; then
-            log_message "❌ Error: Minimum retention is 2 days (48 hours)"
+            log_message "❌ Error: Minimum retention is 2 days ($RETENTION_MIN_HOURS hours)"
             return 1
         fi
     fi
@@ -1492,8 +1470,8 @@ cleanup_old_db_backups() {
     audit_log "cleanup_database_started" "info" "Database cleanup initiated" "filter_type=$filter_type filter_value=$filter_value"
     log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
 
-    # Calculate 48-hour cutoff (minimum retention)
-    local min_retention_epoch=$(date -u -v-48H +%s 2>/dev/null || date -u -d "48 hours ago" +%s 2>/dev/null)
+    # Calculate minimum retention cutoff
+    local min_retention_epoch=$(date -u -v-${RETENTION_MIN_HOURS}H +%s 2>/dev/null || date -u -d "${RETENTION_MIN_HOURS} hours ago" +%s 2>/dev/null)
     if [ -z "$min_retention_epoch" ]; then
         log_message "❌ Error: Could not calculate minimum retention date"
         return 1
@@ -1508,9 +1486,9 @@ cleanup_old_db_backups() {
             # Convert backup date to epoch for comparison
             local backup_epoch=$(date_to_epoch "$backup_date")
 
-            # Skip if backup is newer than 48 hours (safety check)
+            # Skip if backup is newer than minimum retention (safety check)
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -gt "$min_retention_epoch" ]; then
-                log_message "⏭️  Skipping recent backup (< 48 hours): $backup_path"
+                log_message "⏭️  Skipping recent backup (< $RETENTION_MIN_HOURS hours): $backup_path"
                 continue
             fi
 

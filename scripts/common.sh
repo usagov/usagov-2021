@@ -1160,29 +1160,6 @@ restore_drupal_state() {
     return 0
 }
 
-# Execute function with Drupal state management wrapper
-with_drupal_state() {
-    local skip_state="$1"
-    local callback="$2"
-    shift 2
-
-    local drupal_ready=false
-    if [ "$skip_state" != "true" ]; then
-        if prepare_drupal_for_backup 25; then
-            drupal_ready=true
-        else
-            print_status $RED "❌ Failed to prepare Drupal state"
-            return 1
-        fi
-    fi
-
-    "$callback" "$@"
-    local result=$?
-
-    [ "$drupal_ready" = "true" ] && restore_drupal_state
-    return $result
-}
-
 # Find corresponding backup of specific type for smart restore
 # Args: $1=static backup tag, $2=backup type (public|db)
 # Returns: matching backup name or empty on error

@@ -375,6 +375,44 @@ download_command() {
         types_to_download="db,static,public"
     fi
 
+    # Helper function to download a backup with progress tracking
+    download_backup_with_progress() {
+        local type="$1"
+        local label="$2"
+        local filename="$3"
+        local extension="$4"
+
+        echo "📥 Downloading $label backup..."
+        local output_file="$output_dir/${backup_tag}-${filename}.${extension}"
+
+        # Start download in background and show progress
+        cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag $type - --stream" > "$output_file" 2>/dev/null &
+        local download_pid=$!
+
+        # Show progress while downloading
+        while kill -0 $download_pid 2>/dev/null; do
+            if [ -f "$output_file" ]; then
+                local current_size=$(du -h "$output_file" 2>/dev/null | awk '{print $1}')
+                printf "\r   Downloading... %s" "$current_size"
+            fi
+            sleep 2
+        done
+        wait $download_pid
+        local exit_code=$?
+        printf "\r   Downloading... "
+
+        if [ $exit_code -eq 0 ] && [ -s "$output_file" ]; then
+            local size=$(du -h "$output_file" | awk '{print $1}')
+            echo "✅ $label backup saved: ${backup_tag}-${filename}.${extension} ($size)"
+        else
+            echo "❌ $label backup failed or not found"
+            rm -f "$output_file"
+            return 1
+        fi
+        echo ""
+        return 0
+    }
+
     # Download each requested type
     IFS=',' read -ra TYPES <<< "$types_to_download"
     for type in "${TYPES[@]}"; do
@@ -383,94 +421,13 @@ download_command() {
 
         case "$type" in
             db)
-                echo "📥 Downloading database backup..."
-                local db_file="$output_dir/${backup_tag}-database.sql.gz"
-
-                # Start download in background and show progress
-                cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag db - --stream" > "$db_file" 2>/dev/null &
-                local download_pid=$!
-
-                # Show progress while downloading
-                while kill -0 $download_pid 2>/dev/null; do
-                    if [ -f "$db_file" ]; then
-                        local current_size=$(du -h "$db_file" 2>/dev/null | awk '{print $1}')
-                        printf "\r   Downloading... %s" "$current_size"
-                    fi
-                    sleep 2
-                done
-                wait $download_pid
-                local exit_code=$?
-                printf "\r   Downloading... "
-
-                if [ $exit_code -eq 0 ] && [ -s "$db_file" ]; then
-                    size=$(du -h "$db_file" | awk '{print $1}')
-                    echo "✅ Database backup saved: ${backup_tag}-database.sql.gz ($size)"
-                else
-                    echo "❌ Database backup failed or not found"
-                    rm -f "$db_file"
-                    failed=$((failed + 1))
-                fi
-                echo ""
+                download_backup_with_progress "db" "database" "database" "sql.gz" || failed=$((failed + 1))
                 ;;
             static)
-                echo "📥 Downloading static backup..."
-                local static_file="$output_dir/${backup_tag}-static.tar.gz"
-
-                # Start download in background and show progress
-                cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag static - --stream" > "$static_file" 2>/dev/null &
-                local download_pid=$!
-
-                # Show progress while downloading
-                while kill -0 $download_pid 2>/dev/null; do
-                    if [ -f "$static_file" ]; then
-                        local current_size=$(du -h "$static_file" 2>/dev/null | awk '{print $1}')
-                        printf "\r   Downloading... %s" "$current_size"
-                    fi
-                    sleep 2
-                done
-                wait $download_pid
-                local exit_code=$?
-                printf "\r   Downloading... "
-
-                if [ $exit_code -eq 0 ] && [ -s "$static_file" ]; then
-                    size=$(du -h "$static_file" | awk '{print $1}')
-                    echo "✅ Static backup saved: ${backup_tag}-static.tar.gz ($size)"
-                else
-                    echo "❌ Static backup failed or not found"
-                    rm -f "$static_file"
-                    failed=$((failed + 1))
-                fi
-                echo ""
+                download_backup_with_progress "static" "static" "static" "tar.gz" || failed=$((failed + 1))
                 ;;
             public)
-                echo "📥 Downloading public backup..."
-                local public_file="$output_dir/${backup_tag}-public.tar.gz"
-
-                # Start download in background and show progress
-                cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag public - --stream" > "$public_file" 2>/dev/null &
-                local download_pid=$!
-
-                # Show progress while downloading
-                while kill -0 $download_pid 2>/dev/null; do
-                    if [ -f "$public_file" ]; then
-                        local current_size=$(du -h "$public_file" 2>/dev/null | awk '{print $1}')
-                        printf "\r   Downloading... %s" "$current_size"
-                    fi
-                    sleep 2
-                done
-                wait $download_pid
-                local exit_code=$?
-                printf "\r   Downloading... "
-
-                if [ $exit_code -eq 0 ] && [ -s "$public_file" ]; then
-                    size=$(du -h "$public_file" | awk '{print $1}')
-                    echo "✅ Public backup saved: ${backup_tag}-public.tar.gz ($size)"
-                else
-                    echo "❌ Public backup failed or not found"
-                    rm -f "$public_file"
-                    failed=$((failed + 1))
-                fi
-                echo ""
+                download_backup_with_progress "public" "public" "public" "tar.gz" || failed=$((failed + 1))
                 ;;
             *)
                 echo "❌ Invalid backup type: $type"
