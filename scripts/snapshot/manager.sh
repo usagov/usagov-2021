@@ -1087,14 +1087,9 @@ create_public_backup() {
             BACKUP_PUBLIC_CHECKSUM=$(aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5sum | awk '{print $1}' 2>/dev/null || aws s3 ls --recursive s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$LATEST_PUBLIC_BACKUP/ $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3 " " $4}' | sort | md5 2>/dev/null)
 
             if [ -n "$CURRENT_PUBLIC_CHECKSUM" ] && [ -n "$BACKUP_PUBLIC_CHECKSUM" ] && [ "$CURRENT_PUBLIC_CHECKSUM" = "$BACKUP_PUBLIC_CHECKSUM" ]; then
-                stop_loading "$loader"
                 log_message "⏭️ Public files unchanged, skipping backup"
                 PUBLIC_BACKUP_NEEDED=false
-            else
-                stop_loading "$loader"
             fi
-        else
-            stop_loading "$loader"
         fi
     fi
 
@@ -1316,7 +1311,6 @@ list_static_backups() {
 
         # Stop loader on first iteration (static backups)
         if [ -n "$loader" ]; then
-            stop_loading "$loader"
             loader=""
         fi
 
@@ -1351,7 +1345,6 @@ list_public_backups() {
 
         # Stop loader on first iteration (public backups)
         if [ -n "$loader" ]; then
-            stop_loading "$loader"
             loader=""
         fi
 
@@ -1376,7 +1369,6 @@ list_db_backups() {
 
             # Stop loader on first iteration (db backups)
             if [ -n "$loader" ]; then
-                stop_loading "$loader"
                 loader=""
             fi
 
@@ -1498,8 +1490,8 @@ cleanup_old_db_backups() {
 
     # Display what we're doing using consolidated helper
     audit_log "cleanup_database_started" "info" "Database cleanup initiated" "filter_type=$filter_type filter_value=$filter_value"
-    log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"  
-    
+    log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
+
     # Calculate 48-hour cutoff (minimum retention)
     local min_retention_epoch=$(date -u -v-48H +%s 2>/dev/null || date -u -d "48 hours ago" +%s 2>/dev/null)
     if [ -z "$min_retention_epoch" ]; then
@@ -1515,13 +1507,13 @@ cleanup_old_db_backups() {
         if [ -n "$backup_date" ]; then
             # Convert backup date to epoch for comparison
             local backup_epoch=$(date_to_epoch "$backup_date")
-            
+
             # Skip if backup is newer than 48 hours (safety check)
             if [ -n "$backup_epoch" ] && [ "$backup_epoch" -gt "$min_retention_epoch" ]; then
                 log_message "⏭️  Skipping recent backup (< 48 hours): $backup_path"
                 continue
             fi
-            
+
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
                 audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date"
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
@@ -1901,122 +1893,6 @@ delete_backup() {
     done
 }
 
-# Find corresponding public backup for smart restore
-find_corresponding_public_backup() {
-    local static_backup_tag=$1
-
-    # First, check if there's an exact match
-    if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$static_backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        echo "$static_backup_tag"
-        return 0
-    fi
-
-    # If no exact match, find the most recent public backup before or at the static backup time
-    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
-    static_date=$(extract_date_from_backup_name "$static_backup_tag")
-
-    if [ -z "$static_date" ]; then
-        return 1
-    fi
-
-    # Convert to epoch for comparison
-    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
-    if [ -z "$static_epoch" ]; then
-        return 1
-    fi
-
-    # Use a temp file to avoid subshell variable issues
-    temp_list="/tmp/public_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " > "$temp_list" 2>/dev/null
-
-    best_public_backup=""
-    best_epoch=0
-
-    while read -r line; do
-        if [ -n "$line" ]; then
-            public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            public_date=$(extract_date_from_backup_name "$public_backup_name")
-
-            if [ -n "$public_date" ]; then
-                public_epoch=$(date -u -d "$public_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$public_date" '+%s' 2>/dev/null)
-
-                # Find most recent backup at or before static backup time
-                if [ -n "$public_epoch" ] && [ "$public_epoch" -le "$static_epoch" ] && [ "$public_epoch" -gt "$best_epoch" ]; then
-                    best_public_backup="$public_backup_name"
-                    best_epoch="$public_epoch"
-                fi
-            fi
-        fi
-    done < "$temp_list"
-
-    rm -f "$temp_list" 2>/dev/null
-
-    if [ -n "$best_public_backup" ]; then
-        echo "$best_public_backup"
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Find corresponding database backup for smart restore
-find_corresponding_db_backup() {
-    local static_backup_tag=$1
-
-    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
-    static_date=$(extract_date_from_backup_name "$static_backup_tag")
-
-    if [ -z "$static_date" ]; then
-        return 1
-    fi
-
-    # Convert to epoch for comparison
-    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
-    if [ -z "$static_epoch" ]; then
-        return 1
-    fi
-
-    # First, check if there's an exact match
-    exact_db_tag="${static_backup_tag}.sql.gz"
-    if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$exact_db_tag $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        echo "$exact_db_tag"
-        return 0
-    fi
-
-    # Use a temp file to avoid subshell variable issues
-    temp_list="/tmp/db_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
-
-    best_db_backup=""
-    best_epoch=0
-
-    while read -r line; do
-        if [ -n "$line" ]; then
-            # Extract date from database backup name (PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz)
-            db_date=$(extract_date_from_backup_name "$line")
-
-            if [ -n "$db_date" ]; then
-                db_epoch=$(date -u -d "$db_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$db_date" '+%s' 2>/dev/null)
-
-                # Find most recent backup at or before static backup time
-                if [ -n "$db_epoch" ] && [ "$db_epoch" -le "$static_epoch" ] && [ "$db_epoch" -gt "$best_epoch" ]; then
-                    best_db_backup="$line"
-                    best_epoch="$db_epoch"
-                fi
-            fi
-        fi
-    done < "$temp_list"
-
-    rm -f "$temp_list" 2>/dev/null
-
-    if [ -n "$best_db_backup" ]; then
-        echo "$best_db_backup"
-        return 0
-    else
-        return 1
-    fi
-}
-
 parse_restore_options() {
     local restore_types="static,public,db"  # default: restore all
     local backup_tag=""
@@ -2113,7 +1989,7 @@ restore_backup() {
 
     # Public files backup analysis
     if [ "$restore_public" = "yes" ]; then
-        public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
+        public_backup_tag=$(find_corresponding_backup "$backup_tag" "public")
 
         if [ -n "$public_backup_tag" ]; then
             if [ "$public_backup_tag" = "$backup_tag" ]; then
@@ -2128,7 +2004,7 @@ restore_backup() {
 
     # Database backup analysis
     if [ "$restore_database" = "yes" ]; then
-        db_backup_tag=$(find_corresponding_db_backup "$backup_tag")
+        db_backup_tag=$(find_corresponding_backup "$backup_tag" "db")
 
         if [ -n "$db_backup_tag" ]; then
             # Convert to expected database tag format for comparison
@@ -2515,7 +2391,7 @@ backup_info() {
                 echo "  This means public files were unchanged at backup time (smart optimization)."
                 echo ""
 
-                local corresponding_public=$(find_corresponding_public_backup "$backup_tag")
+                local corresponding_public=$(find_corresponding_backup "$backup_tag" "public")
                 if [ -n "$corresponding_public" ]; then
                     if [ "$corresponding_public" != "$backup_tag" ]; then
                         print_status $GREEN "  📍 Linked Public Backup: $corresponding_public"

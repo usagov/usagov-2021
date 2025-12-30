@@ -679,7 +679,6 @@ last_backup() {
         echo "  No backups found"
     fi
     '
-    stop_loading "$loader"
 }
 
 # Show current status
@@ -689,12 +688,10 @@ show_status() {
     echo "CF Target:"
     local loader=$(show_loading "Fetching Cloud Foundry status")
     cf target
-    stop_loading "$loader"
     echo ""
     echo "Recent Activity (last 10 events):"
     loader=$(show_loading "Loading recent events")
     cf events cms | head -15
-    stop_loading "$loader"
 }
 
 # Show message of the day from CMS container
@@ -1381,7 +1378,6 @@ _show_current_and_previous_digests() {
     local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
     local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
     local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "")
-    stop_loading
 
     if [ -z "$cms_current" ]; then
         echo "  Unable to query CF (check 'cf target' and login)"
@@ -1392,10 +1388,8 @@ _show_current_and_previous_digests() {
     local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
 
     # Extract build number if present (only in specific formats)
-    local build_num="unknown"
-    if echo "$cms_current" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
-        build_num=$(echo "$cms_current" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
-    fi
+    local build_num=$(extract_build_from_digest "$cms_current")
+    build_num="${build_num:-unknown}"
 
     echo "  Deployed: ${cms_updated:-unknown}"
     echo "  Build: $build_num"
@@ -1445,10 +1439,8 @@ _show_current_and_previous_digests() {
                 fi
 
                 # Extract build number
-                local prev_build="unknown"
-                if echo "$cms_prev" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
-                    prev_build=$(echo "$cms_prev" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
-                fi
+                local prev_build=$(extract_build_from_digest "$cms_prev")
+                prev_build="${prev_build:-unknown}"
 
                 echo "  Deployed: ${prev_created:-unknown}"
                 echo "  Build: $prev_build"
@@ -1486,9 +1478,7 @@ _show_git_tag_digests() {
     fi
     local prev_build=""
 
-    if echo "$cms_current" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
-        current_build=$(echo "$cms_current" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
-    fi
+    current_build=$(extract_build_from_digest "$cms_current")
 
     # Try to get previous build from CF
     local cms_guid=$(cf app cms --guid 2>/dev/null)
@@ -1498,9 +1488,7 @@ _show_git_tag_digests() {
         if [ -n "$prev_droplet_guid" ] && [ "$prev_droplet_guid" != "guid" ]; then
             local prev_droplet=$(cf curl "/v3/droplets/${prev_droplet_guid}" 2>/dev/null)
             local cms_prev=$(echo "$prev_droplet" | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
-            if echo "$cms_prev" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
-                prev_build=$(echo "$cms_prev" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
-            fi
+            prev_build=$(extract_build_from_digest "$cms_prev")
         fi
     fi
 
@@ -1673,8 +1661,6 @@ _show_backup_digests() {
     done <<EOF
 $metadata_files
 EOF
-
-    stop_loading
 
     # If no backups with digests were found, show a message
     if [ $shown -eq 0 ]; then
@@ -2484,7 +2470,6 @@ validate_deployment() {
         # Check if app exists and is running
         local app_info
         app_info=$(cf app "$app" 2>&1)
-        stop_loading "$loader"
 
         if [ $? -ne 0 ]; then
             print_status $RED "❌ App '$app' not found or not accessible"
@@ -2543,7 +2528,6 @@ validate_deployment() {
             if [ -n "$app_url" ]; then
                 local http_status
                 http_status=$(curl -s -o /dev/null -w "%{http_code}" -L "https://$app_url" --max-time 10 2>/dev/null)
-                stop_loading "$loader"
 
                 if [ "$http_status" = "200" ]; then
                     print_status $GREEN "✅ HTTP endpoint responding (200)"
@@ -2554,7 +2538,6 @@ validate_deployment() {
                     overall_success=false
                 fi
             else
-                stop_loading "$loader"
                 print_status $YELLOW "⚠️  Could not determine app URL for HTTP check"
             fi
         fi

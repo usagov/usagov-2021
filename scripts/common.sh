@@ -11,14 +11,24 @@
 umask 077
 
 # ===================================================================
+# CONSTANTS
+# ===================================================================
+readonly RETENTION_MIN_HOURS=48
+readonly RETENTION_MIN_SECONDS=$((RETENTION_MIN_HOURS * 3600))
+readonly MAX_RETRY_ATTEMPTS=100
+readonly FLOCK_TIMEOUT_SECONDS=15
+readonly TAG_MAX_LENGTH=200
+readonly RATE_LIMIT_SECONDS=300
+readonly MAX_WAIT_TOME_MINUTES=30
+
+# ===================================================================
 # COLOR DEFINITIONS
 # ===================================================================
-# ANSI color codes for consistent terminal output across all scripts
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m'  # No Color (reset)
+NC='\033[0m'
 
 # ===================================================================
 # SYSTEM INITIALIZATION
@@ -98,20 +108,9 @@ print_status() {
 }
 
 # Show loading message
-# Args:
-#   $1: message - The message to display
 show_loading() {
     local message="$1"
-    # Print to stderr so it doesn't interfere with function return values
     printf "  %s...\n" "$message" >&2
-}
-
-# Clear loading message (no-op since terminal doesn't support ANSI clear)
-# Args:
-#   $1: ignored (kept for compatibility)
-stop_loading() {
-    # no-op
-    :
 }
 
 # Log message with timestamp for audit trail
@@ -421,10 +420,22 @@ get_all_app_digests() {
 # VALIDATION FUNCTIONS
 # ===================================================================
 
+# Validate backup tag and exit/return on failure
+require_valid_tag() {
+    local tag="$1"
+    local should_exit="${2:-false}"
+
+    if ! validate_backup_tag "$tag"; then
+        if [ "$should_exit" = "true" ]; then
+            exit 1
+        else
+            return 1
+        fi
+    fi
+    return 0
+}
+
 # Validate backup tag format to prevent command injection
-# Args:
-#   $1: tag - Backup tag to validate
-# Returns: 0 if valid, 1 if invalid
 validate_backup_tag() {
     local tag="$1"
 
@@ -441,19 +452,82 @@ validate_backup_tag() {
         return 1
     fi
 
-    # Check reasonable length (max 200 characters)
-    if [ ${#tag} -gt 200 ]; then
-        print_status $RED "❌ Backup tag too long (max 200 characters)"
+    # Check reasonable length
+    if [ ${#tag} -gt $TAG_MAX_LENGTH ]; then
+        print_status $RED "❌ Error: Backup tag too long (max $TAG_MAX_LENGTH characters)"
         return 1
     fi
 
     return 0
 }
 
+# Extract build number from container digest
+extract_build_from_digest() {
+    local digest="$1"
+    if echo "$digest" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
+        echo "$digest" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/'
+    else
+        echo "unknown"
+    fi
+}
+
+# Parse comma-separated backup types into normalized list
+parse_backup_types() {
+    local types_arg="$1"
+
+    if [ -z "$types_arg" ] || [ "$types_arg" = "all" ]; then
+        echo "static,public,db"
+    else
+        echo "$types_arg"
+    fi
+}
+
+# Check if a specific backup type is in the list
+has_backup_type() {
+    local backup_types="$1"
+    local check_type="$2"
+    echo "$backup_types" | grep -q "$check_type"
+}
+
+# Get current Cloud Foundry environment
+get_current_environment() {
+    local env="${DEPLOY_ENV:-$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')}"
+    if [ -z "$env" ]; then
+        print_status $RED "❌ Error: Could not determine environment"
+        echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
+        return 1
+    fi
+    echo "$env"
+    return 0
+}
+
+# Get latest S3 backup tag for a given type
+get_latest_s3_backup() {
+    local backup_type="$1"
+    local s3_path=""
+
+    setup_s3_vars || return 1
+
+    case "$backup_type" in
+        static)
+            s3_path="$AUTO_STATIC_BACKUP_PATH"
+            aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS | grep "PRE" | sort -r | head -1 | awk '{print $2}' | tr -d '/'
+            ;;
+        public)
+            s3_path="$AUTO_PUBLIC_BACKUP_PATH"
+            aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS | grep "PRE" | sort -r | head -1 | awk '{print $2}' | tr -d '/'
+            ;;
+        db)
+            s3_path="$AUTO_DB_BACKUP_PATH"
+            aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print $4}' | xargs basename | sed 's/\.sql\.gz$//'
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 # Validate output path to prevent path traversal attacks
-# Args:
-#   $1: path - Path to validate
-# Returns: 0 if valid, 1 if invalid; echoes normalized path
 validate_output_path() {
     local path="$1"
 
@@ -587,26 +661,17 @@ date_to_epoch() {
     echo "$epoch"
 }
 
-# Get the next available numeric suffix for a backup tag on the same day
-# Checks existing backups and returns the next number (0, 1, 2, etc.)
-# Uses file locking to prevent race conditions
-# Args:
-#   $1: backup_type - Type of backup (static, public, db)
-#   $2: base_tag - Base tag without suffix (e.g., AUTO-dev-14845-2025-12-01)
-# Returns: Next available number as string
 get_next_backup_suffix() {
     local backup_type="$1"
     local base_tag="$2"
 
     setup_s3_vars || return 1
 
-    # Use file locking to prevent race conditions (increased timeout to 15 seconds for reliability)
     local lockfile="/tmp/backup-suffix-${backup_type}.lock"
     local lockfd=200
 
-    # Open lock file and acquire exclusive lock
     eval "exec $lockfd>$lockfile"
-    if ! flock -x -w 15 $lockfd 2>/dev/null; then
+    if ! flock -x -w $FLOCK_TIMEOUT_SECONDS $lockfd 2>/dev/null; then
         print_status $YELLOW "⚠️  Could not acquire lock, proceeding without lock"
     fi
 
@@ -634,8 +699,7 @@ get_next_backup_suffix() {
             ;;
     esac
 
-    # List existing backups matching the pattern (with max retry protection)
-    local max_attempts=100
+    local max_attempts=$MAX_RETRY_ATTEMPTS
     local attempt=0
     local existing_numbers=""
 
@@ -671,17 +735,15 @@ get_next_backup_suffix() {
 
         local result=$((max_num + 1))
 
-        # Safety check: if result seems reasonable (< 100), use it
-        if [ $result -lt 100 ]; then
+        if [ $result -lt $MAX_RETRY_ATTEMPTS ]; then
             break
         fi
 
-        # If we get an unreasonably high number, something may be wrong
         attempt=$((attempt + 1))
         if [ $attempt -ge $max_attempts ]; then
             print_status $RED "❌ Error: Exceeded maximum suffix attempts ($max_attempts)"
             print_status $YELLOW "   Current max suffix found: $max_num"
-            result=0  # Fallback to 0
+            result=0
             break
         fi
 
@@ -1071,10 +1133,7 @@ prepare_drupal_for_backup() {
 }
 
 # Restore Drupal to normal operation after backup/restore
-# Disables maintenance mode first, then re-enables tome
-# Returns: 0 on success, 1 on failure
 restore_drupal_state() {
-    # Disable maintenance mode first
     print_status $YELLOW "🚧 Disabling maintenance mode..."
     audit_log "maintenance_mode_disable" "started" "Restoring Drupal state"
     if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
@@ -1084,10 +1143,8 @@ restore_drupal_state() {
     else
         print_status $RED "❌ Failed to disable maintenance mode"
         audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
-        # Continue anyway
     fi
 
-    # Re-enable tome
     print_status $YELLOW "🔓 Re-enabling Tome..."
     audit_log "tome_enable" "started" "Re-enabling Tome"
     if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
@@ -1103,11 +1160,113 @@ restore_drupal_state() {
     return 0
 }
 
+# Execute function with Drupal state management wrapper
+with_drupal_state() {
+    local skip_state="$1"
+    local callback="$2"
+    shift 2
+
+    local drupal_ready=false
+    if [ "$skip_state" != "true" ]; then
+        if prepare_drupal_for_backup 25; then
+            drupal_ready=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state"
+            return 1
+        fi
+    fi
+
+    "$callback" "$@"
+    local result=$?
+
+    [ "$drupal_ready" = "true" ] && restore_drupal_state
+    return $result
+}
+
+# Find corresponding backup of specific type for smart restore
+# Args: $1=static backup tag, $2=backup type (public|db)
+# Returns: matching backup name or empty on error
+find_corresponding_backup() {
+    local static_backup_tag="$1"
+    local backup_type="$2"
+
+    local exact_match_path=""
+    local search_path=""
+    local file_suffix=""
+
+    case "$backup_type" in
+        public)
+            exact_match_path="$AUTO_PUBLIC_BACKUP_PATH/$static_backup_tag/"
+            search_path="$AUTO_PUBLIC_BACKUP_PATH/"
+            ;;
+        db)
+            file_suffix=".sql.gz"
+            exact_match_path="$AUTO_DB_BACKUP_PATH/${static_backup_tag}${file_suffix}"
+            search_path="$AUTO_DB_BACKUP_PATH/"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    # Check for exact match first
+    if aws s3 ls "s3://$BUCKET_NAME/$exact_match_path" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        if [ "$backup_type" = "public" ]; then
+            echo "$static_backup_tag"
+        else
+            echo "${static_backup_tag}${file_suffix}"
+        fi
+        return 0
+    fi
+
+    # No exact match - find most recent backup at or before static backup time
+    local static_date=$(extract_date_from_backup_name "$static_backup_tag")
+    [ -z "$static_date" ] && return 1
+
+    local static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
+    [ -z "$static_epoch" ] && return 1
+
+    local temp_list="/tmp/${backup_type}_backup_search_$$"
+    if [ "$backup_type" = "public" ]; then
+        aws s3 ls "s3://$BUCKET_NAME/$search_path" $S3_EXTRA_PARAMS | grep "PRE " > "$temp_list" 2>/dev/null
+    else
+        aws s3 ls "s3://$BUCKET_NAME/$search_path" --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
+    fi
+
+    local best_backup=""
+    local best_epoch=0
+
+    while read -r line; do
+        [ -z "$line" ] && continue
+
+        local backup_name
+        if [ "$backup_type" = "public" ]; then
+            backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
+        else
+            backup_name="$line"
+        fi
+
+        local backup_date=$(extract_date_from_backup_name "$backup_name")
+        [ -z "$backup_date" ] && continue
+
+        local backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
+
+        if [ -n "$backup_epoch" ] && [ "$backup_epoch" -le "$static_epoch" ] && [ "$backup_epoch" -gt "$best_epoch" ]; then
+            best_backup="$backup_name"
+            best_epoch="$backup_epoch"
+        fi
+    done < "$temp_list"
+
+    rm -f "$temp_list" 2>/dev/null
+
+    if [ -n "$best_backup" ]; then
+        echo "$best_backup"
+        return 0
+    fi
+    return 1
+}
+
 # Command wrapper: Disable Tome and enable maintenance mode
-# This is the user-facing command that can be called from scripts
-# Args:
-#   $1: max_wait_minutes (optional, default: 25)
-# Returns: 0 on success, 1 on failure
 tome_disable() {
     local max_wait="${1:-25}"
     print_status $BLUE "🔧 Disabling Drupal/Tome for backup..."
