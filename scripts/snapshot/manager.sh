@@ -468,12 +468,9 @@ run_clean_command() {
     local filter_count=0
 
     # Parse all arguments
-    echo "DEBUG: Parsing arguments, count=$#, args: $*" >&2
     while [ $# -gt 0 ]; do
-        echo "DEBUG: Processing arg: '$1'" >&2
         case "$1" in
             --non-interactive|-y)
-                echo "DEBUG: Found -y flag, setting non_interactive=true" >&2
                 non_interactive=true
                 shift
                 ;;
@@ -576,9 +573,6 @@ run_clean_command() {
     fi
 
     local backup_types=$(parse_backup_types "$types_arg")
-
-    # Debug: show non_interactive value
-    echo "DEBUG: non_interactive=$non_interactive" >&2
 
     # Show appropriate warning based on filter type
     if [ "$filter_type" = "all" ]; then
@@ -2780,7 +2774,8 @@ case "$COMMAND" in
         ;;
     "clean")
         # clean [types] [days] [-y|--non-interactive] - e.g., "clean all 30" or "clean db 7 -y"
-        run_clean_command "$2" "$3" "$4"
+        shift  # Remove the 'clean' command
+        run_clean_command "$@"  # Pass all remaining arguments
         ;;
     "delete")
         # delete <tag> [tag2 tag3...] [types] [-y] - e.g., "delete AUTO-dev-123-2025-01-15" or "delete TAG1 TAG2 static -y"
