@@ -576,7 +576,7 @@ run_clean_command() {
 
     # Show appropriate warning based on filter type
     if [ "$filter_type" = "all" ]; then
-        if [ "$non_interactive" = "false" ]; then
+        if [ "$non_interactive" != "true" ]; then
             echo ""
             print_status $RED "╔════════════════════════════════════════════════════════════════╗"
             print_status $RED "║                    ⚠️  DANGER ZONE  ⚠️                         ║"
@@ -596,7 +596,7 @@ run_clean_command() {
             fi
         fi
     else
-        if [ "$non_interactive" = "false" ]; then
+        if [ "$non_interactive" != "true" ]; then
             # Show context-specific warning
             case "$filter_type" in
                 "days")
@@ -638,14 +638,20 @@ run_clean_command() {
                     ;;
             esac
 
-            printf "Continue? [y/N]: "
-            read -r confirm
+            # Only prompt if not in non-interactive mode
+            if [ "$non_interactive" != "true" ]; then
+                printf "Continue? [y/N]: "
+                read -r confirm
 
-            if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-                print_status $RED "❌ Cancelled."
-                return 1
+                if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+                    print_status $RED "❌ Cancelled."
+                    return 1
+                fi
             fi
-        else
+        fi
+
+        # Show what we're doing in non-interactive mode
+        if [ "$non_interactive" = "true" ]; then
             # Non-interactive mode - just show what we're doing
             case "$filter_type" in
                 "days")
@@ -2293,7 +2299,7 @@ backup_info() {
             local total_size=$(echo "$static_output" | grep "Total Size:" | awk '{print $3}')
 
             if [ -n "$total_objects" ]; then
-                echo "  Total Files: $(printf "%'d" $total_objects)"
+                echo "  Total Files: $total_objects"
             fi
             if [ -n "$total_size" ]; then
                 local formatted_size=$(format_file_size "$total_size")
@@ -2340,7 +2346,7 @@ backup_info() {
             local total_size=$(echo "$public_output" | grep "Total Size:" | awk '{print $3}')
 
             if [ -n "$total_objects" ]; then
-                echo "  Total Files: $(printf "%'d" $total_objects)"
+                echo "  Total Files: $total_objects"
             fi
             if [ -n "$total_size" ]; then
                 local formatted_size=$(format_file_size "$total_size")
