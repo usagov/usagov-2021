@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ===================================================================
-# COMMON UTILITIES FOR BACKUP SYSTEM
+# COMMON UTILITIES FOR BACKUP/DEPLOYMENT SYSTEM
 # ===================================================================
 # Shared functions to eliminate redundancy across backup scripts
 # Provides: initialization, logging, status printing, date handling, S3 setup
