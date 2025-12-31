@@ -955,9 +955,15 @@ post_deploy() {
     local www_digest=$(echo "$digests" | sed -n '3p')
 
     # Extract CCI build number from digest (format: {registry}/{org}/usagov_{app}:{cci_build}@sha256:...)
+    # If extraction fails, sanitize the digest for use as identifier
     local cci_build=""
     if [ -n "$cms_digest" ]; then
         cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
+        # If regex didn't match (cci_build equals original digest), sanitize it
+        if [ "$cci_build" = "$cms_digest" ]; then
+            # Extract short SHA from digest and sanitize: replace /, @, : with -
+            cci_build=$(echo "$cms_digest" | sed 's/@sha256:/--/' | sed 's/[/:@]/-/g' | cut -c1-40)
+        fi
     fi
 
     if [ -z "$cci_build" ] || [ -z "$cms_digest" ] || [ -z "$waf_digest" ] || [ -z "$www_digest" ]; then
