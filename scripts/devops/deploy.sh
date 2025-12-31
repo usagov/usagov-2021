@@ -772,7 +772,7 @@ exec_backup_command() {
     local types="${3:-all}"
 
     # Run backup command
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh backup $types $ticket $suffix"
+    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup $types $ticket $suffix"
 
     # Determine the backup tag that was created
     # Format: {ticket}-{env}-{container}-{date}-{suffix}-{sequence}

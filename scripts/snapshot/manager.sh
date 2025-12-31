@@ -821,10 +821,10 @@ create_db_backup() {
         fi
     fi
 
-    # Use secure temp files with mktemp
-    TEMP_SQL=$(mktemp /tmp/db-backup.XXXXXX.sql)
-    TEMP_GZIP=$(mktemp /tmp/db-backup.XXXXXX.sql.gz)
-    TEMP_CHECKSUM=$(mktemp /tmp/db-backup.XXXXXX.sha256)
+    # Use secure temp files with mktemp (compatible with both GNU and BSD)
+    TEMP_SQL=$(mktemp) && mv "$TEMP_SQL" "${TEMP_SQL}.sql" && TEMP_SQL="${TEMP_SQL}.sql"
+    TEMP_GZIP=$(mktemp) && mv "$TEMP_GZIP" "${TEMP_GZIP}.sql.gz" && TEMP_GZIP="${TEMP_GZIP}.sql.gz"
+    TEMP_CHECKSUM=$(mktemp) && mv "$TEMP_CHECKSUM" "${TEMP_CHECKSUM}.sha256" && TEMP_CHECKSUM="${TEMP_CHECKSUM}.sha256"
     chmod 600 "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM"
 
     # Ensure cleanup on exit
@@ -836,6 +836,9 @@ create_db_backup() {
         drush cr 2>&1 | tee -a "$LOGFILE"
         drush sql:dump --result-file="$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
         DUMP_EXIT_CODE=$?
+        if [ $DUMP_EXIT_CODE -eq 0 ] && [ -f "$TEMP_SQL" ] && [ -s "$TEMP_SQL" ]; then
+            log_message "✅ Database dump created ($(du -h "$TEMP_SQL" | cut -f1))" | tee -a "$LOGFILE"
+        fi
     else
         log_message "❌ ERROR: drush not found" | tee -a "$LOGFILE"
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
