@@ -11,17 +11,6 @@
 umask 077
 
 # ===================================================================
-# CONSTANTS
-# ===================================================================
-readonly RETENTION_MIN_HOURS=48
-readonly RETENTION_MIN_SECONDS=$((RETENTION_MIN_HOURS * 3600))
-readonly MAX_RETRY_ATTEMPTS=100
-readonly FLOCK_TIMEOUT_SECONDS=15
-readonly TAG_MAX_LENGTH=200
-readonly RATE_LIMIT_SECONDS=300
-readonly MAX_WAIT_TOME_MINUTES=30
-
-# ===================================================================
 # COLOR DEFINITIONS
 # ===================================================================
 RED='\033[0;31m'
@@ -83,6 +72,25 @@ init_backup_system() {
         echo "❌ ERROR: Configuration file not found: $CONFIG_FILE"
         exit 1
     fi
+
+    # Set defaults for constants if not defined in config
+    : "${RETENTION_MIN_HOURS:=48}"
+    : "${RATE_LIMIT_SECONDS:=60}"
+    : "${MAX_RETRY_ATTEMPTS:=100}"
+    : "${FLOCK_TIMEOUT_SECONDS:=15}"
+    : "${TAG_MAX_LENGTH:=200}"
+    : "${MAX_WAIT_TOME_MINUTES:=30}"
+
+    # Make constants readonly
+    readonly RETENTION_MIN_HOURS
+    readonly RATE_LIMIT_SECONDS
+    readonly MAX_RETRY_ATTEMPTS
+    readonly FLOCK_TIMEOUT_SECONDS
+    readonly TAG_MAX_LENGTH
+    readonly MAX_WAIT_TOME_MINUTES
+
+    # Calculate derived constant
+    readonly RETENTION_MIN_SECONDS=$((RETENTION_MIN_HOURS * 3600))
 
     # Add vendor/bin to PATH for drush and other tools
     if [ -d "$PROJECT_ROOT/vendor/bin" ]; then
