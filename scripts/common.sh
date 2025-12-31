@@ -672,7 +672,7 @@ get_next_backup_suffix() {
 
     eval "exec $lockfd>$lockfile"
     if ! flock -x -w $FLOCK_TIMEOUT_SECONDS $lockfd 2>/dev/null; then
-        print_status $YELLOW "⚠️  Could not acquire lock, proceeding without lock"
+        print_status $YELLOW "⚠️  Could not acquire lock, proceeding without lock" >&2
     fi
 
     local s3_path=""
@@ -741,8 +741,8 @@ get_next_backup_suffix() {
 
         attempt=$((attempt + 1))
         if [ $attempt -ge $max_attempts ]; then
-            print_status $RED "❌ Error: Exceeded maximum suffix attempts ($max_attempts)"
-            print_status $YELLOW "   Current max suffix found: $max_num"
+            print_status $RED "❌ Error: Exceeded maximum suffix attempts ($max_attempts)" >&2
+            print_status $YELLOW "   Current max suffix found: $max_num" >&2
             result=0
             break
         fi
