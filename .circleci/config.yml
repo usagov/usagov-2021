@@ -39,7 +39,7 @@ commands:
         type: string
     steps:
       - checkout:
-          method: full
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -229,7 +229,7 @@ commands:
         type: string
     steps:
       - checkout:
-          method: full
+          method: blobless
       - install-cloud-foundry
       - snapshot-preamble:
           envname: << parameters.envname >>
@@ -252,7 +252,7 @@ commands:
         type: string
     steps:
       - checkout:
-          method: full
+          method: blobless
       - install-cloud-foundry
       - signed-dockerhub-login
       - run:
@@ -307,7 +307,7 @@ commands:
         type: string
     steps:
       - checkout:
-          method: full
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -330,7 +330,7 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout:
-          method: full
+          method: blobless
       - install-cloud-foundry
       - run:
           name: Setup Environment for use in Scripts
@@ -382,7 +382,7 @@ jobs:
       - image: cimg/php:8.3-node
     steps:
       - checkout:
-          method: full
+          method: blobless
       - run:
           name: Install Linters and Sniffers
           command: |
@@ -424,7 +424,7 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout:
-          method: full
+          method: blobless
       - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
@@ -641,7 +641,7 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout:
-          method: full
+          method: blobless
       - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
@@ -741,7 +741,7 @@ jobs:
       BASH_ENV: /home/circleci/project/env.local
     steps:
       - checkout:
-          method: full
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
