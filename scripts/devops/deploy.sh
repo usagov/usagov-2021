@@ -772,7 +772,9 @@ exec_backup_command() {
     local types="${3:-all}"
 
     # Run backup command
-    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup $types $ticket $suffix"
+    local cmd
+    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
+    cf ssh cms -c "$cmd"
 
     # Determine the backup tag that was created
     # Format: {ticket}-{env}-{container}-{date}-{suffix}-{sequence}
@@ -805,11 +807,15 @@ exec_backup_command() {
 exec_restore_command() {
     local tag="$1"
     local only_flag="${2:-}"
+
+    # Use printf %q for safe shell escaping to prevent command injection
+    local cmd
     if [ -n "$only_flag" ]; then
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag $only_flag"
+        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q %q' "$tag" "$only_flag")
     else
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore $tag"
+        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q' "$tag")
     fi
+    cf ssh cms -c "$cmd"
 }
 
 # Prompt for rollback confirmation
@@ -1162,12 +1168,14 @@ downsync() {
 
     # Upload and restore database
     print_status $BLUE "📤 Uploading and restoring database..."
-    cf ssh cms -c "cat > /tmp/${backup_tag}.sql.gz" < "$db_file"
-    cf ssh cms -c "
-        . /etc/profile
-        cd /tmp
-        gunzip -f ${backup_tag}.sql.gz
-        drush sql-cli < ${backup_tag}.sql
+    # Use printf %q for safe shell escaping
+    local upload_cmd
+    upload_cmd=$(printf 'cat > /tmp/%q.sql.gz' "$backup_tag")
+    cf ssh cms -c "$upload_cmd" < "$db_file"
+
+    local restore_cmd
+    restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql' "$backup_tag" "$backup_tag")
+    cf ssh cms -c "$restore_cmd"
         rm -f ${backup_tag}.sql
     " >/dev/null 2>&1
 
@@ -1273,7 +1281,10 @@ list_backups() {
     print_status $BLUE "📋 Available backups (last $days days)"
     echo ""
 
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh list all $days"
+    # Use printf %q for safe shell escaping
+    local cmd
+    cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
+    cf ssh cms -c "$cmd"
 }
 
 # List available container digests with deployment history
@@ -1780,7 +1791,9 @@ download_backups() {
 
     # Download database backup
     print_status $YELLOW "📦 Downloading database..."
-    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $tag db - --stream" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
+    local cmd
+    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q db - --stream' "$tag")
+    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-database.sql.gz" ]; then
         print_status $GREEN "  ✅ Database downloaded ($(du -h "${output_dir}/${tag}-database.sql.gz" | cut -f1))"
     else
@@ -1790,7 +1803,8 @@ download_backups() {
 
     # Download static site backup
     print_status $YELLOW "📦 Downloading static site..."
-    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $tag static - --stream" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
+    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q static - --stream' "$tag")
+    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-static.tar.gz" ]; then
         print_status $GREEN "  ✅ Static site downloaded ($(du -h "${output_dir}/${tag}-static.tar.gz" | cut -f1))"
     else
@@ -1800,7 +1814,8 @@ download_backups() {
 
     # Download public files backup
     print_status $YELLOW "📦 Downloading public files..."
-    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $tag public - --stream" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
+    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q public - --stream' "$tag")
+    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-public.tar.gz" ]; then
         print_status $GREEN "  ✅ Public files downloaded ($(du -h "${output_dir}/${tag}-public.tar.gz" | cut -f1))"
     else

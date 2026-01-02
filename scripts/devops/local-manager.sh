@@ -386,7 +386,9 @@ download_command() {
         local output_file="$output_dir/${backup_tag}-${filename}.${extension}"
 
         # Start download in background and show progress
-        cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $backup_tag $type - --stream" > "$output_file" 2>/dev/null &
+        local cmd
+        cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$backup_tag" "$type")
+        cf ssh cms -c "$cmd" > "$output_file" 2>/dev/null &
         local download_pid=$!
 
         # Show progress while downloading
@@ -528,7 +530,10 @@ case "$COMMAND" in
             setup|remove|status|test)
                 echo "⚙️  Managing cron jobs on Cloud Foundry..."
                 echo ""
-                cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh $CRON_SUBCOMMAND"
+                # Use printf %q for safe shell escaping
+                local cmd
+                cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
+                cf ssh cms -c "$cmd"
                 ;;
             *)
                 echo "❌ Unknown cron subcommand: $CRON_SUBCOMMAND"
