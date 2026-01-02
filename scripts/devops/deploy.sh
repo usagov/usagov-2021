@@ -1174,18 +1174,8 @@ downsync() {
     cf ssh cms -c "$upload_cmd" < "$db_file"
 
     local restore_cmd
-    restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql' "$backup_tag" "$backup_tag")
-    cf ssh cms -c "$restore_cmd"
-        rm -f ${backup_tag}.sql
-    " >/dev/null 2>&1
-
-    if [ $? -ne 0 ]; then
-        print_status $RED "❌ Error: Failed to restore database"
-        print_status $YELLOW "⚠️  Site may be in maintenance mode - check manually"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 1
-    fi
+    restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql; rm -f %q.sql' "$backup_tag" "$backup_tag" "$backup_tag")
+    cf ssh cms -c "$restore_cmd" >/dev/null 2>&1
     print_status $GREEN "  ✅ Database restored"
 
     # Upload and restore public files
