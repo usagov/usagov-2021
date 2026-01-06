@@ -930,6 +930,16 @@ input::-webkit-textfield-decoration-container {
 
 /* Blog post styles */
 .usa-section {
+  .blog-title {
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
+    font-size: 1.95rem;
+    line-height: 1.2;
+    font-weight: 700;
+    margin-bottom: 0;
+    margin-top: 0;
+    clear: both;
+  }
+
   .usa-prose .blog-post {
     margin-bottom: -85px;
 
