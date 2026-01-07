@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python3 /opt/log-management/trim-old-logs.py | tee -a /tmp/log-management.log
+/opt/venv/bin/python /opt/log-management/trim-old-logs.py | tee -a /tmp/log-management.log
