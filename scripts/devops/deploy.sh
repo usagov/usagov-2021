@@ -2010,8 +2010,10 @@ show_build_info() {
     local waf_digest=""
     local www_digest=""
 
-    IFS='|' read -ra fields <<< "$tag_content"
-    for field in "${fields[@]}"; do
+    # Parse using POSIX-compatible approach
+    old_ifs="$IFS"
+    IFS='|'
+    for field in $tag_content; do
         case "$field" in
             CCI_BUILD=*)
                 cci_build="${field#CCI_BUILD=}"
@@ -2027,6 +2029,7 @@ show_build_info() {
                 ;;
         esac
     done
+    IFS="$old_ifs"
 
     # Display the information
     print_status $BLUE "📦 Build Information"
