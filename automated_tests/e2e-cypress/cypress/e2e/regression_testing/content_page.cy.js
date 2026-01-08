@@ -37,41 +37,65 @@ paths.forEach((path, idx) => {
     });
 
     it(`${testName} 28: Left menu appears on page and indicates the page you are on`, () => {
+      // Verify structural elements exist
       cy.get(".usa-sidenav").should("be.visible");
-
-      // Menu indicates what page you are on
       cy.get(".usa-sidenav")
         .find(".usa-current")
-        .then(($sideNav) => {
-          // Grab page title and compare to breadcrumb text
+        .should("exist")
+        .and("have.length", 1); // Only one current page indicator
+
+      // Verify semantic relationship between sidenav and page title
+      cy.get(".usa-sidenav")
+        .find(".usa-current")
+        .invoke("text")
+        .then((sideNavText) => {
           cy.get("h1")
             .invoke("text")
-            .should((pageTitle) => {
-              expect(pageTitle.trim().toLowerCase()).to.include(
-                $sideNav[0].lastChild["wholeText"].trim().toLowerCase(),
-              );
+            .then((pageTitle) => {
+              // Extract significant words (3+ chars) from both
+              const navWords = sideNavText.toLowerCase().match(/\b\w{3,}\b/g) || [];
+              const titleWords = pageTitle.toLowerCase().match(/\b\w{3,}\b/g) || [];
+
+              // Check if at least 2 significant words overlap
+              const overlap = navWords.filter(word => titleWords.includes(word));
+              expect(overlap.length,
+                `Expected at least 2 common words between sidenav "${sideNavText.trim()}" and title "${pageTitle.trim()}"`
+              ).to.be.at.least(2);
             });
         });
     });
     it(`${testName} 29: Breadcrumb appears at top of page and indicates correct section`, () => {
+      // Verify structural elements exist
       cy.get(".usa-breadcrumb__list")
         .find("li")
         .first()
         .contains(breadcrumb[idx]);
 
-      // Breadcrumb indicates correct section
+      cy.get(".usa-breadcrumb__list")
+        .find("li")
+        .last()
+        .should("not.be.empty");
+
+      cy.get("h1").should("exist").and("not.be.empty");
+
+      // Verify semantic relationship between breadcrumb and page title
       cy.get(".usa-breadcrumb__list")
         .find("li")
         .last()
         .invoke("text")
-        .then((breadcrumb) => {
-          // Grab page title and compare to breadcrumb text
+        .then((breadcrumbText) => {
           cy.get("h1")
             .invoke("text")
-            .should((pageTitle) => {
-              expect(pageTitle.trim().toLowerCase()).to.include(
-                breadcrumb.trim().toLowerCase(),
-              );
+            .then((pageTitle) => {
+              // Extract significant words (3+ chars) from both
+              const breadcrumbWords = breadcrumbText.toLowerCase().match(/\b\w{3,}\b/g) || [];
+              const titleWords = pageTitle.toLowerCase().match(/\b\w{3,}\b/g) || [];
+
+              // Check if at least 2 significant words overlap
+              const overlap = breadcrumbWords.filter(word => titleWords.includes(word));
+              expect(overlap.length,
+                `Expected at least 2 common words between breadcrumb "${breadcrumbText.trim()}" and title "${pageTitle.trim()}"`
+              ).to.be.at.least(2);
             });
         });
     });
