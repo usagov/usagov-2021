@@ -1,0 +1,39 @@
+uuid: 4a2eb867-216e-447d-bf74-f4d0ac2f4a93
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.usagov_blog_menu
+  module:
+    - menu_block
+    - system
+  theme:
+    - usagov
+id: usagov_usagovblogmenu
+theme: usagov
+region: sidebar_first
+weight: 0
+provider: null
+plugin: 'menu_block:usagov_blog_menu'
+settings:
+  id: 'menu_block:usagov_blog_menu'
+  label: 'USAGov Blog Menu'
+  label_display: '0'
+  provider: menu_block
+  follow: false
+  follow_parent: child
+  display_empty: false
+  label_link: false
+  label_type: block
+  level: 1
+  depth: 0
+  expand_all_items: false
+  parent: 'usagov_blog_menu:'
+  render_parent: false
+  suggestion: usagov_blog_menu
+  hide_on_nonactive: false
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/blog\r\n/blog/*"

@@ -11,7 +11,7 @@ dependencies:
 id: mobile_navigation_dr_es
 theme: usagov
 region: header_top
-weight: -12
+weight: -14
 provider: null
 plugin: system_main_block
 settings:
