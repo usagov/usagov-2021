@@ -38,6 +38,10 @@
       border-radius: 2px;
     }
 
+    &::after {
+      background-color: #ae1a0a;
+    }
+
     &:hover {
       background-color: transparent;
     }
@@ -54,7 +58,7 @@
     }
   }
 
-  &__sublist { 
+  &__sublist {
     a:not(.usa-button), .usa-current {
       padding-left: 2.3rem;
     }

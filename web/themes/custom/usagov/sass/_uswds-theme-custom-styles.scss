@@ -929,21 +929,40 @@ input::-webkit-textfield-decoration-container {
 }
 
 /* Blog post styles */
-.usa-section .usa-prose .blog-post {
-  margin-bottom: -85px;
+.usa-section {
+  .blog-title {
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
+    font-size: 1.95rem;
+    line-height: 1.2;
+    font-weight: 700;
+    margin-bottom: 0;
+    margin-top: 0;
+    clear: both;
+  }
 
-  .field--name-field-featured-image {
-    float: right;
-    margin-left: 10px;
-    margin-bottom: 10px;
+  .usa-prose .blog-post {
+    margin-bottom: -85px;
 
-    img {
-      max-width: 300px;
+    .field--name-field-featured-image {
+      float: right;
+      margin-left: 10px;
+      margin-bottom: 10px;
+
+      img {
+        max-width: 300px;
+      }
+    }
+
+    .align-left {
+      margin-top: 0;
     }
   }
 
-  .align-left {
-    margin-top: 0;
+  @media (max-width: 64em) {
+    .blog-title {
+      padding-bottom: 10px;
+      border-bottom: hsl(205deg, 20%, 94%) 2px solid;
+    }
   }
 }
 
@@ -973,15 +992,15 @@ input::-webkit-textfield-decoration-container {
     }
 
     .views-field-title h2 {
-      font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-      font-size: 1.95rem;
-      color: #d83933;
+      font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
+      font-size: 1.34rem;
+      color: #1b1b1b;
       line-height: 1.2;
       font-weight: 700;
       text-decoration: none;
 
       &:hover {
-        color: #a62a26;
+        color: #272727;
       }
     }
 
@@ -1018,6 +1037,7 @@ input::-webkit-textfield-decoration-container {
     @media (max-width: 40em) {
       .views-field-created {
         font-size: 1rem;
+        grid-column: 1 / -1;
       }
 
       .views-field-view-node a {
