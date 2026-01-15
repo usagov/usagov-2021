@@ -88,5 +88,9 @@ RUN apk add --no-cache python3 py3-pip ca-certificates \
   && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
   && /opt/venv/bin/pip install --no-cache-dir boto3
 
+# Health check for s6 services
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD s6-svstat /var/run/s6/services/cron || exit 1
+
 # Init s6
 ENTRYPOINT [ "/init" ]

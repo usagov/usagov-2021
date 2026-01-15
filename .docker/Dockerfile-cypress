@@ -23,5 +23,9 @@ WORKDIR /app
 # Install cypress. 
 RUN NODE_EXTRA_CA_CERTS=/app/zscaler_chain.pem npm install --save-dev cypress
 
+# Health check for Cypress (check if node is responsive)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node --version || exit 1
+
 
 

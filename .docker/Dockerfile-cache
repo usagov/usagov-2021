@@ -5,4 +5,8 @@ RUN mkdir /etc/redis && chown redis:redis /etc/redis
 COPY .docker/src-cache/redis.conf /etc/redis/redis.conf
 RUN chown redis:redis /etc/redis/*
 
+# Health check for Redis
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD redis-cli ping || exit 1
+
 CMD [ "redis-server", "/etc/redis/redis.conf" ]
