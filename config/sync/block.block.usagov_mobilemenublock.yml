@@ -10,7 +10,7 @@ dependencies:
 id: usagov_mobilemenublock
 theme: usagov
 region: header_top
-weight: -16
+weight: -21
 provider: null
 plugin: usagov_mobile_menu_block
 settings:
