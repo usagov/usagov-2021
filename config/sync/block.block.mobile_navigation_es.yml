@@ -13,7 +13,7 @@ dependencies:
 id: mobile_navigation_es
 theme: usagov
 region: header_top
-weight: -13
+weight: -15
 provider: null
 plugin: 'menu_block:left-menu-spanish'
 settings:
@@ -23,6 +23,7 @@ settings:
   provider: menu_block
   follow: false
   follow_parent: child
+  display_empty: false
   label_link: false
   label_type: block
   level: 1
