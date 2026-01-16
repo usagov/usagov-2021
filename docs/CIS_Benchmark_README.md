@@ -77,22 +77,28 @@ The CIS scan checks two main areas:
 
 ## Current Status (Jan 2026)
 
-- **Overall Score:** 1/44 checks passing
-- **PASS:** 14 checks
-- **WARN:** 20 checks (all documented and tracked)
+- **Overall Score:** 5/44 checks passing (improved from 1)
+- **PASS:** 16 checks (up from 14)
+- **WARN:** 18 checks (down from 20, all documented and tracked)
 - **INFO:** 6 checks
 - **NOTE:** 4 checks
 
-### High Priority Issues (Sprint 2)
+### Recently Completed (Sprint 1 - Jan 16, 2026)
 
 1. ✅ **HEALTHCHECK added** - Now in Dockerfiles (cron, minio, cache, cypress)
-2. 🔄 **Resource limits** - Memory, CPU, PIDs (to be added)
-3. 🔄 **no-new-privileges** - Security option (to be added)
-4. 🔄 **Health checks at runtime** - docker-compose config (to be added)
+2. ✅ **no-new-privileges** - Security option added to all containers
+3. ✅ **Localhost binding** - Database and cache now bound to 127.0.0.1
+4. ✅ **SELinux security options** - Check 5.3 now passing
+
+### High Priority Issues (Sprint 2)
+
+1. 🔄 **Resource limits** - Memory, CPU, PIDs (to be added)
+2. 🔄 **Health checks at runtime** - docker-compose config (to be added)
+3. 🔄 **Non-root users** - Configure where feasible
 
 ### Acceptable Issues
 
-- **AppArmor/SELinux:** Not available on macOS (development only)
+- **AppArmor:** Not available on macOS (development only)
 - **Privileged ports 80/443:** Standard web server ports
 - **Root filesystem writable:** Required for most containers
 
@@ -102,9 +108,19 @@ The `scan-cis-with-benchmark` script runs the scan and validates against baselin
 
 ```bash
 ./bin/scan-cis-with-benchmark                            # Run scan automatically
+./bin/scan-cis-with-benchmark --update                   # Update baseline with all improvements
+./bin/scan-cis-with-benchmark --update=5.26              # Update only specific check
 ./bin/scan-cis-with-benchmark <scan-results.log>         # Use existing scan file
-./bin/scan-cis-with-benchmark <scan-results.log> <baseline.txt>
 ```
+
+### Key Features
+
+- **Automatic scanning** - No need to manually save scan output
+- **Live output** - See scan results as they run
+- **Baseline comparison** - Only shows unexpected changes
+- **Auto-update baseline** - Use `--update` flag to accept improvements
+- **Selective updates** - Use `--update=CHECK_ID` for specific checks
+- **Detailed summary** - Shows all outstanding issues at the end
 
 ### Exit Codes
 
@@ -114,16 +130,53 @@ The `scan-cis-with-benchmark` script runs the scan and validates against baselin
 ### Example Output
 
 ```bash
-✅ IMPROVED: Check 4.6 changed from WARN to PASS
-   HEALTHCHECK instructions added
+✅ All checks match baseline expectations!
 
-❌ UNEXPECTED: Check 5.11 changed from PASS to WARN (not in baseline)
-   Memory limits removed - investigate!
+Total checks scanned: 44
+
+Known issues (baselined):
+  - WARN/FAIL: 12 checks
+  - INFO: 4 checks
+
+Outstanding WARN/FAIL checks:
+  • 4.1 (WARN): Multiple containers running as root - to be fixed Q1 2026
+  • 5.2 (WARN): AppArmor not available on macOS Docker Desktop - acceptable for dev
+  • 5.11 (WARN): Memory limits to be added in Sprint 2 - tracked in backlog
+  ...
+```
+
+When improvements are detected:
+
+```bash
+✅ IMPROVED: Check 5.26 changed from WARN to PASS
+   Container is restricted from acquiring additional privileges
+
+✅ No new failures, but there were some changes.
+Consider updating the baseline file with: --update
 ```
 
 ## Updating the Baseline
 
-When you fix issues or need to accept new ones:
+### Automatic Updates (Recommended)
+
+When you fix security issues, use the `--update` flag:
+
+```bash
+# Update all improved checks
+./bin/scan-cis-with-benchmark --update
+
+# Update only a specific check
+./bin/scan-cis-with-benchmark --update=5.26
+```
+
+The script will:
+- Remove improved checks from baseline
+- Update the "Last updated" timestamp
+- Show confirmation of changes
+
+### Manual Updates
+
+If you need to accept new issues:
 
 1. Edit `.circleci/expected-cis-results.txt`
 2. Add new entries with format: `check_id|status|pattern|reason`
@@ -155,36 +208,34 @@ Example entry:
 - run:
     name: Check CIS Benchmarks
     command: |
-      # Run scan
-      ./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log
+      # Run scan and compare against baseline
+      ./bin/scan-cis-with-benchmark
       
-      # Compare against baseline
-      ./bin/scan-cis-with-benchmark /tmp/results/scan-cms-cis.log
-      CIS_RESULT=$?
-      
-      # Fail build if unexpected issues
-      exit $CIS_RESULT
+      # Exit code 0 = pass, 1 = fail
+      # Build will automatically fail if unexpected issues found
 ```
 
 ## Roadmap
 
-### ✅ Phase 1: Baseline (COMPLETE)
+### ✅ Phase 1: Baseline & Quick Wins (COMPLETE - Jan 16, 2026)
 - [x] Run CIS scan
 - [x] Create baseline documentation
 - [x] Add HEALTHCHECK to Dockerfiles
-- [x] Create comparison script
+- [x] Create comparison script with auto-update
+- [x] Add no-new-privileges security option
+- [x] Bind database/cache to localhost
+- [x] Enhanced summary output
 
-### 🔄 Phase 2: Quick Wins (Sprint 2)
-- [ ] Add no-new-privileges security option
+### 🔄 Phase 2: Resource Limits (Sprint 2)
 - [ ] Add memory limits to docker-compose
 - [ ] Add CPU limits to docker-compose
 - [ ] Add PIDs limits to docker-compose
-- [ ] Enable build failure on new issues
+- [ ] Enable build failure on new issues in CI/CD
 
 ### 📅 Phase 3: Security Hardening (Sprint 3)
 - [ ] Configure non-root users where feasible
 - [ ] Review Linux capabilities
-- [ ] Bind internal services to localhost
+- [ ] Add remaining health checks
 - [ ] Document AppArmor/SELinux for production
 
 ### 📅 Phase 4: Advanced (Q2 2026)
@@ -216,13 +267,24 @@ Check the baseline for platform-specific exceptions.
 ### How do I test changes before committing?
 
 ```bash
-# Run scan locally
-./bin/scan-container-cis | tee /tmp/test-results.log
+# Run scan and check against baseline
+./bin/scan-cis-with-benchmark
 
-# Compare against baseline
-./bin/scan-cis-with-benchmark /tmp/test-results.log
+# If improvements detected, update baseline
+./bin/scan-cis-with-benchmark --update
 
-# If it passes, you're good to commit!
+# Commit the updated baseline
+git add .circleci/expected-cis-results.txt
+git commit -m "chore: update CIS baseline after security improvements"
+```
+
+### Can I update just one check in the baseline?
+
+Yes! Use the `--update=CHECK_ID` flag:
+
+```bash
+# Only update check 5.26 in the baseline
+./bin/scan-cis-with-benchmark --update=5.26
 ```
 
 ## Resources
@@ -241,6 +303,12 @@ Questions? Check:
 
 ---
 
-**Last Updated:** January 14, 2026  
+**Last Updated:** January 16, 2026  
 **Owner:** DevOps Team  
-**Next Review:** February 14, 2026
+**Next Review:** February 14, 2026  
+**Recent Changes:**
+- Added `--update` flag for automatic baseline updates
+- Implemented no-new-privileges security option (Sprint 1)
+- Bound database/cache to localhost (Sprint 1)
+- Enhanced summary output with outstanding checks
+- Score improved from 1 to 5
