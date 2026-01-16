@@ -35,12 +35,12 @@
 5.2|WARN|.*|AppArmor not available on macOS Docker Desktop - acceptable for dev
 # Production note: Linux hosts should have AppArmor enabled
 
-# 5.3 - SELinux security options
-5.3|WARN|.*|SELinux not available on macOS Docker Desktop - acceptable for dev
-# Production note: Linux hosts should have SELinux enabled
+# 5.3 - SELinux security options (TEST - will be removed by --update)
 
 # 5.4 - Linux kernel capabilities
 5.4|WARN|database|MariaDB uses CAP_SYS_NICE for process priority - under review
+
+# 5.26 - TEST ENTRY (should only be removed with --update=5.26)
 
 # 5.8 - Privileged ports mapped
 5.8|WARN|.*|Ports 80/443 are standard web server ports - acceptable
@@ -63,9 +63,6 @@
 # 5.19 - Default ulimit override (Manual check)
 5.19|INFO|.*|Using default ulimits - acceptable unless specific issues arise
 
-# 5.26 - Restricted from acquiring additional privileges
-5.26|WARN|.*|no-new-privileges to be added in Sprint 2 - tracked in backlog
-
 # 5.27 - Container health checked at runtime
 5.27|WARN|.*|Health checks to be added in Sprint 2 - tracked in backlog
 # Note: CMS already has health check configured
@@ -77,12 +74,14 @@
 5.29|WARN|.*|PIDs limit to be added in Sprint 3 - tracked in backlog
 
 # Notes:
-# - All macOS-related limitations (AppArmor, SELinux) are acceptable for local development
+# - All macOS-related limitations (AppArmor) are acceptable for local development
 # - Production deployments on Linux should address these with proper security profiles
-# - Sprint 2 priorities: no-new-privileges, health checks, resource limits
-# - Sprint 3 priorities: PIDs limits, network binding
+# - ✅ COMPLETED (2026-01-16): no-new-privileges security option added (Sprint 1)
+# - ✅ COMPLETED (2026-01-16): localhost binding for database/cache (Sprint 1)
+# - Sprint 2 priorities: health checks, resource limits
+# - Sprint 3 priorities: PIDs limits
 # - Q2 2026: Read-only FS evaluation, version pinning
 #
-# Last updated: 2026-01-14
+# Last updated: 2026-01-16
 # Next review: 2026-02-14
 # Owner: DevOps Team

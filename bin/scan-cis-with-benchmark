@@ -7,10 +7,15 @@
 # if any unexpected issues are found.
 #
 # Usage:
-#   ./bin/check-cis-results <scan-results.log> [expected-results.txt]
+#   ./bin/scan-cis-with-benchmark                      # Run scan automatically
+#   ./bin/scan-cis-with-benchmark --update             # Update baseline with all improvements
+#   ./bin/scan-cis-with-benchmark --update=5.2         # Update only check 5.2 improvements
+#   ./bin/scan-cis-with-benchmark <scan-results.log>   # Use existing scan file
 #
 # Arguments:
-#   scan-results.log      - Log file from docker-bench-security scan
+#   --update              - Automatically update baseline file with improvements
+#   --update=CHECK_ID     - Update baseline only for specific check (e.g., --update=5.2)
+#   scan-results.log      - Optional: Log file from docker-bench-security scan
 #   expected-results.txt  - Optional baseline file (defaults to .circleci/expected-cis-results.txt)
 #
 
@@ -38,23 +43,55 @@ print_color() {
     echo -e "${color}$@${NC}"
 }
 
-# Check arguments
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <scan-results.log> [expected-results.txt]"
+# Parse arguments
+UPDATE_BASELINE=false
+UPDATE_CHECK_ID=""
+POSITIONAL_ARGS=()
+
+for arg in "$@"; do
+    case $arg in
+        --update)
+            UPDATE_BASELINE=true
+            shift
+            ;;
+        --update=*)
+            UPDATE_BASELINE=true
+            UPDATE_CHECK_ID="${arg#*=}"
+            shift
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$arg")
+            ;;
+    esac
+done
+
+# Determine scan results source
+if [ ${#POSITIONAL_ARGS[@]} -eq 0 ]; then
+    # No arguments: run scan automatically and use temp file
+    SCAN_RESULTS="/tmp/cis-scan-$$.log"
+    CLEANUP_TEMP=true
+    print_color "$BLUE" "Running CIS scan..."
     echo ""
-    echo "Example:"
-    echo "  $0 /tmp/results/scan-cms-cis.log"
-    echo "  $0 /tmp/results/scan-cms-cis.log .circleci/expected-cis-results.txt"
-    exit 1
-fi
-
-SCAN_RESULTS="$1"
-EXPECTED_RESULTS="${2:-.circleci/expected-cis-results.txt}"
-
-# Check if scan results file exists
-if [ ! -f "$SCAN_RESULTS" ]; then
-    print_color "$RED" "ERROR: Scan results file not found: $SCAN_RESULTS"
-    exit 1
+    if ! ./bin/scan-container-cis | tee "$SCAN_RESULTS"; then
+        print_color "$RED" "ERROR: Failed to run scan"
+        rm -f "$SCAN_RESULTS"
+        exit 1
+    fi
+    echo ""
+    print_color "$BLUE" "Comparing against baseline..."
+    echo ""
+    EXPECTED_RESULTS=".circleci/expected-cis-results.txt"
+else
+    # Arguments provided: use file path
+    SCAN_RESULTS="${POSITIONAL_ARGS[0]}"
+    EXPECTED_RESULTS="${POSITIONAL_ARGS[1]:-.circleci/expected-cis-results.txt}"
+    CLEANUP_TEMP=false
+    
+    # Check if scan results file exists
+    if [ ! -f "$SCAN_RESULTS" ]; then
+        print_color "$RED" "ERROR: Scan results file not found: $SCAN_RESULTS"
+        exit 1
+    fi
 fi
 
 # Check if expected results file exists
@@ -123,6 +160,7 @@ done
 # Compare results
 unexpected_failures=0
 unexpected_passes=0
+improved_checks=()
 
 print_color "$BLUE" "Analyzing results..."
 echo ""
@@ -152,10 +190,39 @@ while IFS='|' read -r check_id actual_status desc; do
                 print_color "$GREEN" "✅ IMPROVED: Check $check_id changed from $expected_status to $actual_status"
                 print_color "$GREEN" "   $desc"
                 ((unexpected_passes++))
+                improved_checks+=("$check_id")
             fi
         fi
     fi
 done < "$ACTUAL_RESULTS"
+
+# Handle baseline updates if --update flag provided
+if [ "$UPDATE_BASELINE" = true ] && [ ${#improved_checks[@]} -gt 0 ]; then
+    echo ""
+    print_color "$BLUE" "Updating baseline file..."
+    
+    TEMP_BASELINE="/tmp/baseline-update-$$.txt"
+    cp "$EXPECTED_RESULTS" "$TEMP_BASELINE"
+    
+    for check_id in "${improved_checks[@]}"; do
+        # Skip if UPDATE_CHECK_ID is set and doesn't match
+        if [ -n "$UPDATE_CHECK_ID" ] && [ "$check_id" != "$UPDATE_CHECK_ID" ]; then
+            continue
+        fi
+        
+        # Remove lines for this check from baseline
+        grep -v "^$check_id|" "$TEMP_BASELINE" > "$TEMP_BASELINE.new" || true
+        mv "$TEMP_BASELINE.new" "$TEMP_BASELINE"
+        print_color "$GREEN" "  ✓ Removed check $check_id from baseline (now passing)"
+    done
+    
+    # Update the "Last updated" comment
+    sed -i '' "s/# Last updated: .*/# Last updated: $(date +%Y-%m-%d)/" "$TEMP_BASELINE"
+    
+    # Replace the baseline file
+    mv "$TEMP_BASELINE" "$EXPECTED_RESULTS"
+    print_color "$GREEN" "✅ Baseline file updated: $EXPECTED_RESULTS"
+fi
 
 # Print summary
 echo ""
@@ -167,17 +234,54 @@ echo ""
 total_actual=$(wc -l < "$ACTUAL_RESULTS" | xargs)
 total_expected=$(wc -l < "$EXPECTED_RESULTS_PARSED" | xargs)
 
+# Count known issues still in baseline
+known_issues=0
+known_warns=0
+known_info=0
+while IFS='|' read -r check_id status reason; do
+    if [ "$status" = "WARN" ] || [ "$status" = "FAIL" ]; then
+        ((known_warns++))
+    elif [ "$status" = "INFO" ]; then
+        ((known_info++))
+    fi
+    ((known_issues++))
+done < "$EXPECTED_RESULTS_PARSED"
+
 if [ $unexpected_failures -eq 0 ] && [ $unexpected_passes -eq 0 ]; then
     print_color "$GREEN" "✅ All checks match baseline expectations!"
     echo ""
     print_color "$GREEN" "Total checks scanned: $total_actual"
-    print_color "$GREEN" "Expected baseline items: $total_expected"
+    
+    if [ $known_warns -gt 0 ]; then
+        echo ""
+        print_color "$YELLOW" "Known issues (baselined):"
+        print_color "$YELLOW" "  - WARN/FAIL: $known_warns checks"
+        if [ $known_info -gt 0 ]; then
+            print_color "$BLUE" "  - INFO: $known_info checks"
+        fi
+        
+        # Show specific checks
+        print_color "$YELLOW" ""
+        print_color "$YELLOW" "Outstanding WARN/FAIL checks:"
+        while IFS='|' read -r check_id status reason; do
+            if [ "$status" = "WARN" ] || [ "$status" = "FAIL" ]; then
+                print_color "$YELLOW" "  • $check_id ($status): $reason"
+            fi
+        done < "$EXPECTED_RESULTS_PARSED"
+    fi
+    
+    [ "$CLEANUP_TEMP" = true ] && rm -f "$SCAN_RESULTS"
     exit 0
 else
     print_color "$RED" "Unexpected issues found:"
     print_color "$RED" "  - New or changed failures: $unexpected_failures"
     if [ $unexpected_passes -gt 0 ]; then
         print_color "$GREEN" "  - Improved (now passing): $unexpected_passes"
+    fi
+    
+    if [ $known_warns -gt 0 ]; then
+        echo ""
+        print_color "$YELLOW" "Known issues (baselined): $known_warns WARN/FAIL, $known_info INFO"
     fi
     echo ""
 
@@ -188,10 +292,19 @@ else
         print_color "$YELLOW" "  1. Review the unexpected failures above"
         print_color "$YELLOW" "  2. Fix the security issues, OR"
         print_color "$YELLOW" "  3. Add them to $EXPECTED_RESULTS with justification"
+        [ "$CLEANUP_TEMP" = true ] && rm -f "$SCAN_RESULTS"
         exit 1
     else
-        print_color "$GREEN" "✅ No new failures, but there were some changes."
-        print_color "$YELLOW" "Consider updating the baseline file: $EXPECTED_RESULTS"
+        if [ "$UPDATE_BASELINE" = true ]; then
+            print_color "$GREEN" "✅ Baseline updated successfully!"
+        else
+            print_color "$GREEN" "✅ No new failures, but there were some changes."
+            print_color "$YELLOW" "Consider updating the baseline file with: --update"
+        fi
+        [ "$CLEANUP_TEMP" = true ] && rm -f "$SCAN_RESULTS"
         exit 0
     fi
 fi
+
+# Cleanup temp file if we created it
+[ "$CLEANUP_TEMP" = true ] && rm -f "$SCAN_RESULTS"

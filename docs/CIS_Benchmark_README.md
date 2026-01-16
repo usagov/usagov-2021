@@ -22,7 +22,7 @@ cd /path/to/usagov-2021
 
 ```bash
 # Compare scan results against expected baseline
-./bin/check-cis-results /tmp/cis-results.log
+./bin/scan-cis-with-benchmark
 
 # If scan passes:
 # ✅ All checks match baseline expectations!
@@ -41,7 +41,7 @@ cd /path/to/usagov-2021
 ### Scripts
 
 - **[bin/scan-container-cis](../bin/scan-container-cis)** - Runs Docker Bench for Security scan on containers
-- **[bin/check-cis-results](../bin/check-cis-results)** - Compares scan results against expected baseline
+- **[bin/scan-cis-with-benchmark](../bin/scan-cis-with-benchmark)** - Runs CIS scan and compares against expected baseline
 
 ### Configuration
 
@@ -98,10 +98,12 @@ The CIS scan checks two main areas:
 
 ## Using the Comparison Script
 
-The `check-cis-results` script automates baseline checking:
+The `scan-cis-with-benchmark` script runs the scan and validates against baseline:
 
 ```bash
-./bin/check-cis-results <scan-results.log> [expected-results.txt]
+./bin/scan-cis-with-benchmark                            # Run scan automatically
+./bin/scan-cis-with-benchmark <scan-results.log>         # Use existing scan file
+./bin/scan-cis-with-benchmark <scan-results.log> <baseline.txt>
 ```
 
 ### Exit Codes
@@ -157,7 +159,7 @@ Example entry:
       ./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log
       
       # Compare against baseline
-      ./bin/check-cis-results /tmp/results/scan-cms-cis.log
+      ./bin/scan-cis-with-benchmark /tmp/results/scan-cms-cis.log
       CIS_RESULT=$?
       
       # Fail build if unexpected issues
@@ -218,7 +220,7 @@ Check the baseline for platform-specific exceptions.
 ./bin/scan-container-cis | tee /tmp/test-results.log
 
 # Compare against baseline
-./bin/check-cis-results /tmp/test-results.log
+./bin/scan-cis-with-benchmark /tmp/test-results.log
 
 # If it passes, you're good to commit!
 ```

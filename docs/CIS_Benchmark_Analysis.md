@@ -225,7 +225,7 @@ Develop script to compare actual vs expected results:
 
 ```bash
 #!/bin/bash
-# File: bin/check-cis-results
+# File: bin/scan-cis-with-benchmark
 
 # Parse docker-bench output
 # Compare against expected-cis-results.txt
@@ -245,7 +245,7 @@ Modify `.circleci/config.yml` to:
       ./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log
 
       # Compare against baseline
-      ./bin/check-cis-results /tmp/results/scan-cms-cis.log .circleci/expected-cis-results.txt
+      ./bin/scan-cis-with-benchmark /tmp/results/scan-cms-cis.log .circleci/expected-cis-results.txt
       CIS_RESULT=$?
 
       # Fail build if unexpected issues
