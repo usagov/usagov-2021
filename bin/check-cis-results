@@ -1,0 +1,197 @@
+#!/bin/bash
+#
+# CIS Benchmark Results Comparison Script
+#
+# This script compares actual CIS scan results against expected baseline results.
+# It exits with code 0 if all results match expectations, and exits with code 1
+# if any unexpected issues are found.
+#
+# Usage:
+#   ./bin/check-cis-results <scan-results.log> [expected-results.txt]
+#
+# Arguments:
+#   scan-results.log      - Log file from docker-bench-security scan
+#   expected-results.txt  - Optional baseline file (defaults to .circleci/expected-cis-results.txt)
+#
+
+set -e
+
+# Colors for output (if terminal supports it)
+if [ -t 1 ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    NC=''
+fi
+
+# Function to print colored output
+print_color() {
+    local color=$1
+    shift
+    echo -e "${color}$@${NC}"
+}
+
+# Check arguments
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <scan-results.log> [expected-results.txt]"
+    echo ""
+    echo "Example:"
+    echo "  $0 /tmp/results/scan-cms-cis.log"
+    echo "  $0 /tmp/results/scan-cms-cis.log .circleci/expected-cis-results.txt"
+    exit 1
+fi
+
+SCAN_RESULTS="$1"
+EXPECTED_RESULTS="${2:-.circleci/expected-cis-results.txt}"
+
+# Check if scan results file exists
+if [ ! -f "$SCAN_RESULTS" ]; then
+    print_color "$RED" "ERROR: Scan results file not found: $SCAN_RESULTS"
+    exit 1
+fi
+
+# Check if expected results file exists
+if [ ! -f "$EXPECTED_RESULTS" ]; then
+    print_color "$YELLOW" "WARNING: Expected results file not found: $EXPECTED_RESULTS"
+    print_color "$YELLOW" "Running in baseline mode - will create expected results file."
+
+    # Create baseline file
+    echo "# CIS Benchmark Expected Results" > "$EXPECTED_RESULTS"
+    echo "# Generated: $(date)" >> "$EXPECTED_RESULTS"
+    echo "# Format: check_id|status|container_pattern|reason" >> "$EXPECTED_RESULTS"
+    echo "#" >> "$EXPECTED_RESULTS"
+    echo "# This file defines the expected/acceptable CIS scan results." >> "$EXPECTED_RESULTS"
+    echo "# Any results not matching this baseline will cause the build to fail." >> "$EXPECTED_RESULTS"
+    echo "" >> "$EXPECTED_RESULTS"
+
+    # Extract all WARN/INFO findings and add to baseline
+    grep -E '^\[WARN\]|^\[INFO\]' "$SCAN_RESULTS" | while IFS= read -r line; do
+        # Parse the check ID and description
+        if [[ $line =~ ^\[(WARN|INFO)\][[:space:]]([0-9]+\.[0-9]+) ]]; then
+            status="${BASH_REMATCH[1]}"
+            check_id="${BASH_REMATCH[2]}"
+            echo "${check_id}|${status}|.*|Baseline - review and update reason" >> "$EXPECTED_RESULTS"
+        fi
+    done
+
+    print_color "$GREEN" "Created baseline file: $EXPECTED_RESULTS"
+    print_color "$YELLOW" "Please review and update with proper justifications for each item."
+    exit 0
+fi
+
+print_color "$BLUE" "============================================"
+print_color "$BLUE" "CIS Benchmark Results Comparison"
+print_color "$BLUE" "============================================"
+echo ""
+print_color "$BLUE" "Scan Results:     $SCAN_RESULTS"
+print_color "$BLUE" "Expected Results: $EXPECTED_RESULTS"
+echo ""
+
+# Create temp files for storing results
+ACTUAL_RESULTS=$(mktemp)
+EXPECTED_RESULTS_PARSED=$(mktemp)
+trap "rm -f $ACTUAL_RESULTS $EXPECTED_RESULTS_PARSED" EXIT
+
+# Extract results from scan log (format: check_id status description)
+grep -E '^\[(WARN|INFO|PASS|FAIL|NOTE)\]' "$SCAN_RESULTS" | while IFS= read -r line; do
+    if [[ $line =~ ^\[(WARN|INFO|PASS|FAIL|NOTE)\][[:space:]]([0-9]+\.[0-9]+) ]]; then
+        status="${BASH_REMATCH[1]}"
+        check_id="${BASH_REMATCH[2]}"
+        desc=$(echo "$line" | sed -E 's/^\[(WARN|INFO|PASS|FAIL|NOTE)\][[:space:]]+[0-9]+\.[0-9]+[[:space:]]*-?[[:space:]]*//')
+        echo "$check_id|$status|$desc" >> "$ACTUAL_RESULTS"
+    fi
+done
+
+# Load expected results (ignore comments and empty lines)
+grep -v '^#' "$EXPECTED_RESULTS" | grep -v '^[[:space:]]*$' | while IFS='|' read -r check_id status pattern reason; do
+    # Trim whitespace
+    check_id=$(echo "$check_id" | xargs)
+    status=$(echo "$status" | xargs)
+
+    if [ -n "$check_id" ] && [ -n "$status" ]; then
+        echo "$check_id|$status|$reason" >> "$EXPECTED_RESULTS_PARSED"
+    fi
+done
+
+# Compare results
+unexpected_failures=0
+unexpected_passes=0
+
+print_color "$BLUE" "Analyzing results..."
+echo ""
+
+# Check for unexpected failures or changes
+while IFS='|' read -r check_id actual_status desc; do
+    # Look for this check in expected results
+    expected_line=$(grep "^$check_id|" "$EXPECTED_RESULTS_PARSED" 2>/dev/null || true)
+
+    if [ -z "$expected_line" ]; then
+        # This check is not in expected results
+        if [ "$actual_status" = "WARN" ] || [ "$actual_status" = "FAIL" ]; then
+            print_color "$RED" "❌ UNEXPECTED: Check $check_id is $actual_status (not in baseline)"
+            print_color "$RED" "   $desc"
+            ((unexpected_failures++))
+        fi
+    else
+        # Check exists in expected results
+        expected_status=$(echo "$expected_line" | cut -d'|' -f2)
+
+        if [ "$actual_status" != "$expected_status" ]; then
+            if [ "$actual_status" = "WARN" ] || [ "$actual_status" = "FAIL" ]; then
+                print_color "$RED" "❌ UNEXPECTED: Check $check_id changed from $expected_status to $actual_status"
+                print_color "$RED" "   $desc"
+                ((unexpected_failures++))
+            else
+                print_color "$GREEN" "✅ IMPROVED: Check $check_id changed from $expected_status to $actual_status"
+                print_color "$GREEN" "   $desc"
+                ((unexpected_passes++))
+            fi
+        fi
+    fi
+done < "$ACTUAL_RESULTS"
+
+# Print summary
+echo ""
+print_color "$BLUE" "============================================"
+print_color "$BLUE" "Summary"
+print_color "$BLUE" "============================================"
+echo ""
+
+total_actual=$(wc -l < "$ACTUAL_RESULTS" | xargs)
+total_expected=$(wc -l < "$EXPECTED_RESULTS_PARSED" | xargs)
+
+if [ $unexpected_failures -eq 0 ] && [ $unexpected_passes -eq 0 ]; then
+    print_color "$GREEN" "✅ All checks match baseline expectations!"
+    echo ""
+    print_color "$GREEN" "Total checks scanned: $total_actual"
+    print_color "$GREEN" "Expected baseline items: $total_expected"
+    exit 0
+else
+    print_color "$RED" "Unexpected issues found:"
+    print_color "$RED" "  - New or changed failures: $unexpected_failures"
+    if [ $unexpected_passes -gt 0 ]; then
+        print_color "$GREEN" "  - Improved (now passing): $unexpected_passes"
+    fi
+    echo ""
+
+    if [ $unexpected_failures -gt 0 ]; then
+        print_color "$RED" "❌ BUILD FAILED: Unexpected security issues found!"
+        echo ""
+        print_color "$YELLOW" "To fix this:"
+        print_color "$YELLOW" "  1. Review the unexpected failures above"
+        print_color "$YELLOW" "  2. Fix the security issues, OR"
+        print_color "$YELLOW" "  3. Add them to $EXPECTED_RESULTS with justification"
+        exit 1
+    else
+        print_color "$GREEN" "✅ No new failures, but there were some changes."
+        print_color "$YELLOW" "Consider updating the baseline file: $EXPECTED_RESULTS"
+        exit 0
+    fi
+fi
