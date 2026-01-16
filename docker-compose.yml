@@ -10,6 +10,8 @@ services:
         - BGID
         - HOST_ARCH
         - BUILD_ENV
+    security_opt:
+      - no-new-privileges:true
     ports:
       - 80:80
       - 443:443
@@ -122,8 +124,10 @@ services:
   database:
     container_name: database
     image: mariadb:10
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - 3306:3306
+      - 127.0.0.1:3306:3306
     volumes:
       - .:/app:delegated
       - database_data:/var/lib/mysql:delegated
@@ -142,6 +146,8 @@ services:
       dockerfile: .docker/Dockerfile-minio
       args:
         - BUILD_ENV
+    security_opt:
+      - no-new-privileges:true
     # ports:
     #   - 9000:9000
     #   - 9001:9001
@@ -164,6 +170,8 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile-cypress
+    security_opt:
+      - no-new-privileges:true
     env_file:
       - ./env.local
       - ./env.local.cypress
@@ -188,6 +196,8 @@ services:
         - GITBRANCH
         - GITTAG
         - BUILD_ENV
+    security_opt:
+      - no-new-privileges:true
     command: echo "Shutting Down on Purpose"
     volumes:
       - .:/var/www:delegated
@@ -203,6 +213,8 @@ services:
       args:
         - BUID
         - BGID
+    security_opt:
+      - no-new-privileges:true
     command: npm run watch --prefix /var/www/web/themes/custom/usagov
     volumes:
       - .:/var/www:delegated
@@ -215,8 +227,10 @@ services:
     container_name: cache
     build:
       dockerfile: .docker/Dockerfile-cache
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - 6379:6379
+      - 127.0.0.1:6379:6379
     networks:
       - gsa-gov
 
