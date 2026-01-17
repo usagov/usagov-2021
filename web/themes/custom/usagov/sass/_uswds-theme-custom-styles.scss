@@ -828,7 +828,7 @@ select:not([disabled]):focus,
   }
 
   &:focus {
-    outline: 2px solid color('orange-warm-50v');
+    // outline: 2px solid color('orange-warm-50v');
     outline-offset: 2px;
   }
 }
@@ -1093,139 +1093,6 @@ input::-webkit-textfield-decoration-container {
   }
 }
 
-// Pagination styles
-.usa-pagination {
-  // Ensure pager is visible on all screen sizes
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-
-  .usa-pagination__list {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .usa-pagination__item {
-    display: flex;
-    align-items: center;
-  }
-
-  .usa-pagination__overflow {
-    display: flex;
-    align-items: center;
-    padding: 0 0.5rem;
-    color: color('gray-70');
-    font-weight: 600;
-  }
-
-  .usa-pagination__arrow {
-    .usa-pagination__link {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 0.75rem;
-      text-decoration: none;
-      color: color('blue-warm-70v');
-      font-weight: 600;
-      transition: all 0.15s ease;
-
-      &:hover {
-        color: color('blue-warm-80v');
-        text-decoration: underline;
-      }
-
-      &:focus {
-        outline: 2px solid color('orange-warm-50v');
-        outline-offset: 2px;
-      }
-
-      .usa-icon {
-        width: 1.5rem;
-        height: 1.5rem;
-        fill: currentColor;
-      }
-
-      .usa-pagination__link-text {
-        margin: 0 0.25rem;
-      }
-    }
-  }
-
-  .usa-pagination__page-no {
-    .usa-pagination__button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.5rem 0.75rem;
-      border: 2px solid color('blue-warm-70v');
-      border-radius: 0.25rem;
-      background-color: white;
-      color: color('blue-warm-70v');
-      font-weight: 600;
-      min-width: 2.5rem;
-      text-decoration: none;
-      cursor: pointer;
-
-      &:hover {
-        background-color: color('blue-warm-70v');
-        border-color: color('blue-warm-70v');
-        color: white;
-      }
-
-      &:focus {
-        outline: 2px solid color('orange-warm-50v');
-        outline-offset: 2px;
-      }
-
-      &.usa-current {
-        background-color: color('blue-warm-70v');
-        border-color: color('blue-warm-70v');
-        color: white;
-        cursor: default;
-
-        &:hover {
-          background-color: color('blue-warm-70v');
-          border-color: color('blue-warm-70v');
-          color: white;
-        }
-      }
-    }
-  }
-
-  // Mobile-specific adjustments
-  @media (max-width: 639px) {
-    .usa-pagination__list {
-      gap: 0.25rem;
-      flex-wrap: wrap;
-    }
-
-    .usa-pagination__arrow {
-      .usa-pagination__link-text {
-        // Hide text on mobile, show only icons
-        position: absolute;
-        left: -10000px;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-      }
-    }
-
-    .usa-pagination__page-no,
-    .usa-pagination__arrow {
-      .usa-pagination__button,
-      .usa-pagination__link {
-        min-width: 2.5rem;
-        padding: 0.5rem;
-        justify-content: center;
-      }
-    }
-  }
-}
 
 // Blog instruction text responsive display utilities
 .blog-instruction-text {
