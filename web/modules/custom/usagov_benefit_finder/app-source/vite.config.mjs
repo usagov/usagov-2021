@@ -96,11 +96,11 @@ export default defineConfig({
       output: {
         manualChunks: {},
         entryFileNames: `js/benefit-finder.min.js`,
-        assetFileNames: (assetInfo) => {
+        assetFileNames: assetInfo => {
           if (assetInfo.name.endsWith('.css')) {
-            return 'css/benefit-finder.min.css';
+            return 'css/benefit-finder.min.css'
           }
-          return 'assets/[name].[ext]';
+          return 'assets/[name].[ext]'
         },
       },
     },
