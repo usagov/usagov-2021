@@ -1,0 +1,11 @@
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-legend {
+  @include subheadings;
+
+  font-weight: 600;
+  margin: 0 0 rem(8px);
+  padding: 0;
+  max-width: fit-content;
+}

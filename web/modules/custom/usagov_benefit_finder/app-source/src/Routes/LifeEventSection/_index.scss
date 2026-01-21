@@ -1,0 +1,122 @@
+@use '@styles/colors' as color;
+@use '@styles/breakpoints' as *;
+@use '@styles/sizes' as *;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-verify-selections-view {
+  background-color: color.$dark-blue;
+  margin: 0;
+  padding-bottom: rem(64px);
+
+  .bf-grid-container.grid-container {
+    max-width: $form-container-max-width;
+    padding: 0 rem(20px);
+
+    @media (width >= calc($form-container-max-width + rem(24px))) {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+}
+
+.bf-section-wrapper {
+  background-color: color.$white;
+  border: rem(1px) solid color.$white;
+  border-radius: rem(12px);
+
+  .bf-usa-button {
+    margin-bottom: rem(16px);
+  }
+}
+
+.bf-section-info {
+  margin: rem(48px) rem(16px);
+}
+
+.bf-section-nav-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .bf-usa-button {
+    min-width: rem(120px);
+  }
+
+  .bf-usa-modal-group {
+    width: 100%;
+  }
+
+  button,
+  .bf-usa-modal-group a {
+    margin: 0;
+  }
+
+  @media (width >= $tablet) {
+    .bf-usa-button:first-of-type {
+      margin-right: rem(40px);
+    }
+
+    .bf-usa-modal-group {
+      width: auto;
+    }
+
+    button,
+    .bf-usa-modal-group a {
+      margin-bottom: rem(16px);
+    }
+  }
+}
+
+.bf-section-heading {
+  background-color: color.$dark-blue;
+  color: color.$white;
+  margin: 0;
+  padding: rem(48px) 0 rem(30rem);
+
+  @media (width >= $desktop) {
+    padding: rem(64px) rem(16px);
+  }
+}
+
+#bf-section {
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: rem(40px);
+
+  .bf-form-heading-group {
+    padding-bottom: rem(30px);
+
+    h2.bf-form-heading {
+      margin-bottom: 0;
+      margin-top: rem(30px);
+      padding-bottom: rem(8px);
+    }
+
+    .bf-section-sub-heading p {
+      @include subheadings;
+
+      margin: 0;
+    }
+  }
+}
+
+.bf-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: rem(20px);
+
+  .bf-usa-radio__label {
+    margin-right: rem(14px);
+  }
+}
+
+@media (width >= $desktop) {
+  .bf-section-info {
+    margin: rem(64px);
+  }
+
+  .bf-radio-group {
+    display: inline;
+  }
+}

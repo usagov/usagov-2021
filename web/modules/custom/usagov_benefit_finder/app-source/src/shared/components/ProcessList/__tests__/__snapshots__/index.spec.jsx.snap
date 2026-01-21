@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ProcessList > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <ol
+    class="bf-usa-process-list usa-process-list"
+  />
+</DocumentFragment>
+`;

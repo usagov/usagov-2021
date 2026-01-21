@@ -5,6 +5,11 @@
 
 ```text
 /usagov_benefit_finder
+  |-app-source                    ← React application source code
+    |-src                          React components and logic
+    |-package.json                 Dependencies (security-fixed)
+    |-package-lock.json            Locked dependency versions
+    |-vite.config.mjs              Build configuration
   |-config
   |-modules
     |-usagov_benefit_finder_api
@@ -15,9 +20,9 @@
     |-usagov_benefit_finder_app
       |-usagov_benefit_finder_page
         |-css
-          benefit-finder.min.css
+          benefit-finder.min.css   ← Built by app-source
         |-js
-          benefit-finder.min.js
+          benefit-finder.min.js    ← Built by app-source
         |-templates
           page--benefit-finder-life-event.html.twig
         usagov_benefit_finder_page.libraries.yml
@@ -38,12 +43,13 @@
 
 | File or folder                              | Description                                                        |
 |---------------------------------------------|--------------------------------------------------------------------|
+| `app-source/`                               | **React application source code (built during Docker build)**      |
 | `usagov_benefit_finder_api`                 | Benefit finder API module                                          |
 | `LifeEventController.php`                   | Process benefit finder content to generate JSON data and JSON file |
 | `usagov_benefit_finder_api.module`          | JSON file generation batch job                                     |
 | `usagov_benefit_finder_page`                | Benefit finder page module                                         |
-| `benefit-finder.min.css`                    | Benefit finder app css                                             |
-| `benefit-finder.min.js`                     | Benefit finder app JavaScript                                      |
+| `benefit-finder.min.css`                    | Benefit finder app css (generated from app-source)                 |
+| `benefit-finder.min.js`                     | Benefit finder app JavaScript (generated from app-source)          |
 | `page--benefit-finder-life-event.html.twig` | Benefit finder page template                                       |
 | `usagov_benefit_finder_page.libraries.yml`  | Benefit finder app library                                         |
 | `usagov_benefit_finder_page.module`         | Benefit finder page theme, preprocess, attach library              |
@@ -51,6 +57,48 @@
 | `usagov_benefit_finder_content.module`      | Provide benefit finder content form validation                     |
 | `src/Form/BenefitFinderSettingsForm.php`    | Form to set up automate JSON data file generation                  |
 | `src/Traits/BenefitFinderTrait.php`         | Functions to get benefit finder node                               |
+
+## React Application (app-source/)
+
+The benefit finder React application source code lives in the `app-source/` directory within this module. 
+It is built during the Docker build process and outputs minified assets to the module's library directory.
+
+### Building the React App
+
+**Automatic build (via Docker):**
+The React app is automatically built when you run `bin/build` or during CircleCI deployment. 
+The Dockerfile includes a `benefit-finder-builder` stage that:
+1. Installs dependencies from package-lock.json
+2. Runs `npm run build`
+3. Outputs `benefit-finder.min.js` and `benefit-finder.min.css` to the module library
+
+**Manual local development:**
+```bash
+cd web/modules/custom/usagov_benefit_finder/app-source
+
+# First time: install dependencies
+npm ci
+
+# Development mode with hot reload
+npm start
+
+# Run tests
+npm test
+
+# Build for production (outputs to ../modules/usagov_benefit_finder_app/usagov_benefit_finder_page/)
+npm run build
+```
+
+### React App Technologies
+- **React 18.3.1** - UI framework
+- **React Router 7.1.4** - Client-side routing
+- **Vite** - Build tool and bundler
+- **Vitest** - Testing framework
+- **USWDS** - US Web Design System styles
+
+### Security
+All dependencies have been updated to fix known vulnerabilities. The `package-lock.json` file 
+locks dependency versions to ensure consistent, secure builds.
 
 ## Benefit finder API module
 

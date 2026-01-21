@@ -1,0 +1,15 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-usa-select {
+  &.usa-input--error {
+    padding: rem(8px) rem(32px) rem(8px) rem(8px);
+    height: auto;
+    border-color: color.$alert-red;
+
+    &:focus {
+      outline-offset: rem(2px);
+    }
+  }
+}
