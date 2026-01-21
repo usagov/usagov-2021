@@ -14,4 +14,3 @@ applications:
   stack: cflinuxfs4
   instances: 1
   random-route: false
-
