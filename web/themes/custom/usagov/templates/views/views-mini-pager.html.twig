@@ -27,7 +27,7 @@
              rel="prev"{{ items.previous.attributes|without('href', 'title', 'rel') }}
              aria-label="{{ 'Previous page (Page @page)'|t({'@page': items.current - 1}) }}">
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#chevron_left"></use>
+              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#navigate_before"></use>
             </svg>
             <span class="usa-pagination__link-text">{{ 'Previous'|t }}</span>
           </a>
@@ -51,7 +51,7 @@
              aria-label="{{ 'Next page (Page @page)'|t({'@page': items.current + 1}) }}">
             <span class="usa-pagination__link-text">{{ 'Next'|t }}</span>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#chevron_right"></use>
+              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#navigate_next"></use>
             </svg>
           </a>
         </li>
