@@ -57,8 +57,7 @@ for page in pages:
 print(f"Found {len(objects_to_delete)} objects to delete.")
 for i in range(0, len(objects_to_delete), 1000):
     batch = objects_to_delete[i:i + 1000]
-    # TODO: delete this after reviewing logs of a dry run.
-    # s3.delete_objects(Bucket=bucket, Delete={"Objects": batch})
+    s3.delete_objects(Bucket=bucket, Delete={"Objects": batch})
     print(f"Deleted {len(batch)} objects...")
 
-# print("Log pruning complete.")
+print("Log pruning complete.")

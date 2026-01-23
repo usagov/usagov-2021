@@ -217,24 +217,35 @@ class MobileMenuBlock extends AbstractMenuBlock {
 
     // Check if we have an active link in the blog menu
     if ($active = $this->trail->getActiveLink($menuID)) {
-      // We're on a specific blog page - use normal active trail logic
+      // We're on a specific blog page - show only "Our Blog" in active trail
+      // with all years/months as nested children with proper active marking
       $crumbs = $this->menuLinkManager->getParentIds($active->getPluginId());
       $items = $this->getMenuTreeItems($menuID, $crumbs, $active, maxLevels: -1);
-      $twigVars = $this->prepareMenuItemsForTemplate($items, $active);
 
-      // Add "Our Blog" as the root of the active trail
+      // Mark items in the active trail within the full menu
+      $allYears = $fullItems['#items'] ?? [];
+      $this->markBlogActiveTrail($allYears, $active);
+
+      // Create "Our Blog" item with all years as children
       $ourBlogItem = [
         'title' => 'Our Blog',
         'url' => Url::fromUri('internal:/blog'),
-        'below' => $fullItems['#items'] ?? [],
+        'below' => $allYears,
         'in_active_trail' => TRUE,
         'active' => FALSE,
       ];
 
-      // Prepend "Our Blog" to the active trail
-      array_unshift($twigVars['#active_trail'], $ourBlogItem);
+      // Only show "Our Blog" in the active trail, with everything as nested children
+      $twigVars = [
+        '#active_trail' => [$ourBlogItem],
+        '#found_active_item' => TRUE,
+        '#active_item_has_children' => TRUE,
+        '#siblings_of_active_item' => [],
+        '#submenu' => [],
+        '#show_all_levels' => TRUE,
+      ];
 
-      return $this->renderItems($items, $twigVars, $menuID);
+      return $this->renderItems($fullItems, $twigVars, $menuID);
     }
 
     // No active blog page - show the full menu with "Our Blog" at the top
@@ -255,6 +266,62 @@ class MobileMenuBlock extends AbstractMenuBlock {
     ];
 
     return $this->renderItems($fullItems, $twigVars, $menuID);
+  }
+
+  /**
+   * Mark items in active trail within the blog menu structure.
+   *
+   * @param array<string, mixed> &$items All year items from the full menu
+   * @param \Drupal\Core\Menu\MenuLinkInterface $active The active menu link
+   */
+  private function markBlogActiveTrail(array &$items, MenuLinkInterface $active): void {
+    $activeUrl = $active->getUrlObject()->toString();
+
+    foreach ($items as $yearKey => &$year) {
+      $yearUrl = isset($year['url']) ? $year['url']->toString() : '';
+
+      // Check if we're on this year page or a child of it
+      $yearInTrail = FALSE;
+      if ($yearUrl && (str_starts_with($activeUrl, $yearUrl) || $yearUrl === $activeUrl)) {
+        $yearInTrail = TRUE;
+        if ($yearUrl === $activeUrl) {
+          $year['active'] = TRUE;
+        }
+      }
+
+      // Check months
+      if (isset($year['below'])) {
+        foreach ($year['below'] as $monthKey => &$month) {
+          $monthUrl = isset($month['url']) ? $month['url']->toString() : '';
+
+          // Check if we're on this month page or a child of it
+          if ($monthUrl && (str_starts_with($activeUrl, $monthUrl) || $monthUrl === $activeUrl)) {
+            $yearInTrail = TRUE;
+            if ($monthUrl === $activeUrl) {
+              $month['active'] = TRUE;
+            }
+            $month['in_active_trail'] = TRUE;
+          }
+
+          // Check posts
+          if (isset($month['below'])) {
+            foreach ($month['below'] as &$post) {
+              $postUrl = isset($post['url']) ? $post['url']->toString() : '';
+              if ($postUrl === $activeUrl) {
+                $yearInTrail = TRUE;
+                $month['in_active_trail'] = TRUE;
+                $post['active'] = TRUE;
+                $post['in_active_trail'] = TRUE;
+              }
+            }
+          }
+        }
+      }
+
+      if ($yearInTrail) {
+        $year['in_active_trail'] = TRUE;
+      }
+    }
   }
 
 }

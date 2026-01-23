@@ -36,14 +36,37 @@ ul.navigation__items {
     @include u-text('white');
   }
 
+  .navigation__item > a {
+    border-left: 0.5rem solid transparent;
+  }
+
   .active > a {
-    border-left: 0.5rem solid color('red-50');
+    border-left-color: color('red-50');
     color: color('red-50');
   }
 
   .sibling > a {
     font-weight: normal;
     margin-left: 0.5rem;
+  }
+
+  // Blog menu specific indentation
+  .blog-year > a {
+    padding-left: 3rem;
+  }
+
+  .blog-month > a {
+    padding-left: 5rem;
+  }
+
+  .blog-post {
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
+    > a {
+      padding-left: 7rem;
+    }
   }
 }
 
@@ -167,7 +190,7 @@ ul.navigation__items {
 .blog-instruction-mobile {
   background-color: color('blue-5');
   border-top: 1px solid color('blue-30');
-  
+
   p {
     color: color('blue-80v');
     margin-bottom: 0;
