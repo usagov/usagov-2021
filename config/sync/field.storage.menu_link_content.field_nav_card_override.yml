@@ -1,0 +1,24 @@
+uuid: 00000000-0000-0000-0000-000000000000
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - menu_link_content
+    - menu_item_fields
+    - text
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: menu_link_content.field_nav_card_override
+field_name: field_nav_card_override
+entity_type: menu_link_content
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
