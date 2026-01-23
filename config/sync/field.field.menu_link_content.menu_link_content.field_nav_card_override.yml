@@ -4,7 +4,9 @@ status: true
 dependencies:
   config:
     - field.storage.menu_link_content.field_nav_card_override
+    - filter.format.plain_text
   module:
+    - allowed_formats
     - menu_link_content
     - menu_item_fields
     - text
@@ -20,3 +22,7 @@ default_value: {  }
 default_value_callback: ''
 settings: {  }
 field_type: text_long
+third_party_settings:
+  allowed_formats:
+    allowed_formats:
+      - plain_text
