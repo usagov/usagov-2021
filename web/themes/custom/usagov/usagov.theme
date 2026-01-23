@@ -392,7 +392,7 @@ function usagov_preprocess_block(array &$variables): void {
           $menu_link_entity = \Drupal::entityTypeManager()
             ->getStorage('menu_link_content')
             ->loadByProperties(['uuid' => $child['original_link']->getDerivativeId()]);
-          
+
           if ($menu_link_entity) {
             $menu_link = reset($menu_link_entity);
             if ($menu_link && $menu_link->hasField('field_nav_card_override')) {
@@ -403,7 +403,7 @@ function usagov_preprocess_block(array &$variables): void {
             }
           }
         }
-        
+
         // If no override, fall back to the node fields
         if (!isset($data->description) && isset($child['url']->getRouteParameters()['node'])) {
           $childNid = $child['url']->getRouteParameters()['node'];
