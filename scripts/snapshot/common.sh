@@ -697,28 +697,51 @@ prepare_drupal_for_backup() {
 }
 
 # Restore Drupal to normal operation after backup/restore
-# Disables maintenance mode first, then re-enables tome
+# Restores maintenance mode and tome to their original saved state
+# Uses SAVED_MAINTENANCE_MODE and SAVED_TOME_DISABLED set by prepare_drupal_for_backup
 # Returns: 0 on success, 1 on failure
 restore_drupal_state() {
-    # Disable maintenance mode first
-    print_status $YELLOW "🚧 Disabling maintenance mode..."
-    if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
+    # Use saved state values, default to "normal" state if not set
+    local target_maintenance_mode="${SAVED_MAINTENANCE_MODE:-0}"
+    local target_tome_disabled="${SAVED_TOME_DISABLED:-0}"
+    
+    print_status $YELLOW "🔄 Restoring Drupal to original state..."
+    
+    # Restore maintenance mode to saved state
+    print_status $YELLOW "🚧 Restoring maintenance mode to: $target_maintenance_mode..."
+    if drush sset system.maintenance_mode "$target_maintenance_mode" 2>/dev/null && drush cr 2>/dev/null; then
         local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
-        print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
+        if [ "$target_maintenance_mode" = "1" ]; then
+            print_status $GREEN "✅ Maintenance mode restored: enabled"
+        else
+            print_status $GREEN "✅ Maintenance mode restored: disabled"
+        fi
     else
-        print_status $RED "❌ Failed to disable maintenance mode"
+        print_status $RED "❌ Failed to restore maintenance mode"
         # Continue anyway
     fi
 
-    # Re-enable tome
-    print_status $YELLOW "🔓 Re-enabling Tome..."
-    if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
-        print_status $RED "❌ Failed to re-enable Tome"
-        return 1
+    # Restore tome to saved state
+    if [ "$target_tome_disabled" = "1" ]; then
+        # Tome was originally disabled, keep it disabled
+        print_status $YELLOW "🔒 Restoring Tome to: disabled..."
+        if drush sset usagov.tome_run_disabled 1 2>/dev/null; then
+            print_status $GREEN "✅ Tome restored: disabled"
+        else
+            print_status $RED "❌ Failed to restore Tome state"
+            return 1
+        fi
+    else
+        # Tome was originally enabled, re-enable it
+        print_status $YELLOW "🔓 Restoring Tome to: enabled..."
+        if drush sdel usagov.tome_run_disabled 2>/dev/null; then
+            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+            print_status $GREEN "✅ Tome restored: enabled (disabled flag: ${tome_disabled:-none})"
+        else
+            print_status $RED "❌ Failed to restore Tome state"
+            return 1
+        fi
     fi
-
-    local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
-    print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
 
     return 0
 }
