@@ -1805,9 +1805,9 @@ delete_backup() {
 
         # Confirm deletion unless non-interactive
         if [ "$non_interactive" != "-y" ] && [ "$non_interactive" != "--non-interactive" ]; then
-            printf "${YELLOW}Are you sure you want to delete these backups? (yes/no): ${NC}"
+            printf "${YELLOW}Are you sure you want to delete these backups? (y/N): ${NC}"
             read -r confirmation
-            if [ "$confirmation" != "yes" ]; then
+            if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
                 print_status $YELLOW "Deletion cancelled."
                 continue
             fi
