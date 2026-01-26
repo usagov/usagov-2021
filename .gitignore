@@ -136,12 +136,7 @@ manifest-egress-vars.yml
 .buildpack/api-proxy/app/api-proxy-cache
 
 # Ignore git repositories that get cloned during logshipper deployment
-.buildpack/usagov-logshipper/cg-logshipper/.git
-.buildpack/usagov-logshipper/.git
-
-# But keep the cg-logshipper directory contents (without the .git folder)
-!.buildpack/usagov-logshipper/cg-logshipper/
-.buildpack/usagov-logshipper/cg-logshipper/.git/
+.buildpack/usagov-logshipper/cg-logshipper/
 
 bin/deploy/logs/*.log
 bin/cloudgov/test/nr/logs/*
