@@ -121,7 +121,7 @@ services:
 
   database:
     container_name: database
-    image: mariadb:10
+    image: mariadb:11.4
     ports:
       - 3306:3306
     volumes:
