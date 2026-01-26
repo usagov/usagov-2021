@@ -19,9 +19,9 @@
 # 4.1 - Running as root
 4.1|WARN|.*|Multiple containers running as root - to be fixed Q1 2026
 
-# 4.6 - No HEALTHCHECK in images  
-# Note: HEALTHCHECK added to Dockerfiles on 2026-01-14, will pass after rebuild
-4.6|WARN|.*|HEALTHCHECK added to Dockerfiles - will resolve after next build
+# 4.6 - No HEALTHCHECK in images
+# Cloud Foundry uses manifest-based healthchecks - Docker HEALTHCHECK would be ignored
+4.6|WARN|.*|Cloud Foundry uses manifest-based healthchecks
 
 # 4.7 - Update instructions alone
 4.7|INFO|.*|Update instructions - acceptable patterns
