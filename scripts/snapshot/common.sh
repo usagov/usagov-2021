@@ -524,7 +524,7 @@ SAVED_TOME_DISABLED=""
 get_current_drupal_state() {
     # Get current maintenance mode state (0 = disabled, 1 = enabled)
     SAVED_MAINTENANCE_MODE=$(drush sget system.maintenance_mode 2>/dev/null || echo "0")
-    
+
     # Get current tome disabled state (empty/null = enabled, 1 = disabled)
     local tome_state=$(drush sget usagov.tome_run_disabled 2>/dev/null)
     if [ -z "$tome_state" ] || [ "$tome_state" = "null" ] || [ "$tome_state" = "NULL" ]; then
@@ -532,7 +532,7 @@ get_current_drupal_state() {
     else
         SAVED_TOME_DISABLED="1"  # Tome is disabled
     fi
-    
+
     export SAVED_MAINTENANCE_MODE
     export SAVED_TOME_DISABLED
 }
@@ -633,13 +633,13 @@ prepare_drupal_for_backup() {
     # Save current state before making any changes
     print_status $YELLOW "💾 Recording current Drupal state..."
     get_current_drupal_state
-    
+
     if [ "$SAVED_MAINTENANCE_MODE" = "1" ]; then
         print_status $YELLOW "   Maintenance mode: already enabled"
     else
         print_status $YELLOW "   Maintenance mode: currently disabled"
     fi
-    
+
     if [ "$SAVED_TOME_DISABLED" = "1" ]; then
         print_status $YELLOW "   Tome status: already disabled"
     else
@@ -704,9 +704,9 @@ restore_drupal_state() {
     # Use saved state values, default to "normal" state if not set
     local target_maintenance_mode="${SAVED_MAINTENANCE_MODE:-0}"
     local target_tome_disabled="${SAVED_TOME_DISABLED:-0}"
-    
+
     print_status $YELLOW "🔄 Restoring Drupal to original state..."
-    
+
     # Restore maintenance mode to saved state
     print_status $YELLOW "🚧 Restoring maintenance mode to: $target_maintenance_mode..."
     if drush sset system.maintenance_mode "$target_maintenance_mode" 2>/dev/null && drush cr 2>/dev/null; then
