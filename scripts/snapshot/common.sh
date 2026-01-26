@@ -514,6 +514,29 @@ format_s3_summary() {
 # DRUPAL STATE MANAGEMENT
 # ===================================================================
 
+# Global variables to track saved Drupal state
+# These are set by prepare_drupal_for_backup and used by restore_drupal_state
+SAVED_MAINTENANCE_MODE=""
+SAVED_TOME_DISABLED=""
+
+# Get current Drupal state (maintenance mode and tome disabled status)
+# Returns: Sets SAVED_MAINTENANCE_MODE and SAVED_TOME_DISABLED
+get_current_drupal_state() {
+    # Get current maintenance mode state (0 = disabled, 1 = enabled)
+    SAVED_MAINTENANCE_MODE=$(drush sget system.maintenance_mode 2>/dev/null || echo "0")
+    
+    # Get current tome disabled state (empty/null = enabled, 1 = disabled)
+    local tome_state=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+    if [ -z "$tome_state" ] || [ "$tome_state" = "null" ] || [ "$tome_state" = "NULL" ]; then
+        SAVED_TOME_DISABLED="0"  # Tome is enabled (not disabled)
+    else
+        SAVED_TOME_DISABLED="1"  # Tome is disabled
+    fi
+    
+    export SAVED_MAINTENANCE_MODE
+    export SAVED_TOME_DISABLED
+}
+
 # Validate SQL dump file structure
 # Checks that the file looks like a valid MySQL/MariaDB dump
 # Args:
@@ -594,6 +617,7 @@ is_tome_running() {
 
 # Wait for tome to stop, disable it, then enable maintenance mode
 # This prepares Drupal for backup/restore operations
+# Saves the initial state of maintenance mode and tome-disabled for later restoration
 # Args:
 #   $1: max_wait_minutes (optional, default: 25) - Maximum time to wait for tome to stop
 # Returns: 0 on success, 1 on failure or timeout
@@ -604,6 +628,22 @@ prepare_drupal_for_backup() {
     if ! echo "$max_wait_minutes" | grep -qE '^[0-9]+$' || [ "$max_wait_minutes" -gt 30 ]; then
         print_status $RED "Error: max_wait_minutes must be an integer less than or equal to 30"
         return 1
+    fi
+
+    # Save current state before making any changes
+    print_status $YELLOW "💾 Recording current Drupal state..."
+    get_current_drupal_state
+    
+    if [ "$SAVED_MAINTENANCE_MODE" = "1" ]; then
+        print_status $YELLOW "   Maintenance mode: already enabled"
+    else
+        print_status $YELLOW "   Maintenance mode: currently disabled"
+    fi
+    
+    if [ "$SAVED_TOME_DISABLED" = "1" ]; then
+        print_status $YELLOW "   Tome status: already disabled"
+    else
+        print_status $YELLOW "   Tome status: currently enabled"
     fi
 
     local start_seconds=$(date +'%s')
