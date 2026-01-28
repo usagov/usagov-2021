@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+id: identifier-footer-spanish
+label: 'Identifier Footer - Spanish'
+description: 'Footer identifier links (Spanish)'
+locked: false

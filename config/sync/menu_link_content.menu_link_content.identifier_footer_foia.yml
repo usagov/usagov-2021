@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.identifier-footer
+id: identifier_footer_foia
+title: 'FOIA requests'
+description: ''
+menu_name: identifier-footer
+link:
+  uri: 'https://www.gsa.gov/reference/freedom-of-information-act-foia'
+  title: ''
+  options: {  }
+external: true
+rediscover: false
+weight: 2
+expanded: false
+enabled: true
+parent: ''
+changed: 1737999000
+default_langcode: true

@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.identifier-footer-spanish
+id: identifier_footer_spanish_accessibility
+title: 'Política de accesibilidad'
+description: ''
+menu_name: identifier-footer-spanish
+link:
+  uri: 'internal:/es/accesibilidad'
+  title: ''
+  options: {  }
+external: false
+rediscover: false
+weight: 0
+expanded: false
+enabled: true
+parent: ''
+changed: 1737999000
+default_langcode: true

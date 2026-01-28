@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.identifier-footer-spanish
+id: identifier_footer_spanish_privacy
+title: 'Privacidad y políticas de seguridad'
+description: ''
+menu_name: identifier-footer-spanish
+link:
+  uri: 'internal:/es/privacidad-seguridad'
+  title: ''
+  options: {  }
+external: false
+rediscover: false
+weight: 1
+expanded: false
+enabled: true
+parent: ''
+changed: 1737999000
+default_langcode: true
