@@ -1005,7 +1005,7 @@ create_static_backup() {
         if [ $exit_code -eq 0 ]; then
             # Restore Drupal state before returning
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-            
+
             audit_log "backup_static_success" "success" "Static site backup completed" "backup_tag=$BACKUP_TAG"
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
 
@@ -1022,7 +1022,7 @@ create_static_backup() {
         else
             # Restore Drupal state before returning error
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-            
+
             audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
             print_status $RED "❌ Static site backup failed with exit code: $exit_code"
             return 1
@@ -1030,7 +1030,7 @@ create_static_backup() {
     else
         # Restore Drupal state before returning error
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-        
+
         audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG"
         print_status $RED "❌ Static site backup failed: $BACKUP_TAG"
         return 1
@@ -1117,7 +1117,7 @@ create_public_backup() {
             if [ $exit_code -eq 0 ]; then
                 # Restore Drupal state before returning
                 [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-                
+
                 audit_log "backup_public_success" "success" "Public files backup completed" "backup_tag=$BACKUP_TAG"
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
 
@@ -1131,7 +1131,7 @@ create_public_backup() {
             else
                 # Restore Drupal state before returning error
                 [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-                
+
                 audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
                 print_status $RED "❌ Public files backup failed with exit code: $exit_code"
                 return 1
@@ -1139,7 +1139,7 @@ create_public_backup() {
         else
             # Restore Drupal state before returning error
             [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-            
+
             audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG"
             print_status $RED "❌ Public files backup failed: $BACKUP_TAG"
             return 1
@@ -1147,7 +1147,7 @@ create_public_backup() {
     else
         # Restore Drupal state even if backup was skipped
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
-        
+
         audit_log "backup_public_skipped" "info" "Public files unchanged, backup skipped" "backup_tag=$BACKUP_TAG"
         print_status $YELLOW "⚠️ Public files unchanged - skipped"
         return 0
@@ -2845,13 +2845,13 @@ case "$COMMAND" in
         action="$2"
         state_type="${3:-both}"
         max_wait="${4:-25}"
-        
+
         if [ -z "$action" ]; then
             print_status $RED "❌ Error: action required (enable|disable)"
             echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
             exit 1
         fi
-        
+
         state_command "$action" "$state_type" "$max_wait"
         exit $?
         ;;

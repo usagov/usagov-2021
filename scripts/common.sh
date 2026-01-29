@@ -461,8 +461,8 @@ validate_backup_tag() {
     fi
 
     # Check reasonable length
-    if [ ${#tag} -gt $TAG_MAX_LENGTH ]; then
-        print_status $RED "❌ Error: Backup tag too long (max $TAG_MAX_LENGTH characters)"
+    if [ ${#tag} -gt ${TAG_MAX_LENGTH:-200} ]; then
+        print_status $RED "❌ Error: Backup tag too long (max ${TAG_MAX_LENGTH:-200} characters)"
         return 1
     fi
 
