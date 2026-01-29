@@ -2656,7 +2656,7 @@ download_single_backup() {
     case "$backup_type" in
         "db")
             # Find database backup file
-            db_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ $S3_EXTRA_PARAMS 2>/dev/null | grep "$backup_tag" | awk '{print $4}')
+            db_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ $S3_EXTRA_PARAMS 2>/dev/null | grep "$backup_tag" | grep '\.sql\.gz$' | awk '{print $4}')
 
             if [ -z "$db_file" ]; then
                 log_message "❌ Error: Database backup not found for tag: $backup_tag" >&2
