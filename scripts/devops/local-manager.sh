@@ -33,6 +33,8 @@ show_usage() {
     echo "  restore <tag> [--only=type,type]         Restore backups on CF (interactive)"
     echo "  info [types] [tag]                     Show backup info from CF (config or specific backup)"
     echo "  download <tag> [type] [output-dir]     Download backups to local (default: all types, current dir)"
+    echo "                [--unzip]                        Automatically unzip downloaded files"
+    echo "                [--unzip=filename]               Unzip and save as specified filename"
     echo "  test                                   Run backup system test suite on CF"
     echo "  cron <subcommand>                      Manage automated database backup cron jobs"
     echo "  state <action> <type> [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both)"
@@ -66,6 +68,8 @@ show_usage() {
     echo "  local-manager.sh info db AUTO-prod-14850-2025-10-28                    # Show specific backup details"
     echo "  local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/    # Download all"
     echo "  local-manager.sh download AUTO-prod-14850-2025-10-28 db                # Download db only"
+    echo "  local-manager.sh download AUTO-prod-14850 db . --unzip                 # Download and unzip"
+    echo "  local-manager.sh download AUTO-prod-14850 db . --unzip=usagov.sql      # Download, unzip, and rename"
     echo "  local-manager.sh restore AUTO-prod-14850-2025-10-28                    # Restore all (interactive)"
     echo "  local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=db          # Restore db only"
     echo "  local-manager.sh test                                               # Run test suite on CF"
@@ -194,7 +198,7 @@ show_command_help() {
         "download")
             echo "Download Backup"
             echo ""
-            echo "Usage: local-manager.sh download <tag> [type] [output-dir]"
+            echo "Usage: local-manager.sh download <tag> [type] [output-dir] [--unzip] [--unzip=name]"
             echo ""
             echo "Description:"
             echo "  Download backups from Cloud Foundry to local filesystem."
@@ -204,9 +208,20 @@ show_command_help() {
             echo "  type        - Type to download: all, static, public, db (default: all)"
             echo "  output-dir  - Output directory (default: current directory)"
             echo ""
+            echo "Options:"
+            echo "  --unzip              - Automatically extract downloaded archives"
+            echo "                         • .sql.gz files → .sql file"
+            echo "                         • .tar.gz files → directory/"
+            echo "  --unzip=name         - Extract and save as specified name"
+            echo "                         • For .sql.gz: filename (e.g., usagov.sql)"
+            echo "                         • For .tar.gz: directory name"
+            echo ""
             echo "Examples:"
             echo "  local-manager.sh download AUTO-prod-14850-2025-10-28"
             echo "  local-manager.sh download AUTO-prod-14850 db ./backups/"
+            echo "  local-manager.sh download AUTO-prod-14850 db ./backups/ --unzip"
+            echo "  local-manager.sh download AUTO-prod-14850 db . --unzip=usagov.sql"
+            echo "  local-manager.sh download AUTO-prod-14850 static . --unzip=my-static-files"
             echo ""
             ;;
         "test")
@@ -321,9 +336,36 @@ remote_command() {
 #   $2: types - Backup types (default: "all")
 #   $3: output_dir - Local directory for downloads (default: current directory)
 download_command() {
-    local backup_tag=$1
-    local backup_type=${2:-all}
-    local output_dir=${3:-$(pwd)}
+    local backup_tag=""
+    local backup_type="all"
+    local output_dir=$(pwd)
+    local unzip_flag=false
+    local unzip_filename=""
+
+    # Parse all arguments, separating flags from positional args
+    local positional_args=()
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --unzip)
+                unzip_flag=true
+                shift
+                ;;
+            --unzip=*)
+                unzip_flag=true
+                unzip_filename="${1#*=}"
+                shift
+                ;;
+            *)
+                positional_args+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    # Assign positional arguments
+    backup_tag="${positional_args[0]}"
+    [ ${#positional_args[@]} -gt 1 ] && backup_type="${positional_args[1]}"
+    [ ${#positional_args[@]} -gt 2 ] && output_dir="${positional_args[2]}"
 
     if [ -z "$backup_tag" ]; then
         echo "❌ Error: backup tag required"
@@ -364,8 +406,9 @@ download_command() {
     echo "🎯 Type: $backup_type"
     echo ""
 
-    # Track success/failure
+    # Track success/failure and downloaded files
     local failed=0
+    local downloaded_files=""
 
     # Parse backup types (handle comma-separated list)
     local types_to_download="$backup_type"
@@ -404,6 +447,86 @@ download_command() {
         if [ $exit_code -eq 0 ] && [ -s "$output_file" ]; then
             local size=$(du -h "$output_file" | awk '{print $1}')
             echo "✅ $label backup saved: ${backup_tag}-${filename}.${extension} ($size)"
+
+            # Unzip if requested
+            if [ "$unzip_flag" = true ]; then
+                echo "📦 Extracting $label backup..."
+
+                # Determine extraction method based on file type
+                if [[ "$output_file" == *.tar.gz ]]; then
+                    # Extract tar.gz to directory
+                    local extract_dir
+                    if [ -n "$unzip_filename" ]; then
+                        extract_dir="$output_dir/$unzip_filename"
+                    else
+                        # Remove .tar.gz extension for default directory name
+                        extract_dir="${output_file%.tar.gz}"
+                    fi
+
+                    # Check if target directory exists
+                    if [ -d "$extract_dir" ]; then
+                        echo "⚠️  Directory already exists: $(basename "$extract_dir")"
+                        printf "Overwrite? (y/N): "
+                        read -r response
+                        if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+                            echo "❌ Extraction cancelled"
+                            rm -f "$output_file"
+                            return 1
+                        fi
+                        rm -rf "$extract_dir"
+                    fi
+
+                    # Create directory and extract
+                    mkdir -p "$extract_dir"
+                    if tar -xzf "$output_file" -C "$extract_dir" 2>/dev/null; then
+                        local extracted_size=$(du -sh "$extract_dir" | awk '{print $1}')
+                        echo "✅ Extracted to: $(basename "$extract_dir")/ ($extracted_size)"
+                        # Track the archive transformation
+                        downloaded_files="${downloaded_files}$(basename "$output_file") -> $(basename "$extract_dir")/\n"
+                        rm -f "$output_file"
+                    else
+                        echo "❌ Failed to extract $label backup"
+                        rm -rf "$extract_dir"
+                        return 1
+                    fi
+
+                else
+                    # Gunzip .sql.gz or other .gz files
+                    local unzipped_file
+                    if [ -n "$unzip_filename" ]; then
+                        unzipped_file="$output_dir/$unzip_filename"
+                    else
+                        # Remove .gz extension
+                        unzipped_file="${output_file%.gz}"
+                    fi
+
+                    # Check if target file exists
+                    if [ -f "$unzipped_file" ]; then
+                        echo "⚠️  File already exists: $(basename "$unzipped_file")"
+                        printf "Overwrite? (y/N): "
+                        read -r response
+                        if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+                            echo "❌ Extraction cancelled"
+                            rm -f "$output_file"
+                            return 1
+                        fi
+                    fi
+
+                    if gunzip -c "$output_file" > "$unzipped_file" 2>/dev/null; then
+                        local unzipped_size=$(du -h "$unzipped_file" | awk '{print $1}')
+                        echo "✅ Extracted to: $(basename "$unzipped_file") ($unzipped_size)"
+                        # Track the file transformation
+                        downloaded_files="${downloaded_files}$(basename "$output_file") -> $(basename "$unzipped_file")\n"
+                        rm -f "$output_file"
+                    else
+                        echo "❌ Failed to extract $label backup"
+                        return 1
+                    fi
+                fi
+            else
+                # Track the downloaded .gz file
+                downloaded_files="${downloaded_files}$(basename "$output_file")\n"
+            fi
         else
             echo "❌ $label backup failed or not found"
             rm -f "$output_file"
@@ -441,14 +564,18 @@ download_command() {
     if [ $failed -eq 0 ]; then
         echo "✅ Download complete!"
         echo ""
-        echo "Downloaded files:"
-        ls -lh "$output_dir"/${backup_tag}-* 2>/dev/null
+        if [ -n "$downloaded_files" ]; then
+            echo "Downloaded files:"
+            printf "$downloaded_files"
+        fi
         return 0
     else
         echo "⚠️  Download completed with errors ($failed failed)"
         echo ""
-        echo "Downloaded files:"
-        ls -lh "$output_dir"/${backup_tag}-* 2>/dev/null
+        if [ -n "$downloaded_files" ]; then
+            echo "Downloaded files:"
+            printf "$downloaded_files"
+        fi
         return 1
     fi
 }
