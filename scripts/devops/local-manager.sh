@@ -35,8 +35,7 @@ show_usage() {
     echo "  download <tag> [type] [output-dir]     Download backups to local (default: all types, current dir)"
     echo "  test                                   Run backup system test suite on CF"
     echo "  cron <subcommand>                      Manage automated database backup cron jobs"
-    echo "  try-tome-disable [max_wait_mins]       Disable Drupal/Tome for backup (wait for tome, disable, enable maintenance)"
-    echo "  try-tome-enable                        Re-enable Drupal/Tome (disable maintenance, re-enable tome)"
+    echo "  state <action> <type> [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
     echo "Cron Subcommands:"
     echo "  setup                    Configure automated database backups (uses DB_BACKUP_TIME env var)"
@@ -238,25 +237,24 @@ show_command_help() {
             echo "  local-manager.sh cron setup"
             echo ""
             ;;
-        "try-tome-disable")
-            echo "Disable Tome for Backup"
+        "state")
+            echo "Manage Drupal State"
             echo ""
-            echo "Usage: local-manager.sh try-tome-disable [max_wait_mins]"
+            echo "Usage: local-manager.sh state <action> <type> [max_wait_mins]"
             echo ""
             echo "Description:"
-            echo "  Disable Drupal/Tome for safe backup."
+            echo "  Enable or disable Drupal state management for backups/maintenance."
             echo ""
             echo "Arguments:"
-            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25)"
+            echo "  action         - 'enable' or 'disable'"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
-            ;;
-        "try-tome-enable")
-            echo "Re-enable Tome"
-            echo ""
-            echo "Usage: local-manager.sh try-tome-enable"
-            echo ""
-            echo "Description:"
-            echo "  Re-enable Drupal/Tome after backup."
+            echo "Examples:"
+            echo "  local-manager.sh state disable tome 30"
+            echo "  local-manager.sh state enable tome"
+            echo "  local-manager.sh state disable sm"
+            echo "  local-manager.sh state enable both"
             echo ""
             ;;
         *)
@@ -543,13 +541,9 @@ case "$COMMAND" in
                 ;;
         esac
         ;;
-    "try-tome-disable")
-        # try-tome-disable [max_wait_minutes] - Disable Drupal/Tome for backup
-        remote_command try-tome-disable "$2"
-        ;;
-    "try-tome-enable")
-        # try-tome-enable - Re-enable Drupal/Tome to normal operation
-        remote_command try-tome-enable
+    "state")
+        # state <action> <type> [max_wait_mins] - Manage Drupal state
+        remote_command state "$2" "$3" "$4"
         ;;
     *)
         echo "❌ Unknown command: $COMMAND"

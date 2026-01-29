@@ -1070,13 +1070,21 @@ is_tome_running() {
     fi
 }
 
-# Wait for tome to stop, disable it, then enable maintenance mode
-# This prepares Drupal for backup/restore operations
+# Prepare Drupal state for backup/restore operations
+# Manages Tome and/or maintenance mode based on state type
 # Args:
-#   $1: max_wait_minutes (optional, default: 25) - Maximum time to wait for tome to stop
+#   $1: state_type - "tome", "maintenance", or "both" (default: "both")
+#   $2: max_wait_minutes (optional, default: 25) - Maximum time to wait for tome to stop
 # Returns: 0 on success, 1 on failure or timeout
-prepare_drupal_for_backup() {
-    local max_wait_minutes=${1:-30}
+prepare_drupal_state() {
+    local state_type="${1:-both}"
+    local max_wait_minutes=${2:-25}
+
+    # Validate state_type
+    if [ "$state_type" != "tome" ] && [ "$state_type" != "maintenance" ] && [ "$state_type" != "both" ]; then
+        print_status $RED "Error: Invalid state_type. Must be 'tome', 'maintenance', or 'both'"
+        return 1
+    fi
 
     # Validate max_wait_minutes
     if ! echo "$max_wait_minutes" | grep -qE '^[0-9]+$' || [ "$max_wait_minutes" -gt 30 ]; then
@@ -1084,86 +1092,189 @@ prepare_drupal_for_backup() {
         return 1
     fi
 
-    local start_seconds=$(date +'%s')
-    local sleep_time=15
+    case "$state_type" in
+        "tome")
+            # Wait for tome to stop and disable it
+            local start_seconds=$(date +'%s')
+            local sleep_time=15
 
-    print_status $YELLOW "⏳ Waiting for Tome to stop (max: ${max_wait_minutes} minutes)..."
+            print_status $YELLOW "⏳ Waiting for Tome to stop (max: ${max_wait_minutes} minutes)..."
 
-    # Wait for tome to stop
-    while true; do
-        local current_seconds=$(date +'%s')
-        local diff_seconds=$((current_seconds - start_seconds))
-        local diff_minutes=$((diff_seconds / 60))
+            while true; do
+                local current_seconds=$(date +'%s')
+                local diff_seconds=$((current_seconds - start_seconds))
+                local diff_minutes=$((diff_seconds / 60))
 
-        if [ $diff_minutes -gt $max_wait_minutes ]; then
-            print_status $RED "❌ Timeout: Tome still running after ${max_wait_minutes} minutes"
-            return 1
-        fi
+                if [ $diff_minutes -gt $max_wait_minutes ]; then
+                    print_status $RED "❌ Timeout: Tome still running after ${max_wait_minutes} minutes"
+                    return 1
+                fi
 
-        if ! is_tome_running; then
-            print_status $GREEN "✅ Tome has stopped"
-            break
-        fi
+                if ! is_tome_running; then
+                    print_status $GREEN "✅ Tome has stopped"
+                    break
+                fi
 
-        echo "   Tome is still running... waiting ${sleep_time}s (elapsed: ${diff_minutes}m / ${max_wait_minutes}m)"
-        sleep $sleep_time
-    done
+                echo "   Tome is still running... waiting ${sleep_time}s (elapsed: ${diff_minutes}m / ${max_wait_minutes}m)"
+                sleep $sleep_time
+            done
 
-    # Disable tome
-    print_status $YELLOW "🔒 Disabling Tome..."
-    audit_log "tome_disable" "started" "Tome disable requested" "max_wait_minutes=\"${max_wait_minutes}\""
-    if ! drush sset usagov.tome_run_disabled 1 2>/dev/null; then
-        print_status $RED "❌ Failed to disable Tome"
-        audit_log "tome_disable" "failure" "Failed to disable Tome"
-        return 1
-    fi
+            print_status $YELLOW "🔒 Disabling Tome..."
+            audit_log "tome_disable" "started" "Tome disable requested" "max_wait_minutes=\"${max_wait_minutes}\""
+            if ! drush sset usagov.tome_run_disabled 1 2>/dev/null; then
+                print_status $RED "❌ Failed to disable Tome"
+                audit_log "tome_disable" "failure" "Failed to disable Tome"
+                return 1
+            fi
 
-    local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
-    print_status $GREEN "✅ Tome disabled: $tome_disabled"
-    audit_log "tome_disable" "success" "Tome disabled successfully" "tome_disabled_state=\"${tome_disabled}\""
+            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+            print_status $GREEN "✅ Tome disabled: $tome_disabled"
+            audit_log "tome_disable" "success" "Tome disabled successfully" "tome_disabled_state=\"${tome_disabled}\""
+            ;;
 
-    # Enable maintenance mode
-    print_status $YELLOW "🚧 Enabling maintenance mode..."
-    audit_log "maintenance_mode_enable" "started" "Enabling maintenance mode"
-    if drush sset system.maintenance_mode 1 2>/dev/null && drush cr 2>/dev/null; then
-        local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
-        print_status $GREEN "✅ Maintenance mode enabled: $maint_mode"
-        audit_log "maintenance_mode_enable" "success" "Maintenance mode enabled" "maint_mode_state=\"${maint_mode}\""
-    else
-        print_status $RED "❌ Failed to enable maintenance mode"
-        audit_log "maintenance_mode_enable" "failure" "Failed to enable maintenance mode, rolling back Tome disable"
-        # Try to re-enable tome before returning
-        drush sdel usagov.tome_run_disabled 2>/dev/null
-        return 1
-    fi
+        "maintenance")
+            # Enable maintenance mode only
+            print_status $YELLOW "🚧 Enabling maintenance mode..."
+            audit_log "maintenance_mode_enable" "started" "Enabling maintenance mode"
+            if drush sset system.maintenance_mode 1 2>/dev/null && drush cr 2>/dev/null; then
+                local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
+                print_status $GREEN "✅ Maintenance mode enabled: $maint_mode"
+                audit_log "maintenance_mode_enable" "success" "Maintenance mode enabled" "maint_mode_state=\"${maint_mode}\""
+            else
+                print_status $RED "❌ Failed to enable maintenance mode"
+                audit_log "maintenance_mode_enable" "failure" "Failed to enable maintenance mode"
+                return 1
+            fi
+            ;;
+
+        "both")
+            # Wait for tome to stop, disable it, then enable maintenance mode
+            local start_seconds=$(date +'%s')
+            local sleep_time=15
+
+            print_status $YELLOW "⏳ Waiting for Tome to stop (max: ${max_wait_minutes} minutes)..."
+
+            while true; do
+                local current_seconds=$(date +'%s')
+                local diff_seconds=$((current_seconds - start_seconds))
+                local diff_minutes=$((diff_seconds / 60))
+
+                if [ $diff_minutes -gt $max_wait_minutes ]; then
+                    print_status $RED "❌ Timeout: Tome still running after ${max_wait_minutes} minutes"
+                    return 1
+                fi
+
+                if ! is_tome_running; then
+                    print_status $GREEN "✅ Tome has stopped"
+                    break
+                fi
+
+                echo "   Tome is still running... waiting ${sleep_time}s (elapsed: ${diff_minutes}m / ${max_wait_minutes}m)"
+                sleep $sleep_time
+            done
+
+            print_status $YELLOW "🔒 Disabling Tome..."
+            audit_log "tome_disable" "started" "Tome disable requested" "max_wait_minutes=\"${max_wait_minutes}\""
+            if ! drush sset usagov.tome_run_disabled 1 2>/dev/null; then
+                print_status $RED "❌ Failed to disable Tome"
+                audit_log "tome_disable" "failure" "Failed to disable Tome"
+                return 1
+            fi
+
+            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+            print_status $GREEN "✅ Tome disabled: $tome_disabled"
+            audit_log "tome_disable" "success" "Tome disabled successfully" "tome_disabled_state=\"${tome_disabled}\""
+
+            print_status $YELLOW "🚧 Enabling maintenance mode..."
+            audit_log "maintenance_mode_enable" "started" "Enabling maintenance mode"
+            if drush sset system.maintenance_mode 1 2>/dev/null && drush cr 2>/dev/null; then
+                local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
+                print_status $GREEN "✅ Maintenance mode enabled: $maint_mode"
+                audit_log "maintenance_mode_enable" "success" "Maintenance mode enabled" "maint_mode_state=\"${maint_mode}\""
+            else
+                print_status $RED "❌ Failed to enable maintenance mode"
+                audit_log "maintenance_mode_enable" "failure" "Failed to enable maintenance mode, rolling back Tome disable"
+                # Try to re-enable tome before returning
+                drush sdel usagov.tome_run_disabled 2>/dev/null
+                return 1
+            fi
+            ;;
+    esac
 
     return 0
 }
 
-# Restore Drupal to normal operation after backup/restore
+# Restore Drupal state to normal operation after backup/restore
+# Manages Tome and/or maintenance mode based on state type
+# Args:
+#   $1: state_type - "tome", "maintenance", or "both" (default: "both")
+# Returns: 0 on success, 1 on failure
 restore_drupal_state() {
-    print_status $YELLOW "🚧 Disabling maintenance mode..."
-    audit_log "maintenance_mode_disable" "started" "Restoring Drupal state"
-    if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
-        local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
-        print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
-        audit_log "maintenance_mode_disable" "success" "Maintenance mode disabled" "maint_mode_state=\"${maint_mode}\""
-    else
-        print_status $RED "❌ Failed to disable maintenance mode"
-        audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
-    fi
+    local state_type="${1:-both}"
 
-    print_status $YELLOW "🔓 Re-enabling Tome..."
-    audit_log "tome_enable" "started" "Re-enabling Tome"
-    if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
-        print_status $RED "❌ Failed to re-enable Tome"
-        audit_log "tome_enable" "failure" "Failed to re-enable Tome"
+    # Validate state_type
+    if [ "$state_type" != "tome" ] && [ "$state_type" != "maintenance" ] && [ "$state_type" != "both" ]; then
+        print_status $RED "Error: Invalid state_type. Must be 'tome', 'maintenance', or 'both'"
         return 1
     fi
 
-    local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
-    print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
-    audit_log "tome_enable" "success" "Tome re-enabled" "tome_disabled_state=\"${tome_disabled:-none}\""
+    case "$state_type" in
+        "tome")
+            # Re-enable Tome only
+            print_status $YELLOW "🔓 Re-enabling Tome..."
+            audit_log "tome_enable" "started" "Re-enabling Tome"
+            if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
+                print_status $RED "❌ Failed to re-enable Tome"
+                audit_log "tome_enable" "failure" "Failed to re-enable Tome"
+                return 1
+            fi
+
+            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+            print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
+            audit_log "tome_enable" "success" "Tome re-enabled" "tome_disabled_state=\"${tome_disabled:-none}\""
+            ;;
+
+        "maintenance")
+            # Disable maintenance mode only
+            print_status $YELLOW "🚧 Disabling maintenance mode..."
+            audit_log "maintenance_mode_disable" "started" "Disabling maintenance mode"
+            if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
+                local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
+                print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
+                audit_log "maintenance_mode_disable" "success" "Maintenance mode disabled" "maint_mode_state=\"${maint_mode}\""
+            else
+                print_status $RED "❌ Failed to disable maintenance mode"
+                audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
+                return 1
+            fi
+            ;;
+
+        "both")
+            # Disable maintenance mode and re-enable Tome
+            print_status $YELLOW "🚧 Disabling maintenance mode..."
+            audit_log "maintenance_mode_disable" "started" "Restoring Drupal state"
+            if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
+                local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
+                print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
+                audit_log "maintenance_mode_disable" "success" "Maintenance mode disabled" "maint_mode_state=\"${maint_mode}\""
+            else
+                print_status $RED "❌ Failed to disable maintenance mode"
+                audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
+            fi
+
+            print_status $YELLOW "🔓 Re-enabling Tome..."
+            audit_log "tome_enable" "started" "Re-enabling Tome"
+            if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
+                print_status $RED "❌ Failed to re-enable Tome"
+                audit_log "tome_enable" "failure" "Failed to re-enable Tome"
+                return 1
+            fi
+
+            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
+            print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
+            audit_log "tome_enable" "success" "Tome re-enabled" "tome_disabled_state=\"${tome_disabled:-none}\""
+            ;;
+    esac
 
     return 0
 }
@@ -1251,30 +1362,55 @@ find_corresponding_backup() {
     return 1
 }
 
-# Command wrapper: Disable Tome and enable maintenance mode
-tome_disable() {
-    local max_wait="${1:-25}"
-    print_status $BLUE "🔧 Disabling Drupal/Tome for backup..."
-    if prepare_drupal_for_backup "$max_wait"; then
-        print_status $GREEN "✅ Drupal/Tome disabled: Tome stopped and disabled, maintenance mode enabled"
-        return 0
-    else
-        print_status $RED "❌ Failed to disable Drupal/Tome"
+# Unified state management command
+# Manages Drupal state (Tome and/or maintenance mode)
+# Args:
+#   $1: action - "enable" or "disable"
+#   $2: state_type - "tome", "sm" (site maintenance), or "both" (default: "both")
+#   $3: max_wait_minutes - For disable actions only (default: 25)
+# Returns: 0 on success, 1 on failure
+state_command() {
+    local action="$1"
+    local state_type="${2:-both}"
+    local max_wait="${3:-25}"
+
+    # Validate action
+    if [ "$action" != "enable" ] && [ "$action" != "disable" ]; then
+        print_status $RED "❌ Invalid action: $action"
+        print_status $YELLOW "   Must be 'enable' or 'disable'"
         return 1
     fi
-}
 
-# Command wrapper: Re-enable Tome and disable maintenance mode
-# This is the user-facing command that can be called from scripts
-# Returns: 0 on success, 1 on failure
-tome_enable() {
-    print_status $BLUE "🔧 Re-enabling Drupal/Tome..."
-    if restore_drupal_state; then
-        print_status $GREEN "✅ Drupal/Tome enabled: Maintenance mode disabled, Tome re-enabled"
-        return 0
-    else
-        print_status $RED "❌ Failed to re-enable Drupal/Tome"
+    # Map 'sm' to 'maintenance'
+    if [ "$state_type" = "sm" ]; then
+        state_type="maintenance"
+    fi
+
+    # Validate state_type
+    if [ "$state_type" != "tome" ] && [ "$state_type" != "maintenance" ] && [ "$state_type" != "both" ]; then
+        print_status $RED "❌ Invalid state type: $state_type"
+        print_status $YELLOW "   Must be 'tome', 'sm', or 'both'"
         return 1
+    fi
+
+    if [ "$action" = "disable" ]; then
+        print_status $BLUE "🔧 Disabling Drupal state ($state_type)..."
+        if prepare_drupal_state "$state_type" "$max_wait"; then
+            print_status $GREEN "✅ Drupal state disabled ($state_type)"
+            return 0
+        else
+            print_status $RED "❌ Failed to disable Drupal state ($state_type)"
+            return 1
+        fi
+    else
+        print_status $BLUE "🔧 Enabling Drupal state ($state_type)..."
+        if restore_drupal_state "$state_type"; then
+            print_status $GREEN "✅ Drupal state enabled ($state_type)"
+            return 0
+        else
+            print_status $RED "❌ Failed to enable Drupal state ($state_type)"
+            return 1
+        fi
     fi
 }
 

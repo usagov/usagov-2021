@@ -41,8 +41,7 @@ show_usage() {
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
     echo "  info [types] [tag]                       Show backup system info or specific backup details"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
-    echo "  try-tome-disable [max_wait_mins]         Disable Drupal/Tome for backup (wait for tome, disable, enable maintenance)"
-    echo "  try-tome-enable                          Re-enable Drupal/Tome (disable maintenance, re-enable tome)"
+    echo "  state <action> <type> [max_wait_mins]    Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -272,30 +271,26 @@ show_command_help() {
             echo "  manager.sh download AUTO-prod-14850 db - --stream | gzip > backup.sql.gz"
             echo ""
             ;;
-        "try-tome-disable")
-            echo "Disable Tome for Backup"
+        "state")
+            echo "Manage Drupal State"
             echo ""
-            echo "Usage: manager.sh try-tome-disable [max_wait_mins]"
+            echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
             echo ""
             echo "Description:"
-            echo "  Disable Drupal/Tome for safe backup. Waits for Tome to stop,"
-            echo "  disables it, and enables maintenance mode."
+            echo "  Enable or disable Drupal state management for backups/maintenance."
             echo ""
             echo "Arguments:"
-            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25)"
+            echo "  action         - 'enable' or 'disable'"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
-            echo "Example:"
-            echo "  manager.sh try-tome-disable 30"
-            echo ""
-            ;;
-        "try-tome-enable")
-            echo "Re-enable Tome"
-            echo ""
-            echo "Usage: manager.sh try-tome-enable"
-            echo ""
-            echo "Description:"
-            echo "  Re-enable Drupal/Tome after backup. Disables maintenance mode"
-            echo "  and re-enables Tome."
+            echo "Examples:"
+            echo "  manager.sh state disable tome 30      # Disable Tome with 30 min wait"
+            echo "  manager.sh state enable tome          # Re-enable Tome"
+            echo "  manager.sh state disable sm           # Enable site maintenance mode"
+            echo "  manager.sh state enable sm            # Disable site maintenance mode"
+            echo "  manager.sh state disable both         # Disable Tome and enable maintenance"
+            echo "  manager.sh state enable both          # Enable Tome and disable maintenance"
             echo ""
             ;;
         *)
@@ -423,11 +418,11 @@ run_backup_command() {
                 print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
             else
                 print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
-                create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+                create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
             fi
         else
             print_status $GREEN "🌐 Backing up static site..."
-            create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
         fi
     fi
 
@@ -440,11 +435,11 @@ run_backup_command() {
                 print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
             else
                 print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
-                create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+                create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
             fi
         else
             print_status $GREEN "📁 Backing up public files..."
-            create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
         fi
     fi
 
@@ -759,10 +754,10 @@ create_db_backup() {
         return 0
     fi
 
-    # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
+    # Prepare Drupal state (enable maintenance mode only for DB backups)
     local drupal_state_prepared=false
     if [ "$skip_state_management" != "true" ]; then
-        if prepare_drupal_for_backup 25; then
+        if prepare_drupal_state "maintenance" 25; then
             drupal_state_prepared=true
         else
             log_message "❌ Failed to prepare Drupal state for backup"
@@ -789,7 +784,7 @@ create_db_backup() {
     # Validate final backup tag
     if ! validate_backup_tag "$DB_BACKUP_TAG"; then
         print_status $RED "❌ Invalid backup tag generated"
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
@@ -809,14 +804,14 @@ create_db_backup() {
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
         if ! cd /var/www 2>/dev/null; then
             log_message "❌ ERROR: Cannot change to /var/www directory" | tee -a "$LOGFILE"
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
             return 1
         fi
     elif [ "$PROJECT_ROOT" != "$original_dir" ]; then
         # Change to project root if not already there
         if ! cd "$PROJECT_ROOT" 2>/dev/null; then
             log_message "❌ ERROR: Cannot change to project root: $PROJECT_ROOT" | tee -a "$LOGFILE"
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
             return 1
         fi
     fi
@@ -841,13 +836,13 @@ create_db_backup() {
         fi
     else
         log_message "❌ ERROR: drush not found" | tee -a "$LOGFILE"
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
     if [ $DUMP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Database dump failed" | tee -a "$LOGFILE"
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
@@ -856,7 +851,7 @@ create_db_backup() {
         audit_log "backup_database_failed" "error" "Database dump empty or missing" "backup_tag=$DB_BACKUP_TAG"
         log_message "❌ ERROR: Database dump empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
@@ -866,7 +861,7 @@ create_db_backup() {
         audit_log "backup_database_failed" "error" "SQL dump validation failed" "backup_tag=$DB_BACKUP_TAG reason=invalid_structure"
         log_message "❌ ERROR: SQL dump validation failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
@@ -881,7 +876,7 @@ create_db_backup() {
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Compression failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
@@ -889,7 +884,7 @@ create_db_backup() {
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
         log_message "❌ ERROR: Compressed file empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
@@ -920,7 +915,7 @@ create_db_backup() {
 
     # Restore Drupal state before checking results
     if [ "$drupal_state_prepared" = "true" ]; then
-        restore_drupal_state  # Disable maintenance mode, then re-enable tome
+        restore_drupal_state "maintenance"  # Disable maintenance mode
     fi
 
     if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
@@ -967,12 +962,24 @@ create_static_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
     local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
+    local skip_state_management="${4:-false}"
 
     setup_s3_vars || exit 1
 
     if [ "$ENABLE_STATIC_AUTO_BACKUPS" != "true" ]; then
         log_message "⚠️ Static site backups disabled"
         return 0
+    fi
+
+    # Prepare Drupal state (disable Tome)
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "tome" 25; then
+            drupal_state_prepared=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state"
+            return 1
+        fi
     fi
 
     # Generate base backup tag
@@ -996,6 +1003,9 @@ create_static_backup() {
     if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
         local exit_code=$?
         if [ $exit_code -eq 0 ]; then
+            # Restore Drupal state before returning
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+            
             audit_log "backup_static_success" "success" "Static site backup completed" "backup_tag=$BACKUP_TAG"
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
 
@@ -1010,11 +1020,17 @@ create_static_backup() {
 
             return 0
         else
+            # Restore Drupal state before returning error
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+            
             audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
             print_status $RED "❌ Static site backup failed with exit code: $exit_code"
             return 1
         fi
     else
+        # Restore Drupal state before returning error
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+        
         audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG"
         print_status $RED "❌ Static site backup failed: $BACKUP_TAG"
         return 1
@@ -1035,12 +1051,24 @@ create_public_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
     local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
+    local skip_state_management="${4:-false}"
 
     setup_s3_vars || exit 1
 
     if [ "$ENABLE_PUBLIC_AUTO_BACKUPS" != "true" ]; then
         log_message "⚠️ Public files backups disabled"
         return 0
+    fi
+
+    # Prepare Drupal state (disable Tome)
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "tome" 25; then
+            drupal_state_prepared=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state"
+            return 1
+        fi
     fi
 
     # Generate base backup tag
@@ -1087,6 +1115,9 @@ create_public_backup() {
         if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
             local exit_code=$?
             if [ $exit_code -eq 0 ]; then
+                # Restore Drupal state before returning
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+                
                 audit_log "backup_public_success" "success" "Public files backup completed" "backup_tag=$BACKUP_TAG"
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
 
@@ -1098,16 +1129,25 @@ create_public_backup() {
 
                 return 0
             else
+                # Restore Drupal state before returning error
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+                
                 audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
                 print_status $RED "❌ Public files backup failed with exit code: $exit_code"
                 return 1
             fi
         else
+            # Restore Drupal state before returning error
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+            
             audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG"
             print_status $RED "❌ Public files backup failed: $BACKUP_TAG"
             return 1
         fi
     else
+        # Restore Drupal state even if backup was skipped
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+        
         audit_log "backup_public_skipped" "info" "Public files unchanged, backup skipped" "backup_tag=$BACKUP_TAG"
         print_status $YELLOW "⚠️ Public files unchanged - skipped"
         return 0
@@ -2151,7 +2191,7 @@ restore_backup() {
                     print_status $YELLOW "   Expected: $expected_checksum"
                     print_status $YELLOW "   Got:      $actual_checksum"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                     exit 1
                 fi
             else
@@ -2164,7 +2204,7 @@ restore_backup() {
                     audit_log "restore_database_failed" "error" "SQL content validation failed" "backup_tag=$db_backup_tag"
                     print_status $RED "❌ SQL content validation failed"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                     exit 1
                 fi
 
@@ -2172,32 +2212,32 @@ restore_backup() {
                     # Use drush for database import
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
                         # Restore Drupal state before success message
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                         audit_log "restore_database_success" "success" "Database restored successfully" "backup_tag=$db_backup_tag"
                         print_status $GREEN "✅ Database restored"
                     else
                         audit_log "restore_database_failed" "error" "Database import failed" "backup_tag=$db_backup_tag"
                         print_status $RED "❌ ERROR: Database import failed"
                         rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                         exit 1
                     fi
                 else
                     print_status $RED "❌ ERROR: Drush not available for database restore"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                     exit 1
                 fi
             else
                     print_status $RED "❌ ERROR: Failed to decompress database backup"
                 rm -f "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                 exit 1
             fi
         else
             print_status $RED "❌ ERROR: Failed to download database backup"
             rm -f "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
             exit 1
         fi
 
@@ -2799,14 +2839,20 @@ case "$COMMAND" in
         # e.g., "download AUTO-prod-14850-2025-10-28 db ./backups/" or "download AUTO-prod-14850-2025-10-28 db - --stream"
         download_backup "$2" "$3" "$4" "$5"
         ;;
-    "try-tome-disable")
-        # try-tome-disable [max_wait_minutes] - Disable Drupal/Tome for backup
-        tome_disable "${2:-25}"
-        exit $?
-        ;;
-    "try-tome-enable")
-        # try-tome-enable - Re-enable Drupal/Tome to normal operation
-        tome_enable
+    "state")
+        # state <action> <type> [max_wait_mins] - Manage Drupal state
+        # e.g., "state disable tome 30" or "state enable both"
+        action="$2"
+        state_type="${3:-both}"
+        max_wait="${4:-25}"
+        
+        if [ -z "$action" ]; then
+            print_status $RED "❌ Error: action required (enable|disable)"
+            echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
+            exit 1
+        fi
+        
+        state_command "$action" "$state_type" "$max_wait"
         exit $?
         ;;
     *)

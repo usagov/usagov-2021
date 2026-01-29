@@ -113,8 +113,7 @@ show_usage() {
     echo ""
     echo "Tome Utilities:"
     echo "  tome-log                              Tail the latest Tome log and stop when it finishes"
-    echo "  tome-disable [max_wait_mins]          Disable Tome + enable maintenance (via CMS container)"
-    echo "  tome-enable                           Re-enable Tome + disable maintenance"
+    echo "  state <action> <type> [max_wait_mins] Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
@@ -442,27 +441,24 @@ show_command_help() {
             echo "  'Tome static build looks fine', 'No changes detected', 'no changes', 'SYNC FINISHED'"
             echo ""
             ;;
-        "tome-disable")
-            echo "Disable Tome and Enable Maintenance"
+        "state")
+            echo "Manage Drupal State"
             echo ""
-            echo "Usage: deploy.sh tome-disable [max_wait_mins]"
+            echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
             echo ""
             echo "Description:"
-            echo "  Runs manager's try-tome-disable inside the CMS container."
-            echo "  Waits for Tome to stop (up to max_wait_mins), disables Tome, enables maintenance."
+            echo "  Enable or disable Drupal state management for backups/maintenance."
+            echo "  Runs inside the CMS container."
             echo ""
             echo "Arguments:"
-            echo "  max_wait_mins - Optional max wait (default: 25)"
+            echo "  action         - 'enable' or 'disable'"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
-            ;;
-        "tome-enable")
-            echo "Re-enable Tome and Disable Maintenance"
-            echo ""
-            echo "Usage: deploy.sh tome-enable"
-            echo ""
-            echo "Description:"
-            echo "  Runs manager's try-tome-enable inside the CMS container."
-            echo "  Disables maintenance mode and re-enables Tome."
+            echo "Examples:"
+            echo "  deploy.sh state disable tome 30"
+            echo "  deploy.sh state enable tome"
+            echo "  deploy.sh state disable both"
             echo ""
             ;;
         "snapshot")
@@ -2687,13 +2683,19 @@ case "$COMMAND" in
     "tome-log")
         tome_log
         ;;
-    "tome-disable")
-        # Call common.sh directly
-        cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && tome_disable ${1:-25}"
-        ;;
-    "tome-enable")
-        # Call common.sh directly
-        cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && tome_enable"
+    "state")
+        # state <action> <type> [max_wait_mins] - Manage Drupal state
+        action="$1"
+        state_type="${2:-both}"
+        max_wait="${3:-25}"
+        
+        if [ -z "$action" ]; then
+            print_status $RED "❌ Error: action required (enable|disable)"
+            echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
+            exit 1
+        fi
+        
+        cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
         ;;
     "switch")
         switch_env "$@"
