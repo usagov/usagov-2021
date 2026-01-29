@@ -2667,6 +2667,7 @@ download_single_backup() {
                 # Stream mode: output to stdout
                 log_message "📥 Streaming database backup: $db_file" >&2
                 aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file - $S3_EXTRA_PARAMS 2>/dev/null
+                return $?
             else
                 # Local download mode - validate and normalize output path
                 local validated_path
@@ -2719,7 +2720,9 @@ download_single_backup() {
                 temp_dir=$(mktemp -d)
                 aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
+                local tar_exit=$?
                 rm -rf "$temp_dir"
+                return $tar_exit
             else
                 # Local download mode - default to current working directory
                 output_dir=${output_path:-$(pwd)}
@@ -2758,7 +2761,9 @@ download_single_backup() {
                 temp_dir=$(mktemp -d)
                 aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
+                local tar_exit=$?
                 rm -rf "$temp_dir"
+                return $tar_exit
             else
                 # Local download mode - default to current working directory
                 output_dir=${output_path:-$(pwd)}
