@@ -1156,10 +1156,9 @@ downsync() {
     print_status $BLUE "📋 Checking tome state..."
     local tome_disabled=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null | tail -1)
 
-    # Disable tome and enable maintenance mode
-    print_status $BLUE "🔒 Enabling maintenance mode..."
-    cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 1" >/dev/null 2>&1
-    cf ssh cms -c ". /etc/profile; drush sset usagov.tome_run_disabled 1" >/dev/null 2>&1
+    # Enable maintenance mode and disable tome using unified state command
+    print_status $BLUE "🔒 Preparing for restore (maintenance mode + disable tome)..."
+    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state disable both" >/dev/null 2>&1
 
     # Upload and restore database
     print_status $BLUE "📤 Uploading and restoring database..."
@@ -1221,13 +1220,14 @@ downsync() {
         print_status $GREEN "  ✅ Database updates complete"
     fi
 
-    # Disable maintenance mode
-    print_status $BLUE "🔓 Disabling maintenance mode..."
-    cf ssh cms -c "/var/www/scripts/maintenance-mode-toggle.sh 0" >/dev/null 2>&1
-
-    # Restore tome state
+    # Restore original state (disable maintenance mode, restore tome state)
+    print_status $BLUE "🔓 Restoring site state..."
     if [ "$tome_disabled" != "1" ]; then
-        cf ssh cms -c ". /etc/profile; drush sset usagov.tome_run_disabled 0" >/dev/null 2>&1
+        # Tome was enabled before, restore both to enabled state
+        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable both" >/dev/null 2>&1
+    else
+        # Tome was disabled before, only disable maintenance mode
+        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable sm" >/dev/null 2>&1
     fi
 
     # Fix MFA configuration
