@@ -956,13 +956,12 @@ post_deploy() {
     local waf_digest=$(echo "$digests" | sed -n '2p')
     local www_digest=$(echo "$digests" | sed -n '3p')
 
-    # Extract CCI build number from digest (format: {registry}/{org}/usagov_{app}:{cci_build}@sha256:...)
-    # If extraction fails, sanitize the digest for use as identifier
+    # Extract CCI build number from digest using common function with motd fallback
     local cci_build=""
     if [ -n "$cms_digest" ]; then
-        cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
-        # If regex didn't match (cci_build equals original digest), sanitize it
-        if [ "$cci_build" = "$cms_digest" ]; then
+        cci_build=$(extract_build_from_digest "$cms_digest")
+        # If extraction fails, sanitize the digest for use as identifier
+        if [ "$cci_build" = "unknown" ]; then
             # Extract short SHA from digest and sanitize: replace /, @, : with -
             cci_build=$(echo "$cms_digest" | sed 's/@sha256:/--/' | sed 's/[/:@]/-/g' | cut -c1-40)
         fi
@@ -2334,11 +2333,8 @@ rollback() {
         return 1
     fi
 
-    # Extract CCI build from digest if possible
-    local cci_build="unknown"
-    if echo "$cms_digest" | grep -qE 'usagov_cms:[0-9]+@'; then
-        cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
-    fi
+    # Extract CCI build from digest using common function with motd fallback
+    local cci_build=$(extract_build_from_digest "$cms_digest")
 
     # Show what will be rolled back
     print_status $YELLOW "⚠️  CODE ROLLBACK"
@@ -2688,13 +2684,13 @@ case "$COMMAND" in
         action="$1"
         state_type="${2:-both}"
         max_wait="${3:-25}"
-        
+
         if [ -z "$action" ]; then
             print_status $RED "❌ Error: action required (enable|disable)"
             echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
             exit 1
         fi
-        
+
         cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
         ;;
     "switch")

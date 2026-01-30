@@ -470,10 +470,29 @@ validate_backup_tag() {
 }
 
 # Extract build number from container digest
+# Falls back to motd if digest doesn't contain build number
 extract_build_from_digest() {
     local digest="$1"
+    local build_num=""
+
+    # Try to extract from digest first (format: usagov_cms:BUILD@sha256:...)
     if echo "$digest" | grep -qE 'usagov[_-](cms|2021):[0-9]+@'; then
-        echo "$digest" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/'
+        build_num=$(echo "$digest" | sed -E 's/.*usagov[_-](cms|2021):([0-9]+)@.*/\2/')
+    fi
+
+    # Fallback: Get from motd if available (Cloud Foundry only)
+    if [ -z "$build_num" ] || [ "$build_num" = "unknown" ]; then
+        if command -v cf >/dev/null 2>&1 && [ -n "$VCAP_APPLICATION" ]; then
+            build_num=$(cat /etc/motd 2>/dev/null | grep 'containertag:' | sed 's/.*containertag:[[:space:]]*//' | tr -d '[:space:]')
+        elif command -v cf >/dev/null 2>&1; then
+            # If not on CF, try SSH to get it (slower but works)
+            build_num=$(cf ssh cms -c "cat /etc/motd 2>/dev/null | grep 'containertag:' | sed 's/.*containertag:[[:space:]]*//'" 2>/dev/null | tr -d '[:space:]')
+        fi
+    fi
+
+    # Return result or "unknown"
+    if [ -n "$build_num" ] && [ "$build_num" != "unknown" ]; then
+        echo "$build_num"
     else
         echo "unknown"
     fi
