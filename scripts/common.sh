@@ -303,12 +303,34 @@ capture_deployment_metadata() {
     local git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
     # Get currently deployed containers
-    # Try environment variables first, then CF CLI if available
+    # Priority order: 1) Environment variables, 2) S3 current-digests file, 3) CF CLI
     local cms_digest="$BACKUP_CMS_DIGEST"
     local www_digest="$BACKUP_WWW_DIGEST"
     local waf_digest="$BACKUP_WAF_DIGEST"
 
-    # If not set via env vars, try CF CLI (only works outside container)
+    # If not set via env vars, try reading from S3 current-digests file
+    if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
+        setup_s3_vars >/dev/null 2>&1
+        
+        # Try to fetch current digests from S3
+        local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
+        
+        if [ -n "$digests_json" ]; then
+            # Extract digests from JSON (simple grep/cut approach without jq)
+            # Format: "app_name": "digest"
+            if [ -z "$cms_digest" ]; then
+                cms_digest=$(echo "$digests_json" | grep '"cms"' | grep -o 'gsatts/[^"]*' || echo "")
+            fi
+            if [ -z "$www_digest" ]; then
+                www_digest=$(echo "$digests_json" | grep '"www"' | grep -o 'gsatts/[^"]*' || echo "")
+            fi
+            if [ -z "$waf_digest" ]; then
+                waf_digest=$(echo "$digests_json" | grep '"waf"' | grep -o 'gsatts/[^"]*' || echo "")
+            fi
+        fi
+    fi
+
+    # If still not set, try CF CLI (only works outside container)
     if [ -z "$cms_digest" ] && command -v cf >/dev/null 2>&1; then
         cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "")
     fi
