@@ -344,30 +344,34 @@ The system is configured through `backup-system.conf`. Key settings include:
 
 ## Automated Backups
 
-Database backups can be scheduled automatically using cron:
+Backups can be scheduled automatically using cron. You can configure which types to backup (all, db only, static+public, etc.):
 
 ```bash
 # From local machine (recommended)
-scripts/devops/local-manager.sh cron setup    # Set up daily database backups (uses DB_BACKUP_TIME env var)
-scripts/devops/local-manager.sh cron remove   # Remove scheduled backups
-scripts/devops/local-manager.sh cron status   # Check current cron status
-scripts/devops/local-manager.sh cron test     # Test the cron backup command
+scripts/devops/local-manager.sh cron setup all        # Daily backups of all types (default)
+scripts/devops/local-manager.sh cron setup db         # Daily database backups only
+scripts/devops/local-manager.sh cron setup static,db  # Daily static and database backups
+scripts/devops/local-manager.sh cron remove           # Remove scheduled backups
+scripts/devops/local-manager.sh cron status           # Check current cron status
+scripts/devops/local-manager.sh cron test all         # Test the cron backup command
 
 # On Cloud Foundry (direct)
-scripts/snapshot/setup-cron.sh setup    # Set up daily database backups
-scripts/snapshot/setup-cron.sh remove   # Remove scheduled backups
-scripts/snapshot/setup-cron.sh status   # Check current cron status
-scripts/snapshot/setup-cron.sh test     # Test the cron backup command
+scripts/snapshot/setup-cron.sh setup all       # Daily backups of all types
+scripts/snapshot/setup-cron.sh setup db        # Daily database backups only
+scripts/snapshot/setup-cron.sh remove          # Remove scheduled backups
+scripts/snapshot/setup-cron.sh status          # Check current cron status
+scripts/snapshot/setup-cron.sh test all        # Test the cron backup command
 ```
 
 **Automated Features:**
 
 - Runs daily at configured time (set via DB_BACKUP_TIME environment variable in EST, default: 19:00)
 - Automatically converts EST to UTC for cron scheduling
-- Creates database backups with AUTO prefix
+- Flexible backup type selection (all, db, static, public, or comma-separated combinations)
+- When backing up multiple types, they share the same timestamp for perfect synchronization
 - Automatically cleans old backups based on retention policy
 - Logs all operations for monitoring
-- Independent of static site generation backups
+- Smart optimization: skips unchanged static/public backups to save space
 
 ## Storage Structure
 

@@ -25,17 +25,23 @@ ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 # ===================================================================
 
 show_usage() {
-    echo "Usage: $0 [command]"
+    echo "Usage: $0 [command] [types]"
     echo ""
     echo "Commands:"
-    echo "  setup       Setup database backup cron job"
-    echo "  remove      Remove backup cron jobs"
-    echo "  status      Show current cron jobs (default)"
-    echo "  test        Test the exact cron command (simulates cron environment)"
+    echo "  setup [types]  Setup automated backup cron job"
+    echo "                 types: all, db, static, public, or comma-separated (default: all)"
+    echo "  remove         Remove backup cron jobs"
+    echo "  status         Show current cron jobs (default)"
+    echo "  test [types]   Test the exact cron command (simulates cron environment)"
     echo ""
     echo "Configuration:"
     echo "  DB_BACKUP_TIME: Set backup time in EST (format: HH:MM)"
     echo "  Default: 19:00 EST (converts to UTC for cron)"
+    echo ""
+    echo "Examples:"
+    echo "  setup-cron.sh setup all         # Backup all types (db, static, public)"
+    echo "  setup-cron.sh setup db          # Only database backups"
+    echo "  setup-cron.sh setup static,db   # Static and database backups"
     echo ""
 }
 
@@ -45,19 +51,25 @@ show_command_help() {
     
     case "$command" in
         "setup")
-            echo "Setup Database Backup Cron Job"
+            echo "Setup Automated Backup Cron Job"
             echo ""
-            echo "Usage: setup-cron.sh setup"
+            echo "Usage: setup-cron.sh setup [types]"
             echo ""
             echo "Description:"
-            echo "  Configures automated database backups via cron."
+            echo "  Configures automated backups via cron."
             echo "  Converts EST time to UTC and creates cron job."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Backup types: all, db, static, public, or comma-separated (default: all)"
             echo ""
             echo "Configuration:"
             echo "  DB_BACKUP_TIME environment variable sets backup time (default: 19:00 EST)"
             echo ""
-            echo "Example:"
-            echo "  DB_BACKUP_TIME=19:00 setup-cron.sh setup"
+            echo "Examples:"
+            echo "  setup-cron.sh setup all          # All backup types"
+            echo "  setup-cron.sh setup db           # Database only"
+            echo "  setup-cron.sh setup static,db    # Static and database"
+            echo "  DB_BACKUP_TIME=19:00 setup-cron.sh setup all"
             echo ""
             ;;
         "remove")
@@ -81,11 +93,14 @@ show_command_help() {
         "test")
             echo "Test Cron Command"
             echo ""
-            echo "Usage: setup-cron.sh test"
+            echo "Usage: setup-cron.sh test [types]"
             echo ""
             echo "Description:"
             echo "  Tests the exact cron command in a simulated cron environment."
             echo "  Useful for debugging cron job issues."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Backup types: all, db, static, public, or comma-separated (default: all)"
             echo ""
             ;;
         *)
@@ -101,9 +116,12 @@ show_command_help() {
 # CRON MANAGEMENT FUNCTIONS
 # ===================================================================
 
-# Setup automated database backup cron job
+# Setup automated backup cron job
 # Converts EST time to UTC, validates format, and configures cron
+# Args: $1 - backup types (default: all)
 setup_cron() {
+    local backup_types="${1:-all}"
+    
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         print_status $YELLOW "Database backups are disabled in configuration"
         return 1
@@ -125,7 +143,8 @@ setup_cron() {
         utc_hour=$((utc_hour - 24))
     fi
 
-    print_status $GREEN "Setting up database backup cron job..."
+    print_status $GREEN "Setting up automated backup cron job..."
+    print_status $BLUE "📦 Backup types: $backup_types"
     print_status $YELLOW "⚠️ Time conversion: ${hour}:${minute} Eastern → ${utc_hour}:${minute} UTC"
     print_status $YELLOW "📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed."
 
@@ -139,10 +158,10 @@ setup_cron() {
         CRON_WORK_DIR="$PROJECT_ROOT"
     fi
 
-    # Add new cron job (using new command format)
-    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
+    # Add new cron job with specified backup types
+    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup $backup_types >/dev/null 2>&1") | crontab -
 
-    print_status $GREEN "✅ Cron job setup complete"
+    print_status $GREEN "✅ Cron job setup complete ($backup_types)"
 }
 
 # Remove all backup-related cron jobs
@@ -166,7 +185,10 @@ show_status() {
 
 # Test the cron backup command in a simulated cron environment
 # Executes the exact command that cron will run to verify functionality
+# Args: $1 - backup types (default: all)
 test_cron_command() {
+    local backup_types="${1:-all}"
+    
     print_status $YELLOW "Testing cron command execution..."
     print_status $BLUE "This simulates the exact environment and command that cron will use"
     echo ""
@@ -179,8 +201,8 @@ test_cron_command() {
         CRON_WORK_DIR="$PROJECT_ROOT"
     fi
 
-    # Get the actual cron command
-    CRON_CMD=$(crontab -l 2>/dev/null | grep "snapshot/manager.sh backup db" | grep -v "^#")
+    # Get the actual cron command (look for any snapshot/manager.sh backup line)
+    CRON_CMD=$(crontab -l 2>/dev/null | grep "snapshot/manager.sh backup" | grep -v "^#")
 
     if [ -z "$CRON_CMD" ]; then
         print_status $RED "❌ No cron job found! Run 'setup-cron.sh setup' first."
@@ -197,6 +219,12 @@ test_cron_command() {
 
     # Strip output redirects for testing so we can see errors
     JUST_COMMAND=$(echo "$JUST_COMMAND" | sed 's/ *>[^ ]* *2>&1 *$//' | sed 's/ *2>&1 *$//')
+
+    # If types specified in test command, replace the types in the command
+    if [ -n "$backup_types" ]; then
+        # Replace the backup types in the command
+        JUST_COMMAND=$(echo "$JUST_COMMAND" | sed "s/manager\.sh backup [a-z,]*/manager.sh backup $backup_types/")
+    fi
 
     print_status $YELLOW "Executing cron command in minimal environment..."
     print_status $BLUE "Command: $JUST_COMMAND"
@@ -245,7 +273,7 @@ case $COMMAND in
         show_usage
         ;;
     setup)
-        setup_cron
+        setup_cron "$2"
         ;;
     remove)
         remove_cron
@@ -254,7 +282,7 @@ case $COMMAND in
         show_status
         ;;
     test)
-        test_cron_command
+        test_cron_command "$2"
         ;;
     *)
         print_status $RED "Unknown command: $COMMAND"

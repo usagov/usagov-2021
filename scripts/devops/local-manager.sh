@@ -74,7 +74,8 @@ show_usage() {
     echo "  local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=db          # Restore db only"
     echo "  local-manager.sh test                                               # Run test suite on CF"
     echo "  local-manager.sh cron status                                        # Show current cron jobs"
-    echo "  local-manager.sh cron setup                                         # Setup automated db backups"
+    echo "  local-manager.sh cron setup all                                     # Setup automated backups (all types)"
+    echo "  local-manager.sh cron setup db                                      # Setup automated db backups only"
     echo "  local-manager.sh cron test                                          # Test cron backup command"
     echo "  local-manager.sh cron remove                                        # Remove all cron jobs"
     echo ""
@@ -236,20 +237,24 @@ show_command_help() {
         "cron")
             echo "Manage Cron Jobs"
             echo ""
-            echo "Usage: local-manager.sh cron <subcommand>"
+            echo "Usage: local-manager.sh cron <subcommand> [types]"
             echo ""
             echo "Description:"
-            echo "  Manage automated database backup cron jobs."
+            echo "  Manage automated backup cron jobs."
             echo ""
             echo "Subcommands:"
-            echo "  setup   - Configure automated database backups"
-            echo "  remove  - Remove all cron jobs"
-            echo "  status  - Show current cron jobs (default)"
-            echo "  test    - Test the cron backup command"
+            echo "  setup [types]  - Configure automated backups"
+            echo "                   types: all, db, static, public, or comma-separated (default: all)"
+            echo "  remove         - Remove all cron jobs"
+            echo "  status         - Show current cron jobs (default)"
+            echo "  test [types]   - Test the cron backup command with optional types override"
             echo ""
             echo "Examples:"
             echo "  local-manager.sh cron status"
-            echo "  local-manager.sh cron setup"
+            echo "  local-manager.sh cron setup all"
+            echo "  local-manager.sh cron setup db"
+            echo "  local-manager.sh cron setup static,db"
+            echo "  local-manager.sh cron test all"
             echo ""
             ;;
         "state")
@@ -649,15 +654,20 @@ case "$COMMAND" in
         cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/test.sh"
         ;;
     "cron")
-        # cron <subcommand> - manage cron jobs on CF
+        # cron <subcommand> [types] - manage cron jobs on CF
         CRON_SUBCOMMAND=${2:-status}
+        CRON_TYPES=${3:-}
         case $CRON_SUBCOMMAND in
             setup|remove|status|test)
                 echo "⚙️  Managing cron jobs on Cloud Foundry..."
                 echo ""
                 # Use printf %q for safe shell escaping
                 local cmd
-                cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
+                if [ -n "$CRON_TYPES" ]; then
+                    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q %q' "$CRON_SUBCOMMAND" "$CRON_TYPES")
+                else
+                    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
+                fi
                 cf ssh cms -c "$cmd"
                 ;;
             *)
