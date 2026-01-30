@@ -311,21 +311,22 @@ capture_deployment_metadata() {
     # If not set via env vars, try reading from S3 current-digests file
     if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
         setup_s3_vars >/dev/null 2>&1
-        
+
         # Try to fetch current digests from S3
         local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
-        
+
         if [ -n "$digests_json" ]; then
-            # Extract digests from JSON (simple grep/cut approach without jq)
-            # Format: "app_name": "digest"
+            # Extract digests from JSON
+            # Format: "app_name": "registry/repo@digest"
+            # Use sed to extract the value after the app name key
             if [ -z "$cms_digest" ]; then
-                cms_digest=$(echo "$digests_json" | grep '"cms"' | grep -o 'gsatts/[^"]*' || echo "")
+                cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*"\([^"]*\)".*/\1/p')
             fi
             if [ -z "$www_digest" ]; then
-                www_digest=$(echo "$digests_json" | grep '"www"' | grep -o 'gsatts/[^"]*' || echo "")
+                www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*"\([^"]*\)".*/\1/p')
             fi
             if [ -z "$waf_digest" ]; then
-                waf_digest=$(echo "$digests_json" | grep '"waf"' | grep -o 'gsatts/[^"]*' || echo "")
+                waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*"\([^"]*\)".*/\1/p')
             fi
         fi
     fi
