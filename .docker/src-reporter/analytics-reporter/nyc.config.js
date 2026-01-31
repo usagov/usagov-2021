@@ -11,7 +11,6 @@ module.exports = {
     "knexfile.js",
     "knexfile.cloudgov.js",
     "migrations",
-    "newrelic.js",
     "nyc.config.js",
     "node_modules",
     "test",

@@ -4,7 +4,6 @@ status: true
 dependencies:
   config:
     - block_content.type.modal
-    - block_content.type.site_banner
     - media.type.audio
     - media.type.file
     - media.type.image
@@ -26,6 +25,7 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - block_content
+    - config_pages
     - content_lock
     - content_moderation
     - content_translation
@@ -80,7 +80,6 @@ permissions:
   - 'create media'
   - 'create modal block content'
   - 'create remote_video media'
-  - 'create site_banner block content'
   - 'create state_directory_record content'
   - 'create terms in benefits_category'
   - 'create terms in wizard'
@@ -105,8 +104,6 @@ permissions:
   - 'delete any modal block content'
   - 'delete any modal block content revisions'
   - 'delete any remote_video media'
-  - 'delete any site_banner block content'
-  - 'delete any site_banner block content revisions'
   - 'delete any state_directory_record content'
   - 'delete any video media'
   - 'delete any wizard content'
@@ -155,7 +152,6 @@ permissions:
   - 'edit any image media'
   - 'edit any modal block content'
   - 'edit any remote_video media'
-  - 'edit any site_banner block content'
   - 'edit any state_directory_record content'
   - 'edit any video media'
   - 'edit any wizard content'
@@ -176,12 +172,12 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
+  - 'edit site_banner config page entity'
   - 'edit terms in benefits_category'
   - 'edit terms in wizard'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert any modal block content revisions'
-  - 'revert any site_banner block content revisions'
   - 'revert basic_page revisions'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
@@ -216,7 +212,6 @@ permissions:
   - 'view all media revisions'
   - 'view all revisions'
   - 'view any modal block content history'
-  - 'view any site_banner block content history'
   - 'view any unpublished content'
   - 'view basic_page revisions'
   - 'view bears_agency revisions'
@@ -231,6 +226,7 @@ permissions:
   - 'view scheduled content'
   - 'view scheduled media'
   - 'view scheduled taxonomy_term'
+  - 'view site_banner config page entity'
   - 'view state_directory_record revisions'
   - 'view term revisions in wizard'
   - 'view the administration theme'

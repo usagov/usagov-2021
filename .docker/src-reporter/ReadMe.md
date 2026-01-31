@@ -1,6 +1,6 @@
 This repository creates a Docker container which runs the 18f [analytics-reporter](https://github.com/18F/analytics-reporter) which powers analytics.usa.gov. The repository also contains a manifest.yml file which is used to bind a user provided service for environment variables to the container and to set config options. In order for the docker container to run on cloud.gov `no-route: true` and `health-check-type: process` must be included in the manifest file. Including the docker image and username are optional but allow for shortened cf push command.
 
-The base image is the [node alpine image](https://hub.docker.com/_/node). It copies and runs testscript.sh. The script installs the [analytics-reporter](https://github.com/18F/analytics-reporter) found in /analytics-reporter. To pull the data variables ANALYTICS_REPORT_IDS, ANALYTICS_REPORT_EMAIL, and ANALYTICS_KEY needed. To write to an S3 bucket the AWS_REGION,AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET and AWS_BUCKET_PATH environment variables are needed. These are stored in a user provided service instance {s3user-provided-service} and are accessible through [VCAP_SERVICES](https://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html).  The script requires bash and [jq](https://stedolan.github.io/jq/manual/) to parse the VCAP_SERVICES and export the variables.
+The base image is the [node alpine image](https://hub.docker.com/_/node). It copies and runs createreport.sh. The script installs the [analytics-reporter](https://github.com/18F/analytics-reporter) found in /analytics-reporter. To pull the data variables ANALYTICS_REPORT_IDS, ANALYTICS_REPORT_EMAIL, and ANALYTICS_KEY needed. To write to an S3 bucket the AWS_REGION,AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET and AWS_BUCKET_PATH environment variables are needed. These are stored in a user provided service instance {s3user-provided-service} and are accessible through [VCAP_SERVICES](https://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html).  The script requires bash and [jq](https://stedolan.github.io/jq/manual/) to parse the VCAP_SERVICES and export the variables.
 
 The analytics reporter is called every 900 seconds (equal to 15 minutes). It outputs 33 json files to https://s3-{AWS_REGION}.amazonaws.com/{AWS_BUCKET}/{AWS_BUCKET_PATH}/{json-file}.
 
@@ -87,18 +87,3 @@ The output of the analytics reporter is stored on a S3 bucket in cloud.gov. The 
       - CF_DOCKER_PASSWORD={docker-password} cf push {cf-app-name}
 12. Access via:
     - https://s3-{AWS_REGION}.amazonaws.com/{AWS_BUCKET}/{AWS_BUCKET_PATH}/{json-file}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

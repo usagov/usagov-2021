@@ -1,0 +1,24 @@
+uuid: f636579c-cc44-4872-83d4-6c423d76054a
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.site_banner
+    - field.field.config_pages.site_banner.field_alert
+  module:
+    - entity_reference_revisions
+id: config_pages.site_banner.default
+targetEntityType: config_pages
+bundle: site_banner
+mode: default
+content:
+  field_alert:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

@@ -264,11 +264,7 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$vari
 }
 
 /**
- * Create an array called `site_banners` that contains all the site banners.
- *
- * The value of each element in this array can be the id of the site banner
- * if the checkbox `place_above_header` is checked or `null` if the checkbox
- * is not checked.
+ * Create config page alerts for site banners.
  *
  * @param array<string, mixed> $variables
  */
@@ -278,36 +274,63 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
   if ($variables['region'] === 'header_top') {
 
     $site_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    // Get all site_banners from the website.
-    $site_banners_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'site_banner']);
-    if ($site_banners_blocks) {
 
-      foreach ($site_banners_blocks as $site_banner) {
-        /*
-         * Check if the language of the banner is the same as the website.
-         * This prevents incorrect language banners from being displayed on the
-         * site.
-         */
-        $site_banner_lang = $site_banner->langcode->value;
-        if ($site_banner_lang === $site_language) {
-          // Get the value of the checkbox in the site_banner form.
-          $place_above_header = $site_banner->field_place_above_header->value;
+    // Get site banners from config_pages entities.
+    $config_pages_site_banners = \Drupal::entityTypeManager()->getStorage('config_pages')->loadByProperties(['type' => 'site_banner']);
+    if ($config_pages_site_banners) {
+      $paragraph_view_builder = \Drupal::entityTypeManager()->getViewBuilder('paragraph');
 
-          // Check if the checkbox in the site_banner form is checked or not.
-          if ($place_above_header) {
-            /* Set the value to the site_banner id to add the site_banner to the
-            `header_top` region.*/
-            $variables['site_banners'][$site_banner->id()] = $site_banner->id();
-          }
-          else {
-            /* Set the value to null to remove the site_banner with id
-            `$site_banner->id()` from the region `header_top`. */
-            $variables['site_banners'][$site_banner->id()] = NULL;
+      foreach ($config_pages_site_banners as $config_page) {
+        // Check if context matches current site language.
+        // Config_pages uses a context field to store language-specific data.
+        // The context field contains serialized PHP data like: a:1:{i:0;a:1:{s:8:"language";s:2:"en";}}
+        $context_value = $config_page->get('context')->value;
+
+        $context_data = !empty($context_value) ? unserialize($context_value, ['allowed_classes' => FALSE]) : [];
+
+        // Extract language from context (if set).
+        $context_language = NULL;
+        if (!empty($context_data) && is_array($context_data)) {
+          foreach ($context_data as $context_item) {
+            if (is_array($context_item) && isset($context_item['language'])) {
+              $context_language = $context_item['language'];
+              break;
+            }
           }
         }
 
+        // Skip if context language doesn't match current language.
+        // Allow config_pages with no language context (NULL) to appear on all pages.
+        if ($context_language !== $site_language) {
+          continue;
+        }
+
+        // Check if the config page has alert field with content.
+        if ($config_page->hasField('field_alert') && !$config_page->get('field_alert')->isEmpty()) {
+          // Iterate through all alert paragraphs in the field.
+          $alert_field = $config_page->get('field_alert');
+
+          foreach ($alert_field as $delta => $alert_item) {
+            if ($alert_item->entity) {
+              // Get the referenced paragraph entity (uswds_alert).
+              $alert_paragraph = $alert_item->entity;
+
+              // Pre-render the paragraph for static site generation.
+              // This ensures the full HTML is available during Tome export,
+              // rather than relying on lazy-loading via drupal_entity() which
+              // doesn't work correctly in static sites.
+              $rendered_paragraph = $paragraph_view_builder->view($alert_paragraph, 'default');
+
+              // Store the rendered paragraph for template usage.
+              // Use a unique key to handle multiple paragraphs.
+              $banner_key = 'config_page_' . $config_page->id() . '_' . $delta;
+              $variables['config_page_alerts'][$banner_key] = $rendered_paragraph;
+            }
+          }
+        }
       }
     }
+
     // Get all modals from the website.
     $modal_blocks = \Drupal::entityTypeManager()->getStorage('block_content')->loadByProperties(['type' => 'modal']);
     foreach ($modal_blocks as $modal) {
@@ -316,11 +339,11 @@ function usa_twig_vars_preprocess_region(array &$variables): void {
        * This prevents incorrect language modals from being displayed on the
        * site.
        */
-      $modal_lang = $modal->langcode->value;
+      $modal_lang = $modal->get('langcode')->value;
       if ($modal_lang === $site_language) {
         $variables['modals'][$modal->id()] = [
-          "name" => $modal->field_modal_id->value,
-          "id" => $modal->field_modal[0]->getValue(),
+          "name" => $modal->get('field_modal_id')->value,
+          "id" => $modal->get('field_modal')[0]->getValue(),
         ];
       }
     }
@@ -367,6 +390,35 @@ function usa_twig_vars_after_build(array $form, FormStateInterface &$form_state)
     $form['path']['widget'][0]['alias']['#required'] = TRUE;
   }
   return $form;
+}
+
+/**
+ * Implements hook_theme_suggestions_paragraph_alter().
+ *
+ * @param array<string> $suggestions
+ * @param array<string, mixed> $variables
+ */
+function usa_twig_vars_theme_suggestions_paragraph_alter(array &$suggestions, array $variables): void {
+  $paragraph = $variables['elements']['#paragraph'];
+
+  // Check if this is a uswds_alert paragraph being used in a config_pages site banner.
+  if ($paragraph->getType() === 'uswds_alert') {
+    // Check if this paragraph is referenced by a config_pages entity of type site_banner.
+    $config_pages = \Drupal::entityTypeManager()->getStorage('config_pages')->loadByProperties(['type' => 'site_banner']);
+    foreach ($config_pages as $config_page) {
+      // Check all alert paragraphs in the field.
+      if ($config_page->hasField('field_alert') && !$config_page->get('field_alert')->isEmpty()) {
+        $alert_field = $config_page->get('field_alert');
+        foreach ($alert_field as $alert_item) {
+          if ($alert_item->entity && $alert_item->entity->id() == $paragraph->id()) {
+            // This paragraph is used in a config_pages site banner, so use the custom template.
+            $suggestions[] = 'paragraph__uswds_alert__config_pages_site_banner';
+            break 2; // Break out of both loops.
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
