@@ -121,23 +121,23 @@ if command -v aws >/dev/null 2>&1; then
         BUCKET="$TARGET_BUCKET"
         echo "Using target bucket: $BUCKET"
 
-        # Extract credentials for the target bucket from VCAP_SERVICES
+        # Extract credentials for the target bucket from VCAP_SERVICES using jq
         # This requires the bucket to be bound to the cron app
-        ACCESS_KEY=$(echo "$VCAP_SERVICES" | grep -o '"s3":\[.*\]' | grep -o "\"bucket\":\"${BUCKET}\"" -A 10 | grep -o '"access_key_id":"[^"]*"' | head -1 | cut -d'"' -f4)
-        SECRET_KEY=$(echo "$VCAP_SERVICES" | grep -o '"s3":\[.*\]' | grep -o "\"bucket\":\"${BUCKET}\"" -A 10 | grep -o '"secret_access_key":"[^"]*"' | head -1 | cut -d'"' -f4)
-        REGION=$(echo "$VCAP_SERVICES" | grep -o '"s3":\[.*\]' | grep -o "\"bucket\":\"${BUCKET}\"" -A 10 | grep -o '"region":"[^"]*"' | head -1 | cut -d'"' -f4)
+        ACCESS_KEY=$(echo "$VCAP_SERVICES" | jq -r ".s3[]? | select(.credentials.bucket == \"${BUCKET}\") | .credentials.access_key_id")
+        SECRET_KEY=$(echo "$VCAP_SERVICES" | jq -r ".s3[]? | select(.credentials.bucket == \"${BUCKET}\") | .credentials.secret_access_key")
+        REGION=$(echo "$VCAP_SERVICES" | jq -r ".s3[]? | select(.credentials.bucket == \"${BUCKET}\") | .credentials.region")
 
-        if [ -z "$ACCESS_KEY" ]; then
+        if [ -z "$ACCESS_KEY" ] || [ "$ACCESS_KEY" = "null" ]; then
             echo "ERROR: Could not find credentials for bucket $BUCKET in VCAP_SERVICES"
             echo "You may need to bind the storage service to cron: cf bind-service cron storage"
             exit 1
         fi
     else
         # Default to cron-state-storage
-        BUCKET=$(echo "$VCAP_SERVICES" | grep -o '"bucket":"[^"]*"' | head -1 | cut -d'"' -f4)
-        ACCESS_KEY=$(echo "$VCAP_SERVICES" | grep -o '"access_key_id":"[^"]*"' | head -1 | cut -d'"' -f4)
-        SECRET_KEY=$(echo "$VCAP_SERVICES" | grep -o '"secret_access_key":"[^"]*"' | head -1 | cut -d'"' -f4)
-        REGION=$(echo "$VCAP_SERVICES" | grep -o '"region":"[^"]*"' | head -1 | cut -d'"' -f4)
+        BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.s3[]? | select(.name == "cron-state-storage") | .credentials.bucket')
+        ACCESS_KEY=$(echo "$VCAP_SERVICES" | jq -r '.s3[]? | select(.name == "cron-state-storage") | .credentials.access_key_id')
+        SECRET_KEY=$(echo "$VCAP_SERVICES" | jq -r '.s3[]? | select(.name == "cron-state-storage") | .credentials.secret_access_key')
+        REGION=$(echo "$VCAP_SERVICES" | jq -r '.s3[]? | select(.name == "cron-state-storage") | .credentials.region')
         echo "Using default cron bucket: $BUCKET"
     fi
 
