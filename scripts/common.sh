@@ -450,17 +450,63 @@ upload_deployment_metadata() {
 
 # Fetch deployment metadata from S3
 # Args:
-#   $1: backup_tag - Tag to fetch metadata for
+#   $1: backup_tag - Tag to fetch metadata for (optional - if empty, fetches latest)
 # Returns: JSON string or empty if not found
 fetch_deployment_metadata() {
     local backup_tag="$1"
 
     setup_s3_vars || return 1
 
+    # If no tag provided, find the most recent metadata file
+    if [ -z "$backup_tag" ]; then
+        backup_tag=$(fetch_latest_backup_tag)
+        if [ -z "$backup_tag" ]; then
+            return 1
+        fi
+    fi
+
     local metadata_path="deployment-metadata/${backup_tag}.json"
 
     # Download from S3 to stdout
     aws s3 cp "s3://${BUCKET_NAME}/${metadata_path}" - $S3_EXTRA_PARAMS 2>/dev/null
+}
+
+# Fetch the tag of the most recent backup metadata file
+# Returns: backup tag string or empty if not found
+fetch_latest_backup_tag() {
+    setup_s3_vars || return 1
+
+    # List all metadata files, sort by reverse order (newest first), and extract tag from filename
+    aws s3 ls "s3://${BUCKET_NAME}/deployment-metadata/" $S3_EXTRA_PARAMS 2>/dev/null | \
+        grep '\.json$' | \
+        grep -v '.current_digests' | \
+        sort -r | \
+        head -1 | \
+        awk '{print $4}' | \
+        sed 's/\.json$//'
+}
+
+# Extract container digests from deployment metadata JSON
+# Args:
+#   $1: metadata_json - JSON string from fetch_deployment_metadata
+#   $2: apps - Comma-separated list of app names (optional - defaults to cms,www,waf)
+# Returns: Three lines: cms_digest, www_digest, waf_digest (or custom apps if specified)
+extract_digests_from_metadata() {
+    local metadata_json="$1"
+    local apps="${2:-cms,www,waf}"
+
+    if [ -z "$metadata_json" ]; then
+        return 1
+    fi
+
+    # Parse comma-separated app list
+    local IFS=','
+    for app in $apps; do
+        # Extract digest for this app from JSON
+        # Format: "deployed_containers": {"app": {"digest": "sha256:...", ...}, ...}
+        local digest=$(echo "$metadata_json" | sed -n "s/.*\"$app\":[[:space:]]*{[^}]*\"digest\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1)
+        echo "$digest"
+    done
 }
 
 # Get container digest for a specific app from Cloud Foundry

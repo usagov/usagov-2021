@@ -87,21 +87,22 @@ show_usage() {
     echo "                                        limit: limit results per category (default: 10)"
     echo "                                        Flags: --backups-only, --git-only, --format=json,"
     echo "                                               --show-all-history (show deployments >1yr old)"
-    echo "  rollback [types] <cms> <www> <waf> [tag] [--skip-validation] [--skip-confirmation]"
-    echo "                                        🔥 DESTRUCTIVE: Rollback code (always) + optional data types"
-    echo "                                        Requires: Full container digests for cms, www, and waf"
-    echo "                                        Types: db, static, public, full, or comma-separated"
-    echo "                                        Default: code only (no data restore)"
-    echo "                                        Backup tag required if restoring data"
-    echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
-    echo "                                        Use --skip-confirmation to bypass production confirmation prompt"
-    echo "                                        Example: rollback gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi..."
-    echo "                                        Example: rollback db gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi... AUTO-prod-2025-12-22-0"
+    echo "  rollback [tag] [--apps=...] [--restore=...] [--skip-validation] [--skip-confirmation]"
+    echo "                                        🔥 DESTRUCTIVE: Rollback code + optional data"
+    echo "                                        Uses backup metadata to fetch container digests"
+    echo "                                        tag: Backup tag (optional - uses latest if omitted)"
+    echo "                                        --apps: Apps to rollback (default: cms,www,waf)"
+    echo "                                        --restore: Data types (db, static, public, all, or comma-separated)"
+    echo "                                        Example: rollback                                    # Latest backup, code only"
+    echo "                                        Example: rollback AUTO-prod-2025-12-22-0             # Specific backup"
+    echo "                                        Example: rollback AUTO-prod-2025-12-22-0 --restore=all"
     echo "  rollback-static [tag] [--skip-validation] [--skip-confirmation]"
-    echo "                                        🔥 DESTRUCTIVE: Restore static site only (with confirmation)"
+    echo "                                        🔥 DESTRUCTIVE: Restore static site data ONLY (no code rollback)"
+    echo "                                        Shortcut for data restore without changing deployed containers"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_STATIC_TAG is set"
     echo "  rollback-db [tag] [--skip-validation] [--skip-confirmation]"
-    echo "                                        🔥 DESTRUCTIVE: Restore database only (with confirmation)"
+    echo "                                        🔥 DESTRUCTIVE: Restore database data ONLY (no code rollback)"
+    echo "                                        Shortcut for data restore without changing deployed containers"
     echo "                                        Tag optional if DEPLOY_ROLLBACK_DB_TAG is set"
     echo ""
     echo "Downsync Commands (DESTRUCTIVE):"
@@ -342,37 +343,39 @@ show_command_help() {
         "rollback")
             echo "Rollback Deployment"
             echo ""
-            echo "Usage: deploy.sh rollback [types] <cms-digest> <www-digest> <waf-digest> [tag] [--skip-validation] [--skip-confirmation]"
+            echo "Usage: deploy.sh rollback [backup-tag] [--apps=cms,www,waf] [--restore=db,static,public,all] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
             echo "  🔥 DESTRUCTIVE: Rollback code and optionally data."
-            echo "  Always rolls back code. Data restore is optional."
+            echo "  Uses backup tags to automatically fetch container digests from metadata."
+            echo "  If no backup tag provided, uses the most recent backup."
             echo ""
             echo "Arguments:"
-            echo "  types       - Data types to restore: db, static, public, full, or comma-separated"
-            echo "                (default: code only, no data restore)"
-            echo "  cms-digest  - Full CMS container digest"
-            echo "  www-digest  - Full WWW container digest"
-            echo "  waf-digest  - Full WAF container digest"
-            echo "  tag         - Backup tag (required if restoring data)"
-            echo "  --skip-validation     - Skip space validation"
-            echo "  --skip-confirmation   - Skip production confirmation prompt"
+            echo "  backup-tag              - Backup tag (optional - uses latest if omitted)"
+            echo "  --apps=cms,www,waf      - Apps to rollback (default: cms,www,waf)"
+            echo "  --restore=types         - Data types to restore: db, static, public, all, or comma-separated"
+            echo "                            'all' restores all data types (db, static, public)"
+            echo "  --skip-validation       - Skip space validation"
+            echo "  --skip-confirmation     - Skip production confirmation prompt"
             echo ""
             echo "Examples:"
-            echo "  # Code only"
-            echo "  deploy.sh rollback gsatts/usagov-2021@sha256:cms... gsatts/usagov-2021@sha256:www... gsatts/usagov-2021@sha256:waf..."
-            echo ""
-            echo "  # Code + database"
-            echo "  deploy.sh rollback db gsatts/usagov-2021@sha256:cms... gsatts/usagov-2021@sha256:www... gsatts/usagov-2021@sha256:waf... AUTO-prod-2025-12-22-0"
+            echo "  deploy.sh rollback                                    # Latest backup, code only"
+            echo "  deploy.sh rollback AUTO-prod-2025-12-22-0             # Specific backup, code only"
+            echo "  deploy.sh rollback AUTO-prod-2025-12-22-0 --restore=db,static  # With data restore"
+            echo "  deploy.sh rollback AUTO-prod-2025-12-22-0 --restore=all  # Restore all data types"
             echo ""
             ;;
         "rollback-static")
-            echo "Rollback Static Site"
+            echo "Restore Static Site Data (No Code Rollback)"
             echo ""
             echo "Usage: deploy.sh rollback-static [tag] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
-            echo "  🔥 DESTRUCTIVE: Restore static site only."
+            echo "  🔥 DESTRUCTIVE: Restore static site data ONLY without changing deployed code."
+            echo "  This is a shortcut for restoring data without rolling back container versions."
+            echo "  Deployed containers (cms, www, waf) remain unchanged."
+            echo ""
+            echo "  To rollback both code AND data, use: deploy.sh rollback <tag> --restore=static"
             echo ""
             echo "Arguments:"
             echo "  tag                   - Backup tag (optional if DEPLOY_ROLLBACK_STATIC_TAG set)"
@@ -381,12 +384,16 @@ show_command_help() {
             echo ""
             ;;
         "rollback-db")
-            echo "Rollback Database"
+            echo "Restore Database Data (No Code Rollback)"
             echo ""
             echo "Usage: deploy.sh rollback-db [tag] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
-            echo "  🔥 DESTRUCTIVE: Restore database only."
+            echo "  🔥 DESTRUCTIVE: Restore database data ONLY without changing deployed code."
+            echo "  This is a shortcut for restoring data without rolling back container versions."
+            echo "  Deployed containers (cms, www, waf) remain unchanged."
+            echo ""
+            echo "  To rollback both code AND data, use: deploy.sh rollback <tag> --restore=db"
             echo ""
             echo "Arguments:"
             echo "  tag                   - Backup tag (optional if DEPLOY_ROLLBACK_DB_TAG set)"
@@ -2271,7 +2278,7 @@ deploy_app() {
     _deploy_app "$app_name" "$env" "$cci_build" "$digest"
 }
 
-# Rollback command - redeploy containers with specified digests
+# Rollback command - uses backup metadata to restore containers
 rollback() {
     local data_types=""
     local cms_digest=""
@@ -2280,48 +2287,75 @@ rollback() {
     local backup_tag=""
     local skip_validation=""
     local skip_confirmation=""
+    local apps="cms,www,waf"
 
-    # Parse flags in any position
-    for arg in "$@"; do
-        if [ "$arg" = "--skip-validation" ]; then
-            skip_validation="--skip-validation"
-        elif [ "$arg" = "--skip-confirmation" ]; then
-            skip_confirmation="--skip-confirmation"
-        fi
+    # Parse first positional arg as backup tag (optional)
+    if [ -n "$1" ] && [ "${1:0:2}" != "--" ]; then
+        backup_tag="$1"
+        shift
+    fi
+
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --apps=*)
+                apps="${1#*=}"
+                shift
+                ;;
+            --restore=*)
+                data_types="${1#*=}"
+                shift
+                ;;
+            --skip-validation)
+                skip_validation="--skip-validation"
+                shift
+                ;;
+            --skip-confirmation)
+                skip_confirmation="--skip-confirmation"
+                shift
+                ;;
+            *)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: deploy.sh rollback [backup-tag] [--apps=cms,www,waf] [--restore=db,static,public,all] [--skip-validation] [--skip-confirmation]"
+                return 1
+                ;;
+        esac
     done
 
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$skip_validation"
 
-    # Parse: [types] <cms-digest> <www-digest> <waf-digest> [backup-tag]
-    # If first arg looks like a data type, it's types; otherwise first digest
-    case "$1" in
-        db|static|public|full|*,*)
-            data_types="$1"
-            cms_digest="$2"
-            www_digest="$3"
-            waf_digest="$4"
-            backup_tag="$5"
-            ;;
-        *)
-            # No type = code only (default)
-            cms_digest="$1"
-            www_digest="$2"
-            waf_digest="$3"
-            backup_tag="$4"
-            ;;
-    esac
+    # Fetch metadata from backup tag (or latest if empty)
+    print_status $BLUE "📦 Fetching backup metadata..."
+    local metadata_json=$(fetch_deployment_metadata "$backup_tag")
+
+    if [ -z "$metadata_json" ]; then
+        if [ -z "$backup_tag" ]; then
+            print_status $RED "❌ Error: No backup metadata found"
+        else
+            print_status $RED "❌ Error: Backup metadata not found for tag: $backup_tag"
+        fi
+        echo "Use 'deploy.sh list-backups' to see available backups."
+        return 1
+    fi
+
+    # Extract backup tag from metadata if it was auto-detected
+    if [ -z "$backup_tag" ]; then
+        backup_tag=$(echo "$metadata_json" | sed -n 's/.*"backup_tag":[[:space:]]*"\([^"]*\)".*/\1/p')
+        print_status $GREEN "✅ Using latest backup: $backup_tag"
+    fi
+
+    # Extract digests from metadata
+    local digests=$(extract_digests_from_metadata "$metadata_json" "$apps")
+
+    # Parse digests based on app count
+    cms_digest=$(echo "$digests" | sed -n '1p')
+    www_digest=$(echo "$digests" | sed -n '2p')
+    waf_digest=$(echo "$digests" | sed -n '3p')
 
     if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
-        print_status $RED "❌ Error: Container digests required"
-        echo "Usage: deploy.sh rollback [db|static|public|full] <cms-digest> <www-digest> <waf-digest> [backup-tag] [--skip-validation] [--skip-confirmation]"
-        echo "       deploy.sh rollback <cms-digest> <www-digest> <waf-digest>  (defaults to code only)"
-        echo ""
-        echo "Examples:"
-        echo "  deploy.sh rollback gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi..."
-        echo "  deploy.sh rollback db gsatts/usagov-2021@sha256:abc... gsatts/usagov-2021@sha256:def... gsatts/usagov-2021@sha256:ghi... AUTO-prod-2025-12-22-0"
-        echo ""
-        echo "Use 'deploy.sh list-digests' to see available container digests."
+        print_status $RED "❌ Error: Could not extract container digests from metadata"
+        echo "Metadata may be incomplete or corrupted."
         return 1
     fi
 
@@ -2395,7 +2429,7 @@ rollback() {
         print_status $BLUE "📦 Restoring data..."
 
         case "$data_types" in
-            full)
+            all)
                 # Restore all data types using backup system
                 exec_restore_command "$backup_tag"
                 ;;
