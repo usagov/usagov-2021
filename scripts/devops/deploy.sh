@@ -2526,8 +2526,7 @@ validate_deployment() {
         [ -z "$app" ] && continue
 
         print_status $BLUE "📦 Validating app: $app"
-        echo "----------------------------------------"
-        local loader=$(show_loading "Checking deployment status")
+        echo "=========================================="
 
         # Check if app exists and is running
         local app_info
@@ -2545,62 +2544,145 @@ validate_deployment() {
         app_state=$(echo "$app_info" | grep "^requested state:" | awk '{print $3}')
 
         if [ "$app_state" != "started" ]; then
-            print_status $RED "❌ App is not started (state: $app_state)"
+            print_status $RED "  ❌ App state: $app_state"
             overall_success=false
         else
-            print_status $GREEN "✅ App is started"
+            print_status $GREEN "  ✅ App state: started"
         fi
 
         # Check instances
-        local instances_info
-        instances_info=$(echo "$app_info" | grep "^instances:")
+        local instances_line
+        instances_line=$(echo "$app_info" | grep "^instances:" | awk '{print $2}')
 
-        if echo "$instances_info" | grep -q "running"; then
+        if echo "$app_info" | grep -q "^\#[0-9].*running"; then
             local running_count
-            running_count=$(echo "$instances_info" | grep -o "running" | wc -l | tr -d ' ')
-            print_status $GREEN "✅ $running_count instance(s) running"
+            running_count=$(echo "$app_info" | grep "^\#[0-9].*running" | wc -l | tr -d ' ')
+            print_status $GREEN "  ✅ Instances: $running_count running ($instances_line)"
         else
-            print_status $RED "❌ No running instances"
+            print_status $RED "  ❌ Instances: none running ($instances_line)"
             overall_success=false
         fi
 
-        # Check deployed commit SHA
-        local deployed_commit
-        deployed_commit=$(cf ssh "$app" -c "cd /var/www && git rev-parse HEAD 2>/dev/null || echo 'unknown'" 2>/dev/null | tail -1 | tr -d '\r')
+        # Check deployed Docker digest
+        local deployed_digest
+        deployed_digest=$(echo "$app_info" | grep "^docker image:" | awk '{print $3}')
 
-        if [ "$deployed_commit" = "unknown" ] || [ -z "$deployed_commit" ]; then
-            print_status $YELLOW "⚠️  Could not determine deployed commit (git not available in container)"
-        elif [ "$expected_commit" = "unknown" ]; then
-            print_status $YELLOW "⚠️  Deployed commit: ${deployed_commit:0:8} (cannot verify - expected commit unknown)"
-        elif [ "$deployed_commit" = "$expected_commit" ]; then
-            print_status $GREEN "✅ Deployed commit matches expected: ${deployed_commit:0:8}"
+        if [ -n "$deployed_digest" ]; then
+            local short_digest="${deployed_digest##*sha256:}"
+            short_digest="${short_digest:0:12}"
+            print_status $GREEN "  ✅ Digest: sha256:${short_digest}..."
         else
-            print_status $RED "❌ Commit mismatch!"
-            echo "   Expected: ${expected_commit:0:8}"
-            echo "   Deployed: ${deployed_commit:0:8}"
+            print_status $YELLOW "  ⚠️  Digest: unknown"
+        fi
+
+        # Get services bound to this app from cf services output
+        local bound_services
+        bound_services=$(cf services 2>/dev/null | grep -w "$app" | awk '{print $1}' | tr '\n' ',' | sed 's/,$//')
+
+        if [ -n "$bound_services" ]; then
+            # Get expected services from manifest based on app name
+            local expected_services=""
+            case "$app" in
+                cms)
+                    expected_services="database,secrets,secauthsecrets,storage"
+                    ;;
+                www|waf)
+                    expected_services="secrets,storage"
+                    ;;
+            esac
+
+            if [ -n "$expected_services" ]; then
+                local missing_services=""
+                local IFS=','
+                for expected in $expected_services; do
+                    if ! echo "$bound_services" | grep -q "$expected"; then
+                        missing_services="${missing_services}${expected}, "
+                    fi
+                done
+
+                if [ -z "$missing_services" ]; then
+                    local service_count=$(echo "$bound_services" | tr ',' '\n' | wc -l | tr -d ' ')
+                    print_status $GREEN "  ✅ Service bindings: all required bound ($service_count total)"
+                else
+                    print_status $RED "  ❌ Service bindings: missing ${missing_services%, }"
+                    overall_success=false
+                fi
+            else
+                local service_count=$(echo "$bound_services" | tr ',' '\n' | wc -l | tr -d ' ')
+                print_status $GREEN "  ✅ Service bindings: $service_count bound"
+            fi
+        else
+            print_status $YELLOW "  ⚠️  Service bindings: none (may be expected)"
+        fi
+
+        # Check for recent crashes/restarts
+        local recent_events
+        recent_events=$(cf events "$app" 2>/dev/null | grep -E "crash|restart" | head -3)
+
+        if [ -n "$recent_events" ]; then
+            local crash_count
+            crash_count=$(echo "$recent_events" | wc -l | tr -d ' ')
+            print_status $YELLOW "  ⚠️  Stability: $crash_count recent crash/restart events"
+            echo "$recent_events" | sed 's/^/      /'
+        else
+            print_status $GREEN "  ✅ Stability: no recent crashes or restarts"
+        fi
+
+        # Different apps have different services
+        local health_cmd=""
+        local expected_services=""
+        case "$app" in
+            cms)
+                health_cmd="s6-svstat /var/run/s6/services/nginx 2>&1 && s6-svstat /var/run/s6/services/php 2>&1"
+                expected_services="nginx, php"
+                ;;
+            www|waf)
+                health_cmd="s6-svstat /var/run/s6/services/nginx 2>&1"
+                expected_services="nginx"
+                ;;
+            *)
+                health_cmd="s6-svstat /var/run/s6/services/nginx 2>&1"
+                expected_services="nginx"
+                ;;
+        esac
+
+        local health_check
+        health_check=$(cf ssh "$app" -c "$health_cmd" 2>/dev/null | grep -c "^up")
+
+        local expected_count=$(echo "$expected_services" | tr ',' '\n' | wc -l | tr -d ' ')
+
+        if [ "$health_check" -ge "$expected_count" ]; then
+            print_status $GREEN "  ✅ Container health: $expected_services running"
+        elif [ "$health_check" -gt 0 ]; then
+            print_status $YELLOW "  ⚠️  Container health: only $health_check/$expected_count services running"
+            overall_success=false
+        else
+            print_status $RED "  ❌ Container health: services not responding"
             overall_success=false
         fi
 
         # HTTP endpoint check (if not skipped)
         if [ "$skip_http" = false ]; then
-            loader=$(show_loading "Testing HTTP endpoint")
             local app_url
-            app_url=$(cf app "$app" | grep "^routes:" | awk '{print $2}' | head -1)
+            # Get all routes and filter out .apps.internal (CF-internal routes not publicly accessible)
+            app_url=$(cf app "$app" | grep "^routes:" | sed 's/^routes:\s*//' | tr ',' '\n' | grep -v '\.apps\.internal' | head -1 | xargs)
 
             if [ -n "$app_url" ]; then
                 local http_status
                 http_status=$(curl -s -o /dev/null -w "%{http_code}" -L "https://$app_url" --max-time 10 2>/dev/null)
 
                 if [ "$http_status" = "200" ]; then
-                    print_status $GREEN "✅ HTTP endpoint responding (200)"
+                    print_status $GREEN "  ✅ HTTP endpoint: $http_status OK (https://$app_url)"
+                elif [ "$http_status" = "000" ]; then
+                    print_status $YELLOW "  ⚠️  HTTP endpoint: $http_status network/firewall (https://$app_url)"
                 elif [ -n "$http_status" ]; then
-                    print_status $YELLOW "⚠️  HTTP endpoint returned: $http_status"
+                    print_status $YELLOW "  ⚠️  HTTP endpoint: $http_status (https://$app_url)"
                 else
-                    print_status $RED "❌ HTTP endpoint not responding"
+                    print_status $RED "  ❌ HTTP endpoint: no response (https://$app_url)"
                     overall_success=false
                 fi
             else
-                print_status $YELLOW "⚠️  Could not determine app URL for HTTP check"
+                print_status $YELLOW "  ⚠️  HTTP endpoint: could not determine URL"
             fi
         fi
 
