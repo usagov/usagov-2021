@@ -490,7 +490,7 @@ fetch_latest_backup_tag() {
 # Args:
 #   $1: metadata_json - JSON string from fetch_deployment_metadata
 #   $2: apps - Comma-separated list of app names (optional - defaults to cms,www,waf)
-# Returns: Three lines: cms_digest, www_digest, waf_digest (or custom apps if specified)
+# Returns: One digest per line for each app
 extract_digests_from_metadata() {
     local metadata_json="$1"
     local apps="${2:-cms,www,waf}"
@@ -502,10 +502,9 @@ extract_digests_from_metadata() {
     # Parse comma-separated app list
     local IFS=','
     for app in $apps; do
-        # Extract digest for this app from JSON
-        # Format: "deployed_containers": {"app": {"digest": "sha256:...", ...}, ...}
-        local digest=$(echo "$metadata_json" | sed -n "s/.*\"$app\":[[:space:]]*{[^}]*\"digest\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1)
-        echo "$digest"
+        # Extract digest for this app from JSON using grep and sed pipeline
+        # Look for the app section, then extract the digest value
+        echo "$metadata_json" | grep -A 2 "\"$app\":" | grep '"digest"' | sed 's/.*"digest":[[:space:]]*"\([^"]*\)".*/\1/' | head -1
     done
 }
 

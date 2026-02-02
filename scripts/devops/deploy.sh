@@ -2278,6 +2278,28 @@ deploy_app() {
     _deploy_app "$app_name" "$env" "$cci_build" "$digest"
 }
 
+# Helper function to fetch deployment metadata from S3 via CMS container
+# Wraps the common.sh function but executes it remotely via cf ssh
+fetch_deployment_metadata() {
+    local backup_tag="$1"
+
+    # If no tag provided, find the most recent
+    if [ -z "$backup_tag" ]; then
+        backup_tag=$(fetch_latest_backup_tag)
+        if [ -z "$backup_tag" ]; then
+            return 1
+        fi
+    fi
+
+    # Fetch metadata from CMS container (needs S3 access)
+    cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null
+}
+
+# Helper function to fetch the latest backup tag from S3 via CMS container
+fetch_latest_backup_tag() {
+    cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null | tail -1
+}
+
 # Rollback command - uses backup metadata to restore containers
 rollback() {
     local data_types=""
