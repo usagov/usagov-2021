@@ -780,6 +780,11 @@ select:not([disabled]):focus,
   }
 }
 
+// Global utility class for hiding elements
+.display-none {
+  display: none !important;
+}
+
 .usa-pagination .usa-current {
   background-color: color('blue-warm-70v');
 
@@ -796,30 +801,61 @@ select:not([disabled]):focus,
   }
 }
 
-.usa-pagination__arrow{
-  text-decoration: underline;
+.usa-pagination__arrow {
+  // Remove underline from arrow links
+  a {
+    text-decoration: none;
+  }
 }
 
 .usa-pagination__button {
-  border: 2px solid #768FB3;
-  color: color('gray-90');
+  border: 2px solid color('blue-warm-70v');
+  border-radius: 0.25rem;
+  background-color: white;
+  color: color('blue-warm-70v');
+  padding: 0.5rem 0.75rem;
+  min-width: 2.5rem;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
 
-    &:hover{
-      @include u-text('gray-90');
+  &:hover {
+    background-color: color('blue-warm-70v');
+    border-color: color('blue-warm-70v');
+    color: white;
+    text-decoration: none;
+  }
 
-      background-color:#768FB3;
-      border-color: #768FB3;
-    }
+  &:focus {
+    outline: 2px solid color('orange-warm-50v');
+    outline-offset: 2px;
+  }
 }
 
-  .usa-pagination__link {
-    text-decoration: underline color('blue-warm-70v');
+.usa-pagination__link {
+  color: color('blue-warm-70v');
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
 
-    &:hover{
-      color: color('blue-warm-70v');
-    }
-
+  &:hover {
+    color: color('blue-warm-80v');
+    text-decoration: underline;
   }
+
+  &:focus {
+    outline: 2px solid color('orange-warm-50v');
+    outline-offset: 2px;
+  }
+
+  .usa-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
 
 
 #main-content {
@@ -929,21 +965,40 @@ input::-webkit-textfield-decoration-container {
 }
 
 /* Blog post styles */
-.usa-section .usa-prose .blog-post {
-  margin-bottom: -85px;
+.usa-section {
+  .blog-title {
+    font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
+    font-size: 1.95rem;
+    line-height: 1.2;
+    font-weight: 700;
+    margin-bottom: 0;
+    margin-top: 0;
+    clear: both;
+  }
 
-  .field--name-field-featured-image {
-    float: right;
-    margin-left: 10px;
-    margin-bottom: 10px;
+  .usa-prose .blog-post {
+    margin-bottom: -85px;
 
-    img {
-      max-width: 300px;
+    .field--name-field-featured-image {
+      float: right;
+      margin-left: 10px;
+      margin-bottom: 10px;
+
+      img {
+        max-width: 300px;
+      }
+    }
+
+    .align-left {
+      margin-top: 0;
     }
   }
 
-  .align-left {
-    margin-top: 0;
+  @media (max-width: 64em) {
+    .blog-title {
+      padding-bottom: 10px;
+      border-bottom: hsl(205deg, 20%, 94%) 2px solid;
+    }
   }
 }
 
@@ -973,15 +1028,15 @@ input::-webkit-textfield-decoration-container {
     }
 
     .views-field-title h2 {
-      font-family: Merriweather Web, Georgia, Cambria, Times New Roman, Times, serif;
-      font-size: 1.95rem;
-      color: #d83933;
+      font-family: "Merriweather Web", Georgia, Cambria, "Times New Roman", Times, serif;
+      font-size: 1.34rem;
+      color: #1b1b1b;
       line-height: 1.2;
       font-weight: 700;
       text-decoration: none;
 
       &:hover {
-        color: #a62a26;
+        color: #272727;
       }
     }
 
@@ -1018,6 +1073,7 @@ input::-webkit-textfield-decoration-container {
     @media (max-width: 40em) {
       .views-field-created {
         font-size: 1rem;
+        grid-column: 1 / -1;
       }
 
       .views-field-view-node a {
@@ -1037,7 +1093,7 @@ input::-webkit-textfield-decoration-container {
   }
 }
 
-// Mini pager specific styles
+// Pagination styles
 .usa-pagination {
   // Ensure pager is visible on all screen sizes
   display: flex;
@@ -1049,7 +1105,7 @@ input::-webkit-textfield-decoration-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.5rem;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -1060,24 +1116,27 @@ input::-webkit-textfield-decoration-container {
     align-items: center;
   }
 
+  .usa-pagination__overflow {
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    color: color('gray-70');
+    font-weight: 600;
+  }
+
   .usa-pagination__arrow {
     .usa-pagination__link {
       display: flex;
       align-items: center;
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 0.75rem;
       text-decoration: none;
-      border: 2px solid color('blue-warm-70v');
-      border-radius: 4px;
-      background-color: white;
       color: color('blue-warm-70v');
       font-weight: 600;
-      transition: all 0.3s ease;
+      transition: all 0.15s ease;
 
-      &:hover,
-      &:focus {
-        background-color: color('blue-warm-70v');
-        color: white;
-        text-decoration: none;
+      &:hover {
+        color: color('blue-warm-80v');
+        text-decoration: underline;
       }
 
       &:focus {
@@ -1086,22 +1145,13 @@ input::-webkit-textfield-decoration-container {
       }
 
       .usa-icon {
-        width: 1rem;
-        height: 1rem;
+        width: 1.5rem;
+        height: 1.5rem;
         fill: currentColor;
       }
 
       .usa-pagination__link-text {
-        margin: 0 0.5rem;
-
-        // Hide text on mobile, show only icons
-        @media (max-width: 479px) {
-          position: absolute;
-          left: -10000px;
-          width: 1px;
-          height: 1px;
-          overflow: hidden;
-        }
+        margin: 0 0.25rem;
       }
     }
   }
@@ -1111,26 +1161,66 @@ input::-webkit-textfield-decoration-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 0.75rem;
       border: 2px solid color('blue-warm-70v');
-      border-radius: 4px;
-      background-color: color('blue-warm-70v');
-      color: white;
+      border-radius: 0.25rem;
+      background-color: white;
+      color: color('blue-warm-70v');
       font-weight: 600;
-      min-width: 3rem;
+      min-width: 2.5rem;
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover {
+        background-color: color('blue-warm-70v');
+        border-color: color('blue-warm-70v');
+        color: white;
+      }
+
+      &:focus {
+        outline: 2px solid color('orange-warm-50v');
+        outline-offset: 2px;
+      }
+
+      &.usa-current {
+        background-color: color('blue-warm-70v');
+        border-color: color('blue-warm-70v');
+        color: white;
+        cursor: default;
+
+        &:hover {
+          background-color: color('blue-warm-70v');
+          border-color: color('blue-warm-70v');
+          color: white;
+        }
+      }
     }
   }
 
   // Mobile-specific adjustments
-  @media (max-width: 479px) {
+  @media (max-width: 639px) {
     .usa-pagination__list {
-      gap: 0.5rem;
+      gap: 0.25rem;
+      flex-wrap: wrap;
     }
 
     .usa-pagination__arrow {
+      .usa-pagination__link-text {
+        // Hide text on mobile, show only icons
+        position: absolute;
+        left: -10000px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+    }
+
+    .usa-pagination__page-no,
+    .usa-pagination__arrow {
+      .usa-pagination__button,
       .usa-pagination__link {
-        padding: 0.75rem;
-        min-width: 3rem;
+        min-width: 2.5rem;
+        padding: 0.5rem;
         justify-content: center;
       }
     }

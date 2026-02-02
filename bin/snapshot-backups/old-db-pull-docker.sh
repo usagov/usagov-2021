@@ -36,7 +36,7 @@ nohup sshpass -p $CF_SSH_CODE ssh \
 sleep 5
 
 echo "[INFO] Estimate DB Size for progress bar"
-DB_SIZE=$(mysql \
+DB_SIZE=$(mariadb \
     -h127.0.0.1 \
     -P$LOCAL_PORT \
     -u$CF_DB_USER \
