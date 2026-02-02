@@ -301,13 +301,13 @@ capture_deployment_metadata() {
     # Get git info from /etc/motd (inside container) or git commands (local)
     local git_commit="unknown"
     local git_branch="unknown"
-    
+
     if [ -f "/etc/motd" ]; then
         # Extract from container's MOTD
         git_commit=$(grep "commit:" /etc/motd 2>/dev/null | awk '{print $NF}' | head -1)
         git_branch=$(grep "branch:" /etc/motd 2>/dev/null | awk '{print $NF}' | head -1)
     fi
-    
+
     # Fall back to git commands if not found in MOTD
     if [ -z "$git_commit" ] || [ "$git_commit" = "unknown" ]; then
         git_commit=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
@@ -316,79 +316,40 @@ capture_deployment_metadata() {
         git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
     fi
 
-    # Get currently deployed containers
-    # Priority order: 1) Environment variables, 2) S3 current-digests file, 3) CF CLI
-    local cms_digest="$BACKUP_CMS_DIGEST"
-    local www_digest="$BACKUP_WWW_DIGEST"
-    local waf_digest="$BACKUP_WAF_DIGEST"
+    # Get currently deployed containers from S3 digest file
+    setup_s3_vars >/dev/null 2>&1
 
-    # If not set via env vars, try reading from S3 current-digests file
-    local cms_build="unknown"
-    local www_build="unknown"
-    local waf_build="unknown"
-    
-    if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
-        setup_s3_vars >/dev/null 2>&1
-
-        # Try to fetch current digests from S3
-        local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
-
-        if [ -n "$digests_json" ]; then
-            # Extract digests from JSON (simple string format for backward compatibility)
-            if [ -z "$cms_digest" ]; then
-                cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*"\([^"]*\)".*/\1/p')
-            fi
-            if [ -z "$www_digest" ]; then
-                www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*"\([^"]*\)".*/\1/p')
-            fi
-            if [ -z "$waf_digest" ]; then
-                waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*"\([^"]*\)".*/\1/p')
-            fi
-        fi
-    fi
-
-    # If still not set, try CF CLI (only works outside container)
-    if [ -z "$cms_digest" ] && command -v cf >/dev/null 2>&1; then
-        cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "")
-    fi
-    if [ -z "$www_digest" ] && command -v cf >/dev/null 2>&1; then
-        www_digest=$(get_app_digest "www" 2>/dev/null || echo "")
-    fi
-    if [ -z "$waf_digest" ] && command -v cf >/dev/null 2>&1; then
-        waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "")
-    fi
+    # Fetch current digests from S3
+    local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
 
     # Get build number from local container's MOTD (if we're inside a container)
-    # This will only get the build number for the container we're running in
+    local local_build="unknown"
+    local local_app_name=""
+
     if [ -f "/etc/motd" ]; then
         local_build=$(grep "containertag:" /etc/motd 2>/dev/null | awk '{print $NF}')
         [ -z "$local_build" ] || [ "$local_build" = "none" ] && local_build="unknown"
-        
-        # If we're in a container, use this for the appropriate app's build
+
+        # Determine which app we're running in
         if [ -n "$VCAP_APPLICATION" ]; then
-            local app_name=$(echo "$VCAP_APPLICATION" | jq -r .application_name 2>/dev/null)
-            case "$app_name" in
-                "cms")
-                    cms_build="$local_build"
-                    ;;
-                "www")
-                    www_build="$local_build"
-                    ;;
-                "waf")
-                    waf_build="$local_build"
-                    ;;
-            esac
+            local_app_name=$(echo "$VCAP_APPLICATION" | jq -r .application_name 2>/dev/null)
         fi
     fi
 
-    # Use cms build number for all containers if not individually set (same deployment)
-    if [ "$cms_build" != "unknown" ] && [ -n "$cms_build" ]; then
-        [ "$www_build" = "unknown" ] || [ -z "$www_build" ] && www_build="$cms_build"
-        [ "$waf_build" = "unknown" ] || [ -z "$waf_build" ] && waf_build="$cms_build"
+    # Extract all containers from digest JSON
+    # Format: {"timestamp": "...", "environment": "dev", "containers": {"app": "digest", ...}}
+    local containers_list=""
+    if [ -n "$digests_json" ]; then
+        # Extract container names (all keys in the "containers" object)
+        containers_list=$(echo "$digests_json" | sed -n 's/.*"containers":[[:space:]]*{\([^}]*\)}.*/\1/p' | sed 's/"//g' | sed 's/:[^,]*//g' | tr ',' '\n' | sed 's/^[[:space:]]*//' | sort)
     fi
 
-    # Use cms build number as primary identifier
-    local cci_build="$cms_build"
+    # If no containers found in S3, fall back to CF CLI for known apps
+    if [ -z "$containers_list" ] && command -v cf >/dev/null 2>&1; then
+        containers_list="cms
+www
+waf"
+    fi
 
     # Get username (circleci or actual user)
     local created_by=$(whoami 2>/dev/null || echo "unknown")
@@ -396,33 +357,67 @@ capture_deployment_metadata() {
         created_by="circleci"
     fi
 
-    # Build JSON (simple approach without jq dependency)
-    cat <<EOF
-{
-  "backup_tag": "$backup_tag",
-  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-  "environment": "$environment",
-  "ticket": "$ticket",
-  "backup_type": "$backup_type",
-  "git_commit": "$git_commit",
-  "git_branch": "$git_branch",
-  "deployed_containers": {
-    "cms": {
-      "cci_build": "$cms_build",
-      "digest": "$cms_digest"
-    },
-    "www": {
-      "cci_build": "$www_build",
-      "digest": "$www_digest"
-    },
-    "waf": {
-      "cci_build": "$waf_build",
-      "digest": "$waf_digest"
-    }
-  },
-  "created_by": "$created_by"
-}
-EOF
+    # Determine primary build number (use cms if available, otherwise local)
+    local cms_build="unknown"
+    if [ "$local_app_name" = "cms" ]; then
+        cms_build="$local_build"
+    fi
+
+    # Build JSON with dynamic container list
+    echo "{"
+    echo "  \"backup_tag\": \"$backup_tag\","
+    echo "  \"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\","
+    echo "  \"environment\": \"$environment\","
+    echo "  \"ticket\": \"$ticket\","
+    echo "  \"backup_type\": \"$backup_type\","
+    echo "  \"git_commit\": \"$git_commit\","
+    echo "  \"git_branch\": \"$git_branch\","
+    echo "  \"deployed_containers\": {"
+
+    # Build containers object dynamically
+    local first_container=true
+    for container_name in $containers_list; do
+        # Skip empty names
+        [ -z "$container_name" ] && continue
+
+        # Get digest for this container
+        local container_digest=""
+        if [ -n "$digests_json" ]; then
+            container_digest=$(echo "$digests_json" | sed -n "s/.*\"$container_name\":[[:space:]]*\"\([^\"]*\)\".*/\1/p")
+        fi
+
+        # If still no digest, try CF CLI (only works outside container)
+        if [ -z "$container_digest" ] && command -v cf >/dev/null 2>&1; then
+            container_digest=$(get_app_digest "$container_name" 2>/dev/null || echo "")
+        fi
+
+        # Get build number for this container
+        local container_build="unknown"
+        if [ "$local_app_name" = "$container_name" ]; then
+            # We're running in this container - use local build
+            container_build="$local_build"
+        elif [ "$cms_build" != "unknown" ]; then
+            # Use cms build as fallback (likely same deployment)
+            container_build="$cms_build"
+        fi
+
+        # Add comma before all entries except the first
+        if [ "$first_container" = "false" ]; then
+            echo ","
+        fi
+        first_container=false
+
+        # Output container entry (no trailing comma on last line of this entry)
+        echo -n "    \"$container_name\": {"
+        echo -n "\"cci_build\": \"$container_build\", "
+        echo -n "\"digest\": \"$container_digest\""
+        echo -n "}"
+    done
+
+    echo ""
+    echo "  },"
+    echo "  \"created_by\": \"$created_by\""
+    echo "}"
 }
 
 # Upload deployment metadata to S3
