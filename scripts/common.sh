@@ -334,31 +334,15 @@ capture_deployment_metadata() {
         local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
 
         if [ -n "$digests_json" ]; then
-            # Extract digests and build numbers from JSON
-            # New format: "app_name": { "digest": "...", "build": "..." }
-            # Old format: "app_name": "registry/repo@digest" (for backward compatibility)
+            # Extract digests from JSON (simple string format for backward compatibility)
             if [ -z "$cms_digest" ]; then
-                # Try new format first
-                cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*{[^}]*"digest":[[:space:]]*"\([^"]*\)".*/\1/p')
-                cms_build=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*{[^}]*"build":[[:space:]]*"\([^"]*\)".*/\1/p')
-                # Fall back to old format if new format not found
-                if [ -z "$cms_digest" ]; then
-                    cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*"\([^"]*\)".*/\1/p')
-                fi
+                cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*"\([^"]*\)".*/\1/p')
             fi
             if [ -z "$www_digest" ]; then
-                www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*{[^}]*"digest":[[:space:]]*"\([^"]*\)".*/\1/p')
-                www_build=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*{[^}]*"build":[[:space:]]*"\([^"]*\)".*/\1/p')
-                if [ -z "$www_digest" ]; then
-                    www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*"\([^"]*\)".*/\1/p')
-                fi
+                www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*"\([^"]*\)".*/\1/p')
             fi
             if [ -z "$waf_digest" ]; then
-                waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*{[^}]*"digest":[[:space:]]*"\([^"]*\)".*/\1/p')
-                waf_build=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*{[^}]*"build":[[:space:]]*"\([^"]*\)".*/\1/p')
-                if [ -z "$waf_digest" ]; then
-                    waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*"\([^"]*\)".*/\1/p')
-                fi
+                waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*"\([^"]*\)".*/\1/p')
             fi
         fi
     fi
@@ -374,16 +358,37 @@ capture_deployment_metadata() {
         waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "")
     fi
 
-    # Use build number from S3 file, or try to extract from digest as fallback
-    local cci_build="$cms_build"
-    if [ "$cci_build" = "unknown" ] || [ -z "$cci_build" ]; then
-        # Format: registry/org/usagov_cms:BUILD@sha256:...
-        if echo "$cms_digest" | grep -qE 'usagov_cms:[0-9]+@'; then
-            cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
-        else
-            cci_build="unknown"
+    # Get build number from local container's MOTD (if we're inside a container)
+    # This will only get the build number for the container we're running in
+    if [ -f "/etc/motd" ]; then
+        local_build=$(grep "containertag:" /etc/motd 2>/dev/null | awk '{print $NF}')
+        [ -z "$local_build" ] || [ "$local_build" = "none" ] && local_build="unknown"
+        
+        # If we're in a container, use this for the appropriate app's build
+        if [ -n "$VCAP_APPLICATION" ]; then
+            local app_name=$(echo "$VCAP_APPLICATION" | jq -r .application_name 2>/dev/null)
+            case "$app_name" in
+                "cms")
+                    cms_build="$local_build"
+                    ;;
+                "www")
+                    www_build="$local_build"
+                    ;;
+                "waf")
+                    waf_build="$local_build"
+                    ;;
+            esac
         fi
     fi
+
+    # Use cms build number for all containers if not individually set (same deployment)
+    if [ "$cms_build" != "unknown" ] && [ -n "$cms_build" ]; then
+        [ "$www_build" = "unknown" ] || [ -z "$www_build" ] && www_build="$cms_build"
+        [ "$waf_build" = "unknown" ] || [ -z "$waf_build" ] && waf_build="$cms_build"
+    fi
+
+    # Use cms build number as primary identifier
+    local cci_build="$cms_build"
 
     # Get username (circleci or actual user)
     local created_by=$(whoami 2>/dev/null || echo "unknown")
@@ -403,15 +408,15 @@ capture_deployment_metadata() {
   "git_branch": "$git_branch",
   "deployed_containers": {
     "cms": {
-      "cci_build": "$cci_build",
+      "cci_build": "$cms_build",
       "digest": "$cms_digest"
     },
     "www": {
-      "cci_build": "$cci_build",
+      "cci_build": "$www_build",
       "digest": "$www_digest"
     },
     "waf": {
-      "cci_build": "$cci_build",
+      "cci_build": "$waf_build",
       "digest": "$waf_digest"
     }
   },

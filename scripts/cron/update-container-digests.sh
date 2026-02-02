@@ -90,19 +90,13 @@ for APP in $APPS; do
     DIGEST=$(cf app "$APP" 2>/dev/null | grep "docker image" | awk '{print $NF}')
 
     if [ -n "$DIGEST" ]; then
-        # Get build number from container's /etc/motd
-        BUILD=$(cf ssh "$APP" -c 'grep "containertag:" /etc/motd 2>/dev/null | awk "{print \$NF}"' 2>/dev/null || echo "unknown")
-        if [ -z "$BUILD" ] || [ "$BUILD" = "none" ]; then
-            BUILD="unknown"
-        fi
-
         # Add comma if not first entry
         if [ "$FIRST" = true ]; then
             FIRST=false
         else
             JSON="$JSON,"
         fi
-        JSON="$JSON\n    \"$APP\": {\n      \"digest\": \"$DIGEST\",\n      \"build\": \"$BUILD\"\n    }"
+        JSON="$JSON\n    \"$APP\": \"$DIGEST\""
     fi
 done
 
