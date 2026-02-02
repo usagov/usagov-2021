@@ -298,9 +298,23 @@ capture_deployment_metadata() {
     local ticket=$(echo "$tag_info" | grep '^ticket=' | cut -d= -f2)
     local backup_type=$(echo "$tag_info" | grep '^backup_type=' | cut -d= -f2)
 
-    # Get git info
-    local git_commit=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
-    local git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+    # Get git info from /etc/motd (inside container) or git commands (local)
+    local git_commit="unknown"
+    local git_branch="unknown"
+    
+    if [ -f "/etc/motd" ]; then
+        # Extract from container's MOTD
+        git_commit=$(grep "commit:" /etc/motd 2>/dev/null | awk '{print $NF}' | head -1)
+        git_branch=$(grep "branch:" /etc/motd 2>/dev/null | awk '{print $NF}' | head -1)
+    fi
+    
+    # Fall back to git commands if not found in MOTD
+    if [ -z "$git_commit" ] || [ "$git_commit" = "unknown" ]; then
+        git_commit=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+    fi
+    if [ -z "$git_branch" ] || [ "$git_branch" = "unknown" ]; then
+        git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+    fi
 
     # Get currently deployed containers
     # Priority order: 1) Environment variables, 2) S3 current-digests file, 3) CF CLI
@@ -309,6 +323,10 @@ capture_deployment_metadata() {
     local waf_digest="$BACKUP_WAF_DIGEST"
 
     # If not set via env vars, try reading from S3 current-digests file
+    local cms_build="unknown"
+    local www_build="unknown"
+    local waf_build="unknown"
+    
     if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
         setup_s3_vars >/dev/null 2>&1
 
@@ -316,17 +334,31 @@ capture_deployment_metadata() {
         local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
 
         if [ -n "$digests_json" ]; then
-            # Extract digests from JSON
-            # Format: "app_name": "registry/repo@digest"
-            # Use sed to extract the value after the app name key
+            # Extract digests and build numbers from JSON
+            # New format: "app_name": { "digest": "...", "build": "..." }
+            # Old format: "app_name": "registry/repo@digest" (for backward compatibility)
             if [ -z "$cms_digest" ]; then
-                cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*"\([^"]*\)".*/\1/p')
+                # Try new format first
+                cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*{[^}]*"digest":[[:space:]]*"\([^"]*\)".*/\1/p')
+                cms_build=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*{[^}]*"build":[[:space:]]*"\([^"]*\)".*/\1/p')
+                # Fall back to old format if new format not found
+                if [ -z "$cms_digest" ]; then
+                    cms_digest=$(echo "$digests_json" | sed -n 's/.*"cms":[[:space:]]*"\([^"]*\)".*/\1/p')
+                fi
             fi
             if [ -z "$www_digest" ]; then
-                www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*"\([^"]*\)".*/\1/p')
+                www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*{[^}]*"digest":[[:space:]]*"\([^"]*\)".*/\1/p')
+                www_build=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*{[^}]*"build":[[:space:]]*"\([^"]*\)".*/\1/p')
+                if [ -z "$www_digest" ]; then
+                    www_digest=$(echo "$digests_json" | sed -n 's/.*"www":[[:space:]]*"\([^"]*\)".*/\1/p')
+                fi
             fi
             if [ -z "$waf_digest" ]; then
-                waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*"\([^"]*\)".*/\1/p')
+                waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*{[^}]*"digest":[[:space:]]*"\([^"]*\)".*/\1/p')
+                waf_build=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*{[^}]*"build":[[:space:]]*"\([^"]*\)".*/\1/p')
+                if [ -z "$waf_digest" ]; then
+                    waf_digest=$(echo "$digests_json" | sed -n 's/.*"waf":[[:space:]]*"\([^"]*\)".*/\1/p')
+                fi
             fi
         fi
     fi
@@ -342,11 +374,15 @@ capture_deployment_metadata() {
         waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "")
     fi
 
-    # Try to extract CCI build number from digest
-    # Format: registry/org/usagov_cms:BUILD@sha256:...
-    local cci_build="unknown"
-    if echo "$cms_digest" | grep -qE 'usagov_cms:[0-9]+@'; then
-        cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
+    # Use build number from S3 file, or try to extract from digest as fallback
+    local cci_build="$cms_build"
+    if [ "$cci_build" = "unknown" ] || [ -z "$cci_build" ]; then
+        # Format: registry/org/usagov_cms:BUILD@sha256:...
+        if echo "$cms_digest" | grep -qE 'usagov_cms:[0-9]+@'; then
+            cci_build=$(echo "$cms_digest" | sed 's/.*usagov_cms:\([0-9]*\)@.*/\1/')
+        else
+            cci_build="unknown"
+        fi
     fi
 
     # Get username (circleci or actual user)
