@@ -46,7 +46,6 @@
     "test",
     "reports",
     "index.js",
-    "newrelic.js",
     "package.json",
     "*.md"
   ],
@@ -92,7 +91,6 @@
   },
   "optionalDependencies": {
     "knex": "^3.1.0",
-    "newrelic": "^11.23.2",
     "pg": "^8.16.3"
   },
   "snyk": true
