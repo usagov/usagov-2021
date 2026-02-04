@@ -124,7 +124,7 @@ WORKDIR /var/www/app-source
 
 USER node
 
-RUN npm ci && npm run build
+RUN npm install && npm run build
 
 ###############################################################
 FROM alpine:3.22 AS cms
