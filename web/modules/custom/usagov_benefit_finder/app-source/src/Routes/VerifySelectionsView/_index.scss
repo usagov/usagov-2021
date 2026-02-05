@@ -1,0 +1,29 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+
+.bf-verify-criteria-value {
+  @include important-bold($font-family: 'sans');
+
+  padding-bottom: rem(30px);
+
+  @media (width >= $desktop) {
+    padding-bottom: rem(40px);
+  }
+}
+
+.bf-verify-criteria-legend {
+  @include p;
+
+  padding-bottom: rem(8px);
+}
+
+.bf-verify-criteria-section-heading {
+  border-bottom: rem(2px) solid color.$dark-teal;
+  padding-bottom: rem(8px);
+}
+
+.bf-verify-criteria-section:last-of-type {
+  padding-bottom: rem(30px);
+}

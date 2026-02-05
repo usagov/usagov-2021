@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PrintButton > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <button
+    class="bf-print-button bf-usa-button usa-button bf-usa-button--secondary usa-button--secondary"
+    data-test="button"
+    type="button"
+  >
+    Print
+  </button>
+</DocumentFragment>
+`;

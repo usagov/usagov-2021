@@ -1,0 +1,42 @@
+@use '@styles/colors' as color;
+@use '@styles/breakpoints' as *;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-usa-form-group {
+  width: 100%;
+}
+
+.bf-usa-memorable-date {
+  max-width: rem(320px);
+  flex-wrap: wrap;
+}
+
+.bf-usa-input {
+  &.usa-input--error {
+    padding: rem(8px);
+    height: initial;
+    border-color: color.$alert-red;
+  }
+}
+
+.bf-usa-form-group--month {
+  width: rem(242px);
+  margin-top: rem(8px);
+}
+
+.bf-usa-form-group--day {
+  width: rem(64px);
+  margin-top: rem(8px);
+}
+
+.bf-usa-form-group--year {
+  width: rem(95px);
+  margin-top: rem(8px);
+}
+
+@media (width >= $desktop) {
+  .bf-usa-memorable-date {
+    max-width: 100%;
+  }
+}
