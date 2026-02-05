@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ZeroBenefitsHeading > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <h2
+    aria-level="2"
+    class="bf-zero-benefits-view-heading "
+    data-testid="zero-benefits-view-heading"
+    role="heading"
+  >
+    No eligible results.
+  </h2>
+  <h3
+    aria-level="3"
+    class="bf-zero-benefits-view-description "
+    role="heading"
+  >
+    Based on your answers, you are currently not eligible for this life event’s benefits. You may become eligible if your situation or answers change in the future. Visit your city, state, or employer for other potential benefits.
+  </h3>
+  <div
+    class="bf-back-to-form-cta"
+  >
+    <button
+      class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+      data-test="button"
+      data-testid="bf-step-back-button"
+      type="button"
+    >
+      Go back to start
+    </button>
+  </div>
+  <div
+    class="bf-zero-benefits-view-cta"
+  >
+    <button
+      class="bf-usa-button usa-button bf-usa-button--secondary usa-button--secondary"
+      data-test="button"
+      data-testid="zero-benefits-view-cta-button"
+      type="button"
+    >
+      See all benefits
+    </button>
+  </div>
+</DocumentFragment>
+`;

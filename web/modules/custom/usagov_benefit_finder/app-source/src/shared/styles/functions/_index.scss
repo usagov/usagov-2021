@@ -1,0 +1,15 @@
+@use 'sass:math';
+
+// convert px to rem
+
+// USAGov font ratio is based on 16px
+// for example h1 @ 2.44rem = 39.04px
+$html-font-size: 16px;
+
+@function strip-unit($value) {
+  @return math.div($value, $value * 0 + 1);
+}
+
+@function rem($pxValue) {
+  @return #{math.div(strip-unit($pxValue), strip-unit($html-font-size))}rem;
+}

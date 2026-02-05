@@ -1,0 +1,8 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.time-indicator {
+  color: color.$dark-medium-grey;
+  margin-bottom: rem(36px);
+}

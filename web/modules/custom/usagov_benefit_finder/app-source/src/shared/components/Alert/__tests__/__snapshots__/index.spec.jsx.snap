@@ -1,0 +1,97 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Alert > renders a match to the previous snapshot when it has an error 1`] = `
+<DocumentFragment>
+  <div
+    aria-hidden="false"
+    aria-live="assertive"
+    class="bf-usa-alert usa-alert bf-usa-alert--error usa-alert--error "
+    data-testid="alert"
+    role="alert"
+    tabindex="0"
+  >
+    <div
+      class="bf-usa-alert__body usa-alert__body"
+    >
+      <h2
+        aria-level="2"
+        class="bf-usa-alert__heading usa-alert__heading "
+        data-testid="bf-alert-heading"
+        role="heading"
+      >
+          
+      </h2>
+      <p
+        class="bf-usa-alert__text usa-alert__text"
+      />
+      <ul
+        data-testid="bf-errors-list"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Alert > renders a match to the previous snapshot, default 1`] = `
+<DocumentFragment>
+  <div
+    aria-hidden="false"
+    aria-live="polite"
+    class="bf-usa-alert usa-alert bf-usa-alert--info usa-alert--info"
+    data-testid="alert"
+    role="alert"
+    tabindex="0"
+  >
+    <div
+      class="bf-usa-alert__body usa-alert__body"
+    >
+      <h2
+        aria-level="2"
+        class="bf-usa-alert__heading usa-alert__heading "
+        data-testid="bf-alert-heading"
+        role="heading"
+      >
+          
+      </h2>
+      <p
+        class="bf-usa-alert__text usa-alert__text"
+      />
+      <ul
+        data-testid="bf-errors-list"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Alert > renders a match to the previous snapshot, error type with no error 1`] = `
+<DocumentFragment>
+  <div
+    aria-hidden="true"
+    aria-live="polite"
+    class="bf-usa-alert usa-alert bf-usa-alert--error usa-alert--error display-none"
+    data-testid="alert"
+    role="alert"
+    tabindex="0"
+  >
+    <div
+      class="bf-usa-alert__body usa-alert__body"
+    >
+      <h2
+        aria-level="2"
+        class="bf-usa-alert__heading usa-alert__heading "
+        data-testid="bf-alert-heading"
+        role="heading"
+      >
+          
+      </h2>
+      <p
+        class="bf-usa-alert__text usa-alert__text"
+      />
+      <ul
+        data-testid="bf-errors-list"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;

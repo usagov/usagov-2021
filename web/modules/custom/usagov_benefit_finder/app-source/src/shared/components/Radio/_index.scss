@@ -1,0 +1,22 @@
+@use '@styles/colors' as color;
+@use '@styles/functions' as *;
+
+.bf-usa-radio__label {
+  margin-top: rem(16px);
+}
+
+.bf-usa-radio__input:checked + .bf-usa-radio__label::before {
+  background-color: color.$off-black;
+  box-shadow:
+    0 0 0 rem(2px) color.$off-black,
+    inset 0 0 0 rem(2px) white;
+  outline-offset: rem(4px);
+}
+
+.bf-usa-radio__input:checked.usa-input--error + .bf-usa-radio__label::before {
+  background-color: #005ea2;
+  box-shadow:
+    0 0 0 rem(3px) color.$alert-red,
+    inset 0 0 0 rem(2px) white;
+  outline-offset: rem(4px);
+}
