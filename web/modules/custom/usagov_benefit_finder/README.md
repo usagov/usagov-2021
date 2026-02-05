@@ -77,7 +77,7 @@ The Dockerfile includes a `benefit-finder-builder` stage that:
 cd web/modules/custom/usagov_benefit_finder/app-source
 
 # First time: install dependencies
-npm ci
+npm install
 
 # Development mode with hot reload
 npm start
