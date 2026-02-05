@@ -1,0 +1,21 @@
+@use '@styles/mixins' as *;
+@use '@styles/colors' as color;
+@use '@styles/functions' as *;
+@use '@styles/breakpoints' as *;
+
+.bf-usa-summary-box {
+  @include h5($font-family: 'sans');
+
+  margin: rem(16px) rem(15px);
+  border-color: color.$teal;
+
+  @media (width > $desktop) {
+    margin: rem(16px) 0;
+  }
+
+  .bf-usa-list {
+    li {
+      @include list-items;
+    }
+  }
+}
