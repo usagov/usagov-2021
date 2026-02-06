@@ -624,6 +624,22 @@ show_current_digests() {
     echo ""
 
     # Extract all container names and their digests
+    # Parse JSON directly (handles literal \n in the JSON string)
+    echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while read -r line; do
+        echo "$line"
+    done
+
+    # If the above didn't work (empty), try a simpler format
+    if [ -z "$(echo "$digest_json" | jq -r '.containers | to_entries[]' 2>/dev/null)" ]; then
+        echo "$digest_json" | jq -r '.containers'
+    fi
+
+    return 0
+}
+
+# OLD CODE BELOW - keeping for reference but replacing with simpler version above
+show_current_digests_old() {
+    # Extract all container names and their digests
     echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while IFS=: read -r app digest; do
         # Trim whitespace
         app=$(echo "$app" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
