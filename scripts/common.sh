@@ -538,13 +538,25 @@ show_current_digests() {
     # Use cron bucket instead of CMS bucket for digest files
     # Check for cron-state-storage binding first, fall back to storage
     local bucket_name=""
+    local access_key=""
+    local secret_key=""
+    local region=""
+
     if [ -n "$VCAP_SERVICES" ]; then
         # Try cron-state-storage first (where cron writes digests)
         bucket_name=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket' 2>/dev/null)
 
-        # Fall back to main storage bucket if cron bucket not found
-        if [ -z "$bucket_name" ] || [ "$bucket_name" = "null" ]; then
+        if [ -n "$bucket_name" ] && [ "$bucket_name" != "null" ]; then
+            # Get credentials for cron bucket
+            access_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.access_key_id' 2>/dev/null)
+            secret_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.secret_access_key' 2>/dev/null)
+            region=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.region' 2>/dev/null)
+        else
+            # Fall back to main storage bucket
             bucket_name=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket' 2>/dev/null)
+            access_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.access_key_id' 2>/dev/null)
+            secret_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.secret_access_key' 2>/dev/null)
+            region=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region' 2>/dev/null)
         fi
     fi
 
@@ -573,9 +585,20 @@ show_current_digests() {
     echo "Bucket: $bucket_name"
     echo ""
 
-    # Fetch the digest file from S3
+    # Fetch the digest file from S3 with proper credentials
     local digest_file="s3://${bucket_name}/deployment-metadata/.current_digests_${env}.json"
+
+    # Export AWS credentials for this operation
+    export AWS_ACCESS_KEY_ID="$access_key"
+    export AWS_SECRET_ACCESS_KEY="$secret_key"
+    export AWS_DEFAULT_REGION="$region"
+
     local digest_json=$(aws s3 cp "$digest_file" - 2>/dev/null)
+
+    # Clean up credentials
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
+    unset AWS_DEFAULT_REGION
 
     if [ -z "$digest_json" ]; then
         print_status $YELLOW "⚠️  No digest file found at: $digest_file"
