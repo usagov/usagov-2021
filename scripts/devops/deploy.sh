@@ -277,7 +277,7 @@ show_command_help() {
             echo "  Updates the app to use a specific container image."
             echo ""
             echo "Arguments:"
-            echo "  name    - App name (cms, www, waf)"
+            echo "  name    - App name (apps in ALLOWED_APP_NAMES)"
             echo "  build   - CCI build number"
             echo "  digest  - Container digest (optional if DEPLOY_{APP}_DIGEST set)"
             echo "  --skip-validation - Skip space validation"
@@ -285,6 +285,7 @@ show_command_help() {
             echo "Examples:"
             echo "  deploy.sh push cms 5936 gsatts/usagov-2021@sha256:abc123..."
             echo "  deploy.sh push www 5936"
+            echo "  deploy.sh push cron 5936 gsatts/usagov-2021@sha256:def456..."
             echo ""
             ;;
         "pre-deploy")
@@ -2024,11 +2025,9 @@ show_build_info() {
         return 1
     fi
 
-    # Parse the fields
+    # Parse the fields dynamically
     local cci_build=""
-    local cms_digest=""
-    local waf_digest=""
-    local www_digest=""
+    declare -A app_digests
 
     # Parse using POSIX-compatible approach
     old_ifs="$IFS"
@@ -2038,14 +2037,11 @@ show_build_info() {
             CCI_BUILD=*)
                 cci_build="${field#CCI_BUILD=}"
                 ;;
-            CMS_DIGEST=*)
-                cms_digest="${field#CMS_DIGEST=}"
-                ;;
-            WAF_DIGEST=*)
-                waf_digest="${field#WAF_DIGEST=}"
-                ;;
-            WWW_DIGEST=*)
-                www_digest="${field#WWW_DIGEST=}"
+            *_DIGEST=*)
+                # Extract app name and digest dynamically
+                local app_name="${field%%_DIGEST=*}"
+                local digest="${field#*_DIGEST=}"
+                app_digests["$app_name"]="$digest"
                 ;;
         esac
     done
@@ -2059,37 +2055,36 @@ show_build_info() {
     echo "CCI Build:      $cci_build"
     echo ""
     echo "Container Digests:"
-    echo "  CMS:          $cms_digest"
-    echo "  WAF:          $waf_digest"
-    echo "  WWW:          $www_digest"
+    for app in "${!app_digests[@]}"; do
+        printf "  %-12s %s\n" "${app}:" "${app_digests[$app]}"
+    done
     echo ""
 
     # Generate deployment commands
     print_status $BLUE "🚀 Deployment Commands"
     echo "----------------------------------------"
     echo ""
-    echo "To deploy CMS:"
-    echo "  deploy.sh deploy app cms $cci_build $cms_digest"
-    echo ""
-    echo "To deploy WAF:"
-    echo "  deploy.sh deploy app waf $cci_build $waf_digest"
-    echo ""
-    echo "To deploy WWW:"
-    echo "  deploy.sh deploy app www $cci_build $www_digest"
-    echo ""
+    for app in "${!app_digests[@]}"; do
+        local app_lower=$(echo "$app" | tr '[:upper:]' '[:lower:]')
+        echo "To deploy ${app}:"
+        echo "  deploy.sh push ${app_lower} $cci_build ${app_digests[$app]}"
+        echo ""
+    done
 
     # Optionally set these as environment variables if DEPLOY_ENV matches
     if [ -n "$DEPLOY_ENV" ] && [ "$DEPLOY_ENV" = "$env" ]; then
         export DEPLOY_CCI_BUILD="$cci_build"
-        export DEPLOY_CMS_DIGEST="$cms_digest"
-        export DEPLOY_WAF_DIGEST="$waf_digest"
-        export DEPLOY_WWW_DIGEST="$www_digest"
+        for app in "${!app_digests[@]}"; do
+            local var_name="DEPLOY_${app}_DIGEST"
+            export "${var_name}=${app_digests[$app]}"
+        done
 
         print_status $GREEN "✅ Build info exported to environment variables"
         echo "  DEPLOY_CCI_BUILD=$DEPLOY_CCI_BUILD"
-        echo "  DEPLOY_CMS_DIGEST=$DEPLOY_CMS_DIGEST"
-        echo "  DEPLOY_WAF_DIGEST=$DEPLOY_WAF_DIGEST"
-        echo "  DEPLOY_WWW_DIGEST=$DEPLOY_WWW_DIGEST"
+        for app in "${!app_digests[@]}"; do
+            local var_name="DEPLOY_${app}_DIGEST"
+            eval "echo \"  ${var_name}=\$${var_name}\""
+        done
         echo ""
     fi
 }
@@ -2098,18 +2093,14 @@ show_build_info() {
 # Args:
 #   $1: env - Environment name
 #   $2: cci_build - CircleCI build number
-#   $3: cms_digest - CMS container digest
-#   $4: waf_digest - WAF container digest
-#   $5: www_digest - WWW container digest
+#   $3+: app_name=digest pairs (e.g., cms=sha256:abc... waf=sha256:def...)
 create_deployment_tag() {
     local env="$1"
     local cci_build="$2"
-    local cms_digest="$3"
-    local waf_digest="$4"
-    local www_digest="$5"
+    shift 2
 
-    if [ -z "$env" ] || [ -z "$cci_build" ] || [ -z "$cms_digest" ] || [ -z "$waf_digest" ] || [ -z "$www_digest" ]; then
-        log_message "⚠️ Missing parameters for git tag creation, skipping"
+    if [ -z "$env" ] || [ -z "$cci_build" ]; then
+        log_message "⚠️ Missing env or cci_build for git tag creation, skipping"
         return 0
     fi
 
@@ -2119,8 +2110,23 @@ create_deployment_tag() {
         return 0
     fi
 
+    # Build tag message with all provided digests
+    local tag_msg="CCI_BUILD=${cci_build}"
+
+    for arg in "$@"; do
+        if echo "$arg" | grep -q '='; then
+            # Format: app=digest
+            local app_name="${arg%%=*}"
+            local digest="${arg#*=}"
+            local app_upper=$(echo "$app_name" | tr '[:lower:]' '[:upper:]')
+            tag_msg="${tag_msg}|${app_upper}_DIGEST=${digest}"
+        else
+            # Just digest provided - this shouldn't happen in practice
+            log_message "⚠️ Digest without app name: $arg (skipping)"
+        fi
+    done
+
     local tag_name="usagov-cci-build-${cci_build}-${env}"
-    local tag_msg="CCI_BUILD=${cci_build}|CMS_DIGEST=${cms_digest}|WAF_DIGEST=${waf_digest}|WWW_DIGEST=${www_digest}"
 
     print_status $BLUE "📌 Creating git tag: $tag_name"
 
@@ -2248,17 +2254,9 @@ deploy_app() {
                 if git rev-parse "$tag_name" >/dev/null 2>&1; then
                     local tag_msg=$(git tag -l --format='%(contents)' "$tag_name")
 
-                    case "$app_name" in
-                        cms)
-                            digest=$(echo "$tag_msg" | grep -o 'CMS_DIGEST=[^|]*' | cut -d= -f2)
-                            ;;
-                        waf)
-                            digest=$(echo "$tag_msg" | grep -o 'WAF_DIGEST=[^|]*' | cut -d= -f2)
-                            ;;
-                        www)
-                            digest=$(echo "$tag_msg" | grep -o 'WWW_DIGEST=[^|]*' | cut -d= -f2)
-                            ;;
-                    esac
+                    # Look for digest in format: APPNAME_DIGEST=...
+                    local app_upper=$(echo "$app_name" | tr '[:lower:]' '[:upper:]')
+                    digest=$(echo "$tag_msg" | grep -o "${app_upper}_DIGEST=[^|]*" | cut -d= -f2)
 
                     if [ -n "$digest" ]; then
                         print_status $GREEN "✅ Found digest in git tag"
