@@ -57,6 +57,7 @@ show_usage() {
     echo "                                        Uses DEPLOY_ENV if set (e.g., stage vs prod)"
     echo ""
     echo "Container/Build Information:"
+    echo "  current-digests                       Show container digests captured by cron (what backup would capture)"
     echo "  show-build-info <env>                 Show latest build info from annotated git tags"
     echo "                                        Displays CCI build number and container digests"
     echo "                                        for CMS, WAF, and WWW"
@@ -232,6 +233,23 @@ show_command_help() {
             echo "  deploy.sh ccb"
             echo "  deploy.sh ccb prod stage"
             echo "  deploy.sh ccb abc123 def456"
+            echo ""
+            ;;
+        "current-digests")
+            echo "Show Current Container Digests"
+            echo ""
+            echo "Usage: deploy.sh current-digests"
+            echo ""
+            echo "Description:"
+            echo "  Shows container digests captured by the cron app."
+            echo "  This displays what would be captured in backup metadata"
+            echo "  if a backup were created right now."
+            echo ""
+            echo "  The cron app updates this file every 5 minutes automatically,"
+            echo "  capturing all running container digests in the current space."
+            echo ""
+            echo "Example:"
+            echo "  deploy.sh current-digests"
             echo ""
             ;;
         "show-build-info")
@@ -1327,7 +1345,7 @@ list_digests() {
 
     # Validate environment
     case "$target_env" in
-        dev|stage|prod|all) ;;
+        dr|dev|stage|prod|all) ;;
         *)
             print_status $RED "❌ Invalid environment: $target_env"
             echo "Valid options: dev, stage, prod, all, current"
@@ -2774,6 +2792,9 @@ case "$COMMAND" in
         ;;
     "ccb")
         show_changes "$@"
+        ;;
+    "current-digests")
+        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
         ;;
     "show-build-info")
         show_build_info "$@"

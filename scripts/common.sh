@@ -528,6 +528,86 @@ get_all_app_digests() {
     echo "$www_digest"
 }
 
+# Show current container digests captured by cron
+# Reads .current_digests_{env}.json from S3 and displays in formatted output
+# This shows what digests would be captured if a backup were created right now
+show_current_digests() {
+    # Initialize backup system to get S3 access
+    init_backup_system >/dev/null 2>&1 || true
+    setup_s3_vars || {
+        echo "❌ Error: Could not setup S3 configuration"
+        return 1
+    }
+
+    # Determine environment
+    local env="${APP_SPACE:-}"
+    if [ -z "$env" ] || [ "$env" = "local" ]; then
+        if [ -n "$VCAP_APPLICATION" ]; then
+            env=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
+        fi
+    fi
+
+    if [ -z "$env" ] || [ "$env" = "null" ]; then
+        echo "⚠️  Warning: Could not determine environment, defaulting to 'dev'"
+        env="dev"
+    fi
+
+    print_status $BLUE "📦 Current Container Digests (from cron capture)"
+    echo ""
+    echo "Environment: $env"
+    echo "Source: deployment-metadata/.current_digests_${env}.json"
+    echo ""
+
+    # Fetch the digest file from S3
+    local digest_file="s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${env}.json"
+    local digest_json=$(aws s3 cp "$digest_file" - $S3_EXTRA_PARAMS 2>/dev/null)
+
+    if [ -z "$digest_json" ]; then
+        print_status $YELLOW "⚠️  No digest file found at: $digest_file"
+        echo ""
+        echo "This file is created by the cron app every 5 minutes."
+        echo "It may not exist if:"
+        echo "  • Cron app is not running"
+        echo "  • Cron app hasn't run the digest update script yet"
+        echo "  • S3 permissions are not configured correctly"
+        return 1
+    fi
+
+    # Parse and display the JSON
+    local timestamp=$(echo "$digest_json" | jq -r '.timestamp' 2>/dev/null)
+    local captured_env=$(echo "$digest_json" | jq -r '.environment' 2>/dev/null)
+
+    if [ -n "$timestamp" ] && [ "$timestamp" != "null" ]; then
+        echo "Last Updated: $timestamp"
+    fi
+    echo ""
+
+    print_status $GREEN "Container Digests:"
+    echo ""
+
+    # Extract all container names and their digests
+    echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while IFS=: read -r app digest; do
+        # Trim whitespace
+        app=$(echo "$app" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        digest=$(echo "$digest" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        
+        # Show short digest for readability
+        local short_digest=$(echo "$digest" | grep -o 'sha256:[a-f0-9]\{12\}' || echo "$digest")
+        
+        # Highlight primary apps
+        if [ "$app" = "cms" ] || [ "$app" = "www" ] || [ "$app" = "waf" ]; then
+            printf "  %-20s %s\n" "$app" "$short_digest"
+        else
+            printf "  %-20s %s\n" "$app" "$short_digest"
+        fi
+    done
+
+    echo ""
+    print_status $BLUE "💡 This shows what would be captured in backup metadata"
+    echo "   Cron updates this file every 5 minutes automatically"
+    echo ""
+}
+
 # ===================================================================
 # VALIDATION FUNCTIONS
 # ===================================================================

@@ -36,6 +36,7 @@ show_usage() {
     echo "                [--unzip]                        Automatically unzip downloaded files"
     echo "                [--unzip=filename]               Unzip and save as specified filename"
     echo "  test                                   Run backup system test suite on CF"
+    echo "  current-digests                        Show container digests captured by cron (what backup would capture)"
     echo "  cron <subcommand>                      Manage automated database backup cron jobs"
     echo "  state <action> <type> [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
@@ -255,6 +256,23 @@ show_command_help() {
             echo "  local-manager.sh cron setup db"
             echo "  local-manager.sh cron setup static,db"
             echo "  local-manager.sh cron test all"
+            echo ""
+            ;;
+        "current-digests")
+            echo "Show Current Container Digests"
+            echo ""
+            echo "Usage: local-manager.sh current-digests"
+            echo ""
+            echo "Description:"
+            echo "  Shows container digests captured by the cron app."
+            echo "  This displays what would be captured in backup metadata"
+            echo "  if a backup were created right now."
+            echo ""
+            echo "  The cron app updates this file every 5 minutes automatically,"
+            echo "  capturing all running container digests in the current space."
+            echo ""
+            echo "Example:"
+            echo "  local-manager.sh current-digests"
             echo ""
             ;;
         "state")
@@ -652,6 +670,10 @@ case "$COMMAND" in
         echo "🧪 Running backup system test suite on Cloud Foundry..."
         echo ""
         cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/test.sh"
+        ;;
+    "current-digests")
+        # current-digests - show container digests captured by cron
+        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
         ;;
     "cron")
         # cron <subcommand> [types] - manage cron jobs on CF
