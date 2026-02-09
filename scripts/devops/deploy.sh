@@ -238,7 +238,7 @@ show_command_help() {
         "current-digests")
             echo "Show Current Container Digests"
             echo ""
-            echo "Usage: deploy.sh current-digests"
+            echo "Usage: deploy.sh current-digests [space]"
             echo ""
             echo "Description:"
             echo "  Shows container digests captured by the cron app."
@@ -248,8 +248,13 @@ show_command_help() {
             echo "  The cron app updates this file every 5 minutes automatically,"
             echo "  capturing all running container digests in the current space."
             echo ""
-            echo "Example:"
-            echo "  deploy.sh current-digests"
+            echo "Arguments:"
+            echo "  space - Optional space name (dr, stage, prod). Defaults to current space."
+            echo "          If different from current, will switch spaces temporarily."
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh current-digests        # Show current space"
+            echo "  deploy.sh current-digests stage  # Show stage digests"
             echo ""
             ;;
         "show-build-info")
@@ -2316,6 +2321,30 @@ fetch_latest_backup_tag() {
     cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null | tail -1
 }
 
+# Show current container digests - wrapper that handles space switching
+show_current_digests_wrapper() {
+    local target_space="$1"
+    local current_space=$(cf target | grep 'space:' | awk '{print $2}')
+
+    if [ -z "$target_space" ] || [ "$target_space" = "$current_space" ]; then
+        # No space specified or same as current space
+        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
+    else
+        # Different space - switch, run, switch back
+        print_status $BLUE "🔄 Switching to $target_space space..."
+        cf target -s "$target_space" >/dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            print_status $RED "❌ Failed to switch to space: $target_space"
+            return 1
+        fi
+
+        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
+
+        print_status $BLUE "🔄 Switching back to $current_space space..."
+        cf target -s "$current_space" >/dev/null 2>&1
+    fi
+}
+
 # Rollback command - uses backup metadata to restore containers
 rollback() {
     local data_types=""
@@ -2792,7 +2821,7 @@ case "$COMMAND" in
         show_changes "$@"
         ;;
     "current-digests")
-        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
+        show_current_digests_wrapper "$@"
         ;;
     "show-build-info")
         show_build_info "$@"
