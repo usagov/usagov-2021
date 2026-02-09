@@ -624,37 +624,8 @@ show_current_digests() {
     echo ""
 
     # Extract all container names and their digests
-    # Parse JSON directly (handles literal \n in the JSON string)
-    echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while read -r line; do
-        echo "$line"
-    done
-
-    # If the above didn't work (empty), try a simpler format
-    if [ -z "$(echo "$digest_json" | jq -r '.containers | to_entries[]' 2>/dev/null)" ]; then
-        echo "$digest_json" | jq -r '.containers'
-    fi
-
-    return 0
-}
-
-# OLD CODE BELOW - keeping for reference but replacing with simpler version above
-show_current_digests_old() {
-    # Extract all container names and their digests
-    echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while IFS=: read -r app digest; do
-        # Trim whitespace
-        app=$(echo "$app" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        digest=$(echo "$digest" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-        # Show short digest for readability
-        local short_digest=$(echo "$digest" | grep -o 'sha256:[a-f0-9]\{12\}' || echo "$digest")
-
-        # Highlight primary apps
-        if [ "$app" = "cms" ] || [ "$app" = "www" ] || [ "$app" = "waf" ]; then
-            printf "  %-20s %s\n" "$app" "$short_digest"
-        else
-            printf "  %-20s %s\n" "$app" "$short_digest"
-        fi
-    done
+    # The JSON from cron has literal \n characters, so we need to interpret them
+    printf '%b' "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null
 
     echo ""
     print_status $BLUE "💡 This shows what would be captured in backup metadata"
