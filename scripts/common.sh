@@ -623,30 +623,13 @@ show_current_digests() {
     print_status $GREEN "Container Digests:"
     echo ""
 
-    # Extract all container names and their digests, and try to get build numbers
+    # Extract all container names and their digests
     # The JSON from cron has literal \n characters, so we need to interpret them
-    printf '%b' "$digest_json" | jq -r '.containers | to_entries[] | "\(.key)|\(.value)"' 2>/dev/null | while IFS='|' read -r app digest; do
-        # Try to extract build number from docker image tags if possible
-        # Format: gsatts/usagov-2021@sha256:abc... or gsatts/usagov-2021:cms-15165@sha256:abc...
-        local build_num=""
-        if echo "$digest" | grep -q ':.*-[0-9]\+@'; then
-            build_num=$(echo "$digest" | grep -o ':[^-]*-[0-9]\+@' | sed 's/://;s/@//' | grep -o '[0-9]\+')
-        fi
-
-        # Show short digest for readability
-        local short_digest=$(echo "$digest" | grep -o 'sha256:[a-f0-9]\{12\}')
-
-        if [ -n "$build_num" ]; then
-            printf "  %-20s %-20s (build %s)\\n" "$app" "$short_digest" "$build_num"
-        else
-            printf "  %-20s %s\\n" "$app" "$short_digest"
-        fi
-    done
+    printf '%b' "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null
 
     echo ""
     print_status $BLUE "💡 This shows what would be captured in backup metadata"
     echo "   Cron updates this file every 5 minutes automatically"
-    echo "   Note: Build numbers only shown if tagged in image name"
     echo ""
 }
 
