@@ -528,6 +528,140 @@ get_all_app_digests() {
     echo "$www_digest"
 }
 
+# Show current container digests captured by cron
+# Reads .current_digests_{env}.json from S3 and displays in formatted output
+# This shows what digests would be captured if a backup were created right now
+show_current_digests() {
+    # Initialize backup system to get S3 access
+    init_backup_system >/dev/null 2>&1 || true
+
+    # Use cron bucket instead of CMS bucket for digest files
+    # Check for cron-state-storage binding first, fall back to storage
+    local bucket_name=""
+    local access_key=""
+    local secret_key=""
+    local region=""
+
+    if [ -n "$VCAP_SERVICES" ]; then
+        # Try cron-state-storage first (where cron writes digests)
+        bucket_name=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket' 2>/dev/null)
+
+        if [ -n "$bucket_name" ] && [ "$bucket_name" != "null" ]; then
+            # Get credentials for cron bucket
+            access_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.access_key_id' 2>/dev/null)
+            secret_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.secret_access_key' 2>/dev/null)
+            region=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.region' 2>/dev/null)
+        else
+            # Fall back to main storage bucket
+            bucket_name=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket' 2>/dev/null)
+            access_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.access_key_id' 2>/dev/null)
+            secret_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.secret_access_key' 2>/dev/null)
+            region=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region' 2>/dev/null)
+        fi
+    fi
+
+    if [ -z "$bucket_name" ] || [ "$bucket_name" = "null" ]; then
+        echo "❌ Error: Could not determine S3 bucket for digest files"
+        return 1
+    fi
+
+    # Determine environment
+    local env="${APP_SPACE:-}"
+    if [ -z "$env" ] || [ "$env" = "local" ]; then
+        if [ -n "$VCAP_APPLICATION" ]; then
+            env=$(echo "$VCAP_APPLICATION" | jq -r '.space_name' 2>/dev/null)
+        fi
+    fi
+
+    if [ -z "$env" ] || [ "$env" = "null" ]; then
+        echo "⚠️  Warning: Could not determine environment, defaulting to 'dev'"
+        env="dev"
+    fi
+
+    print_status $BLUE "📦 Current Container Digests (from cron capture)"
+    echo ""
+    echo "Environment: $env"
+    echo "Source: deployment-metadata/.current_digests_${env}.json"
+    echo "Bucket: $bucket_name"
+    echo ""
+
+    # Fetch the digest file from S3 with proper credentials
+    local digest_file="s3://${bucket_name}/deployment-metadata/.current_digests_${env}.json"
+
+    # Export AWS credentials for this operation
+    export AWS_ACCESS_KEY_ID="$access_key"
+    export AWS_SECRET_ACCESS_KEY="$secret_key"
+    export AWS_DEFAULT_REGION="$region"
+
+    local digest_json=$(aws s3 cp "$digest_file" - 2>/dev/null)
+
+    # Clean up credentials
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
+    unset AWS_DEFAULT_REGION
+
+    if [ -z "$digest_json" ]; then
+        print_status $YELLOW "⚠️  No digest file found at: $digest_file"
+        echo ""
+        echo "This file is created by the cron app every 5 minutes."
+        echo "It may not exist if:"
+        echo "  • Cron app is not running"
+        echo "  • Cron app hasn't run the digest update script yet"
+        echo "  • S3 permissions are not configured correctly"
+        return 1
+    fi
+
+    # Parse and display the JSON
+    local timestamp=$(echo "$digest_json" | jq -r '.timestamp' 2>/dev/null)
+    local captured_env=$(echo "$digest_json" | jq -r '.environment' 2>/dev/null)
+
+    if [ -n "$timestamp" ] && [ "$timestamp" != "null" ]; then
+        echo "Last Updated: $timestamp"
+    fi
+    echo ""
+
+    print_status $GREEN "Container Digests:"
+    echo ""
+
+    # Extract all container names and their digests
+    # Parse JSON directly (handles literal \n in the JSON string)
+    echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while read -r line; do
+        echo "$line"
+    done
+
+    # If the above didn't work (empty), try a simpler format
+    if [ -z "$(echo "$digest_json" | jq -r '.containers | to_entries[]' 2>/dev/null)" ]; then
+        echo "$digest_json" | jq -r '.containers'
+    fi
+
+    return 0
+}
+
+# OLD CODE BELOW - keeping for reference but replacing with simpler version above
+show_current_digests_old() {
+    # Extract all container names and their digests
+    echo "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null | while IFS=: read -r app digest; do
+        # Trim whitespace
+        app=$(echo "$app" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        digest=$(echo "$digest" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+        # Show short digest for readability
+        local short_digest=$(echo "$digest" | grep -o 'sha256:[a-f0-9]\{12\}' || echo "$digest")
+
+        # Highlight primary apps
+        if [ "$app" = "cms" ] || [ "$app" = "www" ] || [ "$app" = "waf" ]; then
+            printf "  %-20s %s\n" "$app" "$short_digest"
+        else
+            printf "  %-20s %s\n" "$app" "$short_digest"
+        fi
+    done
+
+    echo ""
+    print_status $BLUE "💡 This shows what would be captured in backup metadata"
+    echo "   Cron updates this file every 5 minutes automatically"
+    echo ""
+}
+
 # ===================================================================
 # VALIDATION FUNCTIONS
 # ===================================================================
