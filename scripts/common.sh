@@ -319,8 +319,29 @@ capture_deployment_metadata() {
     # Get currently deployed containers from S3 digest file
     setup_s3_vars >/dev/null 2>&1
 
-    # Fetch current digests from S3
-    local digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
+    # Try cron bucket first (where cron writes digests), fall back to CMS bucket
+    local digests_json=""
+    if [ -n "$VCAP_SERVICES" ]; then
+        local cron_bucket=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket' 2>/dev/null)
+        if [ -n "$cron_bucket" ] && [ "$cron_bucket" != "null" ]; then
+            # Get credentials for cron bucket
+            local cron_access_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.access_key_id' 2>/dev/null)
+            local cron_secret_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.secret_access_key' 2>/dev/null)
+            local cron_region=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.region' 2>/dev/null)
+            
+            # Try to fetch from cron bucket
+            export AWS_ACCESS_KEY_ID="$cron_access_key"
+            export AWS_SECRET_ACCESS_KEY="$cron_secret_key"
+            export AWS_DEFAULT_REGION="$cron_region"
+            digests_json=$(aws s3 cp "s3://${cron_bucket}/deployment-metadata/.current_digests_${environment}.json" - 2>/dev/null)
+            unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION
+        fi
+    fi
+    
+    # Fall back to CMS bucket if not found in cron bucket
+    if [ -z "$digests_json" ]; then
+        digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
+    fi
 
     # Get build number from local container's MOTD (if we're inside a container)
     local local_build="unknown"

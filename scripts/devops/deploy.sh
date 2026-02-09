@@ -283,7 +283,7 @@ show_command_help() {
             echo ""
             echo "Arguments:"
             echo "  name    - App name (apps in ALLOWED_APP_NAMES)"
-            echo "  build   - CCI build number"
+            echo "  build   - CCI build number (technically arbitrary, but should match git tag in actual deployments)"
             echo "  digest  - Container digest (optional if DEPLOY_{APP}_DIGEST set)"
             echo "  --skip-validation - Skip space validation"
             echo ""
