@@ -1015,31 +1015,32 @@ last_backup() {
 show_status() {
     local format=$(parse_format_flag "$@")
 
-    # For table format, preserve original output
-    if [ "$format" = "table" ]; then
-        print_status $BLUE "📊 Current Status"
-        echo ""
-        echo "CF Target:"
-        local loader=$(show_loading "Fetching Cloud Foundry status")
-        cf target
-        echo ""
-        echo "Recent Activity (last 10 events):"
-        loader=$(show_loading "Loading recent events")
-        cf events cms | head -15
-        return
-    fi
+    # For non-table formats, collect all data and format at the end
+    if [ "$format" != "table" ]; then
+        # Get CF target info
+        local cf_target_output=$(cf target 2>/dev/null)
+        local cf_org=$(echo "$cf_target_output" | grep "^org:" | awk '{print $2}')
+        local cf_space=$(echo "$cf_target_output" | grep "^space:" | awk '{print $2}')
+        local cf_api=$(echo "$cf_target_output" | grep "^API endpoint:" | awk '{print $3}')
+        local cf_user=$(echo "$cf_target_output" | grep "^user:" | awk '{print $2}')
 
-    # For other formats, build JSON data
-    local cf_target_output=$(cf target 2>/dev/null)
-    local cf_org=$(echo "$cf_target_output" | grep "^org:" | awk '{print $2}')
-    local cf_space=$(echo "$cf_target_output" | grep "^space:" | awk '{print $2}')
-    local cf_api=$(echo "$cf_target_output" | grep "^api endpoint:" | awk '{print $3}')
-    local cf_user=$(echo "$cf_target_output" | grep "^user:" | awk '{print $2}')
+        # Get app info
+        local cms_state=$(cf app cms 2>/dev/null | grep "^requested state:" | awk '{print $3}')
+        local www_state=$(cf app www 2>/dev/null | grep "^requested state:" | awk '{print $3}')
+        local waf_state=$(cf app waf 2>/dev/null | grep "^requested state:" | awk '{print $3}')
 
-    # Get recent events (simplified for JSON)
-    local recent_events=$(cf events cms 2>/dev/null | tail -n +4 | head -10 | awk '{print $1" "$2" "$3" "$4}' | jq -R . | jq -s .)
+        # Get current digests
+        local cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
+        local www_digest=$(get_app_digest "www" 2>/dev/null || echo "unknown")
+        local waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
 
-    local json_data=$(cat <<EOF
+        # Get deployment time
+        local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
+
+        # Get recent events
+        local recent_events=$(cf events cms 2>/dev/null | tail -n +4 | head -5 | awk '{print $1" "$2" "$3}' | jq -R . | jq -s .)
+
+        local json_data=$(cat <<EOF
 {
   "cf_target": {
     "api": "$cf_api",
@@ -1047,12 +1048,157 @@ show_status() {
     "space": "$cf_space",
     "user": "$cf_user"
   },
+  "deployment_context": {
+    "env": "${DEPLOY_ENV:-(not set)}",
+    "ticket": "${DEPLOY_TICKET:-(not set)}"
+  },
+  "apps": {
+    "cms": {
+      "state": "${cms_state:-unknown}",
+      "digest": "$cms_digest",
+      "last_uploaded": "${cms_updated:-unknown}"
+    },
+    "www": {
+      "state": "${www_state:-unknown}",
+      "digest": "$www_digest"
+    },
+    "waf": {
+      "state": "${waf_state:-unknown}",
+      "digest": "$waf_digest"
+    }
+  },
   "recent_events": $recent_events
 }
 EOF
 )
 
-    format_kv_pairs "$format" "$json_data"
+        format_kv_pairs "$format" "$json_data"
+        return
+    fi
+
+    # Table format: Enhanced, thorough display
+    print_status $BLUE "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    print_status $BLUE "📊 DEPLOYMENT STATUS"
+    print_status $BLUE "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    # Section 1: Cloud Foundry Target
+    print_status $CYAN "🎯 Cloud Foundry Target"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+    local cf_target_output=$(cf target 2>/dev/null)
+    local cf_org=$(echo "$cf_target_output" | grep "^org:" | awk '{print $2}')
+    local cf_space=$(echo "$cf_target_output" | grep "^space:" | awk '{print $2}')
+    local cf_api=$(echo "$cf_target_output" | grep "^API endpoint:" | awk '{print $3}')
+    local cf_user=$(echo "$cf_target_output" | grep "^user:" | awk '{print $2}')
+
+    echo "  Organization: $cf_org"
+    echo "  Space:        $cf_space"
+    echo "  User:         $cf_user"
+    echo "  API:          $cf_api"
+    echo ""
+
+    # Section 2: Deployment Context
+    print_status $CYAN "📝 Deployment Context"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ]; then
+        echo "  Environment:  ${DEPLOY_ENV:-(not set)}"
+        echo "  Ticket:       ${DEPLOY_TICKET:-(not set)}"
+        echo "  Pre-suffix:   ${DEPLOY_PRE_SUFFIX:-(not set)}"
+        echo "  Post-suffix:  ${DEPLOY_POST_SUFFIX:-(not set)}"
+        if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ]; then
+            echo ""
+            echo "  Rollback Tags:"
+            echo "    Static:     $DEPLOY_ROLLBACK_STATIC_TAG"
+            echo "    Public:     $DEPLOY_ROLLBACK_PUBLIC_TAG"
+            echo "    Database:   $DEPLOY_ROLLBACK_DB_TAG"
+        fi
+    else
+        print_status $YELLOW "  ⚠️  No deployment context set"
+        echo "  Run: deploy.sh set-context <env> <ticket>"
+    fi
+    echo ""
+
+    # Section 3: Currently Deployed Applications
+    print_status $CYAN "🚀 Currently Deployed Applications"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+
+    # Get current digests for all apps
+    local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
+    local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
+    local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "")
+
+    if [ -z "$cms_current" ]; then
+        print_status $RED "  ❌ Unable to query apps (check 'cf target' and login)"
+    else
+        # Get app states and instances
+        local cms_info=$(cf app cms 2>/dev/null)
+        local www_info=$(cf app www 2>/dev/null)
+        local waf_info=$(cf app waf 2>/dev/null)
+
+        local cms_state=$(echo "$cms_info" | grep "^requested state:" | awk '{print $3}')
+        local www_state=$(echo "$www_info" | grep "^requested state:" | awk '{print $3}')
+        local waf_state=$(echo "$waf_info" | grep "^requested state:" | awk '{print $3}')
+
+        local cms_instances=$(echo "$cms_info" | grep "^\#[0-9].*running" | wc -l | tr -d ' ')
+        local www_instances=$(echo "$www_info" | grep "^\#[0-9].*running" | wc -l | tr -d ' ')
+        local waf_instances=$(echo "$waf_info" | grep "^\#[0-9].*running" | wc -l | tr -d ' ')
+
+        # Get deployment time from app info
+        local cms_updated=$(echo "$cms_info" | grep "^last uploaded:" | sed 's/^last uploaded: *//')
+
+        # Extract build number if present
+        local build_num=$(extract_build_from_digest "$cms_current")
+        build_num="${build_num:-unknown}"
+
+        echo "  Last Deployed: ${cms_updated:-unknown}"
+        echo "  Build Number:  $build_num"
+        echo ""
+
+        # CMS
+        print_status $GREEN "  CMS Application:"
+        echo "    State:     $([ "$cms_state" = "started" ] && echo "✅ $cms_state" || echo "⚠️  $cms_state")"
+        echo "    Instances: $cms_instances running"
+        echo "    Digest:    ${cms_current:0:70}..."
+        echo ""
+
+        # WWW
+        print_status $GREEN "  WWW Application:"
+        echo "    State:     $([ "$www_state" = "started" ] && echo "✅ $www_state" || echo "⚠️  $www_state")"
+        echo "    Instances: $www_instances running"
+        echo "    Digest:    ${www_current:0:70}..."
+        echo ""
+
+        # WAF
+        print_status $GREEN "  WAF Application:"
+        echo "    State:     $([ "$waf_state" = "started" ] && echo "✅ $waf_state" || echo "⚠️  $waf_state")"
+        echo "    Instances: $waf_instances running"
+        echo "    Digest:    ${waf_current:0:70}..."
+    fi
+    echo ""
+
+    # Section 4: Recent Activity
+    print_status $CYAN "📋 Recent Activity (Last 5 Events)"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+    local recent_events=$(cf events cms 2>/dev/null | head -9 | tail -5)
+    if [ -n "$recent_events" ]; then
+        echo "$recent_events" | while read -r line; do
+            echo "  $line"
+        done
+    else
+        print_status $YELLOW "  ⚠️  Could not retrieve recent events"
+    fi
+    echo ""
+
+    # Section 5: Quick Actions
+    print_status $CYAN "⚡ Quick Actions"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+    echo "  View digests:        deploy.sh digests current"
+    echo "  Check changes:       deploy.sh ccb prod stage"
+    echo "  Validate deployment: deploy.sh validate"
+    echo "  Set context:         deploy.sh set-context <env> <ticket>"
+    echo ""
+
+    print_status $BLUE "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
 # Show message of the day from CMS container
