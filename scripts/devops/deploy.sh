@@ -14,6 +14,183 @@ SCRIPT_DIR=$(dirname "$0")
 # Initialize backup system
 init_backup_system
 
+# ===================================================================
+# FORMATTING SERVICE (Temporary - will move to common.sh once tested)
+# ===================================================================
+
+# Parse format flag from arguments
+# Returns: format type (json, csv, yaml, markdown, table)
+parse_format_flag() {
+    local format="table"  # default
+
+    # Look through all args for --format=*
+    for arg in "$@"; do
+        case "$arg" in
+            --format=*) format="${arg#*=}" ;;
+        esac
+    done
+
+    # Validate format
+    case "$format" in
+        json|csv|yaml|markdown|table) echo "$format" ;;
+        *)
+            echo "❌ Invalid format: $format" >&2
+            echo "Valid formats: json, csv, yaml, markdown, table" >&2
+            return 1
+            ;;
+    esac
+}
+
+# Format key-value pair data
+# Usage: format_kv_pairs <format> <json_data>
+# For simple key-value structures like show_context
+format_kv_pairs() {
+    local format="$1"
+    local json_data="$2"
+
+    case "$format" in
+        json)
+            echo "$json_data" | jq .
+            ;;
+        csv)
+            echo "Key,Value"
+            echo "$json_data" | jq -r '
+                [paths(scalars)] as $paths |
+                $paths[] as $path |
+                [($path | join(".")), getpath($path)] |
+                @csv
+            '
+            ;;
+        yaml)
+            echo "$json_data" | jq -r '
+                def to_yaml(indent):
+                    if type == "object" then
+                        to_entries[] |
+                        if (.value | type) == "object" then
+                            "\(indent)\(.key):\n\(.value | to_yaml(indent + "  "))"
+                        else
+                            "\(indent)\(.key): \(.value)"
+                        end
+                    else
+                        "\(indent)\(.)"
+                    end;
+                to_yaml("")
+            '
+            ;;
+        markdown)
+            echo "| Key | Value |"
+            echo "| --- | --- |"
+            echo "$json_data" | jq -r '
+                [paths(scalars)] as $paths |
+                $paths[] as $path |
+                "| \($path | join(".")) | \(getpath($path)) |"
+            '
+            ;;
+    esac
+}
+
+# Format list/table data
+# Usage: format_table_list <format> <json_array>
+# For lists like backups, commits, etc.
+format_table_list() {
+    local format="$1"
+    local json_data="$2"
+
+    case "$format" in
+        json)
+            echo "$json_data" | jq .
+            ;;
+        csv)
+            echo "$json_data" | jq -r '
+                (.[0] | keys_unsorted) as $cols |
+                ($cols | @csv),
+                (.[] | [.[$cols[]]] | @csv)
+            '
+            ;;
+        yaml)
+            echo "$json_data" | jq -r '
+                .[] | to_entries |
+                ("- " + (.[0] | "\(.key): \(.value)")),
+                (.[1:] | .[] | "  \(.key): \(.value)")
+            '
+            ;;
+        markdown)
+            echo "$json_data" | jq -r '
+                (.[0] | keys_unsorted) as $cols |
+                "| " + ($cols | join(" | ")) + " |",
+                "| " + ($cols | map("---") | join(" | ")) + " |",
+                (.[] | "| " + ([.[$cols[]]] | map(tostring) | join(" | ")) + " |")
+            '
+            ;;
+    esac
+}
+
+# Format nested/complex data structures
+# Usage: format_nested_structure <format> <json_data>
+# For complex structures like digests history
+format_nested_structure() {
+    local format="$1"
+    local json_data="$2"
+
+    case "$format" in
+        json)
+            echo "$json_data" | jq .
+            ;;
+        csv)
+            echo "$json_data" | jq -r '
+                [paths(scalars) as $path | {
+                    "path": ($path | join(".")),
+                    "value": (getpath($path))
+                }] |
+                ["Path", "Value"], (.[] | [.path, .value]) |
+                @csv
+            '
+            ;;
+        yaml)
+            echo "$json_data" | jq -r '
+                def to_yaml(indent):
+                    if type == "object" then
+                        to_entries[] |
+                        if (.value | type) == "object" then
+                            "\(indent)\(.key):\n\(.value | to_yaml(indent + "  "))"
+                        elif (.value | type) == "array" then
+                            "\(indent)\(.key):\n\(.value | .[] | to_yaml(indent + "  - "))"
+                        else
+                            "\(indent)\(.key): \(.value)"
+                        end
+                    elif type == "array" then
+                        .[] | to_yaml(indent + "- ")
+                    else
+                        "\(indent)\(.)"
+                    end;
+                to_yaml("")
+            '
+            ;;
+        markdown)
+            echo "$json_data" | jq -r '
+                def to_markdown(level):
+                    if type == "object" then
+                        to_entries[] |
+                        if (.value | type) == "object" or (.value | type) == "array" then
+                            "\(level) **\(.key)**\n\(.value | to_markdown(level + "#"))"
+                        else
+                            "\(level) **\(.key)**: \(.value)"
+                        end
+                    elif type == "array" then
+                        .[] | to_markdown(level)
+                    else
+                        "\(level) \(.)"
+                    end;
+                to_markdown("##")
+            '
+            ;;
+    esac
+}
+
+# ===================================================================
+# VALIDATION AND SETUP
+# ===================================================================
+
 # Validate app name against whitelist
 validate_app_name() {
     local app_name="$1"
@@ -683,25 +860,67 @@ set_context() {
 
 # Show current deployment context
 show_context() {
-    print_status $BLUE "📋 Current Deployment Context"
-    echo ""
-    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-        echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
-        echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
-        echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
-        echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
+    local format=$(parse_format_flag "$@")
+
+    # Preserve original table output (default)
+    if [ "$format" = "table" ]; then
+        print_status $BLUE "📋 Current Deployment Context"
         echo ""
-        echo "Rollback tags:"
-        echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-    else
-        print_status $YELLOW "⚠️  No deployment context set"
+        if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
+            echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
+            echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
+            echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
+            echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
+            echo ""
+            echo "Rollback tags:"
+            echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
+            echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
+            echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
+        else
+            print_status $YELLOW "⚠️  No deployment context set"
+            echo ""
+            echo "Run: deploy.sh set-context <env> <ticket>"
+        fi
         echo ""
-        echo "Run: deploy.sh set-context <env> <ticket>"
+        return
     fi
-    echo ""
+
+    # For other formats, build JSON and use formatter
+    local deploy_env="${DEPLOY_ENV:-(not set)}"
+    local deploy_ticket="${DEPLOY_TICKET:-(not set)}"
+    local deploy_pre="${DEPLOY_PRE_SUFFIX:-(not set)}"
+    local deploy_post="${DEPLOY_POST_SUFFIX:-(not set)}"
+    local rollback_static="${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
+    local rollback_public="${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
+    local rollback_db="${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
+
+    local has_context=false
+    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
+        has_context=true
+    fi
+
+    local json_data=$(cat <<EOF
+{
+  "deployment_context": {
+    "environment": "$deploy_env",
+    "ticket": "$deploy_ticket",
+    "pre_suffix": "$deploy_pre",
+    "post_suffix": "$deploy_post"
+  },
+  "rollback_tags": {
+    "static": "$rollback_static",
+    "public": "$rollback_public",
+    "database": "$rollback_db"
+  },
+  "has_context": $has_context
 }
+EOF
+)
+
+    format_kv_pairs "$format" "$json_data"
+}
+
+
 
 # Show when last backup of each type was taken
 last_backup() {
@@ -2936,7 +3155,7 @@ case "$COMMAND" in
         set_context "$@"
         ;;
     "show-context")
-        show_context
+        show_context "$@"
         ;;
     "last-backup")
         last_backup
