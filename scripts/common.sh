@@ -328,7 +328,7 @@ capture_deployment_metadata() {
             local cron_access_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.access_key_id' 2>/dev/null)
             local cron_secret_key=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.secret_access_key' 2>/dev/null)
             local cron_region=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.region' 2>/dev/null)
-            
+
             # Try to fetch from cron bucket
             export AWS_ACCESS_KEY_ID="$cron_access_key"
             export AWS_SECRET_ACCESS_KEY="$cron_secret_key"
@@ -337,7 +337,7 @@ capture_deployment_metadata() {
             unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION
         fi
     fi
-    
+
     # Fall back to CMS bucket if not found in cron bucket
     if [ -z "$digests_json" ]; then
         digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
@@ -1309,14 +1309,15 @@ validate_sql_dump() {
 # Returns: 0 if running, 1 if not running
 is_tome_running() {
     local script_name="tome-run.sh"
+
+    # If we're already inside a Tome process (set by tome-run.sh),
+    # don't detect ourselves to avoid deadlock during automatic backups
+    if [ -n "$INSIDE_TOME_PROCESS" ]; then
+        return 1  # Not running (from perspective of caller)
+    fi
+
     local ps_aux=$(ps aux)
-    
-    # Exclude current process and parent process to avoid detecting ourselves
-    # when called from within a tome-run.sh process (e.g., during automatic backups)
-    local current_pid=$$
-    local parent_pid=$PPID
-    
-    local running_count=$(echo "$ps_aux" | grep "$script_name" | grep -v grep | grep -v "$current_pid" | grep -v "$parent_pid" | wc -l)
+    local running_count=$(echo "$ps_aux" | grep "$script_name" | grep -v grep | wc -l)
 
     if [ "$running_count" -gt "0" ]; then
         return 0  # Running
