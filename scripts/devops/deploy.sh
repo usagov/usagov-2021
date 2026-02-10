@@ -785,14 +785,35 @@ show_command_help() {
 
 # Set deployment context (stores in shell variables for session)
 set_context() {
-    local env="$1"
-    local ticket="$2"
-    local pre_suffix="${3:-pre-deploy}"
-    local post_suffix="${4:-post-deploy}"
+    local export_only=false
+    local env=""
+    local ticket=""
+    local pre_suffix="pre-deploy"
+    local post_suffix="post-deploy"
+
+    # Parse arguments, filtering out --export flag
+    local positional_args=()
+    for arg in "$@"; do
+        if [ "$arg" = "--export" ]; then
+            export_only=true
+        else
+            positional_args+=("$arg")
+        fi
+    done
+
+    # Assign positional arguments
+    env="${positional_args[0]}"
+    ticket="${positional_args[1]}"
+    if [ -n "${positional_args[2]}" ]; then
+        pre_suffix="${positional_args[2]}"
+    fi
+    if [ -n "${positional_args[3]}" ]; then
+        post_suffix="${positional_args[3]}"
+    fi
 
     if [ -z "$env" ] || [ -z "$ticket" ]; then
         print_status $RED "❌ Error: Environment and ticket required"
-        echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix]"
+        echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export]"
         exit 1
     fi
 
@@ -813,7 +834,9 @@ set_context() {
         exit 1
     fi
 
-    print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
+    if [ "$export_only" = "false" ]; then
+        print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
+    fi
 
     # Query S3 to get the most recent valid backup tag for each type
     local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && \
@@ -825,7 +848,19 @@ set_context() {
     local public_tag=$(echo "$backup_tags" | grep -A1 "^PUBLIC:" | tail -1)
     local db_tag=$(echo "$backup_tags" | grep -A1 "^DB:" | tail -1)
 
-    # Export variables for this session
+    # If --export flag, output only export commands for eval
+    if [ "$export_only" = "true" ]; then
+        echo "export DEPLOY_ENV='$env'"
+        echo "export DEPLOY_TICKET='$ticket'"
+        echo "export DEPLOY_PRE_SUFFIX='$pre_suffix'"
+        echo "export DEPLOY_POST_SUFFIX='$post_suffix'"
+        echo "export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
+        echo "export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
+        echo "export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
+        return
+    fi
+
+    # Export variables for this session (only affects this script execution)
     export DEPLOY_ENV="$env"
     export DEPLOY_TICKET="$ticket"
     export DEPLOY_PRE_SUFFIX="$pre_suffix"
@@ -847,15 +882,21 @@ set_context() {
     echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=$DEPLOY_ROLLBACK_PUBLIC_TAG"
     echo "  DEPLOY_ROLLBACK_DB_TAG=$DEPLOY_ROLLBACK_DB_TAG"
     echo ""
-    print_status $YELLOW "💡 To use these in your current shell, run:"
+    print_status $RED "⚠️  IMPORTANT: These variables are NOT set in your current shell!"
     echo ""
-    echo "export DEPLOY_ENV='$env'"
-    echo "export DEPLOY_TICKET='$ticket'"
-    echo "export DEPLOY_POST_SUFFIX='$post_suffix'"
-    echo "export DEPLOY_PRE_SUFFIX='$pre_suffix'"
-    echo "export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
-    echo "export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
-    echo "export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
+    print_status $YELLOW "To use these variables, you MUST run ONE of the following:"
+    echo ""
+    echo "Option 1 - Use eval (recommended):"
+    echo "  eval \$(scripts/devops/deploy.sh set-context $env $ticket --export)"
+    echo ""
+    echo "Option 2 - Manually export each variable:"
+    echo "  export DEPLOY_ENV='$env'"
+    echo "  export DEPLOY_TICKET='$ticket'"
+    echo "  export DEPLOY_PRE_SUFFIX='$pre_suffix'"
+    echo "  export DEPLOY_POST_SUFFIX='$post_suffix'"
+    echo "  export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
+    echo "  export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
+    echo "  export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
 }
 
 # Show current deployment context
