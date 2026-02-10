@@ -1310,7 +1310,13 @@ validate_sql_dump() {
 is_tome_running() {
     local script_name="tome-run.sh"
     local ps_aux=$(ps aux)
-    local running_count=$(echo "$ps_aux" | grep "$script_name" | grep -v grep | wc -l)
+    
+    # Exclude current process and parent process to avoid detecting ourselves
+    # when called from within a tome-run.sh process (e.g., during automatic backups)
+    local current_pid=$$
+    local parent_pid=$PPID
+    
+    local running_count=$(echo "$ps_aux" | grep "$script_name" | grep -v grep | grep -v "$current_pid" | grep -v "$parent_pid" | wc -l)
 
     if [ "$running_count" -gt "0" ]; then
         return 0  # Running
