@@ -114,7 +114,7 @@ show_usage() {
     echo "                                        Automatically fixes MFA configuration after restore"
     echo ""
     echo "Tome Utilities:"
-    echo "  tome-log                              Tail the latest Tome log and stop when it finishes"
+    echo "  tome-log [--recent]                   Tail the latest running Tome log (--recent shows last 50 lines of most recent log)"
     echo "  state <action> <type> [max_wait_mins] Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
     echo "Quick Backup Commands:"
@@ -462,11 +462,15 @@ show_command_help() {
         "tome-log")
             echo "Tail Latest Tome Log"
             echo ""
-            echo "Usage: deploy.sh tome-log"
+            echo "Usage: deploy.sh tome-log [--recent]"
             echo ""
             echo "Description:"
-            echo "  Finds the newest Tome log on the CMS container and tails it."
+            echo "  Finds the newest running Tome log on the CMS container and tails it."
+            echo "  Skips blocked logs ('already running') and completed logs."
             echo "  Stops automatically when Tome finishes or reports no changes."
+            echo ""
+            echo "Options:"
+            echo "  --recent    Show last 50 lines of most recent non-blocked log (running or completed)"
             echo ""
             echo "Matches stop on:"
             echo "  'Tome static build looks fine', 'No changes detected', 'no changes', 'SYNC FINISHED'"
@@ -1857,36 +1861,82 @@ download_backups() {
 
 # Tail the latest Tome log and stop when it finishes
 tome_log() {
-    print_status $BLUE "🔍 Finding latest Tome log..."
+    local recent_mode="no"
 
-    # Find the most recent log file in /tmp/tome-log/YYYY/MM/DD/
-    local latest_log=$(cf ssh cms -c "find /tmp/tome-log -type f -name '*.log' 2>/dev/null | sort -r | head -1" 2>/dev/null | tail -1 | tr -d '\r')
+    # Check for --recent flag
+    if [ "$1" = "--recent" ]; then
+        recent_mode="yes"
+        print_status $BLUE "🔍 Finding most recent Tome log..."
+    else
+        print_status $BLUE "🔍 Finding active Tome log..."
+    fi
 
-    if [ -z "$latest_log" ]; then
-        print_status $RED "❌ Error: No Tome logs found"
-        echo "Logs are stored in: /tmp/tome-log/YYYY/MM/DD/"
+    # Do all the filtering in a single SSH session for efficiency
+    # This script finds logs, checks their content, and returns the appropriate one
+    if [ "$recent_mode" = "yes" ]; then
+        # Recent mode: skip only "already running" logs
+        local target_log=$(cf ssh cms -c '
+            for log_file in $(find /tmp/tome-log/20* -type f -name "*.log" 2>/dev/null | sort -r); do
+                if grep -q "Another Tome is already running. Exiting." "$log_file" 2>/dev/null; then
+                    continue
+                fi
+                echo "$log_file"
+                break
+            done
+        ' 2>/dev/null | tail -1 | tr -d '\r')
+    else
+        # Active mode: skip both "already running" AND completed logs
+        local target_log=$(cf ssh cms -c '
+            for log_file in $(find /tmp/tome-log/20* -type f -name "*.log" 2>/dev/null | sort -r); do
+                if grep -q "Another Tome is already running. Exiting." "$log_file" 2>/dev/null; then
+                    continue
+                fi
+                if grep -qiE "(Tome static build looks fine|No changes detected|SYNC FINISHED)" "$log_file" 2>/dev/null; then
+                    continue
+                fi
+                echo "$log_file"
+                break
+            done
+        ' 2>/dev/null | tail -1 | tr -d '\r')
+    fi
+
+    if [ -z "$target_log" ]; then
+        if [ "$recent_mode" = "yes" ]; then
+            print_status $YELLOW "⚠️  No valid Tome log found"
+            echo "All recent logs show 'Another Tome is already running. Exiting.'"
+        else
+            print_status $YELLOW "⚠️  No active Tome log found"
+            echo "All recent logs are either blocked ('already running') or completed."
+            echo "Try --recent to see the most recent log regardless of status."
+        fi
         return 1
     fi
 
-    print_status $GREEN "✅ Found log: $latest_log"
-    echo ""
-    print_status $YELLOW "📄 Tailing log (will stop when Tome finishes)..."
+    print_status $GREEN "✅ Found log: $target_log"
     echo ""
 
-    # Tail the log and stop on completion markers
-    # Use cf ssh with tail -f, grep for completion markers
-    cf ssh cms -c "
-        tail -f -n 50 $latest_log 2>/dev/null |
-        while IFS= read -r line; do
-            echo \"\$line\"
-            # Check for completion markers
-            if echo \"\$line\" | grep -qiE '(Tome static build looks fine|No changes detected|no changes|SYNC FINISHED)'; then
-                echo ''
-                echo '✅ Tome process completed.'
-                break
-            fi
-        done
-    "
+    if [ "$recent_mode" = "yes" ]; then
+        # Just show last 50 lines
+        print_status $YELLOW "📄 Last 50 lines:"
+        echo ""
+        cf ssh cms -c "tail -n 50 $target_log 2>/dev/null"
+    else
+        # Tail the running log
+        print_status $YELLOW "📄 Tailing log (will stop when Tome finishes)..."
+        echo ""
+        cf ssh cms -c "
+            tail -f -n 50 $target_log 2>/dev/null |
+            while IFS= read -r line; do
+                echo \"\$line\"
+                # Check for completion markers
+                if echo \"\$line\" | grep -qiE '(Tome static build looks fine|No changes detected|no changes|SYNC FINISHED)'; then
+                    echo ''
+                    echo '✅ Tome process completed.'
+                    break
+                fi
+            done
+        "
+    fi
 }
 
 # Switch CF target to specified environment
@@ -2863,7 +2913,7 @@ case "$COMMAND" in
         download_backups "$@"
         ;;
     "tome-log")
-        tome_log
+        tome_log "$@"
         ;;
     "state")
         # state <action> <type> [max_wait_mins] - Manage Drupal state
