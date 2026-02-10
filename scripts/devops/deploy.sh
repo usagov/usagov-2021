@@ -57,10 +57,12 @@ show_usage() {
     echo "                                        Uses DEPLOY_ENV if set (e.g., stage vs prod)"
     echo ""
     echo "Container/Build Information:"
-    echo "  current-digests                       Show container digests captured by cron (what backup would capture)"
-    echo "  show-build-info <env>                 Show latest build info from annotated git tags"
-    echo "                                        Displays CCI build number and container digests"
-    echo "                                        for CMS, WAF, and WWW"
+    echo "  digests current [space]               Show what's CURRENTLY RUNNING in environment"
+    echo "                                        Use: Verify deployment, check live state, see what backup captures"
+    echo "  digests build [env]                   Show what was BUILT in latest CircleCI build"
+    echo "                                        Use: Get digests to deploy a specific build (defaults to current space)"
+    echo "  digests history [env] [days] [limit]  Show deployment history with digests"
+    echo "                                        Flags: --backups-only, --git-only, --format=json, --show-all-history"
     echo ""
     echo "Deployment Commands (DESTRUCTIVE):"
     echo "  push <name> <build> [digest] [--skip-validation]"
@@ -235,42 +237,81 @@ show_command_help() {
             echo "  deploy.sh ccb abc123 def456"
             echo ""
             ;;
-        "current-digests")
-            echo "Show Current Container Digests"
-            echo ""
-            echo "Usage: deploy.sh current-digests [space]"
-            echo ""
-            echo "Description:"
-            echo "  Shows container digests captured by the cron app."
-            echo "  This displays what would be captured in backup metadata"
-            echo "  if a backup were created right now."
-            echo ""
-            echo "  The cron app updates this file every 5 minutes automatically,"
-            echo "  capturing all running container digests in the current space."
-            echo ""
-            echo "Arguments:"
-            echo "  space - Optional space name (dr, stage, prod). Defaults to current space."
-            echo "          If different from current, will switch spaces temporarily."
-            echo ""
-            echo "Examples:"
-            echo "  deploy.sh current-digests        # Show current space"
-            echo "  deploy.sh current-digests stage  # Show stage digests"
-            echo ""
-            ;;
-        "show-build-info")
-            echo "Show Build Information"
-            echo ""
-            echo "Usage: deploy.sh show-build-info <env>"
-            echo ""
-            echo "Description:"
-            echo "  Shows latest CCI build number and container digests from git tags."
-            echo ""
-            echo "Arguments:"
-            echo "  env  - Environment (dev, stage, prod)"
-            echo ""
-            echo "Example:"
-            echo "  deploy.sh show-build-info prod"
-            echo ""
+        "digests")
+            # Check if subcommand help requested
+            if [ "$2" = "current" ]; then
+                echo "Show Currently Running Container Digests"
+                echo ""
+                echo "Usage: deploy.sh digests current [space]"
+                echo ""
+                echo "Description:"
+                echo "  Shows what container digests are CURRENTLY RUNNING in the environment."
+                echo "  Source: Cron bucket file updated every 5 minutes by automated capture."
+                echo ""
+                echo "When to use this:"
+                echo "  • Verify a deployment worked (check if new digest is running)"
+                echo "  • See what's actually deployed right now"
+                echo "  • Check what backup metadata would contain"
+                echo "  • Compare running state across environments"
+                echo ""
+                echo "Arguments:"
+                echo "  space - Optional space name (dr, stage, prod). Defaults to current space."
+                echo "          If different from current, will switch spaces temporarily."
+                echo ""
+                echo "Examples:"
+                echo "  deploy.sh digests current        # Show what's running in current space"
+                echo "  deploy.sh digests current stage  # Show what's running in stage"
+                echo ""
+            elif [ "$2" = "build" ]; then
+                echo "Show CircleCI Build Information"
+                echo ""
+                echo "Usage: deploy.sh digests build [env]"
+                echo ""
+                echo "Description:"
+                echo "  Shows container digests from the latest CircleCI BUILD for an environment."
+                echo "  Source: Annotated git tags created by CircleCI pipeline."
+                echo "  Shows: CMS, WAF, WWW containers from that build (not cron/analytics)."
+                echo ""
+                echo "When to use this:"
+                echo "  • Get container digests to deploy a specific CircleCI build"
+                echo "  • See what was built in the latest pipeline run"
+                echo "  • Find the build number and digests for deployment commands"
+                echo ""
+                echo "Arguments:"
+                echo "  env - Environment (dev, stage, prod, dr). Defaults to current space."
+                echo ""
+                echo "Examples:"
+                echo "  deploy.sh digests build          # Show latest build for current space"
+                echo "  deploy.sh digests build prod     # Show latest build for prod"
+                echo "  # Then use the digests shown to deploy:"
+                echo "  deploy.sh push cms 12034 @sha256:abc..."
+                echo ""
+            else
+                # General digests help
+                echo "Container Digest Commands"
+                echo ""
+                echo "Usage: deploy.sh digests <subcommand> [options]"
+                echo ""
+                echo "Subcommands:"
+                echo "  current [space]               Show what's CURRENTLY RUNNING"
+                echo "                                Use: Verify deployment, check live state"
+                echo ""
+                echo "  build [env]                   Show what was BUILT in latest CircleCI build"
+                echo "                                Use: Get digests to deploy (defaults to current space)"
+                echo ""
+                echo "  history [env] [days] [limit]  Show deployment history"
+                echo "                                Flags: --backups-only, --git-only, --format=json"
+                echo ""
+                echo "Examples:"
+                echo "  deploy.sh digests current"
+                echo "  deploy.sh digests build prod"
+                echo "  deploy.sh digests history prod 7"
+                echo ""
+                echo "Get detailed help:"
+                echo "  deploy.sh digests current -h"
+                echo "  deploy.sh digests build -h"
+                echo ""
+            fi
             ;;
         "push")
             echo "Push Application Deployment"
@@ -2047,8 +2088,18 @@ show_changes() {
 }
 
 # Show latest build information from git annotated tags
-show_build_info() {
-    local env="${1:-prod}"
+show_build_digests() {
+    local env="$1"
+
+    # Default to current space if not provided
+    if [ -z "$env" ]; then
+        env=$(cf target | grep 'space:' | awk '{print $2}')
+        if [ -z "$env" ]; then
+            print_status $RED "❌ Could not determine current space"
+            return 1
+        fi
+    fi
+
     env=$(echo "$env" | tr '[:upper:]' '[:lower:]')
 
     print_status $BLUE "🔍 Searching for latest build information for: $env"
@@ -2082,7 +2133,7 @@ show_build_info() {
 
     # Parse the fields dynamically
     local cci_build=""
-    declare -A app_digests
+    local app_digests_list=""  # Store as "APP:DIGEST|APP:DIGEST|..."
 
     # Parse using POSIX-compatible approach
     old_ifs="$IFS"
@@ -2096,7 +2147,7 @@ show_build_info() {
                 # Extract app name and digest dynamically
                 local app_name="${field%%_DIGEST=*}"
                 local digest="${field#*_DIGEST=}"
-                app_digests["$app_name"]="$digest"
+                app_digests_list="${app_digests_list}${app_name}:${digest}|"
                 ;;
         esac
     done
@@ -2110,36 +2161,65 @@ show_build_info() {
     echo "CCI Build:      $cci_build"
     echo ""
     echo "Container Digests:"
-    for app in "${!app_digests[@]}"; do
-        printf "  %-12s %s\n" "${app}:" "${app_digests[$app]}"
+
+    # Display each app:digest pair
+    old_ifs="$IFS"
+    IFS='|'
+    for pair in $app_digests_list; do
+        if [ -n "$pair" ]; then
+            local app="${pair%%:*}"
+            local digest="${pair#*:}"
+            printf "  %-12s %s\n" "${app}:" "${digest}"
+        fi
     done
+    IFS="$old_ifs"
     echo ""
 
     # Generate deployment commands
     print_status $BLUE "🚀 Deployment Commands"
     echo "----------------------------------------"
     echo ""
-    for app in "${!app_digests[@]}"; do
-        local app_lower=$(echo "$app" | tr '[:upper:]' '[:lower:]')
-        echo "To deploy ${app}:"
-        echo "  deploy.sh push ${app_lower} $cci_build ${app_digests[$app]}"
-        echo ""
+    old_ifs="$IFS"
+    IFS='|'
+    for pair in $app_digests_list; do
+        if [ -n "$pair" ]; then
+            local app="${pair%%:*}"
+            local digest="${pair#*:}"
+            local app_lower=$(echo "$app" | tr '[:upper:]' '[:lower:]')
+            echo "To deploy ${app}:"
+            echo "  deploy.sh push ${app_lower} $cci_build ${digest}"
+            echo ""
+        fi
     done
+    IFS="$old_ifs"
 
     # Optionally set these as environment variables if DEPLOY_ENV matches
     if [ -n "$DEPLOY_ENV" ] && [ "$DEPLOY_ENV" = "$env" ]; then
         export DEPLOY_CCI_BUILD="$cci_build"
-        for app in "${!app_digests[@]}"; do
-            local var_name="DEPLOY_${app}_DIGEST"
-            export "${var_name}=${app_digests[$app]}"
+        old_ifs="$IFS"
+        IFS='|'
+        for pair in $app_digests_list; do
+            if [ -n "$pair" ]; then
+                local app="${pair%%:*}"
+                local digest="${pair#*:}"
+                local var_name="DEPLOY_${app}_DIGEST"
+                export "${var_name}=${digest}"
+            fi
         done
+        IFS="$old_ifs"
 
         print_status $GREEN "✅ Build info exported to environment variables"
         echo "  DEPLOY_CCI_BUILD=$DEPLOY_CCI_BUILD"
-        for app in "${!app_digests[@]}"; do
-            local var_name="DEPLOY_${app}_DIGEST"
-            eval "echo \"  ${var_name}=\$${var_name}\""
+        old_ifs="$IFS"
+        IFS='|'
+        for pair in $app_digests_list; do
+            if [ -n "$pair" ]; then
+                local app="${pair%%:*}"
+                local var_name="DEPLOY_${app}_DIGEST"
+                eval "echo \"  ${var_name}=\$${var_name}\""
+            fi
         done
+        IFS="$old_ifs"
         echo ""
     fi
 }
@@ -2870,11 +2950,145 @@ case "$COMMAND" in
     "ccb")
         show_changes "$@"
         ;;
-    "current-digests")
-        show_current_digests_wrapper "$@"
-        ;;
-    "show-build-info")
-        show_build_info "$@"
+    "digests")
+        # Handle digests subcommands
+        subcommand="$1"
+
+        # Handle help flags at this level
+        if [ "$subcommand" = "-h" ] || [ "$subcommand" = "--help" ]; then
+            # Show general digests help
+            echo "Container Digest Commands"
+            echo ""
+            echo "Usage: deploy.sh digests <subcommand> [options]"
+            echo ""
+            echo "Subcommands:"
+            echo "  current [space]               Show what's CURRENTLY RUNNING"
+            echo "                                Use: Verify deployment, check live state"
+            echo ""
+            echo "  build [env]                   Show what was BUILT in latest CircleCI build"
+            echo "                                Use: Get digests to deploy (defaults to current space)"
+            echo ""
+            echo "  history [env] [days] [limit]  Show deployment history"
+            echo "                                Flags: --backups-only, --git-only, --format=json"
+            echo ""
+            echo "Examples:"
+            echo "  deploy.sh digests current"
+            echo "  deploy.sh digests build prod"
+            echo "  deploy.sh digests history prod 7"
+            echo ""
+            echo "Get detailed help:"
+            echo "  deploy.sh digests current -h"
+            echo "  deploy.sh digests build -h"
+            exit 0
+        fi
+
+        shift
+
+        # Handle subcommand-specific help
+        if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+            case "$subcommand" in
+                current)
+                    echo "Show Currently Running Container Digests"
+                    echo ""
+                    echo "Usage: deploy.sh digests current [space]"
+                    echo ""
+                    echo "Description:"
+                    echo "  Shows what container digests are CURRENTLY RUNNING in the environment."
+                    echo "  Source: Cron bucket file updated every 5 minutes by automated capture."
+                    echo ""
+                    echo "When to use this:"
+                    echo "  • Verify a deployment worked (check if new digest is running)"
+                    echo "  • See what's actually deployed right now"
+                    echo "  • Check what backup metadata would contain"
+                    echo "  • Compare running state across environments"
+                    echo ""
+                    echo "Arguments:"
+                    echo "  space - Optional space name (dr, stage, prod). Defaults to current space."
+                    echo "          If different from current, will switch spaces temporarily."
+                    echo ""
+                    echo "Examples:"
+                    echo "  deploy.sh digests current        # Show what's running in current space"
+                    echo "  deploy.sh digests current stage  # Show what's running in stage"
+                    exit 0
+                    ;;
+                build)
+                    echo "Show CircleCI Build Information"
+                    echo ""
+                    echo "Usage: deploy.sh digests build [env]"
+                    echo ""
+                    echo "Description:"
+                    echo "  Shows container digests from the latest CircleCI BUILD for an environment."
+                    echo "  Source: Annotated git tags created by CircleCI pipeline."
+                    echo "  Shows: CMS, WAF, WWW containers from that build (not cron/analytics)."
+                    echo ""
+                    echo "When to use this:"
+                    echo "  • Get container digests to deploy a specific CircleCI build"
+                    echo "  • See what was built in the latest pipeline run"
+                    echo "  • Find the build number and digests for deployment commands"
+                    echo ""
+                    echo "Arguments:"
+                    echo "  env - Environment (dev, stage, prod, dr). Defaults to current space."
+                    echo ""
+                    echo "Examples:"
+                    echo "  deploy.sh digests build          # Show latest build for current space"
+                    echo "  deploy.sh digests build prod     # Show latest build for prod"
+                    echo "  # Then use the digests shown to deploy:"
+                    echo "  deploy.sh push cms 12034 @sha256:abc..."
+                    exit 0
+                    ;;
+                history)
+                    echo "Show Deployment History with Container Digests"
+                    echo ""
+                    echo "Usage: deploy.sh digests history [env] [days] [limit] [flags]"
+                    echo ""
+                    echo "Description:"
+                    echo "  Shows comprehensive deployment history including:"
+                    echo "  • Currently deployed containers (from Cloud Foundry)"
+                    echo "  • Previous deployment (from CF history)"
+                    echo "  • Recent deployments (from git tags)"
+                    echo "  • Backup history with digests (from S3 metadata)"
+                    echo ""
+                    echo "Arguments:"
+                    echo "  env   - Environment (dev, stage, prod, dr, all). Defaults to current space."
+                    echo "  days  - Show backups from last N days (default: 7)"
+                    echo "  limit - Limit git tag results (default: 10)"
+                    echo ""
+                    echo "Flags:"
+                    echo "  --backups-only       Show only backup history (skip CF and git)"
+                    echo "  --git-only           Show only git tag history (skip CF and backups)"
+                    echo "  --show-all-history   Show all git tags (don't filter by 1 year)"
+                    echo "  --format=json        Output in JSON format (not yet implemented)"
+                    echo ""
+                    echo "Examples:"
+                    echo "  deploy.sh digests history                    # Current space, last 7 days"
+                    echo "  deploy.sh digests history prod               # Prod env, last 7 days"
+                    echo "  deploy.sh digests history prod 14            # Prod env, last 14 days"
+                    echo "  deploy.sh digests history prod 7 20          # Prod env, 7 days, limit 20"
+                    echo "  deploy.sh digests history --git-only         # Only show git deployments"
+                    echo "  deploy.sh digests history --backups-only     # Only show backups"
+                    echo "  deploy.sh digests history --show-all-history # Show all deployments"
+                    exit 0
+                    ;;
+            esac
+        fi
+
+        case "$subcommand" in
+            current)
+                show_current_digests_wrapper "$@"
+                ;;
+            build)
+                show_build_digests "$@"
+                ;;
+            history|*)
+                # Default to history for backward compatibility or when no subcommand
+                if [ "$subcommand" = "history" ]; then
+                    list_digests "$@"
+                else
+                    # If subcommand looks like an env name or flag, treat as history
+                    list_digests "$subcommand" "$@"
+                fi
+                ;;
+        esac
         ;;
     "push")
         deploy_app "$@"
