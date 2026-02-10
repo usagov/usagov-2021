@@ -961,8 +961,6 @@ EOF
     format_kv_pairs "$format" "$json_data"
 }
 
-
-
 # Show when last backup of each type was taken
 last_backup() {
     print_status $BLUE "🕒 Last Backup Times"
@@ -1015,15 +1013,46 @@ last_backup() {
 
 # Show current status
 show_status() {
-    print_status $BLUE "📊 Current Status"
-    echo ""
-    echo "CF Target:"
-    local loader=$(show_loading "Fetching Cloud Foundry status")
-    cf target
-    echo ""
-    echo "Recent Activity (last 10 events):"
-    loader=$(show_loading "Loading recent events")
-    cf events cms | head -15
+    local format=$(parse_format_flag "$@")
+
+    # For table format, preserve original output
+    if [ "$format" = "table" ]; then
+        print_status $BLUE "📊 Current Status"
+        echo ""
+        echo "CF Target:"
+        local loader=$(show_loading "Fetching Cloud Foundry status")
+        cf target
+        echo ""
+        echo "Recent Activity (last 10 events):"
+        loader=$(show_loading "Loading recent events")
+        cf events cms | head -15
+        return
+    fi
+
+    # For other formats, build JSON data
+    local cf_target_output=$(cf target 2>/dev/null)
+    local cf_org=$(echo "$cf_target_output" | grep "^org:" | awk '{print $2}')
+    local cf_space=$(echo "$cf_target_output" | grep "^space:" | awk '{print $2}')
+    local cf_api=$(echo "$cf_target_output" | grep "^api endpoint:" | awk '{print $3}')
+    local cf_user=$(echo "$cf_target_output" | grep "^user:" | awk '{print $2}')
+
+    # Get recent events (simplified for JSON)
+    local recent_events=$(cf events cms 2>/dev/null | tail -n +4 | head -10 | awk '{print $1" "$2" "$3" "$4}' | jq -R . | jq -s .)
+
+    local json_data=$(cat <<EOF
+{
+  "cf_target": {
+    "api": "$cf_api",
+    "org": "$cf_org",
+    "space": "$cf_space",
+    "user": "$cf_user"
+  },
+  "recent_events": $recent_events
+}
+EOF
+)
+
+    format_kv_pairs "$format" "$json_data"
 }
 
 # Show message of the day from CMS container
@@ -2257,10 +2286,13 @@ switch_env() {
 show_changes() {
     local from="${1:-prod}"
     local to="${2:-stage}"
+    local format=$(parse_format_flag "$@")
 
     # Fetch latest from remote to ensure we have current refs
-    print_status $BLUE "🔄 Fetching latest changes..."
-    git fetch --all
+    if [ "$format" = "table" ]; then
+        print_status $BLUE "🔄 Fetching latest changes..."
+    fi
+    git fetch --all 2>/dev/null
 
     # Validate that both refs exist
     if ! git cat-file -t "$from" > /dev/null 2>&1; then
@@ -2288,12 +2320,14 @@ show_changes() {
     to_sha=$(git rev-parse "$to")
 
     if [ "$from_sha" = "$to_sha" ]; then
-        print_status $YELLOW "ℹ️  $from and $to point to the same commit"
+        if [ "$format" = "table" ]; then
+            print_status $YELLOW "ℹ️  $from and $to point to the same commit"
+        else
+            local json_data='{"from":"'"$from"'","to":"'"$to"'","same_commit":true,"commits":[],"tickets":[]}'
+            format_table_list "$format" "$json_data"
+        fi
         return 0
     fi
-
-    print_status $BLUE "📋 Changes from $from to $to"
-    echo ""
 
     # Show commits in 'to' that are not in 'from'
     # Using --first-parent to follow main branch history and avoid seeing every merged commit
@@ -2301,13 +2335,22 @@ show_changes() {
     commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
 
     if [ -z "$commits_ahead" ]; then
-        print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
-
         # Check if 'from' is ahead instead
         local commits_behind
         commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+        local behind_count=0
         if [ -n "$commits_behind" ]; then
-            print_status $YELLOW "⚠️  Warning: $to is behind $from by $(echo "$commits_behind" | wc -l | tr -d ' ') commits"
+            behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
+        fi
+
+        if [ "$format" = "table" ]; then
+            print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
+            if [ -n "$commits_behind" ]; then
+                print_status $YELLOW "⚠️  Warning: $to is behind $from by $behind_count commits"
+            fi
+        else
+            local json_data='{"from":"'"$from"'","to":"'"$to"'","no_changes":true,"behind_count":'"$behind_count"',"commits":[],"tickets":[]}'
+            format_table_list "$format" "$json_data"
         fi
         return 0
     fi
@@ -2322,29 +2365,59 @@ show_changes() {
         grep -iv usagov-2021 | \
         sort -u)
 
-    if [ -n "$tickets" ]; then
-        echo "Tickets:"
-        echo "$tickets" | while read -r ticket; do
-            echo "  • $ticket"
-        done
-        echo ""
-    fi
-
     # Show commit count
     local commit_count
     commit_count=$(echo "$commits_ahead" | wc -l | tr -d ' ')
-    echo "Total commits: $commit_count"
-    echo ""
 
-    # Show recent commits (last 10)
-    echo "Recent commits:"
-    echo "$commits_ahead" | head -10 | while read -r line; do
-        echo "  $line"
-    done
+    # For table format, preserve original output
+    if [ "$format" = "table" ]; then
+        print_status $BLUE "📋 Changes from $from to $to"
+        echo ""
 
-    if [ "$commit_count" -gt 10 ]; then
-        echo "  ... and $((commit_count - 10)) more"
+        if [ -n "$tickets" ]; then
+            echo "Tickets:"
+            echo "$tickets" | while read -r ticket; do
+                echo "  • $ticket"
+            done
+            echo ""
+        fi
+
+        echo "Total commits: $commit_count"
+        echo ""
+
+        # Show recent commits (last 10)
+        echo "Recent commits:"
+        echo "$commits_ahead" | head -10 | while read -r line; do
+            echo "  $line"
+        done
+
+        if [ "$commit_count" -gt 10 ]; then
+            echo "  ... and $((commit_count - 10)) more"
+        fi
+        return
     fi
+
+    # For other formats, build JSON and use formatter
+    local tickets_json="[]"
+    if [ -n "$tickets" ]; then
+        tickets_json=$(echo "$tickets" | jq -R . | jq -s .)
+    fi
+
+    local commits_json=$(echo "$commits_ahead" | head -10 | jq -R . | jq -s .)
+    local total_commits=$commit_count
+
+    local json_data=$(cat <<EOF
+{
+  "from": "$from",
+  "to": "$to",
+  "commit_count": $total_commits,
+  "tickets": $tickets_json,
+  "recent_commits": $commits_json
+}
+EOF
+)
+
+    format_kv_pairs "$format" "$json_data"
 }
 
 # Show latest build information from git annotated tags
@@ -3202,7 +3275,7 @@ case "$COMMAND" in
         last_backup
         ;;
     "status")
-        show_status
+        show_status "$@"
         ;;
     "motd")
         show_motd
