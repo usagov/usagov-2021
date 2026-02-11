@@ -15,176 +15,24 @@ SCRIPT_DIR=$(dirname "$0")
 init_backup_system
 
 # ===================================================================
-# FORMATTING SERVICE (Temporary - will move to common.sh once tested)
+# FORMATTING SERVICE
 # ===================================================================
 
-# Parse format flag from arguments
-# Returns: format type (json, csv, yaml, markdown, table)
-parse_format_flag() {
-    local format="table"  # default
-
-    # Look through all args for --format=*
+# Check for --json flag in arguments
+has_json_flag() {
     for arg in "$@"; do
-        case "$arg" in
-            --format=*) format="${arg#*=}" ;;
-        esac
+        if [ "$arg" = "--json" ]; then
+            return 0
+        fi
     done
-
-    # Validate format
-    case "$format" in
-        json|csv|yaml|markdown|table) echo "$format" ;;
-        *)
-            echo "❌ Invalid format: $format" >&2
-            echo "Valid formats: json, csv, yaml, markdown, table" >&2
-            return 1
-            ;;
-    esac
+    return 1
 }
 
-# Format key-value pair data
-# Usage: format_kv_pairs <format> <json_data>
-# For simple key-value structures like show_context
-format_kv_pairs() {
-    local format="$1"
-    local json_data="$2"
-
-    case "$format" in
-        json)
-            echo "$json_data" | jq .
-            ;;
-        csv)
-            echo "Key,Value"
-            echo "$json_data" | jq -r '
-                [paths(scalars)] as $paths |
-                $paths[] as $path |
-                [($path | join(".")), getpath($path)] |
-                @csv
-            '
-            ;;
-        yaml)
-            echo "$json_data" | jq -r '
-                def to_yaml(indent):
-                    if type == "object" then
-                        to_entries[] |
-                        if (.value | type) == "object" then
-                            "\(indent)\(.key):\n\(.value | to_yaml(indent + "  "))"
-                        else
-                            "\(indent)\(.key): \(.value)"
-                        end
-                    else
-                        "\(indent)\(.)"
-                    end;
-                to_yaml("")
-            '
-            ;;
-        markdown)
-            echo "| Key | Value |"
-            echo "| --- | --- |"
-            echo "$json_data" | jq -r '
-                [paths(scalars)] as $paths |
-                $paths[] as $path |
-                "| \($path | join(".")) | \(getpath($path)) |"
-            '
-            ;;
-    esac
-}
-
-# Format list/table data
-# Usage: format_table_list <format> <json_array>
-# For lists like backups, commits, etc.
-format_table_list() {
-    local format="$1"
-    local json_data="$2"
-
-    case "$format" in
-        json)
-            echo "$json_data" | jq .
-            ;;
-        csv)
-            echo "$json_data" | jq -r '
-                (.[0] | keys_unsorted) as $cols |
-                ($cols | @csv),
-                (.[] | [.[$cols[]]] | @csv)
-            '
-            ;;
-        yaml)
-            echo "$json_data" | jq -r '
-                .[] | to_entries |
-                ("- " + (.[0] | "\(.key): \(.value)")),
-                (.[1:] | .[] | "  \(.key): \(.value)")
-            '
-            ;;
-        markdown)
-            echo "$json_data" | jq -r '
-                (.[0] | keys_unsorted) as $cols |
-                "| " + ($cols | join(" | ")) + " |",
-                "| " + ($cols | map("---") | join(" | ")) + " |",
-                (.[] | "| " + ([.[$cols[]]] | map(tostring) | join(" | ")) + " |")
-            '
-            ;;
-    esac
-}
-
-# Format nested/complex data structures
-# Usage: format_nested_structure <format> <json_data>
-# For complex structures like digests history
-format_nested_structure() {
-    local format="$1"
-    local json_data="$2"
-
-    case "$format" in
-        json)
-            echo "$json_data" | jq .
-            ;;
-        csv)
-            echo "$json_data" | jq -r '
-                [paths(scalars) as $path | {
-                    "path": ($path | join(".")),
-                    "value": (getpath($path))
-                }] |
-                ["Path", "Value"], (.[] | [.path, .value]) |
-                @csv
-            '
-            ;;
-        yaml)
-            echo "$json_data" | jq -r '
-                def to_yaml(indent):
-                    if type == "object" then
-                        to_entries[] |
-                        if (.value | type) == "object" then
-                            "\(indent)\(.key):\n\(.value | to_yaml(indent + "  "))"
-                        elif (.value | type) == "array" then
-                            "\(indent)\(.key):\n\(.value | .[] | to_yaml(indent + "  - "))"
-                        else
-                            "\(indent)\(.key): \(.value)"
-                        end
-                    elif type == "array" then
-                        .[] | to_yaml(indent + "- ")
-                    else
-                        "\(indent)\(.)"
-                    end;
-                to_yaml("")
-            '
-            ;;
-        markdown)
-            echo "$json_data" | jq -r '
-                def to_markdown(level):
-                    if type == "object" then
-                        to_entries[] |
-                        if (.value | type) == "object" or (.value | type) == "array" then
-                            "\(level) **\(.key)**\n\(.value | to_markdown(level + "#"))"
-                        else
-                            "\(level) **\(.key)**: \(.value)"
-                        end
-                    elif type == "array" then
-                        .[] | to_markdown(level)
-                    else
-                        "\(level) \(.)"
-                    end;
-                to_markdown("##")
-            '
-            ;;
-    esac
+# Format data as JSON
+# Usage: format_json <json_data>
+format_json() {
+    local json_data="$1"
+    echo "$json_data" | jq .
 }
 
 # ===================================================================
@@ -239,7 +87,7 @@ show_usage() {
     echo "  digests build [env]                   Show what was BUILT in latest CircleCI build"
     echo "                                        Use: Get digests to deploy a specific build (defaults to current space)"
     echo "  digests history [env] [days] [limit]  Show deployment history with digests"
-    echo "                                        Flags: --backups-only, --git-only, --format=json, --show-all-history"
+    echo "                                        Flags: --backups-only, --git-only, --json, --show-all-history"
     echo ""
     echo "Deployment Commands (DESTRUCTIVE):"
     echo "  push <name> <build> [digest] [--skip-validation]"
@@ -261,12 +109,6 @@ show_usage() {
     echo ""
     echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
-    echo "  digests [env] [days] [limit]          Show available container digests with deployment history"
-    echo "                                        env: current (default), dev, stage, prod, or all"
-    echo "                                        days: show backups from last N days (default: 7)"
-    echo "                                        limit: limit results per category (default: 10)"
-    echo "                                        Flags: --backups-only, --git-only, --format=json,"
-    echo "                                               --show-all-history (show deployments >1yr old)"
     echo "  rollback [tag] [--apps=...] [--restore=...] [--skip-validation] [--skip-confirmation]"
     echo "                                        🔥 DESTRUCTIVE: Rollback code + optional data"
     echo "                                        Uses backup metadata to fetch container digests"
@@ -419,7 +261,7 @@ show_command_help() {
             if [ "$2" = "current" ]; then
                 echo "Show Currently Running Container Digests"
                 echo ""
-                echo "Usage: deploy.sh digests current [space]"
+                echo "Usage: deploy.sh digests current [space] [--json]"
                 echo ""
                 echo "Description:"
                 echo "  Shows what container digests are CURRENTLY RUNNING in the environment."
@@ -434,15 +276,17 @@ show_command_help() {
                 echo "Arguments:"
                 echo "  space - Optional space name (dr, stage, prod). Defaults to current space."
                 echo "          If different from current, will switch spaces temporarily."
+                echo "  --json - Output in JSON format"
                 echo ""
                 echo "Examples:"
                 echo "  deploy.sh digests current        # Show what's running in current space"
                 echo "  deploy.sh digests current stage  # Show what's running in stage"
+                echo "  deploy.sh digests current --json # Show current digests in JSON format"
                 echo ""
             elif [ "$2" = "build" ]; then
                 echo "Show CircleCI Build Information"
                 echo ""
-                echo "Usage: deploy.sh digests build [env]"
+                echo "Usage: deploy.sh digests build [env] [--json]"
                 echo ""
                 echo "Description:"
                 echo "  Shows container digests from the latest CircleCI BUILD for an environment."
@@ -455,11 +299,13 @@ show_command_help() {
                 echo "  • Find the build number and digests for deployment commands"
                 echo ""
                 echo "Arguments:"
-                echo "  env - Environment (dev, stage, prod, dr). Defaults to current space."
+                echo "  env    - Environment (dev, stage, prod, dr). Defaults to current space."
+                echo "  --json - Output in JSON format"
                 echo ""
                 echo "Examples:"
                 echo "  deploy.sh digests build          # Show latest build for current space"
                 echo "  deploy.sh digests build prod     # Show latest build for prod"
+                echo "  deploy.sh digests build --json   # Show build info in JSON format"
                 echo "  # Then use the digests shown to deploy:"
                 echo "  deploy.sh push cms 12034 @sha256:abc..."
                 echo ""
@@ -477,7 +323,7 @@ show_command_help() {
                 echo "                                Use: Get digests to deploy (defaults to current space)"
                 echo ""
                 echo "  history [env] [days] [limit]  Show deployment history"
-                echo "                                Flags: --backups-only, --git-only, --format=json"
+                echo "                                Flags: --backups-only, --git-only, --json"
                 echo ""
                 echo "Examples:"
                 echo "  deploy.sh digests current"
@@ -573,7 +419,7 @@ show_command_help() {
             echo "Flags:"
             echo "  --backups-only        Show only backup digests"
             echo "  --git-only            Show only git tag digests"
-            echo "  --format=json         Output in JSON format"
+            echo "  --json                Output in JSON format"
             echo "  --show-all-history    Show deployments >1 year old"
             echo ""
             echo "Examples:"
@@ -901,46 +747,22 @@ set_context() {
 
 # Show current deployment context
 show_context() {
-    local format=$(parse_format_flag "$@")
+    # Check for --json flag
+    if has_json_flag "$@"; then
+        local deploy_env="${DEPLOY_ENV:-(not set)}"
+        local deploy_ticket="${DEPLOY_TICKET:-(not set)}"
+        local deploy_pre="${DEPLOY_PRE_SUFFIX:-(not set)}"
+        local deploy_post="${DEPLOY_POST_SUFFIX:-(not set)}"
+        local rollback_static="${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
+        local rollback_public="${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
+        local rollback_db="${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
 
-    # Preserve original table output (default)
-    if [ "$format" = "table" ]; then
-        print_status $BLUE "📋 Current Deployment Context"
-        echo ""
+        local has_context=false
         if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-            echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
-            echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
-            echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
-            echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
-            echo ""
-            echo "Rollback tags:"
-            echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-            echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-            echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-        else
-            print_status $YELLOW "⚠️  No deployment context set"
-            echo ""
-            echo "Run: deploy.sh set-context <env> <ticket>"
+            has_context=true
         fi
-        echo ""
-        return
-    fi
 
-    # For other formats, build JSON and use formatter
-    local deploy_env="${DEPLOY_ENV:-(not set)}"
-    local deploy_ticket="${DEPLOY_TICKET:-(not set)}"
-    local deploy_pre="${DEPLOY_PRE_SUFFIX:-(not set)}"
-    local deploy_post="${DEPLOY_POST_SUFFIX:-(not set)}"
-    local rollback_static="${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-    local rollback_public="${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-    local rollback_db="${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-
-    local has_context=false
-    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-        has_context=true
-    fi
-
-    local json_data=$(cat <<EOF
+        local json_data=$(cat <<EOF
 {
   "deployment_context": {
     "environment": "$deploy_env",
@@ -957,8 +779,29 @@ show_context() {
 }
 EOF
 )
+        format_json "$json_data"
+        return
+    fi
 
-    format_kv_pairs "$format" "$json_data"
+    # Default table output
+    print_status $BLUE "📋 Current Deployment Context"
+    echo ""
+    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
+        echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
+        echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
+        echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
+        echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
+        echo ""
+        echo "Rollback tags:"
+        echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
+        echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
+    else
+        print_status $YELLOW "⚠️  No deployment context set"
+        echo ""
+        echo "Run: deploy.sh set-context <env> <ticket>"
+    fi
+    echo ""
 }
 
 # Show when last backup of each type was taken
@@ -1013,10 +856,8 @@ last_backup() {
 
 # Show current status
 show_status() {
-    local format=$(parse_format_flag "$@")
-
-    # For non-table formats, collect all data and format at the end
-    if [ "$format" != "table" ]; then
+    # Check for --json flag
+    if has_json_flag "$@"; then
         # Get CF target info
         local cf_target_output=$(cf target 2>/dev/null)
         local cf_org=$(echo "$cf_target_output" | grep "^org:" | awk '{print $2}')
@@ -1071,8 +912,7 @@ show_status() {
 }
 EOF
 )
-
-        format_kv_pairs "$format" "$json_data"
+        format_json "$json_data"
         return
     fi
 
@@ -1788,14 +1628,14 @@ list_backups() {
 #   $1: env - Environment filter (default: current from cf target)
 #   $2: days - Show backups from last N days (default: 7)
 #   $3: limit - Limit results per category (default: 10)
-#   Additional flags: --backups-only, --git-only, --format=json
+#   Additional flags: --backups-only, --git-only, --json
 list_digests() {
     local target_env=""
     local days="7"
     local limit="10"
     local backups_only=false
     local git_only=false
-    local format="table"
+    local use_json=false
     local show_all_history=false
 
     # Parse all arguments (flags and positional)
@@ -1803,7 +1643,7 @@ list_digests() {
         case "$1" in
             --backups-only) backups_only=true ;;
             --git-only) git_only=true ;;
-            --format=*) format="${1#*=}" ;;
+            --json) use_json=true ;;
             --show-all-history) show_all_history=true ;;
             *)
                 # First non-flag arg is env, second is days, third is limit
@@ -1839,6 +1679,44 @@ list_digests() {
             ;;
     esac
 
+    # For JSON output, collect data and format at the end
+    if [ "$use_json" = true ]; then
+        local envs_to_query
+        if [ "$target_env" = "all" ]; then
+            envs_to_query="dev stage prod"
+        else
+            envs_to_query="$target_env"
+        fi
+
+        # Build JSON object for each environment
+        local json_output="{"
+        local first_env=true
+
+        for env in $envs_to_query; do
+            # Get current and previous digests
+            local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
+            local www_current=$(get_app_digest "www" 2>/dev/null || echo "unknown")
+            local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
+            local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
+            local build_num=$(extract_build_from_digest "$cms_current")
+
+            # Add comma between environments
+            if [ "$first_env" = false ]; then
+                json_output="${json_output},"
+            fi
+            first_env=false
+
+            # Build properly quoted JSON for this environment
+            json_output="${json_output}\"${env}\":{\"current\":{\"cms\":\"${cms_current}\",\"www\":\"${www_current}\",\"waf\":\"${waf_current}\",\"deployed\":\"${cms_updated:-unknown}\",\"build\":\"${build_num:-unknown}\"}}"
+        done
+
+        json_output="${json_output}}"
+
+        format_json "$json_output"
+        return
+    fi
+
+    # Table format: Use original display logic
     print_status $BLUE "🔍 Container Digests - ${target_env} environment"
     echo ""
 
@@ -2432,12 +2310,98 @@ switch_env() {
 show_changes() {
     local from="${1:-prod}"
     local to="${2:-stage}"
-    local format=$(parse_format_flag "$@")
 
-    # Fetch latest from remote to ensure we have current refs
-    if [ "$format" = "table" ]; then
-        print_status $BLUE "🔄 Fetching latest changes..."
+    # Check for --json flag
+    if has_json_flag "$@"; then
+        # Fetch latest from remote to ensure we have current refs
+        git fetch --all 2>/dev/null
+
+        # Validate that both refs exist
+        if ! git cat-file -t "$from" > /dev/null 2>&1; then
+            echo '{"error":"'"$from"' not found in this repo"}' | jq .
+            exit 1
+        fi
+        if ! git cat-file -t "$to" > /dev/null 2>&1; then
+            echo '{"error":"'"$to"' not found in this repo"}' | jq .
+            exit 1
+        fi
+
+        # Find the common ancestor (merge base) to handle non-linear history
+        local merge_base
+        merge_base=$(git merge-base "$from" "$to" 2>/dev/null)
+
+        if [ -z "$merge_base" ]; then
+            echo '{"error":"No common ancestor found between '"$from"' and '"$to"'"}' | jq .
+            exit 1
+        fi
+
+        # Check if refs are the same
+        local from_sha
+        local to_sha
+        from_sha=$(git rev-parse "$from")
+        to_sha=$(git rev-parse "$to")
+
+        if [ "$from_sha" = "$to_sha" ]; then
+            local json_data='{"from":"'"$from"'","to":"'"$to"'","same_commit":true,"commits":[],"tickets":[]}'
+            format_json "$json_data"
+            return 0
+        fi
+
+        # Show commits in 'to' that are not in 'from'
+        local commits_ahead
+        commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+
+        if [ -z "$commits_ahead" ]; then
+            # Check if 'from' is ahead instead
+            local commits_behind
+            commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+            local behind_count=0
+            if [ -n "$commits_behind" ]; then
+                behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
+            fi
+
+            local json_data='{"from":"'"$from"'","to":"'"$to"'","no_changes":true,"behind_count":'"$behind_count"',"commits":[],"tickets":[]}'
+            format_json "$json_data"
+            return 0
+        fi
+
+        # Extract tickets from commit messages
+        local tickets
+        tickets=$(git log --first-parent "$from..$to" | \
+            grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
+            sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
+            grep -iv usagov-2021 | \
+            sort -u)
+
+        # Show commit count
+        local commit_count
+        commit_count=$(echo "$commits_ahead" | wc -l | tr -d ' ')
+
+        # Build JSON
+        local tickets_json="[]"
+        if [ -n "$tickets" ]; then
+            tickets_json=$(echo "$tickets" | jq -R . | jq -s .)
+        fi
+
+        local commits_json=$(echo "$commits_ahead" | head -10 | jq -R . | jq -s .)
+        local total_commits=$commit_count
+
+        local json_data=$(cat <<EOF
+{
+  "from": "$from",
+  "to": "$to",
+  "commit_count": $total_commits,
+  "tickets": $tickets_json,
+  "recent_commits": $commits_json
+}
+EOF
+)
+        format_json "$json_data"
+        return
     fi
+
+    # Default table format
+    print_status $BLUE "🔄 Fetching latest changes..."
     git fetch --all 2>/dev/null
 
     # Validate that both refs exist
@@ -2466,12 +2430,7 @@ show_changes() {
     to_sha=$(git rev-parse "$to")
 
     if [ "$from_sha" = "$to_sha" ]; then
-        if [ "$format" = "table" ]; then
-            print_status $YELLOW "ℹ️  $from and $to point to the same commit"
-        else
-            local json_data='{"from":"'"$from"'","to":"'"$to"'","same_commit":true,"commits":[],"tickets":[]}'
-            format_table_list "$format" "$json_data"
-        fi
+        print_status $YELLOW "ℹ️  $from and $to point to the same commit"
         return 0
     fi
 
@@ -2489,14 +2448,9 @@ show_changes() {
             behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
         fi
 
-        if [ "$format" = "table" ]; then
-            print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
-            if [ -n "$commits_behind" ]; then
-                print_status $YELLOW "⚠️  Warning: $to is behind $from by $behind_count commits"
-            fi
-        else
-            local json_data='{"from":"'"$from"'","to":"'"$to"'","no_changes":true,"behind_count":'"$behind_count"',"commits":[],"tickets":[]}'
-            format_table_list "$format" "$json_data"
+        print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
+        if [ -n "$commits_behind" ]; then
+            print_status $YELLOW "⚠️  Warning: $to is behind $from by $behind_count commits"
         fi
         return 0
     fi
@@ -2515,74 +2469,64 @@ show_changes() {
     local commit_count
     commit_count=$(echo "$commits_ahead" | wc -l | tr -d ' ')
 
-    # For table format, preserve original output
-    if [ "$format" = "table" ]; then
-        print_status $BLUE "📋 Changes from $from to $to"
-        echo ""
+    print_status $BLUE "📋 Changes from $from to $to"
+    echo ""
 
-        if [ -n "$tickets" ]; then
-            echo "Tickets:"
-            echo "$tickets" | while read -r ticket; do
-                echo "  • $ticket"
-            done
-            echo ""
-        fi
-
-        echo "Total commits: $commit_count"
-        echo ""
-
-        # Show recent commits (last 10)
-        echo "Recent commits:"
-        echo "$commits_ahead" | head -10 | while read -r line; do
-            echo "  $line"
-        done
-
-        if [ "$commit_count" -gt 10 ]; then
-            echo "  ... and $((commit_count - 10)) more"
-        fi
-        return
-    fi
-
-    # For other formats, build JSON and use formatter
-    local tickets_json="[]"
     if [ -n "$tickets" ]; then
-        tickets_json=$(echo "$tickets" | jq -R . | jq -s .)
+        echo "Tickets:"
+        echo "$tickets" | while read -r ticket; do
+            echo "  • $ticket"
+        done
+        echo ""
     fi
 
-    local commits_json=$(echo "$commits_ahead" | head -10 | jq -R . | jq -s .)
-    local total_commits=$commit_count
+    echo "Total commits: $commit_count"
+    echo ""
 
-    local json_data=$(cat <<EOF
-{
-  "from": "$from",
-  "to": "$to",
-  "commit_count": $total_commits,
-  "tickets": $tickets_json,
-  "recent_commits": $commits_json
-}
-EOF
-)
+    # Show recent commits (last 10)
+    echo "Recent commits:"
+    echo "$commits_ahead" | head -10 | while read -r line; do
+        echo "  $line"
+    done
 
-    format_kv_pairs "$format" "$json_data"
+    if [ "$commit_count" -gt 10 ]; then
+        echo "  ... and $((commit_count - 10)) more"
+    fi
 }
 
 # Show latest build information from git annotated tags
 show_build_digests() {
-    local env="$1"
+    # Check for --json flag
+    local use_json=false
+    local env=""
+
+    for arg in "$@"; do
+        if [ "$arg" = "--json" ]; then
+            use_json=true
+        else
+            env="$arg"
+        fi
+    done
 
     # Default to current space if not provided
     if [ -z "$env" ]; then
         env=$(cf target | grep 'space:' | awk '{print $2}')
         if [ -z "$env" ]; then
-            print_status $RED "❌ Could not determine current space"
+            if [ "$use_json" = true ]; then
+                echo '{"error":"Could not determine current space"}' | jq .
+            else
+                print_status $RED "❌ Could not determine current space"
+            fi
             return 1
         fi
     fi
 
     env=$(echo "$env" | tr '[:upper:]' '[:lower:]')
 
-    print_status $BLUE "🔍 Searching for latest build information for: $env"
-    echo ""
+    if [ "$use_json" != true ]; then
+        print_status $BLUE "🔍 Searching for latest build information for: $env"
+        echo ""
+    fi
 
     # Find the most recent annotated tag for this environment
     local annotated_tag
@@ -2591,22 +2535,32 @@ show_build_digests() {
         while read ty name; do [ "$ty" = "tag" ] && echo "$name" && break; done)
 
     if [ -z "$annotated_tag" ]; then
-        print_status $RED "❌ No git tag found matching pattern: usagov-cci-build-*-${env}"
-        echo ""
-        echo "Available tags:"
-        git tag -l "usagov-cci-build-*" | tail -10
+        if [ "$use_json" = true ]; then
+            echo '{"error":"No git tag found matching pattern: usagov-cci-build-*-'"$env"'"}' | jq .
+        else
+            print_status $RED "❌ No git tag found matching pattern: usagov-cci-build-*-${env}"
+            echo ""
+            echo "Available tags:"
+            git tag -l "usagov-cci-build-*" | tail -10
+        fi
         return 1
     fi
 
-    print_status $GREEN "✅ Found tag: $annotated_tag"
-    echo ""
+    if [ "$use_json" != true ]; then
+        print_status $GREEN "✅ Found tag: $annotated_tag"
+        echo ""
+    fi
 
     # Parse the tag annotation
     local tag_content
     tag_content=$(git for-each-ref refs/tags/$annotated_tag --format "%(contents)" | sed "s/'//g")
 
     if [ -z "$tag_content" ]; then
-        print_status $RED "❌ Tag annotation is empty"
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Tag annotation is empty"}' | jq .
+        else
+            print_status $RED "❌ Tag annotation is empty"
+        fi
         return 1
     fi
 
@@ -2631,6 +2585,34 @@ show_build_digests() {
         esac
     done
     IFS="$old_ifs"
+
+    # For JSON output, format and return early
+    if [ "$use_json" = true ]; then
+        local json_output='{"environment":"'"$env"'","tag":"'"$annotated_tag"'","cci_build":"'"$cci_build"'","digests":{'
+        local first=true
+
+        old_ifs="$IFS"
+        IFS='|'
+        for pair in $app_digests_list; do
+            if [ -n "$pair" ]; then
+                local app="${pair%%:*}"
+                local digest="${pair#*:}"
+                local app_lower=$(echo "$app" | tr '[:upper:]' '[:lower:]')
+
+                if [ "$first" = false ]; then
+                    json_output="${json_output},"
+                fi
+                first=false
+
+                json_output="${json_output}\"${app_lower}\":\"${digest}\""
+            fi
+        done
+        IFS="$old_ifs"
+
+        json_output="${json_output}}}"
+        format_json "$json_output"
+        return
+    fi
 
     # Display the information
     print_status $BLUE "📦 Build Information"
@@ -2932,9 +2914,60 @@ fetch_latest_backup_tag() {
 
 # Show current container digests - wrapper that handles space switching
 show_current_digests_wrapper() {
-    local target_space="$1"
+    # Check for --json flag
+    local use_json=false
+    local target_space=""
+
+    for arg in "$@"; do
+        if [ "$arg" = "--json" ]; then
+            use_json=true
+        else
+            target_space="$arg"
+        fi
+    done
+
     local current_space=$(cf target | grep 'space:' | awk '{print $2}')
 
+    if [ "$use_json" = true ]; then
+        # For JSON output, query directly from CF instead of using cron file
+        local query_space="${target_space:-$current_space}"
+
+        # Switch to target space if needed
+        if [ -n "$target_space" ] && [ "$target_space" != "$current_space" ]; then
+            cf target -s "$target_space" >/dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                echo '{"error":"Failed to switch to space: '"$target_space"'"}' | jq .
+                return 1
+            fi
+        fi
+
+        # Get current digests
+        local cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
+        local www_digest=$(get_app_digest "www" 2>/dev/null || echo "unknown")
+        local waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
+        local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
+
+        # Switch back if needed
+        if [ -n "$target_space" ] && [ "$target_space" != "$current_space" ]; then
+            cf target -s "$current_space" >/dev/null 2>&1
+        fi
+
+        # Output JSON
+        local json_data=$(cat <<EOF
+{
+  "space": "$query_space",
+  "cms": "$cms_digest",
+  "www": "$www_digest",
+  "waf": "$waf_digest",
+  "last_deployed": "${cms_updated:-unknown}"
+}
+EOF
+)
+        format_json "$json_data"
+        return
+    fi
+
+    # Default table output
     if [ -z "$target_space" ] || [ "$target_space" = "$current_space" ]; then
         # No space specified or same as current space
         cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
@@ -3448,7 +3481,7 @@ case "$COMMAND" in
             echo "                                Use: Get digests to deploy (defaults to current space)"
             echo ""
             echo "  history [env] [days] [limit]  Show deployment history"
-            echo "                                Flags: --backups-only, --git-only, --format=json"
+            echo "                                Flags: --backups-only, --git-only, --json"
             echo ""
             echo "Examples:"
             echo "  deploy.sh digests current"
@@ -3469,7 +3502,7 @@ case "$COMMAND" in
                 current)
                     echo "Show Currently Running Container Digests"
                     echo ""
-                    echo "Usage: deploy.sh digests current [space]"
+                    echo "Usage: deploy.sh digests current [space] [--json]"
                     echo ""
                     echo "Description:"
                     echo "  Shows what container digests are CURRENTLY RUNNING in the environment."
@@ -3484,16 +3517,18 @@ case "$COMMAND" in
                     echo "Arguments:"
                     echo "  space - Optional space name (dr, stage, prod). Defaults to current space."
                     echo "          If different from current, will switch spaces temporarily."
+                    echo "  --json - Output in JSON format"
                     echo ""
                     echo "Examples:"
                     echo "  deploy.sh digests current        # Show what's running in current space"
                     echo "  deploy.sh digests current stage  # Show what's running in stage"
+                    echo "  deploy.sh digests current --json # Show current digests in JSON"
                     exit 0
                     ;;
                 build)
                     echo "Show CircleCI Build Information"
                     echo ""
-                    echo "Usage: deploy.sh digests build [env]"
+                    echo "Usage: deploy.sh digests build [env] [--json]"
                     echo ""
                     echo "Description:"
                     echo "  Shows container digests from the latest CircleCI BUILD for an environment."
@@ -3506,11 +3541,13 @@ case "$COMMAND" in
                     echo "  • Find the build number and digests for deployment commands"
                     echo ""
                     echo "Arguments:"
-                    echo "  env - Environment (dev, stage, prod, dr). Defaults to current space."
+                    echo "  env    - Environment (dev, stage, prod, dr). Defaults to current space."
+                    echo "  --json - Output in JSON format"
                     echo ""
                     echo "Examples:"
                     echo "  deploy.sh digests build          # Show latest build for current space"
                     echo "  deploy.sh digests build prod     # Show latest build for prod"
+                    echo "  deploy.sh digests build --json   # Show build info in JSON"
                     echo "  # Then use the digests shown to deploy:"
                     echo "  deploy.sh push cms 12034 @sha256:abc..."
                     exit 0
@@ -3536,7 +3573,7 @@ case "$COMMAND" in
                     echo "  --backups-only       Show only backup history (skip CF and git)"
                     echo "  --git-only           Show only git tag history (skip CF and backups)"
                     echo "  --show-all-history   Show all git tags (don't filter by 1 year)"
-                    echo "  --format=json        Output in JSON format (not yet implemented)"
+                    echo "  --json               Output in JSON format"
                     echo ""
                     echo "Examples:"
                     echo "  deploy.sh digests history                    # Current space, last 7 days"
@@ -3580,9 +3617,6 @@ case "$COMMAND" in
         ;;
     "list-backups")
         list_backups "$@"
-        ;;
-    "digests")
-        list_digests "$@"
         ;;
     "rollback")
         rollback "$@"
