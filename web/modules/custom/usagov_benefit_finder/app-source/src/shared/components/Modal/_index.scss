@@ -1,0 +1,43 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/sizes' as *;
+@use '@styles/functions' as *;
+
+#benefit-finder-modal {
+  .bf-modal-button {
+    @include important-bold($font-family: 'sans');
+
+    background-color: transparent;
+    border: 0;
+    position: absolute;
+    top: rem(24px);
+    right: rem(24px);
+    cursor: pointer;
+  }
+
+  .bf-modal-heading {
+    @include important-bold($font-family: 'sans');
+
+    font-weight: 600;
+    color: color.$pure-black;
+    text-align: center;
+    font-style: normal;
+    margin: rem(24px) 0;
+  }
+
+  .bf-modal.bf-usa-button-group.width-full {
+    margin: 0 auto;
+    text-align: center;
+    flex-direction: row;
+
+    .bf-usa-button-group__item {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .bf-usa-button {
+      width: 100%;
+      padding: rem(16px) rem(20px);
+    }
+  }
+}

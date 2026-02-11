@@ -1,0 +1,43 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-usa-fieldset {
+  position: relative;
+  padding: 0;
+  margin: 0;
+
+  .bf-hint {
+    @include p;
+  }
+
+  .bf-error-detail {
+    margin: 0 0 rem(8px);
+    color: color.$alert-red;
+    font-weight: 600;
+  }
+
+  // list errors need a different margin spacing
+  li.bf-error-detail {
+    margin: 0 0 rem(4px);
+  }
+}
+
+.bf-fieldset-wrapper {
+  padding: 0 0 rem(32px);
+}
+
+// we check to see if any of the fieldsets in the wrapper have the error
+.bf-fieldset-wrapper:has(fieldset.usa-input--error) {
+  border-left: 0.25rem solid color.$alert-red;
+  padding-left: rem(20px);
+}
+
+.bf-fieldset-wrapper:has(fieldset.usa-input--error)
+  + .bf-fieldset-wrapper:has(fieldset:not(.usa-input--error)) {
+  padding-top: rem(20px);
+}
+
+.bf-fieldset-wrapper:has(fieldset.display-none) {
+  padding: 0;
+}
