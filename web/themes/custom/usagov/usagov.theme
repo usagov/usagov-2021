@@ -373,6 +373,11 @@ function usagov_preprocess_block(array &$variables): void {
           $data->title = $child['title'];
           $data->description = $child['original_link']->getPluginDefinition()['description'];
         }
+        else {
+          // For all other routes (views, custom routes, etc.), use menu item data
+          $data->title = $child['title'];
+          $data->url = $child['url']->toString();
+        }
       }
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
