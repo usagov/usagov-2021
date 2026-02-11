@@ -1,0 +1,42 @@
+@use '@styles/colors' as color;
+@use '@styles/functions' as *;
+@use '@styles/mixins' as *;
+
+// default
+
+.bf-usa-step-indicator__segment {
+  .bf-usa-step-indicator__segment-label {
+    color: color.$grey;
+  }
+
+  &::after {
+    background-color: color.$grey;
+  }
+}
+
+// complete
+
+.bf-usa-step-indicator__segment--complete {
+  .bf-usa-step-indicator__segment-label {
+    color: color.$dark-blue;
+  }
+
+  &::after {
+    background-color: color.$dark-blue;
+  }
+}
+
+// current
+
+.bf-usa-step-indicator__segment--current {
+  .bf-usa-step-indicator__segment-label {
+    @include important-bold;
+
+    color: color.$dark-teal;
+    font-style: italic;
+  }
+
+  &::after {
+    background-color: color.$dark-teal;
+  }
+}

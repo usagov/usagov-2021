@@ -1,0 +1,38 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+
+.bf-usa-accordion {
+  .bf-usa-accordion__button {
+    position: relative;
+
+    svg {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: rem(20px);
+      margin: auto 0;
+    }
+
+    .bf-accordion-heading {
+      @include h5($font-family: 'sans');
+
+      letter-spacing: 0;
+    }
+
+    .bf-accordion-sub-heading {
+      @include p;
+
+      letter-spacing: 0;
+    }
+  }
+
+  .bf-usa-accordion__content {
+    padding: 0 rem(16px) rem(24px);
+
+    @media(width >= $desktop) {
+      padding: 0 rem(18px) rem(40px);
+    }
+  }
+}

@@ -1,0 +1,5 @@
+@use '@styles/functions' as *;
+
+.bf-usa-input.usa-input--error {
+  outline-offset: rem(2px);
+}
