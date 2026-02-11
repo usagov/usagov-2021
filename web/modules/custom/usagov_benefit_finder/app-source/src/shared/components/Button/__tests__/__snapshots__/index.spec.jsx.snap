@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Button > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <button
+    class="bf-usa-button usa-button"
+    data-test="button"
+    type="button"
+  />
+</DocumentFragment>
+`;

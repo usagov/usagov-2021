@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TextInput > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <label
+    class="bf-usa-label usa-label"
+  />
+  <input
+    class="bf-usa-input usa-input"
+    type="text"
+  />
+</DocumentFragment>
+`;

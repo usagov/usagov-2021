@@ -167,6 +167,9 @@
             "drupal/redis": {
                 "Support TLS for Predis": "https://www.drupal.org/files/issues/2021-11-19/redis-support_tls_on_predis-3004561-37.patch",
                 "Don't rely on presence of redis CONFIG command (disabled in AWS)": "https://www.drupal.org/files/issues/2024-09-25/3173988-28.patch"
+            },
+            "drupal/content_lock": {
+                "Fix preview button and submit button access": "./patches/drupal/content_lock-preview-button-lock-release.patch"
             }
         }
     },

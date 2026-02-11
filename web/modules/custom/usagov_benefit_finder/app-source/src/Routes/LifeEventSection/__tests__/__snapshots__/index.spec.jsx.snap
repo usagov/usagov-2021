@@ -1,0 +1,706 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LifeEventSection > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <h1
+    aria-level="1"
+    class="bf-section-heading "
+    id="skip-to-h1"
+    role="heading"
+  >
+    Answer the following questions
+  </h1>
+  <div
+    class="bf-section-wrapper"
+  >
+    <div
+      class="bf-section-info"
+    >
+      <div>
+        <div
+          aria-label="progress"
+          class="bf-usa-step-indicator usa-step-indicator"
+          tabindex="0"
+        >
+          <ol
+            class="bf-usa-step-indicator__segments usa-step-indicator__segments"
+          >
+            <li
+              aria-current="true"
+              class="bf-usa-step-indicator__segment usa-step-indicator__segment bf-usa-step-indicator__segment--current usa-step-indicator__segment--current "
+            >
+              <span
+                class="bf-usa-step-indicator__segment-label usa-step-indicator__segment-label"
+              >
+                About the applicant
+                <span
+                  class="usa-sr-only"
+                >
+                   not completed
+                </span>
+              </span>
+            </li>
+            <li
+              aria-current="false"
+              class="bf-usa-step-indicator__segment usa-step-indicator__segment bf-usa-step-indicator__segment usa-step-indicator__segment "
+            >
+              <span
+                class="bf-usa-step-indicator__segment-label usa-step-indicator__segment-label"
+              >
+                About the deceased
+                <span
+                  class="usa-sr-only"
+                >
+                   not completed
+                </span>
+              </span>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div
+        data-testid="bf-section"
+        id="bf-section"
+      >
+        <div
+          aria-hidden="true"
+          aria-live="polite"
+          class="bf-usa-alert usa-alert bf-usa-alert--error usa-alert--error display-none"
+          data-testid="alert"
+          role="alert"
+          tabindex="0"
+        >
+          <div
+            class="bf-usa-alert__body usa-alert__body"
+          >
+            <h2
+              aria-level="2"
+              class="bf-usa-alert__heading usa-alert__heading "
+              data-testid="bf-alert-heading"
+              role="heading"
+            >
+              Your information contains 0 errors
+            </h2>
+            <p
+              class="bf-usa-alert__text usa-alert__text"
+            >
+              Complete all required fields.
+            </p>
+            <ul
+              data-testid="bf-errors-list"
+            />
+          </div>
+        </div>
+        <div
+          class="bf-form-heading-group"
+        >
+          <h2
+            aria-level="2"
+            class="bf-form-heading bf-usa-form-heading "
+            role="heading"
+          >
+            About the applicant
+          </h2>
+          <div
+            class="bf-section-sub-heading"
+          >
+            <p>
+              <strong>
+                About you:
+              </strong>
+               the applicant looking for benefits
+            </p>
+          </div>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            class="bf-usa-fieldset usa-fieldset required-field  "
+            data-errormessage="Fill out the date of birth field"
+            data-testid="fieldset"
+            id="applicant_date_of_birth"
+            required=""
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              Date of birth
+              <span
+                class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+                title="required"
+              >
+                (required)
+              </span>
+            </legend>
+            <div
+              class="bf-hint"
+            >
+              For example: January 19 2000
+            </div>
+            <div>
+              <ul
+                class="add-list-reset"
+              />
+              <div
+                class="bf-usa-memorable-date usa-memorable-date"
+                data-testid="bf-usa-memorable-date"
+                id="bf-usa-memorable-date-applicant_date_of_birth_0"
+              >
+                <div
+                  class="bf-usa-form-group usa-form-group bf-usa-form-group--month usa-form-group--month bf-usa-form-group--select usa-form-group--select"
+                >
+                  <label
+                    class="bf-usa-label usa-label"
+                    for="applicant_date_of_birth_0_month"
+                  >
+                    Month
+                  </label>
+                  <div
+                    class="usa-sr-only"
+                    id="applicant_date_of_birth_0-month-description"
+                  >
+                    Select a month from the list
+                  </div>
+                  <select
+                    aria-describedby="applicant_date_of_birth_0-month-description"
+                    aria-errormessage="month-error-description-applicant_date_of_birth_0"
+                    aria-invalid="false"
+                    class="bf-usa-select usa-select "
+                    data-datetype="month"
+                    data-errormessage="Fill out the date of birth month field"
+                    data-testid="applicant_date_of_birth_0_month"
+                    id="applicant_date_of_birth_0_month"
+                    name="applicant_date_of_birth_0_month"
+                  >
+                    <option
+                      value=""
+                    >
+                      -Select-
+                    </option>
+                    <option
+                      value="0"
+                    >
+                      01 - January
+                    </option>
+                    <option
+                      value="1"
+                    >
+                      02 - February
+                    </option>
+                    <option
+                      value="2"
+                    >
+                      03 - March
+                    </option>
+                    <option
+                      value="3"
+                    >
+                      04 - April
+                    </option>
+                    <option
+                      value="4"
+                    >
+                      05 - May
+                    </option>
+                    <option
+                      value="5"
+                    >
+                      06 - June
+                    </option>
+                    <option
+                      value="6"
+                    >
+                      07 - July
+                    </option>
+                    <option
+                      value="7"
+                    >
+                      08 - August
+                    </option>
+                    <option
+                      value="8"
+                    >
+                      09 - September
+                    </option>
+                    <option
+                      value="9"
+                    >
+                      10 - October
+                    </option>
+                    <option
+                      value="10"
+                    >
+                      11 - November
+                    </option>
+                    <option
+                      value="11"
+                    >
+                      12 - December
+                    </option>
+                  </select>
+                </div>
+                <div
+                  class="bf-usa-form-group usa-form-group bf-usa-form-group--day usa-form-group--day"
+                >
+                  <label
+                    class="bf-usa-label usa-label"
+                    for="applicant_date_of_birth_0_day"
+                  >
+                    Day
+                  </label>
+                  <div
+                    class="usa-sr-only"
+                    id="applicant_date_of_birth_0-day-description"
+                  >
+                    Enter two numerals for day
+                  </div>
+                  <input
+                    aria-describedby="applicant_date_of_birth_0-day-description"
+                    aria-errormessage="day-error-description-applicant_date_of_birth_0"
+                    aria-invalid="false"
+                    class="bf-usa-input usa-input "
+                    data-datetype="day"
+                    data-errormessage="Fill out the date of birth day field"
+                    data-testid="applicant_date_of_birth_0_day"
+                    id="applicant_date_of_birth_0_day"
+                    inputmode="numeric"
+                    name="applicant_date_of_birth_0_day"
+                    value=""
+                  />
+                </div>
+                <div
+                  class="bf-usa-form-group usa-form-group bf-usa-form-group--year usa-form-group--year"
+                >
+                  <label
+                    class="bf-usa-label usa-label"
+                    for="applicant_date_of_birth_0_year"
+                  >
+                    Year
+                  </label>
+                  <div
+                    class="usa-sr-only"
+                    id="applicant_date_of_birth_0-year-description"
+                  >
+                    Enter four numerals for year
+                  </div>
+                  <input
+                    aria-describedby="applicant_date_of_birth_0-year-description"
+                    aria-errormessage="year-error-description-applicant_date_of_birth_0"
+                    aria-invalid="false"
+                    class="bf-usa-input usa-input "
+                    data-datetype="year"
+                    data-errormessage="Fill out the date of birth year field"
+                    data-testid="applicant_date_of_birth_0_year"
+                    id="applicant_date_of_birth_0_year"
+                    inputmode="numeric"
+                    name="applicant_date_of_birth_0_year"
+                    value=""
+                  />
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            aria-hidden="true"
+            class="bf-usa-fieldset usa-fieldset required-field  display-none"
+            data-errormessage="Fill out the nested_child_criteria_test field"
+            data-testid="fieldset"
+            hidden=""
+            id="nested_child_criteria_test"
+            required=""
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              nested_child_criteria_test
+              <span
+                class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+                title="required"
+              >
+                (required)
+              </span>
+            </legend>
+            <div>
+              <label
+                class="bf-usa-label usa-label"
+                for="nested_child_criteria_test_0"
+              >
+                Select an option
+              </label>
+              <select
+                aria-errormessage="error-description-nested_child_criteria_test_0"
+                aria-invalid="false"
+                class="bf-usa-select usa-select "
+                data-errormessage="Fill out the nested_child_criteria_test field"
+                data-testid="nested_child_criteria_test_0"
+                id="nested_child_criteria_test_0"
+                name="nested_child_criteria_test_0"
+              >
+                <option
+                  value=""
+                >
+                  -Select-
+                </option>
+                <option
+                  value="Married"
+                >
+                  Married
+                </option>
+                <option
+                  value="Unmarried"
+                >
+                  Unmarried
+                </option>
+                <option
+                  value="Widowed"
+                >
+                  Widowed
+                </option>
+                <option
+                  value="Divorced"
+                >
+                  Divorced
+                </option>
+              </select>
+            </div>
+          </fieldset>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            class="bf-usa-fieldset usa-fieldset required-field  "
+            data-errormessage="Test override error label"
+            data-testid="fieldset"
+            id="applicant_relationship_to_the_deceased"
+            required=""
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              Relationship to the deceased
+              <span
+                class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+                title="required"
+              >
+                (required)
+              </span>
+            </legend>
+            <div>
+              <label
+                class="bf-usa-label usa-label"
+                for="applicant_relationship_to_the_deceased_0"
+              >
+                Select an option
+              </label>
+              <select
+                aria-errormessage="error-description-applicant_relationship_to_the_deceased_0"
+                aria-invalid="false"
+                class="bf-usa-select usa-select "
+                data-errormessage="Test override error label"
+                data-testid="applicant_relationship_to_the_deceased_0"
+                id="applicant_relationship_to_the_deceased_0"
+                name="applicant_relationship_to_the_deceased_0"
+              >
+                <option
+                  value=""
+                >
+                  -Select-
+                </option>
+                <option
+                  value="Spouse"
+                >
+                  Spouse
+                </option>
+                <option
+                  value="Child"
+                >
+                  Child
+                </option>
+                <option
+                  value="Parent"
+                >
+                  Parent
+                </option>
+                <option
+                  value="Other family member"
+                >
+                  Other family member
+                </option>
+                <option
+                  value="Personal or official representative"
+                >
+                  Personal or official representative
+                </option>
+              </select>
+            </div>
+          </fieldset>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            class="bf-usa-fieldset usa-fieldset required-field  "
+            data-errormessage="Fill out the marital status field"
+            data-testid="fieldset"
+            id="applicant_marital_status"
+            required=""
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              Marital status
+              <span
+                class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+                title="required"
+              >
+                (required)
+              </span>
+            </legend>
+            <div>
+              <label
+                class="bf-usa-label usa-label"
+                for="applicant_marital_status_0"
+              >
+                Select an option
+              </label>
+              <select
+                aria-errormessage="error-description-applicant_marital_status_0"
+                aria-invalid="false"
+                class="bf-usa-select usa-select "
+                data-errormessage="Fill out the marital status field"
+                data-testid="applicant_marital_status_0"
+                id="applicant_marital_status_0"
+                name="applicant_marital_status_0"
+              >
+                <option
+                  value=""
+                >
+                  -Select-
+                </option>
+                <option
+                  value="Married"
+                >
+                  Married
+                </option>
+                <option
+                  value="Unmarried"
+                >
+                  Unmarried
+                </option>
+                <option
+                  value="Widowed"
+                >
+                  Widowed
+                </option>
+                <option
+                  value="Divorced"
+                >
+                  Divorced
+                </option>
+              </select>
+            </div>
+          </fieldset>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            class="bf-usa-fieldset usa-fieldset   "
+            data-errormessage="Fill out the are you a u.s. citizen or eligible non-citizen field"
+            data-testid="fieldset"
+            id="applicant_citizen_status"
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              Are you a U.S. citizen or eligible non-citizen?
+            </legend>
+            <div
+              aria-invalid="false"
+              class="bf-radio-group radio-group"
+              data-testid="radio-group"
+            >
+              <div
+                class="bf-usa-radio usa-radio"
+                data-testid="radio"
+              >
+                <input
+                  class="bf-usa-radio__input usa-radio__input "
+                  id="applicant_citizen_status_0_0"
+                  name="applicant_citizen_status_0"
+                  type="radio"
+                  value="Yes"
+                />
+                <label
+                  class="bf-usa-radio__label usa-radio__label bf-usa-label usa-label"
+                  for="applicant_citizen_status_0_0"
+                >
+                  Yes
+                </label>
+              </div>
+              <div
+                class="bf-usa-radio usa-radio"
+                data-testid="radio"
+              >
+                <input
+                  class="bf-usa-radio__input usa-radio__input "
+                  id="applicant_citizen_status_0_1"
+                  name="applicant_citizen_status_0"
+                  type="radio"
+                  value="No"
+                />
+                <label
+                  class="bf-usa-radio__label usa-radio__label bf-usa-label usa-label"
+                  for="applicant_citizen_status_0_1"
+                >
+                  No
+                </label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            class="bf-usa-fieldset usa-fieldset   "
+            data-errormessage="Fill out the are you caring for the deceased's child who is under age 16 or has a disability field"
+            data-testid="fieldset"
+            id="applicant_care_for_child"
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              Are you caring for the deceased's child who is under age 16 or has a disability?
+            </legend>
+            <div
+              aria-invalid="false"
+              class="bf-radio-group radio-group"
+              data-testid="radio-group"
+            >
+              <div
+                class="bf-usa-radio usa-radio"
+                data-testid="radio"
+              >
+                <input
+                  class="bf-usa-radio__input usa-radio__input "
+                  id="applicant_care_for_child_0_0"
+                  name="applicant_care_for_child_0"
+                  type="radio"
+                  value="Yes"
+                />
+                <label
+                  class="bf-usa-radio__label usa-radio__label bf-usa-label usa-label"
+                  for="applicant_care_for_child_0_0"
+                >
+                  Yes
+                </label>
+              </div>
+              <div
+                class="bf-usa-radio usa-radio"
+                data-testid="radio"
+              >
+                <input
+                  class="bf-usa-radio__input usa-radio__input "
+                  id="applicant_care_for_child_0_1"
+                  name="applicant_care_for_child_0"
+                  type="radio"
+                  value="No"
+                />
+                <label
+                  class="bf-usa-radio__label usa-radio__label bf-usa-label usa-label"
+                  for="applicant_care_for_child_0_1"
+                >
+                  No
+                </label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div
+          class="bf-fieldset-wrapper"
+        >
+          <fieldset
+            class="bf-usa-fieldset usa-fieldset   "
+            data-errormessage="Fill out the did you pay for funeral or burial expenses field"
+            data-testid="fieldset"
+            id="applicant_paid_funeral_expenses"
+          >
+            <legend
+              class="bf-legend usa-legend"
+            >
+              Did you pay for funeral or burial expenses?
+            </legend>
+            <div
+              aria-invalid="false"
+              class="bf-radio-group radio-group"
+              data-testid="radio-group"
+            >
+              <div
+                class="bf-usa-radio usa-radio"
+                data-testid="radio"
+              >
+                <input
+                  class="bf-usa-radio__input usa-radio__input "
+                  id="applicant_paid_funeral_expenses_0_0"
+                  name="applicant_paid_funeral_expenses_0"
+                  type="radio"
+                  value="Yes"
+                />
+                <label
+                  class="bf-usa-radio__label usa-radio__label bf-usa-label usa-label"
+                  for="applicant_paid_funeral_expenses_0_0"
+                >
+                  Yes
+                </label>
+              </div>
+              <div
+                class="bf-usa-radio usa-radio"
+                data-testid="radio"
+              >
+                <input
+                  class="bf-usa-radio__input usa-radio__input "
+                  id="applicant_paid_funeral_expenses_0_1"
+                  name="applicant_paid_funeral_expenses_0"
+                  type="radio"
+                  value="No"
+                />
+                <label
+                  class="bf-usa-radio__label usa-radio__label bf-usa-label usa-label"
+                  for="applicant_paid_funeral_expenses_0_1"
+                >
+                  No
+                </label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+      <div
+        class="bf-section-nav-btn-group"
+      >
+        <button
+          class="bf-usa-button usa-button bf-usa-button--outline usa-button--outline"
+          data-test="button"
+          type="button"
+        >
+          Back
+        </button>
+        <button
+          class="bf-usa-button usa-button bf-usa-button--secondary usa-button--secondary"
+          data-test="button"
+          type="button"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
