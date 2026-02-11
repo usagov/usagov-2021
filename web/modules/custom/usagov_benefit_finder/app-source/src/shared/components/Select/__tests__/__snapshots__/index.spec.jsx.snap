@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Select > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <label
+    class="bf-usa-label usa-label"
+    for="applicant_relationship_to_the_deceased"
+  >
+    Dropdown Label
+  </label>
+  <select
+    aria-errormessage="error-description-applicant_relationship_to_the_deceased"
+    aria-invalid="false"
+    class="bf-usa-select usa-select "
+    data-errormessage="undefined legend undefined"
+    data-testid="applicant_relationship_to_the_deceased"
+    id="applicant_relationship_to_the_deceased"
+    name="applicant_relationship_to_the_deceased"
+  >
+    <option
+      value=""
+    />
+    <option
+      value=""
+    />
+    <option
+      value="value-1"
+    >
+      value-1
+    </option>
+    <option
+      value="value-2"
+    >
+      value-2
+    </option>
+    <option
+      value="value-3"
+    >
+      value-3
+    </option>
+  </select>
+</DocumentFragment>
+`;

@@ -1,0 +1,23 @@
+@use '@styles/functions' as *;
+@use '@styles/mixins' as *;
+
+.bf-usa-process-list {
+  margin-left: rem(70px);
+  margin-right: rem(18px);
+}
+
+.bf-usa-process-list__item {
+  min-height: rem(80px);
+
+  .bf-usa-process-list__heading {
+    font-size: rem(21px);
+  }
+}
+
+.bf-usa-process-list__item:last-child {
+  border-left: 0.5rem solid transparent;
+}
+
+h3.bf-usa-process-list__heading {
+  @include h4;
+}

@@ -1,0 +1,8 @@
+@use '@styles/mixins' as *;
+@use '@styles/mixins' as *;
+
+.bf-usa-label {
+  @include p;
+
+  margin-top: 0;
+}

@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Share > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <a
+    class="bf-share-trigger bf-usa-link usa-link"
+    data-testid="bf-share-trigger"
+    role="link"
+    tabindex="0"
+  >
+    Share
+  </a>
+</DocumentFragment>
+`;

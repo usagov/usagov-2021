@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StepBackButton > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <button
+    class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+    data-test="button"
+    data-testid="bf-step-back-button"
+    type="button"
+  >
+    Back
+  </button>
+</DocumentFragment>
+`;

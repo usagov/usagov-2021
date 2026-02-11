@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Form > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <form
+    class="bf-usa-form"
+  >
+    <div
+      class="bf-grid-container grid-container"
+    />
+  </form>
+</DocumentFragment>
+`;
