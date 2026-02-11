@@ -1,0 +1,8 @@
+// we inherit the grid styles directly from usagov stylesheet
+// here we revert some conflicts from our parent id
+.benefit-finder__main {
+  h3, p {
+    all: revert;
+    margin: 0;
+  }
+}

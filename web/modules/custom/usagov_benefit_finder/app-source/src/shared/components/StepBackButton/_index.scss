@@ -1,0 +1,8 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+
+.bf-step-back-button {
+  @include p;
+
+  padding: 0;
+}

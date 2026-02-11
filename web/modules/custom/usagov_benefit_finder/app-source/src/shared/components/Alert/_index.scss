@@ -1,0 +1,43 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+
+h2.bf-usa-alert__heading {
+  @include h5($font-family: 'sans');
+
+  padding-left: rem(16px);
+}
+
+.bf-usa-alert {
+  padding: rem(25px) 0;
+  background-color: color.$alert-background;
+  border-left-color: color.$alert-red;
+
+  p {
+    padding-left: rem(16px);
+  }
+
+  ul a {
+    font-size: rem(15px);
+
+    @media (width>= $desktop) {
+      @include p;
+    }
+  }
+}
+
+@media (width<= $desktop) {
+  .bf-usa-alert__body {
+    padding-left: rem(32px);
+  }
+
+  .bf-usa-alert ul {
+    padding-left: 0;
+  }
+
+  .bf-usa-alert::before {
+    width: rem(15px);
+    height: rem(68px);
+  }
+}

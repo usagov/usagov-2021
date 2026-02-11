@@ -1,0 +1,178 @@
+@use '@styles/functions' as *;
+@use '@styles/breakpoints' as *;
+
+@mixin font-family($font-family) {
+  @if $font-family == 'sans' {
+    font-family: 'Source Sans Pro Web', 'Helvetica Neue', Helvetica, Roboto,
+      Arial, sans-serif;
+  } @else {
+    font-family: 'Merriweather Web', Georgia, Cambria, 'Times New Roman', Times,
+      serif;
+  }
+}
+
+// USAGov font ratio is based on 16px
+// for example h1 @ 2.44rem = 39.04px
+
+// Our conversions
+// 36px = 2.25rem
+// 32px = 2rem
+// 24px = 1.5rem
+// 22px = 1.375rem
+// 20px = 1.25rem
+// 17px = 1.063rem
+// 16px = 1rem
+// 15px = 0.938rem
+
+// Merriweather: 'serif'
+// Source Sans Pro: 'sans'
+
+// Desktop
+
+@mixin h1($font-family: 'serif') {
+  @include font-family($font-family);
+
+  font-size: rem(32px);
+  font-style: normal;
+  font-weight: 900;
+  line-height: 117.4%;
+  letter-spacing: -0.32px;
+
+   @media (width >= $desktop) {
+    font-size: rem(39px);
+    letter-spacing: -0.39px;
+  }
+}
+
+@mixin h2($font-family: 'serif') {
+  @include font-family($font-family);
+
+  font-size: rem(21px);
+  font-style: normal;
+  font-weight: 900;
+  line-height: 117.4%;
+
+  @media (width >= $desktop) {
+    font-size: rem(32px);
+  }
+}
+
+@mixin h3($font-family: 'serif') {
+  @include font-family($font-family);
+
+  font-size: rem(18px);
+  font-style: normal;
+  font-weight: 900;
+  line-height: 117.4%;
+
+  @media (width >= $desktop) {
+    font-size: rem(26px);
+  }
+}
+
+@mixin h4($font-family: 'sans') {
+  @include font-family($font-family);
+
+  font-size: rem(17px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 117.4%;
+
+  @media (width >= $desktop) {
+    font-size: rem(21px);
+  }
+}
+
+@mixin h5($font-family: 'serif') {
+  @include font-family($font-family);
+
+  font-size: rem(17px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 117.4%;
+
+  @media (width >= $desktop) {
+    font-size: rem(21px);
+  }
+}
+
+@mixin h6($font-family: 'serif') {
+  @include font-family($font-family);
+
+  font-size: rem(16px);
+  font-weight: 700;
+  line-height: 134.09%;
+
+  @media (width >= $desktop) {
+    font-size: rem(20px);
+  }
+}
+
+// Body Text Regular
+// Body LINKS
+@mixin p($font-family: 'sans') {
+  @include font-family($font-family);
+
+  font-size: rem(16px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 132%;
+
+  @media (width >= $desktop) {
+    font-size: rem(17px);
+  }
+}
+
+// Body Text Bold
+@mixin important-bold($font-family: 'sans') {
+  @include p;
+
+  font-weight: 700;
+}
+
+// other
+@mixin list-items($font-family: 'sans') {
+  @include p;
+
+  line-height: 26px;
+  font-size: rem(17px);
+}
+
+// Underlined Text for Buttons Desktop Bold
+@mixin buttons-text($font-family: 'sans') {
+  @include font-family($font-family);
+
+  font-size: rem(17.6px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 132%;
+}
+
+// Form Questions, Subheadings Desktop SemiBold, Recap screen questions desktop
+@mixin subheadings($font-family: 'sans') {
+  @include font-family($font-family);
+
+  font-size: rem(17px);
+  font-style: normal;
+  font-weight: 600;
+  line-height: 145.4%;
+
+  @media (width >= $desktop) {
+    font-size: rem(21px);
+  }
+}
+
+// Intro Text Bold
+@mixin intro-text($font-family: 'serif') {
+  @include font-family($font-family);
+
+  font-size: rem(17px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 164%;
+
+  @media (width >= $desktop) {
+    font-size: rem(21px);
+    font-weight: 400;
+  }
+}

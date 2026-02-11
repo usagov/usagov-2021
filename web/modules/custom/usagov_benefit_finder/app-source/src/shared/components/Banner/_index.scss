@@ -1,0 +1,42 @@
+@use '@styles/colors' as color;
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+@use '@styles/mixins' as *;
+
+h1.bf-banner-heading {
+  @include h1;
+}
+
+.bf-banner {
+  position: relative;
+  background-color: color.$dark-blue;
+  padding: rem(45px) 0 rem(60px);
+  margin: 0 auto rem(24px);
+  color: color.$white;
+
+  .bf-grid-container.grid-container {
+    padding: 0 rem(20px);
+  }
+
+  .bf-banner-heading {
+    margin: 0 0 rem(16px);
+  }
+
+  @media (width >= $desktop) {
+    margin-bottom: rem(64px);
+    padding: rem(64px) rem(32px) rem(38px);
+  }
+}
+
+.bf-banner-description p {
+  @include intro-text;
+
+  margin-bottom: 0;
+}
+
+@media (width >= $desktop) {
+  .bf-banner {
+    padding-bottom: rem(64px);
+    margin-bottom: rem(64px);
+  }
+}
