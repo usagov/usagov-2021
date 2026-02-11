@@ -1,0 +1,125 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Results > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-grid-container grid-container"
+    data-testid="bf-results-view"
+  >
+    <div
+      class="bf-result-view-details"
+    >
+      <div>
+        <h2
+          aria-level="2"
+          class="bf-eligible-view-heading "
+          role="heading"
+        >
+          Results
+        </h2>
+        <h3
+          aria-level="3"
+          class="bf-eligible-view-description "
+          role="heading"
+        >
+          <strong>
+            You may be eligible for these benefits:
+          </strong>
+        </h3>
+        <div
+          aria-labelledby="bf-summary-box-key-information"
+          class="bf-usa-summary-box usa-summary-box"
+          role="region"
+        >
+          <div
+            class="bf-usa-summary-box__body usa-summary-box__body"
+          >
+            <h4
+              aria-level="4"
+              class="bf-usa-summary-box__heading usa-summary-box__heading "
+              id="bf-summary-box-key-information"
+              role="heading"
+            >
+              Important
+            </h4>
+            <div
+              class="bf-usa-summary-box__text usa-summary-box__text"
+            >
+              <ul
+                class="bf-usa-list usa-list"
+              >
+                <li>
+                  You need to visit each agency’s website to find full eligibility requirements and apply.
+                </li>
+                <li>
+                  Your results may vary if your situation or answers change.
+                </li>
+                <li>
+                   
+                  <a
+                    class="bf-usa-summary-box__link usa-summary-box__link"
+                    href="#"
+                  >
+                    Clear your answers and restart the form.
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="bf-result-view-benefits"
+      >
+        <div
+          class="bf-usa-accordion-group"
+        />
+      </div>
+      <div
+        class="bf-result-view-share-results"
+      >
+        <h3
+          aria-level="3"
+          class="bf-result-view-share-results-heading "
+          role="heading"
+        >
+          Share results
+        </h3>
+        <p>
+          Copy or email these results. Your answers will be visible. 
+          <strong>
+            Only share with those you trust
+            <!--&lt;strong-->
+            .
+          </strong>
+        </p>
+        <ul
+          class="bf-result-view-share-results-button-group"
+        >
+          <li>
+             
+            <a
+              class="bf-share-trigger bf-usa-link usa-link"
+              data-testid="bf-share-trigger"
+              role="link"
+              tabindex="0"
+            >
+              Share link
+            </a>
+          </li>
+          <li>
+             
+            <a
+              class="bf-email-trigger bf-usa-link usa-link"
+              role="link"
+              tabindex="0"
+            >
+              Email results
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

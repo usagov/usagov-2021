@@ -1,0 +1,13 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-usa-hint--required {
+  color: color.$dark-medium-grey;
+}
+
+.bf-required {
+  color: color.$dark-medium-grey;
+  font-weight: 400;
+  margin-left: rem(8px);
+}

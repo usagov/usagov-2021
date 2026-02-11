@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Banner > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-banner"
+  >
+    <div
+      class="bf-grid-container grid-container"
+    >
+      <h1
+        aria-level="1"
+        class="bf-banner-heading "
+        id="skip-to-h1"
+        role="heading"
+      />
+      <div
+        class="bf-banner-description"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;

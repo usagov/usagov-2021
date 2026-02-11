@@ -1,0 +1,11 @@
+@use '@styles/colors' as color;
+@use '@styles/functions' as *;
+
+.bf-obfuscated-link {
+  position: relative;
+  text-decoration: none;
+
+  &:visited {
+    text-decoration: none;
+  }
+}
