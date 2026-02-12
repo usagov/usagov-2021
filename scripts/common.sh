@@ -182,6 +182,100 @@ audit_log() {
 }
 
 # ===================================================================
+# CONFIRMATION PROMPTS
+# ===================================================================
+
+# Universal confirmation function for destructive operations
+# Supports both yes/no and exact text matching with retry logic
+# Args:
+#   $1: prompt - The warning/question text to display
+#   $2: mode - "yn" for yes/no (default), "exact" for exact text matching
+#   $3: required_text - (optional) For "exact" mode, the text user must type
+#   $4: max_attempts - (optional) Max attempts for exact mode (default: 3)
+#   $5: skip_flag - (optional) If equals "--skip-confirmation", bypass prompt
+#
+# Returns:
+#   0 - Confirmed (user proceeded)
+#   1 - Cancelled (user declined or max attempts exceeded)
+#
+# Examples:
+#   confirm_action "⚠️  This will deploy to production" || return 1
+#   confirm_action "⚠️  This will deploy to production" "yn" "" "" "$skip_flag" || return 1
+#   confirm_action "⚠️  PRODUCTION ROLLBACK" "exact" "CONFIRM PROD ROLLBACK" 3 || exit 1
+#   confirm_action "⚠️  Type DELETE to confirm" "exact" "DELETE" || return 1
+confirm_action() {
+    local prompt="$1"
+    local mode="${2:-yn}"
+    local required_text="$3"
+    local max_attempts="${4:-3}"
+    local skip_flag="$5"
+
+    # Check for --skip-confirmation flag
+    if [ "$skip_flag" = "--skip-confirmation" ]; then
+        print_status $YELLOW "⚠️  --skip-confirmation flag detected, bypassing confirmation"
+        echo ""
+        return 0
+    fi
+
+    # Display the prompt
+    print_status $YELLOW "$prompt"
+    echo ""
+
+    # Handle based on mode
+    case "$mode" in
+        yn)
+            # Simple yes/no confirmation
+            read -p "Type 'yes' to proceed: " confirm
+            if [ "$confirm" = "yes" ]; then
+                echo ""
+                return 0
+            else
+                print_status $YELLOW "❌ Action cancelled"
+                echo ""
+                return 1
+            fi
+            ;;
+        
+        exact)
+            # Exact text matching with retry logic
+            if [ -z "$required_text" ]; then
+                print_status $RED "❌ Error: required_text not provided for exact mode"
+                return 1
+            fi
+
+            local attempts=0
+            local user_input=""
+
+            while [ $attempts -lt $max_attempts ]; do
+                attempts=$((attempts + 1))
+                
+                if [ $attempts -gt 1 ]; then
+                    print_status $RED "❌ Incorrect. Attempt $attempts of $max_attempts"
+                    echo ""
+                fi
+
+                read -p "Type '$required_text' to confirm: " user_input
+                
+                if [ "$user_input" = "$required_text" ]; then
+                    echo ""
+                    return 0
+                fi
+            done
+
+            # Max attempts exceeded
+            print_status $RED "❌ Maximum attempts exceeded. Action cancelled."
+            echo ""
+            return 1
+            ;;
+        
+        *)
+            print_status $RED "❌ Error: Invalid mode '$mode'. Use 'yn' or 'exact'"
+            return 1
+            ;;
+    esac
+}
+
+# ===================================================================
 # CONTAINER AND VERSION IDENTIFICATION
 # ===================================================================
 
