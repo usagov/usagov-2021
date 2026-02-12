@@ -57,10 +57,14 @@ function usagov_benefit_category_search_validate_standard_page(FormStateInterfac
   $count = count($otherCategories);
   if ($count > 0) {
     $summary = $count . ' benefits categor' . ($count > 1 ? 'ies' : 'y');
-    $names = array_map(fn(Term $category) => '<li>' . $category->getName() . '</li>', $otherCategories);
-    $detail = '<ul>' . implode('', $names) . '</ul>';
-    $message = Markup::create("You have selected {$summary} from a different language as this page. {$detail}");
-    $form_state->setErrorByName('field_benefits_category', $message);
+    $names = array_map(fn(Term $category) => ['#markup' => $category->getName()], $otherCategories);
+    $message = [
+      '#theme' => 'item_list',
+      '#items' => $names,
+      '#list_type' => 'ul',
+      '#prefix' => t('You have selected @summary from a different language as this page.', ['@summary' => $summary]),
+    ];
+    $form_state->setErrorByName('field_benefits_category', \Drupal::service('renderer')->renderInIsolation($message));
   }
 }
 
@@ -110,10 +114,14 @@ function usagov_benefit_category_search__validate_basic_category(array $form, Fo
   $count = count($otherLangs);
   if ($count > 0) {
     $summary = $count . ' life event' . ($count > 1 ? 's' : '');
-    $names = array_map(fn(Node $lifeEvent) => '<li>' . $lifeEvent->getTitle() . '</li>', $otherLangs);
-    $detail = '<ul>' . implode('', $names) . '</ul>';
-    $message = Markup::create("You have {$summary} from a different language as this term. {$detail}");
-    $form_state->setErrorByName('field_category_life_events', $message);
+    $names = array_map(fn(Node $lifeEvent) => ['#markup' => $lifeEvent->getTitle()], $otherLangs);
+    $message = [
+      '#theme' => 'item_list',
+      '#items' => $names,
+      '#list_type' => 'ul',
+      '#prefix' => t('You have @summary from a different language as this term.', ['@summary' => $summary]),
+    ];
+    $form_state->setErrorByName('field_category_life_events', \Drupal::service('renderer')->renderInIsolation($message));
   }
 }
 
