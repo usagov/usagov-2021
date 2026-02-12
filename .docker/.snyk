@@ -13,3 +13,7 @@ ignore:
     - "eslint@8.57.1":
         reason: "This eslint script is never executed by our application. It only exists because it comes with a contrib module."
         expires: '2025-12-31T00:00:00.000Z'
+exclude:
+  code:
+    - scripts/drush/publish_blog_posts.php
+    - web/modules/custom/usagov_directories/utility
