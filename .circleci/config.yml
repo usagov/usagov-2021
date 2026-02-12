@@ -31,7 +31,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            scripts/devops/deploy.sh push cms << pipeline.number >> $CMS_DIGEST
+            scripts/devops/deploy.sh push cms << pipeline.number >> $CMS_DIGEST --skip-confirmation
       - run:
           name: CloudGov Deploy Static Site
           command: |
@@ -40,7 +40,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            scripts/devops/deploy.sh push www << pipeline.number >> $WWW_DIGEST
+            scripts/devops/deploy.sh push www << pipeline.number >> $WWW_DIGEST --skip-confirmation
       - run:
           name: CloudGov Deploy API Proxy
           command: |
@@ -56,7 +56,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            scripts/devops/deploy.sh push waf << pipeline.number >> $WAF_DIGEST
+            scripts/devops/deploy.sh push waf << pipeline.number >> $WAF_DIGEST --skip-confirmation
 
   save-image-digest:
     steps:
