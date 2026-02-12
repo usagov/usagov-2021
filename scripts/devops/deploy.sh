@@ -640,24 +640,30 @@ set_context() {
     local pre_suffix="pre-deploy"
     local post_suffix="post-deploy"
 
-    # Parse arguments, filtering out --export flag
-    local positional_args=()
+    # Parse arguments, filtering out --export flag (POSIX-compliant)
+    local arg1="" arg2="" arg3="" arg4=""
+    local pos=1
     for arg in "$@"; do
         if [ "$arg" = "--export" ]; then
             export_only=true
         else
-            positional_args+=("$arg")
+            case $pos in
+                1) arg1="$arg"; pos=2 ;;
+                2) arg2="$arg"; pos=3 ;;
+                3) arg3="$arg"; pos=4 ;;
+                4) arg4="$arg"; pos=5 ;;
+            esac
         fi
     done
 
     # Assign positional arguments
-    env="${positional_args[0]}"
-    ticket="${positional_args[1]}"
-    if [ -n "${positional_args[2]}" ]; then
-        pre_suffix="${positional_args[2]}"
+    env="$arg1"
+    ticket="$arg2"
+    if [ -n "$arg3" ]; then
+        pre_suffix="$arg3"
     fi
-    if [ -n "${positional_args[3]}" ]; then
-        post_suffix="${positional_args[3]}"
+    if [ -n "$arg4" ]; then
+        post_suffix="$arg4"
     fi
 
     if [ -z "$env" ] || [ -z "$ticket" ]; then
