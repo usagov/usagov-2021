@@ -75,10 +75,10 @@ content:
       placeholder: ''
     third_party_settings:
       allowed_formats:
-        allowed_formats:
-          - plain_text
         hide_help: '1'
         hide_guidelines: '1'
+        allowed_formats:
+          - plain_text
   langcode:
     type: language_select
     weight: 6
