@@ -97,10 +97,10 @@ show_usage() {
     echo "                                        Use --skip-validation to skip space validation"
     echo ""
     echo "Deployment Backup Commands:"
-    echo "  pre-deploy [--skip-validation]        Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
+    echo "  pre-deploy [--skip-validation] [--skip-confirmation]  Create pre-deployment backup using DEPLOY_PRE_SUFFIX"
     echo "                                        Requires: DEPLOY_TICKET"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
-    echo "  post-deploy [--skip-validation]       Create post-deployment backup using DEPLOY_POST_SUFFIX"
+    echo "  post-deploy [--skip-validation] [--skip-confirmation]  Create post-deployment backup using DEPLOY_POST_SUFFIX"
     echo "                                        Automatically creates annotated git tag for deployment tracking"
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
@@ -339,17 +339,18 @@ show_command_help() {
         "push")
             echo "Push Application Deployment"
             echo ""
-            echo "Usage: deploy.sh push <name> <build> [digest] [--skip-validation]"
+            echo "Usage: deploy.sh push <name> <build> [digest] [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
-            echo "  🔥 DESTRUCTIVE: Deploy a specific application with container digest."
+            echo "  🔥 DESTRUCTIVE & REQUIRES CONFIRMATION: Deploy a specific application with container digest."
             echo "  Updates the app to use a specific container image."
             echo ""
             echo "Arguments:"
-            echo "  name    - App name (apps in ALLOWED_APP_NAMES)"
-            echo "  build   - CCI build number (technically arbitrary, but should match git tag in actual deployments)"
-            echo "  digest  - Container digest (optional if DEPLOY_{APP}_DIGEST set)"
-            echo "  --skip-validation - Skip space validation"
+            echo "  name                 - App name (apps in ALLOWED_APP_NAMES)"
+            echo "  build                - CCI build number (technically arbitrary, but should match git tag in actual deployments)"
+            echo "  digest               - Container digest (optional if DEPLOY_{APP}_DIGEST set)"
+            echo "  --skip-validation    - Skip space validation"
+            echo "  --skip-confirmation  - Skip confirmation prompt"
             echo ""
             echo "Examples:"
             echo "  deploy.sh push cms 5936 gsatts/usagov-2021@sha256:abc123..."
@@ -360,14 +361,15 @@ show_command_help() {
         "pre-deploy")
             echo "Pre-Deployment Backup"
             echo ""
-            echo "Usage: deploy.sh pre-deploy [--skip-validation]"
+            echo "Usage: deploy.sh pre-deploy [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
-            echo "  Creates a pre-deployment backup using DEPLOY_PRE_SUFFIX."
+            echo "  🔥 REQUIRES CONFIRMATION: Creates a pre-deployment backup using DEPLOY_PRE_SUFFIX."
             echo "  Validates CF space matches DEPLOY_ENV."
             echo ""
             echo "Options:"
-            echo "  --skip-validation  - Skip space validation"
+            echo "  --skip-validation    - Skip space validation"
+            echo "  --skip-confirmation  - Skip confirmation prompt"
             echo ""
             echo "Requires: DEPLOY_TICKET environment variable"
             echo ""
@@ -375,14 +377,15 @@ show_command_help() {
         "post-deploy")
             echo "Post-Deployment Backup"
             echo ""
-            echo "Usage: deploy.sh post-deploy [--skip-validation]"
+            echo "Usage: deploy.sh post-deploy [--skip-validation] [--skip-confirmation]"
             echo ""
             echo "Description:"
-            echo "  Creates a post-deployment backup and annotated git tag."
+            echo "  🔥 REQUIRES CONFIRMATION: Creates a post-deployment backup and annotated git tag."
             echo "  Git tag includes CCI build and container digests for tracking."
             echo ""
             echo "Options:"
-            echo "  --skip-validation  - Skip space validation"
+            echo "  --skip-validation    - Skip space validation"
+            echo "  --skip-confirmation  - Skip confirmation prompt"
             echo ""
             echo "Requires: DEPLOY_TICKET, DEPLOY_ENV environment variables"
             echo ""
@@ -1181,17 +1184,6 @@ confirm_rollback() {
         exit 1
     fi
 
-    # Check for --skip-confirmation flag (bypasses confirmation prompt)
-    if [ "$skip_confirmation" = "--skip-confirmation" ]; then
-        print_status $YELLOW "⚠️  --skip-confirmation flag detected, bypassing confirmation"
-        echo ""
-        return 0
-    fi
-
-    print_status $YELLOW "⚠️  ROLLBACK: This will restore $rollback_type"
-    print_status $YELLOW "Backup Tag: $tag"
-    echo ""
-
     # Check if we're in production environment
     local current_space=$(cf target | grep space: | awk '{print $2}')
     local is_prod=false
@@ -1199,55 +1191,22 @@ confirm_rollback() {
         is_prod=true
     fi
 
+    # Build confirmation prompt
+    local prompt="⚠️  ROLLBACK: This will restore $rollback_type\nBackup Tag: $tag"
+
     if [ "$is_prod" = "true" ]; then
-        # Production requires exact confirmation string (with 3 attempts)
+        # Production requires exact confirmation string
         print_status $RED "⚠️  PRODUCTION ENVIRONMENT DETECTED"
-        local required_text="CONFIRM PROD ROLLBACK"
-        local attempts=0
-        local max_attempts=3
-        local last_input=""
-
-        while [ $attempts -lt $max_attempts ]; do
-            attempts=$((attempts + 1))
-
-            if [ $attempts -eq 1 ]; then
-                printf "Type '$required_text' to continue: "
-            else
-                printf "Attempt %d/%d - Type '$required_text' to continue" "$attempts" "$max_attempts"
-                if [ -n "$last_input" ]; then
-                    printf " (you typed: '%s'): " "$last_input"
-                else
-                    printf ": "
-                fi
-            fi
-
-            read -r confirmation
-            last_input="$confirmation"
-
-            if [ "$confirmation" = "$required_text" ]; then
-                echo ""
-                return 0
-            fi
-
-            if [ $attempts -lt $max_attempts ]; then
-                print_status $YELLOW "⚠️  Text mismatch. Please try again."
-            fi
-        done
-
-        print_status $RED "❌ Maximum attempts reached. Rollback cancelled."
-        print_status $YELLOW "💡 Tip: Use --skip-confirmation flag to bypass this check"
-        exit 1
+        if ! confirm_action "$prompt" "exact" "CONFIRM PROD ROLLBACK" 3 "$skip_confirmation"; then
+            print_status $YELLOW "💡 Tip: Use --skip-confirmation flag to bypass this check"
+            exit 1
+        fi
     else
-        # Non-production uses simple y/N confirmation
-        printf "Continue with rollback? (y/N): "
-        read -r confirmation
-
-        if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-            print_status $GREEN "❌ Rollback cancelled"
+        # Non-production uses simple yes confirmation
+        if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
             exit 0
         fi
     fi
-    echo ""
 }
 
 # Create a deployment backup (pre or post)
@@ -1277,8 +1236,31 @@ create_deployment_backup() {
 
 # Pre-deployment backup using context variables
 pre_deploy() {
+    local skip_validation=""
+    local skip_confirmation=""
+    local ticket="${DEPLOY_TICKET:-}"
+    local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
+
+    # Parse flags from arguments
+    for arg in "$@"; do
+        case "$arg" in
+            --skip-confirmation)
+                skip_confirmation="--skip-confirmation"
+                ;;
+            --skip-validation)
+                skip_validation="--skip-validation"
+                ;;
+        esac
+    done
+
     # Validate CF space matches DEPLOY_ENV
-    validate_target_space "$1"
+    validate_target_space "$skip_validation"
+
+    # Confirm backup creation
+    local prompt="⚠️  PRE-DEPLOYMENT BACKUP: Creating backup before deployment\nEnvironment: $env\nTicket: ${ticket:-not set}"
+    if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
+        return 0
+    fi
 
     create_deployment_backup "PRE" "pre-deploy"
 }
@@ -1286,8 +1268,31 @@ pre_deploy() {
 # Post-deployment backup using context variables
 # Now automatically creates annotated git tags for deployment tracking
 post_deploy() {
+    local skip_validation=""
+    local skip_confirmation=""
+    local ticket="${DEPLOY_TICKET:-}"
+    local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
+
+    # Parse flags from arguments
+    for arg in "$@"; do
+        case "$arg" in
+            --skip-confirmation)
+                skip_confirmation="--skip-confirmation"
+                ;;
+            --skip-validation)
+                skip_validation="--skip-validation"
+                ;;
+        esac
+    done
+
     # Validate CF space matches DEPLOY_ENV
-    validate_target_space "$1"
+    validate_target_space "$skip_validation"
+
+    # Confirm backup creation
+    local prompt="⚠️  POST-DEPLOYMENT BACKUP: Creating backup after deployment\nEnvironment: $env\nTicket: ${ticket:-not set}"
+    if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
+        return 0
+    fi
 
     create_deployment_backup "POST" "post-deploy"
 
@@ -2819,13 +2824,26 @@ deploy_app() {
     local cci_build="$2"
     local digest="$3"
     local skip_validation="$4"
+    local skip_confirmation=""
+
+    # Parse flags from arguments
+    for arg in "$@"; do
+        case "$arg" in
+            --skip-confirmation)
+                skip_confirmation="--skip-confirmation"
+                ;;
+            --skip-validation)
+                skip_validation="--skip-validation"
+                ;;
+        esac
+    done
 
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$skip_validation"
 
     if [ -z "$app_name" ] || [ -z "$cci_build" ]; then
         print_status $RED "❌ Error: Missing required parameters"
-        echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest] [--skip-validation]"
+        echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest] [--skip-validation] [--skip-confirmation]"
         echo "Example: deploy.sh deploy app cms 5936 gsatts/usagov-2021@sha256:abc123..."
         echo ""
         echo "If digest not provided, will look up from:"
@@ -2885,6 +2903,12 @@ deploy_app() {
         print_status $RED "❌ Error: Could not determine environment"
         echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
         return 1
+    fi
+
+    # Confirm deployment before proceeding
+    local prompt="⚠️  DEPLOYMENT: This will deploy $app_name to $env\nBuild: $cci_build\nDigest: $digest"
+    if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
+        return 0
     fi
 
     _deploy_app "$app_name" "$env" "$cci_build" "$digest"
