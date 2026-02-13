@@ -3607,6 +3607,456 @@ EOF
     fi
 }
 
+# Validate deployment metadata completeness for a backup tag
+# Args: <tag> [--json]
+validate_digest_metadata() {
+    local backup_tag=""
+    local use_json=false
+
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            -*)
+                if [ "$use_json" = true ]; then
+                    echo '{"error":"Unknown option: '"$1"'"}' | jq .
+                else
+                    print_status $RED "❌ Unknown option: $1"
+                    echo "Usage: deploy.sh digests validate <tag> [--json]"
+                fi
+                return 2
+                ;;
+            *)
+                backup_tag="$1"
+                shift
+                ;;
+        esac
+    done
+
+    if [ -z "$backup_tag" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Backup tag required"}' | jq .
+        else
+            print_status $RED "❌ Error: Backup tag required"
+            echo "Usage: deploy.sh digests validate <tag> [--json]"
+        fi
+        return 1
+    fi
+
+    if [ "$use_json" != true ]; then
+        print_status $BLUE "🔍 Validating metadata for backup: $backup_tag"
+        echo ""
+    fi
+
+    # Fetch metadata
+    local metadata_json=$(fetch_deployment_metadata "$backup_tag")
+
+    if [ -z "$metadata_json" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"valid":false,"backup_tag":"'"$backup_tag"'","error":"Metadata not found"}' | jq .
+        else
+            print_status $RED "❌ Metadata not found for tag: $backup_tag"
+        fi
+        return 1
+    fi
+
+    # Validate required fields
+    local errors=""
+    local warnings=""
+    local has_backup_tag=$(echo "$metadata_json" | grep -c '"backup_tag"')
+    local has_timestamp=$(echo "$metadata_json" | grep -c '"timestamp"')
+    local has_ticket=$(echo "$metadata_json" | grep -c '"ticket"')
+    local has_environment=$(echo "$metadata_json" | grep -c '"environment"')
+    local has_containers=$(echo "$metadata_json" | grep -c '"containers"')
+
+    # Check required fields
+    if [ "$has_backup_tag" -eq 0 ]; then
+        errors="${errors}backup_tag field missing,"
+    fi
+    if [ "$has_timestamp" -eq 0 ]; then
+        errors="${errors}timestamp field missing,"
+    fi
+    if [ "$has_environment" -eq 0 ]; then
+        errors="${errors}environment field missing,"
+    fi
+    if [ "$has_containers" -eq 0 ]; then
+        errors="${errors}containers object missing,"
+    fi
+
+    # Check optional but recommended fields
+    if [ "$has_ticket" -eq 0 ]; then
+        warnings="${warnings}ticket field missing (non-critical),"
+    fi
+
+    # Extract and validate container data
+    local cms_digest=$(echo "$metadata_json" | sed -n '/"cms":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local www_digest=$(echo "$metadata_json" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local waf_digest=$(echo "$metadata_json" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+
+    # Validate digest format (should start with sha256:)
+    if [ -n "$cms_digest" ] && ! echo "$cms_digest" | grep -q '^sha256:'; then
+        errors="${errors}cms digest format invalid,"
+    fi
+    if [ -n "$www_digest" ] && ! echo "$www_digest" | grep -q '^sha256:'; then
+        errors="${errors}www digest format invalid,"
+    fi
+    if [ -n "$waf_digest" ] && ! echo "$waf_digest" | grep -q '^sha256:'; then
+        errors="${errors}waf digest format invalid,"
+    fi
+
+    # Check for missing critical containers
+    if [ -z "$cms_digest" ]; then
+        errors="${errors}cms digest missing,"
+    fi
+    if [ -z "$www_digest" ]; then
+        errors="${errors}www digest missing,"
+    fi
+    if [ -z "$waf_digest" ]; then
+        errors="${errors}waf digest missing,"
+    fi
+
+    # Remove trailing commas
+    errors=$(echo "$errors" | sed 's/,$//')
+    warnings=$(echo "$warnings" | sed 's/,$//')
+
+    # Determine validity
+    local is_valid=true
+    if [ -n "$errors" ]; then
+        is_valid=false
+    fi
+
+    # Output results
+    if [ "$use_json" = true ]; then
+        local error_array="[]"
+        local warning_array="[]"
+
+        if [ -n "$errors" ]; then
+            error_array=$(echo "$errors" | tr ',' '\n' | jq -R . | jq -s .)
+        fi
+        if [ -n "$warnings" ]; then
+            warning_array=$(echo "$warnings" | tr ',' '\n' | jq -R . | jq -s .)
+        fi
+
+        local json_output=$(cat <<EOF
+{
+  "valid": $is_valid,
+  "backup_tag": "$backup_tag",
+  "errors": $error_array,
+  "warnings": $warning_array,
+  "containers": {
+    "cms": {"present": $([ -n "$cms_digest" ] && echo "true" || echo "false"), "digest": "$cms_digest"},
+    "www": {"present": $([ -n "$www_digest" ] && echo "true" || echo "false"), "digest": "$www_digest"},
+    "waf": {"present": $([ -n "$waf_digest" ] && echo "true" || echo "false"), "digest": "$waf_digest"}
+  }
+}
+EOF
+)
+        format_json "$json_output"
+    else
+        # Table output
+        if [ "$is_valid" = true ]; then
+            print_status $GREEN "✅ Metadata validation: PASSED"
+        else
+            print_status $RED "❌ Metadata validation: FAILED"
+        fi
+        echo ""
+
+        if [ -n "$errors" ]; then
+            echo "Errors:"
+            echo "$errors" | tr ',' '\n' | while read -r error; do
+                [ -n "$error" ] && echo "  • $error"
+            done
+            echo ""
+        fi
+
+        if [ -n "$warnings" ]; then
+            echo "Warnings:"
+            echo "$warnings" | tr ',' '\n' | while read -r warning; do
+                [ -n "$warning" ] && echo "  ⚠️  $warning"
+            done
+            echo ""
+        fi
+
+        echo "Container Digests:"
+        echo "  CMS: ${cms_digest:-MISSING}"
+        echo "  WWW: ${www_digest:-MISSING}"
+        echo "  WAF: ${waf_digest:-MISSING}"
+    fi
+
+    if [ "$is_valid" = true ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Compare two deployment metadata files
+# Args: <tag1> <tag2> [--json]
+compare_digest_metadata() {
+    local tag1=""
+    local tag2=""
+    local use_json=false
+
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            -*)
+                if [ "$use_json" = true ]; then
+                    echo '{"error":"Unknown option: '"$1"'"}' | jq .
+                else
+                    print_status $RED "❌ Unknown option: $1"
+                    echo "Usage: deploy.sh digests compare <tag1> <tag2> [--json]"
+                fi
+                return 2
+                ;;
+            *)
+                if [ -z "$tag1" ]; then
+                    tag1="$1"
+                elif [ -z "$tag2" ]; then
+                    tag2="$1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    if [ -z "$tag1" ] || [ -z "$tag2" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Two backup tags required"}' | jq .
+        else
+            print_status $RED "❌ Error: Two backup tags required"
+            echo "Usage: deploy.sh digests compare <tag1> <tag2> [--json]"
+        fi
+        return 1
+    fi
+
+    if [ "$use_json" != true ]; then
+        print_status $BLUE "🔍 Comparing deployments"
+        echo "  Tag 1: $tag1"
+        echo "  Tag 2: $tag2"
+        echo ""
+    fi
+
+    # Fetch both metadata files
+    local metadata1=$(fetch_deployment_metadata "$tag1")
+    local metadata2=$(fetch_deployment_metadata "$tag2")
+
+    if [ -z "$metadata1" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Metadata not found for tag1: '"$tag1"'"}' | jq .
+        else
+            print_status $RED "❌ Metadata not found for tag1: $tag1"
+        fi
+        return 1
+    fi
+
+    if [ -z "$metadata2" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Metadata not found for tag2: '"$tag2"'"}' | jq .
+        else
+            print_status $RED "❌ Metadata not found for tag2: $tag2"
+        fi
+        return 1
+    fi
+
+    # Extract container digests from both
+    local cms1=$(echo "$metadata1" | sed -n '/"cms":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local www1=$(echo "$metadata1" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local waf1=$(echo "$metadata1" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+
+    local cms2=$(echo "$metadata2" | sed -n '/"cms":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local www2=$(echo "$metadata2" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local waf2=$(echo "$metadata2" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+
+    # Extract timestamps
+    local timestamp1=$(echo "$metadata1" | grep '"timestamp"' | sed 's/.*"timestamp": *"\([^"]*\)".*/\1/')
+    local timestamp2=$(echo "$metadata2" | grep '"timestamp"' | sed 's/.*"timestamp": *"\([^"]*\)".*/\1/')
+
+    # Extract tickets
+    local ticket1=$(echo "$metadata1" | grep '"ticket"' | sed 's/.*"ticket": *"\([^"]*\)".*/\1/')
+    local ticket2=$(echo "$metadata2" | grep '"ticket"' | sed 's/.*"ticket": *"\([^"]*\)".*/\1/')
+
+    # Compare containers
+    local cms_changed=false
+    local www_changed=false
+    local waf_changed=false
+    local changes_count=0
+
+    if [ "$cms1" != "$cms2" ]; then
+        cms_changed=true
+        changes_count=$((changes_count + 1))
+    fi
+    if [ "$www1" != "$www2" ]; then
+        www_changed=true
+        changes_count=$((changes_count + 1))
+    fi
+    if [ "$waf1" != "$waf2" ]; then
+        waf_changed=true
+        changes_count=$((changes_count + 1))
+    fi
+
+    # Output results
+    if [ "$use_json" = true ]; then
+        local json_output=$(cat <<EOF
+{
+  "tag1": "$tag1",
+  "tag2": "$tag2",
+  "timestamp1": "$timestamp1",
+  "timestamp2": "$timestamp2",
+  "ticket1": "$ticket1",
+  "ticket2": "$ticket2",
+  "changes_count": $changes_count,
+  "containers": {
+    "cms": {
+      "changed": $cms_changed,
+      "tag1_digest": "$cms1",
+      "tag2_digest": "$cms2"
+    },
+    "www": {
+      "changed": $www_changed,
+      "tag1_digest": "$www1",
+      "tag2_digest": "$www2"
+    },
+    "waf": {
+      "changed": $waf_changed,
+      "tag1_digest": "$waf1",
+      "tag2_digest": "$waf2"
+    }
+  }
+}
+EOF
+)
+        format_json "$json_output"
+    else
+        # Table output
+        if [ $changes_count -eq 0 ]; then
+            print_status $GREEN "✅ No changes detected - deployments are identical"
+        else
+            print_status $YELLOW "📊 Found $changes_count container change(s)"
+        fi
+        echo ""
+
+        echo "Metadata Comparison:"
+        echo "  Timestamp 1: ${timestamp1:-unknown}"
+        echo "  Timestamp 2: ${timestamp2:-unknown}"
+        echo "  Ticket 1:    ${ticket1:-none}"
+        echo "  Ticket 2:    ${ticket2:-none}"
+        echo ""
+
+        echo "Container Digest Comparison:"
+        echo ""
+
+        # CMS
+        if [ "$cms_changed" = true ]; then
+            print_status $YELLOW "  CMS: CHANGED"
+            echo "    Tag 1: $cms1"
+            echo "    Tag 2: $cms2"
+        else
+            print_status $GREEN "  CMS: UNCHANGED"
+            echo "    Digest: $cms1"
+        fi
+        echo ""
+
+        # WWW
+        if [ "$www_changed" = true ]; then
+            print_status $YELLOW "  WWW: CHANGED"
+            echo "    Tag 1: $www1"
+            echo "    Tag 2: $www2"
+        else
+            print_status $GREEN "  WWW: UNCHANGED"
+            echo "    Digest: $www1"
+        fi
+        echo ""
+
+        # WAF
+        if [ "$waf_changed" = true ]; then
+            print_status $YELLOW "  WAF: CHANGED"
+            echo "    Tag 1: $waf1"
+            echo "    Tag 2: $waf2"
+        else
+            print_status $GREEN "  WAF: UNCHANGED"
+            echo "    Digest: $waf1"
+        fi
+    fi
+
+    return 0
+}
+
+# Check if a backup tag exists (all components: static, public, db)
+# Args: <tag>
+# Returns: 0 if all components exist, 1 if any missing
+check_backup_exists() {
+    local backup_tag="$1"
+
+    if [ -z "$backup_tag" ]; then
+        print_status $RED "❌ Error: Backup tag required"
+        return 1
+    fi
+
+    # Check via cf ssh to cms container (has S3 access)
+    local check_result=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars && \
+        static_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
+        public_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
+        db_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$S3_DB_PATH/$backup_tag.sql.gz \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
+        echo \"\$static_exists|\$public_exists|\$db_exists\"" 2>/dev/null | tail -1)
+
+    if [ -z "$check_result" ]; then
+        return 1
+    fi
+
+    local static_count=$(echo "$check_result" | cut -d'|' -f1 | tr -d ' ')
+    local public_count=$(echo "$check_result" | cut -d'|' -f2 | tr -d ' ')
+    local db_count=$(echo "$check_result" | cut -d'|' -f3 | tr -d ' ')
+
+    # Return success only if all components exist (count > 0)
+    if [ "$static_count" -gt 0 ] && [ "$public_count" -gt 0 ] && [ "$db_count" -gt 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Validate that a backup tag exists before attempting operations
+# Args: <tag> [--quiet]
+# Returns: 0 if exists, 1 if missing
+validate_backup_tag_exists() {
+    local backup_tag="$1"
+    local quiet=false
+
+    if [ "$2" = "--quiet" ]; then
+        quiet=true
+    fi
+
+    if [ -z "$backup_tag" ]; then
+        [ "$quiet" = false ] && print_status $RED "❌ Error: Backup tag required"
+        return 1
+    fi
+
+    if [ "$quiet" = false ]; then
+        print_status $BLUE "🔍 Checking if backup exists: $backup_tag"
+    fi
+
+    if check_backup_exists "$backup_tag"; then
+        if [ "$quiet" = false ]; then
+            print_status $GREEN "✅ Backup found: All components present"
+        fi
+        return 0
+    else
+        if [ "$quiet" = false ]; then
+            print_status $RED "❌ Backup incomplete or not found"
+            echo "Use 'deploy.sh list-backups' to see available backups."
+        fi
+        return 1
+    fi
+}
+
 # Rollback command - uses backup metadata to restore containers
 rollback() {
     local data_types=""
@@ -4298,14 +4748,24 @@ case "$COMMAND" in
             echo "  history [env] [days] [limit]  Show deployment history"
             echo "                                Flags: --backups-only, --git-only, --json"
             echo ""
+            echo "  validate <tag>                Verify backup metadata completeness"
+            echo "                                Flags: --json"
+            echo ""
+            echo "  compare <tag1> <tag2>         Compare two deployment states"
+            echo "                                Flags: --json"
+            echo ""
             echo "Examples:"
             echo "  deploy.sh digests current"
             echo "  deploy.sh digests build prod"
             echo "  deploy.sh digests history prod 7"
+            echo "  deploy.sh digests validate USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
+            echo "  deploy.sh digests compare tag1 tag2"
             echo ""
             echo "Get detailed help:"
             echo "  deploy.sh digests current -h"
             echo "  deploy.sh digests build -h"
+            echo "  deploy.sh digests validate -h"
+            echo "  deploy.sh digests compare -h"
             exit 0
         fi
 
@@ -4400,6 +4860,63 @@ case "$COMMAND" in
                     echo "  deploy.sh digests history --show-all-history # Show all deployments"
                     exit 0
                     ;;
+                validate)
+                    echo "Validate Backup Metadata Completeness"
+                    echo ""
+                    echo "Usage: deploy.sh digests validate <tag> [--json]"
+                    echo ""
+                    echo "Description:"
+                    echo "  Validates that backup metadata exists and contains all required fields."
+                    echo "  Checks for: backup_tag, timestamp, environment, container digests."
+                    echo "  Verifies digest format and flags any missing or invalid data."
+                    echo ""
+                    echo "When to use this:"
+                    echo "  • Before attempting a rollback operation"
+                    echo "  • To verify backup integrity"
+                    echo "  • To troubleshoot deployment metadata issues"
+                    echo "  • In CI/CD pipelines to validate backup creation"
+                    echo ""
+                    echo "Arguments:"
+                    echo "  tag    - Backup tag to validate"
+                    echo "  --json - Output in JSON format"
+                    echo ""
+                    echo "Examples:"
+                    echo "  deploy.sh digests validate USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
+                    echo "  deploy.sh digests validate \$(deploy.sh last-backup) --json"
+                    echo ""
+                    echo "Exit codes:"
+                    echo "  0 - Metadata is valid and complete"
+                    echo "  1 - Metadata is missing or invalid"
+                    echo "  2 - Invalid arguments"
+                    exit 0
+                    ;;
+                compare)
+                    echo "Compare Two Deployment States"
+                    echo ""
+                    echo "Usage: deploy.sh digests compare <tag1> <tag2> [--json]"
+                    echo ""
+                    echo "Description:"
+                    echo "  Compares container digests between two backup metadata files."
+                    echo "  Shows which containers changed between the two deployments."
+                    echo "  Useful for understanding what changed between releases."
+                    echo ""
+                    echo "When to use this:"
+                    echo "  • Before/after deployment comparison"
+                    echo "  • Verify what changed in a rollback"
+                    echo "  • Audit deployment differences"
+                    echo "  • Understand deployment progression"
+                    echo ""
+                    echo "Arguments:"
+                    echo "  tag1   - First backup tag to compare"
+                    echo "  tag2   - Second backup tag to compare"
+                    echo "  --json - Output in JSON format"
+                    echo ""
+                    echo "Examples:"
+                    echo "  deploy.sh digests compare tag-before tag-after"
+                    echo "  deploy.sh digests compare \$(deploy.sh last-backup prod) \$(deploy.sh last-backup stage)"
+                    echo "  deploy.sh digests compare tag1 tag2 --json | jq '.containers.cms.changed'"
+                    exit 0
+                    ;;
             esac
         fi
 
@@ -4409,6 +4926,12 @@ case "$COMMAND" in
                 ;;
             build)
                 show_build_digests "$@"
+                ;;
+            validate)
+                validate_digest_metadata "$@"
+                ;;
+            compare)
+                compare_digest_metadata "$@"
                 ;;
             history|*)
                 # Default to history for backward compatibility or when no subcommand
