@@ -211,11 +211,14 @@ show_command_help() {
         "last-backup")
             echo "Show Last Backup Times"
             echo ""
-            echo "Usage: deploy.sh last-backup"
+            echo "Usage: deploy.sh last-backup [--json]"
             echo ""
             echo "Description:"
             echo "  Shows when each type of backup (db, static, public) was last taken."
             echo "  Helps determine if backups are current before deployment."
+            echo ""
+            echo "Options:"
+            echo "  --json  - Output as JSON"
             echo ""
             ;;
         "status")
@@ -393,7 +396,7 @@ show_command_help() {
         "list-backups")
             echo "List Available Backups"
             echo ""
-            echo "Usage: deploy.sh list-backups [days]"
+            echo "Usage: deploy.sh list-backups [days] [--json]"
             echo ""
             echo "Description:"
             echo "  Lists recent backups available for rollback."
@@ -401,8 +404,12 @@ show_command_help() {
             echo "Arguments:"
             echo "  days  - Show backups from last N days (default: 7)"
             echo ""
+            echo "Options:"
+            echo "  --json  - Output as JSON"
+            echo ""
             echo "Example:"
             echo "  deploy.sh list-backups 14"
+            echo "  deploy.sh list-backups --json"
             echo ""
             ;;
         "digests")
@@ -515,15 +522,20 @@ show_command_help() {
         "download-backups")
             echo "Download Backups Locally"
             echo ""
-            echo "Usage: deploy.sh download-backups [tag]"
+            echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
             echo ""
             echo "Description:"
             echo "  Downloads db/static/public backups to the current directory."
             echo "  If no tag is provided, the newest backup for the current CF space is used."
             echo ""
+            echo "Options:"
+            echo "  --json              - Output as JSON"
+            echo "  --output-dir=<path> - Output directory (default: current directory)"
+            echo ""
             echo "Example:"
             echo "  deploy.sh download-backups"
             echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0"
+            echo "  deploy.sh download-backups --json"
             echo ""
             ;;
         "tome-log")
@@ -617,10 +629,12 @@ show_command_help() {
             echo "  --only=app1,app2  - Validate specific apps only (cms, www)"
             echo "  --commit=<sha>    - Expected commit SHA (default: HEAD)"
             echo "  --skip-http       - Skip HTTP endpoint checks"
+            echo "  --json            - Output as JSON"
             echo ""
             echo "Examples:"
             echo "  deploy.sh validate"
             echo "  deploy.sh validate --only=cms --skip-http"
+            echo "  deploy.sh validate --json"
             echo ""
             ;;
         *)
@@ -822,52 +836,124 @@ EOF
 
 # Show when last backup of each type was taken
 last_backup() {
-    print_status $BLUE "🕒 Last Backup Times"
-    echo ""
+    local use_json=false
 
-    local loader=$(show_loading "Checking backup timestamps")
-    cf ssh cms -c 'cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
-    echo "Static Site Backups:"
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            *)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: last-backup [--json]"
+                return 2
+                ;;
+        esac
+    done
+
+    # Fetch backup data from S3
+    local backup_data
+    backup_data=$(cf ssh cms -c 'cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
     latest_static=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | head -n1)
     if [ -n "$latest_static" ]; then
-        tag=$(echo "$latest_static" | awk "{print \$2}" | tr -d "/")
-        echo "  Latest: $tag"
-        date_part=$(echo "$tag" | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" | head -1)
-        if [ -n "$date_part" ]; then
-            echo "  Date: $date_part"
-        fi
-    else
-        echo "  No backups found"
+        static_tag=$(echo "$latest_static" | awk "{print \$2}" | tr -d "/")
+        static_date=$(echo "$static_tag" | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" | head -1)
     fi
-    echo ""
 
-    echo "Public Files Backups:"
     latest_public=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | head -n1)
     if [ -n "$latest_public" ]; then
-        tag=$(echo "$latest_public" | awk "{print \$2}" | tr -d "/")
-        echo "  Latest: $tag"
-        date_part=$(echo "$tag" | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" | head -1)
-        if [ -n "$date_part" ]; then
-            echo "  Date: $date_part"
-        fi
-    else
-        echo "  No backups found"
+        public_tag=$(echo "$latest_public" | awk "{print \$2}" | tr -d "/")
+        public_date=$(echo "$public_tag" | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" | head -1)
     fi
-    echo ""
 
-    echo "Database Backups:"
     latest_db=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | sort -r | head -n1)
     if [ -n "$latest_db" ]; then
-        tag=$(echo "$latest_db" | awk "{print \$4}" | sed "s/\.sql\.gz$//")
-        echo "  Latest: $tag"
-        date_part=$(echo "$tag" | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" | head -1)
-        if [ -n "$date_part" ]; then
-            echo "  Date: $date_part"
-        fi
-    else
-        echo "  No backups found"
+        db_tag=$(echo "$latest_db" | awk "{print \$4}" | sed "s/\.sql\.gz$//")
+        db_date=$(echo "$db_tag" | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" | head -1)
     fi
-    '
+
+    echo "STATIC_TAG=${static_tag:-(none)}"
+    echo "STATIC_DATE=${static_date:-(none)}"
+    echo "PUBLIC_TAG=${public_tag:-(none)}"
+    echo "PUBLIC_DATE=${public_date:-(none)}"
+    echo "DB_TAG=${db_tag:-(none)}"
+    echo "DB_DATE=${db_date:-(none)}"' 2>/dev/null)
+
+    if [ -z "$backup_data" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Could not fetch backup data"}' | jq .
+            return 3
+        else
+            print_status $RED "❌ System Error: Could not fetch backup data"
+            return 3
+        fi
+    fi
+
+    # Parse backup data
+    local static_tag=$(echo "$backup_data" | grep "^STATIC_TAG=" | cut -d= -f2)
+    local static_date=$(echo "$backup_data" | grep "^STATIC_DATE=" | cut -d= -f2)
+    local public_tag=$(echo "$backup_data" | grep "^PUBLIC_TAG=" | cut -d= -f2)
+    local public_date=$(echo "$backup_data" | grep "^PUBLIC_DATE=" | cut -d= -f2)
+    local db_tag=$(echo "$backup_data" | grep "^DB_TAG=" | cut -d= -f2)
+    local db_date=$(echo "$backup_data" | grep "^DB_DATE=" | cut -d= -f2)
+
+    if [ "$use_json" = true ]; then
+        local json_data=$(cat <<EOF
+{
+  "static": {
+    "tag": "$static_tag",
+    "date": "$static_date"
+  },
+  "public": {
+    "tag": "$public_tag",
+    "date": "$public_date"
+  },
+  "database": {
+    "tag": "$db_tag",
+    "date": "$db_date"
+  }
+}
+EOF
+)
+        format_json "$json_data"
+    else
+        print_status $BLUE "🕒 Last Backup Times"
+        echo ""
+        echo "Static Site Backups:"
+        if [ "$static_tag" != "(none)" ]; then
+            echo "  Latest: $static_tag"
+            if [ "$static_date" != "(none)" ]; then
+                echo "  Date: $static_date"
+            fi
+        else
+            echo "  No backups found"
+        fi
+        echo ""
+
+        echo "Public Files Backups:"
+        if [ "$public_tag" != "(none)" ]; then
+            echo "  Latest: $public_tag"
+            if [ "$public_date" != "(none)" ]; then
+                echo "  Date: $public_date"
+            fi
+        else
+            echo "  No backups found"
+        fi
+        echo ""
+
+        echo "Database Backups:"
+        if [ "$db_tag" != "(none)" ]; then
+            echo "  Latest: $db_tag"
+            if [ "$db_date" != "(none)" ]; then
+                echo "  Date: $db_date"
+            fi
+        else
+            echo "  No backups found"
+        fi
+        echo ""
+    fi
 }
 
 # Show current status
@@ -1649,15 +1735,38 @@ downsync() {
 
 # List backups for rollback
 list_backups() {
-    local days="${1:-7}"
+    local days="7"
+    local use_json=false
 
-    print_status $BLUE "📋 Available backups (last $days days)"
-    echo ""
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            *)
+                # First non-flag arg is days
+                days="$1"
+                shift
+                ;;
+        esac
+    done
 
-    # Use printf %q for safe shell escaping
-    local cmd
-    cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
-    cf ssh cms -c "$cmd"
+    if [ "$use_json" = true ]; then
+        # Use printf %q for safe shell escaping, add --json flag for manager.sh
+        local cmd
+        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q --json' "$days")
+        cf ssh cms -c "$cmd"
+    else
+        print_status $BLUE "📋 Available backups (last $days days)"
+        echo ""
+
+        # Use printf %q for safe shell escaping
+        local cmd
+        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
+        cf ssh cms -c "$cmd"
+    fi
 }
 
 # List available container digests with deployment history
@@ -2170,12 +2279,36 @@ rollback_db() {
 
 # Download backups locally - defaults to latest backup for current space
 download_backups() {
-    local tag="${1:-}"
+    local tag=""
     local output_dir="$(pwd)"
+    local use_json=false
+
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            --output-dir=*)
+                output_dir="${1#*=}"
+                shift
+                ;;
+            *)
+                # First non-flag arg is tag
+                if [ -z "$tag" ]; then
+                    tag="$1"
+                fi
+                shift
+                ;;
+        esac
+    done
 
     # If no tag provided, find the most recent backup
     if [ -z "$tag" ]; then
-        print_status $BLUE "🔍 Finding most recent backup..."
+        if [ "$use_json" = false ]; then
+            print_status $BLUE "🔍 Finding most recent backup..."
+        fi
 
         # Query S3 to get the most recent backup tag
         tag=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
@@ -2187,65 +2320,139 @@ download_backups() {
             sed 's/\.sql\.gz$//'" 2>/dev/null | tail -1 | tr -d '\r')
 
         if [ -z "$tag" ]; then
-            print_status $RED "❌ System Error: Could not find any backups"
-            return 3
+            if [ "$use_json" = true ]; then
+                echo '{"error":"Could not find any backups"}' | jq .
+                return 3
+            else
+                print_status $RED "❌ System Error: Could not find any backups"
+                return 3
+            fi
         fi
 
-        print_status $GREEN "✅ Found latest backup: $tag"
+        if [ "$use_json" = false ]; then
+            print_status $GREEN "✅ Found latest backup: $tag"
+        fi
     fi
 
-    print_status $BLUE "📥 Downloading backups for: $tag"
-    echo "Output directory: $output_dir"
-    echo ""
+    if [ "$use_json" = false ]; then
+        print_status $BLUE "📥 Downloading backups for: $tag"
+        echo "Output directory: $output_dir"
+        echo ""
+    fi
 
     local failed=0
+    local db_success=false
+    local db_size="0"
+    local static_success=false
+    local static_size="0"
+    local public_success=false
+    local public_size="0"
 
     # Download database backup
-    print_status $YELLOW "📦 Downloading database..."
+    if [ "$use_json" = false ]; then
+        print_status $YELLOW "📦 Downloading database..."
+    fi
     local cmd
     cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q db - --stream' "$tag")
     cf ssh cms -c "$cmd" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-database.sql.gz" ]; then
-        print_status $GREEN "  ✅ Database downloaded ($(du -h "${output_dir}/${tag}-database.sql.gz" | cut -f1))"
+        db_success=true
+        db_size=$(du -h "${output_dir}/${tag}-database.sql.gz" | cut -f1)
+        if [ "$use_json" = false ]; then
+            print_status $GREEN "  ✅ Database downloaded ($db_size)"
+        fi
     else
-        print_status $RED "  ❌ Database download failed"
+        if [ "$use_json" = false ]; then
+            print_status $RED "  ❌ Database download failed"
+        fi
         failed=$((failed + 1))
     fi
 
     # Download static site backup
-    print_status $YELLOW "📦 Downloading static site..."
+    if [ "$use_json" = false ]; then
+        print_status $YELLOW "📦 Downloading static site..."
+    fi
     cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q static - --stream' "$tag")
     cf ssh cms -c "$cmd" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-static.tar.gz" ]; then
-        print_status $GREEN "  ✅ Static site downloaded ($(du -h "${output_dir}/${tag}-static.tar.gz" | cut -f1))"
+        static_success=true
+        static_size=$(du -h "${output_dir}/${tag}-static.tar.gz" | cut -f1)
+        if [ "$use_json" = false ]; then
+            print_status $GREEN "  ✅ Static site downloaded ($static_size)"
+        fi
     else
-        print_status $RED "  ❌ Static site download failed"
+        if [ "$use_json" = false ]; then
+            print_status $RED "  ❌ Static site download failed"
+        fi
         failed=$((failed + 1))
     fi
 
     # Download public files backup
-    print_status $YELLOW "📦 Downloading public files..."
+    if [ "$use_json" = false ]; then
+        print_status $YELLOW "📦 Downloading public files..."
+    fi
     cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q public - --stream' "$tag")
     cf ssh cms -c "$cmd" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-public.tar.gz" ]; then
-        print_status $GREEN "  ✅ Public files downloaded ($(du -h "${output_dir}/${tag}-public.tar.gz" | cut -f1))"
+        public_success=true
+        public_size=$(du -h "${output_dir}/${tag}-public.tar.gz" | cut -f1)
+        if [ "$use_json" = false ]; then
+            print_status $GREEN "  ✅ Public files downloaded ($public_size)"
+        fi
     else
-        print_status $RED "  ❌ Public files download failed"
+        if [ "$use_json" = false ]; then
+            print_status $RED "  ❌ Public files download failed"
+        fi
         failed=$((failed + 1))
     fi
 
-    echo ""
-    if [ $failed -eq 0 ]; then
-        print_status $GREEN "✅ Download complete!"
+    # Output results
+    if [ "$use_json" = true ]; then
+        local json_data=$(cat <<EOF
+{
+  "tag": "$tag",
+  "output_directory": "$output_dir",
+  "downloads": {
+    "database": {
+      "success": $db_success,
+      "file": "${tag}-database.sql.gz",
+      "size": "$db_size"
+    },
+    "static": {
+      "success": $static_success,
+      "file": "${tag}-static.tar.gz",
+      "size": "$static_size"
+    },
+    "public": {
+      "success": $public_success,
+      "file": "${tag}-public.tar.gz",
+      "size": "$public_size"
+    }
+  },
+  "failed_count": $failed,
+  "success": $([ $failed -eq 0 ] && echo true || echo false)
+}
+EOF
+)
+        format_json "$json_data"
+    else
         echo ""
-        echo "Downloaded files:"
-        ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        if [ $failed -eq 0 ]; then
+            print_status $GREEN "✅ Download complete!"
+            echo ""
+            echo "Downloaded files:"
+            ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        else
+            print_status $YELLOW "⚠️  Download completed with $failed error(s)"
+            echo ""
+            echo "Downloaded files:"
+            ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        fi
+    fi
+
+    if [ $failed -eq 0 ]; then
         return 0
     else
-        print_status $YELLOW "⚠️  Download completed with $failed error(s)"
-        echo ""
-        echo "Downloaded files:"
-        ls -lh "${output_dir}/${tag}"-* 2>/dev/null
         return 1
     fi
 }
@@ -3272,6 +3479,7 @@ validate_deployment() {
     local only_apps=""
     local expected_commit=""
     local skip_http=false
+    local use_json=false
 
     # Parse arguments
     while [ $# -gt 0 ]; do
@@ -3288,10 +3496,14 @@ validate_deployment() {
                 skip_http=true
                 shift
                 ;;
+            --json)
+                use_json=true
+                shift
+                ;;
             *)
                 print_status $RED "❌ Unknown option: $1"
-                echo "Usage: validate [--only=app1,app2] [--commit=sha] [--skip-http]"
-                return 1
+                echo "Usage: validate [--only=app1,app2] [--commit=sha] [--skip-http] [--json]"
+                return 2
                 ;;
         esac
     done
@@ -3314,64 +3526,113 @@ validate_deployment() {
         apps_to_validate="cms,www"
     fi
 
-    print_status $BLUE "🔍 Validating deployment..."
-    echo "Expected commit: ${expected_commit:0:8}"
-    echo "Apps to validate: $apps_to_validate"
-    echo ""
+    if [ "$use_json" = false ]; then
+        print_status $BLUE "🔍 Validating deployment..."
+        echo "Expected commit: ${expected_commit:0:8}"
+        echo "Apps to validate: $apps_to_validate"
+        echo ""
+    fi
 
     local overall_success=true
+    local json_app_results=""
+    local app_count=0
     local IFS=','
+
     for app in $apps_to_validate; do
         [ -z "$app" ] && continue
+        app_count=$((app_count + 1))
 
-        print_status $BLUE "📦 Validating app: $app"
-        echo "=========================================="
+        if [ "$use_json" = false ]; then
+            print_status $BLUE "📦 Validating app: $app"
+            echo "=========================================="
+        fi
+
+        # Initialize app validation vars
+        local app_accessible=true
+        local app_state=""
+        local instances_running=0
+        local instances_total="0/0"
+        local deployed_digest=""
+        local services_status="ok"
+        local health_status="ok"
+        local http_status=""
+        local http_url=""
+        local state_ok=false
+        local instances_ok=false
+        local services_ok=false
+        local health_ok=false
+        local http_ok=false
 
         # Check if app exists and is running
         local app_info
         app_info=$(cf app "$app" 2>&1)
 
         if [ $? -ne 0 ]; then
-            print_status $RED "❌ App '$app' not found or not accessible"
+            app_accessible=false
             overall_success=false
-            echo ""
+            if [ "$use_json" = false ]; then
+                print_status $RED "❌ App '$app' not found or not accessible"
+                echo ""
+            fi
+
+            # Add to JSON results
+            if [ "$use_json" = true ]; then
+                if [ $app_count -gt 1 ]; then
+                    json_app_results="${json_app_results},"
+                fi
+                json_app_results="${json_app_results}\"$app\":{\"accessible\":false,\"validation_passed\":false}"
+            fi
             continue
         fi
 
         # Check app state
-        local app_state
         app_state=$(echo "$app_info" | grep "^requested state:" | awk '{print $3}')
 
         if [ "$app_state" != "started" ]; then
-            print_status $RED "  ❌ App state: $app_state"
+            state_ok=false
             overall_success=false
+            if [ "$use_json" = false ]; then
+                print_status $RED "  ❌ App state: $app_state"
+            fi
         else
-            print_status $GREEN "  ✅ App state: started"
+            state_ok=true
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "  ✅ App state: started"
+            fi
         fi
 
         # Check instances
-        local instances_line
-        instances_line=$(echo "$app_info" | grep "^instances:" | awk '{print $2}')
+        instances_total=$(echo "$app_info" | grep "^instances:" | awk '{print $2}')
 
         if echo "$app_info" | grep -q "^\#[0-9].*running"; then
-            local running_count
-            running_count=$(echo "$app_info" | grep "^\#[0-9].*running" | wc -l | tr -d ' ')
-            print_status $GREEN "  ✅ Instances: $running_count running ($instances_line)"
+            instances_running=$(echo "$app_info" | grep "^\#[0-9].*running" | wc -l | tr -d ' ')
+            instances_ok=true
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "  ✅ Instances: $instances_running running ($instances_total)"
+            fi
         else
-            print_status $RED "  ❌ Instances: none running ($instances_line)"
+            instances_running=0
+            instances_ok=false
             overall_success=false
+            if [ "$use_json" = false ]; then
+                print_status $RED "  ❌ Instances: none running ($instances_total)"
+            fi
         fi
 
         # Check deployed Docker digest
-        local deployed_digest
         deployed_digest=$(echo "$app_info" | grep "^docker image:" | awk '{print $3}')
 
         if [ -n "$deployed_digest" ]; then
             local short_digest="${deployed_digest##*sha256:}"
             short_digest="${short_digest:0:12}"
-            print_status $GREEN "  ✅ Digest: sha256:${short_digest}..."
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "  ✅ Digest: sha256:${short_digest}..."
+            fi
         else
-            print_status $YELLOW "  ⚠️  Digest: unknown"
+            deployed_digest="unknown"
+            if [ "$use_json" = false ]; then
+                print_status $YELLOW "  ⚠️  Digest: unknown"
+            fi
         fi
 
         # Get services bound to this app from cf services output
@@ -3392,149 +3653,271 @@ validate_deployment() {
 
             if [ -n "$expected_services" ]; then
                 local missing_services=""
-                local IFS=','
+                local saved_ifs="$IFS"
+                IFS=','
                 for expected in $expected_services; do
                     if ! echo "$bound_services" | grep -q "$expected"; then
                         missing_services="${missing_services}${expected}, "
                     fi
                 done
+                IFS="$saved_ifs"
 
                 if [ -z "$missing_services" ]; then
+                    services_ok=true
+                    services_status="ok"
                     local service_count=$(echo "$bound_services" | tr ',' '\n' | wc -l | tr -d ' ')
-                    print_status $GREEN "  ✅ Service bindings: all required bound ($service_count total)"
+                    if [ "$use_json" = false ]; then
+                        print_status $GREEN "  ✅ Service bindings: all required bound ($service_count total)"
+                    fi
                 else
-                    print_status $RED "  ❌ Service bindings: missing ${missing_services%, }"
+                    services_ok=false
+                    services_status="missing: ${missing_services%, }"
                     overall_success=false
+                    if [ "$use_json" = false ]; then
+                        print_status $RED "  ❌ Service bindings: missing ${missing_services%, }"
+                    fi
                 fi
             else
+                services_ok=true
+                services_status="ok"
                 local service_count=$(echo "$bound_services" | tr ',' '\n' | wc -l | tr -d ' ')
-                print_status $GREEN "  ✅ Service bindings: $service_count bound"
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "  ✅ Service bindings: $service_count bound"
+                fi
             fi
         else
-            print_status $YELLOW "  ⚠️  Service bindings: none (may be expected)"
+            services_status="none"
+            if [ "$use_json" = false ]; then
+                print_status $YELLOW "  ⚠️  Service bindings: none (may be expected)"
+            fi
         fi
 
         # Check for recent crashes/restarts
         local recent_events
         recent_events=$(cf events "$app" 2>/dev/null | grep -E "crash|restart" | head -3)
 
+        local crash_count=0
         if [ -n "$recent_events" ]; then
-            local crash_count
             crash_count=$(echo "$recent_events" | wc -l | tr -d ' ')
-            print_status $YELLOW "  ⚠️  Stability: $crash_count recent crash/restart events"
-            echo "$recent_events" | sed 's/^/      /'
+            if [ "$use_json" = false ]; then
+                print_status $YELLOW "  ⚠️  Stability: $crash_count recent crash/restart events"
+                echo "$recent_events" | sed 's/^/      /'
+            fi
         else
-            print_status $GREEN "  ✅ Stability: no recent crashes or restarts"
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "  ✅ Stability: no recent crashes or restarts"
+            fi
         fi
 
         # Different apps have different services
         local health_cmd=""
-        local expected_services=""
+        local expected_health_services=""
         case "$app" in
             cms)
                 health_cmd="s6-svstat /var/run/s6/services/nginx 2>&1 && s6-svstat /var/run/s6/services/php 2>&1"
-                expected_services="nginx, php"
+                expected_health_services="nginx, php"
                 ;;
             www|waf)
                 health_cmd="s6-svstat /var/run/s6/services/nginx 2>&1"
-                expected_services="nginx"
+                expected_health_services="nginx"
                 ;;
             *)
                 health_cmd="s6-svstat /var/run/s6/services/nginx 2>&1"
-                expected_services="nginx"
+                expected_health_services="nginx"
                 ;;
         esac
 
         local health_check
         health_check=$(cf ssh "$app" -c "$health_cmd" 2>/dev/null | grep -c "^up")
 
-        local expected_count=$(echo "$expected_services" | tr ',' '\n' | wc -l | tr -d ' ')
+        local expected_count=$(echo "$expected_health_services" | tr ',' '\n' | wc -l | tr -d ' ')
 
         if [ "$health_check" -ge "$expected_count" ]; then
-            print_status $GREEN "  ✅ Container health: $expected_services running"
+            health_ok=true
+            health_status="ok"
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "  ✅ Container health: $expected_health_services running"
+            fi
         elif [ "$health_check" -gt 0 ]; then
-            print_status $YELLOW "  ⚠️  Container health: only $health_check/$expected_count services running"
+            health_ok=false
+            health_status="partial: $health_check/$expected_count services running"
             overall_success=false
+            if [ "$use_json" = false ]; then
+                print_status $YELLOW "  ⚠️  Container health: only $health_check/$expected_count services running"
+            fi
         else
-            print_status $RED "  ❌ Container health: services not responding"
+            health_ok=false
+            health_status="down"
             overall_success=false
+            if [ "$use_json" = false ]; then
+                print_status $RED "  ❌ Container health: services not responding"
+            fi
         fi
 
         # HTTP endpoint check (if not skipped)
         if [ "$skip_http" = false ]; then
-            local app_url
             # Get all routes and filter out .apps.internal (CF-internal routes not publicly accessible)
-            app_url=$(cf app "$app" | grep "^routes:" | sed 's/^routes:\s*//' | tr ',' '\n' | grep -v '\.apps\.internal' | head -1 | xargs)
+            http_url=$(cf app "$app" | grep "^routes:" | sed 's/^routes:\s*//' | tr ',' '\n' | grep -v '\.apps\.internal' | head -1 | xargs)
 
-            if [ -n "$app_url" ]; then
-                local http_status
-                http_status=$(curl -s -o /dev/null -w "%{http_code}" -L "https://$app_url" --max-time 10 2>/dev/null)
+            if [ -n "$http_url" ]; then
+                http_status=$(curl -s -o /dev/null -w "%{http_code}" -L "https://$http_url" --max-time 10 2>/dev/null)
 
                 if [ "$http_status" = "200" ]; then
-                    print_status $GREEN "  ✅ HTTP endpoint: $http_status OK (https://$app_url)"
+                    http_ok=true
+                    if [ "$use_json" = false ]; then
+                        print_status $GREEN "  ✅ HTTP endpoint: $http_status OK (https://$http_url)"
+                    fi
                 elif [ "$http_status" = "000" ]; then
-                    print_status $YELLOW "  ⚠️  HTTP endpoint: $http_status network/firewall (https://$app_url)"
+                    http_ok=false
+                    if [ "$use_json" = false ]; then
+                        print_status $YELLOW "  ⚠️  HTTP endpoint: $http_status network/firewall (https://$http_url)"
+                    fi
                 elif [ -n "$http_status" ]; then
-                    print_status $YELLOW "  ⚠️  HTTP endpoint: $http_status (https://$app_url)"
+                    http_ok=false
+                    if [ "$use_json" = false ]; then
+                        print_status $YELLOW "  ⚠️  HTTP endpoint: $http_status (https://$http_url)"
+                    fi
                 else
-                    print_status $RED "  ❌ HTTP endpoint: no response (https://$app_url)"
+                    http_ok=false
                     overall_success=false
+                    if [ "$use_json" = false ]; then
+                        print_status $RED "  ❌ HTTP endpoint: no response (https://$http_url)"
+                    fi
                 fi
             else
-                print_status $YELLOW "  ⚠️  HTTP endpoint: could not determine URL"
+                http_status="unknown"
+                http_url="unknown"
+                if [ "$use_json" = false ]; then
+                    print_status $YELLOW "  ⚠️  HTTP endpoint: could not determine URL"
+                fi
             fi
+        else
+            http_status="skipped"
+            http_url="skipped"
         fi
 
-        echo ""
+        if [ "$use_json" = false ]; then
+            echo ""
+        fi
+
+        # Determine if this app passed validation
+        local app_passed=true
+        if [ "$app_accessible" = false ] || [ "$state_ok" = false ] || [ "$instances_ok" = false ] || [ "$services_ok" = false ] || [ "$health_ok" = false ]; then
+            app_passed=false
+        fi
+        if [ "$skip_http" = false ] && [ "$http_ok" = false ] && [ "$http_status" != "unknown" ]; then
+            app_passed=false
+        fi
+
+        # Build JSON for this app
+        if [ "$use_json" = true ]; then
+            if [ $app_count -gt 1 ]; then
+                json_app_results="${json_app_results},"
+            fi
+            json_app_results="${json_app_results}\"$app\":{\"accessible\":true,\"state\":\"$app_state\",\"state_ok\":$state_ok,\"instances_running\":$instances_running,\"instances_total\":\"$instances_total\",\"instances_ok\":$instances_ok,\"digest\":\"$deployed_digest\",\"services_status\":\"$services_status\",\"services_ok\":$services_ok,\"crash_count\":$crash_count,\"health_status\":\"$health_status\",\"health_ok\":$health_ok"
+            if [ "$skip_http" = false ]; then
+                json_app_results="${json_app_results},\"http_status\":\"$http_status\",\"http_url\":\"$http_url\",\"http_ok\":$http_ok"
+            fi
+            json_app_results="${json_app_results},\"validation_passed\":$app_passed}"
+        fi
     done
 
     # Check if pre-deploy backups were created (if context is set)
-    if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ] || [ -n "$DEPLOY_ROLLBACK_PUBLIC_TAG" ] || [ -n "$DEPLOY_ROLLBACK_DB_TAG" ]; then
-        print_status $BLUE "📦 Checking pre-deploy backups..."
-        echo "----------------------------------------"
+    local backup_check_results=""
+    local backup_check_failed=false
 
-        local backup_check_failed=false
+    if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ] || [ -n "$DEPLOY_ROLLBACK_PUBLIC_TAG" ] || [ -n "$DEPLOY_ROLLBACK_DB_TAG" ]; then
+        if [ "$use_json" = false ]; then
+            print_status $BLUE "📦 Checking pre-deploy backups..."
+            echo "----------------------------------------"
+        fi
+
+        local static_exists=false
+        local public_exists=false
+        local db_exists=false
 
         if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ]; then
             if "$SCRIPT_DIR/manager.sh" info static "$DEPLOY_ROLLBACK_STATIC_TAG" >/dev/null 2>&1; then
-                print_status $GREEN "✅ Static backup exists: $DEPLOY_ROLLBACK_STATIC_TAG"
+                static_exists=true
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "✅ Static backup exists: $DEPLOY_ROLLBACK_STATIC_TAG"
+                fi
             else
-                print_status $RED "❌ Static backup not found: $DEPLOY_ROLLBACK_STATIC_TAG"
                 backup_check_failed=true
+                if [ "$use_json" = false ]; then
+                    print_status $RED "❌ Static backup not found: $DEPLOY_ROLLBACK_STATIC_TAG"
+                fi
             fi
+            backup_check_results="${backup_check_results}\"static\":{\"tag\":\"$DEPLOY_ROLLBACK_STATIC_TAG\",\"exists\":$static_exists},"
         fi
 
         if [ -n "$DEPLOY_ROLLBACK_PUBLIC_TAG" ]; then
             if "$SCRIPT_DIR/manager.sh" info public "$DEPLOY_ROLLBACK_PUBLIC_TAG" >/dev/null 2>&1; then
-                print_status $GREEN "✅ Public backup exists: $DEPLOY_ROLLBACK_PUBLIC_TAG"
+                public_exists=true
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "✅ Public backup exists: $DEPLOY_ROLLBACK_PUBLIC_TAG"
+                fi
             else
-                print_status $RED "❌ Public backup not found: $DEPLOY_ROLLBACK_PUBLIC_TAG"
                 backup_check_failed=true
+                if [ "$use_json" = false ]; then
+                    print_status $RED "❌ Public backup not found: $DEPLOY_ROLLBACK_PUBLIC_TAG"
+                fi
             fi
+            backup_check_results="${backup_check_results}\"public\":{\"tag\":\"$DEPLOY_ROLLBACK_PUBLIC_TAG\",\"exists\":$public_exists},"
         fi
 
         if [ -n "$DEPLOY_ROLLBACK_DB_TAG" ]; then
             if "$SCRIPT_DIR/manager.sh" info db "$DEPLOY_ROLLBACK_DB_TAG" >/dev/null 2>&1; then
-                print_status $GREEN "✅ Database backup exists: $DEPLOY_ROLLBACK_DB_TAG"
+                db_exists=true
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "✅ Database backup exists: $DEPLOY_ROLLBACK_DB_TAG"
+                fi
             else
-                print_status $RED "❌ Database backup not found: $DEPLOY_ROLLBACK_DB_TAG"
                 backup_check_failed=true
+                if [ "$use_json" = false ]; then
+                    print_status $RED "❌ Database backup not found: $DEPLOY_ROLLBACK_DB_TAG"
+                fi
             fi
+            backup_check_results="${backup_check_results}\"database\":{\"tag\":\"$DEPLOY_ROLLBACK_DB_TAG\",\"exists\":$db_exists}"
+        else
+            # Remove trailing comma if db wasn't checked
+            backup_check_results=$(echo "$backup_check_results" | sed 's/,$//')
         fi
 
         if [ "$backup_check_failed" = true ]; then
             overall_success=false
         fi
 
-        echo ""
+        if [ "$use_json" = false ]; then
+            echo ""
+        fi
     fi
 
-    # Final summary
+    # Output results
+    if [ "$use_json" = true ]; then
+        local json_data="{"
+        json_data="${json_data}\"expected_commit\":\"${expected_commit:0:8}\","
+        json_data="${json_data}\"apps_validated\":\"$apps_to_validate\","
+        json_data="${json_data}\"validation_passed\":$overall_success,"
+        json_data="${json_data}\"apps\":{$json_app_results}"
+        if [ -n "$backup_check_results" ]; then
+            json_data="${json_data},\"pre_deploy_backups\":{$backup_check_results}"
+        fi
+        json_data="${json_data}}"
+
+        format_json "$json_data"
+    else
+        # Final summary for table output
+        if [ "$overall_success" = true ]; then
+            print_status $GREEN "✅ Deployment validation PASSED"
+        else
+            print_status $RED "❌ Deployment validation FAILED"
+        fi
+    fi
+
     if [ "$overall_success" = true ]; then
-        print_status $GREEN "✅ Deployment validation PASSED"
         return 0
     else
-        print_status $RED "❌ Deployment validation FAILED"
         return 1
     fi
 }
@@ -3563,7 +3946,7 @@ case "$COMMAND" in
         show_context "$@"
         ;;
     "last-backup")
-        last_backup
+        last_backup "$@"
         ;;
     "status")
         show_status "$@"
