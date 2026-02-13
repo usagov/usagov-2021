@@ -1,4 +1,7 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+# See https://docs.snyk.io/manage-risk/policies/the-.snyk-file#syntax-of-the-.snyk-file
+# and for "exclude": https://docs.snyk.io/scan-with-snyk/import-project-repository/exclude-directories-and-files-from-project-import
+#
 version: v1.25.0
 ignore:
   SNYK-DEBIAN12-ZLIB-6008963:
@@ -17,3 +20,5 @@ exclude:
   code:
     - scripts/drush/publish_blog_posts.php
     - web/modules/custom/usagov_directories/utility
+    - node_modules/**
+    - .venv/**
