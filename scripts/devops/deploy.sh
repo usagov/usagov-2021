@@ -640,31 +640,41 @@ set_context() {
     local pre_suffix="pre-deploy"
     local post_suffix="post-deploy"
 
-    # Parse arguments, filtering out --export flag (POSIX-compliant)
-    local arg1="" arg2="" arg3="" arg4=""
-    local pos=1
-    for arg in "$@"; do
-        if [ "$arg" = "--export" ]; then
-            export_only=true
-        else
-            case $pos in
-                1) arg1="$arg"; pos=2 ;;
-                2) arg2="$arg"; pos=3 ;;
-                3) arg3="$arg"; pos=4 ;;
-                4) arg4="$arg"; pos=5 ;;
-            esac
-        fi
+    # Parse arguments with while loop for proper flag and positional handling
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --export)
+                export_only=true
+                shift
+                ;;
+            --)
+                shift
+                break
+                ;;
+            -*)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export]"
+                exit 2
+                ;;
+            *)
+                # First positional is env, second is ticket, third is pre_suffix, fourth is post_suffix
+                if [ -z "$env" ]; then
+                    env="$1"
+                elif [ -z "$ticket" ]; then
+                    ticket="$1"
+                elif [ "$pre_suffix" = "pre-deploy" ]; then
+                    pre_suffix="$1"
+                elif [ "$post_suffix" = "post-deploy" ]; then
+                    post_suffix="$1"
+                else
+                    print_status $RED "❌ Too many arguments"
+                    echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export]"
+                    exit 2
+                fi
+                shift
+                ;;
+        esac
     done
-
-    # Assign positional arguments
-    env="$arg1"
-    ticket="$arg2"
-    if [ -n "$arg3" ]; then
-        pre_suffix="$arg3"
-    fi
-    if [ -n "$arg4" ]; then
-        post_suffix="$arg4"
-    fi
 
     if [ -z "$env" ] || [ -z "$ticket" ]; then
         print_status $RED "❌ Error: Environment and ticket required"
@@ -1243,13 +1253,25 @@ pre_deploy() {
     local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
 
     # Parse flags from arguments
-    for arg in "$@"; do
-        case "$arg" in
+    while [ $# -gt 0 ]; do
+        case "$1" in
             --skip-confirmation)
                 skip_confirmation="--skip-confirmation"
+                shift
                 ;;
             --skip-validation)
                 skip_validation="--skip-validation"
+                shift
+                ;;
+            -*)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: deploy.sh pre-deploy [--skip-validation] [--skip-confirmation]"
+                return 2
+                ;;
+            *)
+                print_status $RED "❌ Unexpected argument: $1"
+                echo "Usage: deploy.sh pre-deploy [--skip-validation] [--skip-confirmation]"
+                return 2
                 ;;
         esac
     done
@@ -1275,13 +1297,25 @@ post_deploy() {
     local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
 
     # Parse flags from arguments
-    for arg in "$@"; do
-        case "$arg" in
+    while [ $# -gt 0 ]; do
+        case "$1" in
             --skip-confirmation)
                 skip_confirmation="--skip-confirmation"
+                shift
                 ;;
             --skip-validation)
                 skip_validation="--skip-validation"
+                shift
+                ;;
+            -*)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: deploy.sh post-deploy [--skip-validation] [--skip-confirmation]"
+                return 2
+                ;;
+            *)
+                print_status $RED "❌ Unexpected argument: $1"
+                echo "Usage: deploy.sh post-deploy [--skip-validation] [--skip-confirmation]"
+                return 2
                 ;;
         esac
     done
@@ -2497,16 +2531,30 @@ EOF
 
 # Show latest build information from git annotated tags
 show_build_digests() {
-    # Check for --json flag
     local use_json=false
     local env=""
 
-    for arg in "$@"; do
-        if [ "$arg" = "--json" ]; then
-            use_json=true
-        else
-            env="$arg"
-        fi
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            -*)
+                if [ "$use_json" = true ]; then
+                    echo '{"error":"Unknown option: '"$1"'"}' | jq .
+                else
+                    print_status $RED "❌ Unknown option: $1"
+                    echo "Usage: deploy.sh show-build-info [env] [--json]"
+                fi
+                return 2
+                ;;
+            *)
+                env="$1"
+                shift
+                ;;
+        esac
     done
 
     # Default to current space if not provided
@@ -2816,20 +2864,50 @@ _deploy_app() {
 
 # Deploy command - deploy app with explicit parameters
 deploy_app() {
-    local app_name="$1"
-    local cci_build="$2"
-    local digest="$3"
-    local skip_validation="$4"
+    local app_name=""
+    local cci_build=""
+    local digest=""
+    local skip_validation=""
     local skip_confirmation=""
 
-    # Parse flags from arguments
-    for arg in "$@"; do
-        case "$arg" in
+    # Parse flags from all arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
             --skip-confirmation)
                 skip_confirmation="--skip-confirmation"
+                shift
                 ;;
             --skip-validation)
                 skip_validation="--skip-validation"
+                shift
+                ;;
+            --digest=*)
+                digest="${1#*=}"
+                shift
+                ;;
+            --)
+                shift
+                break
+                ;;
+            -*)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest] [--skip-validation] [--skip-confirmation]"
+                return 2
+                ;;
+            *)
+                # Collect positional arguments
+                if [ -z "$app_name" ]; then
+                    app_name="$1"
+                elif [ -z "$cci_build" ]; then
+                    cci_build="$1"
+                elif [ -z "$digest" ]; then
+                    digest="$1"
+                else
+                    print_status $RED "❌ Unexpected argument: $1"
+                    echo "Usage: deploy.sh deploy app <app-name> <cci-build> [digest] [--skip-validation] [--skip-confirmation]"
+                    return 2
+                fi
+                shift
                 ;;
         esac
     done
@@ -2934,16 +3012,30 @@ fetch_latest_backup_tag() {
 
 # Show current container digests - wrapper that handles space switching
 show_current_digests_wrapper() {
-    # Check for --json flag
     local use_json=false
     local target_space=""
 
-    for arg in "$@"; do
-        if [ "$arg" = "--json" ]; then
-            use_json=true
-        else
-            target_space="$arg"
-        fi
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json)
+                use_json=true
+                shift
+                ;;
+            -*)
+                if [ "$use_json" = true ]; then
+                    echo '{"error":"Unknown option: '"$1"'"}' | jq .
+                else
+                    print_status $RED "❌ Unknown option: $1"
+                    echo "Usage: deploy.sh digests [space] [--json]"
+                fi
+                return 2
+                ;;
+            *)
+                target_space="$1"
+                shift
+                ;;
+        esac
     done
 
     local current_space=$(cf target | grep 'space:' | awk '{print $2}')
