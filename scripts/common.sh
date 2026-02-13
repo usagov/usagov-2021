@@ -58,7 +58,7 @@ init_backup_system() {
         done
 
         if [ -z "$PROJECT_ROOT" ]; then
-            echo "❌ ERROR: Cannot find scripts/snapshot directory. Please run from project root or scripts/snapshot directory."
+            echo "❌ Fatal Error: Cannot find scripts/snapshot directory. Please run from project root or scripts/snapshot directory."
             echo "   Current directory: $(pwd)"
             exit 1
         fi
@@ -69,7 +69,7 @@ init_backup_system() {
     if [ -f "$CONFIG_FILE" ]; then
         . "$CONFIG_FILE"
     else
-        echo "❌ ERROR: Configuration file not found: $CONFIG_FILE"
+        echo "❌ Fatal Error: Configuration file not found: $CONFIG_FILE"
         exit 1
     fi
 
@@ -230,17 +230,14 @@ confirm_action() {
                 echo ""
                 return 0
             else
-                print_status $YELLOW "❌ Action cancelled"
-                echo ""
-                return 1
+                handle_error "" "cancelled" "return"
             fi
             ;;
-        
+
         exact)
             # Exact text matching with retry logic
             if [ -z "$required_text" ]; then
-                print_status $RED "❌ Error: required_text not provided for exact mode"
-                return 1
+                handle_error "required_text not provided for exact mode" "validation" "return"
             fi
 
             local attempts=0
@@ -248,14 +245,14 @@ confirm_action() {
 
             while [ $attempts -lt $max_attempts ]; do
                 attempts=$((attempts + 1))
-                
+
                 if [ $attempts -gt 1 ]; then
                     print_status $RED "❌ Incorrect. Attempt $attempts of $max_attempts"
                     echo ""
                 fi
 
                 read -p "Type '$required_text' to confirm: " user_input
-                
+
                 if [ "$user_input" = "$required_text" ]; then
                     echo ""
                     return 0
@@ -263,16 +260,134 @@ confirm_action() {
             done
 
             # Max attempts exceeded
-            print_status $RED "❌ Maximum attempts exceeded. Action cancelled."
-            echo ""
-            return 1
+            handle_error "Maximum attempts exceeded" "cancelled" "return"
             ;;
-        
+
         *)
-            print_status $RED "❌ Error: Invalid mode '$mode'. Use 'yn' or 'exact'"
-            return 1
+            handle_error "Invalid mode '$mode'. Use 'yn' or 'exact'" "validation" "return"
             ;;
     esac
+}
+
+# ===================================================================
+# ERROR HANDLING
+# ===================================================================
+#
+# Error Handling Conventions:
+# --------------------------
+# This system uses standardized error handling with distinct exit codes
+# to enable better error diagnostics and automation.
+#
+# Exit Codes:
+#   0 - Success (or user cancellation, not an error)
+#   1 - Generic/fatal error
+#   2 - Validation error (invalid input, missing parameters)
+#   3 - System error (infrastructure/service failures)
+#   4 - User error (permissions, authentication)
+#
+# Exit vs Return:
+#   - Utility functions (common.sh): Use return to pass control back
+#   - Validation functions: Use return with appropriate exit code
+#   - Main command functions (deploy.sh): Use exit to terminate
+#   - Library functions: Use return, let caller decide on exit
+#
+# Error Message Format:
+#   - Errors:  print_status $RED "❌ Error: <message>"
+#            OR handle_error "<message>" "validation|system|user" "return|exit"
+#   - Warnings: print_status $YELLOW "⚠️ Warning: <message>"
+#   - Tips:     print_status $YELLOW "💡 Tip: <message>"
+#   - Success:  print_status $GREEN "✅ <message>"
+#   - Info:     print_status $BLUE "🔍 <message>"
+#
+# Usage Examples:
+#   # Validation error in utility function
+#   validate_tag() {
+#       [ -z "$1" ] && handle_error "Tag cannot be empty" "validation" "return"
+#       return 0
+#   }
+#
+#   # System error that should exit
+#   deploy_app() {
+#       cf push "$app" || handle_error "Failed to deploy $app" "system" "exit"
+#   }
+#
+#   # Generic error with custom exit code
+#   critical_check() {
+#       some_command || handle_error "Critical failure" "fatal" "exit" 1
+#   }
+# ===================================================================
+
+# Common error handler with consistent formatting and exit codes
+# Provides standardized error messages and allows control over exit vs return behavior
+#
+# Args:
+#   $1: error_message - The error message to display
+#   $2: error_type - Type of error (optional, default: error)
+#       - validation: Input validation errors (exit code 2)
+#       - system: System/infrastructure errors (exit code 3)
+#       - user: User-triggered errors (exit code 4)
+#       - fatal: Critical errors that must exit (exit code 1)
+#       - cancelled: User cancelled action (exit code 0, not an error)
+#       - error: Generic error (exit code 1)
+#   $3: exit_mode - Whether to exit or return (optional, default: return)
+#       - exit: Terminate script with exit code
+#       - return: Return exit code to caller
+#   $4: exit_code - Override exit code (optional, uses type default if not specified)
+#
+# Returns: Never returns if exit_mode=exit, otherwise returns exit_code
+#
+# Examples:
+#   handle_error "Missing required parameter" "validation" "return"
+#   handle_error "Environment and ticket required" "validation" "exit"
+#   handle_error "Failed to connect to S3" "system" "exit"
+#   handle_error "Operation cancelled by user" "cancelled" "return"
+#   handle_error "Could not determine digest" || return 1
+#
+# Exit Code Reference:
+#   0 - Success or user cancellation
+#   1 - Generic/fatal error
+#   2 - Validation error
+#   3 - System error
+#   4 - User error
+handle_error() {
+    local message="$1"
+    local error_type="${2:-error}"
+    local exit_mode="${3:-return}"
+    local exit_code="${4:-}"
+
+    # Set exit code based on error type if not explicitly provided
+    case "$error_type" in
+        validation)
+            print_status $RED "❌ Error: $message"
+            exit_code="${exit_code:-2}"
+            ;;
+        system)
+            print_status $RED "❌ System Error: $message"
+            exit_code="${exit_code:-3}"
+            ;;
+        user)
+            print_status $RED "❌ Error: $message"
+            exit_code="${exit_code:-4}"
+            ;;
+        fatal)
+            print_status $RED "❌ Fatal Error: $message"
+            exit_code="${exit_code:-1}"
+            ;;
+        cancelled)
+            print_status $YELLOW "⚠️  Action cancelled"
+            exit_code="${exit_code:-0}"
+            ;;
+        *)
+            print_status $RED "❌ Error: $message"
+            exit_code="${exit_code:-1}"
+            ;;
+    esac
+
+    if [ "$exit_mode" = "exit" ]; then
+        exit $exit_code
+    else
+        return $exit_code
+    fi
 }
 
 # ===================================================================
@@ -676,8 +791,7 @@ show_current_digests() {
     fi
 
     if [ -z "$bucket_name" ] || [ "$bucket_name" = "null" ]; then
-        echo "❌ Error: Could not determine S3 bucket for digest files"
-        return 1
+        handle_error "Could not determine S3 bucket for digest files" "system" "return"
     fi
 
     # Determine environment
@@ -772,22 +886,20 @@ validate_backup_tag() {
     local tag="$1"
 
     if [ -z "$tag" ]; then
-        print_status $RED "❌ Backup tag cannot be empty"
-        return 1
+        handle_error "Backup tag cannot be empty" "validation" "return"
     fi
 
     # Only allow alphanumeric, hyphens, underscores, and dots
     # This prevents command injection via shell metacharacters
     if ! echo "$tag" | grep -qE '^[a-zA-Z0-9._-]+$'; then
-        print_status $RED "❌ Invalid backup tag format: $tag"
+        print_status $RED "❌ Error: Invalid backup tag format: $tag"
         print_status $YELLOW "   Tags may only contain: letters, numbers, dots, hyphens, underscores"
-        return 1
+        return 2
     fi
 
     # Check reasonable length
     if [ ${#tag} -gt ${TAG_MAX_LENGTH:-200} ]; then
-        print_status $RED "❌ Error: Backup tag too long (max ${TAG_MAX_LENGTH:-200} characters)"
-        return 1
+        handle_error "Backup tag too long (max ${TAG_MAX_LENGTH:-200} characters)" "validation" "return"
     fi
 
     return 0
@@ -846,7 +958,7 @@ get_current_environment() {
     if [ -z "$env" ]; then
         print_status $RED "❌ Error: Could not determine environment"
         echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
-        return 1
+        return 3
     fi
     echo "$env"
     return 0
@@ -908,8 +1020,7 @@ validate_output_path() {
     fi
 
     if [ "$allowed" = "false" ]; then
-        print_status $RED "❌ Output path must be under /tmp or current directory"
-        return 1
+        handle_error "Output path must be under /tmp or current directory" "validation" "return"
     fi
 
     echo "$path"
@@ -924,8 +1035,7 @@ validate_sql_content() {
     local sql_file="$1"
 
     if [ ! -f "$sql_file" ]; then
-        print_status $RED "❌ SQL file not found: $sql_file"
-        return 1
+        handle_error "SQL file not found: $sql_file" "validation" "return"
     fi
 
     # Check for dangerous SQL patterns that could be used for exploitation
@@ -933,9 +1043,9 @@ validate_sql_content() {
     local dangerous_patterns="INTO OUTFILE|INTO DUMPFILE|LOAD_FILE|LOAD DATA|SYSTEM|EXEC |GRANT ALL|CREATE USER"
 
     if grep -qiE "($dangerous_patterns)" "$sql_file"; then
-        print_status $RED "❌ Dangerous SQL patterns detected in dump file"
+        print_status $RED "❌ Error: Dangerous SQL patterns detected in dump file"
         print_status $YELLOW "   File may contain: OUTFILE, LOAD_FILE, SYSTEM, GRANT, or CREATE USER statements"
-        return 1
+        return 2
     fi
 
     return 0
@@ -954,8 +1064,8 @@ check_file() {
         echo "✅ Found $description: $file_path"
         return 0
     else
-        echo "❌ Missing or unreadable $description: $file_path"
-        return 1
+        print_status $RED "❌ Error: Missing or unreadable $description: $file_path"
+        return 2
     fi
 }
 
@@ -970,8 +1080,8 @@ check_command() {
         echo "✅ Command available: $cmd"
         return 0
     else
-        echo "❌ Command not found: $cmd"
-        return 1
+        print_status $RED "❌ Error: Command not found: $cmd"
+        return 2
     fi
 }
 

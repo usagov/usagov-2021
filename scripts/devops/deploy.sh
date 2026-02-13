@@ -54,10 +54,10 @@ validate_app_name() {
     done
 
     # Not found in whitelist
-    print_status $RED "❌ Invalid app name: $app_name"
+    print_status $RED "❌ Error: Invalid app name: $app_name"
     print_status $YELLOW "   Valid apps: $allowed_apps"
     print_status $YELLOW "   To add more apps, edit ALLOWED_APP_NAMES in scripts/snapshot/backup-system.conf"
-    return 1
+    return 2
 }
 
 show_usage() {
@@ -669,24 +669,21 @@ set_context() {
     if [ -z "$env" ] || [ -z "$ticket" ]; then
         print_status $RED "❌ Error: Environment and ticket required"
         echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export]"
-        exit 1
+        exit 2
     fi
 
     # Validate ticket format (basic check)
     if ! validate_backup_tag "$ticket"; then
-        print_status $RED "❌ Invalid ticket format"
-        exit 1
+        handle_error "Invalid ticket format" "validation" "exit"
     fi
 
     # Validate suffix formats
     if ! validate_backup_tag "$pre_suffix"; then
-        print_status $RED "❌ Invalid pre-suffix format"
-        exit 1
+        handle_error "Invalid pre-suffix format" "validation" "exit"
     fi
 
     if ! validate_backup_tag "$post_suffix"; then
-        print_status $RED "❌ Invalid post-suffix format"
-        exit 1
+        handle_error "Invalid post-suffix format" "validation" "exit"
     fi
 
     if [ "$export_only" = "false" ]; then
@@ -1227,9 +1224,7 @@ create_deployment_backup() {
     local suffix="${!suffix_var:-$default_suffix}"
 
     if [ -z "$ticket" ]; then
-        print_status $RED "❌ Error: DEPLOY_TICKET not set"
-        echo "Run: deploy.sh set-context <env> <ticket>"
-        exit 1
+        handle_error "DEPLOY_TICKET not set. Run: deploy.sh set-context <env> <ticket>" "validation" "exit"
     fi
 
     print_status $BLUE "📦 Creating ${backup_type}-deployment backup"
@@ -1374,23 +1369,20 @@ downsync() {
         print_status $RED "❌ Error: Both FROM and TO spaces required"
         echo "Usage: deploy.sh downsync <from-space> <to-space> [backup-tag]"
         echo "Example: deploy.sh downsync prod dev"
-        exit 1
+        exit 2
     fi
 
     # Validate space names
     if [ "$from_space" != "dev" ] && [ "$from_space" != "stage" ] && [ "$from_space" != "prod" ]; then
-        print_status $RED "❌ Error: FROM space must be dev, stage, or prod"
-        exit 1
+        handle_error "FROM space must be dev, stage, or prod" "validation" "exit"
     fi
 
     if [ "$to_space" != "dev" ] && [ "$to_space" != "stage" ] && [ "$to_space" != "prod" ]; then
-        print_status $RED "❌ Error: TO space must be dev, stage, or prod"
-        exit 1
+        handle_error "TO space must be dev, stage, or prod" "validation" "exit"
     fi
 
     if [ "$from_space" = "$to_space" ]; then
-        print_status $RED "❌ Error: FROM and TO spaces must be different"
-        exit 1
+        handle_error "FROM and TO spaces must be different" "validation" "exit"
     fi
 
     # Save current space to restore later
@@ -1403,8 +1395,8 @@ downsync() {
         # Switch to FROM space to query backups
         cf target -s "$from_space" >/dev/null 2>&1
         if [ $? -ne 0 ]; then
-            print_status $RED "❌ Error: Failed to target FROM space: $from_space"
-            exit 1
+            print_status $RED "❌ System Error: Failed to target FROM space: $from_space"
+            exit 3
         fi
 
         # Get latest DB backup tag
@@ -1423,7 +1415,7 @@ downsync() {
         if [ -z "$backup_tag" ]; then
             print_status $RED "❌ Error: No backups found in $from_space"
             [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-            exit 1
+            exit 3
         fi
 
         print_status $GREEN "✅ Found latest backup: $backup_tag"
@@ -1474,10 +1466,10 @@ downsync() {
     " > "$db_file" 2>/dev/null
 
     if [ ! -s "$db_file" ]; then
-        print_status $RED "❌ Error: Failed to download database backup"
+        print_status $RED "❌ System Error: Failed to download database backup"
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 1
+        exit 3
     fi
 
     print_status $GREEN "  ✅ Database downloaded ($(du -h "$db_file" | cut -f1))"
@@ -1494,10 +1486,10 @@ downsync() {
     " > "$temp_dir/public.tar.gz" 2>/dev/null
 
     if [ ! -s "$temp_dir/public.tar.gz" ]; then
-        print_status $RED "❌ Error: Failed to download public files backup"
+        print_status $RED "❌ System Error: Failed to download public files backup"
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 1
+        exit 3
     fi
 
     tar xzf "$temp_dir/public.tar.gz" -C "$public_dir" 2>/dev/null
@@ -1508,10 +1500,10 @@ downsync() {
     print_status $BLUE "🎯 Targeting $to_space..."
     cf target -s "$to_space" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-        print_status $RED "❌ Error: Failed to target TO space: $to_space"
+        print_status $RED "❌ System Error: Failed to target TO space: $to_space"
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 1
+        exit 3
     fi
 
     # Get tome state before restore
@@ -2123,7 +2115,7 @@ rollback_single_type() {
         print_status $RED "❌ Error: Backup tag required"
         echo "Usage: deploy.sh rollback-$type <tag> [--skip-validation] [--skip-confirmation]"
         echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
-        exit 1
+        exit 2
     fi
 
     # Use confirmation helper with skip_confirmation flag
@@ -2161,8 +2153,8 @@ download_backups() {
             sed 's/\.sql\.gz$//'" 2>/dev/null | tail -1 | tr -d '\r')
 
         if [ -z "$tag" ]; then
-            print_status $RED "❌ Error: Could not find any backups"
-            return 1
+            print_status $RED "❌ System Error: Could not find any backups"
+            return 3
         fi
 
         print_status $GREEN "✅ Found latest backup: $tag"
@@ -2330,11 +2322,11 @@ show_changes() {
         # Validate that both refs exist
         if ! git cat-file -t "$from" > /dev/null 2>&1; then
             echo '{"error":"'"$from"' not found in this repo"}' | jq .
-            exit 1
+            exit 2
         fi
         if ! git cat-file -t "$to" > /dev/null 2>&1; then
             echo '{"error":"'"$to"' not found in this repo"}' | jq .
-            exit 1
+            exit 2
         fi
 
         # Find the common ancestor (merge base) to handle non-linear history
@@ -2417,12 +2409,11 @@ EOF
 
     # Validate that both refs exist
     if ! git cat-file -t "$from" > /dev/null 2>&1; then
-        print_status $RED "❌ Error: '$from' not found in this repo"
-        exit 1
+        handle_error "'$from' not found in this repo" "validation" "exit"
     fi
     if ! git cat-file -t "$to" > /dev/null 2>&1; then
         print_status $RED "❌ Error: '$to' not found in this repo"
-        exit 1
+        exit 2
     fi
 
     # Find the common ancestor (merge base) to handle non-linear history
@@ -2430,8 +2421,7 @@ EOF
     merge_base=$(git merge-base "$from" "$to" 2>/dev/null)
 
     if [ -z "$merge_base" ]; then
-        print_status $RED "❌ Error: No common ancestor found between $from and $to"
-        exit 1
+        handle_error "No common ancestor found between $from and $to" "validation" "exit"
     fi
 
     # Check if refs are the same
@@ -2855,7 +2845,7 @@ deploy_app() {
         echo "If digest not provided, will look up from:"
         echo "  1. DEPLOY_{APP}_DIGEST environment variable (set by show-build-info)"
         echo "  2. Git tag: usagov-cci-build-{build}-{env}"
-        return 1
+        return 2
     fi
 
     # Digest fallback logic
@@ -2892,7 +2882,7 @@ deploy_app() {
             echo "  1. Provide digest as third argument"
             echo "  2. Run 'deploy.sh show-build-info $env' first to set env vars"
             echo "  3. Ensure git tag exists: usagov-cci-build-${cci_build}-${env}"
-            return 1
+            return 3
         fi
     fi
 
@@ -3075,7 +3065,7 @@ rollback() {
             print_status $RED "❌ Error: Backup metadata not found for tag: $backup_tag"
         fi
         echo "Use 'deploy.sh list-backups' to see available backups."
-        return 1
+        return 3
     fi
 
     # Extract backup tag from metadata if it was auto-detected
@@ -3095,7 +3085,7 @@ rollback() {
     if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
         print_status $RED "❌ Error: Could not extract container digests from metadata"
         echo "Metadata may be incomplete or corrupted."
-        return 1
+        return 3
     fi
 
     # Determine environment
@@ -3103,7 +3093,7 @@ rollback() {
     if [ -z "$env" ]; then
         print_status $RED "❌ Error: Could not determine environment"
         echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
-        return 1
+        return 3
     fi
 
     # Extract CCI build from digest using common function with motd fallback
@@ -3128,7 +3118,7 @@ rollback() {
         if [ -z "$backup_tag" ]; then
             print_status $RED "❌ Error: Backup tag required for data restoration"
             echo "Usage: deploy.sh rollback $data_types <cms-digest> <www-digest> <waf-digest> <backup-tag>"
-            return 1
+            return 2
         fi
         echo ""
     fi
