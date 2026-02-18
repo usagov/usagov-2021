@@ -1,0 +1,26 @@
+uuid: aa1dc078-6f72-4ddd-8c29-afa8bba7536a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.menu_link_content.field_nav_card_override
+    - filter.format.plain_text
+  module:
+    - allowed_formats
+    - menu_link_content
+    - menu_item_fields
+    - text
+id: menu_link_content.menu_link_content.field_nav_card_override
+field_name: field_nav_card_override
+entity_type: menu_link_content
+bundle: menu_link_content
+label: 'Nav Card Content Override'
+description: 'Optional: Override the nav card description/content for this menu item. This will be used instead of pulling from the linked content (node field_short_description, field_page_intro, or field_meta_description). Useful for views and other content types not handled in the theme preprocessing.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - plain_text
+field_type: text_long
