@@ -229,7 +229,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<span>📅 {{ created__value|date("F j, Y") }}</span>'
+            text: '<span>{{ created__value|date("F j, Y") }}</span>'
             make_link: false
             path: ''
             absolute: false
