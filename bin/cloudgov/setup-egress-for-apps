@@ -157,17 +157,16 @@ for app in $applist; do
     ### Ensure that our primary apps are all attached to the log drain service!
     svc=log-shipper-drain
     if [ "$app" != "log-shipper" ]; then
-        ### Normally existsCFService will fail on a non-existent service, 
-        ### but we don't care in the case of log shipper service not present
-        if existsCFService $svc; then
-          echo "Binding $app with $svc"
-          bindServiceToApp $app $svc
-          retval=$?
-        else
-          echo "Skipping bind $app to non-existant service $svc"
-          retval=0
-        fi
-      done
+      ### Normally existsCFService will fail on a non-existent service, 
+      ### but we don't care in the case of log shipper service not present
+      if existsCFService $svc; then
+        echo "Binding $app with $svc"
+        bindServiceToApp $app $svc
+        retval=$?
+      else
+        echo "Skipping bind $app to non-existant service $svc"
+        retval=0
+      fi
     fi
 
     if [ "$app" = cron ]; then
