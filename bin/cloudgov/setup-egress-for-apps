@@ -155,33 +155,35 @@ for app in $applist; do
     $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
     ### Ensure that our primary apps are all attached to the log drain service!
-    service=log-shipper-drain
+    svc=log-shipper-drain
     if [ "$app" != "log-shipper" ]; then
-      echo "Binding $app with $service"
-      set +e
-      set +o pipefail
-      bindServiceToApp $app $service "ignore-missing-service"
-      set -e
-      set -o pipefail
-      retval=0
-    fi
-
-    if [ "$app" = cron ]; then
-      for svc in callcenter-service-account cfevent-service-account; do
+        ### Normally existsCFService will fail on a non-existent service, 
+        ### but we don't care in the case of log shipper service not present
         if existsCFService $svc; then
           echo "Binding $app with $svc"
           bindServiceToApp $app $svc
           retval=$?
         else
-          echo "Cannot bind $app with non-existant service $svc"
-          retval=1
+          echo "Skipping bind $app to non-existant service $svc"
+          retval=0
         fi
       done
     fi
 
-    if [ $restartRequired -eq 1 ]; then
-      $output cf restart "$app" --no-wait --strategy rolling
-      retval=$?
+    if [ "$app" = cron ]; then
+      for svc in callcenter-service-account cfevent-service-account; do
+          bindServiceToApp $app $svc
+          retval=$?
+      done
+    fi
+
+    if [ $retval -eq 0 ]; then
+      if [ $restartRequired -eq 1 ]; then
+        $output cf restart "$app" --no-wait --strategy rolling
+        retval=$?
+      fi
+    else
+      echo "Skipping cf restart of $app due to previous error"
     fi
 done
 
