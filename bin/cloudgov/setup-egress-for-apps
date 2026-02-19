@@ -122,7 +122,6 @@ if [ -z "$proxyname" ]; then
 fi
 if [ -z "$proxyname" ]; then
     echo "No existing egress proxy application"
-    popspace
     exit 1
 fi
 echo "Using egress proxy app: $proxyname"
@@ -134,7 +133,6 @@ cf target -o "$egressorg" -s "$egressspace" 2>&1 > /dev/null
 proxyroute=$(cf env $proxyname | grep proxy_route | awk '{print $2}')
 if [ -z "$proxyroute" ]; then
   echo "Unable to find route to proxy app for this space"
-  popspace
   exit 1
 fi
 
@@ -155,34 +153,33 @@ for app in $applist; do
     $output cf set-env "$app" REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
     ### Ensure that our primary apps are all attached to the log drain service!
-    svc=log-shipper-drain
-    if [ "$app" != "log-shipper" ]; then
-      ### Normally existsCFService will fail on a non-existent service, 
-      ### but we don't care in the case of log shipper service not present
-      if existsCFService $svc; then
-        echo "Binding $app with $svc"
-        bindServiceToApp $app $svc
+    service=log-shipper-drain
+    if ! cf service $service &> /dev/null; then
+      echo "Cannot bind $app with non-existant service $service"
+      retval=1
+    else
+      if [ "$app" != "log-shipper" ]; then
+        echo "Binding $app with $service"
+        $output cf bind-service $app $service
         retval=$?
-      else
-        echo "Skipping bind $app to non-existant service $svc"
-        retval=0
       fi
     fi
 
     if [ "$app" = cron ]; then
       for svc in callcenter-service-account cfevent-service-account; do
-          bindServiceToApp $app $svc
+        if existsCFService $svc; then
+          echo "Binding $app with $svc"
+          $output cf bind-service $app $svc
           retval=$?
+        else
+          echo "Cannot bind $app with non-existant service $svc"
+          retval=1
+        fi
       done
     fi
 
-    if [ $retval -eq 0 ]; then
-      if [ $restartRequired -eq 1 ]; then
-        $output cf restart "$app" --no-wait --strategy rolling
-        retval=$?
-      fi
-    else
-      echo "Skipping cf restart of $app due to previous error"
+    if [ $restartRequired -eq 1 ]; then
+      $output cf restart "$app" --no-wait --strategy rolling
     fi
 done
 
