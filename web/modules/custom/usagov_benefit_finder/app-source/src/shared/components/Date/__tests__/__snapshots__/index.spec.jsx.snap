@@ -1,0 +1,163 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Date > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <ul
+    class="add-list-reset"
+  />
+  <div
+    class="bf-usa-memorable-date usa-memorable-date"
+    data-testid="bf-usa-memorable-date"
+    id="bf-usa-memorable-date-applicant_date_of_birth_0"
+  >
+    <div
+      class="bf-usa-form-group usa-form-group bf-usa-form-group--month usa-form-group--month bf-usa-form-group--select usa-form-group--select"
+    >
+      <label
+        class="bf-usa-label usa-label"
+        for="applicant_date_of_birth_0_month"
+      >
+        Month
+      </label>
+      <div
+        class="usa-sr-only"
+        id="applicant_date_of_birth_0-month-description"
+      >
+        Select a month from the list
+      </div>
+      <select
+        aria-describedby="applicant_date_of_birth_0-month-description"
+        aria-errormessage="month-error-description-applicant_date_of_birth_0"
+        class="bf-usa-select usa-select "
+        data-datetype="month"
+        data-errormessage="Fill out the undefined month field"
+        data-testid="applicant_date_of_birth_0_month"
+        id="applicant_date_of_birth_0_month"
+        name="applicant_date_of_birth_0_month"
+      >
+        <option
+          value=""
+        >
+          -Select-
+        </option>
+        <option
+          value="0"
+        >
+          01 - January
+        </option>
+        <option
+          value="1"
+        >
+          02 - February
+        </option>
+        <option
+          value="2"
+        >
+          03 - March
+        </option>
+        <option
+          value="3"
+        >
+          04 - April
+        </option>
+        <option
+          value="4"
+        >
+          05 - May
+        </option>
+        <option
+          value="5"
+        >
+          06 - June
+        </option>
+        <option
+          value="6"
+        >
+          07 - July
+        </option>
+        <option
+          value="7"
+        >
+          08 - August
+        </option>
+        <option
+          value="8"
+        >
+          09 - September
+        </option>
+        <option
+          value="9"
+        >
+          10 - October
+        </option>
+        <option
+          value="10"
+        >
+          11 - November
+        </option>
+        <option
+          value="11"
+        >
+          12 - December
+        </option>
+      </select>
+    </div>
+    <div
+      class="bf-usa-form-group usa-form-group bf-usa-form-group--day usa-form-group--day"
+    >
+      <label
+        class="bf-usa-label usa-label"
+        for="applicant_date_of_birth_0_day"
+      >
+        Day
+      </label>
+      <div
+        class="usa-sr-only"
+        id="applicant_date_of_birth_0-day-description"
+      >
+        Enter two numerals for day
+      </div>
+      <input
+        aria-describedby="applicant_date_of_birth_0-day-description"
+        aria-errormessage="day-error-description-applicant_date_of_birth_0"
+        class="bf-usa-input usa-input "
+        data-datetype="day"
+        data-errormessage="Fill out the undefined day field"
+        data-testid="applicant_date_of_birth_0_day"
+        id="applicant_date_of_birth_0_day"
+        inputmode="numeric"
+        name="applicant_date_of_birth_0_day"
+        value=""
+      />
+    </div>
+    <div
+      class="bf-usa-form-group usa-form-group bf-usa-form-group--year usa-form-group--year"
+    >
+      <label
+        class="bf-usa-label usa-label"
+        for="applicant_date_of_birth_0_year"
+      >
+        Year
+      </label>
+      <div
+        class="usa-sr-only"
+        id="applicant_date_of_birth_0-year-description"
+      >
+        Enter four numerals for year
+      </div>
+      <input
+        aria-describedby="applicant_date_of_birth_0-year-description"
+        aria-errormessage="year-error-description-applicant_date_of_birth_0"
+        class="bf-usa-input usa-input "
+        data-datetype="year"
+        data-errormessage="Fill out the undefined year field"
+        data-testid="applicant_date_of_birth_0_year"
+        id="applicant_date_of_birth_0_year"
+        inputmode="numeric"
+        name="applicant_date_of_birth_0_year"
+        value=""
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;

@@ -104,6 +104,29 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
 
 ###############################################################
+FROM node:20-bullseye-slim AS benefit-finder-builder
+
+ARG BUID=1000
+ARG BGID=1000
+
+RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
+    && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
+    && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
+    && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
+
+RUN chown -R node:node /home/node/
+
+COPY --chown=node:node web/modules/custom/usagov_benefit_finder/app-source/ /var/www/app-source/
+COPY --chown=node:node web/modules/custom/usagov_benefit_finder/modules/ /var/www/modules/
+
+WORKDIR /var/www/app-source
+
+USER node
+
+RUN npm install && npm run build
+
+###############################################################
 FROM alpine:3.22 AS cms
 
 ARG S6_VERSION
@@ -267,6 +290,8 @@ COPY --chown=nginx:nginx website-analytics /var/www/website-analytics
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
 COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
 COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
+COPY --from=benefit-finder-builder --chown=nginx:nginx /var/www/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/js/benefit-finder.min.js /var/www/web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/js/benefit-finder.min.js
+COPY --from=benefit-finder-builder --chown=nginx:nginx /var/www/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/css/benefit-finder.min.css /var/www/web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/css/benefit-finder.min.css
 
 # Add the zscaler certificate to the trusted certs only on local builds
 # COPY cannot be conditional, but RUN can run conditional code.

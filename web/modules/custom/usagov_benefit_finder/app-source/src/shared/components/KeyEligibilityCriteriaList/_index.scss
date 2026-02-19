@@ -1,0 +1,82 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+@use '@styles/breakpoints' as *;
+
+.bf-key-eligibility-criteria-group {
+  .bf-key-eligibility-criteria-heading {
+    @include h6;
+
+    background-color: color.$base-light-grey;
+    padding: rem(27px) rem(18px);
+    margin: 0;
+
+    @media (width >= $desktop) {
+      padding: rem(16px) rem(32px);
+    }
+  }
+
+  .bf-key-eligibility-criteria-sub-heading {
+    margin-bottom: 0;
+  }
+
+  .bf-key-eligibility-criteria-list {
+    padding: 0;
+    margin: 0;
+
+    .bf-key-eligibility-criteria-list-item {
+      @include list-items;
+
+      margin: 0;
+      padding: rem(16px) rem(23px);
+      border: rem(2px) solid color.$base-light-grey;
+      border-bottom: 0;
+      display: flex;
+      flex-wrap: nowrap;
+
+      @media (width >= $desktop) {
+        padding: rem(16px) rem(32px);
+      }
+
+      .bf-checkmark--green {
+        height: 100%;
+        margin-right: rem(32px);
+      }
+    }
+
+    &:last-child {
+      border-bottom: rem(2px) solid color.$base-light-grey;
+    }
+
+    li.bf-usa-list {
+      @include list-items;
+
+      line-height: normal;
+      font-size: rem(16px);
+    }
+  }
+}
+
+.bf-unmet-criteria-group {
+  padding: rem(18px) 0 0 rem(10px);
+
+  @media (width >= $desktop) {
+    padding-top: rem(24px);
+    padding-left: rem(24px);
+  }
+
+  .bf-unmet-criteria-title {
+    @include h5($font-family: 'sans');
+
+    margin-bottom: rem(12px);
+  }
+
+  ul.bf-unmet-criteria-list {
+    margin-bottom: rem(18px);
+    padding-left: rem(32px);
+  }
+
+  li.bf-unmet-criteria-item {
+    @include list-items;
+  }
+}

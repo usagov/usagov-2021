@@ -1,0 +1,236 @@
+{
+  "intro": {
+    "heading": "Steps to find benefits",
+    "timeIndicator": "Estimated time to complete",
+    "steps": {
+      "list": [
+        {
+          "title": "Answer a few questions"
+        },
+        {
+          "title": "Get your list of benefits"
+        },
+        {
+          "title": "Visit agency websites to apply"
+        }
+      ]
+    },
+    "notices": {
+      "heading": "Before you start:",
+      "iconAlt": "Important",
+      "list": [
+        {
+          "notice": "<div><p><strong>This is not an application. You will need to apply for benefits</strong> with each agency.</p><p><strong>We do not share, save, or submit</strong> your information.</p></div>"
+        }
+      ]
+    },
+    "button": "Start finding benefits"
+  },
+  "stepIndicator": {
+    "stepBackButton": "Back"
+  },
+  "requiredLabel": {
+    "value": "required"
+  },
+  "alertBanner": {
+    "heading": { "prefix": "Your information contains", "suffix": "errors" },
+    "description": "Complete all required fields."
+  },
+  "errorText": {
+    "prefix": "Fill out the",
+    "suffix": "field"
+  },
+  "buttonGroup": [
+    {
+      "value": "Back"
+    },
+    {
+      "value": "Next"
+    }
+  ],
+  "reviewSelectionModal": {
+    "heading": "Select an option:",
+    "buttonGroup": [
+      {
+        "value": "Review your selections"
+      },
+      {
+        "value": "Get your results"
+      }
+    ]
+  },
+  "verifySelectionsView": {
+    "heading": "Review and confirm",
+    "noResultsLabel": "Not answered",
+    "buttonGroup": [
+      {
+        "value": "Back"
+      },
+      {
+        "value": "Confirm"
+      }
+    ]
+  },
+  "resultsView": {
+    "summaryBox": {
+      "heading": "Important",
+      "list": [
+        {
+          "item": "You need to visit each agency’s website to find full eligibility requirements and apply."
+        },
+        {
+          "item": "Your results may vary if your situation or answers change."
+        }
+      ],
+      "cta": {
+        "text": "",
+        "link": "Clear your answers and restart the form."
+      }
+    },
+    "eligible": {
+      "banner": {
+        "heading": "Your potential benefits",
+        "description": "<div><p>Visit each agency to find true eligibility and to apply. Check with your city, state, or employer for other benefits.</p></div>"
+      },
+      "heading": "Results",
+      "description": "<strong>You may be eligible for these benefits:</strong>"
+    },
+    "notEligible": {
+      "banner": {
+        "heading": "Benefits you did not qualify for",
+        "description": "<div><p>According to your answers you are not eligible for these benefits.</p></div>"
+      },
+      "heading": "Results",
+      "description": "<strong>Based on your answers you are not eligible for these benefits.</strong>You may become eligible if you enter additional information or your situation changes."
+    },
+    "zeroBenefits": {
+      "backcta": {
+        "text": "",
+        "link": "Go back to start"
+      },
+      "eligible": {
+        "banner": {
+          "heading": "You are likely not eligible for these benefits.",
+          "description": "<div><p>If you think you reached these results by mistake, please go back to review and edit your answers.</p></div>"
+        }
+      },
+      "notEligible": {
+        "banner": {
+          "heading": "Benefits you did not qualify for",
+          "description": "<div><p>According to your answers you are not eligible for these benefits.</p></div>"
+        }
+      },
+      "heading": "No eligible results.",
+      "description": "Based on your answers, you are currently not eligible for this life event’s benefits. You may become eligible if your situation or answers change in the future. Visit your city, state, or employer for other potential benefits.",
+      "cta": "See all benefits"
+    },
+    "stepBackButton": "Back",
+    "eligibleResults": {
+      "heading": "Results",
+      "description": "You may be eligible for these benefits."
+    },
+    "benefitAccordionGroup": {
+      "closedState": "Expand all",
+      "openState": "Close all"
+    },
+    "benefitAccordion": {
+      "eligibleStatusLabels": [
+        "Likely eligible",
+        "More information needed",
+        "Not eligible"
+      ],
+      "backcta": {
+        "text": "",
+        "link": "Go back to start"
+      },
+      "agencyPrefix": "By",
+      "benefitSummary": "Key eligibility criteria",
+      "benefitSummaryPrefix": "Met ",
+      "benefitSummaryConjunction": "of",
+      "unmetLabel": "Unmet criteria",
+      "visitLabel": "Visit"
+    },
+    "notEligibleResults": {
+      "heading": "Benefits you did not qualify for",
+      "description": "<div>Based on your answers you are not eligible for these benefits. <strong>You may become eligible if you enter additional information or your situation changes.</strong></div>",
+      "cta": "See benefits you didn't qualify for"
+    },
+    "resultsRelativeBenefits": {
+      "heading": "More benefits"
+    },
+    "shareResults": {
+      "heading": "Share results",
+      "shareTrigger": "Share link",
+      "shareLinkContent": "Copied",
+      "emailTrigger": "Email results",
+      "emailSubject": "Results from USAGov’s benefit finder",
+      "description": "Copy or email these results. Your answers will be visible. <strong>Only share with those you trust</<strong>."
+    }
+  },
+  "shareResults": {
+    "heading": "Share results",
+    "description": "Your information will be viewable. Only share with those you trust.",
+    "buttonGroup": [
+      {
+        "value": "Share link"
+      },
+      {
+        "value": "Email results"
+      }
+    ]
+  },
+  "sectionHeadings": {
+    "start": "Answer the following questions",
+    "continue": "Questions continued",
+    "final": "Final questions"
+  },
+  "select": {
+    "labelSelect": "Select an option",
+    "defaultValue": "-Select-",
+    "dateDefaultValue": "-Select-"
+  },
+  "date": {
+    "alert": "Date should follow the format January 19 2000",
+    "labelDay": "Day",
+    "labelMonth": "Month",
+    "labelYear": "Year",
+    "monthOptions": [
+      {
+        "label": "01 - January"
+      },
+      {
+        "label": "02 - February"
+      },
+      {
+        "label": "03 - March"
+      },
+      {
+        "label": "04 - April"
+      },
+      {
+        "label": "05 - May"
+      },
+      {
+        "label": "06 - June"
+      },
+      {
+        "label": "07 - July"
+      },
+      {
+        "label": "08 - August"
+      },
+      {
+        "label": "09 - September"
+      },
+      {
+        "label": "10 - October"
+      },
+      {
+        "label": "11 - November"
+      },
+      {
+        "label": "12 - December"
+      }
+    ]
+  }
+}
