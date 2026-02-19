@@ -1,0 +1,22 @@
+@use '../../styles/colors/index.scss' as color;
+@use '@styles/sizes' as *;
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+
+form.bf-usa-form {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  background-color: color.$dark-blue;
+  padding-bottom: rem(64px);
+
+  .bf-grid-container.grid-container {
+    max-width: $form-container-max-width;
+    padding: 0 rem(20px);
+
+    @media (width >= calc($form-container-max-width + rem(24px))) {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+}

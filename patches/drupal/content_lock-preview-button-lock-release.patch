@@ -1,0 +1,26 @@
+--- content_lock.module.orig	2026-02-04 14:40:03
++++ content_lock.module	2026-02-04 14:40:13
+@@ -79,7 +79,7 @@
+ 
+   // We act only on edit form, not for a creation of a new entity.
+   if (!is_null($entity->id())) {
+-    foreach (['submit', 'publish'] as $key) {
++    foreach (['submit', 'publish', 'preview'] as $key) {
+       if (isset($form['actions'][$key])) {
+         $form['actions'][$key]['#submit'][] = 'content_lock_form_submit';
+       }
+@@ -136,6 +136,14 @@
+     else {
+       // ContentLock::locking() returns TRUE if the content is locked by the
+       // current user. Add an unlock button only for this user.
++      
++      // When we successfully acquire the lock, ensure submit buttons are accessible
++      foreach (['submit', 'publish', 'preview'] as $key) {
++        if (isset($form['actions'][$key]) && isset($form['actions'][$key]['#access']) && $form['actions'][$key]['#access'] === FALSE) {
++          $form['actions'][$key]['#access'] = TRUE;
++        }
++      }
++      
+       $form['actions']['unlock'] = $lock_service->unlockButton($entity_type, $entity->id(), $entity->language()->getId(), $form_op, \Drupal::request()->query->get('destination'));
+     }
+   }

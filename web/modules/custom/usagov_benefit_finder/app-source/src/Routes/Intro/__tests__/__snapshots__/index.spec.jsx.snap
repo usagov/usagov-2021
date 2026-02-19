@@ -1,0 +1,180 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Intro > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-intro"
+  >
+    <div
+      class="bf-banner"
+    >
+      <div
+        class="bf-grid-container grid-container"
+      >
+        <h1
+          aria-level="1"
+          class="bf-banner-heading "
+          id="skip-to-h1"
+          role="heading"
+        >
+          Benefit finder: death of a loved one
+        </h1>
+        <div
+          class="bf-banner-description"
+        >
+          <p>
+            <strong>
+              We are sorry for your loss. 
+            </strong>
+            Losing a loved one is hard. Finding help shouldn’t be. 
+          </p>
+          <p>
+            <strong>
+              Answer a few questions and get a list of your potential benefits.
+            </strong>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="bf-grid-container grid-container"
+    >
+      <div
+        class="bf-intro-process-group"
+      >
+        <div
+          class="bf-intro-process-list"
+        >
+          <div
+            class="bf-intro-process-heading"
+          >
+            <h2
+              aria-level="2"
+              class=""
+              role="heading"
+            >
+              Steps to find benefits
+            </h2>
+            <div
+              class="time-indicator"
+            >
+              Estimated time to complete 2-5 minutes
+            </div>
+          </div>
+          <ol
+            class="bf-usa-process-list usa-process-list"
+          >
+            <li
+              class="bf-usa-process-list__item usa-process-list__item"
+            >
+              <h3
+                class="bf-usa-process-list__heading usa-process-list__heading"
+              >
+                Answer a few questions
+              </h3>
+            </li>
+            <li
+              class="bf-usa-process-list__item usa-process-list__item"
+            >
+              <h3
+                class="bf-usa-process-list__heading usa-process-list__heading"
+              >
+                Get your list of benefits
+              </h3>
+            </li>
+            <li
+              class="bf-usa-process-list__item usa-process-list__item"
+            >
+              <h3
+                class="bf-usa-process-list__heading usa-process-list__heading"
+              >
+                Visit agency websites to apply
+              </h3>
+            </li>
+          </ol>
+        </div>
+        <div
+          class="bf-line-separator-wrapper--vertical"
+        >
+          <div
+            class="bf-line-separator--vertical"
+          />
+        </div>
+        <div
+          class="bf-intro-process-notices"
+        >
+          <h2
+            aria-level="2"
+            class="bf-intro-process-notices-heading "
+            role="heading"
+          >
+            Before you start:
+          </h2>
+          <div
+            class="bf-notices"
+          >
+            <ul
+              class="bf-notices-list add-list-reset"
+            >
+              <li
+                class="bf-notice"
+              >
+                <i
+                  aria-label="Important"
+                  data-testid="icon-info"
+                  role="img"
+                >
+                  <svg
+                    class="bf-info"
+                    fill="none"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    width="14"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      clip-rule="evenodd"
+                      d="M6.33594 3.66732H7.66927V5.00065H6.33594V3.66732ZM6.33594 6.33398H7.66927V10.334H6.33594V6.33398ZM7.0026 0.333984C3.3226 0.333984 0.335938 3.32065 0.335938 7.00065C0.335938 10.6807 3.3226 13.6673 7.0026 13.6673C10.6826 13.6673 13.6693 10.6807 13.6693 7.00065C13.6693 3.32065 10.6826 0.333984 7.0026 0.333984ZM7.0026 12.334C4.0626 12.334 1.66927 9.94065 1.66927 7.00065C1.66927 4.06065 4.0626 1.66732 7.0026 1.66732C9.9426 1.66732 12.3359 4.06065 12.3359 7.00065C12.3359 9.94065 9.9426 12.334 7.0026 12.334Z"
+                      fill="#1B1B1B"
+                      fill-rule="evenodd"
+                    />
+                  </svg>
+                </i>
+                <div
+                  class="bf-notice-item"
+                >
+                  <div>
+                    <p>
+                      <strong>
+                        This is not an application. You will need to apply for benefits
+                      </strong>
+                       with each agency.
+                    </p>
+                    <p>
+                      <strong>
+                        We do not share, save, or submit
+                      </strong>
+                       your information.
+                    </p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div
+        class="bf-cta-wrapper"
+      >
+        <button
+          class="bf-usa-button usa-button bf-usa-button--secondary usa-button--secondary"
+          data-test="button"
+          type="button"
+        >
+          Start finding benefits
+        </button>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

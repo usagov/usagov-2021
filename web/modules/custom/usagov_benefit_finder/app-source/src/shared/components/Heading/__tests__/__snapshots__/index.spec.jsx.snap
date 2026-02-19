@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Heading > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <h1
+    aria-level="1"
+    class=""
+    id="skip-to-h1"
+    role="heading"
+  />
+</DocumentFragment>
+`;
