@@ -936,20 +936,12 @@ workflows:
           type: approval
           requires:
             - build-and-push-container-cron
-          filters:
-            branches:
-              only:
-              - dr
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
-          filters:
-            branches:
-              only:
-              - dr
       - approve-stage-deployment-cron:
           type: approval
           requires:
