@@ -65,7 +65,7 @@ RUN apt-get update && \
     pkg-config \
     procps \
     wget \
-    zlib1g-dev 
+    zlib1g-dev
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
@@ -111,7 +111,7 @@ COPY src-waf/cert-watcher.sh /cert-watcher.sh
 COPY motd /etc/motd
 
 # Set environment variables
-ENV ZLIB_VERSION=1.3.1
+ENV ZLIB_VERSION=1.3.2
 # Note the /fossils path also includes the latest version.
 ENV ZLIB_SRC_URL=http://www.zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz
 RUN wget ${ZLIB_SRC_URL} && \
