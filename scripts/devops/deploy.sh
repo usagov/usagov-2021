@@ -858,6 +858,7 @@ set_context() {
 }
 
 # Show current deployment context
+# Safe Operation: Read-only query, no resources modified
 show_context() {
     # Check for --json flag
     if has_json_flag "$@"; then
@@ -1136,6 +1137,7 @@ parse_backup_tag() {
 }
 
 # Show when last backup of each type was taken
+# Safe Operation: Read-only query, no resources modified
 last_backup() {
     local use_json=false
 
@@ -1258,6 +1260,7 @@ EOF
 }
 
 # Show current status
+# Safe Operation: Read-only query (cf target, cf app, cf events)
 show_status() {
     # Check for --json flag
     if has_json_flag "$@"; then
@@ -1445,6 +1448,7 @@ EOF
 }
 
 # Show message of the day from CMS container
+# Safe Operation: Read-only query, displays /etc/motd from container
 show_motd() {
     cf ssh cms -c "cat /etc/motd"
 }
@@ -2055,6 +2059,7 @@ downsync() {
 }
 
 # List backups for rollback
+# Safe Operation: Read-only query, lists available backup tags from S3
 list_backups() {
     local days="7"
     local use_json=false
@@ -3058,6 +3063,7 @@ EOF
 }
 
 # Show latest build information from git annotated tags
+# Safe Operation: Read-only query, displays git tag information
 show_build_digests() {
     local use_json=false
     local env=""
@@ -3561,6 +3567,7 @@ fetch_latest_backup_tag() {
 }
 
 # Show current container digests - wrapper that handles space switching
+# Safe Operation: Read-only query (cf app, cf env), no modifications made
 show_current_digests_wrapper() {
     local use_json=false
     local target_space=""
