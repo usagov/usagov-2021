@@ -3314,7 +3314,17 @@ create_deployment_tag() {
         return 0
     fi
 
-    # Push to remote (OVERWRITES if exists)
+    # Push to remote with --force to allow tag updates
+    #
+    # Why --force is safe here:
+    # 1. Deployment tags are metadata records, not code versioning tags
+    # 2. Tag naming (usagov-cci-build-{build}-{env}) ensures per-deployment uniqueness
+    # 3. Force-push allows re-tagging after rollbacks or re-deployments of same build
+    # 4. Tag message contains authoritative deployment state (digests, build number)
+    # 5. Deployment history is preserved in S3 backup metadata (source of truth)
+    # 6. Git tag serves as a convenient lookup mechanism, not the primary audit trail
+    #
+    # Without --force, re-deploying the same CircleCI build to an environment would fail.
     if git push origin "$tag_name" --force 2>&1; then
         print_status $GREEN "✅ Git tag pushed to origin: $tag_name"
     else
