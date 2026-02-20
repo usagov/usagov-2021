@@ -325,6 +325,12 @@ run_backup_command() {
     local custom_suffix=""
     local skip_state_management=false
     local enable_throttle=false
+    local use_json=false
+
+    # Check for --json flag early
+    if has_json_flag "$@"; then
+        use_json=true
+    fi
 
     # Rate limiting check - prevent backup spam (max 1 backup per 5 minutes)
     local rate_limit_file="/tmp/backup_rate_limit"
@@ -333,7 +339,12 @@ run_backup_command() {
         local current_time=$(date +%s)
         local time_diff=$((current_time - last_backup))
         if [ $time_diff -lt $RATE_LIMIT_SECONDS ]; then
-            print_status $RED "❌ Rate limit: Please wait $(($RATE_LIMIT_SECONDS - time_diff)) seconds before next backup"
+            if [ "$use_json" = true ]; then
+                local json_error="{\"status\":\"error\",\"message\":\"Rate limit exceeded\",\"wait_seconds\":$(($RATE_LIMIT_SECONDS - time_diff))}"
+                format_json "$json_error"
+            else
+                print_status $RED "❌ Rate limit: Please wait $(($RATE_LIMIT_SECONDS - time_diff)) seconds before next backup"
+            fi
             return 1
         fi
     fi
@@ -351,6 +362,10 @@ run_backup_command() {
                 ;;
             --throttle)
                 enable_throttle=true
+                shift
+                ;;
+            --json)
+                # Already handled, just skip
                 shift
                 ;;
             *)
@@ -376,38 +391,71 @@ run_backup_command() {
 
     # Validate prefix and suffix don't contain spaces
     if echo "$backup_prefix" | grep -q ' '; then
-        print_status $RED "❌ Error: Backup prefix cannot contain spaces"
-        print_status $YELLOW "   Use hyphens or underscores instead: 'MY-PREFIX' or 'MY_PREFIX'"
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Backup prefix cannot contain spaces"}'
+            format_json "$json_error"
+        else
+            print_status $RED "❌ Error: Backup prefix cannot contain spaces"
+            print_status $YELLOW "   Use hyphens or underscores instead: 'MY-PREFIX' or 'MY_PREFIX'"
+        fi
         return 1
     fi
     if [ -n "$custom_suffix" ] && echo "$custom_suffix" | grep -q ' '; then
-        print_status $RED "❌ Error: Backup suffix cannot contain spaces"
-        print_status $YELLOW "   Use hyphens or underscores instead: 'my-suffix' or 'my_suffix'"
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Backup suffix cannot contain spaces"}'
+            format_json "$json_error"
+        else
+            print_status $RED "❌ Error: Backup suffix cannot contain spaces"
+            print_status $YELLOW "   Use hyphens or underscores instead: 'my-suffix' or 'my_suffix'"
+        fi
         return 1
     fi
 
     # Validate prefix format to prevent command injection
     if ! validate_backup_tag "$backup_prefix"; then
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Invalid backup prefix format"}'
+            format_json "$json_error"
+        fi
         return 1
     fi
     if [ -n "$custom_suffix" ] && ! validate_backup_tag "$custom_suffix"; then
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Invalid backup suffix format"}'
+            format_json "$json_error"
+        fi
         return 1
     fi
 
     # Generate single timestamp for this backup event (format: 2025-10-24)
     local backup_timestamp=$(date +"%Y-%m-%d")
 
-    print_status $BLUE "📦 Creating backup: $backup_types"
-    if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
-        print_status $YELLOW "Prefix: $backup_prefix"
+    # Initialize JSON output if needed
+    local json_output=""
+    if [ "$use_json" = true ]; then
+        json_output='{"operation":"backup","timestamp":"'$backup_timestamp'","types":"'$backup_types'"'
+        json_output="${json_output},\"prefix\":\"$backup_prefix\""
+        if [ -n "$custom_suffix" ]; then
+            json_output="${json_output},\"suffix\":\"$custom_suffix\""
+        fi
+        json_output="${json_output},\"skip_state_management\":$skip_state_management"
+        json_output="${json_output},\"throttle_enabled\":$enable_throttle"
+        json_output="${json_output},\"results\":{"
+    else
+        print_status $BLUE "📦 Creating backup: $backup_types"
+        if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
+            print_status $YELLOW "Prefix: $backup_prefix"
+        fi
+        if [ -n "$backup_suffix" ]; then
+            print_status $YELLOW "Suffix: $custom_suffix"
+        fi
+        print_status $YELLOW "Timestamp: $backup_timestamp"
+        if [ "$skip_state_management" = "true" ]; then
+            print_status $YELLOW "⚠️  Skipping Drupal state management"
+        fi
     fi
-    if [ -n "$backup_suffix" ]; then
-        print_status $YELLOW "Suffix: $custom_suffix"
-    fi
-    print_status $YELLOW "Timestamp: $backup_timestamp"
-    if [ "$skip_state_management" = "true" ]; then
-        print_status $YELLOW "⚠️  Skipping Drupal state management"
-    fi
+
+    local result_count=0
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
@@ -415,14 +463,44 @@ run_backup_command() {
         if [ "$enable_throttle" = true ]; then
             local age_hours=$(get_last_backup_age_hours "static")
             if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
-                print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    json_output="${json_output}\"static\":{\"status\":\"skipped\",\"reason\":\"throttled\",\"age_hours\":$age_hours}"
+                else
+                    print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                fi
             else
-                print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
+                fi
                 create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+                local backup_result=$?
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    if [ $backup_result -eq 0 ]; then
+                        json_output="${json_output}\"static\":{\"status\":\"success\",\"tag\":\"$STATIC_BACKUP_TAG\"}"
+                    else
+                        json_output="${json_output}\"static\":{\"status\":\"failed\"}"
+                    fi
+                fi
             fi
         else
-            print_status $GREEN "🌐 Backing up static site..."
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "🌐 Backing up static site..."
+            fi
             create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+            local backup_result=$?
+            if [ "$use_json" = true ]; then
+                [ $result_count -gt 0 ] && json_output="${json_output},"
+                result_count=$((result_count + 1))
+                if [ $backup_result -eq 0 ]; then
+                    json_output="${json_output}\"static\":{\"status\":\"success\",\"tag\":\"$STATIC_BACKUP_TAG\"}"
+                else
+                    json_output="${json_output}\"static\":{\"status\":\"failed\"}"
+                fi
+            fi
         fi
     fi
 
@@ -432,24 +510,71 @@ run_backup_command() {
         if [ "$enable_throttle" = true ]; then
             local age_hours=$(get_last_backup_age_hours "public")
             if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
-                print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    json_output="${json_output}\"public\":{\"status\":\"skipped\",\"reason\":\"throttled\",\"age_hours\":$age_hours}"
+                else
+                    print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                fi
             else
-                print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
+                fi
                 create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+                local backup_result=$?
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    if [ $backup_result -eq 0 ]; then
+                        json_output="${json_output}\"public\":{\"status\":\"success\",\"tag\":\"$PUBLIC_BACKUP_TAG\"}"
+                    else
+                        json_output="${json_output}\"public\":{\"status\":\"failed\"}"
+                    fi
+                fi
             fi
         else
-            print_status $GREEN "📁 Backing up public files..."
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "📁 Backing up public files..."
+            fi
             create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+            local backup_result=$?
+            if [ "$use_json" = true ]; then
+                [ $result_count -gt 0 ] && json_output="${json_output},"
+                result_count=$((result_count + 1))
+                if [ $backup_result -eq 0 ]; then
+                    json_output="${json_output}\"public\":{\"status\":\"success\",\"tag\":\"$PUBLIC_BACKUP_TAG\"}"
+                else
+                    json_output="${json_output}\"public\":{\"status\":\"failed\"}"
+                fi
+            fi
         fi
     fi
 
     # Run database backup if requested
     if has_backup_type "$backup_types" "db"; then
-        print_status $GREEN "💾 Backing up database..."
+        if [ "$use_json" = false ]; then
+            print_status $GREEN "💾 Backing up database..."
+        fi
         create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+        local backup_result=$?
+        if [ "$use_json" = true ]; then
+            [ $result_count -gt 0 ] && json_output="${json_output},"
+            result_count=$((result_count + 1))
+            if [ $backup_result -eq 0 ]; then
+                json_output="${json_output}\"database\":{\"status\":\"success\",\"tag\":\"$DB_BACKUP_TAG\"}"
+            else
+                json_output="${json_output}\"database\":{\"status\":\"failed\"}"
+            fi
+        fi
     fi
 
-    print_status $BLUE "🎉 Done."
+    if [ "$use_json" = true ]; then
+        json_output="${json_output}},\"status\":\"complete\"}"
+        format_json "$json_output"
+    else
+        print_status $BLUE "🎉 Done."
+    fi
 }
 
 # Handle clean command
@@ -461,12 +586,23 @@ run_clean_command() {
     local filter_type=""
     local filter_value=""
     local filter_count=0
+    local use_json=false
+
+    # Check for --json flag early
+    if has_json_flag "$@"; then
+        use_json=true
+        non_interactive=true  # JSON mode implies non-interactive
+    fi
 
     # Parse all arguments
     while [ $# -gt 0 ]; do
         case "$1" in
             --non-interactive|-y)
                 non_interactive=true
+                shift
+                ;;
+            --json)
+                # Already handled, just skip
                 shift
                 ;;
             --older-than)
@@ -519,8 +655,13 @@ run_clean_command() {
 
     # Check for conflicting filters
     if [ $filter_count -gt 1 ]; then
-        print_status $RED "❌ Error: Cannot mix multiple date filtering methods"
-        echo "   Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Cannot mix multiple date filtering methods"}'
+            format_json "$json_error"
+        else
+            print_status $RED "❌ Error: Cannot mix multiple date filtering methods"
+            echo "   Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
+        fi
         return 1
     fi
 
@@ -668,25 +809,43 @@ run_clean_command() {
         fi
     fi
 
-    print_status $BLUE "🧹 Cleaning up backups..."
+    # Initialize JSON output if needed
+    local json_output=""
+    if [ "$use_json" = true ]; then
+        json_output='{"operation":"clean","filter":{"type":"'$filter_type'","value":"'$filter_value'"},"types":"'$(parse_backup_types "$types_arg")'"'
+    else
+        print_status $BLUE "🧹 Cleaning up backups..."
+    fi
 
     # Clean static and public backups if requested
-    if has_backup_type "$backup_types" "static" || has_backup_type "$backup_types" "public"; then
+    if has_backup_type "$(parse_backup_types "$types_arg")" "static" || has_backup_type "$(parse_backup_types "$types_arg")" "public"; then
         clean_old_backups "$filter_type" "$filter_value"
     fi
 
     # Clean database backups if requested
-    if has_backup_type "$backup_types" "db"; then
+    if has_backup_type "$(parse_backup_types "$types_arg")" "db"; then
         cleanup_old_db_backups "$filter_type" "$filter_value"
     fi
 
-    print_status $BLUE "🎉 Cleanup complete."
+    if [ "$use_json" = true ]; then
+        json_output="${json_output},\"status\":\"complete\"}"
+        format_json "$json_output"
+    else
+        print_status $BLUE "🎉 Cleanup complete."
+    fi
 }
 
 # Handle info command
 run_info_command() {
     local types_arg="${1:-all}"
     local tag="${2:-}"
+
+    # Check for --json flag in remaining arguments
+    shift 2 2>/dev/null
+    if has_json_flag "$@"; then
+        run_info_command_json "$types_arg" "$tag"
+        return $?
+    fi
 
     local backup_types=$(parse_backup_types "$types_arg")
 
@@ -727,6 +886,63 @@ run_info_command() {
 
         echo "S3 Bucket: $BUCKET_NAME"
         echo "Configuration: $CONFIG_FILE"
+    fi
+}
+
+# JSON version of run_info_command
+run_info_command_json() {
+    local types_arg="${1:-all}"
+    local tag="${2:-}"
+
+    local backup_types=$(parse_backup_types "$types_arg")
+
+    if [ -n "$tag" ]; then
+        # Show info for specific tag with requested types
+        backup_info_json "$tag" "$backup_types"
+    else
+        # Show general backup system configuration
+        setup_s3_vars || exit 1
+
+        local json_output='{"system":{'
+        json_output="${json_output}\"bucket\":\"$BUCKET_NAME\""
+        json_output="${json_output},\"config_file\":\"$CONFIG_FILE\""
+        json_output="${json_output},\"backup_types\":{"
+
+        local type_count=0
+
+        if has_backup_type "$backup_types" "static"; then
+            [ $type_count -gt 0 ] && json_output="${json_output},"
+            type_count=$((type_count + 1))
+            json_output="${json_output}\"static\":{"
+            json_output="${json_output}\"path\":\"$AUTO_STATIC_BACKUP_PATH\""
+            json_output="${json_output},\"prefix\":\"$BACKUP_PREFIX\""
+            json_output="${json_output},\"retention_days\":$BACKUP_RETENTION_DAYS"
+            json_output="${json_output}}"
+        fi
+
+        if has_backup_type "$backup_types" "public"; then
+            [ $type_count -gt 0 ] && json_output="${json_output},"
+            type_count=$((type_count + 1))
+            json_output="${json_output}\"public\":{"
+            json_output="${json_output}\"path\":\"$AUTO_PUBLIC_BACKUP_PATH\""
+            json_output="${json_output},\"prefix\":\"$BACKUP_PREFIX\""
+            json_output="${json_output},\"retention_days\":$BACKUP_RETENTION_DAYS"
+            json_output="${json_output}}"
+        fi
+
+        if has_backup_type "$backup_types" "db"; then
+            [ $type_count -gt 0 ] && json_output="${json_output},"
+            type_count=$((type_count + 1))
+            json_output="${json_output}\"database\":{"
+            json_output="${json_output}\"path\":\"$AUTO_DB_BACKUP_PATH\""
+            json_output="${json_output},\"prefix\":\"$DB_BACKUP_PREFIX\""
+            json_output="${json_output},\"retention_days\":$DB_BACKUP_RETENTION_DAYS"
+            json_output="${json_output}}"
+        fi
+
+        json_output="${json_output}}}"
+
+        format_json "$json_output"
     fi
 }
 
@@ -1280,18 +1496,33 @@ get_last_backup_age_hours() {
 list_backups() {
     local types_arg="${1:-all}"
     local filter_arg="${2:-}"
+    local use_json=false
+
+    # Check for --json flag in all arguments
+    shift 2 2>/dev/null  # Remove first two args
+    if has_json_flag "$@"; then
+        use_json=true
+    fi
 
     local backup_types=$(parse_backup_types "$types_arg")
 
     # If a filter argument (days or date range) is provided, use list_old_backups
     if [ -n "$filter_arg" ]; then
-        list_old_backups "$filter_arg"
+        if [ "$use_json" = true ]; then
+            list_old_backups "$filter_arg" --json
+        else
+            list_old_backups "$filter_arg"
+        fi
         return 0
     fi
 
     # If no specific types requested, show all backups with restore tags
     if [ "$types_arg" = "all" ] || [ -z "$types_arg" ]; then
-        list_all_backups
+        if [ "$use_json" = true ]; then
+            list_all_backups_json
+        else
+            list_all_backups
+        fi
         return 0
     fi
 
@@ -1476,6 +1707,86 @@ list_all_backups() {
 
     echo ""
     print_status $YELLOW "✅ = Available    ❌ = Missing (smart fallback may apply)"
+}
+
+# JSON version of list_all_backups
+list_all_backups_json() {
+    setup_s3_vars || exit 1
+
+    # Create temporary files to collect backup data
+    static_list="/tmp/static_backups_$$"
+    public_list="/tmp/public_backups_$$"
+    db_list="/tmp/db_backups_$$"
+
+    # Get all backup lists
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort > "$static_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort > "$public_list" 2>/dev/null
+    aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} | sort > "$db_list" 2>/dev/null
+
+    # Create unified list of all backup tags
+    all_tags="/tmp/all_backup_tags_$$"
+    (
+        cat "$static_list" 2>/dev/null
+        cat "$public_list" 2>/dev/null
+        cat "$db_list" 2>/dev/null | sed 's/\.sql\.gz$//'
+    ) | sort -u > "$all_tags"
+
+    # Build JSON array
+    local json_output='{"backups":['
+    local first=true
+    local count=0
+
+    while read -r tag; do
+        if [ -n "$tag" ]; then
+            count=$((count + 1))
+
+            # Check what backup types exist for this tag
+            local has_static=false
+            local has_public=false
+            local has_database=false
+
+            if grep -q "^$tag$" "$static_list" 2>/dev/null; then
+                has_static=true
+            fi
+
+            if grep -q "^$tag$" "$public_list" 2>/dev/null; then
+                has_public=true
+            fi
+
+            local db_tag="${tag}.sql.gz"
+            if grep -q "^$db_tag$" "$db_list" 2>/dev/null; then
+                has_database=true
+            fi
+
+            # Extract date from tag
+            local tag_date=$(extract_date_from_backup_name "$tag")
+            local days_ago=""
+            if [ -n "$tag_date" ]; then
+                local tag_epoch=$(date -d "$tag_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null)
+                if [ -n "$tag_epoch" ]; then
+                    days_ago=$(( ($(date +%s) - tag_epoch) / 86400 ))
+                fi
+            fi
+
+            if [ "$first" = true ]; then
+                first=false
+            else
+                json_output="${json_output},"
+            fi
+
+            json_output="${json_output}{\"tag\":\"$tag\",\"static\":$has_static,\"public\":$has_public,\"database\":$has_database,\"date\":\"${tag_date:-unknown}\""
+            if [ -n "$days_ago" ]; then
+                json_output="${json_output},\"age_days\":$days_ago"
+            fi
+            json_output="${json_output},\"restore_command\":\"restore $tag\"}"
+        fi
+    done < "$all_tags"
+
+    json_output="${json_output}],\"count\":$count,\"bucket\":\"$BUCKET_NAME\"}"
+
+    rm -f "$static_list" "$public_list" "$db_list" "$all_tags" 2>/dev/null
+
+    format_json "$json_output"
 }
 
 # ===================================================================
@@ -2271,14 +2582,22 @@ restore_backup() {
 backup_info() {
     local backup_tag=$1
     local backup_types=${2:-"all"}
-    local static_exists="no"
-    local public_exists="no"
-    local db_exists="no"
 
     if [ -z "$backup_tag" ]; then
         print_status $RED "Error: Backup tag is required"
         exit 1
     fi
+
+    # Check for --json flag in remaining arguments
+    shift 2 2>/dev/null
+    if has_json_flag "$@"; then
+        backup_info_json "$backup_tag" "$backup_types"
+        return $?
+    fi
+
+    local static_exists="no"
+    local public_exists="no"
+    local db_exists="no"
 
     setup_s3_vars || exit 1
 
@@ -2548,6 +2867,166 @@ backup_info() {
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# JSON version of backup_info
+backup_info_json() {
+    local backup_tag=$1
+    local backup_types=${2:-"all"}
+
+    setup_s3_vars || exit 1
+
+    # Initialize JSON structure
+    local json_output='{'
+
+    # Tag Analysis
+    json_output="${json_output}\"tag\":\"$backup_tag\""
+
+    local tag_date=$(extract_date_from_backup_name "$backup_tag")
+    if [ -n "$tag_date" ]; then
+        json_output="${json_output},\"date\":\"$tag_date\""
+        local tag_epoch=$(date -d "$tag_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null)
+        if [ -n "$tag_epoch" ]; then
+            local days_ago=$(( ($(date +%s) - tag_epoch) / 86400 ))
+            if [ $days_ago -ge 0 ]; then
+                json_output="${json_output},\"age_days\":$days_ago"
+            fi
+        fi
+    fi
+
+    local tag_prefix=$(echo "$backup_tag" | awk -F'-' '{print $1}')
+    local tag_space=$(echo "$backup_tag" | awk -F'-' '{print $2}')
+    if [ -n "$tag_prefix" ]; then
+        json_output="${json_output},\"prefix\":\"$tag_prefix\""
+    fi
+    if [ -n "$tag_space" ]; then
+        json_output="${json_output},\"space\":\"$tag_space\""
+    fi
+
+    json_output="${json_output},\"bucket\":\"$BUCKET_NAME\",\"components\":{"
+
+    local component_count=0
+    local components_found=0
+
+    # Static site backup
+    if has_backup_type "$backup_types" "static"; then
+        [ $component_count -gt 0 ] && json_output="${json_output},"
+        component_count=$((component_count + 1))
+
+        json_output="${json_output}\"static\":{"
+        local static_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+
+        if echo "$static_output" | grep -q "Total Objects:"; then
+            components_found=$((components_found + 1))
+            json_output="${json_output}\"exists\":true"
+
+            local first_file=$(echo "$static_output" | grep -v "Total" | grep -v "^$" | head -1)
+            local static_date=$(echo "$first_file" | awk '{print $1" "$2}')
+            if [ -n "$static_date" ]; then
+                json_output="${json_output},\"created\":\"$static_date\""
+            fi
+
+            json_output="${json_output},\"path\":\"s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/\""
+
+            local total_objects=$(echo "$static_output" | grep "Total Objects:" | awk '{print $3}')
+            local total_size=$(echo "$static_output" | grep "Total Size:" | awk '{print $3}')
+
+            if [ -n "$total_objects" ]; then
+                json_output="${json_output},\"file_count\":$total_objects"
+            fi
+            if [ -n "$total_size" ]; then
+                json_output="${json_output},\"size_bytes\":$total_size"
+            fi
+        else
+            json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/\""
+        fi
+        json_output="${json_output}}"
+    fi
+
+    # Public files backup
+    if has_backup_type "$backup_types" "public"; then
+        [ $component_count -gt 0 ] && json_output="${json_output},"
+        component_count=$((component_count + 1))
+
+        json_output="${json_output}\"public\":{"
+        local public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+
+        if echo "$public_output" | grep -q "Total Objects:"; then
+            components_found=$((components_found + 1))
+            json_output="${json_output}\"exists\":true"
+
+            local first_file=$(echo "$public_output" | grep -v "Total" | grep -v "^$" | head -1)
+            local public_date=$(echo "$first_file" | awk '{print $1" "$2}')
+            if [ -n "$public_date" ]; then
+                json_output="${json_output},\"created\":\"$public_date\""
+            fi
+
+            json_output="${json_output},\"path\":\"s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/\""
+
+            local total_objects=$(echo "$public_output" | grep "Total Objects:" | awk '{print $3}')
+            local total_size=$(echo "$public_output" | grep "Total Size:" | awk '{print $3}')
+
+            if [ -n "$total_objects" ]; then
+                json_output="${json_output},\"file_count\":$total_objects"
+            fi
+            if [ -n "$total_size" ]; then
+                json_output="${json_output},\"size_bytes\":$total_size"
+            fi
+        else
+            json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/\""
+
+            # Check for linked backup
+            local corresponding_public=$(find_corresponding_backup "$backup_tag" "public")
+            if [ -n "$corresponding_public" ] && [ "$corresponding_public" != "$backup_tag" ]; then
+                json_output="${json_output},\"linked_backup\":\"$corresponding_public\""
+            fi
+        fi
+        json_output="${json_output}}"
+    fi
+
+    # Database backup
+    if has_backup_type "$backup_types" "db"; then
+        [ $component_count -gt 0 ] && json_output="${json_output},"
+        component_count=$((component_count + 1))
+
+        json_output="${json_output}\"database\":{"
+        local backup_name="${backup_tag}.sql.gz"
+        local db_file_info=$(aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "$backup_name")
+
+        if [ -n "$db_file_info" ]; then
+            components_found=$((components_found + 1))
+            json_output="${json_output}\"exists\":true"
+
+            local backup_size=$(echo "$db_file_info" | awk '{print $3}')
+            local backup_date=$(echo "$db_file_info" | awk '{print $1" "$2}')
+            local backup_file=$(echo "$db_file_info" | awk '{print $4}')
+
+            json_output="${json_output},\"created\":\"$backup_date\""
+            json_output="${json_output},\"path\":\"s3://$BUCKET_NAME/$backup_file\""
+            json_output="${json_output},\"filename\":\"$backup_name\""
+            json_output="${json_output},\"size_bytes\":$backup_size"
+
+            local uncompressed_estimate=$((backup_size * 15))
+            json_output="${json_output},\"estimated_uncompressed_bytes\":$uncompressed_estimate"
+        else
+            json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\""
+        fi
+        json_output="${json_output}}"
+    fi
+
+    json_output="${json_output}},\"summary\":{"
+    json_output="${json_output}\"components_found\":$components_found"
+    json_output="${json_output},\"components_expected\":$component_count"
+
+    if [ $components_found -eq $component_count ]; then
+        json_output="${json_output},\"complete\":true"
+    else
+        json_output="${json_output},\"complete\":false"
+    fi
+
+    json_output="${json_output}}}"
+
+    format_json "$json_output"
 }
 
 # Show database backup information
