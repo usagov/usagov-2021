@@ -881,20 +881,12 @@ workflows:
           type: approval
           requires:
             - build-and-push-container
-          filters:
-            branches:
-              only:
-              - dr
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
-          filters:
-            branches:
-              only:
-              - dr
       - approve-stage-deployment:
           type: approval
           requires:
