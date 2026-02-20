@@ -517,6 +517,11 @@ section h3 {
   padding: 0 10px;
 }
 
+th,
+td {
+  font-weight: 300;
+}
+
 #devices p {
   font-size: 1.3rem;
 }
