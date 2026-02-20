@@ -203,6 +203,9 @@ audit_log() {
 #   confirm_action "⚠️  This will deploy to production" "yn" "" "" "$skip_flag" || return 1
 #   confirm_action "⚠️  PRODUCTION ROLLBACK" "exact" "CONFIRM PROD ROLLBACK" 3 || exit 1
 #   confirm_action "⚠️  Type DELETE to confirm" "exact" "DELETE" || return 1
+#
+# NIST 800-53: AC-3 - Access Enforcement
+# NIST 800-53: IA-2 - User Identification and Authentication
 confirm_action() {
     local prompt="$1"
     local mode="${2:-yn}"
@@ -494,6 +497,8 @@ parse_backup_tag_metadata() {
 }
 
 # Capture current deployment state and create metadata JSON
+# NIST 800-53: AU-3 - Content of Audit Records
+# NIST 800-53: AU-9 - Protection of Audit Information
 # Args:
 #   $1: backup_tag - Tag for this backup
 #   $2: environment - Environment name (dev, stage, prod)

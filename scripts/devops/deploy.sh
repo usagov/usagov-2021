@@ -1454,6 +1454,8 @@ show_motd() {
 # ===================================================================
 
 # Validate CF target matches DEPLOY_ENV (safety check for destructive operations)
+# NIST 800-53: CM-3 - Configuration Change Control
+# NIST 800-53: CM-6 - Configuration Settings
 # Args:
 #   $1: skip_validation - If "--skip-validation", skip validation
 # Returns: 0 if valid, exits if mismatch
@@ -1551,6 +1553,8 @@ exec_backup_command() {
 }
 
 # Execute a restore command via cf ssh to cms container
+# NIST 800-53: CP-10 - Information System Recovery and Reconstitution
+# NIST 800-53: CM-5 - Access Restrictions for Change
 # Args:
 #   $1: tag - Backup tag
 #   $2: only_flag - Optional --only=type flag
@@ -3243,6 +3247,8 @@ show_build_digests() {
 }
 
 # Create and push annotated git tag for deployment tracking
+# NIST 800-53: CM-3 - Configuration Change Control
+# NIST 800-53: AU-3 - Content of Audit Records
 # Args:
 #   $1: env - Environment name
 #   $2: cci_build - CircleCI build number
@@ -3307,6 +3313,8 @@ create_deployment_tag() {
 # ===================================================================
 
 # Deploy a single app with container digest
+# NIST 800-53: SI-7 - Software, Firmware, and Information Integrity
+# NIST 800-53: CM-11 - User-Installed Software
 # Args:
 #   $1: app_name - App to deploy (cms, www, waf)
 #   $2: env - Environment (dev, stage, prod)
