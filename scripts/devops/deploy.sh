@@ -1670,8 +1670,16 @@ pre_deploy() {
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$skip_validation"
 
-    # Confirm backup creation
-    local prompt="⚠️  PRE-DEPLOYMENT BACKUP: Creating backup before deployment\nEnvironment: $env\nTicket: ${ticket:-not set}"
+    # Get org/space for confirmation
+    local cf_org=$(cf target | grep '^org:' | awk '{print $2}')
+    local cf_space=$(cf target | grep '^space:' | awk '{print $2}')
+
+    # Confirm backup creation with production warning
+    local prompt="⚠️  PRE-DEPLOYMENT BACKUP: Creating backup before deployment\nTarget: ${cf_org}/${cf_space}\nTicket: ${ticket:-not set}"
+    if [ "$env" = "prod" ]; then
+        prompt="⚠️  PRODUCTION PRE-DEPLOYMENT BACKUP\nTarget: ${cf_org}/prod (LIVE ENVIRONMENT)\nTicket: ${ticket:-not set}\nThis backup will be created before deploying to production."
+    fi
+
     if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
         return 0
     fi
@@ -1714,8 +1722,16 @@ post_deploy() {
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$skip_validation"
 
-    # Confirm backup creation
-    local prompt="⚠️  POST-DEPLOYMENT BACKUP: Creating backup after deployment\nEnvironment: $env\nTicket: ${ticket:-not set}"
+    # Get org/space for confirmation
+    local cf_org=$(cf target | grep '^org:' | awk '{print $2}')
+    local cf_space=$(cf target | grep '^space:' | awk '{print $2}')
+
+    # Confirm backup creation with production warning
+    local prompt="⚠️  POST-DEPLOYMENT BACKUP: Creating backup after deployment\nTarget: ${cf_org}/${cf_space}\nTicket: ${ticket:-not set}"
+    if [ "$env" = "prod" ]; then
+        prompt="⚠️  PRODUCTION POST-DEPLOYMENT BACKUP\nTarget: ${cf_org}/prod (LIVE ENVIRONMENT)\nTicket: ${ticket:-not set}\nThis backup will capture the state after production deployment."
+    fi
+
     if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
         return 0
     fi
@@ -3495,8 +3511,16 @@ deploy_app() {
         return 1
     fi
 
-    # Confirm deployment before proceeding
-    local prompt="⚠️  DEPLOYMENT: This will deploy $app_name to $env\nBuild: $cci_build\nDigest: $digest"
+    # Get org/space for confirmation
+    local cf_org=$(cf target | grep '^org:' | awk '{print $2}')
+    local cf_space=$(cf target | grep '^space:' | awk '{print $2}')
+
+    # Confirm deployment before proceeding with production warning
+    local prompt="⚠️  DEPLOYMENT: This will deploy $app_name\nTarget: ${cf_org}/${cf_space}\nBuild: $cci_build\nDigest: ${digest:0:70}..."
+    if [ "$env" = "prod" ]; then
+        prompt="⚠️  PRODUCTION DEPLOYMENT: Deploying $app_name to LIVE ENVIRONMENT\nTarget: ${cf_org}/prod (PRODUCTION)\nBuild: $cci_build\nDigest: ${digest:0:70}...\n\nThis will deploy new code to the production environment."
+    fi
+
     if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
         return 0
     fi
