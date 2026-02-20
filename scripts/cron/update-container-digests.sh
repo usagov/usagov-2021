@@ -41,11 +41,9 @@ if [ -z "$PROXYROUTE" ]; then
     exit 1
 fi
 
-# Extract service account credentials from VCAP_SERVICES
-# Find the first service account credentials in the JSON
-CREDS_BLOCK=$(echo "$VCAP_SERVICES" | grep -o '"cloud-gov-service-account":\[.*\]' | head -1)
-SERVICE_ACCOUNT_USERNAME=$(echo "$CREDS_BLOCK" | grep -o '"username":"[^"]*"' | head -1 | cut -d'"' -f4)
-SERVICE_ACCOUNT_PASSWORD=$(echo "$CREDS_BLOCK" | grep -o '"password":"[^"]*"' | head -1 | cut -d'"' -f4)
+# Extract service account credentials from VCAP_SERVICES using jq
+SERVICE_ACCOUNT_USERNAME=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.username')
+SERVICE_ACCOUNT_PASSWORD=$(echo "$VCAP_SERVICES" | jq -r '.["cloud-gov-service-account"][]? | select(.name == "cron-service-account") | .credentials.password')
 
 if [ -z "$SERVICE_ACCOUNT_USERNAME" ] || [ -z "$SERVICE_ACCOUNT_PASSWORD" ]; then
     echo "ERROR: Could not extract service account credentials"
@@ -57,8 +55,9 @@ export https_proxy="$PROXYROUTE"
 
 # Authenticate with CF
 echo "Authenticating with Cloud Foundry..."
-cf api https://api.fr.cloud.gov --skip-ssl-validation >/dev/null 2>&1
-cf auth "$SERVICE_ACCOUNT_USERNAME" "$SERVICE_ACCOUNT_PASSWORD" >/dev/null 2>&1
+cf api https://api.fr.cloud.gov >/dev/null 2>&1
+export CF_PASSWORD="$SERVICE_ACCOUNT_PASSWORD" ### pass via env, not cmd line!
+cf auth "$SERVICE_ACCOUNT_USERNAME" >/dev/null 2>&1
 
 # Get organization from VCAP_APPLICATION
 ORG=$(echo "$VCAP_APPLICATION" | grep -o '"organization_name":"[^"]*"' | cut -d'"' -f4)
