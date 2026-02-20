@@ -182,6 +182,31 @@ audit_log() {
 }
 
 # ===================================================================
+# FORMATTING SERVICE
+# ===================================================================
+
+# Check for --json flag in arguments
+# Args: $@ - All arguments to check
+# Returns: 0 if --json flag found, 1 otherwise
+has_json_flag() {
+    for arg in "$@"; do
+        if [ "$arg" = "--json" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Format data as JSON with pretty printing
+# Args:
+#   $1: json_data - JSON string to format
+# Output: Pretty-printed JSON via jq
+format_json() {
+    local json_data="$1"
+    echo "$json_data" | jq .
+}
+
+# ===================================================================
 # CONFIRMATION PROMPTS
 # ===================================================================
 

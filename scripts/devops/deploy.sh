@@ -15,27 +15,6 @@ SCRIPT_DIR=$(dirname "$0")
 init_backup_system
 
 # ===================================================================
-# FORMATTING SERVICE
-# ===================================================================
-
-# Check for --json flag in arguments
-has_json_flag() {
-    for arg in "$@"; do
-        if [ "$arg" = "--json" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
-# Format data as JSON
-# Usage: format_json <json_data>
-format_json() {
-    local json_data="$1"
-    echo "$json_data" | jq .
-}
-
-# ===================================================================
 # VALIDATION AND SETUP
 # ===================================================================
 
