@@ -1832,12 +1832,12 @@ downsync() {
     fi
 
     # Validate space names
-    if [ "$from_space" != "dev" ] && [ "$from_space" != "stage" ] && [ "$from_space" != "prod" ]; then
-        handle_error "FROM space must be dev, stage, or prod" "validation" "exit"
+    if [ "$from_space" != "dev" ] && [ "$from_space" != "stage" ] && [ "$from_space" != "prod" ] && [ "$from_space" != "dr" ]; then
+        handle_error "FROM space must be dev, stage, prod, or dr" "validation" "exit"
     fi
 
-    if [ "$to_space" != "dev" ] && [ "$to_space" != "stage" ] && [ "$to_space" != "prod" ]; then
-        handle_error "TO space must be dev, stage, or prod" "validation" "exit"
+    if [ "$to_space" != "dev" ] && [ "$to_space" != "stage" ] && [ "$to_space" != "prod" ] && [ "$to_space" != "dr" ]; then
+        handle_error "TO space must be dev, stage, prod, or dr" "validation" "exit"
     fi
 
     if [ "$from_space" = "$to_space" ]; then
@@ -4223,10 +4223,13 @@ rollback() {
     local apps="cms,www,waf"
 
     # Parse first positional arg as backup tag (optional)
-    if [ -n "$1" ] && [ "${1:0:2}" != "--" ]; then
-        backup_tag="$1"
-        shift
-    fi
+    case "${1:-}" in
+        "" | --*) : ;; # no backup tag or starts with flag prefix
+        *)
+            backup_tag="$1"
+            shift
+            ;;
+    esac
 
     # Parse flags
     while [ $# -gt 0 ]; do
@@ -4278,10 +4281,10 @@ rollback() {
         print_status $GREEN "✅ Using latest backup: $backup_tag"
     fi
 
-    # Extract digests from metadata
-    local digests=$(extract_digests_from_metadata "$metadata_json" "$apps")
+    # Extract digests from metadata — always fetch all three regardless of --apps,
+    # because all three are needed for the pre-rollback safety-net capture.
+    local digests=$(extract_digests_from_metadata "$metadata_json" "cms,www,waf")
 
-    # Parse digests based on app count
     cms_digest=$(echo "$digests" | sed -n '1p')
     www_digest=$(echo "$digests" | sed -n '2p')
     waf_digest=$(echo "$digests" | sed -n '3p')
@@ -4327,10 +4330,7 @@ rollback() {
         echo ""
     fi
 
-    printf "Continue with rollback? (y/N): "
-    read -r confirmation
-
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
+    if ! confirm_action "Continue with rollback?" "yn" "" "" "$skip_confirmation"; then
         print_status $GREEN "❌ Rollback cancelled"
         return 0
     fi
