@@ -1386,21 +1386,21 @@ EOF
         print_status $GREEN "  CMS Application:"
         echo "    State:     $([ "$cms_state" = "started" ] && echo "✅ $cms_state" || echo "⚠️  $cms_state")"
         echo "    Instances: $cms_instances running"
-        echo "    Digest:    ${cms_current:0:70}..."
+        echo "    Digest:    $(printf '%s' "$cms_current" | cut -c1-70)..."
         echo ""
 
         # WWW
         print_status $GREEN "  WWW Application:"
         echo "    State:     $([ "$www_state" = "started" ] && echo "✅ $www_state" || echo "⚠️  $www_state")"
         echo "    Instances: $www_instances running"
-        echo "    Digest:    ${www_current:0:70}..."
+        echo "    Digest:    $(printf '%s' "$www_current" | cut -c1-70)..."
         echo ""
 
         # WAF
         print_status $GREEN "  WAF Application:"
         echo "    State:     $([ "$waf_state" = "started" ] && echo "✅ $waf_state" || echo "⚠️  $waf_state")"
         echo "    Instances: $waf_instances running"
-        echo "    Digest:    ${waf_current:0:70}..."
+        echo "    Digest:    $(printf '%s' "$waf_current" | cut -c1-70)..."
     fi
     echo ""
 
@@ -1608,7 +1608,8 @@ create_deployment_backup() {
     local default_suffix="$2"
     local ticket="${DEPLOY_TICKET:-}"
     local suffix_var="DEPLOY_${backup_type}_SUFFIX"
-    local suffix="${!suffix_var:-$default_suffix}"
+    local suffix
+    eval "suffix=\${${suffix_var}:-$default_suffix}"
 
     if [ -z "$ticket" ]; then
         handle_error "DEPLOY_TICKET not set. Run: deploy.sh set-context <env> <ticket>" "validation" "exit"
@@ -3598,9 +3599,10 @@ deploy_app() {
     local cf_space=$(cf target | grep '^space:' | awk '{print $2}')
 
     # Confirm deployment before proceeding with production warning
-    local prompt="⚠️  DEPLOYMENT: This will deploy $app_name\nTarget: ${cf_org}/${cf_space}\nBuild: $cci_build\nDigest: ${digest:0:70}..."
+    local digest_short=$(printf '%s' "$digest" | cut -c1-70)
+    local prompt="⚠️  DEPLOYMENT: This will deploy $app_name\nTarget: ${cf_org}/${cf_space}\nBuild: $cci_build\nDigest: ${digest_short}..."
     if [ "$env" = "prod" ]; then
-        prompt="⚠️  PRODUCTION DEPLOYMENT: Deploying $app_name to LIVE ENVIRONMENT\nTarget: ${cf_org}/prod (PRODUCTION)\nBuild: $cci_build\nDigest: ${digest:0:70}...\n\nThis will deploy new code to the production environment."
+        prompt="⚠️  PRODUCTION DEPLOYMENT: Deploying $app_name to LIVE ENVIRONMENT\nTarget: ${cf_org}/prod (PRODUCTION)\nBuild: $cci_build\nDigest: ${digest_short}...\n\nThis will deploy new code to the production environment."
     fi
 
     if ! confirm_action "$prompt" "yn" "" "" "$skip_confirmation"; then
@@ -4519,7 +4521,7 @@ validate_deployment() {
 
     if [ "$use_json" = false ]; then
         print_status $BLUE "🔍 Validating deployment..."
-        echo "Expected commit: ${expected_commit:0:8}"
+        echo "Expected commit: $(printf '%s' "$expected_commit" | cut -c1-8)"
         echo "Apps to validate: $apps_to_validate"
         echo ""
     fi
@@ -4615,7 +4617,7 @@ validate_deployment() {
 
         if [ -n "$deployed_digest" ]; then
             local short_digest="${deployed_digest##*sha256:}"
-            short_digest="${short_digest:0:12}"
+            short_digest=$(printf '%s' "$short_digest" | cut -c1-12)
             if [ "$use_json" = false ]; then
                 print_status $GREEN "  ✅ Digest: sha256:${short_digest}..."
             fi
@@ -4887,7 +4889,7 @@ validate_deployment() {
     # Output results
     if [ "$use_json" = true ]; then
         local json_data="{"
-        json_data="${json_data}\"expected_commit\":\"${expected_commit:0:8}\","
+        json_data="${json_data}\"expected_commit\":\"$(printf '%s' "$expected_commit" | cut -c1-8)\","
         json_data="${json_data}\"apps_validated\":\"$apps_to_validate\","
         json_data="${json_data}\"validation_passed\":$overall_success,"
         json_data="${json_data}\"apps\":{$json_app_results}"
