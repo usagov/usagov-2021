@@ -75,17 +75,27 @@ class StaticImageSyncCommands extends DrushCommands {
     foreach (array_keys($all_files) as $rel_path) {
       // Try public://files/... or public://s3/files/....
       $public_path = 'public://' . $rel_path;
-      $dest_path = $output_files_dir . '/' . $rel_path;
+
+      // Create destination with sanitized filename
+      $rel_path_parts = pathinfo($rel_path);
+      $sanitized_filename = $this->sanitizeFilename($rel_path_parts['basename']);
+      $dest_rel_path = $rel_path_parts['dirname'] . '/' . $sanitized_filename;
+
+      $dest_path = $output_files_dir . '/' . $dest_rel_path;
       $dest_dir = dirname($dest_path);
       if (!is_dir($dest_dir)) {
         mkdir($dest_dir, 0775, TRUE);
       }
+
       $real_source = $this->fileSystem->realpath($public_path);
-      // If not found, try alternative encodings (space, %20) to find the actual file
+
+      // If not found, try alternative encodings and variations to find the actual file
       if (!$real_source || !file_exists($real_source)) {
         $alt_paths = [
           str_replace('+', ' ', $rel_path),
           str_replace('+', '%20', $rel_path),
+          urldecode($rel_path), // Try URL decoded version
+          str_replace('-', ' ', $rel_path), // In case it was already sanitized with hyphens
         ];
         foreach ($alt_paths as $alt_rel_path) {
           $alt_public_path = 'public://' . $alt_rel_path;
@@ -97,6 +107,7 @@ class StaticImageSyncCommands extends DrushCommands {
           }
         }
       }
+
       if ($real_source && file_exists($real_source)) {
         copy($real_source, $dest_path);
         $this->output()->writeln('Copied ' . $real_source . ' to ' . $dest_path);
@@ -165,7 +176,12 @@ class StaticImageSyncCommands extends DrushCommands {
 
     foreach ($results as $record) {
       $original_uri = $record->uri;
-      $normalized_uri = str_replace(['%20', ' '], '+', $original_uri);
+
+      // Extract the filename from the URI (format: public://path/to/file.ext)
+      $uri_parts = explode('/', $original_uri);
+      $filename = array_pop($uri_parts);
+      $sanitized_filename = $this->sanitizeFilename($filename);
+      $normalized_uri = implode('/', $uri_parts) . '/' . $sanitized_filename;
 
       if ($original_uri !== $normalized_uri) {
         try {
@@ -273,12 +289,19 @@ class StaticImageSyncCommands extends DrushCommands {
         foreach ($page['Contents'] as $object) {
           $original_key = $object['Key'];
 
-          // Skip if no spaces or %20 in the key
-          if (strpos($original_key, ' ') === FALSE && strpos($original_key, '%20') === FALSE) {
+          // Extract filename and check if it needs sanitization
+          $key_parts = explode('/', $original_key);
+          $original_filename = array_pop($key_parts);
+          $sanitized_filename = $this->sanitizeFilename(urldecode($original_filename));
+
+          // Skip if filename is already clean
+          if ($original_filename === $sanitized_filename &&
+              strpos($original_key, ' ') === FALSE &&
+              strpos($original_key, '%20') === FALSE) {
             continue;
           }
 
-          $normalized_key = str_replace(['%20', ' '], '+', $original_key);
+          $normalized_key = implode('/', $key_parts) . '/' . $sanitized_filename;
 
           if ($original_key !== $normalized_key) {
             $this->output()->writeln('Renaming: ' . $original_key . ' → ' . $normalized_key);
@@ -392,7 +415,124 @@ class StaticImageSyncCommands extends DrushCommands {
   }
 
   /**
-   * Helper method to normalize image URLs by replacing spaces and %20 with plus signs.
+   * Helper method to sanitize filenames by removing/normalizing special characters.
+   *
+   * @param string $filename
+   *   The filename to sanitize.
+   *
+   * @return string
+   *   The sanitized filename.
+   */
+  private function sanitizeFilename(string $filename): string {
+    // Split filename from extension
+    $path_info = pathinfo($filename);
+    $name = $path_info['filename'] ?? $filename;
+    $extension = isset($path_info['extension']) ? '.' . $path_info['extension'] : '';
+
+    // First decode any URL encoding
+    $name = urldecode($name);
+
+    // Transliterate common special characters to ASCII equivalents
+    $char_map = [
+      // Smart quotes to regular quotes (then removed)
+      "'" => "'",
+      "'" => "'",
+      '"' => '"',
+      '"' => '"',
+      // Em/en dashes to hyphens
+      '—' => '-',
+      '–' => '-',
+      // Other common special chars
+      '…' => '',
+      '®' => '',
+      '™' => '',
+      '©' => '',
+      // Accented uppercase letters
+      'À' => 'A',
+      'Á' => 'A',
+      'Â' => 'A',
+      'Ã' => 'A',
+      'Ä' => 'A',
+      'Å' => 'A',
+      'È' => 'E',
+      'É' => 'E',
+      'Ê' => 'E',
+      'Ë' => 'E',
+      'Ì' => 'I',
+      'Í' => 'I',
+      'Î' => 'I',
+      'Ï' => 'I',
+      'Ò' => 'O',
+      'Ó' => 'O',
+      'Ô' => 'O',
+      'Õ' => 'O',
+      'Ö' => 'O',
+      'Ø' => 'O',
+      'Ù' => 'U',
+      'Ú' => 'U',
+      'Û' => 'U',
+      'Ü' => 'U',
+      'Ñ' => 'N',
+      'Ç' => 'C',
+      'Ý' => 'Y',
+      // Accented lowercase letters
+      'à' => 'a',
+      'á' => 'a',
+      'â' => 'a',
+      'ã' => 'a',
+      'ä' => 'a',
+      'å' => 'a',
+      'è' => 'e',
+      'é' => 'e',
+      'ê' => 'e',
+      'ë' => 'e',
+      'ì' => 'i',
+      'í' => 'i',
+      'î' => 'i',
+      'ï' => 'i',
+      'ò' => 'o',
+      'ó' => 'o',
+      'ô' => 'o',
+      'õ' => 'o',
+      'ö' => 'o',
+      'ø' => 'o',
+      'ù' => 'u',
+      'ú' => 'u',
+      'û' => 'u',
+      'ü' => 'u',
+      'ñ' => 'n',
+      'ç' => 'c',
+      'ý' => 'y',
+      'ÿ' => 'y',
+      // Special combinations
+      'ß' => 'ss',
+      'Æ' => 'AE',
+      'æ' => 'ae',
+      'Œ' => 'OE',
+      'œ' => 'oe',
+    ];
+    $name = str_replace(array_keys($char_map), array_values($char_map), $name);
+
+    // Remove any remaining non-ASCII characters (printable ASCII range: 0x20-0x7E)
+    $name = preg_replace('/[^\x20-\x7E]/', '', $name);
+
+    // Replace spaces and quotes with hyphens
+    $name = preg_replace('/[\s\'"]+/', '-', $name);
+
+    // Remove any remaining characters that are not alphanumeric, dash, or underscore
+    $name = preg_replace('/[^a-zA-Z0-9._-]/', '', $name);
+
+    // Replace multiple consecutive hyphens with a single hyphen
+    $name = preg_replace('/-+/', '-', $name);
+
+    // Remove leading/trailing hyphens
+    $name = trim($name, '-');
+
+    return $name . $extension;
+  }
+
+  /**
+   * Helper method to normalize image URLs by sanitizing filenames.
    *
    * @param string $url
    *   The image URL to normalize.
@@ -405,7 +545,7 @@ class StaticImageSyncCommands extends DrushCommands {
     $normalized_url = preg_replace('#/s3/files/#', '/files/', $url);
     $normalized_url = preg_replace('#/sites/default/files/#', '/files/', $normalized_url);
 
-    // Find the filename part and normalize spaces to plus signs
+    // Parse URL to separate path from query/fragment
     $url_parts = parse_url($normalized_url);
     $path = $url_parts['path'] ?? $normalized_url;
     $last_slash_pos = strrpos($path, '/');
@@ -413,8 +553,10 @@ class StaticImageSyncCommands extends DrushCommands {
     if ($last_slash_pos !== FALSE) {
       $directory_path = substr($path, 0, $last_slash_pos + 1);
       $filename = substr($path, $last_slash_pos + 1);
-      $normalized_filename = str_replace(['%20', ' '], '+', $filename);
-      $normalized_path = $directory_path . $normalized_filename;
+
+      // Sanitize the filename to remove special characters
+      $sanitized_filename = $this->sanitizeFilename($filename);
+      $normalized_path = $directory_path . $sanitized_filename;
 
       // Rebuild URL with query/fragment if present
       if (isset($url_parts['query']) || isset($url_parts['fragment'])) {
