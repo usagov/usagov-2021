@@ -1782,6 +1782,36 @@ snapshot_db() {
     exec_backup_command "SNAPSHOT" "$suffix" "db"
 }
 
+# Helper for downsync() - prints recovery instructions when downsync fails after destructive operations began
+# Args:
+#   $1: to_space - The space that was being written to
+#   $2: safety_backup_taken - "true" or "false"
+_print_downsync_recovery_hint() {
+    local to_space="$1"
+    local safety_backup_taken="${2:-false}"
+    echo ""
+    print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    print_status $RED "⚠️  DOWNSYNC FAILED — $to_space MAY BE IN AN INCONSISTENT STATE"
+    print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    if [ "$safety_backup_taken" = "true" ]; then
+        print_status $GREEN "✅ A safety backup of $to_space was taken before this operation began"
+        echo ""
+        echo "  To find it:  deploy.sh list-backups"
+        echo "               (look for a backup tagged with prefix DOWNSYNC-${to_space})"
+        echo ""
+        echo "  To recover:  deploy.sh rollback <DOWNSYNC-backup-tag> --restore=all"
+    else
+        print_status $YELLOW "⚠️  No safety backup was available for $to_space"
+        echo ""
+        echo "  To recover: restore from the most recent backup taken before this downsync:"
+        echo "    deploy.sh list-backups"
+        echo "    deploy.sh rollback <backup-tag> --restore=all"
+    fi
+    echo ""
+    print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
 # Downsync data from one space to another
 # Args:
 #   $1: from_space - Source environment (e.g., prod)
@@ -1791,6 +1821,7 @@ downsync() {
     local from_space="$1"
     local to_space="$2"
     local backup_tag="$3"
+    local safety_backup_taken=false
 
     if [ -z "$from_space" ] || [ -z "$to_space" ]; then
         print_status $RED "❌ Error: Both FROM and TO spaces required"
@@ -1874,6 +1905,34 @@ downsync() {
     print_status $BLUE "🚀 Starting downsync..."
     echo ""
 
+    # === SAFETY BACKUP ===
+    # Take a snapshot of the TO space now, before any destructive operations begin.
+    # This gives us a recovery point if the downsync fails partway through.
+    print_status $BLUE "🛡️  Taking safety backup of $to_space before any destructive operations..."
+    print_status $YELLOW "   This protects the current state of $to_space in case something goes wrong"
+    cf target -s "$to_space" >/dev/null 2>&1
+
+    local saved_deploy_env="${DEPLOY_ENV:-}"
+    export DEPLOY_ENV="$to_space"
+    exec_backup_command "DOWNSYNC" "pre-downsync" "all"
+    local safety_backup_exit=$?
+    if [ -n "$saved_deploy_env" ]; then
+        export DEPLOY_ENV="$saved_deploy_env"
+    else
+        export DEPLOY_ENV=""
+    fi
+
+    if [ $safety_backup_exit -eq 0 ]; then
+        safety_backup_taken=true
+        print_status $GREEN "✅ Safety backup of $to_space complete"
+        print_status $GREEN "   To find it later: deploy.sh list-backups (look for DOWNSYNC-${to_space}...)"
+    else
+        print_status $YELLOW "⚠️  Warning: Safety backup of $to_space failed — proceeding without a safety net"
+        print_status $YELLOW "   If the downsync fails partway through, you will need to restore from a pre-existing backup"
+    fi
+    echo ""
+    # === END SAFETY BACKUP ===
+
     # Create temporary directory for downloads
     local temp_dir=$(mktemp -d)
     local db_file="$temp_dir/${backup_tag}.sql.gz"
@@ -1923,11 +1982,15 @@ downsync() {
     rm "$temp_dir/public.tar.gz"
     print_status $GREEN "  ✅ Public files downloaded ($(du -sh "$public_dir" | cut -f1))"
 
-    # Switch to TO space
-    print_status $BLUE "🎯 Targeting $to_space..."
+    # Switch to TO space for restore operations
+    print_status $BLUE "🎯 Targeting $to_space for restore operations..."
     cf target -s "$to_space" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-        print_status $RED "❌ System Error: Failed to target TO space: $to_space"
+        print_status $RED "❌ System Error: Failed to target $to_space for restore operations"
+        print_status $GREEN "✅ No data was written to $to_space — the environment is unchanged"
+        if [ "$safety_backup_taken" = "true" ]; then
+            print_status $GREEN "   (A safety backup was taken but is not needed — $to_space is intact)"
+        fi
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 3
@@ -1946,12 +2009,32 @@ downsync() {
     # Use printf %q for safe shell escaping
     local upload_cmd
     upload_cmd=$(printf 'cat > /tmp/%q.sql.gz' "$backup_tag")
+    print_status $BLUE "  Uploading database backup to $to_space..."
     cf ssh cms -c "$upload_cmd" < "$db_file"
+    local db_upload_exit=$?
 
+    if [ $db_upload_exit -ne 0 ]; then
+        print_status $RED "  ❌ Failed to upload database backup to $to_space"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
+        exit 3
+    fi
+
+    print_status $BLUE "  Restoring database in $to_space (this may take several minutes)..."
     local restore_cmd
     restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql; rm -f %q.sql' "$backup_tag" "$backup_tag" "$backup_tag")
     cf ssh cms -c "$restore_cmd" >/dev/null 2>&1
-    print_status $GREEN "  ✅ Database restored"
+    local db_restore_exit=$?
+
+    if [ $db_restore_exit -ne 0 ]; then
+        print_status $RED "  ❌ Database restore failed in $to_space"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
+        exit 3
+    fi
+    print_status $GREEN "  ✅ Database restored in $to_space"
 
     # Upload and restore public files
     print_status $BLUE "📤 Uploading public files to S3..."
@@ -1976,13 +2059,14 @@ downsync() {
     " >/dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        print_status $RED "❌ Error: Failed to restore public files"
-        print_status $YELLOW "⚠️  Database restored but public files failed"
+        print_status $RED "❌ System Error: Failed to restore public files to $to_space"
+        print_status $YELLOW "⚠️  The database was already restored — $to_space is in a partial state (db updated, public files unchanged)"
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
         exit 1
     fi
-    print_status $GREEN "  ✅ Public files restored"
+    print_status $GREEN "  ✅ Public files restored to $to_space"
 
     # Run database updates
     print_status $BLUE "🔄 Running database updates..."
@@ -4088,6 +4172,43 @@ validate_backup_tag_exists() {
     fi
 }
 
+# Helper for rollback() - prints manual recovery commands when auto-revert fails or is unavailable
+# Args:
+#   $1: env - Target environment
+#   $2: pre_cms - Pre-rollback CMS digest
+#   $3: pre_www - Pre-rollback WWW digest
+#   $4: pre_waf - Pre-rollback WAF digest
+_print_rollback_recovery_commands() {
+    local env="$1"
+    local pre_cms="$2"
+    local pre_www="$3"
+    local pre_waf="$4"
+    echo ""
+    print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    print_status $RED "🆘 MANUAL RECOVERY REQUIRED — ACTION NEEDED NOW"
+    print_status $RED "   The environment ($env) may be in an inconsistent mixed-version state."
+    print_status $RED "   Run these commands to restore all apps to their pre-rollback state:"
+    print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    if [ -n "$pre_cms" ]; then
+        echo "  deploy.sh deploy app cms unknown $pre_cms --skip-confirmation"
+    else
+        echo "  (CMS pre-rollback digest unavailable — check current digest with: cf app cms)"
+    fi
+    if [ -n "$pre_www" ]; then
+        echo "  deploy.sh deploy app www unknown $pre_www --skip-confirmation"
+    else
+        echo "  (WWW pre-rollback digest unavailable — check current digest with: cf app www)"
+    fi
+    if [ -n "$pre_waf" ]; then
+        echo "  deploy.sh deploy app waf unknown $pre_waf --skip-confirmation"
+    else
+        echo "  (WAF pre-rollback digest unavailable — check current digest with: cf app waf)"
+    fi
+    echo ""
+    print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
 # Rollback command - uses backup metadata to restore containers
 rollback() {
     local data_types=""
@@ -4212,25 +4333,113 @@ rollback() {
         return 0
     fi
 
-    # STEP 1: Rollback code (always)
-    print_status $BLUE "🚀 Redeploying containers..."
+    # STEP 1: Capture pre-rollback digests as a safety net for auto-revert if deploy fails
+    echo ""
+    print_status $BLUE "📸 Capturing current digests as rollback safety net..."
+    local pre_rollback_cms=$(get_app_digest "cms")
+    local pre_rollback_www=$(get_app_digest "www")
+    local pre_rollback_waf=$(get_app_digest "waf")
+
+    if [ -n "$pre_rollback_cms" ] && [ -n "$pre_rollback_www" ] && [ -n "$pre_rollback_waf" ]; then
+        print_status $GREEN "✅ Pre-rollback digests captured — if this rollback fails mid-way, apps will be automatically reverted"
+    else
+        print_status $YELLOW "⚠️  Warning: Could not capture one or more pre-rollback digests"
+        print_status $YELLOW "   Auto-revert will not be available for missing apps; manual recovery commands will be shown on failure"
+    fi
     echo ""
 
+    # STEP 2: Rollback code (always) — deploying all three apps in sequence
+    print_status $BLUE "🚀 Redeploying all containers to rollback digest..."
+    echo ""
+
+    # --- CMS ---
+    print_status $BLUE "  [1/3] Deploying CMS to rollback digest..."
     if ! _deploy_app "cms" "$env" "$cci_build" "$cms_digest"; then
-        print_status $RED "❌ Failed to deploy CMS"
+        print_status $RED "  ❌ [1/3] CMS deploy failed"
+        print_status $GREEN "  No apps were changed yet — rollback aborted cleanly, environment is unchanged"
         return 1
     fi
+    print_status $GREEN "  ✅ [1/3] CMS deployed to rollback digest"
+    echo ""
 
+    # --- WWW ---
+    print_status $BLUE "  [2/3] Deploying WWW to rollback digest..."
     if ! _deploy_app "www" "$env" "$cci_build" "$www_digest"; then
-        print_status $RED "❌ Failed to deploy WWW"
+        print_status $RED "  ❌ [2/3] WWW deploy failed"
+        echo ""
+        print_status $YELLOW "  Current state: CMS is on the rollback digest, WWW and WAF are still on the previous digest"
+        print_status $YELLOW "  Attempting to automatically revert CMS back to its pre-rollback state..."
+        echo ""
+        if [ -n "$pre_rollback_cms" ]; then
+            print_status $BLUE "  🔄 Reverting CMS to pre-rollback digest..."
+            if _deploy_app "cms" "$env" "pre-rollback-revert" "$pre_rollback_cms"; then
+                print_status $GREEN "  ✅ CMS successfully reverted to pre-rollback state"
+                echo ""
+                print_status $GREEN "✅ Environment fully restored to pre-rollback state — rollback failed but no changes were left in place"
+            else
+                print_status $RED "  ❌ Auto-revert of CMS also failed"
+                print_status $RED "     CMS is on the rollback digest; WWW and WAF are on the previous digest"
+                _print_rollback_recovery_commands "$env" "$pre_rollback_cms" "$pre_rollback_www" "$pre_rollback_waf"
+            fi
+        else
+            print_status $YELLOW "  ⚠️  No pre-rollback digest captured for CMS — cannot auto-revert"
+            _print_rollback_recovery_commands "$env" "$pre_rollback_cms" "$pre_rollback_www" "$pre_rollback_waf"
+        fi
         return 1
     fi
+    print_status $GREEN "  ✅ [2/3] WWW deployed to rollback digest"
+    echo ""
 
+    # --- WAF ---
+    print_status $BLUE "  [3/3] Deploying WAF to rollback digest..."
     if ! _deploy_app "waf" "$env" "$cci_build" "$waf_digest"; then
-        print_status $RED "❌ Failed to deploy WAF"
+        print_status $RED "  ❌ [3/3] WAF deploy failed"
+        echo ""
+        print_status $YELLOW "  Current state: CMS and WWW are on the rollback digest, WAF is still on the previous digest"
+        print_status $YELLOW "  Attempting to automatically revert CMS and WWW back to their pre-rollback state..."
+        echo ""
+        local revert_ok=true
+
+        if [ -n "$pre_rollback_cms" ]; then
+            print_status $BLUE "  🔄 Reverting CMS to pre-rollback digest..."
+            if _deploy_app "cms" "$env" "pre-rollback-revert" "$pre_rollback_cms"; then
+                print_status $GREEN "  ✅ CMS reverted"
+            else
+                print_status $RED "  ❌ CMS revert failed"
+                revert_ok=false
+            fi
+        else
+            print_status $YELLOW "  ⚠️  No pre-rollback digest for CMS — skipping revert"
+            revert_ok=false
+        fi
+
+        if [ -n "$pre_rollback_www" ]; then
+            print_status $BLUE "  🔄 Reverting WWW to pre-rollback digest..."
+            if _deploy_app "www" "$env" "pre-rollback-revert" "$pre_rollback_www"; then
+                print_status $GREEN "  ✅ WWW reverted"
+            else
+                print_status $RED "  ❌ WWW revert failed"
+                revert_ok=false
+            fi
+        else
+            print_status $YELLOW "  ⚠️  No pre-rollback digest for WWW — skipping revert"
+            revert_ok=false
+        fi
+
+        echo ""
+        if [ "$revert_ok" = true ]; then
+            print_status $GREEN "✅ CMS and WWW successfully reverted to pre-rollback state"
+            print_status $GREEN "✅ Environment fully restored to pre-rollback state — rollback failed but no changes were left in place"
+        else
+            print_status $RED "❌ One or more auto-reverts failed — environment may be in an inconsistent state"
+            _print_rollback_recovery_commands "$env" "$pre_rollback_cms" "$pre_rollback_www" "$pre_rollback_waf"
+        fi
         return 1
     fi
+    print_status $GREEN "  ✅ [3/3] WAF deployed to rollback digest"
+    echo ""
 
+    print_status $GREEN "✅ All three apps successfully deployed to rollback digest"
     print_status $GREEN "✅ Code rollback complete"
 
     # STEP 2: Data rollback (if requested and not code-only)
