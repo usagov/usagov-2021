@@ -3664,39 +3664,43 @@ show_current_digests_wrapper() {
     done
 
     local current_space=$(cf target | grep 'space:' | awk '{print $2}')
+    local query_space="${target_space:-$current_space}"
+
+    # Switch to target space if needed
+    if [ -n "$target_space" ] && [ "$target_space" != "$current_space" ]; then
+        if [ "$use_json" = false ]; then
+            print_status $BLUE "🔄 Switching to $target_space space..."
+        fi
+        cf target -s "$target_space" >/dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            if [ "$use_json" = true ]; then
+                echo '{"error":"Failed to switch to space: '"$target_space"'"}' | jq .
+            else
+                print_status $RED "❌ Failed to switch to space: $target_space"
+            fi
+            return 1
+        fi
+    fi
+
+    # Query live CF for all three digests and last-deployed timestamp
+    local cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
+    local www_digest=$(get_app_digest "www" 2>/dev/null || echo "unknown")
+    local waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
+    local last_deployed=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
+
+    # Switch back if needed
+    if [ -n "$target_space" ] && [ "$target_space" != "$current_space" ]; then
+        cf target -s "$current_space" >/dev/null 2>&1
+    fi
 
     if [ "$use_json" = true ]; then
-        # For JSON output, query directly from CF instead of using cron file
-        local query_space="${target_space:-$current_space}"
-
-        # Switch to target space if needed
-        if [ -n "$target_space" ] && [ "$target_space" != "$current_space" ]; then
-            cf target -s "$target_space" >/dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                echo '{"error":"Failed to switch to space: '"$target_space"'"}' | jq .
-                return 1
-            fi
-        fi
-
-        # Get current digests
-        local cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
-        local www_digest=$(get_app_digest "www" 2>/dev/null || echo "unknown")
-        local waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
-        local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
-
-        # Switch back if needed
-        if [ -n "$target_space" ] && [ "$target_space" != "$current_space" ]; then
-            cf target -s "$current_space" >/dev/null 2>&1
-        fi
-
-        # Output JSON
         local json_data=$(cat <<EOF
 {
   "space": "$query_space",
   "cms": "$cms_digest",
   "www": "$www_digest",
   "waf": "$waf_digest",
-  "last_deployed": "${cms_updated:-unknown}"
+  "last_deployed": "${last_deployed:-unknown}"
 }
 EOF
 )
@@ -3705,23 +3709,17 @@ EOF
     fi
 
     # Default table output
-    if [ -z "$target_space" ] || [ "$target_space" = "$current_space" ]; then
-        # No space specified or same as current space
-        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
-    else
-        # Different space - switch, run, switch back
-        print_status $BLUE "🔄 Switching to $target_space space..."
-        cf target -s "$target_space" >/dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            print_status $RED "❌ Failed to switch to space: $target_space"
-            return 1
-        fi
-
-        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
-
-        print_status $BLUE "🔄 Switching back to $current_space space..."
-        cf target -s "$current_space" >/dev/null 2>&1
+    print_status $BLUE "📦 Current Container Digests"
+    echo ""
+    echo "  Space:         $query_space"
+    if [ -n "$last_deployed" ]; then
+        echo "  Last deployed: $last_deployed"
     fi
+    echo ""
+    echo "  cms: $cms_digest"
+    echo "  www: $www_digest"
+    echo "  waf: $waf_digest"
+    echo ""
 }
 
 # Validate deployment metadata completeness for a backup tag

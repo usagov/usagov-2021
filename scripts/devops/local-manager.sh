@@ -672,8 +672,20 @@ case "$COMMAND" in
         cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/test.sh"
         ;;
     "current-digests")
-        # current-digests - show container digests captured by cron
-        cf ssh cms -c "cd /var/www && . scripts/common.sh && show_current_digests"
+        # current-digests - show current live container digests via CF CLI
+        local _space=$(cf target | grep 'space:' | awk '{print $2}')
+        local _cms=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+        local _www=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+        local _waf=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+        local _ts=$(cf app cms 2>/dev/null | grep '^last uploaded:' | sed 's/^last uploaded: *//')
+        echo ""
+        echo "  Space:         ${_space:-unknown}"
+        [ -n "$_ts" ] && echo "  Last deployed: $_ts"
+        echo ""
+        echo "  cms: ${_cms:-unknown}"
+        echo "  www: ${_www:-unknown}"
+        echo "  waf: ${_waf:-unknown}"
+        echo ""
         ;;
     "cron")
         # cron <subcommand> [types] - manage cron jobs on CF
