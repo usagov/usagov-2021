@@ -1259,9 +1259,10 @@ show_status() {
         local waf_state=$(cf app waf 2>/dev/null | grep "^requested state:" | awk '{print $3}')
 
         # Get current digests
-        local cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
-        local www_digest=$(get_app_digest "www" 2>/dev/null || echo "unknown")
-        local waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
+        local _all_digests=$(get_all_app_digests 2>/dev/null)
+        local cms_digest; cms_digest=$(echo "$_all_digests" | sed -n '1p'); cms_digest="${cms_digest:-unknown}"
+        local www_digest; www_digest=$(echo "$_all_digests" | sed -n '2p'); www_digest="${www_digest:-unknown}"
+        local waf_digest; waf_digest=$(echo "$_all_digests" | sed -n '3p'); waf_digest="${waf_digest:-unknown}"
 
         # Get deployment time
         local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
@@ -1351,9 +1352,10 @@ EOF
     echo "────────────────────────────────────────────────────────────────────────────────"
 
     # Get current digests for all apps
-    local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
-    local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
-    local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "")
+    local _all_digests=$(get_all_app_digests 2>/dev/null)
+    local cms_current; cms_current=$(echo "$_all_digests" | sed -n '1p')
+    local www_current; www_current=$(echo "$_all_digests" | sed -n '2p')
+    local waf_current; waf_current=$(echo "$_all_digests" | sed -n '3p')
 
     if [ -z "$cms_current" ]; then
         print_status $RED "  ❌ Unable to query apps (check 'cf target' and login)"
@@ -1525,7 +1527,7 @@ exec_backup_command() {
     # Download existing metadata, update it, and re-upload
     local temp_metadata="/tmp/${backup_tag}-metadata-update.json"
 
-    if fetch_deployment_metadata "$backup_tag" > "$temp_metadata" 2>/dev/null; then
+    if fetch_deployment_metadata_remote "$backup_tag" > "$temp_metadata" 2>/dev/null; then
         # Use sed to update the digest fields in place
         sed -i.bak "s|\"cms\": {[^}]*}|\"cms\": { \"cci_build\": \"$cci_build\", \"digest\": \"$cms_digest\" }|" "$temp_metadata"
         sed -i.bak "s|\"www\": {[^}]*}|\"www\": { \"cci_build\": \"$cci_build\", \"digest\": \"$www_digest\" }|" "$temp_metadata"
@@ -2233,9 +2235,10 @@ list_digests() {
 
         for env in $envs_to_query; do
             # Get current and previous digests
-            local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
-            local www_current=$(get_app_digest "www" 2>/dev/null || echo "unknown")
-            local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
+            local _all_digests=$(get_all_app_digests 2>/dev/null)
+            local cms_current; cms_current=$(echo "$_all_digests" | sed -n '1p'); cms_current="${cms_current:-unknown}"
+            local www_current; www_current=$(echo "$_all_digests" | sed -n '2p'); www_current="${www_current:-unknown}"
+            local waf_current; waf_current=$(echo "$_all_digests" | sed -n '3p'); waf_current="${waf_current:-unknown}"
             local cms_updated=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
             local build_num=$(extract_build_from_digest "$cms_current")
 
@@ -2305,9 +2308,10 @@ _show_current_and_previous_digests() {
     print_status $GREEN "CURRENTLY DEPLOYED:"
     show_loading "Querying Cloud Foundry"
     # Get current digests for all apps
-    local cms_current=$(get_app_digest "cms" 2>/dev/null || echo "")
-    local www_current=$(get_app_digest "www" 2>/dev/null || echo "")
-    local waf_current=$(get_app_digest "waf" 2>/dev/null || echo "")
+    local _all_digests=$(get_all_app_digests 2>/dev/null)
+    local cms_current; cms_current=$(echo "$_all_digests" | sed -n '1p')
+    local www_current; www_current=$(echo "$_all_digests" | sed -n '2p')
+    local waf_current; waf_current=$(echo "$_all_digests" | sed -n '3p')
 
     if [ -z "$cms_current" ]; then
         echo "  Unable to query CF (check 'cf target' and login)"
@@ -3613,8 +3617,9 @@ deploy_app() {
 }
 
 # Helper function to fetch deployment metadata from S3 via CMS container
-# Wraps the common.sh function but executes it remotely via cf ssh
-fetch_deployment_metadata() {
+# Wraps the common.sh fetch_deployment_metadata() but executes it remotely via cf ssh
+# Named _remote to distinguish from the local common.sh version that reads S3 directly
+fetch_deployment_metadata_remote() {
     local backup_tag="$1"
 
     # If no tag provided, find the most recent
@@ -3683,9 +3688,10 @@ show_current_digests_wrapper() {
     fi
 
     # Query live CF for all three digests and last-deployed timestamp
-    local cms_digest=$(get_app_digest "cms" 2>/dev/null || echo "unknown")
-    local www_digest=$(get_app_digest "www" 2>/dev/null || echo "unknown")
-    local waf_digest=$(get_app_digest "waf" 2>/dev/null || echo "unknown")
+    local _all_digests=$(get_all_app_digests 2>/dev/null)
+    local cms_digest; cms_digest=$(echo "$_all_digests" | sed -n '1p'); cms_digest="${cms_digest:-unknown}"
+    local www_digest; www_digest=$(echo "$_all_digests" | sed -n '2p'); www_digest="${www_digest:-unknown}"
+    local waf_digest; waf_digest=$(echo "$_all_digests" | sed -n '3p'); waf_digest="${waf_digest:-unknown}"
     local last_deployed=$(cf app cms 2>/dev/null | grep "^last uploaded:" | sed 's/^last uploaded: *//')
 
     # Switch back if needed
@@ -3767,7 +3773,7 @@ validate_digest_metadata() {
     fi
 
     # Fetch metadata
-    local metadata_json=$(fetch_deployment_metadata "$backup_tag")
+    local metadata_json=$(fetch_deployment_metadata_remote "$backup_tag")
 
     if [ -z "$metadata_json" ]; then
         if [ "$use_json" = true ]; then
@@ -3960,8 +3966,8 @@ compare_digest_metadata() {
     fi
 
     # Fetch both metadata files
-    local metadata1=$(fetch_deployment_metadata "$tag1")
-    local metadata2=$(fetch_deployment_metadata "$tag2")
+    local metadata1=$(fetch_deployment_metadata_remote "$tag1")
+    local metadata2=$(fetch_deployment_metadata_remote "$tag2")
 
     if [ -z "$metadata1" ]; then
         if [ "$use_json" = true ]; then
@@ -4261,7 +4267,7 @@ rollback() {
 
     # Fetch metadata from backup tag (or latest if empty)
     print_status $BLUE "📦 Fetching backup metadata..."
-    local metadata_json=$(fetch_deployment_metadata "$backup_tag")
+    local metadata_json=$(fetch_deployment_metadata_remote "$backup_tag")
 
     if [ -z "$metadata_json" ]; then
         if [ -z "$backup_tag" ]; then
@@ -4336,9 +4342,10 @@ rollback() {
     # STEP 1: Capture pre-rollback digests as a safety net for auto-revert if deploy fails
     echo ""
     print_status $BLUE "📸 Capturing current digests as rollback safety net..."
-    local pre_rollback_cms=$(get_app_digest "cms")
-    local pre_rollback_www=$(get_app_digest "www")
-    local pre_rollback_waf=$(get_app_digest "waf")
+    local _all_digests=$(get_all_app_digests)
+    local pre_rollback_cms; pre_rollback_cms=$(echo "$_all_digests" | sed -n '1p')
+    local pre_rollback_www; pre_rollback_www=$(echo "$_all_digests" | sed -n '2p')
+    local pre_rollback_waf; pre_rollback_waf=$(echo "$_all_digests" | sed -n '3p')
 
     if [ -n "$pre_rollback_cms" ] && [ -n "$pre_rollback_www" ] && [ -n "$pre_rollback_waf" ]; then
         print_status $GREEN "✅ Pre-rollback digests captured — if this rollback fails mid-way, apps will be automatically reverted"

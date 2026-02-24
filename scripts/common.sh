@@ -777,20 +777,25 @@ get_app_digest() {
     cf app "$app_name" 2>/dev/null | grep 'docker image' | awk '{print $NF}'
 }
 
-# Get all app digests (cms, waf, www) from Cloud Foundry
-# Returns: Three lines: cms_digest, waf_digest, www_digest
+# Get all app digests (cms, www, waf) from Cloud Foundry in a single batched call
+# Returns: Three lines — line 1 = cms, line 2 = www, line 3 = waf
+# Callers should parse with: sed -n '1p' (cms), sed -n '2p' (www), sed -n '3p' (waf)
 get_all_app_digests() {
     local cms_digest=$(get_app_digest "cms")
-    local waf_digest=$(get_app_digest "waf")
     local www_digest=$(get_app_digest "www")
+    local waf_digest=$(get_app_digest "waf")
     echo "$cms_digest"
-    echo "$waf_digest"
     echo "$www_digest"
+    echo "$waf_digest"
 }
 
 # Show current container digests captured by cron
 # Reads .current_digests_{env}.json from S3 and displays in formatted output
 # This shows what digests would be captured if a backup were created right now
+#
+# NOTE: This function intentionally reads the S3 cron file rather than querying CF directly.
+# It executes inside a CMS container (via cf ssh) where CF authentication is not available.
+# To query live CF digests from outside a container, use get_app_digest() or get_all_app_digests().
 show_current_digests() {
     # Initialize backup system to get S3 access
     init_backup_system >/dev/null 2>&1 || true
