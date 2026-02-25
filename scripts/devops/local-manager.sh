@@ -1,4 +1,5 @@
 #!/bin/sh
+# local-manager.sh is for LOCAL MACHINE USE ONLY.
 
 # Set restrictive permissions for all created files
 umask 077
@@ -348,8 +349,11 @@ check_cf_cli() {
 # Execute a command on Cloud Foundry via SSH
 # Sources /etc/profile for environment, changes to /var/www, runs manager.sh
 # Args: All arguments are passed to manager.sh on CF
+# Each argument is shell-escaped via printf %q to prevent injection via crafted inputs.
 remote_command() {
-    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh $*"
+    local _cmd
+    _cmd=$(printf ' %q' "$@")
+    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh${_cmd}"
 }
 
 # Download backups from CF to local machine with streaming support
@@ -366,7 +370,7 @@ download_command() {
     local unzip_filename=""
 
     # Parse all arguments, separating flags from positional args
-    local positional_args=()
+    local _pos_count=0
     while [ $# -gt 0 ]; do
         case "$1" in
             --unzip)
@@ -379,16 +383,16 @@ download_command() {
                 shift
                 ;;
             *)
-                positional_args+=("$1")
+                _pos_count=$((_pos_count + 1))
+                case $_pos_count in
+                    1) backup_tag="$1" ;;
+                    2) backup_type="$1" ;;
+                    3) output_dir="$1" ;;
+                esac
                 shift
                 ;;
         esac
     done
-
-    # Assign positional arguments
-    backup_tag="${positional_args[0]}"
-    [ ${#positional_args[@]} -gt 1 ] && backup_type="${positional_args[1]}"
-    [ ${#positional_args[@]} -gt 2 ] && output_dir="${positional_args[2]}"
 
     if [ -z "$backup_tag" ]; then
         echo "❌ Error: backup tag required"
@@ -476,7 +480,7 @@ download_command() {
                 echo "📦 Extracting $label backup..."
 
                 # Determine extraction method based on file type
-                if [[ "$output_file" == *.tar.gz ]]; then
+                if [ "${output_file%.tar.gz}" != "$output_file" ]; then
                     # Extract tar.gz to directory
                     local extract_dir
                     if [ -n "$unzip_filename" ]; then
@@ -560,8 +564,10 @@ download_command() {
     }
 
     # Download each requested type
-    IFS=',' read -ra TYPES <<< "$types_to_download"
-    for type in "${TYPES[@]}"; do
+    _old_IFS="$IFS"
+    IFS=','
+    for type in $types_to_download; do
+        IFS="$_old_IFS"
         # Trim whitespace
         type=$(echo "$type" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
@@ -582,6 +588,7 @@ download_command() {
                 ;;
         esac
     done
+    IFS="$_old_IFS"
 
     # Summary
     if [ $failed -eq 0 ]; then
@@ -673,11 +680,11 @@ case "$COMMAND" in
         ;;
     "current-digests")
         # current-digests - show current live container digests via CF CLI
-        local _space=$(cf target | grep 'space:' | awk '{print $2}')
-        local _cms=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
-        local _www=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
-        local _waf=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}')
-        local _ts=$(cf app cms 2>/dev/null | grep '^last uploaded:' | sed 's/^last uploaded: *//')
+        _space=$(cf target | grep 'space:' | awk '{print $2}')
+        _cms=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+        _www=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+        _waf=$(cf app waf 2>/dev/null | grep 'docker image' | awk '{print $NF}')
+        _ts=$(cf app cms 2>/dev/null | grep '^last uploaded:' | sed 's/^last uploaded: *//')
         echo ""
         echo "  Space:         ${_space:-unknown}"
         [ -n "$_ts" ] && echo "  Last deployed: $_ts"
@@ -696,7 +703,7 @@ case "$COMMAND" in
                 echo "⚙️  Managing cron jobs on Cloud Foundry..."
                 echo ""
                 # Use printf %q for safe shell escaping
-                local cmd
+                cmd=
                 if [ -n "$CRON_TYPES" ]; then
                     cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q %q' "$CRON_SUBCOMMAND" "$CRON_TYPES")
                 else

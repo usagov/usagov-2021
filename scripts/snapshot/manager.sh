@@ -334,7 +334,8 @@ run_backup_command() {
     fi
 
     # Rate limiting check - prevent backup spam (max 1 backup per 5 minutes)
-    local rate_limit_file="/tmp/backup_rate_limit"
+    # Path is per-user (UID) so one user cannot block or spoof another's rate limit file.
+    local rate_limit_file="/tmp/backup_rate_limit_$(id -u 2>/dev/null || echo 0)"
     if [ -f "$rate_limit_file" ]; then
         local last_backup=$(cat "$rate_limit_file")
         local current_time=$(date +%s)

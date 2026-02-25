@@ -121,7 +121,14 @@ show_command_help() {
 # Args: $1 - backup types (default: all)
 setup_cron() {
     local backup_types="${1:-all}"
-    
+
+    # Validate backup types against allowlist to prevent cron entry injection
+    if ! echo "$backup_types" | grep -qE '^(all|static|public|db)(,(static|public|db))*$'; then
+        print_status $RED "❌ Invalid backup types: $backup_types"
+        print_status $YELLOW "   Valid values: all, static, public, db, or comma-separated combinations"
+        return 1
+    fi
+
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         print_status $YELLOW "Database backups are disabled in configuration"
         return 1
@@ -188,7 +195,14 @@ show_status() {
 # Args: $1 - backup types (default: all)
 test_cron_command() {
     local backup_types="${1:-all}"
-    
+
+    # Validate backup types against allowlist
+    if ! echo "$backup_types" | grep -qE '^(all|static|public|db)(,(static|public|db))*$'; then
+        print_status $RED "❌ Invalid backup types: $backup_types"
+        print_status $YELLOW "   Valid values: all, static, public, db, or comma-separated combinations"
+        return 1
+    fi
+
     print_status $YELLOW "Testing cron command execution..."
     print_status $BLUE "This simulates the exact environment and command that cron will use"
     echo ""
