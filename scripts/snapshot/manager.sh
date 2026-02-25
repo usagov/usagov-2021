@@ -39,7 +39,8 @@ show_usage() {
     echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
     echo "  delete <tag> [tag2 tag3...] [types] [-y]    Delete specific backup(s) by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
-    echo "  info [types] [tag]                       Show backup system info or specific backup details"
+    echo "  info [types] [tag] [--verify] [--json]   Show backup system info or specific backup details"
+  echo "                                             Use --verify to validate integrity (DB: streams from S3)"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
     echo "  state <action> <type> [max_wait_mins]    Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
@@ -843,7 +844,7 @@ run_info_command() {
     # Check for --json flag in remaining arguments
     shift 2 2>/dev/null
     if has_json_flag "$@"; then
-        run_info_command_json "$types_arg" "$tag"
+        run_info_command_json "$types_arg" "$tag" "$@"
         return $?
     fi
 
@@ -851,7 +852,7 @@ run_info_command() {
 
     if [ -n "$tag" ]; then
         # Show info for specific tag with requested types
-        backup_info "$tag" "$backup_types"
+        backup_info "$tag" "$backup_types" "$@"
     else
         # Show general backup info for requested types
         setup_s3_vars || exit 1
@@ -893,12 +894,13 @@ run_info_command() {
 run_info_command_json() {
     local types_arg="${1:-all}"
     local tag="${2:-}"
+    shift 2 2>/dev/null
 
     local backup_types=$(parse_backup_types "$types_arg")
 
     if [ -n "$tag" ]; then
         # Show info for specific tag with requested types
-        backup_info_json "$tag" "$backup_types"
+        backup_info_json "$tag" "$backup_types" "$@"
     else
         # Show general backup system configuration
         setup_s3_vars || exit 1
@@ -2591,9 +2593,14 @@ backup_info() {
     # Check for --json flag in remaining arguments
     shift 2 2>/dev/null
     if has_json_flag "$@"; then
-        backup_info_json "$backup_tag" "$backup_types"
+        backup_info_json "$backup_tag" "$backup_types" "$@"
         return $?
     fi
+
+    local do_verify=false
+    for arg in "$@"; do
+        [ "$arg" = "--verify" ] && do_verify=true
+    done
 
     local static_exists="no"
     local public_exists="no"
@@ -2668,6 +2675,16 @@ backup_info() {
                 echo "  Total Size: $formatted_size"
             fi
 
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    print_status $GREEN "  Verify: ✅ VALID"
+                    static_valid=true
+                else
+                    print_status $RED "  Verify: ❌ INVALID (exists but is empty)"
+                    static_valid=false
+                fi
+            fi
+
             # Show sample files
             echo ""
             echo "  Sample Files (first 5):"
@@ -2680,6 +2697,7 @@ backup_info() {
         else
             echo "  Status: ❌ Not found"
             echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/"
+            [ "$do_verify" = "true" ] && static_valid=false
         fi
         echo ""
     fi
@@ -2715,6 +2733,16 @@ backup_info() {
                 echo "  Total Size: $formatted_size"
             fi
 
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    print_status $GREEN "  Verify: ✅ VALID"
+                    public_valid=true
+                else
+                    print_status $RED "  Verify: ❌ INVALID (exists but is empty)"
+                    public_valid=false
+                fi
+            fi
+
             # Show sample files
             echo ""
             echo "  Sample Files (first 5):"
@@ -2727,6 +2755,7 @@ backup_info() {
         else
             echo "  Status: ❌ Not found"
             echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/"
+            [ "$do_verify" = "true" ] && public_valid=false
 
             # If static exists but public doesn't, show the smart relationship
             if [ "$static_exists" = "yes" ]; then
@@ -2796,9 +2825,43 @@ backup_info() {
             local uncompressed_estimate=$((backup_size * 15))
             local formatted_uncompressed=$(format_file_size "$uncompressed_estimate")
             echo "  Estimated Uncompressed: ~$formatted_uncompressed"
+
+            # Check for checksum sidecar (stream 64-byte file into variable, no disk writes)
+            local stored_checksum
+            stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            if [ -z "$stored_checksum" ]; then
+                stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            fi
+            if [ -n "$stored_checksum" ]; then
+                echo "  Checksum (SHA-256): $stored_checksum"
+            else
+                echo "  Checksum: not available"
+            fi
+
+            # Verify DB integrity if requested (streams full .sql.gz from S3, no disk writes)
+            if [ "$do_verify" = "true" ]; then
+                if [ -n "$stored_checksum" ]; then
+                    echo "  Verifying integrity (streaming from S3)..."
+                    local actual_checksum
+                    actual_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz" $S3_EXTRA_PARAMS - 2>/dev/null | sha256sum | awk '{print $1}')
+                    if [ "$stored_checksum" = "$actual_checksum" ]; then
+                        print_status $GREEN "  Integrity: ✅ VALID"
+                        db_valid=true
+                    else
+                        print_status $RED "  Integrity: ❌ INVALID (checksum mismatch)"
+                        echo "    Expected: $stored_checksum"
+                        echo "    Computed: $actual_checksum"
+                        db_valid=false
+                    fi
+                else
+                    print_status $YELLOW "  Integrity: ⚠️  cannot verify (no checksum file)"
+                    db_valid=unverifiable
+                fi
+            fi
         else
             echo "  Status: ❌ Not found"
             echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz"
+            [ "$do_verify" = "true" ] && db_valid=false
         fi
         echo ""
     fi
@@ -2865,6 +2928,42 @@ backup_info() {
         print_status $YELLOW "    ⚠️  Partial - $components_found of $components_expected components present"
     fi
 
+    if [ "$do_verify" = "true" ]; then
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "🔍 VERIFICATION RESULTS"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        local all_valid=true
+        if has_backup_type "$backup_types" "static"; then
+            case "${static_valid:-}" in
+                true)  echo "  ✅ Static Site" ;;
+                false) echo "  ❌ Static Site"; all_valid=false ;;
+                *)     echo "  ⚠️  Static Site (not checked)" ;;
+            esac
+        fi
+        if has_backup_type "$backup_types" "public"; then
+            case "${public_valid:-}" in
+                true)  echo "  ✅ Public Files" ;;
+                false) echo "  ❌ Public Files"; all_valid=false ;;
+                *)     echo "  ⚠️  Public Files (not checked)" ;;
+            esac
+        fi
+        if has_backup_type "$backup_types" "db"; then
+            case "${db_valid:-}" in
+                true)         echo "  ✅ Database (checksum verified)" ;;
+                false)        echo "  ❌ Database"; all_valid=false ;;
+                unverifiable) echo "  ⚠️  Database (no checksum file on record)" ;;
+                *)            echo "  ⚠️  Database (not checked)" ;;
+            esac
+        fi
+        echo ""
+        if [ "$all_valid" = "true" ]; then
+            print_status $GREEN "  Overall: ✅ VALID"
+        else
+            print_status $RED "  Overall: ❌ INVALID"
+        fi
+        echo ""
+    fi
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
@@ -2873,6 +2972,17 @@ backup_info() {
 backup_info_json() {
     local backup_tag=$1
     local backup_types=${2:-"all"}
+    shift 2 2>/dev/null
+
+    local do_verify=false
+    for arg in "$@"; do
+        [ "$arg" = "--verify" ] && do_verify=true
+    done
+
+    # Track per-component validity for --verify summary
+    local static_json_valid=true
+    local public_json_valid=true
+    local db_json_valid=true
 
     setup_s3_vars || exit 1
 
@@ -2937,8 +3047,20 @@ backup_info_json() {
             if [ -n "$total_size" ]; then
                 json_output="${json_output},\"size_bytes\":$total_size"
             fi
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    json_output="${json_output},\"valid\":true"
+                else
+                    json_output="${json_output},\"valid\":false"
+                    static_json_valid=false
+                fi
+            fi
         else
             json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/\""
+            if [ "$do_verify" = "true" ]; then
+                json_output="${json_output},\"valid\":false"
+                static_json_valid=false
+            fi
         fi
         json_output="${json_output}}"
     fi
@@ -2972,8 +3094,20 @@ backup_info_json() {
             if [ -n "$total_size" ]; then
                 json_output="${json_output},\"size_bytes\":$total_size"
             fi
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    json_output="${json_output},\"valid\":true"
+                else
+                    json_output="${json_output},\"valid\":false"
+                    public_json_valid=false
+                fi
+            fi
         else
             json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/\""
+            if [ "$do_verify" = "true" ]; then
+                json_output="${json_output},\"valid\":false"
+                public_json_valid=false
+            fi
 
             # Check for linked backup
             local corresponding_public=$(find_corresponding_backup "$backup_tag" "public")
@@ -3008,8 +3142,40 @@ backup_info_json() {
 
             local uncompressed_estimate=$((backup_size * 15))
             json_output="${json_output},\"estimated_uncompressed_bytes\":$uncompressed_estimate"
+
+            # Always check for checksum sidecar (stream 64-byte file into variable, no disk writes)
+            local stored_checksum
+            stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            if [ -z "$stored_checksum" ]; then
+                stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            fi
+            if [ -n "$stored_checksum" ]; then
+                json_output="${json_output},\"checksum_on_file\":\"$stored_checksum\""
+            else
+                json_output="${json_output},\"checksum_available\":false"
+            fi
+
+            if [ "$do_verify" = "true" ]; then
+                if [ -n "$stored_checksum" ]; then
+                    local actual_checksum
+                    actual_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz" $S3_EXTRA_PARAMS - 2>/dev/null | sha256sum | awk '{print $1}')
+                    json_output="${json_output},\"checksum_computed\":\"$actual_checksum\""
+                    if [ "$stored_checksum" = "$actual_checksum" ]; then
+                        json_output="${json_output},\"valid\":true"
+                    else
+                        json_output="${json_output},\"valid\":false"
+                        db_json_valid=false
+                    fi
+                else
+                    json_output="${json_output},\"valid\":null"
+                fi
+            fi
         else
             json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\""
+            if [ "$do_verify" = "true" ]; then
+                json_output="${json_output},\"valid\":false"
+                db_json_valid=false
+            fi
         fi
         json_output="${json_output}}"
     fi
@@ -3022,6 +3188,14 @@ backup_info_json() {
         json_output="${json_output},\"complete\":true"
     else
         json_output="${json_output},\"complete\":false"
+    fi
+
+    if [ "$do_verify" = "true" ]; then
+        local all_valid=true
+        [ "$static_json_valid" = "false" ] && all_valid=false
+        [ "$public_json_valid" = "false" ] && all_valid=false
+        [ "$db_json_valid" = "false" ] && all_valid=false
+        json_output="${json_output},\"all_valid\":$all_valid"
     fi
 
     json_output="${json_output}}}"
@@ -3292,8 +3466,9 @@ fi
 
 case "$COMMAND" in
     "list")
-        # list [types] [days] - e.g., "list static,db" or "list all 7"
-        list_backups "$2" "$3"
+        # list [types] [days] [--json] - e.g., "list static,db" or "list all 7" or "list all 7 --json"
+        shift  # Remove the 'list' command
+        list_backups "$@"
         ;;
     "backup")
         # backup [types] [prefix] [suffix] [--skip-state-management|--ssm] - e.g., "backup db" or "backup all USAGOV-123 post-deploy"
@@ -3315,8 +3490,9 @@ case "$COMMAND" in
         restore_backup "$@"  # Pass all remaining arguments
         ;;
     "info")
-        # info [types] <tag> - e.g., "info db" or "info all backup-tag"
-        run_info_command "$2" "$3"
+        # info [types] <tag> [--json] - e.g., "info db" or "info all backup-tag" or "info all backup-tag --json"
+        shift  # Remove the 'info' command
+        run_info_command "$@"
         ;;
     "download")
         # download <tag> <type> [output-path] [--stream]

@@ -424,23 +424,27 @@ show_command_help() {
         "list-backups")
             echo "List Available Backups"
             echo ""
-            echo "Usage: deploy.sh list-backups [days] [--json]"
+            echo "Usage: deploy.sh list-backups [days] [--ticket=<ticket>] [--json]"
             echo ""
             echo "Description:"
             echo "  Lists recent backups available for rollback."
+            echo "  Optionally filter by ticket number."
             echo ""
             echo "Arguments:"
             echo "  days  - Show backups from last N days (default: 7)"
             echo ""
             echo "Options:"
-            echo "  --json  - Output as JSON"
+            echo "  --ticket=<ticket>  Filter results to backups whose tag contains <ticket>"
+            echo "  --json             Output as JSON"
             echo ""
-            echo "Example:"
+            echo "Examples:"
             echo "  deploy.sh list-backups 14"
+            echo "  deploy.sh list-backups --ticket=USAGOV-1234"
             echo "  deploy.sh list-backups --json"
+            echo "  deploy.sh list-backups 30 --ticket=USAGOV-1234 --json"
             echo ""
             ;;
-        "digests")
+        "digests"
             echo "Show Available Container Digests"
             echo ""
             echo "Usage: deploy.sh digests [env] [days] [limit] [flags]"
@@ -2131,6 +2135,7 @@ downsync() {
 # Safe Operation: Read-only query, lists available backup tags from S3
 list_backups() {
     local days="7"
+    local ticket=""
     local use_json=false
 
     # Parse arguments
@@ -2138,6 +2143,10 @@ list_backups() {
         case "$1" in
             --json)
                 use_json=true
+                shift
+                ;;
+            --ticket=*)
+                ticket="${1#*=}"
                 shift
                 ;;
             *)
@@ -2152,15 +2161,30 @@ list_backups() {
         # Use printf %q for safe shell escaping, add --json flag for manager.sh
         local cmd
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q --json' "$days")
-        cf ssh cms -c "$cmd"
+        local raw_json
+        raw_json=$(cf ssh cms -c "$cmd")
+        if [ -n "$ticket" ]; then
+            echo "$raw_json" | jq --arg t "$ticket" \
+                '{backups: [.backups[] | select(.tag | contains($t))], count: ([.backups[] | select(.tag | contains($t))] | length), bucket: .bucket}'
+        else
+            echo "$raw_json"
+        fi
     else
-        print_status $BLUE "📋 Available backups (last $days days)"
+        if [ -n "$ticket" ]; then
+            print_status $BLUE "📋 Backups matching '$ticket' (last $days days)"
+        else
+            print_status $BLUE "📋 Available backups (last $days days)"
+        fi
         echo ""
 
         # Use printf %q for safe shell escaping
         local cmd
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
-        cf ssh cms -c "$cmd"
+        if [ -n "$ticket" ]; then
+            cf ssh cms -c "$cmd" | grep -i "$ticket" || echo "  No backups found matching '$ticket'"
+        else
+            cf ssh cms -c "$cmd"
+        fi
     fi
 }
 
