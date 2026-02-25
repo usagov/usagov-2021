@@ -1509,12 +1509,26 @@ list_backups() {
 
     local backup_types=$(parse_backup_types "$types_arg")
 
-    # If a filter argument (days or date range) is provided, use list_old_backups
+    # If a filter argument (days or date range) is provided, filter the listing.
+    # A plain number N means "last N days" (backups from N days ago to now).
+    # A colon-containing value is a date range passed through as-is.
     if [ -n "$filter_arg" ]; then
+        local range_arg="$filter_arg"
+        if echo "$filter_arg" | grep -qE '^[0-9]+$'; then
+            # Convert N days to a forward date range: "{N_days_ago}:" = from that date onward
+            local since_date
+            since_date=$(date -u -d "$filter_arg days ago" '+%Y-%m-%d' 2>/dev/null || \
+                         date -u -v-${filter_arg}d '+%Y-%m-%d' 2>/dev/null)
+            if [ -z "$since_date" ]; then
+                print_status $RED "❌ Error: could not compute date for '$filter_arg days ago'"
+                return 1
+            fi
+            range_arg="${since_date}:"
+        fi
         if [ "$use_json" = true ]; then
-            list_old_backups "$filter_arg" --json
+            list_old_backups "$range_arg" --json
         else
-            list_old_backups "$filter_arg"
+            list_old_backups "$range_arg"
         fi
         return 0
     fi
