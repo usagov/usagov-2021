@@ -1515,10 +1515,13 @@ list_backups() {
     if [ -n "$filter_arg" ]; then
         local range_arg="$filter_arg"
         if echo "$filter_arg" | grep -qE '^[0-9]+$'; then
-            # Convert N days to a forward date range: "{N_days_ago}:" = from that date onward
-            local since_date
-            since_date=$(date -u -d "$filter_arg days ago" '+%Y-%m-%d' 2>/dev/null || \
-                         date -u -v-${filter_arg}d '+%Y-%m-%d' 2>/dev/null)
+            # Convert N days to a forward date range: "{N_days_ago}:" = from that date onward.
+            # Use epoch arithmetic for BusyBox date compatibility (no "N days ago" string support).
+            local now_epoch since_epoch since_date
+            now_epoch=$(date +%s 2>/dev/null)
+            since_epoch=$((now_epoch - filter_arg * 86400))
+            since_date=$(date -u -d "@${since_epoch}" '+%Y-%m-%d' 2>/dev/null || \
+                         date -u -r "$since_epoch" '+%Y-%m-%d' 2>/dev/null)
             if [ -z "$since_date" ]; then
                 print_status $RED "❌ Error: could not compute date for '$filter_arg days ago'"
                 return 1
