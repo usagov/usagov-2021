@@ -444,7 +444,7 @@ show_command_help() {
             echo "  deploy.sh list-backups 30 --ticket=USAGOV-1234 --json"
             echo ""
             ;;
-        "digests"
+        "digests")
             echo "Show Available Container Digests"
             echo ""
             echo "Usage: deploy.sh digests [env] [days] [limit] [flags]"
