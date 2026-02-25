@@ -74,7 +74,7 @@ function usagov_blog_date_menu_rebuild_menu(): void {
 
   $nodes = \Drupal::entityTypeManager()
     ->getStorage('node')
-    ->loadByProperties(['type' => 'blog_post']);
+    ->loadByProperties(['type' => 'blog_post', 'status' => 1]);
 
   $groups = [];
   foreach ($nodes as $node) {
