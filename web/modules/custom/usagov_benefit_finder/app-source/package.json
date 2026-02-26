@@ -78,7 +78,7 @@
     "install": "^0.13.0",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.10",
-    "npm": "^11.9.0",
+    "npm": "^11.10.1",
     "playwright-webkit": "^1.50.1",
     "plop": "^4.0.1",
     "postcss": "^8.4.41",
