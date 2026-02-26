@@ -264,6 +264,17 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Add blog listing paths to be exported.
+   *
+   * The blog view has optional contextual filters (year/month) which means
+   * Tome doesn't automatically discover the base /blog path. We explicitly
+   * add it here to ensure /blog and /es/nuestro-blog are generated.
+   */
+  public function addBlogPaths(CollectPathsEvent $event): void {
+    $event->addPath('/blog', ['language_processed' => TRUE, 'langcode' => 'en']);
+  }
+
+  /**
    * @return string[]
    */
   private function getLetters(ViewExecutable $view): array {
@@ -288,6 +299,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['addAgencyIndexes'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['addBlogPaths'];
     $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
     return $events;
   }
