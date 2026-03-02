@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`VerifySelectionsView > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-verify-selections-view"
+    data-testid="bf-verify-selections-view"
+  >
+    <div
+      class="bf-grid-container grid-container"
+    >
+      <h1
+        aria-level="1"
+        class="bf-section-heading "
+        id="skip-to-h1"
+        role="heading"
+      />
+      <div
+        class="bf-section-wrapper"
+      >
+        <div
+          class="bf-section-info"
+        >
+          <div />
+          <div
+            class="bf-section-nav-btn-group"
+          >
+            <button
+              class="bf-usa-button usa-button bf-usa-button--outline usa-button--outline"
+              data-test="button"
+              type="button"
+            >
+              Back
+            </button>
+            <button
+              class="bf-usa-button usa-button bf-usa-button--secondary usa-button--secondary"
+              data-test="button"
+              type="button"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

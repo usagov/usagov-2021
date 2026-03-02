@@ -1,0 +1,19 @@
+@use '@styles/functions' as *;
+
+.bf-carrot-solid,
+.bf-carrot {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: rem(50px);
+  margin: auto 0;
+  transform: rotate(-90deg);
+
+  &::after {
+    content: '\25B8';
+  }
+}
+
+.bf-carrot {
+  transform: rotate(0deg);
+}

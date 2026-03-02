@@ -1,0 +1,68 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Fieldset > renders a match to the previous error snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-fieldset-wrapper"
+  >
+    <fieldset
+      class="bf-usa-fieldset usa-fieldset required-field usa-input--error "
+      data-errormessage="Fill out the legend field"
+      data-testid="fieldset"
+      id="applicant_date_of_birth_0"
+      required=""
+    >
+      <legend
+        class="bf-legend usa-legend"
+      >
+        legend
+        <span
+          class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+          title="required"
+        >
+          (Required)
+        </span>
+      </legend>
+      <div
+        aria-live="assertive"
+        class="bf-error-detail"
+        data-testid="error-description"
+        id="error-description-applicant_date_of_birth_0"
+      >
+        Fill out the legend field
+      </div>
+    </fieldset>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Fieldset > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-fieldset-wrapper"
+  >
+    <fieldset
+      class="bf-usa-fieldset usa-fieldset   "
+      data-errormessage="Fill out the legend field"
+      data-testid="fieldset"
+    >
+      <legend
+        class="bf-legend usa-legend"
+      >
+        Legend
+        <span
+          class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+          title="required"
+        >
+          (Required)
+        </span>
+      </legend>
+      <div
+        class="bf-hint"
+      >
+        hint
+      </div>
+    </fieldset>
+  </div>
+</DocumentFragment>
+`;

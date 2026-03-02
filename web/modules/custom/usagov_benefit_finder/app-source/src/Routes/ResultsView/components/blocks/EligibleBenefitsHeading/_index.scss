@@ -1,0 +1,23 @@
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+@use '@styles/breakpoints' as *;
+
+.bf-eligible-view-heading {
+  @include h2;
+
+  margin-left: rem(15px);
+
+  @media (width > $desktop) {
+    margin-left: 0;
+  }
+}
+
+.bf-eligible-view-description {
+  @include h6;
+
+  margin-left: rem(15px);
+
+  @media (width > $desktop) {
+    margin-left: 0;
+  }
+}

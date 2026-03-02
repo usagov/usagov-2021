@@ -2,10 +2,6 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-if (process.env.NEW_RELIC_APP_NAME) {
-  require("newrelic");
-}
-
 const spawn = require("child_process").spawn;
 const logger = require("../src/logger").initialize();
 
