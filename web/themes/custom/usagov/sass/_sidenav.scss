@@ -4,7 +4,7 @@
 .usa-sidenav {
   @include u-text('blue-warm-70v');
 
-  .active-trail {
+  a.active-trail {
     font-weight: bold;
   }
 
@@ -23,7 +23,7 @@
   }
 
   .usa-current {
-    color: $navigation-red;
+    color: #ae1a0a;
 
     &::before {
       content: "";
@@ -74,6 +74,7 @@
     display: none;
   }
 }
+
 
 /*
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)
