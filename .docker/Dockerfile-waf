@@ -65,7 +65,7 @@ RUN apt-get update && \
     pkg-config \
     procps \
     wget \
-    zlib1g-dev 
+    zlib1g-dev
 
 RUN set -eux; \
     mkdir /var/log/modsecurity && \
@@ -111,10 +111,19 @@ COPY src-waf/cert-watcher.sh /cert-watcher.sh
 COPY motd /etc/motd
 
 # Set environment variables
-ENV ZLIB_VERSION=1.3.1
-# Note the /fossils path also includes the latest version.
-ENV ZLIB_SRC_URL=http://www.zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz
+# When updating ZLIB_VERSION, also update ZLIB_SHA (SHA-256 of the tar.gz, published at https://www.zlib.net/)
+ENV ZLIB_VERSION=1.3.2
+ENV ZLIB_SHA=bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16
+ENV ZLIB_SRC_URL=https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz
+
+# Warn if a newer zlib version exists
+RUN LATEST=$(curl -s -o /dev/null -w "%{url_effective}" -L https://github.com/madler/zlib/releases/latest | grep -oP 'tag/v\K[^/]+') \
+    && if [ "$LATEST" != "${ZLIB_VERSION}" ]; then \
+        echo "WARNING: zlib ${ZLIB_VERSION} is pinned but latest release is ${LATEST}"; \
+    fi
+
 RUN wget ${ZLIB_SRC_URL} && \
+    echo "${ZLIB_SHA}  zlib-${ZLIB_VERSION}.tar.gz" | sha256sum -c - && \
     tar -xvzf zlib-${ZLIB_VERSION}.tar.gz && \
     cd zlib-${ZLIB_VERSION} && \
     ./configure --prefix=/usr/local && \
