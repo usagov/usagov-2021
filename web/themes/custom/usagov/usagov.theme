@@ -479,6 +479,12 @@ function usagov_preprocess_views_view_list(array &$variables): void {
  * @param array<string, mixed> $variables
  */
 function usagov_theme_suggestions_alter(array &$suggestions, array $variables, string $hook): void {
+  if ($hook == 'menu' && isset($variables['menu_name']) && $variables['menu_name'] === 'usagov_blog_menu') {
+    // Ensure the blog menu always uses our custom template, regardless of
+    // what other modules/themes add to the suggestions list.
+    $suggestions[] = 'menu__usagov_blog_menu';
+  }
+
   if ($hook == 'views_view_fields') {
     $id = $variables['view']->storage->id();
     if ($id == "sub_children") {
