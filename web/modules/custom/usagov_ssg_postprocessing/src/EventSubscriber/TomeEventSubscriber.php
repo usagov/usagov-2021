@@ -271,7 +271,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * add it here to ensure /blog is generated.
    *
    * Also, year and month archive pages (e.g. /blog/2018, /blog/2018/03) are served
-   * by the blog view with contextual filters, so Tome cannot discover them
+   * by the blog view with contextual filters, so Tome cannot reliably discover them
    * automatically. We read the paths directly from the usagov_blog_menu
    * menu link entities — which are only created for years/months that have
    * published content — and register them explicitly.
