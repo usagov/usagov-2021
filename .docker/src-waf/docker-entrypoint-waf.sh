@@ -175,4 +175,12 @@ exec /usr/sbin/crond -c /etc/crontabs &
 
 exec /cert-watcher.sh &
 
+# SFTWR_AUDIT: emit software versions for monthly security audit log search
+OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
+NGINX_V=$(nginx -v 2>&1 | grep -oP 'nginx/\K[0-9.]+' || echo "unknown")
+LIBXML2_V=$(xml2-config --version 2>/dev/null || echo "unknown")
+WAF_SPACE=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.space_name // "unknown"')
+WAF_APP=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.name // "unknown"')
+echo "SFTWR_AUDIT: app=${WAF_APP} space=${WAF_SPACE} os=\"${OS_VERSION}\" nginx=${NGINX_V} modsecurity=${MODSECURITY_ENGINE_VERSION} crs=${MODSECURITY_CRS_VERSION} zlib=${ZLIB_VERSION} libxml2=${LIBXML2_V}"
+
 exec "$@"
