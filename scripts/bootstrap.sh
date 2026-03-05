@@ -256,5 +256,5 @@ OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || ech
 NGINX_V=$(/usr/sbin/nginx -v 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
 PHP_V=$(php --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
 MYSQL_CLIENT_V=$(mysql --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-MariaDB|[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
-DB_SERVER_V=$(mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PW" "$DB_NAME" -e "SELECT VERSION();" -s --skip-column-names 2>/dev/null || echo "unknown")
+DB_SERVER_V=$(mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PW" "$DB_NAME" --ssl-ca=/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem -e "SELECT VERSION();" -s --skip-column-names 2>/dev/null || echo "unknown")
 echo "SFTWR_AUDIT: app=${APP_NAME} space=${SPACE} os=\"${OS_VERSION}\" nginx=${NGINX_V} php=${PHP_V} mariadb_client=${MYSQL_CLIENT_V} mariadb_server=${DB_SERVER_V}"
