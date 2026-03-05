@@ -264,14 +264,42 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
-   * Add blog listing paths to be exported.
+   * Add blog year and month archive paths to be exported.
    *
    * The blog view has optional contextual filters (year/month) which means
    * Tome doesn't automatically discover the base /blog path. We explicitly
-   * add it here to ensure /blog and /es/nuestro-blog are generated.
+   * add it here to ensure /blog is generated.
+   *
+   * Also, year and month archive pages (e.g. /blog/2018, /blog/2018/03) are served
+   * by the blog view with contextual filters, so Tome cannot reliably discover them
+   * automatically. We read the paths directly from the usagov_blog_menu
+   * menu link entities — which are only created for years/months that have
+   * published content — and register them explicitly.
    */
   public function addBlogPaths(CollectPathsEvent $event): void {
-    $event->addPath('/blog', ['language_processed' => TRUE, 'langcode' => 'en']);
+    $metadata = ['language_processed' => TRUE, 'langcode' => 'en'];
+
+    // Add the base /blog path.
+    $event->addPath('/blog', $metadata);
+
+    $links = $this->entityTypeManager
+      ->getStorage('menu_link_content')
+      ->loadByProperties(['menu_name' => 'usagov_blog_menu', 'enabled' => 1]);
+
+    foreach ($links as $link) {
+      /** @var \Drupal\menu_link_content\Entity\MenuLinkContent $link */
+      $uri = $link->get('link')->uri ?? '';
+      // URIs are in the form "internal:/blog/YYYY" or "internal:/blog/YYYY/MM".
+      // Skip node links (individual blog posts) which Tome discovers normally.
+      if (!str_starts_with($uri, 'internal:/blog/')) {
+        continue;
+      }
+      $path = substr($uri, strlen('internal:'));
+      // Only register year (/blog/YYYY) and month (/blog/YYYY/MM) paths.
+      if (preg_match('#^/blog/\d{4}(/\d{2})?$#', $path)) {
+        $event->addPath($path, $metadata);
+      }
+    }
   }
 
   /**
