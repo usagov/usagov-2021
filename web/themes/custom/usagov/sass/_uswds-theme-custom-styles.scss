@@ -1229,6 +1229,8 @@ input::-webkit-textfield-decoration-container {
 
 // Blog instruction text responsive display utilities
 .blog-instruction-text {
+  margin-bottom: 30px;
+
   &.display-none {
     display: none;
   }
