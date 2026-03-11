@@ -215,7 +215,11 @@
                                 {% for post in grandchild.below %}
                                   {# Post items - add active class if this is the active post #}
                                   <li class="navigation__item child blog-post{% if post.active %} active{% endif %}">
-                                    <a href="{{ post.url }}" style="padding-left: 3rem;">{{ post.title }}</a>
+                                    {% if post.active %}
+                                      <span style="padding-left: 3rem;">{{ post.title }}</span>
+                                    {% else %}
+                                      <a href="{{ post.url }}" style="padding-left: 3rem;">{{ post.title }}</a>
+                                    {% endif %}
                                   </li>
                                 {% endfor %}
                               {% endif %}
