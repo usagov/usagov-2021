@@ -73,26 +73,26 @@
   } %}
 {% else %}
   {% set translations = {
-    'info': 'info',
-    'warning': 'warning',
-    'error': 'error',
-    'success': 'success',
+    'info': 'Information',
+    'warning': 'Warning',
+    'error': 'Error',
+    'success': 'Success',
   } %}
 {% endif %}
 
 {# Prints div with classes, and content without Width and Background. #}
 {% if alert_status %}
   {% if alert_status == "info" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.info }}>
+    <div{{ attributes.addClass(classes) }} role="region" aria-label="{{ translations.info }}">
   {% endif %}
   {% if alert_status == "warning" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.warning }}>
+    <div{{ attributes.addClass(classes) }} role="region" aria-label="{{ translations.warning }}">
   {% endif %}
   {% if alert_status == "error" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.error }}>
+    <div{{ attributes.addClass(classes) }} role="region" aria-label="{{ translations.error }}">
   {% endif %}
   {% if alert_status == "success" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.success }}>
+    <div{{ attributes.addClass(classes) }} role="region" aria-label="{{ translations.success }}">
   {% endif %}
 {% else %}
   <div{{ attributes.addClass(classes) }}>
@@ -100,7 +100,7 @@
     <div class="usa-alert__body">
     {% if alert_status %}
       <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
-        <svg role="img" aria-label={{ alert_status }}>
+        <svg role="img" aria-label="{{ translations[alert_status] }}">
         {% if alert_status == "info" %}
           <title aria-labelledby="usa-alert--1__heading">{{translations.info}}</title>
         {% endif %}
