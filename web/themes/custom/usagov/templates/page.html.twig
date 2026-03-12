@@ -144,8 +144,10 @@
 				{% endif %}
 
 				{# Blog header for blog_menu view or blog_post nodes #}
+				{# Note: id="skip-to-h1" is intentionally omitted here; page-title.html.twig
+				   renders the primary h1 with that id, which is the correct skip-link target. #}
 				{% if is_blog_view or content_type == 'blog_post' %}
-					<h1 class="text-red-50 blog-title" id="skip-to-h1">
+					<h1 class="text-red-50 blog-title">
 						<span>Our blog</span>
 					</h1>
 					<p class="blog-instruction-text desktop:display-block display-none">Learn about the priorities, research, challenges, and great discoveries that shape the way USAGov connects people with government services and programs. Select year and/or month to see the blog entries from the selected year/month.</p>
