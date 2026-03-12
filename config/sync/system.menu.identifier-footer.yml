@@ -1,0 +1,8 @@
+uuid: db60655f-94b5-4e77-a253-140efca9a56e
+langcode: en
+status: true
+dependencies: {  }
+id: identifier-footer
+label: 'Identifier Footer'
+description: 'Footer identifier links (English)'
+locked: false
