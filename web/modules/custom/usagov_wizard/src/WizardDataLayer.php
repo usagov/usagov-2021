@@ -4,7 +4,7 @@ namespace Drupal\usagov_wizard;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\taxonomy\Entity\Term;
-use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
+use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder; // phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 
 /**
  * @phpstan-import-type TaxonomyBreadcrumb from TaxonomyDatalayerBuilder
