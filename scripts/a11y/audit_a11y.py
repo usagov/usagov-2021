@@ -30,6 +30,31 @@ def extract_content_area(soup):
         return main
     return soup.find("body") or soup
 
+
+def is_redirect_page(soup) -> bool:
+    """Return True if this page is a Tome-generated meta-refresh redirect stub.
+
+    Tome creates minimal redirect pages for URL paths that contain characters
+    it normalises (e.g. accented letters).  These stubs have no navigation,
+    no skip-nav, and no <html lang> because they are not rendered from the
+    Drupal theme template.  Applying the standard WCAG checks for those
+    attributes to an instant-redirect page produces false positives:
+
+    * no_skip_nav  – WCAG 2.4.1 requires a bypass for *blocks of repeated
+      navigation content*; a 0-second redirect with a single body link has
+      no such blocks.
+    * missing_lang – the <html> stub is not a real page; lang will be correct
+      on the canonical destination URL after the redirect fires.
+    * url_link_text – the body of a redirect page is intentionally "Redirecting
+      to <url>"; the raw URL is the expected visible text for that pattern.
+    """
+    meta = soup.find("meta", attrs={"http-equiv": re.compile(r"^refresh$", re.I)})
+    if not meta:
+        return False
+    content = meta.get("content", "")
+    # Only treat as a redirect stub when the delay is 0 (instant redirect).
+    return bool(re.match(r"^0\s*;", content))
+
 def get_article_body(soup):
     """Return the div that contains the actual blog post body text."""
     # Drupal field body
@@ -849,9 +874,16 @@ def audit_file(filepath: Path, issues: dict):
         })
         return
 
-    check_language(soup, filepath, issues)
+    redirect = is_redirect_page(soup)
+
+    # Checks that are inapplicable to instant-redirect stub pages (see
+    # is_redirect_page docstring for the WCAG rationale).
+    if not redirect:
+        check_language(soup, filepath, issues)
+        check_skip_nav(soup, filepath, issues)
+        check_url_link_text(soup, filepath, issues)
+
     check_page_title(soup, filepath, issues)
-    check_skip_nav(soup, filepath, issues)
     check_headings(soup, filepath, issues)
     check_heading_count(soup, filepath, issues)
     check_images(soup, filepath, issues)
@@ -870,7 +902,6 @@ def audit_file(filepath: Path, issues: dict):
     check_color_indicators(soup, filepath, issues)
     check_abbr_acronym(soup, filepath, issues)
     check_autocomplete(soup, filepath, issues)
-    check_url_link_text(soup, filepath, issues)
     check_fake_headings(soup, filepath, issues)
 
 
