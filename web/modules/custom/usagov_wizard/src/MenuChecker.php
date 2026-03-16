@@ -7,7 +7,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+// phpcs:disable SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+// phpcs:enable SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 
 /**
  * Class MenuChecker.
