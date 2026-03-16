@@ -143,11 +143,15 @@
 				</div>
 				{% endif %}
 
-				{# Blog header for blog_menu view or blog_post nodes #}
-				{# Note: id="skip-to-h1" is intentionally omitted here; page-title.html.twig
-				   renders the primary h1 with that id, which is the correct skip-link target. #}
+				{# Blog header for blog_menu view or blog_post nodes. #}
+				{# id="skip-to-h1" lives here for blog pages:
+				   - blog_post nodes: page-title.html.twig renders the post title as <h2 id="skip-to-h2">,
+				     so this <h1> is the only skip-link target on those pages.
+				   - blog listing view: page-title.html.twig may also render an <h1 id="skip-to-h1">
+				     (when the view has a title); page-title.html.twig guards against that duplicate.
+				#}
 				{% if is_blog_view or content_type == 'blog_post' %}
-					<h1 class="text-red-50 blog-title">
+					<h1 class="text-red-50 blog-title" id="skip-to-h1">
 						<span>Our blog</span>
 					</h1>
 					<p class="blog-instruction-text desktop:display-block display-none">Learn about the priorities, research, challenges, and great discoveries that shape the way USAGov connects people with government services and programs. Select year and/or month to see the blog entries from the selected year/month.</p>
