@@ -263,7 +263,7 @@ fi
 
 # Too-small file is probably a redirect page
 if [ $ES_HOME_HTML_SIZE -lt 1000 ]; then
-  echo "WARNING: *** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***" | tee -a $TOMELGO
+  echo "WARNING: *** ES index.html is way too small ($ES_HOME_HTML_SIZE bytes) ***" | tee -a $TOMELOG
   ES_HOME_HTML_BAD=1
 fi
 
