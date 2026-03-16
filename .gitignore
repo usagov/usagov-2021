@@ -156,3 +156,7 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 
 .docker/src-reporter/analytics.pem
 reporter-vcapsecrets.json
+
+# a11y audit outputs
+scripts/a11y/json/
+scripts/a11y/reports/
