@@ -1,0 +1,12 @@
+uuid: ddafc248-c49b-45ce-8647-1af3a8c7727d
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - search
+id: node_search
+label: Content
+path: node_search
+plugin: node_search
+weight: -10

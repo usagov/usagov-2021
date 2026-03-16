@@ -229,6 +229,12 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
 
     drush user:block root
 
+    # Run the search index if the search module is enabled (dev/stage only).
+    if drush pm:list --status=enabled --format=list | grep -q "^search$"; then
+      echo "Updating search index..."
+      drush search:index
+    fi
+
     echo "Bootstrap finished"
 else
     echo "Bootstrap skipping Drupal CIM because: Instance=${CF_INSTANCE_INDEX:-''} Skip=${SKIP_DRUPAL_BOOTSTRAP:-''}"
