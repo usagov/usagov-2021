@@ -273,7 +273,7 @@ class TaxonomyDatalayerBuilder {
       $suffix = $index + 1;
 
       if ($suffix === 1) {
-        $taxonomy['Taxonomy_Text_' . $suffix] = match($this->langcode) {
+        $taxonomy['Taxonomy_Text_' . $suffix] = match ($this->langcode) {
           'en' => self::HOME_TITLE_EN,
           'es' => self::HOME_TITLE_ES,
         };
