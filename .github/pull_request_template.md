@@ -2,7 +2,7 @@
 ## Jira Task
 
 <!--- Provide a link to the Jira ticket -->
-https://cm-jira.usa.gov/browse/USAGOV-
+https://gsa-standard.atlassian-us-gov-mod.net/browse/USAGOV-
 
 ## Description
 <!--- Summarize the changes made in this pull request, not what it's for. -->
