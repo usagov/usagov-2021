@@ -1,6 +1,5 @@
 <?php
 
-use Drupal\node\Entity\Node;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
 /**

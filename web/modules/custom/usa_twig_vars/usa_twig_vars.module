@@ -498,7 +498,7 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
       $variables['ceoLabelsJSON'] = usa_twig_vars_json_encode($ceoLabels);
       break;
 
-    case  'ceo_compose_email_form':
+    case 'ceo_compose_email_form':
       $labelMaker = new ElectedOfficialsLabels();
       $ceoText = $labelMaker->getEmailLabels($paragraph, $lang);
       $variables['ceoTextJSON'] = usa_twig_vars_json_encode($ceoText);
