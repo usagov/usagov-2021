@@ -7,7 +7,6 @@
 
 namespace Drupal\usagov_benefit_finder\Traits;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 

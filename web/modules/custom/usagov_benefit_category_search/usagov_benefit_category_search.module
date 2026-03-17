@@ -2,7 +2,6 @@
 
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
@@ -215,7 +214,7 @@ function usagov_benefit_category_search_menu_local_tasks_alter(
     return;
   }
 
-  $view = match($node->language()->getId()) {
+  $view = match ($node->language()->getId()) {
     'en' => 'view.manage_benefits_search_sort.page_en',
     'es' => 'view.manage_benefits_search_sort.page_es',
     default => 'view.manage_benefits_search_sort.page_en',
