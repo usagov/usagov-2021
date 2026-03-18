@@ -295,7 +295,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $metadata = ['language_processed' => TRUE, 'langcode' => 'en'];
 
     // Add the base /blog path.
-    // TODO: this doesn't seem to be working reliably.
     $event->addPath('/blog', $metadata);
 
     $links = $this->entityTypeManager
@@ -316,8 +315,6 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $event->addPath($path, $metadata);
       }
     }
-
-    // TODO: also need to force the "page/\d+" directories. Those aren't in the menu.
   }
 
   /**
