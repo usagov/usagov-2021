@@ -2,7 +2,6 @@
 
 namespace Drupal\usagov_ssg_postprocessing\Data;
 
-use Drupal\Core\Language\Language;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
