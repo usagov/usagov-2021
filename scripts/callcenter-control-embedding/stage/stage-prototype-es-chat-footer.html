@@ -13,19 +13,18 @@
 			embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
 			embeddedservice_bootstrap.settings.language = 'es'; // For example, enter 'en' or 'en-US'
 			embeddedservice_bootstrap.init(
-				'00Dcq0000035wJN',
-				'FCIC_USA_gov_en_espanol_MIAW_Embedded_Service_Deployment',
-				'https://gsa-peo--peofl1uatp.sandbox.my.site.com/ESWFCICUSAgovenespano1762808445965',
-				{
-					scrt2URL: 'https://gsa-peo--peofl1uatp.sandbox.my.salesforce-scrt.com'
-				}
+			'00DSK000006YQfl',
+			'FCIC_USA_gov_en_espanol_MIAW_Embedded_Service_Deployment',
+			'https://gsa-peo--peofl3qap.sandbox.my.site.com/ESWFCICUSAgovenespano1762993886362',
+			{
+				scrt2URL: 'https://gsa-peo--peofl3qap.sandbox.my.salesforce-scrt.com'
+			}
 			);
 		} catch (err) {
 			console.error('Error loading Embedded Messaging: ', err);
 		}
 	};
 
-	
 	function updateChatVisibility() {
 		var openElement = document.getElementById("liveagent_button_online");
 		var closedElement = document.getElementById("liveagent_button_offline");
@@ -61,4 +60,4 @@
 }
 </script>
 
-<script type='text/javascript' src='https://gsa-peo--peofl1uatp.sandbox.my.site.com/ESWFCICUSAgovenespano1762808445965/assets/js/bootstrap.min.js' onload='chatPageInit()'></script>
+<script type='text/javascript' src='https://gsa-peo--peofl3qap.sandbox.my.site.com/ESWFCICUSAgovenespano1762993886362/assets/js/bootstrap.min.js' onload='chatPageInit()'></script>
