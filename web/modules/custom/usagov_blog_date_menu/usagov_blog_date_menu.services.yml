@@ -1,0 +1,6 @@
+services:
+  usagov_blog_date_menu_datalayer_alter_subscriber:
+    class: '\Drupal\usagov_blog_date_menu\EventSubscriber\DatalayerAlterSubscriber'
+    arguments: ['@current_route_match', '@path.current', '@language_manager']
+    tags:
+      - { name: 'event_subscriber' }
