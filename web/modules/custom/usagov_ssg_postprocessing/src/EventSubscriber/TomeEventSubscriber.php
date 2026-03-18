@@ -254,6 +254,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
     // Get the Spanish letters
     $view = Views::getView('federal_agencies');
+
     $view->setDisplay('attachment_2');
 
     $metadata['langcode'] = 'es';
@@ -264,11 +265,25 @@ class TomeEventSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Clear the cache for the blog listing. This isn't "collecting paths," but
+   * it is a thing that we want to get done once before we start processing
+   * the blog pages.
+   *
+   * @param CollectPathsEvent $event
+   * @return void
+   */
+  public function clearBlogViewCache(CollectPathsEvent $event): void {
+    $view = Views::getView('blog_menu');
+    $view->storage->invalidateCaches();
+  }
+
+  /**
    * Add blog year and month archive paths to be exported.
    *
    * The blog view has optional contextual filters (year/month) which means
    * Tome doesn't automatically discover the base /blog path. We explicitly
    * add it here to ensure /blog is generated.
+
    *
    * Also, year and month archive pages (e.g. /blog/2018, /blog/2018/03) are served
    * by the blog view with contextual filters, so Tome cannot reliably discover them
@@ -280,6 +295,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $metadata = ['language_processed' => TRUE, 'langcode' => 'en'];
 
     // Add the base /blog path.
+    // TODO: this doesn't seem to be working reliably.
     $event->addPath('/blog', $metadata);
 
     $links = $this->entityTypeManager
@@ -300,6 +316,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         $event->addPath($path, $metadata);
       }
     }
+
+    // TODO: also need to force the "page/\d+" directories. Those aren't in the menu.
   }
 
   /**
@@ -327,6 +345,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $events[TomeStaticEvents::MODIFY_HTML][] = ['modifyHtml'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['excludeDirectories'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['addAgencyIndexes'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['clearBlogViewCache'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['addBlogPaths'];
     $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
     return $events;
