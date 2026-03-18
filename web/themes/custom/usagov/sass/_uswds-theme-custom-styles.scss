@@ -1128,19 +1128,19 @@ input::-webkit-textfield-decoration-container {
     .usa-pagination__link {
       display: flex;
       align-items: center;
-      padding: 0.5rem 0.75rem;
+      padding: 0.25rem 0.5rem;
       text-decoration: none;
       color: color('blue-warm-70v');
       font-weight: 600;
       transition: all 0.15s ease;
 
       &:hover {
-        color: color('blue-warm-80v');
+        color: #768FB3;
         text-decoration: underline;
       }
 
       &:focus {
-        outline: 2px solid color('orange-warm-50v');
+        outline: 2px solid #0186A2;
         outline-offset: 2px;
       }
 
@@ -1161,8 +1161,8 @@ input::-webkit-textfield-decoration-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.5rem 0.75rem;
-      border: 2px solid color('blue-warm-70v');
+      padding: 0.25rem 0.5rem;
+      border: 2px solid #768FB3;
       border-radius: 0.25rem;
       background-color: white;
       color: color('blue-warm-70v');
@@ -1172,13 +1172,13 @@ input::-webkit-textfield-decoration-container {
       cursor: pointer;
 
       &:hover {
-        background-color: color('blue-warm-70v');
-        border-color: color('blue-warm-70v');
-        color: white;
+        background-color: #768FB3;
+        border-color: #768FB3;
+        color: #1b1b1b;
       }
 
       &:focus {
-        outline: 2px solid color('orange-warm-50v');
+        outline: 2px solid #0186A2;
         outline-offset: 2px;
       }
 
@@ -1220,7 +1220,7 @@ input::-webkit-textfield-decoration-container {
       .usa-pagination__button,
       .usa-pagination__link {
         min-width: 2.5rem;
-        padding: 0.5rem;
+        padding: 0.25rem;
         justify-content: center;
       }
     }
