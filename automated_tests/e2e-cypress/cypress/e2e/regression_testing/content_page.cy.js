@@ -13,6 +13,10 @@ if (window.location.hostname == "cms-usagov.docker.local") {
   env = "local";
 } else if (window.location.hostname == "beta-stage.usa") {
   env = "stage";
+} else if (window.location.hostname == "beta-dev.usa") {
+  env = "dev";
+} else if (window.location.hostname == "beta-dr.usa") {
+  env = "dr";
 } else {
   env = "prod";
 }
