@@ -2,6 +2,7 @@
 
 namespace Drupal\usagov_blog_date_menu\EventSubscriber;
 
+use Drupal\Core\Breadcrumb\ChainBreadcrumbBuilderInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Routing\CurrentRouteMatch;
@@ -24,6 +25,7 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
     private CurrentRouteMatch $routeMatch,
     private CurrentPathStack $pathCurrent,
     private LanguageManagerInterface $languageManager,
+    private ChainBreadcrumbBuilderInterface $breadcrumbManager,
   ) {}
 
   /**
@@ -49,46 +51,51 @@ class DatalayerAlterSubscriber implements EventSubscriberInterface {
     $currentPath = $this->pathCurrent->getPath();
     $langcode = $this->languageManager->getCurrentLanguage()->getId();
 
-    [$homeText, $homeUrl] = $langcode === 'es'
-      ? [TaxonomyDatalayerBuilder::HOME_TITLE_ES, TaxonomyDatalayerBuilder::HOME_URL_ES]
-      : [TaxonomyDatalayerBuilder::HOME_TITLE_EN, TaxonomyDatalayerBuilder::HOME_URL_EN];
+    // Derive taxonomy slots directly from the breadcrumb so the datalayer
+    // stays in sync with the breadcrumb structure automatically. The blog
+    // module's hook_system_breadcrumb_alter() is the single source of truth
+    // for link text and hierarchy; we just read from it here.
+    $crumbs = $this->breadcrumbManager->build($this->routeMatch);
+    $links = $crumbs->getLinks();
+    $taxonomy = [];
 
-    // Taxonomy slots 1–4 are the same for all blog view pages.
-    $taxonomy = [
-      'Taxonomy_Text_1' => $homeText,
-      'Taxonomy_URL_1'  => $homeUrl,
-      'Taxonomy_Text_2' => 'About USAGov',
-      'Taxonomy_URL_2'  => '/about',
-      'Taxonomy_Text_3' => 'Products and programs',
-      'Taxonomy_URL_3'  => '/products-programs',
-      'Taxonomy_Text_4' => 'Our blog',
-      'Taxonomy_URL_4'  => '/blog',
-    ];
+    foreach ($links as $index => $link) {
+      $slot = $index + 1;
+      if ($slot > 6) {
+        break;
+      }
 
-    if (preg_match('#^/blog/(\d{4})/(\d{1,2})$#', $currentPath, $matches)) {
-      // /blog/2025/01 — year + month archive.
-      $year = $matches[1];
-      $month = $matches[2];
-      $monthName = date('F', mktime(0, 0, 0, (int) $month, 1));
-      $taxonomy['Taxonomy_Text_5'] = $year;
-      $taxonomy['Taxonomy_URL_5']  = '/blog/' . $year;
-      $taxonomy['Taxonomy_Text_6'] = $monthName;
-      $taxonomy['Taxonomy_URL_6']  = '/blog/' . $year . '/' . $month;
+      if ($slot === 1) {
+        // Slot 1 is always home; use the canonical langcode-specific title/URL
+        // regardless of what the breadcrumb link says.
+        $taxonomy['Taxonomy_Text_1'] = $langcode === 'es'
+          ? TaxonomyDatalayerBuilder::HOME_TITLE_ES
+          : TaxonomyDatalayerBuilder::HOME_TITLE_EN;
+        $taxonomy['Taxonomy_URL_1'] = $langcode === 'es'
+          ? TaxonomyDatalayerBuilder::HOME_URL_ES
+          : TaxonomyDatalayerBuilder::HOME_URL_EN;
+        continue;
+      }
+
+      $taxonomy['Taxonomy_Text_' . $slot] = htmlspecialchars($link->getText(), ENT_QUOTES, 'UTF-8');
+
+      // <none> routes are non-clickable "current page" breadcrumb items;
+      // substitute the current path as the real URL.
+      $linkUrl = $link->getUrl();
+      $taxonomy['Taxonomy_URL_' . $slot] = ($linkUrl->isRouted() && $linkUrl->getRouteName() === '<none>')
+        ? $currentPath
+        : $linkUrl->toString();
     }
-    elseif (preg_match('#^/blog/(\d{4})$#', $currentPath, $matches)) {
-      // /blog/2025 — year archive. Repeat year for slots 5–6 (no deeper crumb).
-      $year = $matches[1];
-      $taxonomy['Taxonomy_Text_5'] = $year;
-      $taxonomy['Taxonomy_URL_5']  = '/blog/' . $year;
-      $taxonomy['Taxonomy_Text_6'] = $year;
-      $taxonomy['Taxonomy_URL_6']  = '/blog/' . $year;
-    }
-    else {
-      // /blog — main listing. Repeat last crumb to fill slots 5–6.
-      $taxonomy['Taxonomy_Text_5'] = 'Our blog';
-      $taxonomy['Taxonomy_URL_5']  = '/blog';
-      $taxonomy['Taxonomy_Text_6'] = 'Our blog';
-      $taxonomy['Taxonomy_URL_6']  = '/blog';
+
+    // Pad any remaining slots (up to 6) by repeating the last entry.
+    $count = count($links);
+    if ($count < 6) {
+      $lastText = $taxonomy['Taxonomy_Text_' . $count];
+      $lastUrl  = $taxonomy['Taxonomy_URL_' . $count];
+      for ($i = $count + 1; $i <= 6; $i++) {
+        $taxonomy['Taxonomy_Text_' . $i] = $lastText;
+        $taxonomy['Taxonomy_URL_' . $i]  = $lastUrl;
+      }
     }
 
     $event->datalayer = array_merge($event->datalayer, [
