@@ -182,6 +182,10 @@ paths.forEach((path, idx) => {
           origin = "http://cms-usagov.docker.local";
         } else if (cyURL.includes("beta-stage.usa")) {
           origin = "https://beta-stage.usa.gov";
+        } else if (cyURL.includes("beta-dr.usa")) {
+          origin = "https://beta-dr.usa.gov";
+        } else if (cyURL.includes("beta-dev.usa")) {
+          origin = "https://beta-dev.usa.gov";
         } else {
           origin = "https://www.usa.gov";
         }
