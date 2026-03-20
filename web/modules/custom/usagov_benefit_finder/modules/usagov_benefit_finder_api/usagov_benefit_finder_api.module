@@ -8,7 +8,6 @@
 use Drupal\Core\Batch\BatchBuilder;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
-use Drupal\usagov_benefit_finder_api\Controller\LifeEventController;
 
 /**
  * Implements hook_node_update().
