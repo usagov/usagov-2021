@@ -13,6 +13,10 @@ if (window.location.hostname == "cms-usagov.docker.local") {
   env = "local";
 } else if (window.location.hostname == "beta-stage.usa") {
   env = "stage";
+} else if (window.location.hostname == "beta-dev.usa") {
+  env = "dev";
+} else if (window.location.hostname == "beta-dr.usa") {
+  env = "dr";
 } else {
   env = "prod";
 }
@@ -182,6 +186,10 @@ paths.forEach((path, idx) => {
           origin = "http://cms-usagov.docker.local";
         } else if (cyURL.includes("beta-stage.usa")) {
           origin = "https://beta-stage.usa.gov";
+        } else if (cyURL.includes("beta-dr.usa")) {
+          origin = "https://beta-dr.usa.gov";
+        } else if (cyURL.includes("beta-dev.usa")) {
+          origin = "https://beta-dev.usa.gov";
         } else {
           origin = "https://www.usa.gov";
         }
