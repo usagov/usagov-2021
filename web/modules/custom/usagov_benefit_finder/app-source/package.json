@@ -3,7 +3,7 @@
   "version": "0.10.0.beta.1",
   "private": true,
   "engines": {
-    "node": "20.x.x"
+    "node": "24.x.x"
   },
   "scripts": {
     "mv:uswds:usagov": "bash ../scripts/pipeline/mv-uswds-usagov-theme.sh",
