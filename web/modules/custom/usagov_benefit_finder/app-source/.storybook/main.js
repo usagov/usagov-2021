@@ -15,7 +15,7 @@ const config = {
   viteFinal(config) {
     return mergeConfig(config, {
       build: {
-        chunkSizeWarningLimit: '1000',
+        chunkSizeWarningLimit: 1000,
         rollupOptions: {
           output: {
             manualChunks: id =>

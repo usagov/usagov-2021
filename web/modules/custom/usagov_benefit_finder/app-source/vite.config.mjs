@@ -70,7 +70,7 @@ export default defineConfig({
     alias: aliasConfig,
   },
   optimizeDeps: {
-    exclude: ['@storybook/blocks'],
+    exclude: ['@storybook/addon-docs'],
     include: ['jsdoc-type-pratt-parser'],
   },
   css: {
@@ -79,7 +79,6 @@ export default defineConfig({
       scss: {
         api: 'modern-compiler',
         implementation: sassEmbedded,
-        silenceDeprecations: ['mixed-decls'],
       },
     },
   },
@@ -91,13 +90,12 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     outDir: '../modules/usagov_benefit_finder_app/usagov_benefit_finder_page',
-    chunkSizeWarningLimit: '1000',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {},
         entryFileNames: `js/benefit-finder.min.js`,
         assetFileNames: assetInfo => {
-          if (assetInfo.name.endsWith('.css')) {
+          if (assetInfo.names?.some(n => n.endsWith('.css'))) {
             return 'css/benefit-finder.min.css'
           }
           return 'assets/[name].[ext]'
