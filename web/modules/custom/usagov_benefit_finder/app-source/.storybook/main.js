@@ -6,17 +6,12 @@ const config = {
   addons: [
     '@storybook/addon-a11y',
     '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-mdx-gfm',
+    '@storybook/addon-docs',
   ],
   docs: {
     autodocs: 'tag',
   },
   framework: '@storybook/react-vite',
-  core: {
-    builder: '@storybook/builder-vite',
-  },
   viteFinal(config) {
     return mergeConfig(config, {
       build: {
