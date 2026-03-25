@@ -26,6 +26,10 @@ from collections import defaultdict
 # ── helpers ────────────────────────────────────────────────────────────────────
 
 def relative_path(filepath: Path) -> str:
+    # Three .parent calls because this file is bin/a11y/audit_a11y.py:
+    #   .parent       → bin/a11y/
+    #   .parent.parent → bin/
+    #   .parent.parent.parent → repo root (usagov-2021/)
     return str(filepath).replace(str(Path(__file__).parent.parent.parent) + "/", "")
 
 def extract_content_area(soup):

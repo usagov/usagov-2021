@@ -14,8 +14,7 @@
  *   multiple_h1 / heading_skip   WCAG 1.3.1  Normalize heading hierarchy (body min h3)
  *   table_no_headers/caption (2) WCAG 1.3.1  Promote first-row <td>s to <th scope="col">
  *                                             and add <caption> from surrounding context
- *   url_link_text (4)            WCAG 2.4.4  Fix beta-usagov.docker.local links and
- *                                             raw-URL visible link text
+ *   url_link_text (4)            WCAG 2.4.4  Fix raw-URL visible link text
  *   ambiguous_link (1)           WCAG 2.4.4  Add descriptive aria-label to "here" link
  *
  * Page-structure issues NOT addressed here (not content issues):
@@ -501,19 +500,12 @@ function fix_tables(string $html, array &$stats): string {
   return $changed ? a11y_serialize($doc, $wrap) : $html;
 }
 
-// ── Fix 7: Fix raw-URL link text and dev-domain hrefs ─────────────────────────
+// ── Fix 7: Fix raw-URL link text ─────────────────────────────────────────────
 /**
- * Two distinct sub-issues are addressed here:
- *
- *   a) Links whose href contains the development domain
- *      `beta-usagov.docker.local`. These were created when editors copied links
- *      from their local environment. The href is updated to use www.usa.gov and,
- *      when the visible text is also the raw dev-domain URL, it is replaced with
- *      a human-readable label (node title looked up via path alias, or slug).
- *
- *   b) Links on any domain whose visible text is verbatim the href URL string
- *      (i.e. text starts with http:// or https://). Replace the visible text
- *      with a slug-derived or node-title-derived label.
+ * Links whose visible text is verbatim the href URL string (i.e. text starts
+ * with http:// or https://) are not useful descriptions for screen-reader
+ * users. Replace the visible text with a slug-derived or node-title-derived
+ * label.
  *
  * WCAG 2.4.4 — link purpose (in context).
  */
@@ -527,31 +519,7 @@ function fix_url_link_text(string $html, array &$stats): string {
     $href = $a->getAttribute('href');
     $text = trim($a->textContent);
 
-    // Sub-issue a: dev domain in href.
-    $is_dev = strpos($href, 'beta-usagov.docker.local') !== FALSE;
-    if ($is_dev) {
-      $new_href = str_ireplace(
-        ['https://beta-usagov.docker.local', 'http://beta-usagov.docker.local'],
-        'https://www.usa.gov',
-        $href
-      );
-      $a->setAttribute('href', $new_href);
-
-      // Fix visible text if it is the raw dev-domain URL.
-      if (strpos($text, 'beta-usagov.docker.local') !== FALSE) {
-        $path  = parse_url($new_href, PHP_URL_PATH) ?? '';
-        $label = a11y_title_from_href($new_href);
-        if ($label) {
-          a11y_set_link_text($doc, $a, $label);
-        }
-      }
-
-      $stats['url_link_text']++;
-      $changed = TRUE;
-      continue;
-    }
-
-    // Sub-issue b: raw URL as visible text on any domain.
+    // Raw URL as visible text on any domain.
     if ((strncmp($text, 'https://', 8) === 0 || strncmp($text, 'http://', 7) === 0)
         && $text === $href) {
       $label = a11y_title_from_href($href);

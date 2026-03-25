@@ -32,14 +32,17 @@ All commands assume you are at the **repo root** and using the repo venv.
 ### Run a full audit and generate a report
 
 ```bash
+# Start the python virtual env
+source .venv/bin/activate
+
 # Scan html/blog/ only
-.venv/bin/python3 bin/a11y/generate_report.py blog/
+python3 bin/a11y/generate_report.py blog/
 
 # Scan html/money/ only
-.venv/bin/python3 bin/a11y/generate_report.py money/
+python3 bin/a11y/generate_report.py money/
 
 # Scan all of html/
-.venv/bin/python3 bin/a11y/generate_report.py
+python3 bin/a11y/generate_report.py
 ```
 
 Each run produces two output files with matching timestamps and a path slug:
@@ -52,7 +55,7 @@ bin/a11y/reports/2026-03-12T1603_blog.md  ← formatted markdown report
 ### Skip re-scanning (use cached JSON)
 
 ```bash
-.venv/bin/python3 bin/a11y/generate_report.py --cached blog/
+python3 bin/a11y/generate_report.py --cached blog/
 ```
 
 Picks up the newest `json/*_blog.json` file and writes a fresh timestamped report without re-running the audit. Useful for reformatting the report without waiting for a full scan.
@@ -60,7 +63,7 @@ Picks up the newest `json/*_blog.json` file and writes a fresh timestamped repor
 ### Override the output path
 
 ```bash
-.venv/bin/python3 bin/a11y/generate_report.py --out my-report.md blog/
+python3 bin/a11y/generate_report.py --out my-report.md blog/
 ```
 
 The JSON still goes to `json/` with its normal timestamped name; only the markdown destination is overridden.
@@ -69,13 +72,13 @@ The JSON still goes to `json/` with its normal timestamped name; only the markdo
 
 ```bash
 # Writes json/TIMESTAMP_blog.json
-.venv/bin/python3 bin/a11y/audit_a11y.py blog/
+python3 bin/a11y/audit_a11y.py blog/
 
 # Writes json/TIMESTAMP_all.json
-.venv/bin/python3 bin/a11y/audit_a11y.py
+python3 bin/a11y/audit_a11y.py
 
 # Override JSON output path
-.venv/bin/python3 bin/a11y/audit_a11y.py blog/ --out-json /tmp/my-results.json
+python3 bin/a11y/audit_a11y.py blog/ --out-json /tmp/my-results.json
 ```
 
 ---

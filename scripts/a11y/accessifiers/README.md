@@ -114,15 +114,11 @@ Data tables without `<th>` elements prevent screen readers from conveying column
 
 _Only tables whose first row has ≥ 2 non-empty cells are treated; layout tables are skipped._
 
-### Fix 7 — Dev-domain hrefs and raw-URL link text (WCAG 2.4.4)
+### Fix 7 — Raw-URL link text (WCAG 2.4.4)
 
-Two sub-issues:
-- **Dev domain:** Links with `beta-usagov.docker.local` in the `href` were created by editors copying URLs from their local environment. These will 404 in production.
-- **Raw URL text:** Links whose visible text is verbatim the `href` URL string (e.g., `https://www.usa.gov/some-page`) are not useful descriptions.
+Links whose visible text is verbatim the `href` URL string (e.g., `https://www.usa.gov/some-page`) are not useful descriptions for screen-reader users who navigate by link.
 
-**Resolution:**
-- Rewrite `beta-usagov.docker.local` hrefs to `www.usa.gov`.
-- Replace raw-URL visible text with a human-readable label (node title via path alias, or title-cased slug).
+**Resolution:** Replace raw-URL visible text with a human-readable label derived from the node title (via Drupal path alias lookup) or a title-cased URL slug as a fallback.
 
 ---
 
