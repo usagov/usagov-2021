@@ -117,7 +117,7 @@ exports[`loads view 1`] = `
               class="bf-usa-accordion-group"
             >
               <button
-                class="bf-expand-all bf-usa-button usa-button bf-usa-button--outline usa-button--outline"
+                class="bf-expand-all "
                 data-test="button"
                 data-testid="bf-expand-all"
                 type="button"
@@ -532,7 +532,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -724,7 +724,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -978,7 +978,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -1196,7 +1196,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -1393,7 +1393,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -1585,7 +1585,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -1777,7 +1777,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -1964,7 +1964,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -2156,7 +2156,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -2379,7 +2379,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -2571,7 +2571,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -3362,7 +3362,7 @@ exports[`loads view 1`] = `
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -3662,7 +3662,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
               class="bf-usa-accordion-group"
             >
               <button
-                class="bf-expand-all bf-usa-button usa-button bf-usa-button--outline usa-button--outline"
+                class="bf-expand-all "
                 data-test="button"
                 data-testid="bf-expand-all"
                 type="button"
@@ -4077,7 +4077,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -4269,7 +4269,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -4523,7 +4523,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -4741,7 +4741,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -4938,7 +4938,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -5130,7 +5130,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -5322,7 +5322,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -5509,7 +5509,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -5701,7 +5701,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -5924,7 +5924,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -6116,7 +6116,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"
@@ -6907,7 +6907,7 @@ exports[`scenario 1 loads in view with the correct amount of likely eligible ite
                         </li>
                       </ul>
                       <button
-                        class="bf-step-back-button bf-usa-button usa-button bf-usa-button--unstyled usa-button--unstyled"
+                        class="bf-step-back-button "
                         data-test="button"
                         data-testid="bf-step-back-button"
                         type="button"

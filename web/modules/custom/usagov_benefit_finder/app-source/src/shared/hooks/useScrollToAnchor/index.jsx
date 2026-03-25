@@ -9,8 +9,9 @@ function useScrollToAnchor({ location, offset }) {
       lastHash.current = location.hash.slice(1) // safe hash for further use after navigation
     }
 
+    let timeoutId
     if (lastHash.current && document.getElementById(lastHash.current)) {
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         document.getElementById(lastHash.current)?.scrollIntoView({
           block: 'start',
           inline: 'nearest',
@@ -18,6 +19,9 @@ function useScrollToAnchor({ location, offset }) {
         })
         lastHash.current = ''
       }, 100)
+    }
+    return () => {
+      clearTimeout(timeoutId)
     }
   }, [location])
 
