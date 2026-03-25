@@ -1,10 +1,10 @@
 /// <reference types="Cypress" />
 
 import * as utils from '../../support/utils'
-import * as EN_DOLO_MOCK_DATA from '../../../../benefit-finder/src/shared/api/mock-data/current.json'
+import * as EN_DOLO_MOCK_DATA from '../../../src/shared/api/mock-data/current.json'
 import * as BENEFITS_ELIGIBILITY_DATA from '../../fixtures/benefits-eligibility.json'
-import content from '../../../../benefit-finder/src/shared/api/mock-data/current.js'
-import * as EN_LOCALE_DATA from '../../../../benefit-finder/src/shared/locales/en/en.json'
+import content from '../../../src/shared/api/mock-data/current.js'
+import * as EN_LOCALE_DATA from '../../../src/shared/locales/en/en.json'
 const { data } = JSON.parse(content)
 
 // 18 years ago minus one day - applicant under 18 years old

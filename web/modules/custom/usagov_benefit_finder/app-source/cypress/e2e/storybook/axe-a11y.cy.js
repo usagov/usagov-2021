@@ -2,8 +2,8 @@
 
 import * as utils from '../../support/utils.js'
 import * as BENEFITS_ELIGIBILITY_DATA from '../../fixtures/benefits-eligibility.json'
-import * as EN_LOCALE_DATA from '../../../../benefit-finder/src/shared/locales/en/en.json'
-import * as EN_DOLO_MOCK_DATA from '../../../../benefit-finder/src/shared/api/mock-data/current.json'
+import * as EN_LOCALE_DATA from '../../../src/shared/locales/en/en.json'
+import * as EN_DOLO_MOCK_DATA from '../../../src/shared/api/mock-data/current.json'
 import { pageObjects } from '../../support/pageObjects'
 
 function terminalLog(violations) {

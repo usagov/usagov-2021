@@ -1,7 +1,7 @@
 import * as utils from '../../support/utils.js'
 import { pageObjects } from '../../support/pageObjects'
-import * as EN_LOCALE_DATA from '../../../../benefit-finder/src/shared/locales/en/en.json'
-import * as EN_DOLO_MOCK_DATA from '../../../../benefit-finder/src/shared/api/mock-data/current.json'
+import * as EN_LOCALE_DATA from '../../../src/shared/locales/en/en.json'
+import * as EN_DOLO_MOCK_DATA from '../../../src/shared/api/mock-data/current.json'
 import * as BENEFITS_ELIGIBILITY_DATA from '../../fixtures/benefits-eligibility.json'
 
 // 18 years ago minus one day - applicant under 18 years old

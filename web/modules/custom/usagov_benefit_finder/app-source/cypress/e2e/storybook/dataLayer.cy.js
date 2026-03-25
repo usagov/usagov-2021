@@ -3,10 +3,10 @@
 import * as utils from '../../support/utils.js'
 import { dataLayerUtils } from '../../../src/shared/utils'
 import { pageObjects } from '../../support/pageObjects'
-import * as EN_LOCALE_DATA from '../../../../benefit-finder/src/shared/locales/en/en.json'
+import * as EN_LOCALE_DATA from '../../../src/shared/locales/en/en.json'
 import * as BENEFITS_ELIGIBILITY_DATA from '../../fixtures/benefits-eligibility.json'
 import content from '../../../src/shared/api/mock-data/current.json'
-import * as EN_DOLO_MOCK_DATA from '../../../../benefit-finder/src/shared/api/mock-data/current.json'
+import * as EN_DOLO_MOCK_DATA from '../../../src/shared/api/mock-data/current.json'
 
 // establish some common data points from our mock values and scenarios
 const {

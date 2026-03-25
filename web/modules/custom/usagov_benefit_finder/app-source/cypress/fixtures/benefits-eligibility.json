@@ -121,7 +121,7 @@
       },
       "results": {
         "eligible": {
-          "length": 9,
+          "length": 8,
           "eligible_benefits": ["Burial flag"]
         },
         "total_benefits": 30

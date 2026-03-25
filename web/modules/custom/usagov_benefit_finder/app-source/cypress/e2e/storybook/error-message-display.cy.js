@@ -2,8 +2,8 @@
 
 import { pageObjects } from '../../support/pageObjects'
 import * as utils from '../../support/utils'
-import * as EN_DOLO_MOCK_DATA from '../../../../benefit-finder/src/shared/api/mock-data/current.json'
-import * as EN_LOCALE_DATA from '../../../../benefit-finder/src/shared/locales/en/en.json'
+import * as EN_DOLO_MOCK_DATA from '../../../src/shared/api/mock-data/current.json'
+import * as EN_LOCALE_DATA from '../../../src/shared/locales/en/en.json'
 import 'cypress-plugin-tab'
 
 const dateOfBirth = utils.getDateByOffset(-(18 * 365.2425 - 1))
