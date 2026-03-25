@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""WCAG 2.1 AA audit report generator for USAGov HTML content.
+"""Section 508 / WCAG 2.0-2.1 Level A & AA audit report generator for USAGov HTML content.
 
 Runs audit_a11y.py to produce fresh results (or uses cached JSON with
 --cached), then writes a timestamped markdown report to scripts/a11y/reports/.
@@ -66,12 +66,35 @@ def unique_files(items: list) -> list:
 
 SEVERITY_ORDER = ["Critical", "High", "Medium", "Warning", "Manual Review"]
 
+# WCAG 2.1-only criteria (not in WCAG 2.0, therefore not directly mandated by Section 508 §E205.4)
+_WCAG_21_ONLY = {
+    (1, 3, 4), (1, 3, 5), (1, 3, 6),
+    (1, 4, 10), (1, 4, 11), (1, 4, 12), (1, 4, 13),
+    (2, 1, 4),
+    (2, 5, 1), (2, 5, 2), (2, 5, 3), (2, 5, 4), (2, 5, 5), (2, 5, 6),
+    (4, 1, 3),
+}
+
 
 def severity_key(sev: str) -> int:
     try:
         return SEVERITY_ORDER.index(sev)
     except ValueError:
         return len(SEVERITY_ORDER)
+
+
+def wcag_sort_key(wcag_str: str) -> tuple:
+    """Return a sortable tuple from the first WCAG criterion number found in a string."""
+    import re as _re
+    m = _re.search(r'(\d+)\.(\d+)\.(\d+)', wcag_str)
+    if m:
+        return (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    return (99, 99, 99)
+
+
+def section_508_indicator(wcag_str: str) -> str:
+    """Return ✅ if the criterion is in WCAG 2.0 (Section 508 §E205.4), or ⚠️ if WCAG 2.1-only."""
+    return "⚠️" if wcag_sort_key(wcag_str) in _WCAG_21_ONLY else "✅"
 
 
 def file_list_md(files: list, threshold: int = 10) -> str:
@@ -208,6 +231,7 @@ Add `<th scope="col">` or `<th scope="row">` cells for headers and a `<caption>`
         "label": "Multiple `<h1>` Elements in Article Body Content",
         "merge_keys": ["multiple_h1"],
         "wcag": "1.3.1 Info and Relationships / 2.4.6 Headings and Labels",
+        "level": "A/AA",
         "severity": "High",
         "scope": "Content-level",
         "description": """\
@@ -404,6 +428,7 @@ Replace the URL with a descriptive label:
         "label": "Inline `color`/`background-color` Styles (Potential Contrast Issue)",
         "merge_keys": ["inline_color_style"],
         "wcag": "1.4.1 Use of Color / 1.4.3 Contrast (Minimum)",
+        "level": "A/AA",
         "severity": "Warning",
         "scope": "Content-level — migration artifacts",
         "description": """\
@@ -456,6 +481,8 @@ GENERIC_SEVERITY = {
     "missing_autocomplete": "Medium",
     "abbr_no_title": "Medium",
     "no_h1": "High",
+    "audio_needs_transcript_review": "Manual Review",
+    "video_no_audio_description": "High",
 }
 
 
@@ -496,8 +523,8 @@ def build_report(results: dict, audit_date: str, target: str = "") -> str:
         }
         sections.append((generic_meta, items))
 
-    # Sort by severity
-    sections.sort(key=lambda s: severity_key(s[0]["severity"]))
+    # Sort by WCAG criterion number
+    sections.sort(key=lambda s: wcag_sort_key(s[0]["wcag"]))
 
     total_files = len({item["file"] for _, items in sections for item in items})
     total_issues = sum(len(items) for _, items in sections)
@@ -506,12 +533,12 @@ def build_report(results: dict, audit_date: str, target: str = "") -> str:
     scan_label = f"`html/{target.strip('/')}`" if target else "`html/` (all)"
     slug = make_slug(target)
     lines += [
-        f"# WCAG 2.1 AA Accessibility Audit — {scan_label}",
+        f"# Section 508 / WCAG 2.0-2.1 A & AA Accessibility Audit — {scan_label}",
         "",
         f"**Audit date:** {audit_date}  ",
         f"**Files scanned:** all `index.html` files under {scan_label}  ",
-        f"**Audit script:** `scripts/a11y/audit_a11y.py`  ",
-        f"**Results data:** `scripts/a11y/json/TIMESTAMP_{slug}.json`",
+        f"**Audit script:** `bin/a11y/audit_a11y.py`  ",
+        f"**Results data:** `bin/a11y/json/TIMESTAMP_{slug}.json`",
         "",
         "---",
         "",
@@ -521,13 +548,18 @@ def build_report(results: dict, audit_date: str, target: str = "") -> str:
     lines += [
         "## Summary",
         "",
-        "| # | Issue | WCAG | Severity | Instances | Files |",
-        "|---|-------|------|----------|-----------|-------|",
+        "✅ = Section 508 required (WCAG 2.0)  ",
+        "⚠️ = WCAG 2.1-only — best practice, not directly mandated by Section 508",
+        "",
+        "| # | Issue | WCAG | Level | 508 | Severity | Instances | Files |",
+        "|---|-------|------|-------|-----|----------|-----------|-------|",
     ]
     for i, (meta, items) in enumerate(sections, 1):
         n_files = len(set(item["file"] for item in items))
+        level = meta.get("level", "A")
+        indicator = section_508_indicator(meta["wcag"])
         lines.append(
-            f"| {i} | {meta['label']} | {meta['wcag']} "
+            f"| {i} | {meta['label']} | {meta['wcag']} | {level} | {indicator} "
             f"| **{meta['severity']}** | {len(items)} | {n_files} |"
         )
     lines += [
@@ -544,10 +576,15 @@ def build_report(results: dict, audit_date: str, target: str = "") -> str:
         n_files = len(files)
         n_items = len(items)
 
+        level = meta.get("level", "A")
+        indicator = section_508_indicator(meta["wcag"])
+        section_508 = meta.get("section_508", "36 CFR 1194 \u00a7E205.4")
         lines += [
             f"## Issue {i} — {meta['label']}",
             "",
             f"**WCAG:** {meta['wcag']}  ",
+            f"**Level:** {level}  ",
+            f"**Section 508:** {indicator} {section_508}  ",
             f"**Severity:** {meta['severity']}  ",
             f"**Scope:** {meta['scope']}  ",
             f"**Instances:** {n_items}  ",
@@ -578,11 +615,21 @@ def build_report(results: dict, audit_date: str, target: str = "") -> str:
     lines += [
         "## Methodology Notes",
         "",
+        "### Standards Coverage",
+        "",
+        "- **Section 508 (2018 refresh):** 36 CFR Part 1194, \u00a7E205.4 requires web content to conform "
+        "to WCAG 2.0 Level A and AA. All findings in this report are Section 508 violations under \u00a7E205.4.",
+        "- **WCAG version:** This audit checks WCAG 2.1 (a superset of WCAG 2.0). "
+        "WCAG 2.1-only criteria (e.g. 1.3.5 Identify Input Purpose) are noted in issue descriptions.",
+        "",
+        "### Tools and Limitations",
+        "",
         "- **Tools used:** Python 3 with BeautifulSoup4 and lxml",
         "- **Audit script:** `scripts/a11y/audit_a11y.py`",
         "- **What was NOT checked (requires manual review):**",
         "  - Actual color contrast ratios for inline-styled text — requires rendering + color picker tooling",
         "  - Video captions/transcripts — embedded YouTube/Vimeo iframes require manual review",
+        "  - Audio transcript availability — `<audio>` elements are flagged for manual verification",
         "  - Keyboard focus order and focus visibility (requires browser testing)",
         "  - Dynamic/JavaScript-driven content (static HTML may not reflect full rendered DOM)",
         "  - CMS-managed media and `<picture>`/`srcset` images",
@@ -594,7 +641,7 @@ def build_report(results: dict, audit_date: str, target: str = "") -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate WCAG audit report for USAGov HTML content"
+        description="Generate Section 508 / WCAG audit report for USAGov HTML content"
     )
     parser.add_argument(
         "target", nargs="?", default="",

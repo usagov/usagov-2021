@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-WCAG 2.1 Level AA Accessibility Audit Script for USAGov HTML Content
+Section 508 / WCAG 2.0-2.1 Level A & AA Accessibility Audit Script for USAGov HTML Content
 Analyzes all index.html files under a target directory and reports violations.
+
+The 2018 Section 508 refresh (36 CFR Part 1194, §E205.4) requires web content to conform
+to WCAG 2.0 Level A and AA.  This script targets WCAG 2.1 (a superset of 2.0), so all
+findings apply to both standards.  WCAG 2.1-only criteria (e.g. 1.3.5 Identify Input
+Purpose) are noted in individual check docstrings.
 
 Usage:
     python3 audit_a11y.py              # scans all of html/
@@ -509,6 +514,34 @@ def check_videos(soup, filepath, issues):
                 "wcag": "1.2.2",
                 "severity": "Critical"
             })
+        # WCAG 1.2.5 AA / Section 508 E205.4 — Audio Description (Prerecorded)
+        has_descriptions = any(t.get("kind") == "descriptions" for t in tracks)
+        if not has_descriptions:
+            issues["video_no_audio_description"].append({
+                "file": rel,
+                "element": str(video)[:200],
+                "detail": "No <track kind=\"descriptions\"> found — audio description track required",
+                "wcag": "1.2.5",
+                "severity": "High"
+            })
+
+
+def check_audio(soup, filepath, issues):
+    """WCAG 1.2.1 Level A / Section 508 E205.4 - Audio-only content must have a transcript."""
+    rel = relative_path(filepath)
+    content = get_article_body(soup)
+    if not content:
+        return
+
+    for audio in content.find_all("audio"):
+        # Cannot verify transcript presence from static HTML alone; flag for manual review.
+        issues["audio_needs_transcript_review"].append({
+            "file": rel,
+            "element": str(audio)[:200],
+            "detail": "Audio element found — verify a text transcript is available nearby (WCAG 1.2.1)",
+            "wcag": "1.2.1",
+            "severity": "Manual Review"
+        })
 
 
 def check_duplicate_ids(soup, filepath, issues):
@@ -756,24 +789,6 @@ def check_heading_count(soup, filepath, issues):
         })
 
 
-def check_abbr_acronym(soup, filepath, issues):
-    """WCAG 3.1.4 - Abbreviations should include expansions."""
-    rel = relative_path(filepath)
-    body = get_article_body(soup)
-    if not body:
-        return
-
-    # Look for <abbr> without title
-    for abbr in body.find_all("abbr"):
-        if not abbr.get("title", "").strip():
-            issues["abbr_no_title"].append({
-                "file": rel,
-                "element": str(abbr)[:200],
-                "wcag": "3.1.4",
-                "severity": "Medium"
-            })
-
-
 def check_url_link_text(soup, filepath, issues):
     """WCAG 2.4.4 - Raw URLs should not be used as link text."""
     rel = relative_path(filepath)
@@ -894,13 +909,13 @@ def audit_file(filepath: Path, issues: dict):
     check_aria(soup, filepath, issues)
     check_svg(soup, filepath, issues)
     check_videos(soup, filepath, issues)
+    check_audio(soup, filepath, issues)
     check_duplicate_ids(soup, filepath, issues)
     check_buttons(soup, filepath, issues)
     check_alert_component(soup, filepath, issues)
     check_target_blank(soup, filepath, issues)
     check_emoji_in_content(soup, filepath, issues)
     check_color_indicators(soup, filepath, issues)
-    check_abbr_acronym(soup, filepath, issues)
     check_autocomplete(soup, filepath, issues)
     check_fake_headings(soup, filepath, issues)
 
@@ -933,7 +948,7 @@ if __name__ == "__main__":
     _ts_default = datetime.now().strftime("%Y-%m-%dT%H%M")
 
     _parser = argparse.ArgumentParser(
-        description="WCAG 2.1 AA accessibility audit for USAGov HTML content"
+        description="Section 508 / WCAG 2.0-2.1 Level A & AA accessibility audit for USAGov HTML content"
     )
     _parser.add_argument(
         "target", nargs="?", default="",
