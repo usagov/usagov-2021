@@ -4,7 +4,6 @@ namespace Drupal\usagov_benefit_finder_api\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
@@ -133,7 +132,7 @@ class LifeEventController extends ControllerBase {
    *  The life event ID.
    * @return JsonResponse
    *  The response.
-   * @throws EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function saveJsonData($id) {
     // Get JSON data mode.
