@@ -75,3 +75,67 @@ function setMobileProperties() {
 })();
 
 
+// Blog year expand: clicking a year toggles its nested month list (accordion) with a slide animation.
+(function blogYearExpand() {
+	"use strict";
+
+	function slideOpen(el) {
+		el.hidden = false;
+		el.style.height = "0";
+		el.style.overflow = "hidden";
+		el.style.transition = "height 0.25s ease";
+		// Needs a frame before animating from 0 to scrollHeight
+		requestAnimationFrame(function () {
+			el.style.height = el.scrollHeight + "px";
+			el.addEventListener("transitionend", function onEnd() {
+				el.style.height = "";
+				el.style.overflow = "";
+				el.style.transition = "";
+				el.removeEventListener("transitionend", onEnd);
+			}, { once: true });
+		});
+	}
+
+	function slideClose(el) {
+		el.style.height = el.scrollHeight + "px";
+		el.style.overflow = "hidden";
+		el.style.transition = "height 0.25s ease";
+		requestAnimationFrame(function () {
+			el.style.height = "0";
+			el.addEventListener("transitionend", function onEnd() {
+				el.hidden = true;
+				el.style.height = "";
+				el.style.overflow = "";
+				el.style.transition = "";
+				el.removeEventListener("transitionend", onEnd);
+			}, { once: true });
+		});
+	}
+
+	document.querySelectorAll("[data-blog-year-link]").forEach(function (link) {
+		link.addEventListener("click", function (e) {
+			e.preventDefault();
+			var monthList = link.nextElementSibling;
+			if (!monthList) { return; }
+			var isExpanded = link.getAttribute("aria-expanded") === "true";
+
+			// Accordion: close any other open years first
+			document.querySelectorAll("[data-blog-year-link][aria-expanded='true']").forEach(function (other) {
+				if (other !== link) {
+					other.setAttribute("aria-expanded", "false");
+					var otherList = other.nextElementSibling;
+					if (otherList && !otherList.hidden) { slideClose(otherList); }
+				}
+			});
+
+			link.setAttribute("aria-expanded", String(!isExpanded));
+			if (isExpanded) {
+				slideClose(monthList);
+			} else {
+				slideOpen(monthList);
+			}
+		});
+	});
+})();
+
+
