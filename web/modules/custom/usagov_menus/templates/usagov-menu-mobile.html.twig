@@ -118,6 +118,13 @@
       {% if node.type.0 != null %}
         {% set content_type = node.type.0.target_id %}
       {% endif %}
+      {% set current_path = path('<current>') %}
+      {% set is_blog_view = '/blog' in current_path %}
+      {% if is_blog_view or content_type == 'blog_post' %}
+        <div class="blog-instruction-mobile">
+          <p class="margin-x-2 margin-y-1 text-base font-sans-xs">Select a year and a month to view the blog entries from that specific period.</p>
+        </div>
+      {% endif %}
     </div>
 
     {% block mobile_nav %}
@@ -189,35 +196,33 @@
                   {# Show children - for blog menu, show ALL children even if not active #}
                   {% if menu_item.below is not empty %}
                     {% if is_blog_menu %}
-                      {# Blog menu - show all years with custom structure #}
+                      {# Blog menu - year items expand inline to show months without a page reload #}
                       <ul class="navigation__items children">
                         {% for child in menu_item.below %}
-                          {# Year items - add active class if this is the active year #}
+                          {# Year items - months are nested and hidden until the year is expanded #}
+                          {% set year_expanded = child.in_active_trail or child.active %}
                           <li class="navigation__item child blog-year{% if child.active %} active{% endif %}">
-                            <a href="{{ child.url }}" style="padding-left: 1rem;">{{ child.title }}</a>
-                          </li>
-                          {# If this year is in active trail or active, show its months #}
-                          {% if (child.in_active_trail or child.active) and child.below is not empty %}
-                            {% for grandchild in child.below %}
-                              {# Month items - only show indicator if month page is active #}
-                              <li class="navigation__item child blog-month{% if grandchild.active %} active{% endif %}">
-                                <a href="{{ grandchild.url }}" style="padding-left: 2rem;">{{ grandchild.title }}</a>
-                              </li>
-                              {# Show posts if this month is active #}
-                              {% if grandchild.in_active_trail and grandchild.below is not empty %}
-                                {% for post in grandchild.below %}
-                                  {# Post items - add active class if this is the active post #}
-                                  <li class="navigation__item child blog-post{% if post.active %} active{% endif %}">
-                                    {% if post.active %}
-                                      <span style="padding-left: 3rem;">{{ post.title }}</span>
-                                    {% else %}
-                                      <a href="{{ post.url }}" style="padding-left: 3rem;">{{ post.title }}</a>
-                                    {% endif %}
+                            <a href="{{ child.url }}" data-blog-year-link aria-expanded="{{ year_expanded ? 'true' : 'false' }}" style="padding-left: 1rem;">{{ child.title }}</a>
+                            {% if child.below is not empty %}
+                              <ul class="navigation__items children blog-months-list"{% if not year_expanded %} hidden{% endif %}>
+                                {% for grandchild in child.below %}
+                                  {# Month items - clicking navigates to the month archive page #}
+                                  <li class="navigation__item child blog-month{% if grandchild.active %} active{% endif %}">
+                                    <a href="{{ grandchild.url }}" style="padding-left: 2rem;">{{ grandchild.title }}</a>
                                   </li>
+                                  {# Show posts if this month is active #}
+                                  {% if grandchild.in_active_trail and grandchild.below is not empty %}
+                                    {% for post in grandchild.below %}
+                                      {# Post items - add active class if this is the active post #}
+                                      <li class="navigation__item child blog-post{% if post.active %} active{% endif %}">
+                                        <a href="{{ post.active ? '#' : post.url }}" style="padding-left: 3rem;">{{ post.title }}</a>
+                                      </li>
+                                    {% endfor %}
+                                  {% endif %}
                                 {% endfor %}
-                              {% endif %}
-                            {% endfor %}
-                          {% endif %}
+                              </ul>
+                            {% endif %}
+                          </li>
                         {% endfor %}
                       </ul>
                     {% elseif menu_item.active %}
