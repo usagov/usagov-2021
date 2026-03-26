@@ -118,13 +118,6 @@
       {% if node.type.0 != null %}
         {% set content_type = node.type.0.target_id %}
       {% endif %}
-      {% set current_path = path('<current>') %}
-      {% set is_blog_view = '/blog' in current_path %}
-      {% if is_blog_view or content_type == 'blog_post' %}
-        <div class="blog-instruction-mobile">
-          <p class="margin-x-2 margin-y-1 text-base font-sans-xs">Select a year and a month to view the blog entries from that specific period.</p>
-        </div>
-      {% endif %}
     </div>
 
     {% block mobile_nav %}
