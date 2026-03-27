@@ -50,7 +50,7 @@
     "*.md"
   ],
   "engines": {
-    "node": "22.x.x"
+    "node": "24.x.x"
   },
   "preferGlobal": true,
   "main": "index",
