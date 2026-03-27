@@ -2,7 +2,6 @@
 
 namespace Drupal\usagov_unpub_es\Drush\Commands;
 
-use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
