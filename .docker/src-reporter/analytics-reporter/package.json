@@ -66,11 +66,11 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1018.0",
-    "@google-analytics/data": "^4.12.1",
+    "@google-analytics/data": "^5.2.1",
     "@snyk/protect": "^1.1303.2",
     "dotenv": "^17.3.1",
     "fast-csv": "^5.0.5",
-    "googleapis": "^131.0.0",
+    "googleapis": "^171.4.0",
     "minimist": "^1.2.8",
     "p-retry": "^7.1.1",
     "winston": "^3.19.0"
