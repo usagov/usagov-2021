@@ -1,0 +1,15 @@
+meta {
+  name: delete_tag
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{api_host}}/{{namespace}}/{{repository}}/tags/{{target_tag}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  : 
+}

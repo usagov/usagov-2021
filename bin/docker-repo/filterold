@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Expects input from bin/docker-repo/lsimage
+# Print digest of images older than $1
+
+
+DEFAULT_RM_AGE="6 months ago"
+RM_AGE=${1:-$DEFAULT_RM_AGE}
+RM_AGE_FMT=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d "$RM_AGE")
+RM_AGE_TS=$(TZ=UTC date +"%s" -d "$RM_AGE")
+
+#echo $RM_AGE
+#echo $RM_AGE_FMT
+#echo $RM_AGE_TS
+
+while IFS= read -r line; do
+
+  HASH=$(echo $line | sed 's/^.*|//g' | tr -d '"')
+  DATE=$(echo $line | sed 's/|.*$//g' | tr -d '"')
+  UNIX=$(date -d "$DATE" +"%s")
+  
+  if [ $UNIX -lt $RM_AGE_TS ]; then
+    echo "$DATE|$HASH"
+  fi
+
+done

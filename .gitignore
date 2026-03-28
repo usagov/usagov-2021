@@ -156,3 +156,6 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 
 .docker/src-reporter/analytics.pem
 reporter-vcapsecrets.json
+
+## Ignore and env files kept in Bruno request collections
+bruno-requests/**/.env
