@@ -315,18 +315,37 @@ npm run test
 ##### Cypress for UI E2E Test
 
 ```bash
+npm run cy:dev:storybook
+```
+
+**Description:**
+Starts Storybook for the Cypress suite at `http://localhost:6006`.
+
+In a second terminal, run:
+
+```bash
 npm run cy:run:e2e
 ```
 
 **Description:**
-Runs the end-to-end (E2E) tests in the test environment using the Chrome browser.
+Runs the Storybook E2E suite in the test environment using headless Chrome. Storybook must already be running.
 
 ```bash
 npm run cy:run:prod:links:e2e
 ```
 
 **Description:**
-Runs the E2E tests using the production configuration for testing links, with the Chrome browser.
+Runs the production-links Cypress configuration in Chrome. This command expects a `cypress/e2e/usagov-public-site/links.cy.js` spec file to exist.
+
+```bash
+npm run cy:build:storybook
+npm run cy:run:pipeline
+```
+
+**Description:**
+This is the CI helper flow. `cy:run:pipeline` serves `storybook-static/` on port `6006` and does not launch Cypress by itself.
+
+See `cypress/README.md` in this directory for the full local and CI Cypress workflow.
 
 For more information, refer to the [Cypress Documentation](https://docs.cypress.io).
 

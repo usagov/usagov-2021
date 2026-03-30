@@ -128,9 +128,6 @@ web/modules/custom/usagov_benefit_finder/app-source/dist/
 web/modules/custom/usagov_benefit_finder/app-source/.env.local
 web/modules/custom/usagov_benefit_finder/app-source/coverage/
 web/modules/custom/usagov_benefit_finder/app-source/storybook-static/
-web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/assets/
-web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/css/
-web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/js/
 
 # Ignore report.csv which is created by the USAGOV-2180 script
 report.csv
