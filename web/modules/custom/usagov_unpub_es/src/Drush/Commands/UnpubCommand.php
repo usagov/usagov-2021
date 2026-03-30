@@ -84,7 +84,6 @@ class UnpubCommand extends DrushCommands {
 
       $node = Node::load($nid);
 
-      $node->setPublished(FALSE);
       $node->setUnpublished();
       $node->set('status', 0);
 
