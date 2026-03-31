@@ -69,6 +69,29 @@ function setBenefitsArray(updatedData) {
   benefitsArray = updatedData
 }
 
+function assertResultsSections() {
+  expect(screen.getAllByTestId('bf-usa-accordion')).toHaveLength(30)
+  expect(
+    screen.getByRole('heading', { name: 'Benefits you did not qualify for' })
+  ).toBeInTheDocument()
+  expect(screen.getByTestId('bf-result-view-unmet-button')).toHaveTextContent(
+    "See benefits you didn't qualify for"
+  )
+  expect(
+    screen.getByRole('heading', { name: 'More benefits' })
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('link', { name: 'Benefit finder: retirement' })
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('link', { name: 'Benefit finder: disability' })
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('heading', { name: 'Share results' })
+  ).toBeInTheDocument()
+  expect(screen.getByText('Email results')).toBeInTheDocument()
+}
+
 beforeAll(() => {
   // handle window.scrollTo
   const noop = () => {}
@@ -107,6 +130,7 @@ test('loads view', async () => {
   await screen.findAllByTestId('bf-usa-accordion')
   await screen.findByTestId('dom-ready')
 
+  assertResultsSections()
   expect(view.baseElement).toMatchSnapshot()
 })
 
@@ -154,5 +178,6 @@ test('scenario 1 loads in view with the correct amount of likely eligible items'
   await screen.findAllByTestId('bf-usa-accordion')
   await screen.findByTestId('dom-ready')
 
+  assertResultsSections()
   expect(view.baseElement).toMatchSnapshot()
 })
