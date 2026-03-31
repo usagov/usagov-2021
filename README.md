@@ -149,6 +149,7 @@ We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, 
 
    Run `npm run cy:run` to execute the entire test suite, or `npm run cy:run -- --spec cypress/e2e/functional` to run a smaller subset.
    The extra `--` tells npm to pass the following arguments through to Cypress unchanged.
+   These scripts default to Chromium; set `CYPRESS_BROWSER=firefox` first if you want to try a different browser.
 
    The **Report** will be written to `automated_tests/e2e-cypress/cypress/reports/html/index.html` and you can open it
 in your web browser by navigating to that file. Cypress will report that it wrote the tests to

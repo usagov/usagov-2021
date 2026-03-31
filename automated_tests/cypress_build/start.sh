@@ -17,6 +17,9 @@ You can run a subset of the tests by specifying a subdirectory, for example:
 To run tests interactively:
 # npm run cy:open
 
+The Cypress scripts default to Chromium. You can override that by setting
+the CYPRESS_BROWSER environment variable before running a script.
+
 To view the reports in HTML format, open automated_tests/e2e-cypress/cypress/reports/html/index.html
 
 EOINSTRS
@@ -31,6 +34,7 @@ export CYPRESS_BASE_URL=${cypressBaseUrl}
 export CYPRESS_CMS_USER=${cypressCmsUser}
 export CYPRESS_CMS_PASS=${cypressCmsPass}
 export CYPRESS_PROJECT_DIR=/app/e2e-cypress
+export CYPRESS_BROWSER=chromium
 EOF
 
 fi

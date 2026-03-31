@@ -1,9 +1,18 @@
 const { defineConfig } = require('cypress')
-const getCompareSnapshotsPlugin = require('cypress-image-diff-js/plugin')
+const path = require('path')
 const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
 
+const reporterPath = require.resolve('cypress-mochawesome-reporter', {
+  paths: [path.resolve(__dirname, '../cypress_build/node_modules')],
+})
+
 module.exports = defineConfig({
-  reporter: 'cypress-mochawesome-reporter',
+  allowCypressEnv: false,
+  env: {
+    exampleHost: 'veronica.dev.local',
+    exampleApiServer: 'http://localhost:8888/v1/',
+  },
+  reporter: reporterPath,
   video: false,
   screenshotOnRunFailure: true,
   e2e: {

@@ -1,4 +1,4 @@
-FROM cypress/browsers:node-20.12.0-chrome-123.0.6312.86-1-ff-124.0.2-edge-123.0.2420.65-1
+FROM cypress/base:24.11.0
 
 # Add the zscaler certificate to the trusted certs only on local builds
 # NOTE: Cypress build is always local.
@@ -7,10 +7,8 @@ COPY ./.docker/zscaler_cert.pem /tmp/zscaler.crt
 COPY ./.docker/zscaler_cypress.pem /app/zscaler_chain.pem
 RUN cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt ; update-ca-certificates
 
-# Add the browsers.
-# (They are not automatically included in cypress/browsers arm64 images;
-# see https://github.com/cypress-io/cypress-docker-images/issues/695 )
-# TODO: check whether this incurs much extra time on amd64 builds.
+# Install browsers on top of a non-browser Cypress image so the container
+# stays off the cypress/browsers image family used by cypress-real-events.
 RUN DEBIAN_FRONTEND=noninteractive  \
     && apt-get update \
     && apt-get -y install \
@@ -23,5 +21,4 @@ ENV CYPRESS_PROJECT_DIR=/app/e2e-cypress
 
 # Install the container's npm project from the checked-in lockfile.
 RUN NODE_EXTRA_CA_CERTS=/app/zscaler_chain.pem npm ci
-
 
