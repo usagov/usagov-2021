@@ -19,9 +19,9 @@ RUN DEBIAN_FRONTEND=noninteractive  \
 COPY ./automated_tests/cypress_build /app
 
 WORKDIR /app
+ENV CYPRESS_PROJECT_DIR=/app/e2e-cypress
 
-# Install cypress. 
-RUN NODE_EXTRA_CA_CERTS=/app/zscaler_chain.pem npm install --save-dev cypress
-
+# Install the container's npm project from the checked-in lockfile.
+RUN NODE_EXTRA_CA_CERTS=/app/zscaler_chain.pem npm ci
 
 

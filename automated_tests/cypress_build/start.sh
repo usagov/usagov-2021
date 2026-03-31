@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# On first run, we will not have a node_modules symlink in the
-# working directory (which will be a bind mount).
-if [ ! -L node_modules ]; then
-    ln -s ../node_modules node_modules
-fi
+cd /app || exit 1
 
 # Add instructions to .bashrc, if they are not already present.
 if ! grep -q 'EOINSTRS' /root/.bashrc ; then
@@ -13,15 +9,15 @@ if ! grep -q 'EOINSTRS' /root/.bashrc ; then
 cat <<EOINSTRS
 
 To run all the tests:
-# npx cypress run --spec cypress/e2e
+# npm run cy:run
 
 You can run a subset of the tests by specifying a subdirectory, for example:
-# npx cypress run --spec cypress/e2e/functional
+# npm run cy:run -- --spec cypress/e2e/functional
 
 To run tests interactively:
-# npx cypress open
+# npm run cy:open
 
-To view the reports in HTML format, open automated_tests/e2e-cypress/reports/index.html
+To view the reports in HTML format, open automated_tests/e2e-cypress/cypress/reports/html/index.html
 
 EOINSTRS
 
@@ -34,6 +30,7 @@ EOF
 export CYPRESS_BASE_URL=${cypressBaseUrl}
 export CYPRESS_CMS_USER=${cypressCmsUser}
 export CYPRESS_CMS_PASS=${cypressCmsPass}
+export CYPRESS_PROJECT_DIR=/app/e2e-cypress
 EOF
 
 fi

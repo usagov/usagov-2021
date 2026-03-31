@@ -170,7 +170,7 @@ services:
     volumes:
       - ./automated_tests/e2e-cypress:/app/e2e-cypress
       - /tmp/.X11-unix:/tmp/.X11-unix
-    working_dir: /app/e2e-cypress
+    working_dir: /app
     command: /app/start.sh
     networks:
       - gsa-gov

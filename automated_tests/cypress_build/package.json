@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "cy:functional": "cypress run --spec cypress/e2e/functional/eng/error_page.cy.js"
+    "cy:open": "cypress open --project \"${CYPRESS_PROJECT_DIR:-../e2e-cypress}\"",
+    "cy:run": "cypress run --project \"${CYPRESS_PROJECT_DIR:-../e2e-cypress}\"",
+    "cy:run:functional": "cypress run --project \"${CYPRESS_PROJECT_DIR:-../e2e-cypress}\" --spec cypress/e2e/functional/eng/error_page.cy.js"
   },
   "keywords": [],
   "author": "",
