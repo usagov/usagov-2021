@@ -41,8 +41,8 @@ ul.navigation__items {
   }
 
   .active > a {
-    border-left-color: #ae1a0a;
-    color: #ae1a0a;
+    border-left-color: $navigation-red;
+    color: $navigation-red;
   }
 
   .sibling > a {
