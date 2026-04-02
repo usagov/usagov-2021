@@ -89,7 +89,8 @@ export default defineConfig({
   test: testConfig,
   build: {
     emptyOutDir: false,
-    outDir: '../modules/usagov_benefit_finder_app/usagov_benefit_finder_page',
+    outDir:
+      '../../web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page',
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {

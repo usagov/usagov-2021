@@ -1,7 +1,7 @@
-# Benefit Finder v2 React Application
+# Benefit Finder React Application
 
 ```text
-/benefit-finder
+/sources/benefit-finder
   |-.husky
     |-git-hooks
   |-.storybook
@@ -81,8 +81,6 @@
 
 ## Getting Started
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
 ### Get our packages.
 
 ```shell
@@ -117,6 +115,21 @@ Run development server from `vite.config.mjs`
 
 ```shell
 npm run dev
+```
+
+#### Module asset build
+
+The compiled module assets are committed in this repo. To rebuild the files that
+Drupal serves, run the repo-level helper from the repository root:
+
+```shell
+./scripts/benefit-finder/build-module-assets.sh
+```
+
+To rebuild automatically while you work:
+
+```shell
+./scripts/benefit-finder/watch-module-assets.sh
 ```
 
 #### Storybook

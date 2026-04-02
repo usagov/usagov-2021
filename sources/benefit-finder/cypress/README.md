@@ -2,10 +2,10 @@
 
 These tests run against a live Storybook instance and cover accessibility, routing, data layer, eligibility logic, and UI behaviour across the Benefit Finder application.
 
-All commands should be run from the `app-source/` directory:
+All commands should be run from the `sources/benefit-finder/` directory:
 
 ```bash
-cd web/modules/custom/usagov_benefit_finder/app-source
+cd sources/benefit-finder
 ```
 
 ---
@@ -13,7 +13,7 @@ cd web/modules/custom/usagov_benefit_finder/app-source
 ## Prerequisites
 
 - Node.js (see `.nvmrc` for required version)
-- `npm install` has been run from `app-source/`
+- `npm install` has been run from `sources/benefit-finder/`
 - Chrome installed locally for `npm run cy:run:e2e`
 
 ---

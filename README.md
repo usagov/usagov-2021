@@ -375,6 +375,25 @@ This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
 
 [back to top](#usagov-2021)
 
+## Benefit Finder
+The Benefit Finder source now lives in `sources/benefit-finder`, while the compiled
+Drupal module assets remain committed under `web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page`.
+
+Use the repo-level scripts to rebuild the committed assets:
+```
+# Rebuild benefit finder module assets
+./scripts/benefit-finder/build-module-assets.sh
+```
+
+To rebuild automatically while working on the Benefit Finder:
+```
+./scripts/benefit-finder/watch-module-assets.sh
+```
+
+This workflow is local-only and no longer depends on a Docker build stage.
+
+[back to top](#usagov-2021)
+
 ## Export database
 A helper script has been provided to perform exports.
 ```

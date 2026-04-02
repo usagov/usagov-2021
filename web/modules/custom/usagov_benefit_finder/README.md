@@ -1,15 +1,10 @@
 
-# Benefit Finder v2 Custom Drupal Module
+# Benefit Finder Custom Drupal Module
 
 ## Structure
 
 ```text
 /usagov_benefit_finder
-  |-app-source                    ← React application source code
-    |-src                          React components and logic
-    |-package.json                 Dependencies (security-fixed)
-    |-package-lock.json            Locked dependency versions
-    |-vite.config.mjs              Build configuration
   |-config
   |-modules
     |-usagov_benefit_finder_api
@@ -20,9 +15,9 @@
     |-usagov_benefit_finder_app
       |-usagov_benefit_finder_page
         |-css
-          benefit-finder.min.css   ← Built by app-source
+          benefit-finder.min.css   ← Built by sources/benefit-finder
         |-js
-          benefit-finder.min.js    ← Built by app-source
+          benefit-finder.min.js    ← Built by sources/benefit-finder
         |-templates
           page--benefit-finder-life-event.html.twig
         usagov_benefit_finder_page.libraries.yml
@@ -37,19 +32,26 @@
       BenefitFinderTrait.php
   |-tests
   |-README.md
+
+/sources
+  |-benefit-finder               ← React application source code
+    |-src                         React components and logic
+    |-package.json                Dependencies
+    |-package-lock.json           Locked dependency versions
+    |-vite.config.mjs             Build configuration
 ```
 
 ## Basics
 
 | File or folder                              | Description                                                        |
 |---------------------------------------------|--------------------------------------------------------------------|
-| `app-source/`                               | **React application source code (built during Docker build)**      |
+| `sources/benefit-finder/`                   | **React application source code**                                  |
 | `usagov_benefit_finder_api`                 | Benefit finder API module                                          |
 | `LifeEventController.php`                   | Process benefit finder content to generate JSON data and JSON file |
 | `usagov_benefit_finder_api.module`          | JSON file generation batch job                                     |
 | `usagov_benefit_finder_page`                | Benefit finder page module                                         |
-| `benefit-finder.min.css`                    | Benefit finder app css (generated from app-source)                 |
-| `benefit-finder.min.js`                     | Benefit finder app JavaScript (generated from app-source)          |
+| `benefit-finder.min.css`                    | Benefit finder app css (generated from `sources/benefit-finder`)   |
+| `benefit-finder.min.js`                     | Benefit finder app JavaScript (generated from `sources/benefit-finder`) |
 | `page--benefit-finder-life-event.html.twig` | Benefit finder page template                                       |
 | `usagov_benefit_finder_page.libraries.yml`  | Benefit finder app library                                         |
 | `usagov_benefit_finder_page.module`         | Benefit finder page theme, preprocess, attach library              |
@@ -58,35 +60,35 @@
 | `src/Form/BenefitFinderSettingsForm.php`    | Form to set up automate JSON data file generation                  |
 | `src/Traits/BenefitFinderTrait.php`         | Functions to get benefit finder node                               |
 
-## React Application (app-source/)
+## React Application (`sources/benefit-finder/`)
 
-The benefit finder React application source code lives in the `app-source/` directory within this module. 
-It is built during the Docker build process and outputs minified assets to the module's library directory.
+The benefit finder React application source code lives in `sources/benefit-finder/`.
+Its compiled assets are committed to this module's library directory so Drupal does
+not need to compile the app during local development or container builds.
 
 ### Building the React App
 
-**Automatic build (via Docker):**
-The React app is automatically built when you run `bin/build` or during CircleCI deployment. 
-The Dockerfile includes a `benefit-finder-builder` stage that:
-1. Installs dependencies from package-lock.json
-2. Runs `npm run build`
-3. Outputs `benefit-finder.min.js` and `benefit-finder.min.css` to the module library
+**Repo-level build scripts:**
 
-**Manual local development:**
 ```bash
-cd web/modules/custom/usagov_benefit_finder/app-source
+./scripts/benefit-finder/build-module-assets.sh
+./scripts/benefit-finder/watch-module-assets.sh
+```
 
-# First time: install dependencies
+**Manual work in the source directory:**
+
+```bash
+cd sources/benefit-finder
 npm install
 
 # Development mode with hot reload
 npm start
 
+# Build committed Drupal module assets
+npm run build
+
 # Run tests
 npm test
-
-# Build for production (outputs to ../modules/usagov_benefit_finder_app/usagov_benefit_finder_page/)
-npm run build
 ```
 
 ### React App Technologies
@@ -143,7 +145,9 @@ The `usagov_benefit_finder_page.libraries.yml` defines benefit_finder_app librar
 benefit_finder_app:
   version: 1.x
   js:
-    js/benefit-finder.min.js: {}
+    js/benefit-finder.min.js:
+      attributes:
+        type: module
   css:
     theme:
       css/benefit-finder.min.css: {}

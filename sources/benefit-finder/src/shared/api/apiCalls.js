@@ -279,6 +279,7 @@ export async function LifeEvent(lifeEvent) {
   }
 
   let fetchPath
+  let fallbackPath
   if (process.env.NODE_ENV === 'production') {
     const app = document.getElementById('benefit-finder')
 
@@ -286,22 +287,51 @@ export async function LifeEvent(lifeEvent) {
       const publishedData = app.getAttribute('json-data-file-path')
       const draftData = app.getAttribute('draft-json-data-file-path')
       fetchPath = params.get('mode') === 'draft' ? draftData : publishedData
+
+      const fileName = fetchPath?.split('/').pop()?.replace('.json', '')
+      const languagePrefix = /^\/es(?:\/|$)/.test(window.location.pathname)
+        ? '/es'
+        : ''
+
+      if (fileName !== undefined) {
+        fallbackPath = `${languagePrefix}/benefit-finder/api/life-event/${fileName}`
+        if (params.get('mode') === 'draft') {
+          fallbackPath = `${fallbackPath}?mode=draft`
+        }
+      }
     }
   } else {
     fetchPath = `/s3/files/benefit-finder/api/${mode}life-event/${language}${lifeEvent}.json`
   }
 
   if (fetchPath !== undefined) {
-    const response = await fetch(fetchPath)
-      .then(response => {
-        if (response?.ok) {
-          return response.json()
+    const fetchJson = async path => {
+      const response = await fetch(path)
+
+      if (response?.ok) {
+        return response.json()
+      }
+
+      throw new Error(response?.status)
+    }
+
+    const response = await fetchJson(fetchPath)
+      .catch(async error => {
+        const shouldTryFallback =
+          fallbackPath !== undefined &&
+          fallbackPath !== fetchPath &&
+          /\/s3\/files\/benefit-finder\/api\//.test(fetchPath) &&
+          ['403', '404'].includes(error?.message)
+
+        if (shouldTryFallback) {
+          return fetchJson(fallbackPath)
         }
-        throw new Error(response?.status)
+
+        throw error
       })
-      .then(responseJson => {
-        return responseJson?.data ? responseJson : 'Something went wrong.'
-      })
+      .then(responseJson =>
+        responseJson?.data ? responseJson : 'Something went wrong.'
+      )
       .catch(error => {
         console.error(error)
         return 'Something went wrong.'

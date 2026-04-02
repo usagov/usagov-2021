@@ -44,8 +44,12 @@ class BenefitFinderTest extends ExistingSiteBase {
    * This test only needs to ensure that creating life event JSON data works.
    */
   public function testApi() {
-    $this->drupalLogin($this->adminUser);
     $this->drupalGet('/benefit-finder/api/life-event/death');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->drupalGet('/benefit-finder/api/life-event/death', ['query' => ['mode' => 'draft']]);
+    $this->assertSession()->statusCodeEquals(403);
+    $this->drupalLogin($this->adminUser);
+    $this->drupalGet('/benefit-finder/api/life-event/death', ['query' => ['mode' => 'draft']]);
     $this->assertSession()->statusCodeEquals(200);
     $this->drupalLogout();
   }
