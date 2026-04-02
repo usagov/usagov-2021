@@ -9,9 +9,7 @@ if [ ! -d "$SOURCE_DIR" ]; then
   exit 1
 fi
 
-if [ ! -d "$SOURCE_DIR/node_modules" ]; then
-  echo "Installing Benefit Finder dependencies..."
-  npm install --prefix "$SOURCE_DIR"
-fi
+echo "Installing Benefit Finder dependencies..."
+npm install --prefix "$SOURCE_DIR"
 
 npm run build:watch --prefix "$SOURCE_DIR"

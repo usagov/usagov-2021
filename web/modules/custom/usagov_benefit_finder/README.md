@@ -75,6 +75,9 @@ not need to compile the app during local development or container builds.
 ./scripts/benefit-finder/watch-module-assets.sh
 ```
 
+When running local Drupal with `docker compose up`, the existing `node` container
+now runs the Benefit Finder watcher automatically alongside the theme watcher.
+
 **Manual work in the source directory:**
 
 ```bash

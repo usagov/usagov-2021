@@ -203,7 +203,7 @@ services:
       args:
         - BUID
         - BGID
-    command: npm run watch --prefix /var/www/web/themes/custom/usagov
+    command: /var/www/scripts/watch-frontend-assets.sh
     volumes:
       - .:/var/www:delegated
     env_file:

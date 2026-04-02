@@ -356,7 +356,7 @@ Once you determine which config changes will be needed you can go to the [Export
 
 ## USAgovTheme
 The USAgov theme is a subtheme of the USWDS_base theme.
-This project's default start procedure (`docker compose up`) will start a container to automatically watch for changes and recompile the theme as needed.
+This project's default start procedure (`docker compose up`) will start a container to automatically watch for changes and recompile both the theme and the Benefit Finder frontend as needed.
 
 The theme can be manually built at any time through gulp's build task. Any other gulp task can be triggered the same way.
 ```
@@ -385,12 +385,12 @@ Use the repo-level scripts to rebuild the committed assets:
 ./scripts/benefit-finder/build-module-assets.sh
 ```
 
-To rebuild automatically while working on the Benefit Finder:
+To rebuild automatically while working on the Benefit Finder without Docker:
 ```
 ./scripts/benefit-finder/watch-module-assets.sh
 ```
 
-This workflow is local-only and no longer depends on a Docker build stage.
+`docker compose up` now starts the same Benefit Finder watcher automatically in the existing `node` container alongside the theme watcher. This workflow no longer depends on a Docker build stage.
 
 [back to top](#usagov-2021)
 
