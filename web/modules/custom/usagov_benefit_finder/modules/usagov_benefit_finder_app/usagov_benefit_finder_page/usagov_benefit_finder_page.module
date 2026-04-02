@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\Core\Url;
+
 /**
  * @file
  * Module contains functions related to usagov_benefit_finder_page.
@@ -65,11 +67,11 @@ function usagov_benefit_finder_page_preprocess_page(&$variables) {
       $life_event_id = $node->get('field_b_id')->value;
 
       if (!empty($life_event_id)) {
-        $variables['json_data_file_path'] = \Drupal\Core\Url::fromRoute(
+        $variables['json_data_file_path'] = Url::fromRoute(
           'usagov_benefit_finder_api.life_event',
           ['id' => $life_event_id]
         )->toString();
-        $variables['draft_json_data_file_path'] = \Drupal\Core\Url::fromRoute(
+        $variables['draft_json_data_file_path'] = Url::fromRoute(
           'usagov_benefit_finder_api.life_event',
           ['id' => $life_event_id],
           ['query' => ['mode' => 'draft']]
