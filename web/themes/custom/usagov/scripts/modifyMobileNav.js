@@ -79,7 +79,18 @@ function setMobileProperties() {
 (function blogYearExpand() {
 	"use strict";
 
+	function resetSlideStyles(el) {
+		el.style.height = "";
+		el.style.overflow = "";
+		el.style.transition = "";
+	}
+
 	function slideOpen(el) {
+		function onEnd() {
+			resetSlideStyles(el);
+			el.removeEventListener("transitionend", onEnd);
+		}
+
 		el.hidden = false;
 		el.style.height = "0";
 		el.style.overflow = "hidden";
@@ -87,55 +98,62 @@ function setMobileProperties() {
 		// Needs a frame before animating from 0 to scrollHeight
 		requestAnimationFrame(function () {
 			el.style.height = el.scrollHeight + "px";
-			el.addEventListener("transitionend", function onEnd() {
-				el.style.height = "";
-				el.style.overflow = "";
-				el.style.transition = "";
-				el.removeEventListener("transitionend", onEnd);
-			}, { once: true });
+			el.addEventListener("transitionend", onEnd, {"once": true});
 		});
 	}
 
 	function slideClose(el) {
+		function onEnd() {
+			el.hidden = true;
+			resetSlideStyles(el);
+			el.removeEventListener("transitionend", onEnd);
+		}
+
 		el.style.height = el.scrollHeight + "px";
 		el.style.overflow = "hidden";
 		el.style.transition = "height 0.25s ease";
 		requestAnimationFrame(function () {
 			el.style.height = "0";
-			el.addEventListener("transitionend", function onEnd() {
-				el.hidden = true;
-				el.style.height = "";
-				el.style.overflow = "";
-				el.style.transition = "";
-				el.removeEventListener("transitionend", onEnd);
-			}, { once: true });
+			el.addEventListener("transitionend", onEnd, {"once": true});
 		});
 	}
 
-	document.querySelectorAll("[data-blog-year-link]").forEach(function (link) {
-		link.addEventListener("click", function (e) {
-			e.preventDefault();
-			var monthList = link.nextElementSibling;
-			if (!monthList) { return; }
-			var isExpanded = link.getAttribute("aria-expanded") === "true";
-
-			// Accordion: close any other open years first
-			document.querySelectorAll("[data-blog-year-link][aria-expanded='true']").forEach(function (other) {
-				if (other !== link) {
-					other.setAttribute("aria-expanded", "false");
-					var otherList = other.nextElementSibling;
-					if (otherList && !otherList.hidden) { slideClose(otherList); }
+	function closeOtherExpandedYears(activeLink) {
+		document.querySelectorAll("[data-blog-year-link][aria-expanded='true']").forEach(function (other) {
+			if (other !== activeLink) {
+				other.setAttribute("aria-expanded", "false");
+				var otherList = other.nextElementSibling;
+				if (otherList && !otherList.hidden) {
+					slideClose(otherList);
 				}
-			});
-
-			link.setAttribute("aria-expanded", String(!isExpanded));
-			if (isExpanded) {
-				slideClose(monthList);
-			} else {
-				slideOpen(monthList);
 			}
 		});
+	}
+
+	function handleBlogYearClick(e) {
+		e.preventDefault();
+		var link = e.currentTarget;
+		var monthList = link.nextElementSibling;
+		if (!monthList) {
+			return;
+		}
+
+		var isExpanded = link.getAttribute("aria-expanded") === "true";
+
+		// Accordion: close any other open years first
+		closeOtherExpandedYears(link);
+
+		link.setAttribute("aria-expanded", String(!isExpanded));
+		if (isExpanded) {
+			slideClose(monthList);
+		}
+		else {
+			slideOpen(monthList);
+		}
+	}
+
+	document.querySelectorAll("[data-blog-year-link]").forEach(function (link) {
+		link.addEventListener("click", handleBlogYearClick);
 	});
 })();
-
 

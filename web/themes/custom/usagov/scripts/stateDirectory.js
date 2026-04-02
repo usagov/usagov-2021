@@ -82,36 +82,33 @@
   const stateList = document.getElementById("statelist");
   if (stateList) stateList.remove();
 
-  window.addEventListener("load", function () {
-    const goButton = document.querySelector(".sd-go-btn");
-    if (goButton) {
-      goButton.addEventListener("click", function () {
+  function handleGoButtonClick() {
+    const select = document.getElementById("stateselect");
+    if (!select) return;
 
-        const select = document.getElementById("stateselect");
-        if (!select) return;
+    const url = select.value;
+    const statename = select.options[select.selectedIndex].text;
 
-        const url = select.value;
-        const statename = select.options[select.selectedIndex].text;
+    if (url !== "") {
+      const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option"))
+        .map(option => option.value)
+        .filter(value => value.trim() !== "");
 
-        if (url !== "") {
-          const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option"))
-            .map(option => option.value)
-            .filter(value => value.trim() !== "");
-
-          if (allowedUrls.includes(url)) {
-            window.location = url;
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-              'event': '50_state_submit',
-              '50_state_url': url,
-              '50_state_name': statename
-            });
-          }
-        }
-      });
+      if (allowedUrls.includes(url)) {
+        window.location = url;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          'event': '50_state_submit',
+          '50_state_url': url,
+          '50_state_name': statename
+        });
+      }
     }
-  });
+  }
 
+  const goButton = document.querySelector(".sd-go-btn");
+  if (goButton) {
+    goButton.addEventListener("click", handleGoButtonClick);
+  }
 
 })();
-
