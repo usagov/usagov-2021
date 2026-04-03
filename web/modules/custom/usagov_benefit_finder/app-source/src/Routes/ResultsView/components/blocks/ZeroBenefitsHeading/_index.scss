@@ -1,0 +1,14 @@
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-zero-benefits-view-heading {
+  @include h2;
+}
+
+h3.bf-zero-benefits-view-description {
+  @include p;
+}
+
+.bf-back-to-form-cta {
+  margin: rem(16px) 0 rem(32px);
+}

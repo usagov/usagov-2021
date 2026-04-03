@@ -1,0 +1,237 @@
+{
+  "intro": {
+    "heading": "Pasos para encontrar beneficios",
+    "timeIndicator": "Tiempo para completar",
+    "steps": {
+      "list": [
+        {
+          "title": "Responda unas preguntas"
+        },
+        {
+          "title": "Obtenga su lista de beneficios"
+        },
+        {
+          "title": "Presente su solicitud a cada agencia"
+        }
+      ]
+    },
+    "notices": {
+      "heading": "Antes de empezar:",
+      "iconAlt": "Importante",
+      "list": [
+        {
+          "notice": "<div><p><strong>Esto no es una aplicación. Necesita presentar una solicitud</strong> con cada agencia.</p><p><strong>No guardamos ni compartimos sus respuestas</strong> con ninguna agencia.</p></div>"
+        }
+      ]
+    },
+    "button": "Encuentre sus beneficios"
+  },
+  "stepIndicator": {
+    "stepBackButton": "Volver"
+  },
+  "requiredLabel": {
+    "value": "requerido"
+  },
+  "alertBanner": {
+    "heading": { "prefix": "Tu información contiene", "suffix": "errores" },
+    "description": "Responda los campos requeridos."
+  },
+  "errorText": {
+    "prefix": "Complete",
+    "suffix": ""
+  },
+  "buttonGroup": [
+    {
+      "value": "Volver"
+    },
+    {
+      "value": "Siguiente"
+    }
+  ],
+  "reviewSelectionModal": {
+    "heading": "Seleccione una opción:",
+    "buttonGroup": [
+      {
+        "value": "Revise sus respuestas"
+      },
+      {
+        "value": "Obtenga sus resultados"
+      }
+    ]
+  },
+  "verifySelectionsView": {
+    "heading": "Revisar y confirmar",
+    "noResultsLabel": "No respondió",
+    "buttonGroup": [
+      {
+        "value": "Volver"
+      },
+      {
+        "value": "Confirmar"
+      }
+    ]
+  },
+  "resultsView": {
+    "summaryBox": {
+      "heading": "Importante",
+      "list": [
+        {
+          "item": "Necesita ir al sitio web de cada agencia para confirmar su elegibilidad y aplicar."
+        },
+        {
+          "item": "Sus resultados podrían variar si sus respuestas cambian."
+        }
+      ],
+      "cta": {
+        "text": "",
+        "link": "Borre sus respuestas y empiece el formulario de nuevo."
+      }
+    },
+    "eligible": {
+      "banner": {
+        "heading": "Sus beneficios potenciales",
+        "description": "<div><p>Visite la página de cada agencia para verificar los requisitos y aplicar. Para conocer otros beneficios, consulte a su ciudad, estado, o trabajo.</p></div>"
+      },
+      "heading": "Resultados",
+      "description": "<strong>Podría ser elegible para estos beneficios:<strong/>"
+    },
+    "notEligible": {
+      "banner": {
+        "heading": "Beneficios a los que no calificó",
+        "description": "<div><p>Según sus respuestas usted no es elegible para estos beneficios.</p></div>"
+      },
+      "heading": "Resultados",
+      "description": "<strong>Según sus respuestas no es elegible para estos beneficios.<strong/> Podría calificar si tiene información adicional o si su situación cambia."
+    },
+    "zeroBenefits": {
+      "backcta": {
+        "text": "",
+        "link": "Volver al inicio"
+      },
+      "eligible": {
+        "banner": {
+          "heading": "Usted parece no ser elegible para los beneficios en este buscador",
+          "description": "<div><p>Si cree que cometió un error en sus respuestas, por favor regrese atrás para corregirlas.</p></div>"
+        }
+      },
+      "notEligible": {
+        "banner": {
+          "heading": "Beneficios a los que no calificó",
+          "description": "<div><p>Según sus respuestas usted no es elegible para estos beneficios.</p></div>"
+        }
+      },
+      "heading": "No tiene resultados elegibles.",
+      "description": "Según sus respuestas, usted no es elegible para los beneficios actualmente en este buscador. Usted podría ser elegible si su situación o respuestas cambian en el futuro. Consulte a su ciudad, estado o empleador para encontrar otros beneficios.",
+      "cta": "Ver los beneficios a los que no calificó"
+    },
+    "stepBackButton": "Volver",
+    "eligibleResults": {
+      "heading": "Resultados",
+      "description": "Podría calificar para estos beneficios:"
+    },
+    "benefitAccordionGroup": {
+      "closedState": "Abrir todos",
+      "openState": "Cerrar todos"
+    },
+    "benefitAccordion": {
+      "eligibleStatusLabels": [
+        "Probablemente elegible",
+        "Más información requerida",
+        "No elegible"
+      ],
+      "backcta": {
+        "text": "",
+        "link": "Volver al inicio"
+      },
+      "agencyPrefix": "",
+      "benefitSummary": "Criterios de elegibilidad",
+      "benefitSummaryPrefix": "Cumple ",
+      "benefitSummaryConjunction": "de",
+      "unmetLabel": "No cumplió con",
+      "visitLabel": "Visite",
+      "sourceIsEnglish": "(en inglés)"
+    },
+    "notEligibleResults": {
+      "heading": "Beneficios a los que no calificó",
+      "description": "<div>Según sus respuestas, usted no es elegible para los siguientes beneficios. Podría calificar si ingresa más información o si su situación o respuestas cambian.</div>",
+      "cta": "Vea los beneficios a los no calificó"
+    },
+    "relativeBenefits": {
+      "heading": "Más beneficios"
+    },
+    "shareResults": {
+      "heading": "Imprima y comparta",
+      "shareTrigger": "Copie sus resultados en un enlace",
+      "emailTrigger": "Envie sus resultados por correo electrónico",
+      "shareLinkContent": "Copiado",
+      "emailSubject": "Resultados del buscador de beneficios de USAGov",
+      "description": "Copie o envíe sus resultados. Sus respuestas serán visibles. <strong>Solo comparta con quienes usted confíe</strong>."
+    }
+  },
+  "shareResults": {
+    "heading": "Comparta sus resultados",
+    "description": "Sus respuestas serán visibles. Solo comparta con quienes confíe.",
+    "buttonGroup": [
+      {
+        "value": "Compartir resultados"
+      },
+      {
+        "value": "Enviar resultados"
+      }
+    ]
+  },
+  "sectionHeadings": {
+    "start": "Por favor, responda las siguientes preguntas",
+    "continue": "Siguientes preguntas",
+    "final": "Últimas preguntas"
+  },
+  "select": {
+    "labelSelect": "Seleccione una opción",
+    "defaultValue": "-Seleccionar-",
+    "dateDefaultValue": "-Seleccionar-"
+  },
+  "date": {
+    "alert": "Use el formato enero 19 2000",
+    "labelDay": "Día",
+    "labelMonth": "Mes",
+    "labelYear": "Año",
+    "monthOptions": [
+      {
+        "label": "01 - Enero"
+      },
+      {
+        "label": "02 - Febrero"
+      },
+      {
+        "label": "03 - Marzo"
+      },
+      {
+        "label": "04 - Abril"
+      },
+      {
+        "label": "05 - Mayo"
+      },
+      {
+        "label": "06 - Junio"
+      },
+      {
+        "label": "07 - Julio"
+      },
+      {
+        "label": "08 - Agosto"
+      },
+      {
+        "label": "09 - Septiembre"
+      },
+      {
+        "label": "10 - Octubre"
+      },
+      {
+        "label": "11 - Noviembre"
+      },
+      {
+        "label": "12 - Diciembre"
+      }
+    ]
+  }
+}

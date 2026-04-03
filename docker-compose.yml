@@ -121,7 +121,7 @@ services:
 
   database:
     container_name: database
-    image: mariadb:10
+    image: mariadb:11.4
     ports:
       - 3306:3306
     volumes:
@@ -206,6 +206,23 @@ services:
     command: npm run watch --prefix /var/www/web/themes/custom/usagov
     volumes:
       - .:/var/www:delegated
+    env_file:
+      - ./env.local
+    networks:
+      - gsa-gov
+
+  node-bf:
+    container_name: node-bf
+    build:
+      context: ./
+      dockerfile: .docker/Dockerfile-cms
+      target: benefit-finder-builder
+      args:
+        - BUID
+        - BGID
+    command: npm run build:watch --prefix /var/www/app-source
+    volumes:
+      - ./web/modules/custom/usagov_benefit_finder:/var/www:delegated
     env_file:
       - ./env.local
     networks:

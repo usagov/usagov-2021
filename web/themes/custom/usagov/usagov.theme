@@ -373,6 +373,11 @@ function usagov_preprocess_block(array &$variables): void {
           $data->title = $child['title'];
           $data->description = $child['original_link']->getPluginDefinition()['description'];
         }
+        else {
+          // For all other routes (views, custom routes, etc.), use menu item data
+          $data->title = $child['title'];
+          $data->url = $child['url']->toString();
+        }
       }
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
@@ -387,7 +392,25 @@ function usagov_preprocess_block(array &$variables): void {
       /* Get Description (Optional Field - A catch on this shouldn't
       trigger a catch on title or url). */
       try {
-        if (isset($child['url']->getRouteParameters()['node'])) {
+        // First, check if the menu item has a nav card content override
+        if (isset($child['original_link'])) {
+          $menu_link_entity = \Drupal::entityTypeManager()
+            ->getStorage('menu_link_content')
+            ->loadByProperties(['uuid' => $child['original_link']->getDerivativeId()]);
+
+          if ($menu_link_entity) {
+            $menu_link = reset($menu_link_entity);
+            if ($menu_link && $menu_link->hasField('field_nav_card_override')) {
+              $override_value = $menu_link->get('field_nav_card_override')->value;
+              if (!empty($override_value)) {
+                $data->description = $override_value;
+              }
+            }
+          }
+        }
+
+        // If no override, fall back to the node fields
+        if (!isset($data->description) && isset($child['url']->getRouteParameters()['node'])) {
           $childNid = $child['url']->getRouteParameters()['node'];
           $childNode = Node::load($childNid);
           if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
@@ -402,8 +425,11 @@ function usagov_preprocess_block(array &$variables): void {
         }
       }
       catch (Exception $e) {
-        $menuItem = $child['original_link']->getPluginDefinition();
-        $data->description = $menuItem['description'];
+        // If we still don't have a description, try the menu item description
+        if (!isset($data->description)) {
+          $menuItem = $child['original_link']->getPluginDefinition();
+          $data->description = $menuItem['description'];
+        }
       }
 
       // Try for other fields.
@@ -453,6 +479,12 @@ function usagov_preprocess_views_view_list(array &$variables): void {
  * @param array<string, mixed> $variables
  */
 function usagov_theme_suggestions_alter(array &$suggestions, array $variables, string $hook): void {
+  if ($hook == 'menu' && isset($variables['menu_name']) && $variables['menu_name'] === 'usagov_blog_menu') {
+    // Ensure the blog menu always uses our custom template, regardless of
+    // what other modules/themes add to the suggestions list.
+    $suggestions[] = 'menu__usagov_blog_menu';
+  }
+
   if ($hook == 'views_view_fields') {
     $id = $variables['view']->storage->id();
     if ($id == "sub_children") {

@@ -1,0 +1,8 @@
+uuid: 8ec63252-62c5-44d8-b18f-bcbaa0e1b320
+langcode: en
+status: true
+dependencies: {  }
+id: identifier-footer-spanish
+label: 'Identifier Footer - Spanish'
+description: 'Footer identifier links (Spanish)'
+locked: false

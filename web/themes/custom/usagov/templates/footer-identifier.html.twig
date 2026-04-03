@@ -1,26 +1,21 @@
-
 {% if node.langcode.value == "es" %}
   {% set translations = {
     'official_guide': 'USAGov en Español es la guía oficial de información y servicios del Gobierno',
     'official_site_1': 'Un sitio web oficial de la',
     'official_site_2': 'Administración de Servicios Generales de los Estados Unidos',
     'official_site_3': ' (GSA, sigla en inglés)',
-    'accessibility_support': 'Política de accesibilidad de\n GSA (en inglés)',
-    'privacy_policy': 'Política de privacidad de\n GSA (en inglés)',
-    'foia_requests': 'Solicitud a través de\n FOIA (en inglés)',
     'important_links': 'Enlaces importantes'
   } %}
+  {% set identifier_menu = 'identifier-footer-spanish' %}
 {% else %}
   {% set translations = {
     'official_guide': 'USAGov is the official guide to government information and services',
     'official_site_1': 'An official website of the',
     'official_site_2': 'U.S. General Services Administration',
     'official_site_3': '',
-    'accessibility_support': 'GSA accessibility support',
-    'privacy_policy': 'GSA privacy policy',
-    'foia_requests': 'FOIA requests',
     'important_links': 'Important links'
   } %}
+  {% set identifier_menu = 'identifier-footer' %}
 {% endif %}
 
 
@@ -36,21 +31,14 @@
   <nav class="usa-identifier__section usa-identifier__section--required-links" aria-label="{{ translations.important_links }}">
     <div class="usa-identifier__container">
       <ul class="usa-identifier__required-links-list">
-        <li class="usa-identifier__required-links-item">
-          <a href="https://www.gsa.gov/website-information/accessibility-statement?footer=" class="usa-identifier__required-link usa-link">
-            {{ translations.accessibility_support|nl2br }}
-          </a>
-        </li>
-        <li class="usa-identifier__required-links-item">
-          <a href="https://www.gsa.gov/website-information/website-policies#privacy" class="usa-identifier__required-link usa-link">
-            {{ translations.privacy_policy|nl2br }}
-          </a>
-        </li>
-        <li class="usa-identifier__required-links-item">
-          <a href="https://www.gsa.gov/reference/freedom-of-information-act-foia" class="usa-identifier__required-link usa-link">
-            {{ translations.foia_requests|nl2br }}
-          </a>
-        </li>
+        {% set menu_items = drupal_menu(identifier_menu) %}
+        {% if menu_items %}
+          {% for item in menu_items['#items'] %}
+            <li class="usa-identifier__required-links-item">
+              <a href="{{ item.url }}" class="usa-identifier__required-link usa-link">{{ item.title }}</a>
+            </li>
+          {% endfor %}
+        {% endif %}
       </ul>
     </div>
   </nav>

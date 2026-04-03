@@ -1,0 +1,78 @@
+{#
+/**
+ * @file
+ * Blog menu sidenav template.
+ *
+ * Based on uswds_base's menu--sidebar_first.html.twig.
+ * Customized so that the current page (post, month, or year) renders as
+ * non-link text rather than an anchor, while all other active-trail items
+ * keep their red left-border indicator via usa-current on the link.
+ */
+#}
+
+{% import _self as menus %}
+
+{# Capture the current page path once at the top level so macros can use it. #}
+{% set current_path = path('<current>') %}
+
+{{ menus.menu_links(items, 0, attributes, current_path) }}
+
+{% macro menu_links(items, menu_level, attributes, current_path) %}
+  {% import _self as menus %}
+
+  {% if items %}
+    <ul class="{% if menu_level == 0 %}usa-sidenav{% else %}usa-sidenav__sublist{% endif %}">
+      {% for item in items %}
+        {%
+          set item_classes = [
+            'usa-sidenav__item',
+            item.is_expanded and item.below ? 'expanded dropdown',
+            item.in_active_trail ? 'active active-trail',
+            loop.first ? 'first',
+            loop.last ? 'last',
+          ]
+        %}
+
+        {# Detect the actual current page by comparing URLs. #}
+        {% set is_current_page = item.url|render == current_path %}
+
+        <li{{ item.attributes.addClass(item_classes) }}>
+          {% if is_current_page %}
+            {# Render the current page title as non-link text with red active style. #}
+            <div class="active-trail usa-current">
+              <p class="usa-sr-only">current page</p>
+              {{ item.title }}
+            </div>
+          {% else %}
+            {% if item.url.getOption('attributes') %}
+              {% set link_attributes = create_attribute(item.url.getOption('attributes')) %}
+            {% else %}
+              {% set link_attributes = create_attribute() %}
+            {% endif %}
+
+            {% if item.url.isRouted and item.url.routeName == '<nolink>' %}
+              {% set menu_item_type = 'nolink' %}
+            {% elseif item.url.isRouted and item.url.routeName == '<button>' %}
+              {% set menu_item_type = 'button' %}
+            {% else %}
+              {% set menu_item_type = 'link' %}
+            {% endif %}
+
+            {% set link_attributes = link_attributes.addClass(menu_item_type) %}
+
+            {# Active-trail items (year, month) keep usa-current for the red left border. #}
+            {% if item.in_active_trail %}
+              {% set link_attributes = link_attributes.addClass('usa-current') %}
+            {% endif %}
+
+            {{ link(item.title, item.url, link_attributes) }}
+          {% endif %}
+
+          {% if item.is_expanded and item.below %}
+            {{ menus.menu_links(item.below, menu_level + 1, attributes, current_path) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}

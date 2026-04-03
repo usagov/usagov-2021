@@ -250,6 +250,9 @@ find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}
 mkdir -p $RENDER_DIR/ppr
 cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
 
+###############################################################################
+## The *HOME_HTML* tests looked for problems we have since solved. They remain
+## in case such problems recur.
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
 EN_HOME_HTML_BAD=0
@@ -319,6 +322,97 @@ if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
+
+#
+# End of *HOME_HTML* checks
+##############################################################
+
+
+
+##############################################################
+# Missing blog pages; Jira USAGOV-2667
+#
+
+BLOG_DIR=/var/www/html/blog
+BLOG_TOP_INDEX_MISSING=
+BLOG_INDEX_MISSING=""
+BLOG_PROBLEM=0
+
+# /blog/index.html should exist
+if [ -e "${BLOG_DIR}/index.html" ]; then
+    # that's good!
+    BLOG_TOP_INDEX_MISSING=
+else
+    BLOG_TOP_INDEX_MISSING="${BLOG_DIR}"
+    BLOG_PROBLEM=1
+fi
+
+# every blog/year and blog/year/month directory should have an index.html
+yr_mo_idx_missing=""
+
+# Years
+yr_mo_idx_partial="`find ${BLOG_DIR} -path '*/[0-9][0-9][0-9][0-9]' -exec test ! -e '{}/index.html' ';' -print`"
+
+if [ "${yr_mo_idx_partial}" ]; then
+    yr_mo_idx_missing="${yr_mo_idx_missing} ${yr_mo_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+
+# Months
+yr_mo_idx_partial="`find ${BLOG_DIR} -path '*/[0-9][0-9][0-9][0-9]/[0-9][0-9]' -exec test ! -e '{}/index.html' ';' -print`"
+
+if [ "${yr_mo_idx_partial}" ]; then
+    yr_mo_idx_missing="${yr_mo_idx_missing} ${yr_mo_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+# Every */pages/\d+ directory should have an index.html.
+page_idx_missing=""
+
+# one-digit directories
+page_idx_partial="`find ${BLOG_DIR} -path '*/page/[0-9]' -empty | sed 's/\n/, /g'`"
+
+if [ "${page_idx_partial}" ]; then
+    page_idx_missing="${page_idx_missing} ${page_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+# two-digit directories
+page_idx_partial="`find ${BLOG_DIR} -path '*/page/[0-9][0-9]' -empty | sed 's/\n/, /g'`"
+
+if [ "${page_idx_partial}" ]; then
+    page_idx_missing="${page_idx_missing} ${page_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+if [ "${BLOG_TOP_INDEX_MISSING}" ]; then
+    BLOG_INDEX_MISSING="${BLOG_INDEX_MISSING}${BLOG_TOP_INDEX_MISSING} "
+    BLOG_PROBLEM=1
+fi
+
+if [ "${page_idx_missing}" ]; then
+    BLOG_INDEX_MISSING="${BLOG_INDEX_MISSING}$(echo ${page_idx_missing} ) "
+    BLOG_PROBLEM=1
+fi
+
+if [ "${yr_mo_idx_missing}" ]; then
+    BLOG_INDEX_MISSING="${BLOG_INDEX_MISSING}$(echo ${yr_mo_idx_missing} ) "
+    BLOG_PROBLEM=1
+fi
+
+# If any "missing index" paths were found, don't push this time and try again
+if [ "${BLOG_PROBLEM}" -ne "0" ]; then
+    TOME_PUSH_NEW_CONTENT=0
+    touch $RETRY_SEMAPHORE_FILE
+    echo "WARNING: *** BLOG index.html(s) missing: ${BLOG_INDEX_MISSING} ***" | tee -a $TOMELOG
+fi
+
+#
+# End of blog page checks (USAGOV-2667)
+##############################################################
+
+
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
