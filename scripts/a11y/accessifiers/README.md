@@ -28,8 +28,8 @@ Each accessifier targets a specific content type (e.g., `blog.php` → `blog_pos
 
 ```bash
 bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php
-bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php --dry-run
-bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php --dry-run --verbose
+bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php -- --dry-run
+bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php -- --dry-run --verbose
 ```
 
 ### Flags
@@ -50,7 +50,7 @@ bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php --dry-run --verbose
 
 2. **Dry run** — verify the accessifier detects the expected issues:
    ```bash
-   bin/drush php:script scripts/a11y/accessifiers/blog.php --dry-run
+   bin/drush php:script scripts/a11y/accessifiers/blog.php -- --dry-run
    ```
    Review the printed stats. Confirm counts roughly match the audit report.
 

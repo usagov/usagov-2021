@@ -7,11 +7,13 @@ The 2018 Section 508 refresh (36 CFR Part 1194, §E205.4) requires web content t
 ## Requirements
 
 - Python 3.10+
-- `beautifulsoup4` and `lxml` (already installed in the repo venv)
+- `beautifulsoup4` and `lxml`
 
 ```bash
 # from repo root — install if needed
-.venv/bin/pip install beautifulsoup4 lxml
+python3 -m venv .venv
+source .venv/bin/activate
+pip install beautifulsoup4 lxml
 ```
 
 ## bin
