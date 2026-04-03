@@ -5,3 +5,4 @@ core_version_requirement: ^8 || ^9 || ^10
 package: USAgov
 dependencies:
   - drupal:menu_breadcrumb
+  - usa_twig_vars:usa_twig_vars
