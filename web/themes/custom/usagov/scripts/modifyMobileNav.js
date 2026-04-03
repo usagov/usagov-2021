@@ -75,3 +75,85 @@ function setMobileProperties() {
 })();
 
 
+// Blog year expand: clicking a year toggles its nested month list (accordion) with a slide animation.
+(function blogYearExpand() {
+	"use strict";
+
+	function resetSlideStyles(el) {
+		el.style.height = "";
+		el.style.overflow = "";
+		el.style.transition = "";
+	}
+
+	function slideOpen(el) {
+		function onEnd() {
+			resetSlideStyles(el);
+			el.removeEventListener("transitionend", onEnd);
+		}
+
+		el.hidden = false;
+		el.style.height = "0";
+		el.style.overflow = "hidden";
+		el.style.transition = "height 0.25s ease";
+		// Needs a frame before animating from 0 to scrollHeight
+		requestAnimationFrame(function () {
+			el.style.height = el.scrollHeight + "px";
+			el.addEventListener("transitionend", onEnd, {"once": true});
+		});
+	}
+
+	function slideClose(el) {
+		function onEnd() {
+			el.hidden = true;
+			resetSlideStyles(el);
+			el.removeEventListener("transitionend", onEnd);
+		}
+
+		el.style.height = el.scrollHeight + "px";
+		el.style.overflow = "hidden";
+		el.style.transition = "height 0.25s ease";
+		requestAnimationFrame(function () {
+			el.style.height = "0";
+			el.addEventListener("transitionend", onEnd, {"once": true});
+		});
+	}
+
+	function closeOtherExpandedYears(activeLink) {
+		document.querySelectorAll("[data-blog-year-link][aria-expanded='true']").forEach(function (other) {
+			if (other !== activeLink) {
+				other.setAttribute("aria-expanded", "false");
+				var otherList = other.nextElementSibling;
+				if (otherList && !otherList.hidden) {
+					slideClose(otherList);
+				}
+			}
+		});
+	}
+
+	function handleBlogYearClick(e) {
+		e.preventDefault();
+		var link = e.currentTarget;
+		var monthList = link.nextElementSibling;
+		if (!monthList) {
+			return;
+		}
+
+		var isExpanded = link.getAttribute("aria-expanded") === "true";
+
+		// Accordion: close any other open years first
+		closeOtherExpandedYears(link);
+
+		link.setAttribute("aria-expanded", String(!isExpanded));
+		if (isExpanded) {
+			slideClose(monthList);
+		}
+		else {
+			slideOpen(monthList);
+		}
+	}
+
+	document.querySelectorAll("[data-blog-year-link]").forEach(function (link) {
+		link.addEventListener("click", handleBlogYearClick);
+	});
+})();
+
