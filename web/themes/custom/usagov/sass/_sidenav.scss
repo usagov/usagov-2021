@@ -23,7 +23,7 @@
   }
 
   .usa-current {
-    color: #ae1a0a;
+    color: $navigation-red;
 
     &::before {
       content: "";
@@ -33,12 +33,12 @@
       bottom: 4px;
       left: 0;
       width: 4px;
-      background-color: #ae1a0a;
+      background-color: $navigation-red;
       border-radius: 2px;
     }
 
     &::after {
-      background-color: #ae1a0a;
+      background-color: $navigation-red;
     }
 
     &:hover {

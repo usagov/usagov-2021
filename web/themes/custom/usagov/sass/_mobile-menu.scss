@@ -41,8 +41,8 @@ ul.navigation__items {
   }
 
   .active > a {
-    border-left-color: color('red-50');
-    color: color('red-50');
+    border-left-color: $navigation-red;
+    color: $navigation-red;
   }
 
   .sibling > a {
@@ -121,6 +121,7 @@ ul.navigation__items {
 .usagov-mobile-menu .usa-nav__secondary-links {
   margin: 1rem;
   display: block;
+
   &[data-visibility="hidden"] {
     display: none;
   }
