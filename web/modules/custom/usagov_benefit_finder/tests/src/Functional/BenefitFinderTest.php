@@ -62,6 +62,8 @@ class BenefitFinderTest extends ExistingSiteBase {
   public function testPage() {
     $this->drupalGet('/benefit-finder/death');
     $this->assertSession()->elementExists('css', '#benefit-finder');
+    $this->assertSession()->responseContains('json-data-file-path="/s3/files/benefit-finder/api/life-event/death.json"');
+    $this->assertSession()->responseContains('draft-json-data-file-path="/benefit-finder/api/life-event/death?mode=draft"');
   }
 
 }

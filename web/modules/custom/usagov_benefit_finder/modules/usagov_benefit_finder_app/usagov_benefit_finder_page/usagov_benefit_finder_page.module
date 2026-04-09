@@ -67,10 +67,7 @@ function usagov_benefit_finder_page_preprocess_page(&$variables) {
       $life_event_id = $node->get('field_b_id')->value;
 
       if (!empty($life_event_id)) {
-        $variables['json_data_file_path'] = Url::fromRoute(
-          'usagov_benefit_finder_api.life_event',
-          ['id' => $life_event_id]
-        )->toString();
+        $variables['json_data_file_path'] = $node->get('field_json_data_file_path')->value;
         $variables['draft_json_data_file_path'] = Url::fromRoute(
           'usagov_benefit_finder_api.life_event',
           ['id' => $life_event_id],
