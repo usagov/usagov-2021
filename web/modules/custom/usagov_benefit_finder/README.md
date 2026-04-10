@@ -78,14 +78,25 @@ not need to compile the app during local development or container builds.
 When running local Drupal with `docker compose up`, the existing `node` container
 now runs the Benefit Finder watcher automatically alongside the theme watcher.
 
+The helper script `scripts/benefit-finder/sync-usagov-theme.sh` is not a normal
+manual setup step. It is called automatically by `npm start` and the Storybook
+commands so the Benefit Finder workspace has a current copy of the USAGov theme.
+You would only run it directly if you wanted to refresh those copied theme files
+without starting another command.
+
 **Manual work in the source directory:**
 
 ```bash
 cd sources/benefit-finder
 npm install
 
-# Development mode with hot reload
+# Development mode with hot reload.
+# Uses http://localhost as the default Drupal proxy target.
+# If your Drupal site lives elsewhere, create .env.local and set VITE_PROXY_URL.
 npm start
+
+# Refresh copied USAGov theme assets only when needed
+npm run sync:usagov:theme
 
 # Build committed Drupal module assets
 npm run build

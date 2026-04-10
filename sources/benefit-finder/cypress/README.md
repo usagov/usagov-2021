@@ -88,13 +88,13 @@ Then select **E2E Testing** and choose a spec file to run individually.
 
 ---
 
-### CI helper script
+<!-- ### CI helper script
 
 `npm run cy:run:pipeline` is not a full local pipeline runner.
 
 It currently starts `http-server` for `storybook-static/` and then keeps serving until the process is stopped. In GitHub Actions this is used as the `start` command for `cypress-io/github-action`, and the action itself launches Cypress after the server is reachable.
 
-If you run `npm run cy:run:pipeline` locally by itself, it will look like it is hanging because no Cypress command is started by that script.
+If you run `npm run cy:run:pipeline` locally by itself, it will look like it is hanging because no Cypress command is started by that script. -->
 
 ---
 
@@ -118,10 +118,10 @@ All specs live in `cypress/e2e/storybook/`:
 
 ## Configuration
 
-- **Default config:** `cypress.config.js` targets `http://localhost:6006`, retries failed runs twice in headless mode, and excludes `cypress/e2e/usagov-public-site/*.cy.js`
-- **Production links config:** `cypress.prod.links.config.js` targets `https://www.usa.gov` and is wired to `cypress/e2e/usagov-public-site/links.cy.js`
+- **Default config:** `cypress.config.js` targets `http://localhost:6006`, retries failed runs twice in headless mode, and runs the checked-in Storybook specs under `cypress/e2e/storybook/`
+- **Production links config:** `cypress.prod.links.config.js` still exists, but this branch does not currently include any checked-in specs under `cypress/e2e/usagov-public-site/`
 
-At the time of this update, the checked-in Storybook suite lives under `cypress/e2e/storybook/`. If you need the production links workflow, confirm that the `usagov-public-site` spec file exists in your branch before using `npm run cy:run:prod:links:e2e`.
+At the time of this update, the checked-in Cypress suite in this repo is the Storybook suite under `cypress/e2e/storybook/`. If the production links workflow is restored in a future branch, document that spec path here alongside the config that uses it.
 
 ---
 

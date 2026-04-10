@@ -9,7 +9,7 @@ import autoprefixer from 'autoprefixer'
 import { distTargets, testConfig, transformers } from './vite-config'
 
 const envLocal = loadEnv('all', process.cwd())
-const proxyURL = envLocal.VITE_PROXY_URL
+const proxyURL = envLocal.VITE_PROXY_URL || 'http://localhost'
 const test = process.env.NODE_ENV === 'test'
 const testServer = { port: 6006 }
 const devServer = {

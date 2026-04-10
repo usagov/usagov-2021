@@ -8,6 +8,7 @@
   "scripts": {
     "sync:usagov:theme": "bash ../../scripts/benefit-finder/sync-usagov-theme.sh",
     "prestart": "npm run sync:usagov:theme",
+    "dev": "vite --host",
     "start": "vite --host",
     "build": "vite build",
     "postbuild": "mkdir -p build/assets && cp ../../web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/css/benefit-finder.min.css build/assets/benefit-finder.min.css",

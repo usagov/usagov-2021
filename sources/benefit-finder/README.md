@@ -87,7 +87,11 @@
 npm install
 ```
 
-### Setup .env.local file
+### Optional `.env.local` override
+
+The Vite dev server proxies Benefit Finder JSON requests to local Drupal at
+`http://localhost` by default. If your Drupal site is running somewhere else,
+create a `.env.local` file to override that target.
 
 1. Copy environment example file
 
@@ -95,11 +99,21 @@ npm install
 cp .env.local.example .env.local
 ```
 
-2. Replace env variable as needed
+2. Replace the value with your Drupal base URL as needed
 
 ### Build and serve development environment.
 
 There are three local build environments, one for our component workshop (Storybook), another for our Application (Vite), and finally a test e2e test env (Cypress).
+
+The helper script `../../scripts/benefit-finder/sync-usagov-theme.sh` copies the
+current Drupal theme into the Benefit Finder workspace so Vite and Storybook can
+use those assets locally. You do not usually need to run it yourself:
+
+- `npm start` runs it automatically through `prestart`
+- Storybook commands run it automatically through `prebuild:storybook`
+
+Run it directly only if you need to refresh the copied theme assets without
+starting one of those commands.
 
 #### Storybook
 
@@ -114,7 +128,16 @@ npm run dev:storybook
 Run development server from `vite.config.mjs`
 
 ```shell
-npm run dev
+npm start
+```
+
+`npm run dev` works too.
+
+If you change files in `web/themes/custom/usagov` and want those copied into the
+Benefit Finder workspace immediately, run:
+
+```shell
+npm run sync:usagov:theme
 ```
 
 #### Module asset build
