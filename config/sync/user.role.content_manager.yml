@@ -7,6 +7,7 @@ dependencies:
     - media.type.file
     - node.type.agency_synonym
     - node.type.basic_page
+    - node.type.blog_post
     - node.type.bears_agency
     - node.type.bears_benefit
     - node.type.bears_criteria
@@ -48,6 +49,7 @@ permissions:
   - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
+  - 'create blog_post content'
   - 'create bears_agency content'
   - 'create bears_benefit content'
   - 'create bears_criteria content'
@@ -73,6 +75,7 @@ permissions:
   - 'delete bears_life_event revisions'
   - 'delete bears_life_event_form revisions'
   - 'delete own basic_page content'
+  - 'delete own blog_post content'
   - 'delete own bears_agency content'
   - 'delete own bears_benefit content'
   - 'delete own bears_criteria content'
@@ -87,6 +90,7 @@ permissions:
   - 'delete terms in wizard'
   - 'edit any agency_synonym content'
   - 'edit any basic_page content'
+  - 'edit any blog_post content'
   - 'edit any bears_agency content'
   - 'edit any bears_benefit content'
   - 'edit any bears_criteria content'
@@ -97,6 +101,7 @@ permissions:
   - 'edit any wizard content'
   - 'edit any wizard_step content'
   - 'edit own basic_page content'
+  - 'edit own blog_post content'
   - 'edit own bears_agency content'
   - 'edit own bears_benefit content'
   - 'edit own bears_criteria content'
@@ -116,6 +121,7 @@ permissions:
   - 'revert term revisions in wizard'
   - 'translate agency_synonym node'
   - 'translate basic_page node'
+  - 'translate blog_post node'
   - 'translate directory_record node'
   - 'translate editable entities'
   - 'translate state_directory_record node'
@@ -126,6 +132,7 @@ permissions:
   - 'view all revisions'
   - 'view any unpublished content'
   - 'view basic_page revisions'
+  - 'view blog_post revisions'
   - 'view bears_agency revisions'
   - 'view bears_benefit revisions'
   - 'view bears_criteria revisions'
