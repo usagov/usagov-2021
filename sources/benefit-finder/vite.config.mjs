@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -45,6 +46,31 @@ const postcssConfig = {
 const server = test ? testServer : devServer
 
 const INPUT_DIR = './src'
+const MODULE_OUTPUT_DIR = path.resolve(
+  process.cwd(),
+  '../../web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page'
+)
+const OUTPUT_CSS_DIR = path.join(MODULE_OUTPUT_DIR, 'css')
+
+const cleanGeneratedOutput = () => ({
+  name: 'clean-generated-output',
+  buildStart() {
+    fs.rmSync(path.join(MODULE_OUTPUT_DIR, 'assets'), {
+      force: true,
+      recursive: true,
+    })
+
+    if (!fs.existsSync(OUTPUT_CSS_DIR)) {
+      return
+    }
+
+    for (const fileName of fs.readdirSync(OUTPUT_CSS_DIR)) {
+      if (/^benefit-finder\d+\.min\.css$/.test(fileName)) {
+        fs.rmSync(path.join(OUTPUT_CSS_DIR, fileName), { force: true })
+      }
+    }
+  },
+})
 
 const aliasConfig = {
   '@': path.resolve(INPUT_DIR),
@@ -61,6 +87,7 @@ const aliasConfig = {
 export default defineConfig({
   base: './',
   plugins: [
+    cleanGeneratedOutput(),
     react(),
     eslint({ cache: true, lintOnStart: true, lintInWorker: true }),
     stylelint({ cache: true, lintOnStart: true, lintInWorker: true }),
@@ -89,8 +116,7 @@ export default defineConfig({
   test: testConfig,
   build: {
     emptyOutDir: false,
-    outDir:
-      '../../web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page',
+    outDir: MODULE_OUTPUT_DIR,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
