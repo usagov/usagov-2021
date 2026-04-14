@@ -2,60 +2,137 @@
 
 /**
  * @file
- * Interface with Form state.
+ * Hooks for USA Workflow moderation policy.
  */
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 
 /**
- * @inheritDoc
+ * Adds UI guidance for self-publish and self-delete restrictions.
  *
  * @param array<string, mixed> $form
  */
-function usa_workflow_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
-  $newForm = [
-    'node_blog_post_form',
-    'node_blog_post_edit_form',
-    'node_basic_page_form',
-    'node_wizard_step_form',
-    'node_wizard_form',
-    'content_moderation_entity_moderation_form',
-  ];
+function usa_workflow_form_alter(array &$form, FormStateInterface $form_state, string $_form_id): void {
+  $policy = \Drupal::service('usa_workflow.policy');
+  $entity = usa_workflow_get_form_entity($form_state);
 
-  if (in_array($form_id, $newForm)) {
-    $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
+  if (!$entity) {
+    $entity = $policy->getContentEntityFromRoute(\Drupal::routeMatch());
+  }
 
-    // Permissions are *stricter* here on the user's own content. Only some users can
-    // approve their own changes; any editor should be able to approve another editor's changes.
-    if ($wfPermissions['isNewPage'] || ($wfPermissions['currentUser']['id'] == $wfPermissions['revisionUser']['id'])) {
-      if ($wfPermissions['usaApproveOwnContent'] == FALSE) {
-        unset($form['moderation_state']['widget'][0]['state']['#options']['published']);
-        unset($form['new_state']['#options']['published']);
-      }
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
 
-      if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
-        unset($form['actions']['delete']);
+  $current_user = \Drupal::currentUser();
+
+  if ($policy->isSelfPublishRestricted($entity, $current_user)) {
+    $message = (string) t('You cannot publish your own latest revision. Another editor must review it first.');
+    if (isset($form['moderation_state']['widget'][0]['state'])
+      && is_array($form['moderation_state']['widget'][0]['state'])) {
+      usa_workflow_append_description($form['moderation_state']['widget'][0]['state'], $message);
+    }
+    if (isset($form['new_state']) && is_array($form['new_state'])) {
+      usa_workflow_append_description($form['new_state'], $message);
+    }
+  }
+
+  if ($policy->isSelfDeleteRestricted($entity, $current_user)) {
+    unset($form['actions']['delete']);
+    $form['usa_workflow_delete_notice'] = [
+      '#type' => 'item',
+      '#title' => t('Delete'),
+      '#markup' => t('You cannot delete your own latest revision.'),
+      '#weight' => 90,
+    ];
+  }
+}
+
+/**
+ * Removes delete tabs when the current user is not allowed to use them.
+ *
+ * @param array<string, mixed> $data
+ */
+function usa_workflow_menu_local_tasks_alter(array &$data, string $_route_name): void {
+  $entity = \Drupal::service('usa_workflow.policy')
+    ->getContentEntityFromRoute(\Drupal::routeMatch());
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  if (\Drupal::service('usa_workflow.policy')->isSelfDeleteRestricted($entity, \Drupal::currentUser())) {
+    foreach ($data['tabs'] ?? [] as $level => $tabs) {
+      foreach (array_keys($tabs) as $tab_name) {
+        if (str_ends_with($tab_name, '.delete_form')) {
+          unset($data['tabs'][$level][$tab_name]);
+        }
       }
     }
   }
 }
 
 /**
- * @inheritDoc
- *
- * @param array<string, mixed> $data
+ * Restricts delete access for self-authored latest revisions.
  */
-function usa_workflow_menu_local_tasks_alter(array &$data, string $route_name): void {
-  $routes = [
-    'entity.node.canonical',
-    'entity.node.edit_form',
-    'entity.node.latest_version',
-  ];
+function usa_workflow_entity_access(EntityInterface $entity, string $operation, AccountInterface $account): AccessResult {
+  if ($operation !== 'delete' || !$entity instanceof ContentEntityInterface) {
+    return AccessResult::neutral();
+  }
 
-  if (in_array($route_name, $routes)) {
-    $wfPermissions = Drupal::service('usa_workflow.permission.service')->wfUserPermission();
-    if ($wfPermissions['usaDeleteOwnContent'] == FALSE) {
-      unset($data['tabs'][0]['entity.node.delete_form']);
+  if (!\Drupal::service('usa_workflow.policy')->isSelfDeleteRestricted($entity, $account)) {
+    return AccessResult::neutral()
+      ->cachePerPermissions()
+      ->cachePerUser()
+      ->addCacheableDependency($entity)
+      ->addCacheableDependency(\Drupal::config('usa_workflow.settings'));
+  }
+
+  return AccessResult::forbidden('Users may not delete their own latest revision.')
+    ->cachePerPermissions()
+    ->cachePerUser()
+    ->addCacheableDependency($entity)
+    ->addCacheableDependency(\Drupal::config('usa_workflow.settings'));
+}
+
+/**
+ * Finds the content entity being edited by a form, if any.
+ */
+function usa_workflow_get_form_entity(FormStateInterface $form_state): ?ContentEntityInterface {
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof EntityFormInterface) {
+    $entity = $form_object->getEntity();
+    if ($entity instanceof ContentEntityInterface) {
+      return $entity;
     }
+  }
+
+  return NULL;
+}
+
+/**
+ * Appends descriptive text to a form element when it exists.
+ *
+ * @param array<string, mixed>|null $element
+ *   The target element.
+ * @param string $description
+ *   The message to append.
+ */
+function usa_workflow_append_description(?array &$element, string $description): void {
+  if (!is_array($element)) {
+    return;
+  }
+
+  if (empty($element['#description'])) {
+    $element['#description'] = $description;
+    return;
+  }
+
+  if (!str_contains((string) $element['#description'], $description)) {
+    $element['#description'] .= ' ' . $description;
   }
 }

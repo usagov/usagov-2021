@@ -1,0 +1,7 @@
+usa_workflow.settings:
+  path: '/admin/config/workflow/usa-workflow'
+  defaults:
+    _title: 'USA workflow'
+    _form: 'Drupal\usa_workflow\Form\UsaWorkflowSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
