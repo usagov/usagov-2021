@@ -139,10 +139,262 @@ build_domain_json() { # $1 = domain guid
   }' <<<"$domain_json"
 }
 
+build_org_quota_json() { # $1 = organization guid
+  local organization_guid="$1"
+
+  jq -c --arg organization_guid "$organization_guid" '
+    [
+      .[]
+      | select(any(.relationships.organizations.data[]?; .guid == $organization_guid))
+      | {
+          guid,
+          name,
+          created_at,
+          updated_at,
+          apps: (.apps // null),
+          services: (.services // null),
+          routes: (.routes // null),
+          domains: (.domains // null)
+        }
+    ]
+    | first // null
+  ' <<<"$ORGANIZATION_QUOTAS_ALL"
+}
+
+build_space_quota_json() { # $1 = space guid
+  local space_guid="$1"
+
+  jq -c --arg space_guid "$space_guid" '
+    [
+      .[]
+      | select(any(.relationships.spaces.data[]?; .guid == $space_guid))
+      | {
+          guid,
+          name,
+          created_at,
+          updated_at,
+          apps: (.apps // null),
+          services: (.services // null),
+          routes: (.routes // null)
+        }
+    ]
+    | first // null
+  ' <<<"$SPACE_QUOTAS_ALL"
+}
+
+build_processes_json() { # $1 = app guid
+  local app_guid="$1"
+
+  jq -c --arg app_guid "$app_guid" '
+    [
+      .[]
+      | select(.relationships.app.data.guid == $app_guid)
+      | {
+          guid,
+          type,
+          command,
+          instances,
+          memory_in_mb,
+          disk_in_mb,
+          log_rate_limit_in_bytes_per_second: (.log_rate_limit_in_bytes_per_second // null),
+          health_check: (.health_check // null),
+          readiness_health_check: (.readiness_health_check // null),
+          ports: (.ports // []),
+          created_at,
+          updated_at
+        }
+    ]
+    | sort_by(.type)
+  ' <<<"$PROCESSES_ALL"
+}
+
+build_route_destinations_json() { # $1 = route guid
+  local route_guid="$1"
+  local destinations_response
+
+  destinations_response=$(cf_get_json "/v3/routes/$route_guid/destinations") || return $?
+  jq -c \
+    --argjson app_names "$APP_NAMES_BY_GUID" '
+      (.destinations // [])
+      | map({
+          guid,
+          app: (
+            if (.app.guid // null) == null then
+              null
+            else
+              {
+                guid: .app.guid,
+                name: ($app_names[.app.guid] // null)
+              }
+            end
+          ),
+          process: (.process // null),
+          protocol: (.protocol // null),
+          port: (.port // null),
+          weight: (.weight // null)
+        })
+      | sort_by((.app.name // ""), (.process.type // ""), (.port // 0))
+    ' <<<"$destinations_response"
+}
+
+build_service_plan_json() { # $1 = service plan guid
+  local service_plan_guid="$1"
+  local service_plan_json
+  local service_offering_guid
+  local service_offering_json
+
+  service_plan_json=$(jq -c --arg service_plan_guid "$service_plan_guid" '
+    [.[] | select(.guid == $service_plan_guid)]
+    | first
+  ' <<<"$SERVICE_PLANS_ALL") || return $?
+
+  if [[ "$service_plan_json" == "null" ]]; then
+    printf 'null\n'
+    return 0
+  fi
+
+  service_offering_guid=$(jq -r '.relationships.service_offering.data.guid // empty' <<<"$service_plan_json")
+  if [[ -n "$service_offering_guid" ]]; then
+    service_offering_json=$(jq -c --arg service_offering_guid "$service_offering_guid" '
+      [.[] | select(.guid == $service_offering_guid)]
+      | first
+    ' <<<"$SERVICE_OFFERINGS_ALL") || return $?
+  else
+    service_offering_json='null'
+  fi
+
+  jq -c \
+    --argjson service_offering "$service_offering_json" '
+      {
+        guid,
+        name,
+        description: (.description // null),
+        available: (.available // null),
+        free: (.free // null),
+        service_offering: (
+          if $service_offering == null then
+            null
+          else
+            {
+              guid: $service_offering.guid,
+              name: $service_offering.name,
+              description: ($service_offering.description // null),
+              available: ($service_offering.available // null),
+              tags: ($service_offering.tags // []),
+              requires: ($service_offering.requires // []),
+              shareable: ($service_offering.shareable // null),
+              documentation_url: ($service_offering.documentation_url // null)
+            }
+          end
+        )
+      }
+    ' <<<"$service_plan_json"
+}
+
+build_service_credential_bindings_json() { # $1 = service instance guid
+  local service_guid="$1"
+
+  jq -c \
+    --arg service_guid "$service_guid" \
+    --argjson app_names "$APP_NAMES_BY_GUID" '
+      [
+        .[]
+        | select(.relationships.service_instance.data.guid == $service_guid)
+        | {
+            guid,
+            name: (.name // null),
+            type,
+            created_at,
+            updated_at,
+            last_operation: (
+              if (.last_operation // {} | type) == "object" and (.last_operation | length) > 0 then
+                {
+                  type: .last_operation.type,
+                  state: .last_operation.state,
+                  description: .last_operation.description,
+                  updated_at: .last_operation.updated_at
+                }
+              else
+                null
+              end
+            ),
+            app: (
+              if (.relationships.app.data.guid // null) == null then
+                null
+              else
+                {
+                  guid: .relationships.app.data.guid,
+                  name: ($app_names[.relationships.app.data.guid] // null)
+                }
+              end
+            )
+          }
+      ]
+      | sort_by(.type, (.name // ""), (.app.name // ""))
+    ' <<<"$SERVICE_CREDENTIAL_BINDINGS_ALL"
+}
+
+build_service_route_bindings_json() { # $1 = service instance guid
+  local service_guid="$1"
+
+  jq -c \
+    --arg service_guid "$service_guid" \
+    --argjson route_urls "$ROUTE_URLS_BY_GUID" '
+      [
+        .[]
+        | select(.relationships.service_instance.data.guid == $service_guid)
+        | {
+            guid,
+            route_service_url: (.route_service_url // null),
+            created_at,
+            updated_at,
+            last_operation: (
+              if (.last_operation // {} | type) == "object" and (.last_operation | length) > 0 then
+                {
+                  type: .last_operation.type,
+                  state: .last_operation.state,
+                  description: .last_operation.description,
+                  updated_at: .last_operation.updated_at
+                }
+              else
+                null
+              end
+            ),
+            route: (
+              if (.relationships.route.data.guid // null) == null then
+                null
+              else
+                {
+                  guid: .relationships.route.data.guid,
+                  url: ($route_urls[.relationships.route.data.guid] // null)
+                }
+              end
+            )
+          }
+      ]
+      | sort_by((.route.url // ""), (.route_service_url // ""))
+    ' <<<"$SERVICE_ROUTE_BINDINGS_ALL"
+}
+
 build_service_json() { # $1 = service guid
   local service_json
+  local service_plan_guid
+  local service_plan_json
+  local credential_bindings_json
+  local route_bindings_json
 
   service_json=$(cf_get_json "/v3/service_instances/$1") || return $?
+  service_plan_guid=$(jq -r '.relationships.service_plan.data.guid // empty' <<<"$service_json")
+
+  if [[ -n "$service_plan_guid" ]]; then
+    service_plan_json=$(build_service_plan_json "$service_plan_guid") || return $?
+  else
+    service_plan_json='null'
+  fi
+
+  credential_bindings_json=$(build_service_credential_bindings_json "$1") || return $?
+  route_bindings_json=$(build_service_route_bindings_json "$1") || return $?
+
   jq -c '{
     guid,
     name,
@@ -160,13 +412,28 @@ build_service_json() { # $1 = service guid
         null
       end
     )
-  }' <<<"$service_json"
+  }' <<<"$service_json" | jq -c \
+    --argjson service_plan "$service_plan_json" \
+    --argjson credential_bindings "$credential_bindings_json" \
+    --argjson route_bindings "$route_bindings_json" '
+      . + {
+        service_plan: $service_plan,
+        credential_bindings: $credential_bindings,
+        route_bindings: $route_bindings,
+        counts: {
+          credential_bindings: ($credential_bindings | length),
+          route_bindings: ($route_bindings | length)
+        }
+      }
+    '
 }
 
 build_route_json() { # $1 = route guid
   local route_json
+  local destinations_json
 
   route_json=$(cf_get_json "/v3/routes/$1") || return $?
+  destinations_json=$(build_route_destinations_json "$1") || return $?
   jq -c '{
     guid,
     url,
@@ -174,7 +441,15 @@ build_route_json() { # $1 = route guid
     path,
     created_at,
     updated_at
-  }' <<<"$route_json"
+  }' <<<"$route_json" | jq -c \
+    --argjson destinations "$destinations_json" '
+      . + {
+        destinations: $destinations,
+        counts: {
+          destinations: ($destinations | length)
+        }
+      }
+    '
 }
 
 build_attached_security_group_json() { # $1 = security group guid
@@ -237,16 +512,19 @@ build_app_json() { # $1 = app guid
   local app_guid="$1"
   local app_json
   local current_droplet_json
+  local processes_json
   local sidecars_json
   local task_count
 
   app_json=$(cf_get_json "/v3/apps/$app_guid") || return $?
   current_droplet_json=$(build_current_droplet_json "$app_guid") || return $?
+  processes_json=$(build_processes_json "$app_guid") || return $?
   sidecars_json=$(build_sidecars_json "$app_guid") || return $?
   task_count=$(cf_get_json "/v3/apps/$app_guid/tasks" | jq -r '.pagination.total_results // 0') || return $?
 
   jq -c \
     --argjson current_droplet "$current_droplet_json" \
+    --argjson processes "$processes_json" \
     --argjson sidecars "$sidecars_json" \
     --argjson task_count "$task_count" \
     '{
@@ -260,9 +538,11 @@ build_app_json() { # $1 = app guid
         data: (.lifecycle.data // {})
       },
       current_droplet: $current_droplet,
+      processes: $processes,
       task_count: $task_count,
       sidecars: $sidecars,
       counts: {
+        processes: ($processes | length),
         sidecars: ($sidecars | length)
       }
     }' <<<"$app_json"
@@ -271,6 +551,7 @@ build_app_json() { # $1 = app guid
 build_space_json() { # $1 = space resource json
   local space_json="$1"
   local space_guid
+  local space_quota_json
   local services_json='[]'
   local routes_json='[]'
   local attached_security_groups_json='[]'
@@ -281,6 +562,7 @@ build_space_json() { # $1 = space resource json
   local app_guid
 
   space_guid=$(jq -r '.guid' <<<"$space_json")
+  space_quota_json=$(build_space_quota_json "$space_guid") || return $?
 
   while IFS= read -r service_guid; do
     [[ -n "$service_guid" ]] || continue
@@ -315,6 +597,7 @@ build_space_json() { # $1 = space resource json
   ' <<<"$APPS_ALL")
 
   jq -c \
+    --argjson quota "$space_quota_json" \
     --argjson services "$services_json" \
     --argjson routes "$routes_json" \
     --argjson attached_security_groups "$attached_security_groups_json" \
@@ -324,6 +607,7 @@ build_space_json() { # $1 = space resource json
       name,
       created_at,
       updated_at,
+      quota: $quota,
       services: $services,
       routes: $routes,
       attached_security_groups: $attached_security_groups,
@@ -340,6 +624,7 @@ build_space_json() { # $1 = space resource json
 build_org_json() { # $1 = organization resource json
   local org_json="$1"
   local org_guid
+  local org_quota_json
   local domains_json='[]'
   local spaces_json='[]'
   local domain_guid
@@ -347,6 +632,7 @@ build_org_json() { # $1 = organization resource json
   local candidate_spaces
 
   org_guid=$(jq -r '.guid' <<<"$org_json")
+  org_quota_json=$(build_org_quota_json "$org_guid") || return $?
 
   while IFS= read -r domain_guid; do
     [[ -n "$domain_guid" ]] || continue
@@ -374,6 +660,7 @@ build_org_json() { # $1 = organization resource json
   done < <(jq -c '.[]' <<<"$candidate_spaces")
 
   jq -c \
+    --argjson quota "$org_quota_json" \
     --argjson domains "$domains_json" \
     --argjson spaces "$spaces_json" \
     '{
@@ -381,6 +668,7 @@ build_org_json() { # $1 = organization resource json
       name,
       created_at,
       updated_at,
+      quota: $quota,
       domains: $domains,
       spaces: $spaces,
       counts: {
@@ -435,12 +723,36 @@ status "Fetching spaces..."
 SPACES_ALL=$(cf_paginated_resources "/v3/spaces") || exit $?
 status "Fetching service instances..."
 SERVICE_INSTANCES_ALL=$(cf_paginated_resources "/v3/service_instances") || exit $?
+status "Fetching service credential bindings..."
+SERVICE_CREDENTIAL_BINDINGS_ALL=$(cf_paginated_resources "/v3/service_credential_bindings") || exit $?
+status "Fetching service route bindings..."
+SERVICE_ROUTE_BINDINGS_ALL=$(cf_paginated_resources "/v3/service_route_bindings") || exit $?
+status "Fetching service plans..."
+SERVICE_PLANS_ALL=$(cf_paginated_resources "/v3/service_plans") || exit $?
+status "Fetching service offerings..."
+SERVICE_OFFERINGS_ALL=$(cf_paginated_resources "/v3/service_offerings") || exit $?
 status "Fetching routes..."
 ROUTES_ALL=$(cf_paginated_resources "/v3/routes") || exit $?
 status "Fetching apps..."
 APPS_ALL=$(cf_paginated_resources "/v3/apps") || exit $?
+status "Fetching processes..."
+PROCESSES_ALL=$(cf_paginated_resources "/v3/processes") || exit $?
 status "Fetching security groups..."
 SECURITY_GROUPS_ALL=$(cf_paginated_resources "/v3/security_groups") || exit $?
+status "Fetching organization quotas..."
+ORGANIZATION_QUOTAS_ALL=$(cf_paginated_resources "/v3/organization_quotas") || exit $?
+status "Fetching space quotas..."
+SPACE_QUOTAS_ALL=$(cf_paginated_resources "/v3/space_quotas") || exit $?
+
+APP_NAMES_BY_GUID=$(jq -c '
+  map({key: .guid, value: .name})
+  | from_entries
+' <<<"$APPS_ALL") || exit $?
+
+ROUTE_URLS_BY_GUID=$(jq -c '
+  map({key: .guid, value: .url})
+  | from_entries
+' <<<"$ROUTES_ALL") || exit $?
 
 if [[ "$all" == true ]]; then
   SELECTED_ORGS=$(jq -c 'sort_by(.name)' <<<"$ORGANIZATIONS_ALL") || exit $?
