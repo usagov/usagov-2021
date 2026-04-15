@@ -1,270 +1,529 @@
 #!/usr/bin/env bash
 #
-# This script will compile a report of our cf env's components
+# This script compiles a JSON report of our cf env's components.
 #
 
-# Styling variables
-underline=`tput smul`
-nounderline=`tput rmul`
-bold=`tput bold`
-normal=`tput sgr0`
-level2="  "
-level3="    "
-level4="      "
-level5="        "
-level6="          "
+set -e
+set -o pipefail
 
-die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
-needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+die() { echo "$*" >&2; exit 2; }
 
-# Defaults (to be thorough, you could also assign alpha="" and charlie="")
-all=false       # Overridden by the value set by -b or --bravo
-spaces="all"       # Overridden by the value set by -s or --spaces
+status() { printf '[cf-components] %s\n' "$*" >&2; }
 
-while getopts as: OPT; do  # allow -a, -b with arg, and -- "with arg"
-  # support long options: https://stackoverflow.com/a/28466267/519360
-  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
-    OPT="${OPTARG%%=*}"       # extract long option name
-    OPTARG="${OPTARG#"$OPT"}" # extract long option argument (may be empty)
-    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
-  fi
-  case "$OPT" in
-    a | all )      all=true ;;
-    s | spaces )   needs_arg; spaces="$OPTARG" ;;
-    \? )           exit 2 ;;  # bad short option (error reported via getopts)
-    * )            die "Illegal option --$OPT" ;;  # bad long option
-  esac
-done
-shift $((OPTIND-1)) # remove parsed options and args from $@ list
+usage() {
+  cat <<'EOF'
+Usage: cf-components [--all] [--org ORG_NAME] [--space SPACE_NAME[,SPACE_NAME...]]
 
-getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
-  PAGES=$(cf curl "/v3/$1" | jq -r '.pagination | .total_pages');
-  SELECT=""
-  if [ -n "$2" ]; then
-    SELECT=' select( .relationships.'"$2"'.data.guid == "'"$3"'" ) |'
-  fi
-  for i in $(seq 1 "$PAGES"); do
-    IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] |'"$SELECT"' .guid]')
-  done
-  echo "$IDS"
+Options:
+  -a, --all           Report on all organizations.
+  -o, --org NAME      Report on a specific organization. Defaults to gsa-tts-usagov.
+  -s, --space NAMES   Limit spaces by comma-separated name. Defaults to all.
+  --to-file           Write the JSON report to a generated filename in the
+                      current directory.
+  -h, --help          Show this help message.
+
+The report is emitted as pretty-printed JSON to stdout so it can be read in the
+console or redirected to a file.
+EOF
 }
 
-echo "${bold}${underline}CF Components${nounderline}${normal}"
+DEFAULT_ORG="gsa-tts-usagov"
+all=false
+org_name="$DEFAULT_ORG"
+space_filter="all"
+write_to_file=false
 
-# Orgs->Domains/Spaces->Apps/Services->Tasks/Sidecars
-if [ $all == true ]; then
-  ORGIDS=$(getPaginationCount "organizations")
-else
-  echo "Showing info for gsa-tts-usagov, add --all argument to see all orgs."
-  ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[] | select(.name == "gsa-tts-usagov") | .guid]')
-fi
-
-IFS=',' read -r -a spaces_array <<< "$spaces"
-
-echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
-  ORG=$(cf curl "/v3/organizations/$ORGID")
-  ORGNAME=$(echo "$ORG" | jq -r '.name')
-  ORGCREATE=$(echo "$ORG" | jq -r '.created_at')
-  ORGUPDATE=$(echo "$ORG" | jq -r '.updated_at')
-
-  echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE | Created: $ORGCREATE)"
-
-  DOMIANIDS=$(getPaginationCount "domains" "organization" "$ORGID")
-  if [ "$DOMIANIDS" != "[]" ]; then
-    echo "$level2 Domains:"
-    echo "$DOMIANIDS" | jq -r '.[]' | while read -r DOMIANID; do
-      DOMAIN=$(cf curl "/v3/domains/$DOMIANID")
-      DOMAINNAME=$(echo "$DOMAIN" | jq -r '.name')
-      DOMAINCREATED=$(echo "$DOMAIN" | jq -r '.created_at')
-      DOMAINUPDATED=$(echo "$DOMAIN" | jq -r '.updated_at')
-      DOMAININTERNAL=$(echo "$DOMAIN" | jq -r '.internal')
-      DOMAINPROTOCOLS=$(echo "$DOMAIN" | jq -c '.supported_protocols')
-      echo "$level3 $DOMAINNAME (Last updated: $DOMAINUPDATED | Created: $DOMAINCREATED | Internal: $DOMAININTERNAL | Supported Protocols: $DOMAINPROTOCOLS)"
-    done
-  fi
-
-  if [ $spaces == "all" ]; then
-    SPACEPAGES=$(cf curl "/v3/spaces" | jq -r '.pagination | .total_pages');
-    if [[ $SPACEPAGES -gt 1 ]]; then
-      for i in $SPACEPAGES; do
-        SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
-      done
-    else
-      SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
-    fi
-  else
-    SPACEPAGES=$(cf curl "/v3/spaces" | jq -r '.pagination | .total_pages');
-    if [[ $SPACEPAGES -gt 1 ]]; then
-      for i in $SPACEPAGES; do
-        SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
-          SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
-          for space in "${spaces_array[@]}"; do
-            if [[ "$space" == "$SPACENAME" ]]; then
-              echo "$SPACEID"
-            fi
-          done
-        done)
-      done
-    else
-      SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
-        SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
-        for space in "${spaces_array[@]}"; do
-          if [[ "$space" == "$SPACENAME" ]]; then
-            echo "$SPACEID"
-          fi
-        done
-      done)
-    fi
-  fi
-
-  echo "$SPACEIDS" | while read -r SPACEID; do
-    SPACE=$(cf curl "/v3/spaces/$SPACEID")
-    SPACENAME=$(echo "$SPACE" | jq -r '.name')
-    SPACECREATED=$(echo "$SPACE" | jq -r '.created_at')
-    SPACEUPDATE=$(echo "$SPACE" | jq -r '.updated_at')
-    echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE | Created: $SPACECREATED)"
-
-    SERVICEIDS=$(getPaginationCount "service_instances" "space" "$SPACEID")
-    if [ "$SERVICEIDS" != "[]" ]; then
-      echo "$level3 Services:"
-      echo "$SERVICEIDS" | jq -r '.[]' | while read -r SERVICEID; do
-        SERVICELASTOPERATION=""
-        SERVICE=$(cf curl "/v3/service_instances/$SERVICEID")
-        SERVICENAME=$(echo "$SERVICE" | jq -r '.name')
-        SERVICECREATED=$(echo "$SERVICE" | jq -r '.created_at')
-        SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.updated_at')
-        if [ "$(echo "$SERVICE" | jq -r '.last_operation')" != "{}" ]; then
-          SERVICETYPE=$(echo "$SERVICE" | jq -r '.last_operation.type')
-          SERVICESTATE=$(echo "$SERVICE" | jq -r '.last_operation.state')
-          SERVICEDESCRIPTION=$(echo "$SERVICE" | jq -r '.last_operation.description')
-          SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.last_operation.updated_at')
-
-          SERVICELASTOPERATION="(Last operation at $SERVICEUPDATED; Type: $SERVICETYPE | State: $SERVICESTATE | Description: $SERVICEDESCRIPTION)"
-        fi
-        echo "$level4 $SERVICENAME Last updated: $SERVICEUPDATED | Created: $SERVICECREATED $SERVICELASTOPERATION"
-      done
-    fi
-
-    ROUTEIDS=$(getPaginationCount "routes" "space" "$SPACEID")
-    if [ "$ROUTEIDS" != "[]" ]; then
-      echo "$level3 Routes:"
-      echo "$ROUTEIDS" | jq -r '.[]' | while read -r ROUTEID; do
-        ROUTE=$(cf curl "/v3/routes/$ROUTEID")
-        ROUTECREATED=$(echo "$ROUTE" | jq -r '.created_at')
-        ROUTEUPDATED=$(echo "$ROUTE" | jq -r '.updated_at')
-        ROUTEHOST=$(echo "$ROUTE" | jq -r '.host')
-        ROUTEPATH=$(echo "$ROUTE" | jq -r '.path')
-        ROUTEURL=$(echo "$ROUTE" | jq -r '.url')
-        echo "$level4 $ROUTEURL (Last updated: $ROUTEUPDATED | Created: $ROUTECREATED | Host: $ROUTEHOST | Path: $ROUTEPATH)"
-      done
-    fi
-
-    SGROUPIDS=$(getPaginationCount "spaces/$SPACEID/running_security_groups")
-    if [ "$SGROUPIDS" != "[]" ]; then
-      echo "$level3 Attached Security Groups:"
-      echo "$SGROUPIDS" | jq -r '.[]' | while read -r SGROUPID; do
-        SGROUP=$(cf curl "/v3/security_groups/$SGROUPID")
-        SGROUPCREATED=$(echo "$SGROUP" | jq -r '.created_at')
-        SGROUPUPDATED=$(echo "$SGROUP" | jq -r '.updated_at')
-        SGROUPNAME=$(echo "$SGROUP" | jq -r '.name')
-        echo "$level4 $SGROUPNAME (Last updated: $SGROUPUPDATED | Created: $SGROUPCREATED)"
-      done
-    fi
-
-    APPIDS=$(getPaginationCount "apps" "space" "$SPACEID")
-    if [ "$APPIDS" != "[]" ]; then
-      echo "$level3 Apps:"
-      echo "$APPIDS" | jq -r '.[]' | while read -r APPID; do
-        APP=$(cf curl "/v3/apps/$APPID")
-        APPNAME=$(echo "$APP" | jq -r '.name')
-        APPCREATED=$(echo "$APP" | jq -r '.created_at')
-        APPUPDATED=$(echo "$APP" | jq -r '.updated_at')
-        APPSTATE=$(echo "$APP" | jq -r '.state')
-        APPTYPE=$(echo "$APP" | jq -r '.lifecycle.type')
-
-        if [ "$APPTYPE" != "docker" ]; then
-          APPBUILDPACKS=$(echo "$APP" | jq -c '.lifecycle.data.buildpacks')
-          APPSTACK=$(echo "$APP" | jq -c '.lifecycle.data.stack')
-          APPSTACKINFO=" | Buildpacks: $APPBUILDPACKS | Stack: $APPSTACK"
-        fi
-        echo "$level4 $APPNAME (Last updated: $APPUPDATED | Created: $APPCREATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
-
-        DROPLETID=$(cf curl "/v3/apps/$APPID/droplets/current" | jq -r '.guid')
-        if [ -n "$DROPLETID" ]; then
-          DROPLET=$(cf curl "/v3/droplets/$DROPLETID")
-          DROPLETSTATE=$(echo "$DROPLET" | jq -r '.state')
-          DROPLETCREATED=$(echo "$DROPLET" | jq -r '.created_at')
-          DROPLETUPDATED=$(echo "$DROPLET" | jq -r '.updated_at')
-          DROPLETSTACK=$(echo "$DROPLET" | jq -r '.stack')
-          DROPLETSTACKOUT=""
-          if [ "$DROPLETSTACK" != "null" ]; then
-            DROPLETSTACKOUT=" | Stack: $DROPLETSTACK"
-          fi
-          DROPLETIMAGEOUT=""
-          DROPLETIMAGE=$(echo "$DROPLET" | jq -r '.image')
-          if [ "$DROPLETIMAGE" != "null" ]; then
-            DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
-          fi
-          echo "$level5 Current Droplet: $DROPLETSTATE (Last updated: $DROPLETUPDATED | Created: $DROPLETCREATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
-        fi
-
-        TASKCOUNT=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '.pagination | .total_results')
-        if [ "$TASKCOUNT" != "[]" ]; then
-          echo "$level5 Number of Tasks attached to $APPNAME: $TASKCOUNT"
-        fi
-
-        SIDECARIDS=$(getPaginationCount "apps/$APPID/sidecars" "app" "$APPID")
-        if [ "$SIDECARIDS" != "[]" ]; then
-          echo "$level5 Sidecars:"
-          echo "$SIDECARIDS" | jq -r '.[]' | while read -r SIDECARID; do
-            SIDECAR=$(cf curl "/v3/sidecars/$SIDECARID")
-            SIDECARNAME=$(echo "$SIDECAR" | jq -r '.name')
-            SIDECARCREATED=$(echo "$SIDECAR" | jq -r '.created_at')
-            SIDECARUPDATED=$(echo "$SIDECAR" | jq -r '.updated_at')
-            SIDECARCOMMAND=$(echo "$SIDECAR" | jq -r '.command')
-            SIDECARPROCESS=$(echo "$SIDECAR" | jq -c '.process_types')
-            SIDECARMEMORY=$(echo "$SIDECAR" | jq -r '.memory_in_mb')
-            SIDECARORIGIN=$(echo "$SIDECAR" | jq -r '.origin')
-            echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED | Created: $SIDECARCREATED | Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
-          done
-        fi
-      done
-    fi
-  done
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a|--all)
+      all=true
+      ;;
+    -o|--org)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --org option"
+      org_name="$1"
+      ;;
+    --org=*)
+      org_name="${1#*=}"
+      [[ -n "$org_name" ]] || die "No arg for --org option"
+      ;;
+    -s|--space)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --space option"
+      space_filter="$1"
+      ;;
+    --space=*)
+      space_filter="${1#*=}"
+      [[ -n "$space_filter" ]] || die "No arg for --space option"
+      ;;
+    --to-file)
+      write_to_file=true
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "Illegal option $1"
+      ;;
+  esac
+  shift
 done
 
-# Misc info
-# Users temporarily removed as there is no way to filter users by organization.
-#
-# if [ $all == true ]; then
-#   echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
-# else
-#   USERIDS=$(getPaginationCount "users")
-#   if [ "$USERIDS" != "[]" ]; then
-#     echo "${underline}Users:${nounderline}"
-#     echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
-#       USER=$(cf curl "/v3/users/$USERID")
-#       USERNAME=$(echo "$USER" | jq -r '.username')
-#       USERPCREATED=$(echo "$USER" | jq -r '.created_at')
-#       USERPUPDATE=$(echo "$USER" | jq -r '.updated_at')
-#       USERPRESENTATION=$(echo "$USER" | jq -r '.presentation_name')
-#       USERORIGIN=$(echo "$USER" | jq -r '.origin')
-#       echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Created: $USERPCREATED | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
-#     done
-#   fi
-# fi
+append_json_item() { # $1 = array json, $2 = item json
+  jq -c --argjson item "$2" '. + [$item]' <<<"$1"
+}
 
-GROUPIDS=$(getPaginationCount "security_groups")
-if [ "$GROUPIDS" != "[]" ]; then
-  echo "${underline}Security Groups:${nounderline}"
-  echo "$GROUPIDS" | jq -r '.[]' | while read -r GROUPID; do
-    GROUP=$(cf curl "/v3/security_groups/$GROUPID")
-    GROUPNAME=$(echo "$GROUP" | jq -r '.name')
-    GROUPUPDATED=$(echo "$GROUP" | jq -r '.created_at')
-    GROUPUPDATED=$(echo "$GROUP" | jq -r '.updated_at')
-    GROUPRULES=$(echo "$GROUP" | jq -r '.rules')
-    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED | Created: $GROUPUPDATED)"
-    echo "$level3 Rules:"
-    echo "$level4 $GROUPRULES"
-  done
+sanitize_filename_component() { # $1 = value
+  jq -nr --arg value "$1" '
+    $value
+    | ascii_downcase
+    | gsub("^\\s+|\\s+$"; "")
+    | gsub("[^a-z0-9]+$"; "")
+    | gsub("^[^a-z0-9]+"; "")
+    | gsub("[^a-z0-9]+"; "-")
+  '
+}
+
+cf_get_json() { # $1 = endpoint path
+  local endpoint="$1"
+  local response
+  local error_message
+
+  response=$(cf curl "$endpoint" 2>&1) || die "cf curl failed for ${endpoint}: ${response}"
+  [[ -n "$response" ]] || die "cf curl returned an empty response for ${endpoint}. Check your Cloud Foundry login."
+
+  jq -e . >/dev/null 2>&1 <<<"$response" || die "cf curl returned non-JSON output for ${endpoint}: ${response}"
+
+  if jq -e '.errors? and (.errors | length > 0)' >/dev/null 2>&1 <<<"$response"; then
+    error_message=$(jq -r '[.errors[] | (.detail // .title // .code // "Unknown Cloud Foundry API error")] | join("; ")' <<<"$response")
+    die "cf curl returned an error for ${endpoint}: ${error_message}"
+  fi
+
+  printf '%s\n' "$response"
+}
+
+cf_paginated_resources() { # $1 = endpoint path
+  local endpoint="$1"
+  local separator='?'
+  local first_page
+  local page
+  local total_pages
+
+  if [[ "$endpoint" == *\?* ]]; then
+    separator='&'
+  fi
+
+  first_page=$(cf_get_json "${endpoint}${separator}page=1&per_page=50") || return $?
+  total_pages=$(jq -r '.pagination.total_pages // 1' <<<"$first_page")
+
+  {
+    printf '%s\n' "$first_page"
+    for ((page=2; page<=total_pages; page++)); do
+      cf_get_json "${endpoint}${separator}page=${page}&per_page=50"
+    done
+  } | jq -sc '[.[].resources[]?]'
+}
+
+build_domain_json() { # $1 = domain guid
+  local domain_json
+
+  domain_json=$(cf_get_json "/v3/domains/$1") || return $?
+  jq -c '{
+    guid,
+    name,
+    created_at,
+    updated_at,
+    internal,
+    supported_protocols
+  }' <<<"$domain_json"
+}
+
+build_service_json() { # $1 = service guid
+  local service_json
+
+  service_json=$(cf_get_json "/v3/service_instances/$1") || return $?
+  jq -c '{
+    guid,
+    name,
+    created_at,
+    updated_at,
+    last_operation: (
+      if (.last_operation // {} | type) == "object" and (.last_operation | length) > 0 then
+        {
+          type: .last_operation.type,
+          state: .last_operation.state,
+          description: .last_operation.description,
+          updated_at: .last_operation.updated_at
+        }
+      else
+        null
+      end
+    )
+  }' <<<"$service_json"
+}
+
+build_route_json() { # $1 = route guid
+  local route_json
+
+  route_json=$(cf_get_json "/v3/routes/$1") || return $?
+  jq -c '{
+    guid,
+    url,
+    host,
+    path,
+    created_at,
+    updated_at
+  }' <<<"$route_json"
+}
+
+build_attached_security_group_json() { # $1 = security group guid
+  local group_json
+
+  group_json=$(cf_get_json "/v3/security_groups/$1") || return $?
+  jq -c '{
+    guid,
+    name,
+    created_at,
+    updated_at
+  }' <<<"$group_json"
+}
+
+build_sidecars_json() { # $1 = app guid
+  local app_guid="$1"
+  local sidecars_json='[]'
+  local sidecar_guid
+  local sidecar_json
+
+  while IFS= read -r sidecar_guid; do
+    [[ -n "$sidecar_guid" ]] || continue
+    sidecar_json=$(cf_get_json "/v3/sidecars/$sidecar_guid") || return $?
+    sidecars_json=$(append_json_item "$sidecars_json" "$(jq -c '{
+      guid,
+      name,
+      created_at,
+      updated_at,
+      command,
+      process_types,
+      memory_in_mb,
+      origin
+    }' <<<"$sidecar_json")") || return $?
+  done < <(jq -r 'sort_by(.name) | .[].guid' <<<"$(cf_paginated_resources "/v3/apps/$app_guid/sidecars")")
+
+  echo "$sidecars_json"
+}
+
+build_current_droplet_json() { # $1 = app guid
+  local droplet_json
+
+  droplet_json=$(cf_get_json "/v3/apps/$1/droplets/current") || return $?
+  jq -c '
+    if (.guid? // null) == null then
+      null
+    else
+      {
+        guid,
+        state,
+        created_at,
+        updated_at,
+        stack,
+        image
+      }
+    end
+  ' <<<"$droplet_json"
+}
+
+build_app_json() { # $1 = app guid
+  local app_guid="$1"
+  local app_json
+  local current_droplet_json
+  local sidecars_json
+  local task_count
+
+  app_json=$(cf_get_json "/v3/apps/$app_guid") || return $?
+  current_droplet_json=$(build_current_droplet_json "$app_guid") || return $?
+  sidecars_json=$(build_sidecars_json "$app_guid") || return $?
+  task_count=$(cf_get_json "/v3/apps/$app_guid/tasks" | jq -r '.pagination.total_results // 0') || return $?
+
+  jq -c \
+    --argjson current_droplet "$current_droplet_json" \
+    --argjson sidecars "$sidecars_json" \
+    --argjson task_count "$task_count" \
+    '{
+      guid,
+      name,
+      created_at,
+      updated_at,
+      state,
+      lifecycle: {
+        type: .lifecycle.type,
+        data: (.lifecycle.data // {})
+      },
+      current_droplet: $current_droplet,
+      task_count: $task_count,
+      sidecars: $sidecars,
+      counts: {
+        sidecars: ($sidecars | length)
+      }
+    }' <<<"$app_json"
+}
+
+build_space_json() { # $1 = space resource json
+  local space_json="$1"
+  local space_guid
+  local services_json='[]'
+  local routes_json='[]'
+  local attached_security_groups_json='[]'
+  local apps_json='[]'
+  local service_guid
+  local route_guid
+  local group_guid
+  local app_guid
+
+  space_guid=$(jq -r '.guid' <<<"$space_json")
+
+  while IFS= read -r service_guid; do
+    [[ -n "$service_guid" ]] || continue
+    services_json=$(append_json_item "$services_json" "$(build_service_json "$service_guid")") || return $?
+  done < <(jq -r --arg space_guid "$space_guid" '
+    [.[] | select(.relationships.space.data.guid == $space_guid)]
+    | sort_by(.name)
+    | .[].guid
+  ' <<<"$SERVICE_INSTANCES_ALL")
+
+  while IFS= read -r route_guid; do
+    [[ -n "$route_guid" ]] || continue
+    routes_json=$(append_json_item "$routes_json" "$(build_route_json "$route_guid")") || return $?
+  done < <(jq -r --arg space_guid "$space_guid" '
+    [.[] | select(.relationships.space.data.guid == $space_guid)]
+    | sort_by(.url)
+    | .[].guid
+  ' <<<"$ROUTES_ALL")
+
+  while IFS= read -r group_guid; do
+    [[ -n "$group_guid" ]] || continue
+    attached_security_groups_json=$(append_json_item "$attached_security_groups_json" "$(build_attached_security_group_json "$group_guid")") || return $?
+  done < <(jq -r 'sort_by(.name) | .[].guid' <<<"$(cf_paginated_resources "/v3/spaces/$space_guid/running_security_groups")")
+
+  while IFS= read -r app_guid; do
+    [[ -n "$app_guid" ]] || continue
+    apps_json=$(append_json_item "$apps_json" "$(build_app_json "$app_guid")") || return $?
+  done < <(jq -r --arg space_guid "$space_guid" '
+    [.[] | select(.relationships.space.data.guid == $space_guid)]
+    | sort_by(.name)
+    | .[].guid
+  ' <<<"$APPS_ALL")
+
+  jq -c \
+    --argjson services "$services_json" \
+    --argjson routes "$routes_json" \
+    --argjson attached_security_groups "$attached_security_groups_json" \
+    --argjson apps "$apps_json" \
+    '{
+      guid,
+      name,
+      created_at,
+      updated_at,
+      services: $services,
+      routes: $routes,
+      attached_security_groups: $attached_security_groups,
+      apps: $apps,
+      counts: {
+        services: ($services | length),
+        routes: ($routes | length),
+        attached_security_groups: ($attached_security_groups | length),
+        apps: ($apps | length)
+      }
+    }' <<<"$space_json"
+}
+
+build_org_json() { # $1 = organization resource json
+  local org_json="$1"
+  local org_guid
+  local domains_json='[]'
+  local spaces_json='[]'
+  local domain_guid
+  local space_json
+  local candidate_spaces
+
+  org_guid=$(jq -r '.guid' <<<"$org_json")
+
+  while IFS= read -r domain_guid; do
+    [[ -n "$domain_guid" ]] || continue
+    domains_json=$(append_json_item "$domains_json" "$(build_domain_json "$domain_guid")") || return $?
+  done < <(jq -r --arg org_guid "$org_guid" '
+    [.[] | select(.relationships.organization.data.guid == $org_guid)]
+    | sort_by(.name)
+    | .[].guid
+  ' <<<"$DOMAINS_ALL")
+
+  candidate_spaces=$(jq -c --arg org_guid "$org_guid" '
+    [.[] | select(.relationships.organization.data.guid == $org_guid)]
+    | sort_by(.name)
+  ' <<<"$SPACES_ALL") || return $?
+
+  if [[ "$SPACE_FILTER_MODE" == "selected" ]]; then
+    candidate_spaces=$(jq -c --argjson selected_spaces "$SELECTED_SPACE_NAMES" '
+      [.[] | select(.name as $space_name | $selected_spaces | index($space_name))]
+    ' <<<"$candidate_spaces") || return $?
+  fi
+
+  while IFS= read -r space_json; do
+    [[ -n "$space_json" ]] || continue
+    spaces_json=$(append_json_item "$spaces_json" "$(build_space_json "$space_json")") || return $?
+  done < <(jq -c '.[]' <<<"$candidate_spaces")
+
+  jq -c \
+    --argjson domains "$domains_json" \
+    --argjson spaces "$spaces_json" \
+    '{
+      guid,
+      name,
+      created_at,
+      updated_at,
+      domains: $domains,
+      spaces: $spaces,
+      counts: {
+        domains: ($domains | length),
+        spaces: ($spaces | length)
+      }
+    }' <<<"$org_json"
+}
+
+build_security_groups_json() {
+  local security_groups_json='[]'
+  local group_guid
+  local group_json
+
+  while IFS= read -r group_guid; do
+    [[ -n "$group_guid" ]] || continue
+    group_json=$(cf_get_json "/v3/security_groups/$group_guid") || return $?
+    security_groups_json=$(append_json_item "$security_groups_json" "$(jq -c '{
+      guid,
+      name,
+      created_at,
+      updated_at,
+      rules
+    }' <<<"$group_json")") || return $?
+  done < <(jq -r 'sort_by(.name) | .[].guid' <<<"$SECURITY_GROUPS_ALL")
+
+  echo "$security_groups_json"
+}
+
+if [[ "$space_filter" == "all" ]]; then
+  SPACE_FILTER_MODE="all"
+  SELECTED_SPACE_NAMES='[]'
+else
+  SPACE_FILTER_MODE="selected"
+  SELECTED_SPACE_NAMES=$(jq -nc --arg names "$space_filter" '
+    $names
+    | split(",")
+    | map(gsub("^\\s+|\\s+$"; ""))
+    | map(select(length > 0))
+    | unique
+  ')
+  [[ "$(jq 'length' <<<"$SELECTED_SPACE_NAMES")" -gt 0 ]] || die "No valid space names were provided."
+fi
+
+status "Gathering Cloud Foundry resources..."
+
+status "Fetching organizations..."
+ORGANIZATIONS_ALL=$(cf_paginated_resources "/v3/organizations") || exit $?
+status "Fetching domains..."
+DOMAINS_ALL=$(cf_paginated_resources "/v3/domains") || exit $?
+status "Fetching spaces..."
+SPACES_ALL=$(cf_paginated_resources "/v3/spaces") || exit $?
+status "Fetching service instances..."
+SERVICE_INSTANCES_ALL=$(cf_paginated_resources "/v3/service_instances") || exit $?
+status "Fetching routes..."
+ROUTES_ALL=$(cf_paginated_resources "/v3/routes") || exit $?
+status "Fetching apps..."
+APPS_ALL=$(cf_paginated_resources "/v3/apps") || exit $?
+status "Fetching security groups..."
+SECURITY_GROUPS_ALL=$(cf_paginated_resources "/v3/security_groups") || exit $?
+
+if [[ "$all" == true ]]; then
+  SELECTED_ORGS=$(jq -c 'sort_by(.name)' <<<"$ORGANIZATIONS_ALL") || exit $?
+  ORG_FILTER_MODE="all"
+else
+  SELECTED_ORGS=$(jq -c --arg org_name "$org_name" '
+    [.[] | select(.name == $org_name)]
+    | sort_by(.name)
+  ' <<<"$ORGANIZATIONS_ALL") || exit $?
+  ORG_FILTER_MODE="selected"
+
+  [[ "$(jq 'length' <<<"$SELECTED_ORGS")" -gt 0 ]] || die "Organization not found: $org_name"
+fi
+
+organizations_json='[]'
+while IFS= read -r organization_json; do
+  [[ -n "$organization_json" ]] || continue
+  status "Building report for organization: $(jq -r '.name' <<<"$organization_json")"
+  organizations_json=$(append_json_item "$organizations_json" "$(build_org_json "$organization_json")") || exit $?
+done < <(jq -c '.[]' <<<"$SELECTED_ORGS")
+
+status "Building security group report..."
+security_groups_json=$(build_security_groups_json) || exit $?
+generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+report_period=$(date +"%Y-%m")
+
+meta_json=$(jq -nc \
+  --arg generated_at "$generated_at" \
+  --arg default_org "$DEFAULT_ORG" \
+  --arg org_name "$org_name" \
+  --arg org_filter_mode "$ORG_FILTER_MODE" \
+  --arg space_filter_mode "$SPACE_FILTER_MODE" \
+  --argjson selected_spaces "$SELECTED_SPACE_NAMES" \
+  '{
+    generated_at: $generated_at,
+    defaults: {
+      organization: $default_org,
+      space: "all"
+    },
+    filters: {
+      organization: (
+        if $org_filter_mode == "all" then
+          {mode: "all", name: null}
+        else
+          {mode: "selected", name: $org_name}
+        end
+      ),
+      space: (
+        if $space_filter_mode == "all" then
+          {mode: "all", names: []}
+        else
+          {mode: "selected", names: $selected_spaces}
+        end
+      )
+    }
+	  }')
+
+status "Writing JSON report..."
+report_json=$(printf '%s\n%s\n%s\n' "$meta_json" "$organizations_json" "$security_groups_json" | jq -s '{
+  meta: (.[0] + {
+    counts: {
+      organizations: (.[1] | length),
+      security_groups: (.[2] | length)
+    }
+  }),
+  organizations: .[1],
+  security_groups: .[2]
+}') || exit $?
+
+if [[ "$write_to_file" == true ]]; then
+  report_filename="${report_period}-component-audit.json"
+
+  if [[ "$SPACE_FILTER_MODE" == "selected" ]]; then
+    space_filename_prefix=$(jq -r 'join("-")' <<<"$SELECTED_SPACE_NAMES")
+    space_filename_prefix=$(sanitize_filename_component "$space_filename_prefix")
+
+    if [[ -n "$space_filename_prefix" ]]; then
+      report_filename="${space_filename_prefix}-${report_filename}"
+    fi
+  fi
+
+  printf '%s\n' "$report_json" > "$report_filename"
+  status "Report written to ${report_filename}"
+else
+  printf '%s\n' "$report_json"
 fi
