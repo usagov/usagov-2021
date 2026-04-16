@@ -68,7 +68,7 @@ class GoogleAnalyticsService {
         this.#logger.debug("GA4 API error encountered");
         this.#logger.debug(`retry attempt number: ${e.attemptNumber}`);
         this.#logger.debug(`${e.retriesLeft} retries left`);
-        this.#logger.debug(util.inspect(e));
+        this.#logger.debug(util.inspect(e.error));
       },
     };
   }
