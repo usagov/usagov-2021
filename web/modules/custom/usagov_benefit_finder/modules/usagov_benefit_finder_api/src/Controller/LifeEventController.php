@@ -12,6 +12,7 @@ use Drupal\file\FileRepositoryInterface;
 use Drupal\usagov_benefit_finder\Traits\BenefitFinderTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -196,6 +197,24 @@ class LifeEventController extends ControllerBase {
    *   The response.
    */
   public function getJsonData($id) {
+    if (empty($this->mode)) {
+      $this->mode = $this->requestStack->getCurrentRequest()->query->get('mode') ?? "published";
+    }
+
+    // The API route should always return machine-readable JSON without the
+    // debug HTML wrapper used by some admin/export flows in this controller.
+    $this->displayData = FALSE;
+
+    // Published BF JSON is already exposed through static files. Keep the
+    // route usable as a local fallback, but block anonymous draft access.
+    if ($this->mode === "draft" && $this->currentUser()->isAnonymous()) {
+      return new JsonResponse([
+        'data' => 'Forbidden',
+        'method' => 'GET',
+        'status' => Response::HTTP_FORBIDDEN,
+      ], Response::HTTP_FORBIDDEN);
+    }
+
     return new JsonResponse([
       'data' => $this->getData($id),
       'method' => 'GET',
