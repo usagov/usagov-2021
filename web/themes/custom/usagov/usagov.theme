@@ -325,6 +325,18 @@ function usagov_preprocess_paragraph(array &$variables): void {
    */
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
+
+  /**
+   * Pass alert status label translations to uswds-alert paragraph templates.
+   * Centralised here so paragraph--uswds-alert.html.twig and its variants
+   * don't each need to duplicate the language check.
+   */
+  if (in_array($variables['paragraph']->bundle(), ['uswds_alert'])) {
+    $langcode = $node ? $node->language()->getId() : \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $variables['alert_translations'] = $langcode === 'es'
+      ? ['info' => 'información', 'warning' => 'aviso', 'error' => 'error', 'success' => 'exito']
+      : ['info' => 'Information', 'warning' => 'Warning', 'error' => 'Error', 'success' => 'Success'];
+  }
 }
 
 /**
