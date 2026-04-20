@@ -55,7 +55,29 @@ describe("GoogleAnalyticsQueryAuthorizer", () => {
       subject
         .authorizeQuery({}, config)
         .then((query) => {
-          expect(query.auth.initArguments[3]).to.deep.equal([
+          expect(query.auth.initArguments[0]).to.deep.equal({
+            email: "next_email@example.com",
+            key: "Shhh, this is the next secret",
+            scopes: [
+              "https://www.googleapis.com/auth/analytics.readonly",
+            ],
+          });
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should create a JWT with the loaded credentials", (done) => {
+      subject
+        .authorizeQuery({}, config)
+        .then((query) => {
+          expect(query.auth.initArguments[0].email).to.equal(
+            "next_email@example.com",
+          );
+          expect(query.auth.initArguments[0].key).to.equal(
+            "Shhh, this is the next secret",
+          );
+          expect(query.auth.initArguments[0].scopes).to.deep.equal([
             "https://www.googleapis.com/auth/analytics.readonly",
           ]);
           done();
