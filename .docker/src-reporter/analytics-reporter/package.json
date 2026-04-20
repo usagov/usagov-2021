@@ -13,6 +13,7 @@
     "pretest": "NODE_ENV=test npm run migrate",
     "start": "./bin/analytics",
     "test": "NODE_ENV=test mocha",
+    "smoke:google-auth": "node scripts/smoke-test-googleapis-auth.js",
     "coverage": "nyc --reporter html --reporter text -t coverage --report-dir coverage/summary npm run test",
     "prepare": "npm run snyk-protect",
     "snyk-protect": "snyk-protect",
