@@ -284,8 +284,8 @@ export async function LifeEvent(lifeEvent) {
     const app = document.getElementById('benefit-finder')
 
     if (app !== null) {
-      const publishedData = app.getAttribute('json-data-file-path')
-      const draftData = app.getAttribute('draft-json-data-file-path')
+      const publishedData = app.getAttribute('data-json-file-path')
+      const draftData = app.getAttribute('data-draft-json-file-path')
       fetchPath = params.get('mode') === 'draft' ? draftData : publishedData
 
       const fileName = fetchPath?.split('/').pop()?.replace('.json', '')
