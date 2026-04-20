@@ -234,6 +234,11 @@ commands:
             export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
       - run:
+          name: Smoke Test Reporter Google Auth
+          command: |
+            export DOCKER_CONTENT_TRUST=0
+            docker run --rm --entrypoint sh ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> -lc 'cd /analytics-reporter && npm run smoke:google-auth'
+      - run:
           name: Push Reporter Container to Docker Hub
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
