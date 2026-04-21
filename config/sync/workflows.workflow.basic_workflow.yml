@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - node.type.blog_post
     - node.type.basic_page
     - node.type.bears_agency
     - node.type.bears_benefit
@@ -75,6 +76,7 @@ type_settings:
       weight: 3
   entity_types:
     node:
+      - blog_post
       - basic_page
       - bears_agency
       - bears_benefit
