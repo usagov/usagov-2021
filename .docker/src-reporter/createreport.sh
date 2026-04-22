@@ -18,8 +18,9 @@ SPACE=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.space_name // "unknown"')
 APP_NAME=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.name // "unknown"')
 OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
 NODE_V=$(node --version 2>/dev/null | tr -d 'v' || echo "unknown")
+CADDY_V=$(./local_proxy/caddy version 2>/dev/null | awk 'NR==1 {gsub(/^v/, "", $1); print $1}' || echo "unknown")
 ANALYTICS_REPORTER_V=$(jq -r '.version' /usr/local/lib/node_modules/analytics-reporter/package.json 2>/dev/null || echo "unknown")
-echo "SFTWR_AUDIT: app=${APP_NAME} space=${SPACE} os=\"${OS_VERSION}\" node=${NODE_V} analytics_reporter=${ANALYTICS_REPORTER_V}"
+echo "SFTWR_AUDIT: app=${APP_NAME} space=${SPACE} os=\"${OS_VERSION}\" node=${NODE_V} caddy=${CADDY_V} analytics_reporter=${ANALYTICS_REPORTER_V}"
 
 cat ${CF_SYSTEM_CERT_PATH}/* > /etc/combined-certs.pem
 export NODE_EXTRA_CA_CERTS=/etc/combined-certs.pem
