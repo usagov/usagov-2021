@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - block_content.type.blog_intro
     - media.type.audio
     - media.type.file
     - node.type.agency_synonym
@@ -20,6 +21,7 @@ dependencies:
     - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
+    - block_content
     - content_moderation
     - content_translation
     - media
@@ -37,6 +39,7 @@ weight: 4
 is_admin: null
 permissions:
   - 'access administration pages'
+  - 'access block library'
   - 'access content overview'
   - 'access site in maintenance mode'
   - 'access taxonomy overview'
@@ -90,6 +93,7 @@ permissions:
   - 'delete terms in wizard'
   - 'edit any agency_synonym content'
   - 'edit any basic_page content'
+  - 'edit any blog_intro block content'
   - 'edit any blog_post content'
   - 'edit any bears_agency content'
   - 'edit any bears_benefit content'

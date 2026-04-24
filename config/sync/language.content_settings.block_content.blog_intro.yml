@@ -1,0 +1,11 @@
+uuid: f776b2ef-c07b-4d72-b570-b0980cf3707f
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.blog_intro
+id: block_content.blog_intro
+target_entity_type_id: block_content
+target_bundle: blog_intro
+default_langcode: site_default
+language_alterable: false

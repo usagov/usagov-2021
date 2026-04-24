@@ -1,0 +1,23 @@
+uuid: a23f090f-ee93-456a-8d4d-c066c3997981
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.blog_intro
+    - field.storage.block_content.body
+  module:
+    - text
+id: block_content.blog_intro.body
+field_name: body
+entity_type: block_content
+bundle: blog_intro
+label: Content
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+  required_summary: false
+field_type: text_with_summary

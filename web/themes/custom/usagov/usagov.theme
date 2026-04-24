@@ -652,6 +652,8 @@ function usagov_preprocess_page(array &$variables): void {
 
   // Check if we're on the blog_menu view (multiple ways to detect)
   $variables['is_blog_view'] = FALSE;
+  $variables['blog_intro_heading'] = NULL;
+  $variables['blog_intro_body'] = NULL;
   if ($route_name === 'view.blog_menu.page_1' ||
       $route_name === 'view.blog_menu.default' ||
       $current_path === '/blog' ||
@@ -664,6 +666,28 @@ function usagov_preprocess_page(array &$variables): void {
   $node = $route_match->getParameter('node');
   if ($node && method_exists($node, 'bundle')) {
     $variables['content_type'] = $node->bundle();
+  }
+
+  if ($variables['is_blog_view'] || (($variables['content_type'] ?? '') === 'blog_post')) {
+    $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
+    $block_ids = $block_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'blog_intro')
+      ->sort('id', 'ASC')
+      ->range(0, 1)
+      ->execute();
+
+    if (!empty($block_ids)) {
+      $blog_intro = $block_storage->load(reset($block_ids));
+      if ($blog_intro) {
+        $variables['blog_intro_heading'] = $blog_intro->get('field_blog_intro_heading')->value ?: NULL;
+        $variables['blog_intro_body'] = \Drupal::entityTypeManager()
+          ->getViewBuilder('block_content')
+          ->viewField($blog_intro->get('body'), [
+            'label' => 'hidden',
+          ]);
+      }
+    }
   }
 
   // Alternative method: check if the page contains blog-related content

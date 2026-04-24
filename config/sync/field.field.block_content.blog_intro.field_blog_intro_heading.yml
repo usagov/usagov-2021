@@ -1,0 +1,19 @@
+uuid: 2b82f2b7-e1f9-41d8-8e52-a6b70c3a6462
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.blog_intro
+    - field.storage.block_content.field_blog_intro_heading
+id: block_content.blog_intro.field_blog_intro_heading
+field_name: field_blog_intro_heading
+entity_type: block_content
+bundle: blog_intro
+label: Heading
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

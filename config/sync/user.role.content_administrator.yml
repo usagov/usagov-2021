@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - block_content.type.blog_intro
     - block_content.type.modal
     - media.type.audio
     - media.type.file
@@ -69,6 +70,7 @@ permissions:
   - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
+  - 'create blog_intro block content'
   - 'create blog_post content'
   - 'create bears_agency content'
   - 'create bears_benefit content'
@@ -94,6 +96,7 @@ permissions:
   - 'delete any agency_synonym content'
   - 'delete any audio media'
   - 'delete any basic_page content'
+  - 'delete any blog_intro block content'
   - 'delete any blog_post content'
   - 'delete any bears_agency content'
   - 'delete any bears_benefit content'
@@ -147,6 +150,7 @@ permissions:
   - 'edit any agency_synonym content'
   - 'edit any audio media'
   - 'edit any basic_page content'
+  - 'edit any blog_intro block content'
   - 'edit any blog_post content'
   - 'edit any bears_agency content'
   - 'edit any bears_benefit content'
