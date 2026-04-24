@@ -669,21 +669,19 @@ function usagov_preprocess_page(array &$variables): void {
   }
 
   if ($variables['is_blog_view'] || (($variables['content_type'] ?? '') === 'blog_post')) {
-    $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
-    $block_ids = $block_storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('type', 'blog_intro')
-      ->sort('id', 'ASC')
-      ->range(0, 1)
-      ->execute();
+    $config_pages = \Drupal::entityTypeManager()
+      ->getStorage('config_pages')
+      ->loadByProperties(['type' => 'blog_intro']);
 
-    if (!empty($block_ids)) {
-      $blog_intro = $block_storage->load(reset($block_ids));
-      if ($blog_intro) {
+    if (!empty($config_pages)) {
+      $blog_intro = reset($config_pages);
+      if ($blog_intro->hasField('field_blog_intro_heading')) {
         $variables['blog_intro_heading'] = $blog_intro->get('field_blog_intro_heading')->value ?: NULL;
+      }
+      if ($blog_intro->hasField('field_blog_intro_body') && !$blog_intro->get('field_blog_intro_body')->isEmpty()) {
         $variables['blog_intro_body'] = \Drupal::entityTypeManager()
-          ->getViewBuilder('block_content')
-          ->viewField($blog_intro->get('body'), [
+          ->getViewBuilder('config_pages')
+          ->viewField($blog_intro->get('field_blog_intro_body'), [
             'label' => 'hidden',
           ]);
       }

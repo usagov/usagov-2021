@@ -1,20 +1,20 @@
-uuid: a23f090f-ee93-456a-8d4d-c066c3997981
+uuid: cedc3c3d-38fd-45c7-9a77-f9d3feca0d4f
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.blog_intro
-    - field.storage.block_content.body
+    - config_pages.type.blog_intro
+    - field.storage.config_pages.field_blog_intro_body
   module:
     - text
-id: block_content.blog_intro.body
-field_name: body
-entity_type: block_content
+id: config_pages.blog_intro.field_blog_intro_body
+field_name: field_blog_intro_body
+entity_type: config_pages
 bundle: blog_intro
 label: Content
 description: ''
 required: true
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:

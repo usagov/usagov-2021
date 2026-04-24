@@ -1,8 +1,0 @@
-uuid: 24151ddb-7dd9-48cd-bd2b-b9902959e055
-langcode: en
-status: true
-dependencies: {  }
-id: blog_intro
-label: 'Blog Intro'
-revision: false
-description: 'Shared intro content for the blog listing and blog post pages.'

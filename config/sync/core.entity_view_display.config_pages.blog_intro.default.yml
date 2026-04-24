@@ -1,15 +1,15 @@
-uuid: 085c8272-1f22-4c2e-b3ce-0c6cd2d20b1e
+uuid: f170b2ba-7f5c-4c56-9e28-0c9812f77073
 langcode: en
 status: true
 dependencies:
   config:
-    - block_content.type.blog_intro
-    - field.field.block_content.blog_intro.body
-    - field.field.block_content.blog_intro.field_blog_intro_heading
+    - config_pages.type.blog_intro
+    - field.field.config_pages.blog_intro.field_blog_intro_body
+    - field.field.config_pages.blog_intro.field_blog_intro_heading
   module:
     - text
-id: block_content.blog_intro.default
-targetEntityType: block_content
+id: config_pages.blog_intro.default
+targetEntityType: config_pages
 bundle: blog_intro
 mode: default
 content:
@@ -21,12 +21,11 @@ content:
     third_party_settings: {  }
     weight: 0
     region: content
-  body:
+  field_blog_intro_body:
     type: text_default
     label: hidden
     settings: {  }
     third_party_settings: {  }
     weight: 1
     region: content
-hidden:
-  langcode: true
+hidden: {  }

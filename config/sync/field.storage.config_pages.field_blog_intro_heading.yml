@@ -1,16 +1,12 @@
-uuid: 160ad6fc-1082-40ed-baea-f6aa41c7c14d
+uuid: 18619cb9-96d0-403d-a24e-bb48517e7048
 langcode: en
 status: true
 dependencies:
   module:
-    - block_content
-    - field_permissions
-third_party_settings:
-  field_permissions:
-    permission_type: public
-id: block_content.field_blog_intro_heading
+    - config_pages
+id: config_pages.field_blog_intro_heading
 field_name: field_blog_intro_heading
-entity_type: block_content
+entity_type: config_pages
 type: string
 settings:
   max_length: 255
@@ -19,7 +15,7 @@ settings:
 module: core
 locked: false
 cardinality: 1
-translatable: true
+translatable: false
 indexes: {  }
 persist_with_no_fields: false
 custom_storage: false
