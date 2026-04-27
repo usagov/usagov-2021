@@ -14,8 +14,23 @@ exec ./local_proxy/caddy run --config ./local_proxy/Caddyfile &
 echo "starting container to create reports"
 
 # SFTWR_AUDIT: emit software versions for monthly security audit log search
-SPACE=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.space_name // "unknown"')
-APP_NAME=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.name // "unknown"')
+extract_vcap_application_field() {
+  local field="$1"
+  local value
+
+  value=$(printf '%s' "${VCAP_APPLICATION:-{}}" | jq -r --arg field "$field" '.[$field] // empty' 2>/dev/null)
+
+  # Some Cloud Foundry environments append malformed trailing content, so fall
+  # back to a string extract to keep the audit fields populated without noise.
+  if [ -z "$value" ]; then
+    value=$(printf '%s' "${VCAP_APPLICATION:-{}}" | sed -n "s/.*\"${field}\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" | head -n 1)
+  fi
+
+  printf '%s\n' "${value:-unknown}"
+}
+
+SPACE=$(extract_vcap_application_field "space_name")
+APP_NAME=$(extract_vcap_application_field "name")
 OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
 NODE_V=$(node --version 2>/dev/null | tr -d 'v' || echo "unknown")
 ANALYTICS_REPORTER_V=$(jq -r '.version' /usr/local/lib/node_modules/analytics-reporter/package.json 2>/dev/null || echo "unknown")
