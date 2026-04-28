@@ -8,7 +8,11 @@ const authorizeQuery = (query) => {
   const email = credentials.email;
   const key = credentials.key;
   const scopes = ["https://www.googleapis.com/auth/analytics.readonly"];
-  const jwt = new googleapis.Auth.JWT(email, null, key, scopes);
+  const jwt = new googleapis.Auth.JWT({
+    email,
+    key,
+    scopes,
+  });
 
   query = Object.assign({}, query, { auth: jwt });
 

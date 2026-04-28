@@ -399,10 +399,10 @@ if [ "${yr_mo_idx_missing}" ]; then
     BLOG_PROBLEM=1
 fi
 
-# If any "missing index" paths were found, don't push this time and try again
+# If any "missing index" paths were found, log the error.
+# Don't prevent publishing, because there are cases where a directory might contain,
+# for example, redirects but no index.html file. USAGOV-2693
 if [ "${BLOG_PROBLEM}" -ne "0" ]; then
-    TOME_PUSH_NEW_CONTENT=0
-    touch $RETRY_SEMAPHORE_FILE
     echo "WARNING: *** BLOG index.html(s) missing: ${BLOG_INDEX_MISSING} ***" | tee -a $TOMELOG
 fi
 

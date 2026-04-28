@@ -80,6 +80,7 @@ function validateReportSchema(reportJSON) {
   } catch (e) {
     throw new Error(
       `${e.errors.join(", ")} for report: ${util.inspect(reportJSON)}`,
+      { cause: e },
     );
   }
 }
