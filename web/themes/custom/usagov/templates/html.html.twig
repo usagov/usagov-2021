@@ -197,9 +197,11 @@
   Keyboard navigation/accessibility link to main content section in
   page.html.twig.
 #}
-<a href="#skip-to-h1" class="usa-skipnav usa-sr-only focusable">
- {{ lang == 'en' ? 'Skip to main content'|t : 'Saltar al contenido principal'|t }}
-</a>
+<nav aria-label="{{ lang == 'en' ? 'Skip navigation'|t : 'Saltar navegación'|t }}">
+  <a href="#skip-to-h1" class="usa-skipnav usa-sr-only focusable">
+   {{ lang == 'en' ? 'Skip to main content'|t : 'Saltar al contenido principal'|t }}
+  </a>
+</nav>
 {{ page_top }}
 {{ page }}
 {{ page_bottom }}
