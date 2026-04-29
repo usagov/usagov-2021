@@ -9,6 +9,7 @@
  * Targets issues found by scripts/a11y/audit_a11y.py as of 2026-03-13:
  *
  *   inline_color_style (250)     WCAG 1.4.1  Strip color/background-color inline styles
+ *   inline_font_size (281)       WCAG 1.4.4  Strip fixed font-size inline styles
  *   new_window_no_warning (27)   WCAG 3.2.2  Add "(opens in a new tab)" aria-label
  *   fake_heading (15)            WCAG 1.3.1  Unwrap styled <span>s inside heading tags
  *   multiple_h1 / heading_skip   WCAG 1.3.1  Normalize heading hierarchy (body min h3)
@@ -47,6 +48,7 @@ $stats = [
   'nodes_checked'         => 0,
   'nodes_changed'         => 0,
   'inline_color_style'    => 0,
+  'inline_font_size'      => 0,
   'new_window_no_warning' => 0,
   'styled_spans_stripped' => 0,
   'headings_normalized'   => 0,
@@ -325,7 +327,66 @@ function fix_inline_color_style(string $html, array &$stats): string {
   return $changed ? a11y_serialize($doc, $wrap) : $html;
 }
 
-// ── Fix 4: Add new-tab warnings to target="_blank" links ─────────────────────
+// ── Fix 4: Strip fixed font-size inline styles ───────────────────────────────
+/**
+ * CKEditor paste artifacts can leave fixed font-size declarations on body
+ * content. These bypass the responsive theme typography and can prevent text
+ * from resizing cleanly. Strip font-size only; preserve any other inline styles.
+ *
+ * After stripping, if a <span> has no remaining attributes it is also unwrapped
+ * so we don't litter the markup with empty <span> tags.
+ *
+ * WCAG 1.4.4 — resize text.
+ */
+function fix_inline_font_size(string $html, array &$stats): string {
+  [$doc, $wrap] = a11y_parse($html);
+  $xpath = new DOMXPath($doc);
+  $styled = iterator_to_array($xpath->query('.//*[@style]', $wrap));
+
+  $changed = FALSE;
+  $to_unwrap = [];
+
+  foreach ($styled as $el) {
+    if (!$el->parentNode) {
+      continue; // detached during a previous iteration
+    }
+
+    $props = css_parse($el->getAttribute('style'));
+    $filtered = array_filter(
+      $props,
+      static fn($prop) => strtolower($prop) !== 'font-size',
+      ARRAY_FILTER_USE_KEY
+    );
+
+    if (count($filtered) === count($props)) {
+      continue; // nothing to strip
+    }
+
+    $stats['inline_font_size']++;
+    $changed = TRUE;
+
+    if (empty($filtered)) {
+      $el->removeAttribute('style');
+      if ($el->nodeName === 'span' && !$el->hasAttributes()) {
+        $to_unwrap[] = $el;
+      }
+    }
+    else {
+      $el->setAttribute('style', css_serialize($filtered));
+    }
+  }
+
+  // Unwrap bare <span>s bottom-up; array_reverse gives innermost spans first.
+  foreach (array_reverse($to_unwrap) as $span) {
+    if ($span->parentNode) {
+      dom_unwrap($span);
+    }
+  }
+
+  return $changed ? a11y_serialize($doc, $wrap) : $html;
+}
+
+// ── Fix 5: Add new-tab warnings to target="_blank" links ─────────────────────
 /**
  * Links that open in a new tab must warn users, especially keyboard and
  * screen-reader users who may not expect the context switch. Add
@@ -366,7 +427,7 @@ function fix_new_window_no_warning(string $html, array &$stats): string {
   return $changed ? a11y_serialize($doc, $wrap) : $html;
 }
 
-// ── Fix 5: Descriptive aria-label on ambiguous links ─────────────────────────
+// ── Fix 6: Descriptive aria-label on ambiguous links ─────────────────────────
 /**
  * Links whose visible text is a generic word like "here", "click here",
  * "read more", etc. convey no destination to screen-reader users who navigate
@@ -408,7 +469,7 @@ function fix_ambiguous_links(string $html, array &$stats): string {
   return $changed ? a11y_serialize($doc, $wrap) : $html;
 }
 
-// ── Fix 6: Table headers and captions ─────────────────────────────────────────
+// ── Fix 7: Table headers and captions ─────────────────────────────────────────
 /**
  * Data tables that have no <th> elements are inaccessible to screen-reader
  * users: column relationships cannot be programmatically determined. Tables
@@ -500,7 +561,7 @@ function fix_tables(string $html, array &$stats): string {
   return $changed ? a11y_serialize($doc, $wrap) : $html;
 }
 
-// ── Fix 7: Fix raw-URL link text ─────────────────────────────────────────────
+// ── Fix 8: Fix raw-URL link text ─────────────────────────────────────────────
 /**
  * Links whose visible text is verbatim the href URL string (i.e. text starts
  * with http:// or https://) are not useful descriptions for screen-reader
@@ -627,13 +688,15 @@ foreach ($nids as $nid) {
   $body = fix_heading_hierarchy($body, $stats);
   //   3. Strip remaining color/background-color inline styles.
   $body = fix_inline_color_style($body, $stats);
-  //   4. Warn about new-tab links.
+  //   4. Strip fixed font-size inline styles.
+  $body = fix_inline_font_size($body, $stats);
+  //   5. Warn about new-tab links.
   $body = fix_new_window_no_warning($body, $stats);
-  //   5. Add descriptive labels to "here" and similar link text.
+  //   6. Add descriptive labels to "here" and similar link text.
   $body = fix_ambiguous_links($body, $stats);
-  //   6. Fix table headers and captions (no-op on posts without bare tables).
+  //   7. Fix table headers and captions (no-op on posts without bare tables).
   $body = fix_tables($body, $stats);
-  //   7. Fix dev-domain hrefs and raw-URL visible link text.
+  //   8. Fix dev-domain hrefs and raw-URL visible link text.
   $body = fix_url_link_text($body, $stats);
 
   if ($body === $original) {
@@ -663,6 +726,7 @@ echo sprintf("  Nodes checked:              %d\n", $stats['nodes_checked']);
 echo sprintf("  Nodes changed:              %d\n", $stats['nodes_changed']);
 echo "  ── fixes by type ──\n";
 echo sprintf("  inline_color_style:         %d\n", $stats['inline_color_style']);
+echo sprintf("  inline_font_size:           %d\n", $stats['inline_font_size']);
 echo sprintf("  new_window_no_warning:      %d\n", $stats['new_window_no_warning']);
 echo sprintf("  styled_spans_stripped:      %d\n", $stats['styled_spans_stripped']);
 echo sprintf("  headings_normalized:        %d\n", $stats['headings_normalized']);
