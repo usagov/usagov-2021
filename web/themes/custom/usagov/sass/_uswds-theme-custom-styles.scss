@@ -345,6 +345,11 @@ div #sm-share {
 }
 
 div #sm-share a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   text-decoration: none;
 }
 
@@ -1064,6 +1069,14 @@ input::-webkit-textfield-decoration-container {
     .views-field-view-node {
       justify-self: end;
       align-self: end;
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+      }
     }
 
     // Mobile styles for blog view
@@ -1125,6 +1138,9 @@ input::-webkit-textfield-decoration-container {
     .usa-pagination__link {
       display: flex;
       align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
       padding: 0.25rem 0.5rem;
       text-decoration: none;
       color: color('blue-warm-70v');
@@ -1160,7 +1176,8 @@ input::-webkit-textfield-decoration-container {
       background-color: white;
       color: color('blue-warm-70v');
       font-weight: 600;
-      min-width: 2.5rem;
+      min-width: 44px;
+      min-height: 44px;
       text-decoration: none;
       cursor: pointer;
 
@@ -1212,7 +1229,8 @@ input::-webkit-textfield-decoration-container {
     .usa-pagination__arrow {
       .usa-pagination__button,
       .usa-pagination__link {
-        min-width: 2.5rem;
+        min-width: 44px;
+        min-height: 44px;
         padding: 0.25rem;
         justify-content: center;
       }
