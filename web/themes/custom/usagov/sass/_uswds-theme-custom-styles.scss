@@ -1128,13 +1128,9 @@ input::-webkit-textfield-decoration-container {
       padding: 0.25rem 0.5rem;
       text-decoration: none;
       color: color('blue-warm-70v');
+      text-decoration: underline;
       font-weight: 600;
       transition: all 0.15s ease;
-
-      &:hover {
-        color: #768FB3;
-        text-decoration: underline;
-      }
 
       &:focus {
         outline: 2px solid #0186A2;
