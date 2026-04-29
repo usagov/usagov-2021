@@ -144,8 +144,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
     // QuickFix for USAGOV-2312. We want to remove this meta-data.
     $html = str_replace('xmlns:xlink="http://www.w3.org/1999/xlink"', '', $html);
-    $event->setHtml($html); // just in case setHtml() dosnt get caled later
-
+    // Set stripped HTML in case later DOM changes do not run.
+    $event->setHtml($html);
     // LIBXML_SCHEMA_CREATE fixes a problem wherein DOMDocument would remove closing HTML
     // tags within quoted text in a script element. See https://bugs.php.net/bug.php?id=74628
     $document = new \DOMDocument();
@@ -153,6 +153,13 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
     $xpath = new \DOMXPath($document);
     $changes = FALSE;
+
+    // USAGOV-2705: Blog body content may still contain CKEditor paste artifacts
+    // with low-contrast inline text colors. Strip color declarations during
+    // static export so Tome cannot publish failing contrast markup.
+    if (self::isBlogPath($event->getPath())) {
+      $changes = self::stripBlogInlineColorStyles($xpath) || $changes;
+    }
 
     // --- USAGOV-2515: Replace spaces with '+' in image/media src and srcset attributes ---
     // img[src], source[src], and any srcset attributes
@@ -211,6 +218,131 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       );
       $event->setHtml($modifiedHtml);
     }
+  }
+
+  /**
+   * Checks whether a Tome path is in the blog section.
+   *
+   * @param string $path
+   *   The path currently being exported.
+   *
+   * @return bool
+   *   TRUE when the path is /blog or a child path.
+   */
+  private static function isBlogPath(string $path): bool {
+    $path = parse_url($path, PHP_URL_PATH) ?: $path;
+    $path = trim($path, '/');
+
+    return $path === 'blog' || str_starts_with($path, 'blog/');
+  }
+
+  /**
+   * Removes inline color declarations from blog HTML.
+   *
+   * @param \DOMXPath $xpath
+   *   An XPath instance for the page document.
+   *
+   * @return bool
+   *   TRUE if any style attribute was changed.
+   */
+  private static function stripBlogInlineColorStyles(\DOMXPath $xpath): bool {
+    $changed = FALSE;
+    $to_unwrap = [];
+
+    $content_style_query = implode('', [
+      '//*[@style and (',
+      'contains(concat(" ", normalize-space(@class), " "), " blog-post ") or ',
+      'contains(concat(" ", normalize-space(@class), " "), " blog-view ") or ',
+      'ancestor::*[',
+      'contains(concat(" ", normalize-space(@class), " "), " blog-post ") or ',
+      'contains(concat(" ", normalize-space(@class), " "), " blog-view ")',
+      ']',
+      ')]',
+    ]);
+
+    foreach ($xpath->query($content_style_query) as $node) {
+      if (!$node instanceof \DOMElement || !$node->parentNode) {
+        continue;
+      }
+
+      [$style_changed, $filtered_style] = self::filterInlineColorStyle($node->getAttribute('style'));
+      if (!$style_changed) {
+        continue;
+      }
+
+      $changed = TRUE;
+
+      if ($filtered_style === '') {
+        $node->removeAttribute('style');
+        if ($node->nodeName === 'span' && !$node->hasAttributes()) {
+          $to_unwrap[] = $node;
+        }
+      }
+      else {
+        $node->setAttribute('style', $filtered_style);
+      }
+    }
+
+    foreach (array_reverse($to_unwrap) as $span) {
+      if ($span->parentNode) {
+        self::unwrapElement($span);
+      }
+    }
+
+    return $changed;
+  }
+
+  /**
+   * Filters contrast-breaking CSS declarations from a style attribute.
+   *
+   * @param string $style
+   *   The original style attribute.
+   *
+   * @return array{0: bool, 1: string}
+   *   Whether the style changed and the filtered style value.
+   */
+  private static function filterInlineColorStyle(string $style): array {
+    $changed = FALSE;
+    $declarations = [];
+
+    foreach (explode(';', $style) as $declaration) {
+      $declaration = trim($declaration);
+      if ($declaration === '' || !str_contains($declaration, ':')) {
+        continue;
+      }
+
+      [$property, $value] = array_map('trim', explode(':', $declaration, 2));
+      if ($property === '' || $value === '') {
+        continue;
+      }
+
+      if (in_array(strtolower($property), ['color', 'background-color'], TRUE)) {
+        $changed = TRUE;
+        continue;
+      }
+
+      $declarations[] = $property . ': ' . $value;
+    }
+
+    return [$changed, implode('; ', $declarations)];
+  }
+
+  /**
+   * Replaces an element with its children.
+   *
+   * @param \DOMElement $element
+   *   The element to unwrap.
+   */
+  private static function unwrapElement(\DOMElement $element): void {
+    $parent = $element->parentNode;
+    if (!$parent) {
+      return;
+    }
+
+    while ($element->firstChild) {
+      $parent->insertBefore($element->firstChild, $element);
+    }
+    $parent->removeChild($element);
   }
 
   /**
