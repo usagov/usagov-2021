@@ -1123,6 +1123,10 @@ input::-webkit-textfield-decoration-container {
       font-weight: 600;
       transition: all 0.15s ease;
 
+      &:visited {
+        color: color('blue-warm-70v');
+      }
+
       &:focus {
         outline: 2px solid #0186A2;
         outline-offset: 2px;
@@ -1155,6 +1159,10 @@ input::-webkit-textfield-decoration-container {
       text-decoration: none;
       cursor: pointer;
 
+      &:visited {
+        color: color('blue-warm-70v');
+      }
+
       &:hover {
         background-color: #768FB3;
         border-color: #768FB3;
@@ -1171,6 +1179,10 @@ input::-webkit-textfield-decoration-container {
         border-color: color('blue-warm-70v');
         color: white;
         cursor: default;
+
+        &:visited {
+          color: white;
+        }
 
         &:hover {
           background-color: color('blue-warm-70v');
