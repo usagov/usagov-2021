@@ -1,0 +1,19 @@
+uuid: 79bde239-a0ed-4b6c-9fab-f924f461a6de
+langcode: en
+status: true
+dependencies:
+  module:
+    - config_pages
+    - text
+id: config_pages.field_blog_intro_body
+field_name: field_blog_intro_body
+entity_type: config_pages
+type: text_with_summary
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: false
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
