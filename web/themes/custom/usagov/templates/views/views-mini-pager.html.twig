@@ -36,7 +36,8 @@
 
       {% if items.current %}
         <li class="usa-pagination__item usa-pagination__page-no">
-          <span class="usa-pagination__button usa-current" aria-current="page" aria-label="{{ 'Page'|t }} {{ items.current }}">
+          <span class="usa-pagination__button usa-current" aria-current="page">
+            <span class="usa-sr-only">{{ 'Page'|t }} </span>
             {{ items.current }}
           </span>
         </li>
