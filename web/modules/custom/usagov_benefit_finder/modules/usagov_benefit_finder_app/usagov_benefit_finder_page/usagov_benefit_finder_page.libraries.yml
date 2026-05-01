@@ -1,7 +1,9 @@
 benefit_finder_app:
   version: 1.x
   js:
-    js/benefit-finder.min.js: {}
+    js/benefit-finder.min.js:
+      attributes:
+        type: module
   css:
     theme:
       css/usagov-benefit-finder.css: {}
