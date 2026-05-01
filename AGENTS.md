@@ -159,7 +159,7 @@ Look for these indicators that a project uses cloud.gov:
 
 ## Instruction Files
 
-This repository includes additional instruction files in `.github/instructions/` for specific tasks:
+This repository includes additional instruction files in `.github/` for specific tasks:
 
 - **deployment.instructions.md** - Detailed deployment workflows
 - **services.instructions.md** - Service binding and configuration
