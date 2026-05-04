@@ -106,9 +106,16 @@
     }
   }
 
-  const goButton = document.querySelector(".sd-go-btn");
-  if (goButton) {
-    goButton.addEventListener("click", handleGoButtonClick);
-  }
+  // We use the "load" event here to ensure that the DOM is loaded before
+  // we try to add an event listener to the button. In the past, the mobile
+  // view of the website has been affected if we don't do this (but somehow
+  // not the desktop view). There's probably a race condition involved.
+  // See USAGOV-2418 and USAGOV-2726.
+  window.addEventListener("load", function() {
+    const goButton = document.querySelector(".sd-go-btn");
+      if (goButton) {
+        goButton.addEventListener("click", handleGoButtonClick);
+      }
+  });
 
 })();
