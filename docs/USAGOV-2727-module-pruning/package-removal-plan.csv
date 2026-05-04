@@ -1,0 +1,3 @@
+package_name,source,reason
+drupal/address,contrib_composer,all_modules_safe_and_not_drift_enabled
+drupal/meaofd,contrib_composer,all_modules_safe_and_not_drift_enabled

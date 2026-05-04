@@ -1,0 +1,6 @@
+package_name,module_name,skip_reason
+drupal/tome,tome,mixed_package_not_all_safe
+drupal/tome,tome_static_cron,mixed_package_not_all_safe
+drupal/tome,tome_static_super_cache,mixed_package_not_all_safe
+drupal/tome,tome_sync,mixed_package_not_all_safe
+drupal/tome,tome_sync_autoclean,mixed_package_not_all_safe
