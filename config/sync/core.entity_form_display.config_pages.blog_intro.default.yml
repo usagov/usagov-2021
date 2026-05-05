@@ -1,0 +1,35 @@
+uuid: fc60442a-01c8-4dbf-90bc-54c2baccab5c
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.blog_intro
+    - field.field.config_pages.blog_intro.field_blog_intro_body
+    - field.field.config_pages.blog_intro.field_blog_intro_heading
+  module:
+    - text
+id: config_pages.blog_intro.default
+targetEntityType: config_pages
+bundle: blog_intro
+mode: default
+content:
+  field_blog_intro_heading:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_blog_intro_body:
+    type: text_textarea_with_summary
+    weight: 1
+    region: content
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+      show_summary: false
+    third_party_settings: {  }
+hidden:
+  label: true

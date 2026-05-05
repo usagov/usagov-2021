@@ -18,7 +18,7 @@ Each accessifier targets a specific content type (e.g., `blog.php` → `blog_pos
 
 | Script | Content Type | Issues Fixed |
 |---|---|---|
-| `blog.php` | `blog_post` | Heading hierarchy, inline color styles, new-tab link warnings, ambiguous link text, table headers/captions, dev-domain hrefs |
+| `blog.php` | `blog_post` | Heading hierarchy, inline color styles, new-tab link warnings, ambiguous/social link text, table headers/captions, dev-domain hrefs |
 
 ---
 
@@ -73,7 +73,7 @@ bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php -- --dry-run --verbo
 
 ## blog.php — Fix Details
 
-Targets all `blog_post` nodes. Applies seven fixes in dependency order.
+Targets all `blog_post` nodes. Applies eight fixes in dependency order.
 
 ### Fix 1 — Styled `<span>`s inside headings (WCAG 1.3.1)
 
@@ -105,7 +105,12 @@ Links with `target="_blank"` must warn users before opening a new context.
 Links with generic text like "here", "click here", "read more", etc. are meaningless to screen-reader users who navigate by link.
 **Resolution:** Add an `aria-label` derived from the URL slug (or Drupal node title via path alias lookup) to any link whose visible text matches a known ambiguous term.
 
-### Fix 6 — Table headers and captions (WCAG 1.3.1)
+### Fix 6 — Duplicate social media link text (WCAG 2.4.4)
+
+Multiple social media links on the same page can share visible text like "Facebook" while pointing to different accounts.
+**Resolution:** Add destination-specific labels such as `"FEMA on Facebook"` and `"USAGov on Facebook"` when duplicate social link names point to different URLs.
+
+### Fix 7 — Table headers and captions (WCAG 1.3.1)
 
 Data tables without `<th>` elements prevent screen readers from conveying column relationships. Tables without a `<caption>` have no accessible name.
 **Resolution:**
@@ -114,7 +119,7 @@ Data tables without `<th>` elements prevent screen readers from conveying column
 
 _Only tables whose first row has ≥ 2 non-empty cells are treated; layout tables are skipped._
 
-### Fix 7 — Raw-URL link text (WCAG 2.4.4)
+### Fix 8 — Raw-URL link text (WCAG 2.4.4)
 
 Links whose visible text is verbatim the `href` URL string (e.g., `https://www.usa.gov/some-page`) are not useful descriptions for screen-reader users who navigate by link.
 
