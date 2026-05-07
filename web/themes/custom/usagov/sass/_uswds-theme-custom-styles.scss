@@ -1038,6 +1038,16 @@ input::-webkit-textfield-decoration-container {
       }
     }
 
+    .views-field-title h2 a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        color: #272727;
+        text-decoration: underline;
+      }
+    }
+
     .views-field-field-featured-image {
       grid-column: 1 / -1;
       margin-top: 15px;
