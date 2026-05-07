@@ -11,8 +11,7 @@ RUN apk upgrade --update \
        gettext \
        ca-certificates
 
-RUN chmod +x /createreport.sh \
-    && npm install -g analytics-reporter
+RUN chmod +x /createreport.sh
 
 WORKDIR /analytics-reporter
 RUN npm install minimist
