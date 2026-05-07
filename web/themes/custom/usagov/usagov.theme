@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
@@ -30,6 +31,68 @@ function usagov_preprocess_html(array &$variables): void {
   // This ensures proper language detection even when there's no node context (like in views)
   $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
   $variables['language'] = $current_language;
+}
+
+/**
+ * Builds the pager's numeric range to match Benefit Search pagination.
+ */
+function usagov_preprocess_pager(array &$variables): void {
+  $element = $variables['pager']['#element'];
+  $parameters = $variables['pager']['#parameters'];
+  $route_name = $variables['pager']['#route_name'];
+  $route_parameters = $variables['pager']['#route_parameters'] ?? [];
+  $pager_manager = \Drupal::service('pager.manager');
+  $pager = $pager_manager->getPager($element);
+  if (!$pager) {
+    return;
+  }
+
+  $last_page_number = $pager->getTotalPages();
+  $current_page_number = $pager->getCurrentPage() + 1;
+  $variables['last_page_number'] = $last_page_number;
+  $variables['usagov_pager_pages'] = [];
+
+  if ($last_page_number <= 1) {
+    return;
+  }
+
+  if ($last_page_number <= 7) {
+    $items = range(1, $last_page_number);
+  }
+  elseif ($current_page_number <= 4) {
+    $items = array_merge(range(1, 5), ['ellipsis'], [$last_page_number]);
+  }
+  elseif ($current_page_number >= $last_page_number - 3) {
+    $items = array_merge([1], ['ellipsis'], range($last_page_number - 4, $last_page_number));
+  }
+  else {
+    $items = [
+      1,
+      'ellipsis',
+      $current_page_number - 1,
+      $current_page_number,
+      $current_page_number + 1,
+      'ellipsis',
+      $last_page_number,
+    ];
+  }
+
+  foreach ($items as $item) {
+    if ($item === 'ellipsis') {
+      $variables['usagov_pager_pages'][] = ['type' => 'ellipsis'];
+      continue;
+    }
+
+    $variables['usagov_pager_pages'][] = [
+      'type' => 'page',
+      'number' => $item,
+      'href' => Url::fromRoute($route_name, $route_parameters, [
+        'query' => $pager_manager->getUpdatedParameters($parameters, $element, $item - 1),
+      ])->toString(),
+      'current' => $item === $current_page_number,
+      'is_last' => $item === $last_page_number,
+    ];
+  }
 }
 
 /**
