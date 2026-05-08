@@ -38,12 +38,16 @@ shift
   if existsCFService "database" ; then
     echo database already created
   else
-    if [ "$SPACE" = "dev" ] ; then
-       RDS_PLAN=small-mysql
-    else
-       RDS_PLAN=small-mysql-redundant
-    fi
-
+    case $APP_SPACE in
+      dev|dr)
+        echo "Using $APP_SPACE plan for RDS service"
+        RDS_PLAN=small-mysql
+        ;;
+      *)
+        echo "Using $APP_SPACE redundant plan for RDS service"
+        RDS_PLAN=small-mysql-redundant
+        ;;
+    esac
     echo cf create-service aws-rds \
       $RDS_PLAN \
       database \
