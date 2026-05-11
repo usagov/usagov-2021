@@ -1,0 +1,21 @@
+uuid: 18619cb9-96d0-403d-a24e-bb48517e7048
+langcode: en
+status: true
+dependencies:
+  module:
+    - config_pages
+id: config_pages.field_blog_intro_heading
+field_name: field_blog_intro_heading
+entity_type: config_pages
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: false
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
