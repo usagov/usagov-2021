@@ -20,6 +20,23 @@ ignore:
     - '*':
         reason: "The WAF doesn't actually use TLS, because incoming TLS is terminated at the CF boundary. It also does not make outgoing TLS connections. See comments in USAGOV-2748 for more details."
         expires: '2027-12-31T00:00:00.000Z'
+  SNYK-DEBIAN12-GNUTLS28-16344297:
+    - '*':
+        reason: "The WAF doesn't actually use TLS, because incoming TLS is terminated at the CF boundary. It also does not make outgoing TLS connections. See comments in USAGOV-2748 for more details."
+        expires: '2027-12-31T00:00:00.000Z'
+  SNYK-DEBIAN12-GNUTLS28-16344303:
+    - '*':
+        reason: "The WAF doesn't actually use TLS, because incoming TLS is terminated at the CF boundary. It also does not make outgoing TLS connections. See comments in USAGOV-2748 for more details."
+        expires: '2027-12-31T00:00:00.000Z'
+  SNYK-DEBIAN12-GNUTLS28-16344322:
+    - '*':
+        reason: "The WAF doesn't actually use TLS, because incoming TLS is terminated at the CF boundary. It also does not make outgoing TLS connections. See comments in USAGOV-2748 for more details."
+        expires: '2027-12-31T00:00:00.000Z'
+  SNYK-DEBIAN12-GNUTLS28-16344333:
+    - '*':
+        reason: "The WAF doesn't actually use TLS, because incoming TLS is terminated at the CF boundary. It also does not make outgoing TLS connections. See comments in USAGOV-2748 for more details."
+        expires: '2027-12-31T00:00:00.000Z'
+
 exclude:
   code:
     - scripts/drush/publish_blog_posts.php
