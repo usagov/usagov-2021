@@ -2,19 +2,26 @@
 
 # TODO: why the [ $(uname -m) != 'aarch64' ] clause? Was this meant to exclude local install?
 if [ "$(uname -m)" != 'aarch64' ]; then
-  export NR_VERSION_NUMBER='11.7.0.21'
+  export NR_VERSION_NUMBER='12.6.0.34'
 
   NR_VERSION="newrelic-php5-$NR_VERSION_NUMBER-linux-musl"
   export NR_VERSION
 
-  cd /tmp || exit
+  NR_BUILD_ROOT='/opt/newrelic-build'
+  mkdir -p "$NR_BUILD_ROOT" || exit 1
 
-  curl -L "https://download.newrelic.com/php_agent/archive/${NR_VERSION_NUMBER}/${NR_VERSION}.tar.gz" | tar -C /tmp -zx
+  NR_BUILD_DIR="$(mktemp -d "${NR_BUILD_ROOT}/newrelic.XXXXXX")" || exit 1
+  export TMPDIR="$NR_BUILD_DIR"
+
+  cleanup() {
+    rm -rf "$NR_BUILD_DIR" /tmp/nrinstall*
+  }
+  trap cleanup EXIT INT TERM
+
+  curl -L "https://download.newrelic.com/php_agent/archive/${NR_VERSION_NUMBER}/${NR_VERSION}.tar.gz" | tar -C "$NR_BUILD_DIR" -zx
 
   export NR_INSTALL_USE_CP_NOT_LN=1
-  /tmp/newrelic-php5-*/newrelic-install install
-
-  rm -rf /tmp/newrelic-php5-* /tmp/nrinstall*
+  "${NR_BUILD_DIR}/${NR_VERSION}/newrelic-install" install
 
   sed -i \
       -e "s/;\?newrelic.appname =.*/newrelic.appname = \"USA.gov\"/" \
@@ -25,7 +32,6 @@ if [ "$(uname -m)" != 'aarch64' ]; then
       -e 's/;\?newrelic.daemon.logfile =.*/newrelic.daemon.logfile = \/dev\/stderr/' \
       -e 's/;\?newrelic.daemon.loglevel =.*/newrelic.daemon.loglevel = "info"/' \
       -e 's/;\?newrelic.daemon.collector_host =.*/newrelic.daemon.collector_host = "gov-collector.newrelic.com"/' \
-      -e 's/;\?newrelic.framework =.*/newrelic.framework = "drupal8"/' \
       -e 's/;\?newrelic.loglevel =.*/newrelic.loglevel = "info"/' \
       -e 's/;\?newrelic.enabled =.*/newrelic.enabled = false/' \
       -e 's/;\?newrelic.error_collector.record_database_errors =.*/newrelic.error_collector.record_database_errors = true/' \
