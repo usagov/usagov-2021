@@ -47,6 +47,7 @@ RUN apt-get update && \
     flex \
     gcc \
     inotify-tools \
+    jq \
     libexpat1-dev \
     libgeoip-dev \
     liblmdb-dev \
