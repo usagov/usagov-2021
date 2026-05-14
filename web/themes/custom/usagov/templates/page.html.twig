@@ -151,11 +151,16 @@
 				     (when the view has a title); page-title.html.twig guards against that duplicate.
 				#}
 				{% if is_blog_view or content_type == 'blog_post' %}
-					<h1 class="text-red-50 blog-title" id="skip-to-h1">
-						<span>Our blog</span>
-					</h1>
-					<p class="blog-instruction-text desktop:display-block display-none">Learn about the priorities, research, challenges, and great discoveries that shape the way USAGov connects people with government services and programs.</p>
-					<p>To view blog entries from a specific period, select a year and month using the page navigation. On mobile devices, these options are located under the “Menu” section.</p>
+          {% if blog_intro_heading or blog_intro_body %}
+            <h1 class="text-red-50 blog-title" id="skip-to-h1">
+              <span>{{ blog_intro_heading ?: 'Our blog' }}</span>
+            </h1>
+            {% if blog_intro_body %}
+              <div class="blog-intro-content">
+                {{ blog_intro_body }}
+              </div>
+            {% endif %}
+          {% endif %}
 				{% endif %}
 
 				<div class="">
