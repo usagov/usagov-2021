@@ -165,13 +165,13 @@ paths.forEach((path, idx) => {
       // make sure date appears
       cy.get(".additional_body_info").find("#last-updated").should("exist");
     });
-    it(`${testName} 33: Share this page function works correctly for facebook, twitter, and email`, () => {
+    it(`${testName} 33: Share this page function works correctly for facebook, X, and email`, () => {
       // test links for each social
       const facebook = [
         "disaster-assistance",
         "eses/requisitos-viaje-ninos-menores-de-edad",
       ];
-      const twitter = [
+      const x = [
         "disaster-assistance",
         "eses/requisitos-viaje-ninos-menores-de-edad",
       ];
@@ -209,7 +209,7 @@ paths.forEach((path, idx) => {
           .should(
             "have.attr",
             "href",
-            `https://twitter.com/intent/tweet?source=webclient&text=${origin}/${twitter[idx]}`,
+            `https://x.com/intent/post?url=${encodeURIComponent(`${origin}/${x[idx]}`)}`,
           )
           .get("div.share-icons>a")
           .eq(2)
