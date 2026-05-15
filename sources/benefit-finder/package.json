@@ -80,7 +80,7 @@
     "npm": "^11.10.1",
     "playwright-webkit": "^1.58.2",
     "plop": "^4.0.1",
-    "postcss": "^8.4.41",
+    "postcss": "^8.5.13",
     "prettier": "^3.3.3",
     "prop-types": "^15.8.1",
     "rollup-plugin-copy": "^3.5.0",
