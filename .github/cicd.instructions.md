@@ -1,5 +1,5 @@
 ---
-applyTo: "**/.github/workflows/*.yml,**/.github/workflows/*.yaml,**/Jenkinsfile,**/.circleci/config.yml,**/.travis.yml"
+applyTo: ".github/workflows/*.yml,.github/workflows/*.yaml,**/.github/workflows/*.yml,**/.github/workflows/*.yaml,**/Jenkinsfile,**/.circleci/config.yml,**/.travis.yml"
 ---
 
 # Cloud.gov CI/CD Instructions

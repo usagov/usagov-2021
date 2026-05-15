@@ -1,455 +1,132 @@
 ---
-applyTo: "**/*.py,**/*.js,**/*.ts,**/*.rb,**/*.java,**/*.go,**/manifest*.yml"
+applyTo: "**/*.php,**/*.module,**/*.install,**/*.inc,**/*.theme,**/*.profile,**/*.js,**/*.ts,**/*.tsx,**/*.sh,manifest*.yml,**/manifest*.yml"
 ---
 
 # Cloud.gov Services Instructions
 
-This document provides guidance for provisioning and using cloud.gov managed services including databases, S3 storage, Redis, and more.
+This repository uses Cloud Foundry service bindings as the primary source of runtime credentials. Service guidance in this repo should be based on the exact binding names and parsing patterns already present in Drupal settings and bootstrap scripts.
 
 ## Overview
 
-Cloud.gov provides managed services through a marketplace. Services are:
-- Created with `cf create-service`
-- Bound to applications to provide credentials
-- Accessed via the `VCAP_SERVICES` environment variable
+- Drupal runtime configuration is built from `VCAP_SERVICES` and `VCAP_APPLICATION` in `web/sites/default/settings.php`.
+- Shell bootstrap scripts such as `scripts/bootstrap.sh`, `scripts/static-bootstrap.sh`, `scripts/tome-run.sh`, and `scripts/tome-sync.sh` parse the same Cloud Foundry JSON with `jq`.
+- When extending this repo, prefer those existing parsing locations instead of inventing new credential-loading paths.
 
-## Listing Available Services
+## Repo Service Names
 
-```bash
-# View all available services
-cf marketplace
+Use the service names already present in the manifests unless the user explicitly asks to change them:
 
-# View plans for a specific service
-cf marketplace -s aws-rds
-cf marketplace -s s3
-```
+| Service Name | Where Used | Notes |
+|-------------|------------|-------|
+| `database` | `cms` | Drupal database binding; credentials become `$databases['default']['default']` in `settings.php` |
+| `storage` | `cms`, `www` | S3-backed storage used by S3FS and static-site sync scripts |
+| `secrets` | `cms`, `www`, `waf` | Hash salt and runtime secrets such as New Relic and cron-related values |
+| `secauthsecrets` | `cms` | SAML-related key/cert material consumed during bootstrap |
+| tagged `cache-service` | optional | Enables Redis caching when a matching service is bound |
+| `cron-state-storage`, `cron-event-storage`, `cron-callwait-storage`, `cron-service-account`, `cron-secrets` | `cron` | Cron-specific runtime services |
+| `AnalyticsReporterServices` | reporter manifest | Specialized reporter service binding |
 
-## Service Lifecycle
+Do not invent alternate binding names in examples when the repo already uses a concrete name.
 
-### Create a Service Instance
+## Where This Repo Reads Cloud Foundry Service Data
 
-```bash
-cf create-service <SERVICE> <PLAN> <INSTANCE_NAME>
-```
+### Drupal Runtime: `settings.php`
 
-### Bind to an Application
+The primary Drupal pattern is:
 
-```bash
-cf bind-service <APP_NAME> <INSTANCE_NAME>
-cf restage <APP_NAME>
-```
+```php
+$cf_application_data = json_decode($_ENV['VCAP_APPLICATION'] ?? '{}', TRUE);
+$cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);
 
-### Or Bind via manifest.yml
-
-```yaml
-applications:
-  - name: my-app
-    services:
-      - my-database
-      - my-s3-bucket
-```
-
-### Unbind and Delete
-
-```bash
-cf unbind-service <APP_NAME> <INSTANCE_NAME>
-cf delete-service <INSTANCE_NAME>
-```
-
-## Relational Databases (AWS RDS)
-
-### Available Plans
-
-| Plan | Description |
-|------|-------------|
-| `micro-psql` | Single-AZ PostgreSQL, 1 core, 1 GiB memory |
-| `small-psql` | Single-AZ PostgreSQL, 1 core, 2 GiB memory |
-| `medium-psql` | Single-AZ PostgreSQL, 1 core, 4 GiB memory |
-| `*-psql-redundant` | Multi-AZ PostgreSQL (production recommended) |
-| `small-mysql` | Single-AZ MySQL, 1 core, 2 GiB memory |
-| `*-mysql-redundant` | Multi-AZ MySQL (production recommended) |
-
-**Sandbox spaces**: Only `micro-psql` and `small-mysql` available.
-
-### Create PostgreSQL Database
-
-```bash
-# Development
-cf create-service aws-rds micro-psql my-database
-
-# Production (Multi-AZ)
-cf create-service aws-rds small-psql-redundant my-database
-
-# With custom storage size
-cf create-service aws-rds small-psql my-database -c '{"storage": 50}'
-
-# With specific version
-cf create-service aws-rds micro-psql my-database -c '{"version": "15"}'
-```
-
-### Create MySQL Database
-
-```bash
-cf create-service aws-rds small-mysql my-database
-
-# Enable functions/triggers
-cf create-service aws-rds small-mysql my-database -c '{"enable_functions": true}'
-```
-
-### Database Connection (Python Example)
-
-```python
-import os
-import json
-
-# Parse VCAP_SERVICES
-vcap_services = json.loads(os.environ.get('VCAP_SERVICES', '{}'))
-
-# Get database credentials
-db_credentials = vcap_services.get('aws-rds', [{}])[0].get('credentials', {})
-
-DATABASE_URL = db_credentials.get('uri')
-# Or use individual components:
-DB_HOST = db_credentials.get('host')
-DB_PORT = db_credentials.get('port')
-DB_NAME = db_credentials.get('db_name')
-DB_USER = db_credentials.get('username')
-DB_PASSWORD = db_credentials.get('password')
-```
-
-### Database Connection (Node.js Example)
-
-```javascript
-const cfenv = require('cfenv');
-const appEnv = cfenv.getAppEnv();
-
-// Get database URL
-const dbUrl = appEnv.getServiceURL('my-database');
-
-// Or parse manually
-const vcapServices = JSON.parse(process.env.VCAP_SERVICES || '{}');
-const dbCredentials = vcapServices['aws-rds']?.[0]?.credentials || {};
-
-const dbConfig = {
-  host: dbCredentials.host,
-  port: dbCredentials.port,
-  database: dbCredentials.db_name,
-  user: dbCredentials.username,
-  password: dbCredentials.password,
-  ssl: { rejectUnauthorized: false }
-};
-```
-
-### Rotate Database Credentials
-
-```bash
-# Rotate credentials
-cf update-service my-database -c '{"rotate_credentials": true}'
-
-# Wait, then rebind
-cf unbind-service my-app my-database
-# Wait 1 minute
-cf bind-service my-app my-database
-cf restage my-app --strategy rolling
-```
-
-### Connect to Database Locally
-
-```bash
-# Using cf-service-connect plugin
-cf connect-to-service my-app my-database
-
-# This opens psql/mysql shell directly
-```
-
-## S3 Object Storage
-
-### Available Plans
-
-| Plan | Description |
-|------|-------------|
-| `basic` | Private bucket |
-| `basic-public` | Public read bucket |
-| `basic-sandbox` | Private bucket (deleted with service) |
-| `basic-public-sandbox` | Public bucket (deleted with service) |
-
-### Create S3 Bucket
-
-```bash
-# Private bucket
-cf create-service s3 basic my-s3-bucket
-
-# Public bucket
-cf create-service s3 basic-public my-public-bucket
-```
-
-### S3 Connection (Python Example)
-
-```python
-import os
-import json
-import boto3
-
-vcap_services = json.loads(os.environ.get('VCAP_SERVICES', '{}'))
-s3_credentials = vcap_services.get('s3', [{}])[0].get('credentials', {})
-
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=s3_credentials.get('access_key_id'),
-    aws_secret_access_key=s3_credentials.get('secret_access_key'),
-    region_name=s3_credentials.get('region')
-)
-
-bucket_name = s3_credentials.get('bucket')
-
-# Upload file
-s3_client.upload_file('local_file.txt', bucket_name, 'remote_file.txt')
-
-# Download file
-s3_client.download_file(bucket_name, 'remote_file.txt', 'local_file.txt')
-
-# List objects
-response = s3_client.list_objects_v2(Bucket=bucket_name)
-```
-
-### S3 Connection (Node.js Example)
-
-```javascript
-const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
-
-const vcapServices = JSON.parse(process.env.VCAP_SERVICES || '{}');
-const s3Creds = vcapServices['s3']?.[0]?.credentials || {};
-
-const s3Client = new S3Client({
-  region: s3Creds.region,
-  credentials: {
-    accessKeyId: s3Creds.access_key_id,
-    secretAccessKey: s3Creds.secret_access_key
+foreach ($cf_service_data as $service_list) {
+  foreach ($service_list as $service) {
+    if ($service['name'] === 'database') {
+      // Configure Drupal DB connection.
+    }
+    elseif ($service['name'] === 'storage') {
+      // Configure S3FS.
+    }
   }
-});
-
-const bucketName = s3Creds.bucket;
-
-// Upload
-await s3Client.send(new PutObjectCommand({
-  Bucket: bucketName,
-  Key: 'my-file.txt',
-  Body: 'Hello, world!'
-}));
-```
-
-### Create Service Key for External Access
-
-```bash
-# Create key
-cf create-service-key my-s3-bucket external-access
-
-# View credentials
-cf service-key my-s3-bucket external-access
-
-# Delete key when done
-cf delete-service-key my-s3-bucket external-access
-```
-
-## Redis (ElastiCache)
-
-### Create Redis Instance
-
-```bash
-cf create-service aws-elasticache-redis redis-dev my-redis
-```
-
-### Redis Connection (Python Example)
-
-```python
-import os
-import json
-import redis
-
-vcap_services = json.loads(os.environ.get('VCAP_SERVICES', '{}'))
-redis_credentials = vcap_services.get('aws-elasticache-redis', [{}])[0].get('credentials', {})
-
-redis_client = redis.from_url(redis_credentials.get('uri'))
-
-# Use Redis
-redis_client.set('key', 'value')
-value = redis_client.get('key')
-```
-
-### Redis Connection (Node.js Example)
-
-```javascript
-const Redis = require('ioredis');
-
-const vcapServices = JSON.parse(process.env.VCAP_SERVICES || '{}');
-const redisCreds = vcapServices['aws-elasticache-redis']?.[0]?.credentials || {};
-
-const redis = new Redis(redisCreds.uri);
-
-await redis.set('key', 'value');
-const value = await redis.get('key');
-```
-
-## User-Provided Services
-
-For external services not in the marketplace:
-
-### Create User-Provided Service
-
-```bash
-# Interactive
-cf create-user-provided-service my-external-api -p "api_key, api_url"
-
-# With JSON
-cf cups my-external-api -p '{"api_key":"secret123","api_url":"https://api.example.com"}'
-```
-
-### Bind to Application
-
-```bash
-cf bind-service my-app my-external-api
-cf restage my-app
-```
-
-### Access in Application
-
-```python
-vcap_services = json.loads(os.environ.get('VCAP_SERVICES', '{}'))
-external_api = vcap_services.get('user-provided', [{}])[0].get('credentials', {})
-
-api_key = external_api.get('api_key')
-api_url = external_api.get('api_url')
-```
-
-## Service Keys
-
-Create credentials for external access (CI/CD, local development):
-
-```bash
-# Create service key
-cf create-service-key my-database deploy-key
-
-# View credentials
-cf service-key my-database deploy-key
-
-# Delete service key
-cf delete-service-key my-database deploy-key
-```
-
-## Sharing Services Between Spaces
-
-```bash
-# Share service with another space
-cf share-service my-database -s other-space
-
-# Share with space in different org
-cf share-service my-database -s other-space -o other-org
-
-# Unshare
-cf unshare-service my-database -s other-space
-```
-
-## Viewing Service Information
-
-```bash
-# List services in current space
-cf services
-
-# View service details
-cf service my-database
-
-# View bound app credentials
-cf env my-app
-```
-
-## VCAP_SERVICES Structure
-
-The `VCAP_SERVICES` environment variable contains all bound service credentials:
-
-```json
-{
-  "aws-rds": [
-    {
-      "name": "my-database",
-      "label": "aws-rds",
-      "plan": "micro-psql",
-      "credentials": {
-        "host": "...",
-        "port": 5432,
-        "db_name": "...",
-        "username": "...",
-        "password": "...",
-        "uri": "postgres://..."
-      }
-    }
-  ],
-  "s3": [
-    {
-      "name": "my-s3-bucket",
-      "credentials": {
-        "access_key_id": "...",
-        "secret_access_key": "...",
-        "bucket": "...",
-        "region": "us-gov-west-1"
-      }
-    }
-  ]
 }
 ```
 
-## Best Practices
+Use this existing parse-once pattern when documenting or extending service consumption in PHP.
 
-### Security
+### Shell Runtime: Bootstrap and Static-Site Scripts
 
-- **Never hardcode credentials** - Always read from `VCAP_SERVICES`
-- **Rotate credentials regularly** - Use `rotate_credentials` for databases
-- **Use service keys sparingly** - Prefer bound credentials when possible
-- **Delete unused service keys** - Reduce credential exposure
-
-### Reliability
-
-- **Use redundant plans for production** - Multi-AZ for databases
-- **Document service dependencies** - Keep manifest.yml updated
-- **Plan for service outages** - Implement retry logic and circuit breakers
-
-### Cost Optimization
-
-- **Right-size services** - Start small, scale as needed
-- **Use sandbox plans for development** - They're deleted automatically
-- **Clean up unused services** - `cf services` to audit
-
-## Troubleshooting
-
-### Cannot Connect to Service
-
-1. Check egress rules: `cf space <SPACE_NAME> --security-group-rules`
-2. Update egress if needed: See [Space Egress](https://docs.cloud.gov/platform/management/space-egress/)
-
-### Service Creation Stuck
+The primary shell pattern is:
 
 ```bash
-# Check service status
-cf service my-database
-
-# View service events
-cf events my-database
+S3_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
+SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.["space_name"]')
 ```
 
-### Credentials Not Available
+Use `jq` against the bound service name that already exists in the manifest. Do not introduce parallel `.env` files or hand-maintained secret maps for Cloud.gov runtime credentials.
 
-```bash
-# Verify binding
-cf services
+## Real Data Flow in This Repo
 
-# Rebind if needed
-cf unbind-service my-app my-database
-cf bind-service my-app my-database
-cf restage my-app
+### `database`
+
+- `settings.php` maps the bound `database` service to Drupal's MySQL connection.
+- In Cloud.gov spaces, the DB config also sets the RDS CA bundle for TLS.
+- The DB binding should remain the canonical source of host, port, username, password, and schema name.
+
+```php
+$databases['default']['default'] = [
+  'database' => $service['credentials']['db_name'],
+  'username' => $service['credentials']['username'],
+  'password' => $service['credentials']['password'],
+  'host' => $service['credentials']['host'],
+  'port' => $service['credentials']['port'],
+  'driver' => 'mysql',
+];
 ```
 
-## References
+### `storage`
 
-- [cloud.gov Managed Services](https://docs.cloud.gov/platform/deployment/managed-services/)
-- [RDS Documentation](https://docs.cloud.gov/platform/services/relational-database/)
-- [S3 Documentation](https://docs.cloud.gov/platform/services/s3/)
-- [Cloud Foundry Services](https://docs.cloudfoundry.org/devguide/services/)
+- `settings.php` configures S3FS from the bound `storage` service.
+- `scripts/tome-run.sh` and `scripts/tome-sync.sh` use the same binding for static-site generation and S3 sync.
+- The S3 configuration relies on service-provided `bucket`, `region`, and endpoint values; do not hardcode them.
+
+Relevant repo behavior includes:
+- `root_folder = cms`
+- `public_folder = public`
+- `private_folder = private`
+- `fips_endpoint` for the S3FS hostname
+- `S3_PROXY_PATH_CMS` for the public path exposed through the CMS host
+
+### `secrets` and `secauthsecrets`
+
+- `secrets` provides values such as `HASH_SALT`, `NEW_RELIC_*`, `CRON_KEY`, and other runtime-only secrets used by bootstrap scripts.
+- `secauthsecrets` provides SAML-related certificate and key material that bootstrap writes into runtime files.
+- These services are preferred over manifest env secrets or hardcoded credentials.
+
+### tagged `cache-service`
+
+- Redis is optional and enabled only when `settings.php` sees a bound service whose tags include `cache-service`.
+- When present, the repo prefers TLS for Redis unless the credentials explicitly indicate local development.
+
+## Space-Aware Runtime Configuration
+
+- `VCAP_APPLICATION.space_name` drives `trusted_host_patterns` and config split toggles in `settings.php`.
+- Shell scripts also use the space name to choose the correct public hostname, S3 behavior, and environment-specific logic.
+- When changing service behavior, check both the PHP runtime and shell runtime paths for space-specific logic.
+
+## Preferred Pattern / Avoid
+
+- Prefer parsing Cloud Foundry JSON once in `settings.php` or the relevant bootstrap script.
+- Prefer exact manifest service names such as `database`, `storage`, `secrets`, and `secauthsecrets`.
+- Prefer bound services over manually managed secrets in code or manifests.
+- Prefer extending the existing Drupal + shell runtime patterns instead of introducing parallel config systems.
+
+Avoid:
+- hardcoding database, S3, Redis, or secret credentials
+- inventing alternative service names in examples
+- adding ad hoc credential shapes that do not match `VCAP_SERVICES`
+- duplicating the same service parsing logic in multiple new locations when an existing runtime path already owns it
+
+## Cross-References
+
+- For manifest and deploy behavior, see `deployment.instructions.md`.
+- For secret handling, TLS, and trusted-host guidance, see `security.instructions.md`.
+- For operational logging around service startup and failures, see `logging.instructions.md`.
