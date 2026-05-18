@@ -6,12 +6,12 @@ This directory contains task-specific instruction files for AI coding agents wor
 
 | File | Purpose | Applies To |
 |------|---------|------------|
-| `deployment.instructions.md` | CF CLI deployment workflows | `manifest.yml`, deployment scripts |
-| `services.instructions.md` | Service binding and configuration | Service integration code |
-| `manifest.instructions.md` | Manifest file structure | `manifest*.yml` files |
-| `cicd.instructions.md` | CI/CD pipeline setup | `.github/workflows/*.yml` |
-| `security.instructions.md` | Security and compliance | Security-related files |
-| `logging.instructions.md` | Logging and monitoring | Application logging code |
+| `deployment.instructions.md` | CF CLI deployment workflows | `manifest*.yml`, `.cfignore`, `.profile`, `Procfile`, and deploy/bootstrap `*.sh` |
+| `services.instructions.md` | Service binding and configuration | Drupal/PHP files, JS/TS files, Cloud.gov shell scripts, and `manifest*.yml` |
+| `manifest.instructions.md` | Manifest file structure | `manifest*.yml` and `vars*.yml` files |
+| `cicd.instructions.md` | CI/CD pipeline setup | `.github/workflows/*.yml` and `.github/workflows/*.yaml` |
+| `security.instructions.md` | Security and compliance | Drupal/PHP files, JS/TS files, Cloud.gov shell scripts, manifests, and workflow YAML |
+| `logging.instructions.md` | Logging and monitoring | Drupal/PHP files, JS/TS files, Cloud.gov shell scripts, and `manifest*.yml` |
 
 ## File Format
 

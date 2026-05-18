@@ -1,5 +1,5 @@
 ---
-applyTo: "**/manifest*.yml,**/vars*.yml"
+applyTo: "manifest*.yml,**/manifest*.yml,vars*.yml,**/vars*.yml"
 ---
 
 # Cloud.gov Manifest Configuration Instructions
