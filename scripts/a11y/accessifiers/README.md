@@ -73,7 +73,7 @@ bin/drush php:script scripts/a11y/accessifiers/<SCRIPT>.php -- --dry-run --verbo
 
 ## blog.php — Fix Details
 
-Targets all `blog_post` nodes. Applies seven fixes in dependency order.
+Targets all `blog_post` nodes. Applies eight fixes in dependency order.
 
 ### Fix 1 — Styled `<span>`s inside headings (WCAG 1.3.1)
 

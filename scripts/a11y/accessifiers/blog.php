@@ -17,6 +17,7 @@
  *                                             and add <caption> from surrounding context
  *   url_link_text (4)            WCAG 2.4.4  Fix raw-URL visible link text
  *   ambiguous_link (1)           WCAG 2.4.4  Add descriptive aria-label to "here" link
+ *   duplicate_social_link (6)    WCAG 2.4.4  Add account-specific social labels
  *
  * Page-structure issues NOT addressed here (not content issues):
  *   missing_lang (3) / no_skip_nav (3) — these 3 pages have legacy/stale HTML that
@@ -55,6 +56,7 @@ $stats = [
   'tables_fixed'          => 0,
   'url_link_text'         => 0,
   'ambiguous_link'        => 0,
+  'duplicate_social_link' => 0,
 ];
 
 // ── DOM helpers ────────────────────────────────────────────────────────────────
@@ -630,6 +632,43 @@ function a11y_title_from_href(string $url): string {
 }
 
 /**
+ * Return an account-specific social media label for a URL.
+ */
+function a11y_social_label_from_href(string $url): string {
+  $host = strtolower(parse_url($url, PHP_URL_HOST) ?? '');
+  $host = preg_replace('/^www\./', '', $host);
+  $path = trim(parse_url($url, PHP_URL_PATH) ?? '', '/');
+  $account = $path ? explode('/', $path)[0] : '';
+
+  $platforms = [
+    'facebook.com' => 'Facebook',
+    'instagram.com' => 'Instagram',
+    'twitter.com' => 'X',
+    'x.com' => 'X',
+  ];
+
+  if (!$account || !isset($platforms[$host])) {
+    return '';
+  }
+
+  $accounts = [
+    'fema' => 'FEMA',
+    'usagov' => 'USAGov',
+    'usagovespanol' => 'USAGov en Español',
+  ];
+  $normalized_account = strtolower($account);
+  $account_label = $accounts[$normalized_account] ?? ucwords(
+    trim(preg_replace('/[^a-z0-9]+/i', ' ', $account))
+  );
+
+  if (!$account_label) {
+    return '';
+  }
+
+  return $account_label . ' on ' . $platforms[$host];
+}
+
+/**
  * Replace the text content of a link while preserving any inline child elements
  * (e.g. <em>, <strong>). When the link contains only text nodes, replaces them
  * directly. When it has mixed content, falls back to an aria-label instead to
@@ -733,6 +772,7 @@ echo sprintf("  headings_normalized:        %d\n", $stats['headings_normalized']
 echo sprintf("  tables_fixed:               %d\n", $stats['tables_fixed']);
 echo sprintf("  url_link_text:              %d\n", $stats['url_link_text']);
 echo sprintf("  ambiguous_link:             %d\n", $stats['ambiguous_link']);
+echo sprintf("  duplicate_social_link:      %d\n", $stats['duplicate_social_link']);
 echo "\n";
 
 if ($dry_run) {
