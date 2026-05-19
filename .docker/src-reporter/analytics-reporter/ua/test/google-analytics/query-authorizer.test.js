@@ -52,8 +52,11 @@ describe("UA GoogleAnalyticsQueryAuthorizer", () => {
 
       GoogleAnalyticsQueryAuthorizer.authorizeQuery({})
         .then((query) => {
-          expect(query.auth.initArguments[0]).to.equal("test@example.com");
-          expect(query.auth.initArguments[2]).to.equal("Shh, this is a secret");
+          expect(query.auth.initArguments[0]).to.deep.equal({
+            email: "test@example.com",
+            key: "Shh, this is a secret",
+            scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+          });
           done();
         })
         .catch(done);
@@ -66,10 +69,11 @@ describe("UA GoogleAnalyticsQueryAuthorizer", () => {
 
       GoogleAnalyticsQueryAuthorizer.authorizeQuery({})
         .then((query) => {
-          expect(query.auth.initArguments[0]).to.equal("test@example.com");
-          expect(query.auth.initArguments[2]).to.equal(
-            "pem-key-file-not-actually-a-secret-key",
-          );
+          expect(query.auth.initArguments[0]).to.deep.equal({
+            email: "test@example.com",
+            key: "pem-key-file-not-actually-a-secret-key",
+            scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+          });
           done();
         })
         .catch(done);
@@ -81,12 +85,11 @@ describe("UA GoogleAnalyticsQueryAuthorizer", () => {
 
       GoogleAnalyticsQueryAuthorizer.authorizeQuery({})
         .then((query) => {
-          expect(query.auth.initArguments[0]).to.equal(
-            "json_test_email@example.com",
-          );
-          expect(query.auth.initArguments[2]).to.equal(
-            "json-key-file-not-actually-a-secret-key",
-          );
+          expect(query.auth.initArguments[0]).to.deep.equal({
+            email: "json_test_email@example.com",
+            key: "json-key-file-not-actually-a-secret-key",
+            scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+          });
           done();
         })
         .catch(done);
@@ -98,12 +101,11 @@ describe("UA GoogleAnalyticsQueryAuthorizer", () => {
 
       GoogleAnalyticsQueryAuthorizer.authorizeQuery({})
         .then((query) => {
-          expect(query.auth.initArguments[0]).to.equal(
-            "next_email@example.com",
-          );
-          expect(query.auth.initArguments[2]).to.equal(
-            "Shhh, this is the next secret",
-          );
+          expect(query.auth.initArguments[0]).to.deep.equal({
+            email: "next_email@example.com",
+            key: "Shhh, this is the next secret",
+            scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+          });
           done();
         })
         .catch(done);
@@ -112,7 +114,7 @@ describe("UA GoogleAnalyticsQueryAuthorizer", () => {
     it("should create a JWT with the proper scopes", (done) => {
       GoogleAnalyticsQueryAuthorizer.authorizeQuery({})
         .then((query) => {
-          expect(query.auth.initArguments[3]).to.deep.equal([
+          expect(query.auth.initArguments[0].scopes).to.deep.equal([
             "https://www.googleapis.com/auth/analytics.readonly",
           ]);
           done();

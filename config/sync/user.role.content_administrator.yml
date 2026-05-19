@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - config_pages.type.blog_intro
     - block_content.type.modal
     - media.type.audio
     - media.type.file
@@ -148,6 +149,8 @@ permissions:
   - 'edit any agency_synonym content'
   - 'edit any audio media'
   - 'edit any basic_page content'
+  - 'edit blog_intro config page entity'
+  - 'edit any blog_post content'
   - 'edit any bears_agency content'
   - 'edit any bears_benefit content'
   - 'edit any bears_criteria content'
@@ -223,6 +226,7 @@ permissions:
   - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
+  - 'view blog_intro config page entity'
   - 'view any modal block content history'
   - 'view any unpublished content'
   - 'view basic_page revisions'

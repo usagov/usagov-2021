@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - config_pages.type.blog_intro
     - media.type.audio
     - media.type.file
     - node.type.agency_synonym
@@ -20,6 +21,7 @@ dependencies:
     - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
+    - config_pages
     - content_moderation
     - content_translation
     - media
@@ -93,6 +95,8 @@ permissions:
   - 'delete terms in wizard'
   - 'edit any agency_synonym content'
   - 'edit any basic_page content'
+  - 'edit blog_intro config page entity'
+  - 'edit any blog_post content'
   - 'edit any bears_agency content'
   - 'edit any bears_benefit content'
   - 'edit any bears_criteria content'
@@ -134,6 +138,7 @@ permissions:
   - 'use basic_workflow transition publish'
   - 'view agency_synonym revisions'
   - 'view all revisions'
+  - 'view blog_intro config page entity'
   - 'view any unpublished content'
   - 'view basic_page revisions'
   - 'view bears_agency revisions'
