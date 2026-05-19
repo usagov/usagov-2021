@@ -11,8 +11,9 @@ if [ ! -f /container_start_timestamp ]; then
 fi
 
 # SFTWR_AUDIT: emit software versions for monthly security audit log search
-SPACE=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.space_name // "unknown"')
-APP_NAME=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.name // "unknown"')
+empty_vcap={}
+SPACE=$(echo "${VCAP_APPLICATION:-${empty_vcap}}" | jq -r '.space_name // "unknown"')
+APP_NAME=$(echo "${VCAP_APPLICATION:-${empty_vcap}}" | jq -r '.name // "unknown"')
 OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
 PYTHON_V=$(python3 --version 2>/dev/null | awk '{print $2}' || echo "unknown")
 AWSCLI_V=$(aws --version 2>/dev/null | grep -oE 'aws-cli/[^ ]+' | cut -d'/' -f2 || echo "unknown")
