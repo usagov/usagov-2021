@@ -71,7 +71,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 append_json_item() { # $1 = array json, $2 = item json
-  jq -c --argjson item "$2" '. + [$item]' <<<"$1"
+  printf '%s\n%s\n' "$1" "$2" | jq -cs '.[0] + [.[1]]'
 }
 
 sanitize_filename_component() { # $1 = value
@@ -213,9 +213,10 @@ build_route_destinations_json() { # $1 = route guid
   local destinations_response
 
   destinations_response=$(cf_get_json "/v3/routes/$route_guid/destinations") || return $?
-  jq -c \
-    --argjson app_names "$APP_NAMES_BY_GUID" '
-      (.destinations // [])
+  printf '%s\n%s\n' "$destinations_response" "$APP_NAMES_BY_GUID" | jq -cs '
+      .[0] as $response
+      | .[1] as $app_names
+      | ($response.destinations // [])
       | map({
           guid,
           app: (
@@ -234,7 +235,7 @@ build_route_destinations_json() { # $1 = route guid
           weight: (.weight // null)
         })
       | sort_by((.app.name // ""), (.process.type // ""), (.port // 0))
-    ' <<<"$destinations_response"
+    '
 }
 
 build_service_plan_json() { # $1 = service plan guid
@@ -263,8 +264,11 @@ build_service_plan_json() { # $1 = service plan guid
     service_offering_json='null'
   fi
 
-  jq -c \
-    --argjson service_offering "$service_offering_json" '
+  printf '%s\n%s\n' "$service_plan_json" "$service_offering_json" | jq -cs '
+      .[0] as $plan
+      | .[1] as $service_offering
+      | $plan
+      |
       {
         guid,
         name,
@@ -288,17 +292,19 @@ build_service_plan_json() { # $1 = service plan guid
           end
         )
       }
-    ' <<<"$service_plan_json"
+    '
 }
 
 build_service_credential_bindings_json() { # $1 = service instance guid
   local service_guid="$1"
 
-  jq -c \
-    --arg service_guid "$service_guid" \
-    --argjson app_names "$APP_NAMES_BY_GUID" '
+  printf '%s\n%s\n' "$SERVICE_CREDENTIAL_BINDINGS_ALL" "$APP_NAMES_BY_GUID" | jq -cs \
+    --arg service_guid "$service_guid" '
+      .[0] as $bindings
+      | .[1] as $app_names
+      |
       [
-        .[]
+        $bindings[]
         | select(.relationships.service_instance.data.guid == $service_guid)
         | {
             guid,
@@ -331,17 +337,19 @@ build_service_credential_bindings_json() { # $1 = service instance guid
           }
       ]
       | sort_by(.type, (.name // ""), (.app.name // ""))
-    ' <<<"$SERVICE_CREDENTIAL_BINDINGS_ALL"
+    '
 }
 
 build_service_route_bindings_json() { # $1 = service instance guid
   local service_guid="$1"
 
-  jq -c \
-    --arg service_guid "$service_guid" \
-    --argjson route_urls "$ROUTE_URLS_BY_GUID" '
+  printf '%s\n%s\n' "$SERVICE_ROUTE_BINDINGS_ALL" "$ROUTE_URLS_BY_GUID" | jq -cs \
+    --arg service_guid "$service_guid" '
+      .[0] as $bindings
+      | .[1] as $route_urls
+      |
       [
-        .[]
+        $bindings[]
         | select(.relationships.service_instance.data.guid == $service_guid)
         | {
             guid,
@@ -395,7 +403,7 @@ build_service_json() { # $1 = service guid
   credential_bindings_json=$(build_service_credential_bindings_json "$1") || return $?
   route_bindings_json=$(build_service_route_bindings_json "$1") || return $?
 
-  jq -c '{
+  service_json=$(jq -c '{
     guid,
     name,
     created_at,
@@ -412,10 +420,19 @@ build_service_json() { # $1 = service guid
         null
       end
     )
-  }' <<<"$service_json" | jq -c \
-    --argjson service_plan "$service_plan_json" \
-    --argjson credential_bindings "$credential_bindings_json" \
-    --argjson route_bindings "$route_bindings_json" '
+  }' <<<"$service_json") || return $?
+
+  printf '%s\n%s\n%s\n%s\n' \
+    "$service_json" \
+    "$service_plan_json" \
+    "$credential_bindings_json" \
+    "$route_bindings_json" | jq -cs '
+      .[0] as $service
+      | .[1] as $service_plan
+      | .[2] as $credential_bindings
+      | .[3] as $route_bindings
+      | $service
+      |
       . + {
         service_plan: $service_plan,
         credential_bindings: $credential_bindings,
@@ -434,15 +451,20 @@ build_route_json() { # $1 = route guid
 
   route_json=$(cf_get_json "/v3/routes/$1") || return $?
   destinations_json=$(build_route_destinations_json "$1") || return $?
-  jq -c '{
+  route_json=$(jq -c '{
     guid,
     url,
     host,
     path,
     created_at,
     updated_at
-  }' <<<"$route_json" | jq -c \
-    --argjson destinations "$destinations_json" '
+  }' <<<"$route_json") || return $?
+
+  printf '%s\n%s\n' "$route_json" "$destinations_json" | jq -cs '
+    .[0] as $route
+    | .[1] as $destinations
+    | $route
+    |
       . + {
         destinations: $destinations,
         counts: {
@@ -522,12 +544,20 @@ build_app_json() { # $1 = app guid
   sidecars_json=$(build_sidecars_json "$app_guid") || return $?
   task_count=$(cf_get_json "/v3/apps/$app_guid/tasks" | jq -r '.pagination.total_results // 0') || return $?
 
-  jq -c \
-    --argjson current_droplet "$current_droplet_json" \
-    --argjson processes "$processes_json" \
-    --argjson sidecars "$sidecars_json" \
-    --argjson task_count "$task_count" \
-    '{
+  printf '%s\n%s\n%s\n%s\n%s\n' \
+    "$app_json" \
+    "$current_droplet_json" \
+    "$processes_json" \
+    "$sidecars_json" \
+    "$task_count" | jq -cs '
+      .[0] as $app
+      | .[1] as $current_droplet
+      | .[2] as $processes
+      | .[3] as $sidecars
+      | .[4] as $task_count
+      | $app
+      |
+      {
       guid,
       name,
       created_at,
@@ -545,64 +575,121 @@ build_app_json() { # $1 = app guid
         processes: ($processes | length),
         sidecars: ($sidecars | length)
       }
-    }' <<<"$app_json"
+    }'
 }
 
 build_space_json() { # $1 = space resource json
   local space_json="$1"
   local space_guid
+  local space_name
   local space_quota_json
   local services_json='[]'
   local routes_json='[]'
   local attached_security_groups_json='[]'
+  local running_security_groups_json
   local apps_json='[]'
+  local service_count
+  local route_count
+  local attached_security_group_count
+  local app_count
+  local current_service
+  local current_route
+  local current_group
+  local current_app
+  local service_summary_json
+  local route_summary_json
+  local group_summary_json
+  local app_summary_json
   local service_guid
+  local service_name
   local route_guid
+  local route_url
   local group_guid
+  local group_name
   local app_guid
+  local app_name
 
   space_guid=$(jq -r '.guid' <<<"$space_json")
+  space_name=$(jq -r '.name' <<<"$space_json")
   space_quota_json=$(build_space_quota_json "$space_guid") || return $?
+  service_count=$(jq --arg space_guid "$space_guid" '[.[] | select(.relationships.space.data.guid == $space_guid)] | length' <<<"$SERVICE_INSTANCES_ALL") || return $?
+  route_count=$(jq --arg space_guid "$space_guid" '[.[] | select(.relationships.space.data.guid == $space_guid)] | length' <<<"$ROUTES_ALL") || return $?
+  running_security_groups_json=$(cf_paginated_resources "/v3/spaces/$space_guid/running_security_groups") || return $?
+  attached_security_group_count=$(jq 'length' <<<"$running_security_groups_json") || return $?
+  app_count=$(jq --arg space_guid "$space_guid" '[.[] | select(.relationships.space.data.guid == $space_guid)] | length' <<<"$APPS_ALL") || return $?
 
-  while IFS= read -r service_guid; do
-    [[ -n "$service_guid" ]] || continue
+  status "Building services for space ${space_name}: ${service_count}"
+  current_service=0
+  while IFS= read -r service_summary_json; do
+    [[ -n "$service_summary_json" ]] || continue
+    current_service=$((current_service + 1))
+    service_guid=$(jq -r '.guid' <<<"$service_summary_json")
+    service_name=$(jq -r '.name // "unnamed service"' <<<"$service_summary_json")
+    status "Building service report for ${space_name}: ${current_service} of ${service_count} (${service_name})"
     services_json=$(append_json_item "$services_json" "$(build_service_json "$service_guid")") || return $?
-  done < <(jq -r --arg space_guid "$space_guid" '
+  done < <(jq -c --arg space_guid "$space_guid" '
     [.[] | select(.relationships.space.data.guid == $space_guid)]
     | sort_by(.name)
-    | .[].guid
+    | .[]
   ' <<<"$SERVICE_INSTANCES_ALL")
 
-  while IFS= read -r route_guid; do
-    [[ -n "$route_guid" ]] || continue
+  status "Building routes for space ${space_name}: ${route_count}"
+  current_route=0
+  while IFS= read -r route_summary_json; do
+    [[ -n "$route_summary_json" ]] || continue
+    current_route=$((current_route + 1))
+    route_guid=$(jq -r '.guid' <<<"$route_summary_json")
+    route_url=$(jq -r '.url // "unnamed route"' <<<"$route_summary_json")
+    status "Building route report for ${space_name}: ${current_route} of ${route_count} (${route_url})"
     routes_json=$(append_json_item "$routes_json" "$(build_route_json "$route_guid")") || return $?
-  done < <(jq -r --arg space_guid "$space_guid" '
+  done < <(jq -c --arg space_guid "$space_guid" '
     [.[] | select(.relationships.space.data.guid == $space_guid)]
     | sort_by(.url)
-    | .[].guid
+    | .[]
   ' <<<"$ROUTES_ALL")
 
-  while IFS= read -r group_guid; do
-    [[ -n "$group_guid" ]] || continue
+  status "Building running security groups for space ${space_name}: ${attached_security_group_count}"
+  current_group=0
+  while IFS= read -r group_summary_json; do
+    [[ -n "$group_summary_json" ]] || continue
+    current_group=$((current_group + 1))
+    group_guid=$(jq -r '.guid' <<<"$group_summary_json")
+    group_name=$(jq -r '.name // "unnamed security group"' <<<"$group_summary_json")
+    status "Building running security group for ${space_name}: ${current_group} of ${attached_security_group_count} (${group_name})"
     attached_security_groups_json=$(append_json_item "$attached_security_groups_json" "$(build_attached_security_group_json "$group_guid")") || return $?
-  done < <(jq -r 'sort_by(.name) | .[].guid' <<<"$(cf_paginated_resources "/v3/spaces/$space_guid/running_security_groups")")
+  done < <(jq -c 'sort_by(.name) | .[]' <<<"$running_security_groups_json")
 
-  while IFS= read -r app_guid; do
-    [[ -n "$app_guid" ]] || continue
+  status "Building apps for space ${space_name}: ${app_count}"
+  current_app=0
+  while IFS= read -r app_summary_json; do
+    [[ -n "$app_summary_json" ]] || continue
+    current_app=$((current_app + 1))
+    app_guid=$(jq -r '.guid' <<<"$app_summary_json")
+    app_name=$(jq -r '.name // "unnamed app"' <<<"$app_summary_json")
+    status "Building app report for ${space_name}: ${current_app} of ${app_count} (${app_name})"
     apps_json=$(append_json_item "$apps_json" "$(build_app_json "$app_guid")") || return $?
-  done < <(jq -r --arg space_guid "$space_guid" '
+  done < <(jq -c --arg space_guid "$space_guid" '
     [.[] | select(.relationships.space.data.guid == $space_guid)]
     | sort_by(.name)
-    | .[].guid
+    | .[]
   ' <<<"$APPS_ALL")
 
-  jq -c \
-    --argjson quota "$space_quota_json" \
-    --argjson services "$services_json" \
-    --argjson routes "$routes_json" \
-    --argjson attached_security_groups "$attached_security_groups_json" \
-    --argjson apps "$apps_json" \
-    '{
+  printf '%s\n%s\n%s\n%s\n%s\n%s\n' \
+    "$space_json" \
+    "$space_quota_json" \
+    "$services_json" \
+    "$routes_json" \
+    "$attached_security_groups_json" \
+    "$apps_json" | jq -cs '
+    .[0] as $space
+    | .[1] as $quota
+    | .[2] as $services
+    | .[3] as $routes
+    | .[4] as $attached_security_groups
+    | .[5] as $apps
+    | $space
+    |
+    {
       guid,
       name,
       created_at,
@@ -618,29 +705,44 @@ build_space_json() { # $1 = space resource json
         attached_security_groups: ($attached_security_groups | length),
         apps: ($apps | length)
       }
-    }' <<<"$space_json"
+    }'
 }
 
 build_org_json() { # $1 = organization resource json
   local org_json="$1"
   local org_guid
+  local org_name
   local org_quota_json
   local domains_json='[]'
   local spaces_json='[]'
+  local domain_count
+  local space_count
+  local current_domain
+  local current_space
+  local domain_summary_json
   local domain_guid
+  local domain_name
   local space_json
   local candidate_spaces
 
   org_guid=$(jq -r '.guid' <<<"$org_json")
+  org_name=$(jq -r '.name' <<<"$org_json")
   org_quota_json=$(build_org_quota_json "$org_guid") || return $?
+  domain_count=$(jq --arg org_guid "$org_guid" '[.[] | select(.relationships.organization.data.guid == $org_guid)] | length' <<<"$DOMAINS_ALL") || return $?
 
-  while IFS= read -r domain_guid; do
-    [[ -n "$domain_guid" ]] || continue
+  status "Building domains for organization ${org_name}: ${domain_count}"
+  current_domain=0
+  while IFS= read -r domain_summary_json; do
+    [[ -n "$domain_summary_json" ]] || continue
+    current_domain=$((current_domain + 1))
+    domain_guid=$(jq -r '.guid' <<<"$domain_summary_json")
+    domain_name=$(jq -r '.name // "unnamed domain"' <<<"$domain_summary_json")
+    status "Building domain report for ${org_name}: ${current_domain} of ${domain_count} (${domain_name})"
     domains_json=$(append_json_item "$domains_json" "$(build_domain_json "$domain_guid")") || return $?
-  done < <(jq -r --arg org_guid "$org_guid" '
+  done < <(jq -c --arg org_guid "$org_guid" '
     [.[] | select(.relationships.organization.data.guid == $org_guid)]
     | sort_by(.name)
-    | .[].guid
+    | .[]
   ' <<<"$DOMAINS_ALL")
 
   candidate_spaces=$(jq -c --arg org_guid "$org_guid" '
@@ -653,17 +755,28 @@ build_org_json() { # $1 = organization resource json
       [.[] | select(.name as $space_name | $selected_spaces | index($space_name))]
     ' <<<"$candidate_spaces") || return $?
   fi
+  space_count=$(jq 'length' <<<"$candidate_spaces") || return $?
 
+  current_space=0
   while IFS= read -r space_json; do
     [[ -n "$space_json" ]] || continue
+    current_space=$((current_space + 1))
+    status "Building space report ${current_space}/${space_count}: $(jq -r '.name' <<<"$space_json")"
     spaces_json=$(append_json_item "$spaces_json" "$(build_space_json "$space_json")") || return $?
   done < <(jq -c '.[]' <<<"$candidate_spaces")
 
-  jq -c \
-    --argjson quota "$org_quota_json" \
-    --argjson domains "$domains_json" \
-    --argjson spaces "$spaces_json" \
-    '{
+  printf '%s\n%s\n%s\n%s\n' \
+    "$org_json" \
+    "$org_quota_json" \
+    "$domains_json" \
+    "$spaces_json" | jq -cs '
+    .[0] as $org
+    | .[1] as $quota
+    | .[2] as $domains
+    | .[3] as $spaces
+    | $org
+    |
+    {
       guid,
       name,
       created_at,
@@ -675,16 +788,27 @@ build_org_json() { # $1 = organization resource json
         domains: ($domains | length),
         spaces: ($spaces | length)
       }
-    }' <<<"$org_json"
+    }'
 }
 
 build_security_groups_json() {
   local security_groups_json='[]'
+  local group_count
+  local current_group
+  local group_summary_json
   local group_guid
+  local group_name
   local group_json
 
-  while IFS= read -r group_guid; do
-    [[ -n "$group_guid" ]] || continue
+  group_count=$(jq 'length' <<<"$SECURITY_GROUPS_ALL") || return $?
+  status "Building global security group details: ${group_count}"
+  current_group=0
+  while IFS= read -r group_summary_json; do
+    [[ -n "$group_summary_json" ]] || continue
+    current_group=$((current_group + 1))
+    group_guid=$(jq -r '.guid' <<<"$group_summary_json")
+    group_name=$(jq -r '.name // "unnamed security group"' <<<"$group_summary_json")
+    status "Building security group report: ${current_group} of ${group_count} (${group_name})"
     group_json=$(cf_get_json "/v3/security_groups/$group_guid") || return $?
     security_groups_json=$(append_json_item "$security_groups_json" "$(jq -c '{
       guid,
@@ -693,7 +817,7 @@ build_security_groups_json() {
       updated_at,
       rules
     }' <<<"$group_json")") || return $?
-  done < <(jq -r 'sort_by(.name) | .[].guid' <<<"$SECURITY_GROUPS_ALL")
+  done < <(jq -c 'sort_by(.name) | .[]' <<<"$SECURITY_GROUPS_ALL")
 
   echo "$security_groups_json"
 }
