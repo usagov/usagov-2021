@@ -1,10 +1,20 @@
 const { defineConfig } = require('cypress')
 const path = require('path')
-const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
 
+const dependencyRoot = path.resolve(__dirname, '../cypress_build/node_modules')
 const reporterPath = require.resolve('cypress-mochawesome-reporter', {
-  paths: [path.resolve(__dirname, '../cypress_build/node_modules')],
+  paths: [dependencyRoot],
 })
+const reporterPluginPath = require.resolve('cypress-mochawesome-reporter/plugin', {
+  paths: [dependencyRoot],
+})
+const reporterLibPath = require.resolve('cypress-mochawesome-reporter/lib', {
+  paths: [dependencyRoot],
+})
+const imageDiffPluginPath = require.resolve('cypress-image-diff-js/plugin', {
+  paths: [dependencyRoot],
+})
+const { beforeRunHook } = require(reporterLibPath)
 
 module.exports = defineConfig({
   allowCypressEnv: false,
@@ -37,8 +47,8 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
 
       // Plugins
-      require('cypress-image-diff-js/plugin')(on, config);
-      require('cypress-mochawesome-reporter/plugin')(on);
+      require(imageDiffPluginPath)(on, config);
+      require(reporterPluginPath)(on);
       on('before:run', async (details) => {
         console.log('override before:run')
         await beforeRunHook(details)
