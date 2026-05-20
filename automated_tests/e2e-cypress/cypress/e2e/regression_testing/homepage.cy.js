@@ -66,6 +66,10 @@ paths.forEach((path) => {
           env = "local";
         } else if (cyURL.includes("beta-stage.usa")) {
           env = "stage";
+        } else if (cyURL.includes("beta-dev.usa")) {
+          env = "dev";
+        } else if (cyURL.includes("beta-dr.usa")) {
+          env = "dr";
         } else {
           env = "prod";
         }

@@ -107,7 +107,7 @@ describe('Content Page [ENG]', () => {
             .find('#last-updated')
             .should('exist')
     })
-    it('BTE 33: Share this page function works correctly for facebook, twitter, and email', () => {
+    it('BTE 33: Share this page function works correctly for facebook, X, and email', () => {
         // test links for each social
         cy.get('.additional_body_info')
             .find('#sm-share')
@@ -115,7 +115,7 @@ describe('Content Page [ENG]', () => {
             .get('div.share-icons>a').eq(0)
             .should('have.attr', 'href', 'http://www.facebook.com/sharer/sharer.php?u=http://localhost/disaster-assistance&v=3')
             .get('div.share-icons>a').eq(1)
-            .should('have.attr', 'href', 'http://twitter.com/intent/tweet?source=webclient&text=http://localhost/disaster-assistance')
+            .should('have.attr', 'href', 'https://x.com/intent/post?url=http%3A%2F%2Flocalhost%2Fdisaster-assistance')
             .get('div.share-icons>a').eq(2)
             .should('have.attr', 'href', 'mailto:?subject=http://localhost/disaster-assistance')
     })

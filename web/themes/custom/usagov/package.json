@@ -8,7 +8,7 @@
     "build": "npx gulp update",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npx gulp watch",
-    "lint": "npx stylelint sass/**.scss; npx eslint scripts/*",
+    "lint": "npx stylelint sass/**.scss; npx eslint --no-warn-ignored scripts/*",
     "scss": "npx gulp compileSass",
     "eslint": "npx gulp compileSass"
   },
@@ -25,6 +25,6 @@
   "dependencies": {
     "@accessible360/accessible-slick": "^1.0.1",
     "@uswds/uswds": "3.0.1",
-    "del": "^6.1.1"
+    "del": "^8.0.0"
   }
 }
