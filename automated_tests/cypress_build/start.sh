@@ -8,11 +8,14 @@ if ! grep -q 'EOINSTRS' /root/.bashrc ; then
 
 cat <<EOINSTRS
 
-To run all the tests:
-# npm run cy:run
+To run the regression test suite:
+# npm run cy:run:regression
 
-You can run a subset of the tests by specifying a subdirectory, for example:
-# npm run cy:run -- --spec cypress/e2e/functional
+You can run a smaller subset of the regression tests by specifying a file or directory, for example:
+# npm run cy:run -- --spec cypress/e2e/regression_testing/homepage.cy.js
+
+To run every Cypress spec, including older and example tests:
+# npm run cy:run
 
 To run tests interactively:
 # npm run cy:open

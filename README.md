@@ -147,8 +147,8 @@ We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, 
 2. Run `docker compose build cypress` to rebuild the cypress container with the new environment variables.
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
-   Run `npm run cy:run` to execute the entire test suite, or `npm run cy:run -- --spec cypress/e2e/functional` to run a smaller subset.
-   The extra `--` tells npm to pass the following arguments through to Cypress unchanged.
+   Run `npm run cy:run:regression` to execute the regression test suite. To run a smaller subset, pass a specific regression spec or directory, such as `npm run cy:run -- --spec cypress/e2e/regression_testing/homepage.cy.js`.
+   The extra `--` tells npm to pass the following arguments through to Cypress unchanged. `npm run cy:run` runs every Cypress spec, including older and example tests.
    These scripts default to Chromium; set `CYPRESS_BROWSER=firefox` first if you want to try a different browser.
 
    The **Report** will be written to `automated_tests/e2e-cypress/cypress/reports/html/index.html` and you can open it

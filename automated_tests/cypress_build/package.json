@@ -6,7 +6,7 @@
   "scripts": {
     "cy:open": "./run-cypress.sh open",
     "cy:run": "./run-cypress.sh run",
-    "cy:run:functional": "./run-cypress.sh run --spec cypress/e2e/functional/eng/error_page.cy.js"
+    "cy:run:regression": "./run-cypress.sh run --spec cypress/e2e/regression_testing/*.cy.js"
   },
   "keywords": [],
   "author": "",
