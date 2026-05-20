@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
@@ -30,6 +31,68 @@ function usagov_preprocess_html(array &$variables): void {
   // This ensures proper language detection even when there's no node context (like in views)
   $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
   $variables['language'] = $current_language;
+}
+
+/**
+ * Builds the pager's numeric range to match Benefit Search pagination.
+ */
+function usagov_preprocess_pager(array &$variables): void {
+  $element = $variables['pager']['#element'];
+  $parameters = $variables['pager']['#parameters'];
+  $route_name = $variables['pager']['#route_name'];
+  $route_parameters = $variables['pager']['#route_parameters'] ?? [];
+  $pager_manager = \Drupal::service('pager.manager');
+  $pager = $pager_manager->getPager($element);
+  if (!$pager) {
+    return;
+  }
+
+  $last_page_number = $pager->getTotalPages();
+  $current_page_number = $pager->getCurrentPage() + 1;
+  $variables['last_page_number'] = $last_page_number;
+  $variables['usagov_pager_pages'] = [];
+
+  if ($last_page_number <= 1) {
+    return;
+  }
+
+  if ($last_page_number <= 7) {
+    $items = range(1, $last_page_number);
+  }
+  elseif ($current_page_number <= 4) {
+    $items = array_merge(range(1, 5), ['ellipsis'], [$last_page_number]);
+  }
+  elseif ($current_page_number >= $last_page_number - 3) {
+    $items = array_merge([1], ['ellipsis'], range($last_page_number - 4, $last_page_number));
+  }
+  else {
+    $items = [
+      1,
+      'ellipsis',
+      $current_page_number - 1,
+      $current_page_number,
+      $current_page_number + 1,
+      'ellipsis',
+      $last_page_number,
+    ];
+  }
+
+  foreach ($items as $item) {
+    if ($item === 'ellipsis') {
+      $variables['usagov_pager_pages'][] = ['type' => 'ellipsis'];
+      continue;
+    }
+
+    $variables['usagov_pager_pages'][] = [
+      'type' => 'page',
+      'number' => $item,
+      'href' => Url::fromRoute($route_name, $route_parameters, [
+        'query' => $pager_manager->getUpdatedParameters($parameters, $element, $item - 1),
+      ])->toString(),
+      'current' => $item === $current_page_number,
+      'is_last' => $item === $last_page_number,
+    ];
+  }
 }
 
 /**
@@ -325,6 +388,18 @@ function usagov_preprocess_paragraph(array &$variables): void {
    */
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
+
+  /**
+   * Pass alert status label translations to uswds-alert paragraph templates.
+   * Centralised here so paragraph--uswds-alert.html.twig and its variants
+   * don't each need to duplicate the language check.
+   */
+  if (in_array($variables['paragraph']->bundle(), ['uswds_alert'])) {
+    $langcode = $node ? $node->language()->getId() : \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $variables['alert_translations'] = $langcode === 'es'
+      ? ['info' => 'información', 'warning' => 'aviso', 'error' => 'error', 'success' => 'exito']
+      : ['info' => 'Information', 'warning' => 'Warning', 'error' => 'Error', 'success' => 'Success'];
+  }
 }
 
 /**
@@ -479,6 +554,12 @@ function usagov_preprocess_views_view_list(array &$variables): void {
  * @param array<string, mixed> $variables
  */
 function usagov_theme_suggestions_alter(array &$suggestions, array $variables, string $hook): void {
+  if ($hook == 'menu' && isset($variables['menu_name']) && $variables['menu_name'] === 'usagov_blog_menu') {
+    // Ensure the blog menu always uses our custom template, regardless of
+    // what other modules/themes add to the suggestions list.
+    $suggestions[] = 'menu__usagov_blog_menu';
+  }
+
   if ($hook == 'views_view_fields') {
     $id = $variables['view']->storage->id();
     if ($id == "sub_children") {
@@ -634,6 +715,8 @@ function usagov_preprocess_page(array &$variables): void {
 
   // Check if we're on the blog_menu view (multiple ways to detect)
   $variables['is_blog_view'] = FALSE;
+  $variables['blog_intro_heading'] = NULL;
+  $variables['blog_intro_body'] = NULL;
   if ($route_name === 'view.blog_menu.page_1' ||
       $route_name === 'view.blog_menu.default' ||
       $current_path === '/blog' ||
@@ -646,6 +729,26 @@ function usagov_preprocess_page(array &$variables): void {
   $node = $route_match->getParameter('node');
   if ($node && method_exists($node, 'bundle')) {
     $variables['content_type'] = $node->bundle();
+  }
+
+  if ($variables['is_blog_view'] || (($variables['content_type'] ?? '') === 'blog_post')) {
+    $config_pages = \Drupal::entityTypeManager()
+      ->getStorage('config_pages')
+      ->loadByProperties(['type' => 'blog_intro']);
+
+    if (!empty($config_pages)) {
+      $blog_intro = reset($config_pages);
+      if ($blog_intro->hasField('field_blog_intro_heading')) {
+        $variables['blog_intro_heading'] = $blog_intro->get('field_blog_intro_heading')->value ?: NULL;
+      }
+      if ($blog_intro->hasField('field_blog_intro_body') && !$blog_intro->get('field_blog_intro_body')->isEmpty()) {
+        $variables['blog_intro_body'] = \Drupal::entityTypeManager()
+          ->getViewBuilder('config_pages')
+          ->viewField($blog_intro->get('field_blog_intro_body'), [
+            'label' => 'hidden',
+          ]);
+      }
+    }
   }
 
   // Alternative method: check if the page contains blog-related content

@@ -4,7 +4,7 @@
 .usa-sidenav {
   @include u-text('blue-warm-70v');
 
-  .active-trail {
+  a.active-trail {
     font-weight: bold;
   }
 
@@ -33,13 +33,12 @@
       bottom: 4px;
       left: 0;
       width: 4px;
-      @include u-bg('red-50');
-
+      background-color: $navigation-red;
       border-radius: 2px;
     }
 
     &::after {
-      background-color: #ae1a0a;
+      background-color: $navigation-red;
     }
 
     &:hover {
@@ -74,6 +73,7 @@
     display: none;
   }
 }
+
 
 /*
 This style overrides a style from _buttons.scss (https://github1s.com/uswds/uswds/blob/HEAD/src/stylesheets/elements/_buttons.scss#L28)

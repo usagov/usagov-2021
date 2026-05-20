@@ -13,6 +13,10 @@ if (window.location.hostname == "cms-usagov.docker.local") {
   env = "local";
 } else if (window.location.hostname == "beta-stage.usa") {
   env = "stage";
+} else if (window.location.hostname == "beta-dev.usa") {
+  env = "dev";
+} else if (window.location.hostname == "beta-dr.usa") {
+  env = "dr";
 } else {
   env = "prod";
 }
@@ -161,13 +165,13 @@ paths.forEach((path, idx) => {
       // make sure date appears
       cy.get(".additional_body_info").find("#last-updated").should("exist");
     });
-    it(`${testName} 33: Share this page function works correctly for facebook, twitter, and email`, () => {
+    it(`${testName} 33: Share this page function works correctly for facebook, X, and email`, () => {
       // test links for each social
       const facebook = [
         "disaster-assistance",
         "eses/requisitos-viaje-ninos-menores-de-edad",
       ];
-      const twitter = [
+      const x = [
         "disaster-assistance",
         "eses/requisitos-viaje-ninos-menores-de-edad",
       ];
@@ -182,6 +186,10 @@ paths.forEach((path, idx) => {
           origin = "http://cms-usagov.docker.local";
         } else if (cyURL.includes("beta-stage.usa")) {
           origin = "https://beta-stage.usa.gov";
+        } else if (cyURL.includes("beta-dr.usa")) {
+          origin = "https://beta-dr.usa.gov";
+        } else if (cyURL.includes("beta-dev.usa")) {
+          origin = "https://beta-dev.usa.gov";
         } else {
           origin = "https://www.usa.gov";
         }
@@ -201,7 +209,7 @@ paths.forEach((path, idx) => {
           .should(
             "have.attr",
             "href",
-            `https://twitter.com/intent/tweet?source=webclient&text=${origin}/${twitter[idx]}`,
+            `https://x.com/intent/post?url=${encodeURIComponent(`${origin}/${x[idx]}`)}`,
           )
           .get("div.share-icons>a")
           .eq(2)

@@ -71,7 +71,7 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-intera
 
 # USER www-data
 ###############################################################
-FROM node:20-bullseye-slim AS theme-builder
+FROM node:24-bullseye-slim AS theme-builder
 
 ARG BUID=1000
 ARG BGID=1000
@@ -104,33 +104,13 @@ RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
 
 ###############################################################
-FROM node:20-bullseye-slim AS benefit-finder-builder
-
-ARG BUID=1000
-ARG BGID=1000
-
-RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
-    && sed -E -i "s/:x:${BGID}:/:x:1919:/g" /etc/group \
-    && sed -E -i "s/node:x:[0-9]+:[0-9]+:/node:x:${BUID}:${BGID}:/g" /etc/passwd \
-    && sed -E -i "s/node:x:[0-9]+:/node:x:${BGID}:/g" /etc/group
-
-RUN chown -R node:node /home/node/
-
-COPY --chown=node:node web/modules/custom/usagov_benefit_finder/app-source/ /var/www/app-source/
-COPY --chown=node:node web/modules/custom/usagov_benefit_finder/modules/ /var/www/modules/
-
-WORKDIR /var/www/app-source
-
-USER node
-
-RUN npm install && npm run build
-
-###############################################################
 FROM alpine:3.22 AS cms
 
 ARG S6_VERSION
 ENV S6_VERSION=${S6_VERSION:-v2.2.0.3}
+
+ARG NGINX_VERSION=1.30.1
+ARG NGINX_SHA512=a081ed49692948ea61bada05a9bade88f9899f843c8d5a72c0d5362e812c14e1ea12de729bcdfe93016323fb014681ddfa472f3352b5e83455991be715293211
 
 ARG GITBRANCH
 ENV GITBRANCH=${GITBRANCH:-none}
@@ -290,8 +270,6 @@ COPY --chown=nginx:nginx website-analytics /var/www/website-analytics
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
 COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
 COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
-COPY --from=benefit-finder-builder --chown=nginx:nginx /var/www/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/js/benefit-finder.min.js /var/www/web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/js/benefit-finder.min.js
-COPY --from=benefit-finder-builder --chown=nginx:nginx /var/www/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/css/benefit-finder.min.css /var/www/web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/css/benefit-finder.min.css
 
 # Add the zscaler certificate to the trusted certs only on local builds
 # COPY cannot be conditional, but RUN can run conditional code.
@@ -325,17 +303,17 @@ RUN cd /tmp/ \
     && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
     && tar -xzvf v0.3.1.tar.gz \
     && mv ngx_devel_kit-0.3.1 ngx_devel_kit \
-    && wget https://nginx.org/download/nginx-1.28.0.tar.gz \
-    && NGCHECKSUM="07d1ef078a73009c2aff0a5729a57f58f26512b71377715ef72cecdb249ef2ff69dd44df3d755a1de2a2721ee604e8a6cfac30a4cf8a45f0890b1746b68ee4d5 *nginx-1.28.0.tar.gz" \
-    && openssl sha512 -r nginx-1.28.0.tar.gz \
-    && if [ "$(openssl sha512 -r nginx-1.28.0.tar.gz)" = "$NGCHECKSUM" ]; then \
+    && wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+    && NGCHECKSUM="${NGINX_SHA512} *nginx-${NGINX_VERSION}.tar.gz" \
+    && openssl sha512 -r nginx-${NGINX_VERSION}.tar.gz \
+    && if [ "$(openssl sha512 -r nginx-${NGINX_VERSION}.tar.gz)" = "$NGCHECKSUM" ]; then \
         echo "nginx tarball checksum verification succeeded!"; \
-    else \
+      else \
         echo "nginx tarball checksum verification failed!"; \
         exit 1; \
-    fi \
-    && tar -xzvf nginx-1.28.0.tar.gz \
-    && cd nginx-1.28.0 \
+      fi \
+    && tar -xzvf nginx-${NGINX_VERSION}.tar.gz \
+    && cd nginx-${NGINX_VERSION} \
     && ./configure \
         --prefix=/var/lib/nginx \
         --sbin-path=/usr/sbin/nginx \
@@ -352,7 +330,7 @@ RUN cd /tmp/ \
     && make
 RUN rm /etc/nginx/modules/10_devel_kit.conf || true
 RUN rm /etc/nginx/modules/30_http_lua.conf || true
-RUN cd /tmp/nginx-1.28.0 \
+RUN cd /tmp/nginx-${NGINX_VERSION} \
     && make install
 
 # Ensure compatibility if mysqldump has been removed
