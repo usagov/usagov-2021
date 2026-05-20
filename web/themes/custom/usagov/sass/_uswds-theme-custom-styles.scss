@@ -1038,6 +1038,16 @@ input::-webkit-textfield-decoration-container {
       }
     }
 
+    .views-field-title h2 a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover {
+        color: #272727;
+        text-decoration: underline;
+      }
+    }
+
     .views-field-field-featured-image {
       grid-column: 1 / -1;
       margin-top: 15px;
@@ -1079,15 +1089,6 @@ input::-webkit-textfield-decoration-container {
     }
   }
 
-  // Blog view pagination styling
-  .usa-pagination {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-
-    .usa-pagination__list {
-      justify-content: center;
-    }
-  }
 }
 
 // Pagination styles
@@ -1128,12 +1129,12 @@ input::-webkit-textfield-decoration-container {
       padding: 0.25rem 0.5rem;
       text-decoration: none;
       color: color('blue-warm-70v');
+      text-decoration: underline;
       font-weight: 600;
       transition: all 0.15s ease;
 
-      &:hover {
-        color: #768FB3;
-        text-decoration: underline;
+      &:visited {
+        color: color('blue-warm-70v');
       }
 
       &:focus {
@@ -1168,6 +1169,10 @@ input::-webkit-textfield-decoration-container {
       text-decoration: none;
       cursor: pointer;
 
+      &:visited {
+        color: color('blue-warm-70v');
+      }
+
       &:hover {
         background-color: #768FB3;
         border-color: #768FB3;
@@ -1184,6 +1189,10 @@ input::-webkit-textfield-decoration-container {
         border-color: color('blue-warm-70v');
         color: white;
         cursor: default;
+
+        &:visited {
+          color: white;
+        }
 
         &:hover {
           background-color: color('blue-warm-70v');
@@ -1226,6 +1235,8 @@ input::-webkit-textfield-decoration-container {
 
 // Blog instruction text responsive display utilities
 .blog-instruction-text {
+  margin-bottom: 30px;
+
   &.display-none {
     display: none;
   }
