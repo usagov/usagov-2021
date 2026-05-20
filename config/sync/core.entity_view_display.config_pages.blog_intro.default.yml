@@ -1,0 +1,31 @@
+uuid: f170b2ba-7f5c-4c56-9e28-0c9812f77073
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.blog_intro
+    - field.field.config_pages.blog_intro.field_blog_intro_body
+    - field.field.config_pages.blog_intro.field_blog_intro_heading
+  module:
+    - text
+id: config_pages.blog_intro.default
+targetEntityType: config_pages
+bundle: blog_intro
+mode: default
+content:
+  field_blog_intro_heading:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_blog_intro_body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

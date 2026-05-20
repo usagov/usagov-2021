@@ -14,6 +14,8 @@ use Drupal\Core\Form\FormStateInterface;
  */
 function usa_workflow_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   $newForm = [
+    'node_blog_post_form',
+    'node_blog_post_edit_form',
     'node_basic_page_form',
     'node_wizard_step_form',
     'node_wizard_form',

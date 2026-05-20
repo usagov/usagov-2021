@@ -215,26 +215,9 @@ services:
         - BGID
     security_opt:
       - no-new-privileges:true
-    command: npm run watch --prefix /var/www/web/themes/custom/usagov
+    command: /var/www/scripts/watch-frontend-assets.sh
     volumes:
       - .:/var/www:delegated
-    env_file:
-      - ./env.local
-    networks:
-      - gsa-gov
-
-  node-bf:
-    container_name: node-bf
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-cms
-      target: benefit-finder-builder
-      args:
-        - BUID
-        - BGID
-    command: npm run build:watch --prefix /var/www/app-source
-    volumes:
-      - ./web/modules/custom/usagov_benefit_finder:/var/www:delegated
     env_file:
       - ./env.local
     networks:
