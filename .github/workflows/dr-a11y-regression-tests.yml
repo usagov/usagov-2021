@@ -19,4 +19,5 @@ jobs:
         with:
           working-directory: automated_tests/cypress_build
           project: ../e2e-cypress
+          browser: chrome
           spec: ../e2e-cypress/cypress/e2e/regression_testing/*.cy.js
