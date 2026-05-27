@@ -329,7 +329,7 @@ exit
 # - bin/cypress-ssh
 #   in cypress shell:
 #   - CYPRESS_BASE_URL=https://beta-dr.usa.gov
-#   - npx cypress run --spec cypress/e2e/regression_testing
+#   - npm run cy:run -- --spec cypress/e2e/regression_testing
 # - Open the resulting report in a web browser:  ${repo dir}/automated_tests/e2e-cypress/cypress/reports/html/index.html
 ##################################################
 

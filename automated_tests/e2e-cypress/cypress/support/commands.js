@@ -28,9 +28,15 @@
 
 Cypress.Commands.add('logIn', () => {
     cy.visit('user/login')
-    cy.get('[data-drupal-selector="edit-name"]').type(Cypress.env('CMS_USER'))
-    cy.get('[data-drupal-selector="edit-pass"]').type(Cypress.env('CMS_PASS'))
-    cy.get('[data-drupal-selector="edit-submit"]').click()
+    cy.env(['CMS_USER', 'CMS_PASS'], { log: false }).then(({ CMS_USER, CMS_PASS }) => {
+        if (!CMS_USER || !CMS_PASS) {
+            throw new Error('Cypress CMS credentials are required for logIn()')
+        }
+
+        cy.get('[data-drupal-selector="edit-name"]').type(CMS_USER)
+        cy.get('[data-drupal-selector="edit-pass"]').type(CMS_PASS)
+        cy.get('[data-drupal-selector="edit-submit"]').click()
+    })
 });
 
 Cypress.Commands.add('logOut', () => {
@@ -109,4 +115,3 @@ Cypress.Commands.add('pageDirectoryPublish', () => {
     //publish federal and state page
     cy.get('#edit-submit').click()
 });
-
