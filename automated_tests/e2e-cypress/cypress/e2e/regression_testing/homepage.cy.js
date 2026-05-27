@@ -157,10 +157,7 @@ paths.forEach((path) => {
 
       // Check each link is valid
       cy.get("@links").each((link) => {
-        cy.visit(link.attr("href"));
-        cy.contains("Page not found").should("not.exist");
-
-        cy.go("back");
+        cy.request(link.attr("href")).its("status").should("be.lessThan", 400);
       });
     });
 
