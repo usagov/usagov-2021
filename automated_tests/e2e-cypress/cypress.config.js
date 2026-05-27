@@ -1,7 +1,9 @@
-const { defineConfig } = require('cypress')
 const path = require('path')
 
 const dependencyRoot = path.resolve(__dirname, '../cypress_build/node_modules')
+const cypressPath = require.resolve('cypress', {
+  paths: [dependencyRoot],
+})
 const reporterPath = require.resolve('cypress-mochawesome-reporter', {
   paths: [dependencyRoot],
 })
@@ -14,6 +16,7 @@ const reporterLibPath = require.resolve('cypress-mochawesome-reporter/lib', {
 const imageDiffPluginPath = require.resolve('cypress-image-diff-js/plugin', {
   paths: [dependencyRoot],
 })
+const { defineConfig } = require(cypressPath)
 const { beforeRunHook } = require(reporterLibPath)
 
 module.exports = defineConfig({
