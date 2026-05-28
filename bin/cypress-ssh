@@ -1,2 +1,2 @@
 #!/bin/sh
-docker exec -it cypress /bin/bash
+docker exec -it -w /app cypress /bin/bash
