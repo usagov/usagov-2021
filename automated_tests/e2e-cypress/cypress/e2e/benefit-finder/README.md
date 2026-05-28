@@ -49,27 +49,27 @@ Accessibility tests that verify:
 
 2. **Start the Cypress container:**
    ```bash
-   docker-compose up cypress
+   docker compose up cypress
    ```
 
 3. **Access the Cypress container:**
    ```bash
-   docker exec -it cypress bash
+   bin/cypress-ssh
    ```
 
 4. **Run all benefit finder tests:**
    ```bash
-   npx cypress run --spec "cypress/e2e/benefit-finder/**/*.cy.js"
+   npm run cy:run -- --spec "cypress/e2e/benefit-finder/**/*.cy.js"
    ```
 
 5. **Run specific test file:**
    ```bash
-   npx cypress run --spec "cypress/e2e/benefit-finder/benefit-finder-integration.cy.js"
+   npm run cy:run -- --spec "cypress/e2e/benefit-finder/benefit-finder-integration.cy.js"
    ```
 
 6. **Run tests interactively (with GUI):**
    ```bash
-   npx cypress open
+   npm run cy:open
    ```
    Then select the benefit-finder tests from the GUI.
 
@@ -79,17 +79,17 @@ If you prefer to run Cypress locally without Docker:
 
 1. **Navigate to the test directory:**
    ```bash
-   cd automated_tests/e2e-cypress
+   cd automated_tests/cypress_build
    ```
 
 2. **Install dependencies (if not already done):**
    ```bash
-   npm install
+   npm ci
    ```
 
 3. **Run benefit finder tests:**
    ```bash
-   npx cypress run --spec "cypress/e2e/benefit-finder/**/*.cy.js"
+   npm run cy:run -- --spec "cypress/e2e/benefit-finder/**/*.cy.js"
    ```
 
 ## Configuration
@@ -152,7 +152,7 @@ These tests are automatically included when running the full Cypress test suite 
 - Check Docker container logs for errors
 
 ### Selectors Not Found
-- Use Cypress interactive mode to inspect elements: `npx cypress open`
+- Use Cypress interactive mode to inspect elements: `npm run cy:open`
 - Update selectors in test files to match your actual Drupal/React implementation
 
 ## Related Documentation
