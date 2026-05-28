@@ -74,12 +74,13 @@ context('Cypress APIs', () => {
       let myConfig = Cypress.config()
 
       expect(myConfig).to.have.property('animationDistanceThreshold', 5)
-      expect(myConfig).to.have.property('baseUrl', null)
+      expect(myConfig).to.have.property('baseUrl', 'http://cms-usagov.docker.local')
+      expect(myConfig).to.have.property('chromeWebSecurity', false)
       expect(myConfig).to.have.property('defaultCommandTimeout', 4000)
       expect(myConfig).to.have.property('requestTimeout', 5000)
       expect(myConfig).to.have.property('responseTimeout', 30000)
-      expect(myConfig).to.have.property('viewportHeight', 660)
-      expect(myConfig).to.have.property('viewportWidth', 1000)
+      expect(myConfig).to.have.property('viewportHeight', 800)
+      expect(myConfig).to.have.property('viewportWidth', 1280)
       expect(myConfig).to.have.property('pageLoadTimeout', 60000)
       expect(myConfig).to.have.property('waitForAnimations', true)
 
@@ -110,32 +111,37 @@ context('Cypress APIs', () => {
     })
   })
 
-  context('Cypress.env()', () => {
+  context('cy.env()', () => {
     beforeEach(() => {
       cy.visit('https://example.cypress.io/cypress-api')
     })
 
-    // We can set environment variables for highly dynamic values
-
-    // https://on.cypress.io/environment-variables
     it('Get environment variables', () => {
-    // https://on.cypress.io/env
-    // set multiple environment variables
-      Cypress.env({
+      cy.env(['exampleHost', 'exampleApiServer']).then(({ exampleHost, exampleApiServer }) => {
+        expect(exampleHost).to.eq('veronica.dev.local')
+        expect(exampleApiServer).to.eq('http://localhost:8888/v1/')
+      })
+    })
+  })
+
+  context('Cypress.expose()', () => {
+    beforeEach(() => {
+      cy.visit('https://example.cypress.io/cypress-api')
+    })
+
+    it('Get and set public configuration', () => {
+      Cypress.expose({
         host: 'veronica.dev.local',
         api_server: 'http://localhost:8888/v1/',
       })
 
-      // get environment variable
-      expect(Cypress.env('host')).to.eq('veronica.dev.local')
+      expect(Cypress.expose('host')).to.eq('veronica.dev.local')
 
-      // set environment variable
-      Cypress.env('api_server', 'http://localhost:8888/v2/')
-      expect(Cypress.env('api_server')).to.eq('http://localhost:8888/v2/')
+      Cypress.expose('api_server', 'http://localhost:8888/v2/')
+      expect(Cypress.expose('api_server')).to.eq('http://localhost:8888/v2/')
 
-      // get all environment variable
-      expect(Cypress.env()).to.have.property('host', 'veronica.dev.local')
-      expect(Cypress.env()).to.have.property('api_server', 'http://localhost:8888/v2/')
+      expect(Cypress.expose()).to.have.property('host', 'veronica.dev.local')
+      expect(Cypress.expose()).to.have.property('api_server', 'http://localhost:8888/v2/')
     })
   })
 
