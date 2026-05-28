@@ -1,7 +1,8 @@
 #!/bin/bash
 
-SPACE=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.space_name // "unknown"')
-APP_NAME=$(echo "${VCAP_APPLICATION:-{}}" | jq -r '.name // "unknown"')
+empty_vcap={}
+SPACE=$(echo "${VCAP_APPLICATION:-${empty_vcap}}" | jq -r '.space_name // "unknown"')
+APP_NAME=$(echo "${VCAP_APPLICATION:-${empty_vcap}}" | jq -r '.name // "unknown"')
 OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
 CADDY_V=$(./caddy version 2>/dev/null | awk 'NR==1 {gsub(/^v/, "", $1); print $1}' || echo "unknown")
 
