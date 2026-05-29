@@ -18,7 +18,7 @@ Each accessifier targets a specific content type (e.g., `blog.php` → `blog_pos
 
 | Script | Content Type | Issues Fixed |
 |---|---|---|
-| `blog.php` | `blog_post` | Heading hierarchy, inline color styles, new-tab link warnings, ambiguous/social link text, table headers/captions, dev-domain hrefs |
+| `blog.php` | `blog_post` | Heading hierarchy, inline color/font-size styles, new-tab link warnings, ambiguous link text, table headers/captions, dev-domain hrefs |
 
 ---
 
@@ -95,20 +95,20 @@ The Drupal theme renders the site name as `<h1>` and the node title as `<h2>`. B
 CKEditor paste artifacts leave `color:` and `background-color:` inline styles on `<span>`, `<p>`, `<td>`, and other elements. These override the accessible stylesheet and can fail contrast requirements.
 **Resolution:** Strip only `color` and `background-color` from inline `style` attributes; preserve other properties (e.g., `text-align`). Bare `<span>` elements with no remaining attributes are also unwrapped.
 
-### Fix 4 — New-tab warnings (WCAG 3.2.2, 2.4.4)
+### Fix 4 — Fixed font size (WCAG 1.4.4)
+
+CKEditor paste artifacts can leave fixed `font-size` declarations on body content. These bypass the responsive theme typography and can prevent text from resizing cleanly.
+**Resolution:** Strip only `font-size` from inline `style` attributes; preserve other properties.
+
+### Fix 5 — New-tab warnings (WCAG 3.2.2, 2.4.4)
 
 Links with `target="_blank"` must warn users before opening a new context.
 **Resolution:** Add `aria-label="[visible text] (opens in a new tab)"` to every `<a target="_blank">` that does not already carry a "new tab" or "new window" phrase in its label or visible text.
 
-### Fix 5 — Ambiguous link text (WCAG 2.4.4)
+### Fix 6 — Ambiguous link text (WCAG 2.4.4)
 
 Links with generic text like "here", "click here", "read more", etc. are meaningless to screen-reader users who navigate by link.
 **Resolution:** Add an `aria-label` derived from the URL slug (or Drupal node title via path alias lookup) to any link whose visible text matches a known ambiguous term.
-
-### Fix 6 — Duplicate social media link text (WCAG 2.4.4)
-
-Multiple social media links on the same page can share visible text like "Facebook" while pointing to different accounts.
-**Resolution:** Add destination-specific labels such as `"FEMA on Facebook"` and `"USAGov on Facebook"` when duplicate social link names point to different URLs.
 
 ### Fix 7 — Table headers and captions (WCAG 1.3.1)
 
