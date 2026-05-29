@@ -78,7 +78,7 @@ display:
           click_sort_column: value
           type: string
           settings:
-            link_to_entity: false
+            link_to_entity: true
           group_column: value
           group_columns: {  }
           group_rows: true
@@ -370,7 +370,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a class="usa-button usa-button--secondary" href="{{ view_node }}">Read More</a>'
+            text: '<a class="usa-button usa-button--secondary" href="{{ view_node }}" aria-label="Read more about {{ title_1 }}">Read More</a>'
             make_link: false
             path: ''
             absolute: false
@@ -411,7 +411,7 @@ display:
           output_url_as_text: true
           absolute: false
       pager:
-        type: mini
+        type: full
         options:
           offset: 0
           pagination_heading_level: h4
@@ -421,6 +421,8 @@ display:
           tags:
             next: 'Next ›'
             previous: '‹ Previous'
+            first: '« First'
+            last: 'Last »'
           expose:
             items_per_page: false
             items_per_page_label: 'Items per page'
@@ -429,6 +431,7 @@ display:
             items_per_page_options_all_label: '- All -'
             offset: false
             offset_label: Offset
+          quantity: 9
       exposed_form:
         type: basic
         options:
