@@ -32,9 +32,11 @@ jobs:
           git submodule init && git submodule update
 
       - name: Checkout usagov-2021 working branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           cd usagov-2021
-          git switch ${{ github.head_ref }}
+          git switch "$HEAD_REF"
 
       - name: Cypress run (Chrome)
         uses: cypress-io/github-action@v7
@@ -73,9 +75,11 @@ jobs:
           git submodule init && git submodule update
 
       - name: Checkout usagov-2021 working branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           cd usagov-2021
-          git switch ${{ github.head_ref }}
+          git switch "$HEAD_REF"
 
       - name: Cypress run (Firefox)
         uses: cypress-io/github-action@v7
@@ -114,9 +118,11 @@ jobs:
           git submodule init && git submodule update
 
       - name: Checkout usagov-2021 working branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           cd usagov-2021
-          git switch ${{ github.head_ref }}
+          git switch "$HEAD_REF"
 
       - name: Cypress run (Edge)
         uses: cypress-io/github-action@v7
