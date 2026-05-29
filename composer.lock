@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26c11a8d103236362089464e96f35d95",
+    "content-hash": "e8f8a7a6b3d730a0743247baa3210d70",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2047,26 +2047,27 @@
         },
         {
             "name": "drupal/autologout",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/autologout.git",
-                "reference": "2.0.2"
+                "reference": "2.0.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/autologout-2.0.2.zip",
-                "reference": "2.0.2",
-                "shasum": "5e9bb2b37368cdb5e5d09f27ac4018466aaac2d6"
+                "url": "https://ftp.drupal.org/files/projects/autologout-2.0.3.zip",
+                "reference": "2.0.3",
+                "shasum": "1efd2020abe4025aee350e56189737ba11ab30cf"
             },
             "require": {
-                "drupal/core": "^9.2 || ^10 || ^11"
+                "drupal/core": "^9.2 || ^10 || ^11",
+                "drupal/js_cookie": "*"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.0.2",
-                    "datestamp": "1773996386",
+                    "version": "2.0.3",
+                    "datestamp": "1778985845",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -4188,6 +4189,62 @@
             "homepage": "https://www.drupal.org/project/jquery_ui_accordion",
             "support": {
                 "source": "https://git.drupalcode.org/project/jquery_ui_accordion"
+            }
+        },
+        {
+            "name": "drupal/js_cookie",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/js_cookie.git",
+                "reference": "1.0.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/js_cookie-1.0.2.zip",
+                "reference": "1.0.2",
+                "shasum": "effcbee68083efc866aca2a1bfa3fc6e14fe0c2f"
+            },
+            "require": {
+                "drupal/core": "^9 || ^10 || ^11"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.2",
+                    "datestamp": "1762168962",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "anybody",
+                    "homepage": "https://www.drupal.org/user/291091"
+                },
+                {
+                    "name": "dave reid",
+                    "homepage": "https://www.drupal.org/user/53892"
+                },
+                {
+                    "name": "grevil",
+                    "homepage": "https://www.drupal.org/user/3668491"
+                },
+                {
+                    "name": "jan kellermann",
+                    "homepage": "https://www.drupal.org/user/371731"
+                }
+            ],
+            "description": "Provides the js-cookie library as a dependency.",
+            "homepage": "https://www.drupal.org/project/js_cookie",
+            "support": {
+                "source": "https://git.drupalcode.org/project/js_cookie"
             }
         },
         {
@@ -13255,5 +13312,5 @@
         "php": ">=8.3"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
