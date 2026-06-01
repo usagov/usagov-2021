@@ -1,0 +1,5 @@
+enabled: true
+restrict_self_publish: true
+restrict_self_delete: true
+excluded_publish_bundles: [ ]
+excluded_delete_bundles: [ ]

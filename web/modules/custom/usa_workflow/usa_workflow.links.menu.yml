@@ -1,0 +1,5 @@
+usa_workflow.settings:
+  title: 'USA workflow'
+  description: 'Configure self-publish and self-delete workflow restrictions.'
+  route_name: usa_workflow.settings
+  parent: system.admin_config_workflow

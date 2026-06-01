@@ -1,3 +1,15 @@
 services:
-  usa_workflow.permission.service:
-    class: Drupal\usa_workflow\UsaWorkflowPermissionChecker
+  usa_workflow.policy:
+    class: Drupal\usa_workflow\UsaWorkflowPolicy
+    arguments:
+      - '@config.factory'
+      - '@content_moderation.moderation_information'
+      - '@entity_type.manager'
+      - '@entity_type.bundle.info'
+
+  usa_workflow.state_transition_validation:
+    class: Drupal\usa_workflow\StateTransitionValidationDecorator
+    decorates: content_moderation.state_transition_validation
+    arguments:
+      - '@usa_workflow.state_transition_validation.inner'
+      - '@usa_workflow.policy'

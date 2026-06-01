@@ -1,0 +1,25 @@
+usa_workflow.settings:
+  type: config_object
+  label: 'USA Workflow settings'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enable USA workflow restrictions'
+    restrict_self_publish:
+      type: boolean
+      label: 'Restrict self-publish'
+    restrict_self_delete:
+      type: boolean
+      label: 'Restrict self-delete'
+    excluded_publish_bundles:
+      type: sequence
+      label: 'Bundles excluded from self-publish restrictions'
+      sequence:
+        type: string
+        label: 'Excluded publish bundle'
+    excluded_delete_bundles:
+      type: sequence
+      label: 'Bundles excluded from self-delete restrictions'
+      sequence:
+        type: string
+        label: 'Excluded delete bundle'
