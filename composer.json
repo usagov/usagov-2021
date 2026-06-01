@@ -159,6 +159,9 @@
                 "Enable MenuActiveTrail to find the original menu item created by node_menus": "./patches/drupal/correctActiveTrail_d10.patch",
                 "Show views theme suggestions in twig debug": "./patches/drupal/viewsSuggestions-10_3.patch"
             },
+            "drupal/autologout": {
+                "Autologout multiple tab behavior fixes": "https://www.drupal.org/files/issues/2026-05-22/autologout-multiple-tab-3395581-48.patch"
+            },
             "drupal/views_menu_children_filter": {
                 "Use the technique from correctActiveTrail.patch to return the original menu item": "./patches/drupal/correctMenuChildren_d10.patch"
             },
