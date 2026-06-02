@@ -7,7 +7,8 @@ commands:
         default: "dev"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -22,7 +23,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
+            ./bin/cloudgov/deploy-cms << parameters.envname >> << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
               echo
               echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
@@ -194,7 +195,8 @@ commands:
         default: "dev"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - install-cloud-foundry
       - snapshot-preamble:
           envname: << parameters.envname >>
@@ -216,7 +218,8 @@ commands:
         default: "dev"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - install-cloud-foundry
       - signed-dockerhub-login
       - run:
@@ -230,6 +233,11 @@ commands:
             docker images --no-trunc --quiet
             export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
+      - run:
+          name: Smoke Test Reporter Google Auth
+          command: |
+            export DOCKER_CONTENT_TRUST=0
+            docker run --rm --entrypoint sh ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> -lc 'cd /analytics-reporter && npm run smoke:google-auth'
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
@@ -270,7 +278,8 @@ commands:
         default: "dr"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -292,7 +301,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - install-cloud-foundry
       - run:
           name: Setup Environment for use in Scripts
@@ -343,7 +353,8 @@ jobs:
     docker:
       - image: cimg/php:8.3-node
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Install Linters and Sniffers
           command: |
@@ -384,7 +395,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
@@ -600,7 +612,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
@@ -699,7 +712,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -872,20 +886,12 @@ workflows:
           type: approval
           requires:
             - build-and-push-container
-          filters:
-            branches:
-              only:
-              - dr
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
-          filters:
-            branches:
-              only:
-              - dr
       - approve-stage-deployment:
           type: approval
           requires:
@@ -935,20 +941,12 @@ workflows:
           type: approval
           requires:
             - build-and-push-container-cron
-          filters:
-            branches:
-              only:
-              - dr
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
-          filters:
-            branches:
-              only:
-              - dr
       - approve-stage-deployment-cron:
           type: approval
           requires:

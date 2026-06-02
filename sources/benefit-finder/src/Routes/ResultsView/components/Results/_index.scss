@@ -1,0 +1,77 @@
+@use '@styles/colors' as color;
+@use '@styles/breakpoints' as *;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+
+.bf-result-view {
+  .bf-grid-container.grid-container {
+    padding: rem(20px);
+  }
+}
+
+.bf-result-view-benefits,
+.bf-result-view-unmet,
+.bf-result-view-relevant-benefits,
+.bf-result-view-share-results {
+  padding: rem(16px) 0;
+  text-align: left;
+
+  .bf-result-view-unmet-heading,
+  .bf-result-view-relevant-benefits-heading,
+  .bf-result-view-share-results-heading {
+    @include h3;
+
+    margin-left: rem(15px);
+
+    @media (width > $desktop) {
+      margin-left: 0;
+    }
+  }
+
+  > p {
+    margin-left: rem(15px);
+
+    @media (width > $desktop) {
+      margin-left: 0;
+    }
+  }
+
+  .bf-expand-all {
+    display: none;
+  }
+}
+
+.bf-result-view-unmet {
+  p {
+    padding-bottom: rem(16px);
+  }
+
+  .bf-result-view-cta-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  @media (width > $desktop) {
+    margin-left: 0;
+  }
+}
+
+.bf-result-view-share-results-trigger-group {
+  button {
+    margin-bottom: rem(8px);
+  }
+}
+
+.bf-result-view-share-results {
+  text-align: left;
+}
+
+@media (width >= $desktop) {
+  .bf-result-view-details {
+    padding: rem(24px) 5.4rem;
+  }
+
+  .bf-result-view-benefits .bf-expand-all {
+    display: block;
+  }
+}

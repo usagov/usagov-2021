@@ -11,11 +11,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set env
         run: echo "CYPRESS_BASE_URL=https://beta-dr.usa.gov/" >> $GITHUB_ENV
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v2
+      - name: Link Cypress dependencies
+        run: ln -s ../cypress_build/node_modules automated_tests/e2e-cypress/node_modules
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
-          working-directory: automated_tests/e2e-cypress
-          spec: cypress/e2e/regression_testing/*.cy.js
+          working-directory: automated_tests/cypress_build
+          project: ../e2e-cypress
+          browser: chrome
+          spec: ../e2e-cypress/cypress/e2e/regression_testing/*.cy.js

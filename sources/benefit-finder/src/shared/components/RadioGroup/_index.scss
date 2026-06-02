@@ -1,0 +1,11 @@
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+
+
+@media (width >= $desktop) {
+  .bf-radio-group > .bf-usa-radio:first-of-type {
+    .bf-usa-radio__label {
+      margin-top: rem(24px);
+    }
+  }
+}

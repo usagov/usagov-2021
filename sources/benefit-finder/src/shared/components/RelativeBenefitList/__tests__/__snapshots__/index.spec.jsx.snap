@@ -1,0 +1,68 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`RelativeBenefitList > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="benefit-finder__main"
+    id="benefit-finder__main"
+  >
+    <div
+      class="life-events-grid"
+    >
+      <div
+        class="life-events-item benefit-finder-icon--retirement"
+        data-testid="benefit-finder-icon--retirement"
+      >
+        <div
+          class="life-events-item-content"
+        >
+          <h3>
+            <a
+              data-testid="retirement"
+              href="/benefit-finder/retirement"
+              hreflang="en"
+            >
+              Benefit finder: retirement
+            </a>
+          </h3>
+          <div>
+            <p>
+              <!--td {border: 1px solid #cccccc;}br {mso-data-placement:same-cell;}-->
+              <strong>
+                Find retirement benefits
+              </strong>
+               including financial and health assistance.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="life-events-item benefit-finder-icon--disability"
+        data-testid="benefit-finder-icon--disability"
+      >
+        <div
+          class="life-events-item-content"
+        >
+          <h3>
+            <a
+              data-testid="disability"
+              href="/benefit-finder/disability"
+              hreflang="en"
+            >
+              Benefit finder: disability
+            </a>
+          </h3>
+          <div>
+            <p>
+              <strong>
+                Find disability benefits
+              </strong>
+               to help with bills, education, jobs, and more.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

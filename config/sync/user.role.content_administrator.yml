@@ -3,8 +3,8 @@ langcode: en
 status: true
 dependencies:
   config:
+    - config_pages.type.blog_intro
     - block_content.type.modal
-    - block_content.type.site_banner
     - media.type.audio
     - media.type.file
     - media.type.image
@@ -12,6 +12,7 @@ dependencies:
     - media.type.video
     - node.type.agency_synonym
     - node.type.basic_page
+    - node.type.blog_post
     - node.type.bears_agency
     - node.type.bears_benefit
     - node.type.bears_criteria
@@ -26,6 +27,7 @@ dependencies:
     - workflows.workflow.basic_workflow
   module:
     - block_content
+    - config_pages
     - content_lock
     - content_moderation
     - content_translation
@@ -68,6 +70,7 @@ permissions:
   - 'create agency_synonym content'
   - 'create audio media'
   - 'create basic_page content'
+  - 'create blog_post content'
   - 'create bears_agency content'
   - 'create bears_benefit content'
   - 'create bears_criteria content'
@@ -80,7 +83,6 @@ permissions:
   - 'create media'
   - 'create modal block content'
   - 'create remote_video media'
-  - 'create site_banner block content'
   - 'create state_directory_record content'
   - 'create terms in benefits_category'
   - 'create terms in wizard'
@@ -93,6 +95,7 @@ permissions:
   - 'delete any agency_synonym content'
   - 'delete any audio media'
   - 'delete any basic_page content'
+  - 'delete any blog_post content'
   - 'delete any bears_agency content'
   - 'delete any bears_benefit content'
   - 'delete any bears_criteria content'
@@ -105,13 +108,12 @@ permissions:
   - 'delete any modal block content'
   - 'delete any modal block content revisions'
   - 'delete any remote_video media'
-  - 'delete any site_banner block content'
-  - 'delete any site_banner block content revisions'
   - 'delete any state_directory_record content'
   - 'delete any video media'
   - 'delete any wizard content'
   - 'delete any wizard_step content'
   - 'delete basic_page revisions'
+  - 'delete blog_post revisions'
   - 'delete bears_agency revisions'
   - 'delete bears_benefit revisions'
   - 'delete bears_criteria revisions'
@@ -122,6 +124,7 @@ permissions:
   - 'delete media'
   - 'delete own audio media'
   - 'delete own basic_page content'
+  - 'delete own blog_post content'
   - 'delete own bears_agency content'
   - 'delete own bears_benefit content'
   - 'delete own bears_criteria content'
@@ -145,6 +148,8 @@ permissions:
   - 'edit any agency_synonym content'
   - 'edit any audio media'
   - 'edit any basic_page content'
+  - 'edit blog_intro config page entity'
+  - 'edit any blog_post content'
   - 'edit any bears_agency content'
   - 'edit any bears_benefit content'
   - 'edit any bears_criteria content'
@@ -155,13 +160,13 @@ permissions:
   - 'edit any image media'
   - 'edit any modal block content'
   - 'edit any remote_video media'
-  - 'edit any site_banner block content'
   - 'edit any state_directory_record content'
   - 'edit any video media'
   - 'edit any wizard content'
   - 'edit any wizard_step content'
   - 'edit own audio media'
   - 'edit own basic_page content'
+  - 'edit own blog_post content'
   - 'edit own bears_agency content'
   - 'edit own bears_benefit content'
   - 'edit own bears_criteria content'
@@ -176,13 +181,14 @@ permissions:
   - 'edit own wizard content'
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
+  - 'edit site_banner config page entity'
   - 'edit terms in benefits_category'
   - 'edit terms in wizard'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert any modal block content revisions'
-  - 'revert any site_banner block content revisions'
   - 'revert basic_page revisions'
+  - 'revert blog_post revisions'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
   - 'revert bears_criteria revisions'
@@ -199,6 +205,7 @@ permissions:
   - 'translate agency_synonym node'
   - 'translate any entity'
   - 'translate basic_page node'
+  - 'translate blog_post node'
   - 'translate directory_record node'
   - 'translate editable entities'
   - 'translate menu_link_content'
@@ -215,10 +222,11 @@ permissions:
   - 'view agency_synonym revisions'
   - 'view all media revisions'
   - 'view all revisions'
+  - 'view blog_intro config page entity'
   - 'view any modal block content history'
-  - 'view any site_banner block content history'
   - 'view any unpublished content'
   - 'view basic_page revisions'
+  - 'view blog_post revisions'
   - 'view bears_agency revisions'
   - 'view bears_benefit revisions'
   - 'view bears_criteria revisions'
@@ -231,6 +239,7 @@ permissions:
   - 'view scheduled content'
   - 'view scheduled media'
   - 'view scheduled taxonomy_term'
+  - 'view site_banner config page entity'
   - 'view state_directory_record revisions'
   - 'view term revisions in wizard'
   - 'view the administration theme'

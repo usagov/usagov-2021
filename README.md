@@ -147,7 +147,9 @@ We use [Cypress](http://www.cypress.io). Note that we use only the Cypress App, 
 2. Run `docker compose build cypress` to rebuild the cypress container with the new environment variables.
 3. Run `bin/cypress-ssh` to open a shell in the cypress container
 
-   You can run `npx cypress run --spec cypress/e2e` to run the entire test suite, or specify a smaller subset like `cypress/e2e/functional`.
+   Run `npm run cy:run:regression` to execute the regression test suite. To run a smaller subset, pass a specific regression spec or directory, such as `npm run cy:run -- --spec cypress/e2e/regression_testing/homepage.cy.js`.
+   The extra `--` tells npm to pass the following arguments through to Cypress unchanged. `npm run cy:run` runs every Cypress spec, including older and example tests.
+   These scripts default to Chromium; set `CYPRESS_BROWSER=firefox` first if you want to try a different browser.
 
    The **Report** will be written to `automated_tests/e2e-cypress/cypress/reports/html/index.html` and you can open it
 in your web browser by navigating to that file. Cypress will report that it wrote the tests to
@@ -205,7 +207,7 @@ Note that this address will change if you change networks, or if you disconnect 
    ```
    You should see a message like `10.0.0.200 being added to access control list`. (If you see `no DISPLAY is set`, that might mean you didn't reboot after installing XQuartz.)
 2. Edit `env.local.cypress`. The `DISPLAY` variable should be set to your local IP address with `:0` after it, for example, `DISPLAY=10.0.0.200:0`
-3. Run `docker compose up` to rebuild the cypress container with the new environment variable. Alternatively, you can set the DISPLAY variable in the shell you get by running `bin/cypress-ssh`.
+3. Run `docker compose up` to rebuild the cypress container with the new environment variable. Alternatively, you can set the DISPLAY variable in the shell you get by running `bin/cypress-ssh` and then use `npm run cy:open`.
 
 [back to top](#usagov-2021)
 
@@ -356,7 +358,7 @@ Once you determine which config changes will be needed you can go to the [Export
 
 ## USAgovTheme
 The USAgov theme is a subtheme of the USWDS_base theme.
-This project's default start procedure (`docker compose up`) will start a container to automatically watch for changes and recompile the theme as needed.
+This project's default start procedure (`docker compose up`) will start a container to automatically watch for changes and recompile both the theme and the Benefit Finder frontend as needed.
 
 The theme can be manually built at any time through gulp's build task. Any other gulp task can be triggered the same way.
 ```
@@ -372,6 +374,25 @@ bin/npm run build
 ```
 
 This theme adds `USWDS_CKEditor_Custom_Styles.scss` into the CKeditor frame.
+
+[back to top](#usagov-2021)
+
+## Benefit Finder
+The Benefit Finder source now lives in `sources/benefit-finder`, while the compiled
+Drupal module assets remain committed under `web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page`.
+
+Use the repo-level scripts to rebuild the committed assets:
+```
+# Rebuild benefit finder module assets
+./scripts/benefit-finder/build-module-assets.sh
+```
+
+To rebuild automatically while working on the Benefit Finder without Docker:
+```
+./scripts/benefit-finder/watch-module-assets.sh
+```
+
+`docker compose up` now starts the same Benefit Finder watcher automatically in the existing `node` container alongside the theme watcher. This workflow no longer depends on a Docker build stage.
 
 [back to top](#usagov-2021)
 

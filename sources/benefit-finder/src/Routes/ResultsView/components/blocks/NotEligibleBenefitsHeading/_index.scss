@@ -1,0 +1,9 @@
+@use '@styles/mixins' as *;
+
+.bf-not-eligible-view-heading {
+  @include h2;
+}
+
+.bf-not-eligible-view-description {
+  @include h6;
+}

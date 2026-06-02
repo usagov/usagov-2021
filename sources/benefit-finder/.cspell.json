@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "ignorePaths": [
+    "node_modules",
+    "themes",
+    "storybook-static",
+    "dist",
+    "coverage",
+    "build",
+    "src/shared/locales/es/es.json"
+  ],
+  "language": "en",
+  "dictionaryDefinitions": [
+    { "name": "content", "path": "./cspell-dictionary/content.txt" },
+    { "name": "dev", "path": "./cspell-dictionary/dev.txt" },
+    { "name": "es", "path": "./cspell-dictionary/es.txt" },
+    { "name": "project", "path": "./cspell-dictionary/project.txt" }
+  ],
+  "dictionaries": [
+    "html",
+    "bash",
+    "css",
+    "node",
+    "content",
+    "dev",
+    "es",
+    "project"
+  ]
+}

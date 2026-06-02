@@ -124,6 +124,12 @@ echo bin/cloudgov/deploy-services PIPE tee ds.log
 $echo bin/cloudgov/deploy-services | tee ds.log
 exit
 
+### USAGOV-2473: Allow for parallel runs of cache creation and rds creation.
+echo "Open up 2 new terminal sessions, and run one of the two following commands in each terminal:"
+echo bin/cloudgov/deploy-cache-service $APP_SPACE '| tee ds-cache.log'
+echo bin/cloudgov/deploy-rds-service $APP_SPACE '| tee ds-rds.log'
+exit
+
 #####################################################
 ### README: !!! Only if re-creating egress space!!!
 #####################################################
@@ -323,7 +329,7 @@ exit
 # - bin/cypress-ssh
 #   in cypress shell:
 #   - CYPRESS_BASE_URL=https://beta-dr.usa.gov
-#   - npx cypress run --spec cypress/e2e/regression_testing
+#   - npm run cy:run -- --spec cypress/e2e/regression_testing
 # - Open the resulting report in a web browser:  ${repo dir}/automated_tests/e2e-cypress/cypress/reports/html/index.html
 ##################################################
 

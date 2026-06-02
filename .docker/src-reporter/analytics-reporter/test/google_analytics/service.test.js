@@ -76,7 +76,7 @@ describe("GoogleAnalyticsService", () => {
           /* eslint-disable no-empty */
           try {
             await subject.runReportQuery(query, true);
-          } catch (e) {}
+          } catch {}
           /* eslint-enable no-empty */
         });
 
@@ -99,7 +99,7 @@ describe("GoogleAnalyticsService", () => {
           /* eslint-disable no-empty */
           try {
             await subject.runReportQuery(query, true);
-          } catch (e) {}
+          } catch {}
           /* eslint-enable no-empty */
         });
 
@@ -163,7 +163,7 @@ describe("GoogleAnalyticsService", () => {
           /* eslint-disable no-empty */
           try {
             await subject.runReportQuery(query);
-          } catch (e) {}
+          } catch {}
           /* eslint-enable no-empty */
         });
 
@@ -186,7 +186,7 @@ describe("GoogleAnalyticsService", () => {
           /* eslint-disable no-empty */
           try {
             await subject.runReportQuery(query);
-          } catch (e) {}
+          } catch {}
           /* eslint-enable no-empty */
         });
 

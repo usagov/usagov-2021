@@ -84,14 +84,23 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
     $criteria_values = array_column($criteria->get('field_b_values')->getValue(), 'value');
 
     if (!array_filter($acceptable_values)) {
-      $errors[] = t("Criteria \"$criteria_title\" acceptable values is empty.");
+      $errors[] = t(
+        'Criteria "@criteria_title" acceptable values is empty.',
+        ['@criteria_title' => $criteria_title]
+      );
     }
 
     if (in_array($criteria_type, ['Boolean', 'Radio', 'Select'])) {
       foreach ($acceptable_values as $value) {
         if (!empty($value) && !in_array($value, $criteria_values)) {
-          $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" is not an option value.");
-          $errors[] = t("--- Acceptable values from \"$criteria_title\" are: " . implode(', ', $criteria_values));
+          $errors[] = t(
+            'Criteria "@criteria_title" acceptable value "@value" is not an option value.',
+            ['@criteria_title' => $criteria_title, '@value' => $value]
+          );
+          $errors[] = t(
+            '--- Acceptable values from "@criteria_title" are: @values',
+            ['@criteria_title' => $criteria_title, '@values' => implode(', ', $criteria_values)]
+          );
         }
       }
     }
@@ -100,7 +109,10 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
       foreach ($acceptable_values as $value) {
         if (!empty($value)) {
           if (strpos($value, ' ') !== FALSE) {
-            $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" cannot contain space.");
+            $errors[] = t(
+              'Criteria "@criteria_title" acceptable value "@value" cannot contain space.',
+              ['@criteria_title' => $criteria_title, '@value' => $value]
+            );
             continue;
           }
           $pattern = '/^(=|>|<|>=|<=)(\d{2}-\d{2}-\d{4}|\d{1,2}years)$/';
@@ -109,13 +121,23 @@ function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate(arr
             if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $secondPart, $matches) === 1) {
               $dateTime = DateTime::createFromFormat('m-d-Y', $secondPart);
               if (!($dateTime && $dateTime->format('m-d-Y') === $secondPart)) {
-                $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" date \"$secondPart\" is invalid.");
-                $errors[] = t("--- Format: MM-DD-YYYY");
+                $errors[] = t(
+                  'Criteria "@criteria_title" acceptable value "@value" date "@secondPart" is invalid.',
+                  [
+                    '@criteria_title' => $criteria_title,
+                    '@value' => $value,
+                    '@secondPart' => $secondPart,
+                  ]
+                );
+                $errors[] = t('--- Format: MM-DD-YYYY');
               }
             }
           }
           else {
-            $errors[] = t("Criteria \"$criteria_title\" acceptable value \"$value\" is incorrect.");
+            $errors[] = t(
+              'Criteria "@criteria_title" acceptable value "@value" is incorrect.',
+              ['@criteria_title' => $criteria_title, '@value' => $value]
+            );
             $errors[] = t("---The prefix must include only one of the following comparison operators: '>', '<', '=', '>=', or '<='.
 
 --- The suffix must be formatted as either 'MM-DD-YYYY' or '(d or dd)years'.");

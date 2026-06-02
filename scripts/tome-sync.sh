@@ -65,9 +65,18 @@ touch $TOMELOG
 # Tome is failing to pull in these assets so we will pull them in ourself
 echo "Add in any extra or missing files ... "
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+
 cp -rfp /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
+
+# --- USAGOV-2515: Copy Drupal image styles to static output ---
+if [ -d /var/www/web/sites/default/files/styles ]; then
+  echo "Copying Drupal image styles to static output ..."
+  mkdir -p "$RENDER_DIR/s3/files/"
+  cp -rfp /var/www/web/sites/default/files/styles "$RENDER_DIR/s3/files/styles" 2>&1 | tee -a $TOMELOG
+fi
+
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
 cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
@@ -148,6 +157,18 @@ do
 done
 
 
+################################################################################
+# USAGOV-2515: Sync static images referenced in HTML from S3FS/public:// to static output
+# and rewrite HTML references to use static file paths. This is done via Drush command.
+################################################################################
+echo "Running Drush static image sync (usagov:ssg-sync-images) ..." | tee -a $TOMELOG
+if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" 2>&1 | tee -a $TOMELOG; then
+  echo "Drush static image sync completed successfully." | tee -a $TOMELOG
+else
+  echo "ERROR: Drush static image sync failed!" | tee -a $TOMELOG
+  exit 1
+fi
+
 # lower case all filenames in the copied dir before uploading
 LCF=0
 echo "Lower-casing files:"
@@ -227,6 +248,9 @@ find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}
 mkdir -p $RENDER_DIR/ppr
 cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
 
+###############################################################################
+## The *HOME_HTML* tests looked for problems we have since solved. They remain
+## in case such problems recur.
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
 EN_HOME_HTML_BAD=0
@@ -296,6 +320,97 @@ if [ "$ES_HOME_HTML_BAD" == "1" ]; then
   touch $RETRY_SEMAPHORE_FILE
   TOME_PUSH_NEW_CONTENT=0
 fi
+
+#
+# End of *HOME_HTML* checks
+##############################################################
+
+
+
+##############################################################
+# Missing blog pages; Jira USAGOV-2667
+#
+
+BLOG_DIR=/var/www/html/blog
+BLOG_TOP_INDEX_MISSING=
+BLOG_INDEX_MISSING=""
+BLOG_PROBLEM=0
+
+# /blog/index.html should exist
+if [ -e "${BLOG_DIR}/index.html" ]; then
+    # that's good!
+    BLOG_TOP_INDEX_MISSING=
+else
+    BLOG_TOP_INDEX_MISSING="${BLOG_DIR}"
+    BLOG_PROBLEM=1
+fi
+
+# every blog/year and blog/year/month directory should have an index.html
+yr_mo_idx_missing=""
+
+# Years
+yr_mo_idx_partial="`find ${BLOG_DIR} -path '*/[0-9][0-9][0-9][0-9]' -exec test ! -e '{}/index.html' ';' -print`"
+
+if [ "${yr_mo_idx_partial}" ]; then
+    yr_mo_idx_missing="${yr_mo_idx_missing} ${yr_mo_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+
+# Months
+yr_mo_idx_partial="`find ${BLOG_DIR} -path '*/[0-9][0-9][0-9][0-9]/[0-9][0-9]' -exec test ! -e '{}/index.html' ';' -print`"
+
+if [ "${yr_mo_idx_partial}" ]; then
+    yr_mo_idx_missing="${yr_mo_idx_missing} ${yr_mo_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+# Every */pages/\d+ directory should have an index.html.
+page_idx_missing=""
+
+# one-digit directories
+page_idx_partial="`find ${BLOG_DIR} -path '*/page/[0-9]' -empty | sed 's/\n/, /g'`"
+
+if [ "${page_idx_partial}" ]; then
+    page_idx_missing="${page_idx_missing} ${page_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+# two-digit directories
+page_idx_partial="`find ${BLOG_DIR} -path '*/page/[0-9][0-9]' -empty | sed 's/\n/, /g'`"
+
+if [ "${page_idx_partial}" ]; then
+    page_idx_missing="${page_idx_missing} ${page_idx_partial}"
+    BLOG_PROBLEM=1
+fi
+
+if [ "${BLOG_TOP_INDEX_MISSING}" ]; then
+    BLOG_INDEX_MISSING="${BLOG_INDEX_MISSING}${BLOG_TOP_INDEX_MISSING} "
+    BLOG_PROBLEM=1
+fi
+
+if [ "${page_idx_missing}" ]; then
+    BLOG_INDEX_MISSING="${BLOG_INDEX_MISSING}$(echo ${page_idx_missing} ) "
+    BLOG_PROBLEM=1
+fi
+
+if [ "${yr_mo_idx_missing}" ]; then
+    BLOG_INDEX_MISSING="${BLOG_INDEX_MISSING}$(echo ${yr_mo_idx_missing} ) "
+    BLOG_PROBLEM=1
+fi
+
+# If any "missing index" paths were found, log the error.
+# Don't prevent publishing, because there are cases where a directory might contain,
+# for example, redirects but no index.html file. USAGOV-2693
+if [ "${BLOG_PROBLEM}" -ne "0" ]; then
+    echo "WARNING: *** BLOG index.html(s) missing: ${BLOG_INDEX_MISSING} ***" | tee -a $TOMELOG
+fi
+
+#
+# End of blog page checks (USAGOV-2667)
+##############################################################
+
+
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG

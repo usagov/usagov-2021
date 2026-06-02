@@ -36,7 +36,7 @@ nohup sshpass -p $CF_SSH_CODE ssh \
 sleep 5
 
 echo "[INFO] Estimate DB Size for progress bar"
-DB_SIZE=$(mysql \
+DB_SIZE=$(mariadb \
     -h127.0.0.1 \
     -P$LOCAL_PORT \
     -u$CF_DB_USER \
@@ -50,6 +50,6 @@ DB_SIZE=$(mysql \
 hsize=$(numfmt --to=iec-i --suffix=B "$DB_SIZE")
 
 echo "[INFO] Dumping database (size=$hsize) into $LOCAL_FILE ..."
-mysqldump -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME \
+mariadb-dump -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME \
     --opt --hex-blob --set-gtid-purged=OFF --compression-algorithms=zlib --quick \
     | pv --size $DB_SIZE > /hostfs/$LOCAL_FILE

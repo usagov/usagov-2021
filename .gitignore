@@ -121,6 +121,14 @@ web/themes/custom/usagov/img
 # # Ignore published-pages.csv file
 web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv
 
+# Benefit Finder source - Ignore build artifacts and dependencies
+sources/benefit-finder/node_modules/
+sources/benefit-finder/build/
+sources/benefit-finder/dist/
+sources/benefit-finder/.env.local
+sources/benefit-finder/coverage/
+sources/benefit-finder/storybook-static/
+
 # Ignore report.csv which is created by the USAGOV-2180 script
 report.csv
 
@@ -148,3 +156,7 @@ bin/cloudgov/test/nr/php/manifest-vars.yml
 
 .docker/src-reporter/analytics.pem
 reporter-vcapsecrets.json
+
+# a11y audit outputs
+bin/a11y/json/
+bin/a11y/reports/

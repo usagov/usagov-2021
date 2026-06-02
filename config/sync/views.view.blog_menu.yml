@@ -63,11 +63,11 @@ display:
             trim: false
             preserve_tags: ''
             html: false
-          element_type: ''
-          element_class: ''
+          element_type: h2
+          element_class: text-red-50
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: false
           element_wrapper_type: ''
           element_wrapper_class: ''
           element_default_classes: true
@@ -82,6 +82,13 @@ display:
           group_column: value
           group_columns: {  }
           group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
         field_featured_image:
           id: field_featured_image
           table: node__field_featured_image
@@ -404,7 +411,7 @@ display:
           output_url_as_text: true
           absolute: false
       pager:
-        type: mini
+        type: full
         options:
           offset: 0
           pagination_heading_level: h4
@@ -414,6 +421,8 @@ display:
           tags:
             next: 'Next ›'
             previous: '‹ Previous'
+            first: '« First'
+            last: 'Last »'
           expose:
             items_per_page: false
             items_per_page_label: 'Items per page'
@@ -422,6 +431,7 @@ display:
             items_per_page_options_all_label: '- All -'
             offset: false
             offset_label: Offset
+          quantity: 9
       exposed_form:
         type: basic
         options:
@@ -545,6 +555,23 @@ display:
           plugin_id: bundle
           value:
             blog_post: blog_post
+        langcode:
+          id: langcode
+          table: node_field_data
+          field: langcode
+          relationship: none
+          group_type: group
+          admin_label: ''
+          entity_type: node
+          entity_field: langcode
+          plugin_id: language
+          value:
+            - en
+          group: 1
+          expose:
+            operator_id: ''
+            label: ''
+            operator: ''
       style:
         type: default
       row:

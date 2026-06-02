@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: "GSA/px-benefit-finder"
           ref: "release" # Specify the branch name here
@@ -32,12 +32,14 @@ jobs:
           git submodule init && git submodule update
 
       - name: Checkout usagov-2021 working branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           cd usagov-2021
-          git switch ${{ github.head_ref }}
+          git switch "$HEAD_REF"
 
       - name: Cypress run (Chrome)
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: ./benefit-finder
           browser: chrome
@@ -57,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: "GSA/px-benefit-finder"
           ref: "release" # Specify the branch name here
@@ -73,12 +75,14 @@ jobs:
           git submodule init && git submodule update
 
       - name: Checkout usagov-2021 working branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           cd usagov-2021
-          git switch ${{ github.head_ref }}
+          git switch "$HEAD_REF"
 
       - name: Cypress run (Firefox)
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: ./benefit-finder
           browser: firefox
@@ -98,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the release branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: "GSA/px-benefit-finder"
           ref: "release" # Specify the branch name here
@@ -114,12 +118,14 @@ jobs:
           git submodule init && git submodule update
 
       - name: Checkout usagov-2021 working branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           cd usagov-2021
-          git switch ${{ github.head_ref }}
+          git switch "$HEAD_REF"
 
       - name: Cypress run (Edge)
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: ./benefit-finder
           browser: edge
