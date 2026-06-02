@@ -300,7 +300,7 @@ def build_report(report: dict[str, Any], input_path: Path, output_path: Path) ->
             related_files.append([f"{input_path.stem}-csv/{csv_name}", purpose])
     changes_csv_path = csv_dir / "changes.csv"
     if changes_csv_path.exists():
-        related_files.append([f"{input_path.stem}-csv/changes.csv", "Resource-level changes from the provided previous JSON baseline"])
+        related_files.append([f"{input_path.stem}-csv/changes.csv", "Field-level changes from the provided previous JSON baseline"])
 
     doc.heading("Related Files", 2)
     doc.table(["File", "Purpose"], related_files)

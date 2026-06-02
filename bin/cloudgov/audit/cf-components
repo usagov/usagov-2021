@@ -19,7 +19,7 @@ Options:
   --output-json FILE        Write JSON report to FILE.
   --docx                    Translate the generated JSON into a DOCX report.
   --csv                     Translate the generated JSON into CSV files.
-  --csv-diff OLD_JSON       Compare OLD_JSON to generated JSON and emit changes.csv.
+  --csv-diff OLD_JSON       Compare OLD_JSON to generated JSON and emit field-level changes.csv.
   --out-dir DIR             Write DOCX/CSV outputs into DIR.
   --all-formats, --af       Generate JSON, DOCX, and CSV outputs.
   -h, --help                Show this help message.
