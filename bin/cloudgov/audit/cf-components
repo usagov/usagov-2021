@@ -18,10 +18,9 @@ Options:
   --to-file                 Write JSON to a generated file.
   --output-json FILE        Write JSON report to FILE.
   --docx                    Translate the generated JSON into a DOCX report.
-  --md                      Translate the generated JSON into markdown (legacy).
   --csv                     Translate the generated JSON into CSV files.
   --csv-diff OLD_JSON       Compare OLD_JSON to generated JSON and emit changes.csv.
-  --out-dir DIR             Write DOCX/markdown/csv outputs into DIR.
+  --out-dir DIR             Write DOCX/CSV outputs into DIR.
   --all-formats, --af       Generate JSON, DOCX, and CSV outputs.
   -h, --help                Show this help message.
 
@@ -47,7 +46,6 @@ sanitize_scope() { # $1 = scope label
 json_args=()
 json_only=false
 write_to_file=false
-translate_md=false
 translate_docx=false
 translate_csv=false
 translate_csv_diff=false
@@ -103,9 +101,6 @@ while [[ $# -gt 0 ]]; do
       output_json="${1#*=}"
       [[ -n "$output_json" ]] || die "No arg for --output-json option"
       ;;
-    --md)
-      translate_md=true
-      ;;
     --docx)
       translate_docx=true
       ;;
@@ -159,7 +154,6 @@ fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 json_script="$script_dir/cf-components-json"
-md_script="$script_dir/cf-components-translate-md"
 docx_script="$script_dir/cf-components-translate-docx"
 csv_script="$script_dir/cf-components-translate-csv"
 diff_script="$script_dir/cf-components-translate-csv-diff"
@@ -173,7 +167,7 @@ run_json_script() {
   fi
 }
 
-if [[ "$translate_md" == false && "$translate_docx" == false && "$translate_csv" == false && "$translate_csv_diff" == false && "$json_only" == false && "$write_to_file" == false && -z "$output_json" ]]; then
+if [[ "$translate_docx" == false && "$translate_csv" == false && "$translate_csv_diff" == false && "$json_only" == false && "$write_to_file" == false && -z "$output_json" ]]; then
   status "Generating JSON to stdout..."
   if [[ "${#json_args[@]}" -gt 0 ]]; then
     exec "$json_script" "${json_args[@]}"
@@ -215,13 +209,6 @@ if [[ "$translate_docx" == true ]]; then
   "$docx_script" --input "$output_json" --output "$docx_output"
 fi
 
-if [[ "$translate_md" == true ]]; then
-  mkdir -p "$out_dir"
-  md_output="$out_dir/$(basename "${output_json%.json}.md")"
-  status "Translating JSON to markdown: $md_output"
-  "$md_script" --input "$output_json" --output "$md_output"
-fi
-
-if [[ "$json_only" == true || "$write_to_file" == true || "$translate_md" == true || "$translate_docx" == true || "$translate_csv" == true || "$translate_csv_diff" == true ]]; then
+if [[ "$json_only" == true || "$write_to_file" == true || "$translate_docx" == true || "$translate_csv" == true || "$translate_csv_diff" == true ]]; then
   status "Component audit workflow complete. JSON: $output_json"
 fi
