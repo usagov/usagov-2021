@@ -1,0 +1,232 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() { echo "$*" >&2; exit 2; }
+status() { printf '[cf-components-translate-md] %s\n' "$*" >&2; }
+
+usage() {
+  cat <<'EOF'
+Usage: cf-components-translate-md [--input JSON_FILE] [--output MARKDOWN_FILE]
+
+Options:
+  --input FILE    Read component audit JSON from FILE. Defaults to stdin.
+  --output FILE   Write markdown output to FILE. Defaults to input base name + .md.
+  -h, --help      Show this help message.
+EOF
+}
+
+input_file="/dev/stdin"
+output_file=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --input)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --input option"
+      [[ -n "$1" ]] || die "No arg for --input option"
+      input_file="$1"
+      ;;
+    --input=*)
+      input_file="${1#*=}"
+      [[ -n "$input_file" ]] || die "No arg for --input option"
+      ;;
+    --output)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --output option"
+      [[ -n "$1" ]] || die "No arg for --output option"
+      output_file="$1"
+      ;;
+    --output=*)
+      output_file="${1#*=}"
+      [[ -n "$output_file" ]] || die "No arg for --output option"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "Illegal option $1"
+      ;;
+  esac
+  shift
+done
+
+if [[ "$input_file" == "/dev/stdin" ]]; then
+  input_data=$(cat)
+else
+  [[ -f "$input_file" ]] || die "Input file not found: $input_file"
+  input_data=$(cat "$input_file")
+fi
+
+if [[ -z "$output_file" ]]; then
+  if [[ "$input_file" == "/dev/stdin" ]]; then
+    die "--output is required when reading from stdin"
+  fi
+  output_file="${input_file%.json}.md"
+fi
+
+jq -r '
+  def md_cell:
+    if . == null then
+      ""
+    elif type == "array" then
+      map(tostring) | join(", ")
+    elif type == "object" then
+      tojson
+    else
+      tostring
+    end
+    | gsub("[|]"; "\\|")
+    | gsub("\\r?\\n"; " ");
+
+  def md_table(headers; rows):
+    headers as $headers
+    | rows as $rows
+    | if ($rows | length) == 0 then
+        ["_None_", ""]
+      else
+        (["| " + ($headers | map(md_cell) | join(" | ")) + " |",
+          "| " + ($headers | map("---") | join(" | ")) + " |"]
+        + ($rows | map("| " + (map(md_cell) | join(" | ")) + " |"))
+        + [""])
+      end;
+
+  def filter_value(filter):
+    if filter.mode == "selected" then
+      (filter.name // (filter.names // [] | join(", ")))
+    else
+      "all"
+    end;
+
+  def route_destination_names(route):
+    (route.destinations // [])
+    | map(.app.name // .app.guid // "unknown")
+    | unique
+    | join(", ");
+
+  def org_summary_table(org):
+    md_table(["GUID", "Domains", "Spaces", "Created", "Updated"]; [[
+      org.guid,
+      (org.counts.domains // (org.domains | length)),
+      (org.counts.spaces // (org.spaces | length)),
+      (org.created_at // ""),
+      (org.updated_at // "")
+    ]]);
+
+  def domains_table(domains):
+    md_table(["Name", "GUID", "Internal", "Protocols", "Created", "Updated"];
+      domains | map([.name, .guid, (.internal // ""), (.supported_protocols // []), (.created_at // ""), (.updated_at // "")])
+    );
+
+  def space_summary_table(space):
+    md_table(["GUID", "Services", "Routes", "Apps", "Attached security groups", "Created", "Updated"]; [[
+      space.guid,
+      (space.counts.services // (space.services | length)),
+      (space.counts.routes // (space.routes | length)),
+      (space.counts.apps // (space.apps | length)),
+      (space.counts.attached_security_groups // (space.attached_security_groups | length)),
+      (space.created_at // ""),
+      (space.updated_at // "")
+    ]]);
+
+  def services_table(services):
+    md_table(["Name", "GUID", "Plan", "Offering", "Credential bindings", "Route bindings", "Created", "Updated"];
+      services | map([
+        .name,
+        .guid,
+        (.service_plan.name // ""),
+        (.service_plan.service_offering.name // ""),
+        (.counts.credential_bindings // (.credential_bindings | length)),
+        (.counts.route_bindings // (.route_bindings | length)),
+        (.created_at // ""),
+        (.updated_at // "")
+      ])
+    );
+
+  def routes_table(routes):
+    md_table(["URL", "GUID", "Host", "Path", "Destinations", "Destination apps", "Created", "Updated"];
+      routes | map([
+        (.url // ""),
+        .guid,
+        (.host // ""),
+        (.path // ""),
+        (.counts.destinations // (.destinations | length)),
+        route_destination_names(.),
+        (.created_at // ""),
+        (.updated_at // "")
+      ])
+    );
+
+  def apps_table(apps):
+    md_table(["Name", "GUID", "State", "Lifecycle", "Tasks", "Processes", "Sidecars", "Droplet state", "Created", "Updated"];
+      apps | map([
+        .name,
+        .guid,
+        (.state // ""),
+        (.lifecycle.type // ""),
+        (.task_count // 0),
+        (.counts.processes // (.processes | length)),
+        (.counts.sidecars // (.sidecars | length)),
+        (.current_droplet.state // ""),
+        (.created_at // ""),
+        (.updated_at // "")
+      ])
+    );
+
+  def attached_security_groups_table(groups):
+    md_table(["Name", "GUID", "Created", "Updated"];
+      groups | map([.name, .guid, (.created_at // ""), (.updated_at // "")])
+    );
+
+  def security_groups_table(groups):
+    md_table(["Name", "GUID", "Rules", "Created", "Updated"];
+      groups | map([.name, .guid, (.rules | length), (.created_at // ""), (.updated_at // "")])
+    );
+
+  def space_block(space):
+    ["### Space: " + space.name, ""]
+    + space_summary_table(space)
+    + ["#### Services", ""]
+    + services_table(space.services // [])
+    + ["#### Routes", ""]
+    + routes_table(space.routes // [])
+    + ["#### Apps", ""]
+    + apps_table(space.apps // [])
+    + ["#### Attached Security Groups", ""]
+    + attached_security_groups_table(space.attached_security_groups // []);
+
+  def org_block(org):
+    ["## Organization: " + org.name, ""]
+    + org_summary_table(org)
+    + ["### Domains", ""]
+    + domains_table(org.domains // [])
+    + (if (org.spaces | length) == 0 then ["### Spaces", "", "_None_", ""] else (org.spaces | map(space_block(.)) | add) end);
+
+  [
+    "# Component Audit Report",
+    "",
+    "Generated at: " + .meta.generated_at,
+    "",
+    "## Filters",
+    "",
+    md_table(["Filter", "Mode", "Value"]; [
+      ["Organization", .meta.filters.organization.mode, filter_value(.meta.filters.organization)],
+      ["Space", .meta.filters.space.mode, filter_value(.meta.filters.space)]
+    ]),
+    "## Summary",
+    "",
+    md_table(["Metric", "Count"]; [
+      ["Organizations", .meta.counts.organizations],
+      ["Global security groups", .meta.counts.security_groups]
+    ]),
+    "",
+    "## Organizations",
+    "",
+    (if (.organizations | length) == 0 then ["- None"] else (.organizations | map(org_block(.)) | add) end),
+    "## Global Security Groups",
+    "",
+    security_groups_table(.security_groups // [])
+  ] | flatten(2) | join("\n")
+' <<<"$input_data" > "$output_file"
+
+status "Markdown written to $output_file"

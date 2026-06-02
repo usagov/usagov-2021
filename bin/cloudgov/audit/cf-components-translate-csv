@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() { echo "$*" >&2; exit 2; }
+status() { printf '[cf-components-translate-csv] %s\n' "$*" >&2; }
+
+usage() {
+  cat <<'EOF'
+Usage: cf-components-translate-csv [--input JSON_FILE] [--out-dir DIR]
+
+Options:
+  --input FILE    Read component audit JSON from FILE. Defaults to stdin.
+  --out-dir DIR   Write CSV files into DIR. Defaults to current directory.
+  -h, --help      Show this help message.
+EOF
+}
+
+input_file="/dev/stdin"
+out_dir="."
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --input)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --input option"
+      [[ -n "$1" ]] || die "No arg for --input option"
+      input_file="$1"
+      ;;
+    --input=*)
+      input_file="${1#*=}"
+      ;;
+    --out-dir)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --out-dir option"
+      [[ -n "$1" ]] || die "No arg for --out-dir option"
+      out_dir="$1"
+      ;;
+    --out-dir=*)
+      out_dir="${1#*=}"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "Illegal option $1"
+      ;;
+  esac
+  shift
+done
+
+if [[ "$input_file" == "/dev/stdin" ]]; then
+  input_data=$(cat)
+else
+  [[ -f "$input_file" ]] || die "Input file not found: $input_file"
+  input_data=$(cat "$input_file")
+fi
+
+mkdir -p "$out_dir"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","app_guid","app_name","state","lifecycle_type","task_count","process_count","sidecar_count","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.apps[]? |
+    [ $org.name, $org.guid, $space.name, $space.guid, .guid, .name, (.state // ""), (.lifecycle.type // ""), (.task_count | tostring), (.processes | length | tostring), (.sidecars | length | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
+' <<<"$input_data" > "$out_dir/apps.csv"
+status "apps.csv written"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","service_guid","service_name","plan_name","offering_name","credential_bindings_count","route_bindings_count","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.services[]? |
+    [ $org.name, $org.guid, $space.name, $space.guid, .guid, .name, (.service_plan.name // ""), (.service_plan.service_offering.name // ""), (.counts.credential_bindings | tostring), (.counts.route_bindings | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
+' <<<"$input_data" > "$out_dir/services.csv"
+status "services.csv written"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","route_guid","url","host","path","destinations_count","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.routes[]? |
+    [ $org.name, $org.guid, $space.name, $space.guid, .guid, (.url // ""), (.host // ""), (.path // ""), (.counts.destinations | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
+' <<<"$input_data" > "$out_dir/routes.csv"
+status "routes.csv written"
+
+jq -r '
+  (["security_group_guid","name","rules_count","created_at","updated_at"] | @csv),
+  (.security_groups[]? |
+    [ .guid, .name, (.rules | length | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
+' <<<"$input_data" > "$out_dir/security-groups.csv"
+status "security-groups.csv written"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","service_guid","service_name","binding_guid","binding_name","binding_type","app_guid","app_name","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.services[]? as $service | $service.credential_bindings[]? |
+    [ $org.name, $org.guid, $space.name, $space.guid, $service.guid, $service.name, .guid, (.name // ""), (.type // ""), (.app.guid // ""), (.app.name // ""), (.created_at // ""), (.updated_at // "") ] | @csv)
+' <<<"$input_data" > "$out_dir/service-credential-bindings.csv"
+status "service-credential-bindings.csv written"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","service_guid","service_name","binding_guid","route_service_url","route_guid","route_url","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.services[]? as $service | $service.route_bindings[]? |
+    [ $org.name, $org.guid, $space.name, $space.guid, $service.guid, $service.name, .guid, (.route_service_url // ""), (.route.guid // ""), (.route.url // ""), (.created_at // ""), (.updated_at // "") ] | @csv)
+' <<<"$input_data" > "$out_dir/service-route-bindings.csv"
+status "service-route-bindings.csv written"

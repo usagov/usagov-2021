@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() { echo "$*" >&2; exit 2; }
+status() { printf '[cf-components-translate-csv-diff] %s\n' "$*" >&2; }
+
+usage() {
+  cat <<'EOF'
+Usage: cf-components-translate-csv-diff OLD_JSON NEW_JSON [--out-dir DIR]
+
+Options:
+  --out-dir DIR   Write the diff CSV file into DIR. Defaults to current directory.
+  -h, --help      Show this help message.
+EOF
+}
+
+out_dir="."
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --out-dir)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --out-dir option"
+      [[ -n "$1" ]] || die "No arg for --out-dir option"
+      out_dir="$1"
+      ;;
+    --out-dir=*)
+      out_dir="${1#*=}"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --*)
+      die "Illegal option $1"
+      ;;
+    *)
+      if [[ -z "${old_json:-}" ]]; then
+        old_json="$1"
+      elif [[ -z "${new_json:-}" ]]; then
+        new_json="$1"
+      else
+        die "Unexpected argument: $1"
+      fi
+      ;;
+  esac
+  shift
+done
+
+[[ -n "${old_json:-}" ]] || die "Missing OLD_JSON argument"
+[[ -n "${new_json:-}" ]] || die "Missing NEW_JSON argument"
+[[ -f "$old_json" ]] || die "Old JSON file not found: $old_json"
+[[ -f "$new_json" ]] || die "New JSON file not found: $new_json"
+
+mkdir -p "$out_dir"
+output_file="$out_dir/changes.csv"
+
+jq -n -r --slurpfile old "$old_json" --slurpfile new "$new_json" '
+  def flatten_apps($root):
+    [ $root.organizations[]? as $org | $org.spaces[]? as $space | $space.apps[]? |
+      {type: "app", guid: .guid, name: .name, org: $org.name, space: $space.name, fingerprint: (.) | tojson} ];
+  def flatten_services($root):
+    [ $root.organizations[]? as $org | $org.spaces[]? as $space | $space.services[]? |
+      {type: "service", guid: .guid, name: .name, org: $org.name, space: $space.name, fingerprint: (.) | tojson} ];
+  def flatten_routes($root):
+    [ $root.organizations[]? as $org | $org.spaces[]? as $space | $space.routes[]? |
+      {type: "route", guid: .guid, name: .url, org: $org.name, space: $space.name, fingerprint: (.) | tojson} ];
+  def flatten_security_groups($root):
+    [ $root.security_groups[]? |
+      {type: "security_group", guid: .guid, name: .name, org: "", space: "", fingerprint: (.) | tojson} ];
+  def all_resources($root):
+    (flatten_apps($root) + flatten_services($root) + flatten_routes($root) + flatten_security_groups($root));
+  def index_by_key($items):
+    ($items | map({key: (.type + ":" + .guid), value: .fingerprint}) | from_entries);
+  def diff($old_items; $new_items):
+    index_by_key($old_items) as $old_index
+    | index_by_key($new_items) as $new_index
+    | (
+        ($old_items | map(select($new_index[(.type + ":" + .guid)] == null) | {resource_type: .type, status: "removed", guid: .guid, name: .name, organization: .org, space: .space}))
+        + ($new_items | map(select($old_index[(.type + ":" + .guid)] == null) | {resource_type: .type, status: "added", guid: .guid, name: .name, organization: .org, space: .space}))
+        + ($new_items | map(select($old_index[(.type + ":" + .guid)] != null and $old_index[(.type + ":" + .guid)] != .fingerprint) | {resource_type: .type, status: "changed", guid: .guid, name: .name, organization: .org, space: .space}))
+      );
+  ($old[0]) as $old_root
+  | ($new[0]) as $new_root
+  | (["resource_type","status","guid","name","organization","space"] | @csv),
+    (diff(all_resources($old_root); all_resources($new_root)) | sort_by(.resource_type, .status, .organization, .space, .name) | .[] | [ .resource_type, .status, .guid, (.name // ""), (.organization // ""), (.space // "") ] | @csv)
+' > "$output_file"
+
+status "Diff CSV written to $output_file"
