@@ -22,6 +22,10 @@ NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 NS_REL = "http://schemas.openxmlformats.org/package/2006/relationships"
 MAX_DETAIL_ITEMS = 8
 MAX_CELL_CHARS = 450
+PAGE_TEXT_WIDTH_DXA = 10800
+MIN_COLUMN_WIDTH_DXA = 850
+MAX_COLUMN_WEIGHT_CHARS = 36
+WRAP_AFTER_CHARS = "/.-_:@?&=#"
 
 
 def text_value(value: Any) -> str:
@@ -46,8 +50,53 @@ def clean_cell(value: Any) -> str:
     return value
 
 
+def wrap_friendly_text(value: Any) -> str:
+    """Insert zero-width break opportunities into long identifiers and URLs."""
+    text = clean_cell(value)
+    if len(text) < 24:
+        return text
+
+    pieces = []
+    run_length = 0
+    for char in text:
+        pieces.append(char)
+        if char.isspace():
+            run_length = 0
+            continue
+        run_length += 1
+        if char in WRAP_AFTER_CHARS or run_length >= 18:
+            pieces.append("\u200b")
+            run_length = 0
+    return "".join(pieces)
+
+
 def xml_text(value: Any) -> str:
-    return escape(clean_cell(value), {'"': "&quot;"})
+    return escape(wrap_friendly_text(value), {'"': "&quot;"})
+
+
+def column_widths(headers: list[str], rows: list[list[Any]]) -> list[int]:
+    """Return fixed table column widths that fit within the printable page width."""
+    column_count = max(1, len(headers))
+    weights = [max(4, min(len(clean_cell(header)), MAX_COLUMN_WEIGHT_CHARS)) for header in headers]
+
+    sample_rows = rows[:80]
+    for row in sample_rows:
+        padded = row + [""] * max(0, column_count - len(row))
+        for index, value in enumerate(padded[:column_count]):
+            weights[index] = max(weights[index], min(len(clean_cell(value)), MAX_COLUMN_WEIGHT_CHARS))
+
+    min_total = MIN_COLUMN_WIDTH_DXA * column_count
+    if min_total >= PAGE_TEXT_WIDTH_DXA:
+        base = PAGE_TEXT_WIDTH_DXA // column_count
+        widths = [base] * column_count
+        widths[-1] += PAGE_TEXT_WIDTH_DXA - sum(widths)
+        return widths
+
+    remaining_width = PAGE_TEXT_WIDTH_DXA - min_total
+    total_weight = sum(weights) or column_count
+    widths = [MIN_COLUMN_WIDTH_DXA + int(remaining_width * weight / total_weight) for weight in weights]
+    widths[-1] += PAGE_TEXT_WIDTH_DXA - sum(widths)
+    return widths
 
 
 def count(value: Any) -> int:
@@ -104,10 +153,15 @@ class DocxBuilder:
             self.paragraph("None")
             return
 
+        widths = column_widths(headers, rows)
         table_parts = [
             '<w:tbl>',
             '<w:tblPr>',
-            '<w:tblW w:w="0" w:type="auto"/>',
+            f'<w:tblW w:w="{PAGE_TEXT_WIDTH_DXA}" w:type="dxa"/>',
+            '<w:tblLayout w:type="fixed"/>',
+            '<w:jc w:val="left"/>',
+            '<w:tblCellMar><w:top w:w="35" w:type="dxa"/><w:left w:w="45" w:type="dxa"/>'
+            '<w:bottom w:w="35" w:type="dxa"/><w:right w:w="45" w:type="dxa"/></w:tblCellMar>',
             '<w:tblBorders>'
             '<w:top w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'
             '<w:left w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'
@@ -118,17 +172,21 @@ class DocxBuilder:
             '</w:tblBorders>',
             '</w:tblPr>',
         ]
-        table_parts.append(self._row(headers, header=True, shaded=False))
+        table_parts.append('<w:tblGrid>')
+        for width in widths:
+            table_parts.append(f'<w:gridCol w:w="{width}"/>')
+        table_parts.append('</w:tblGrid>')
+        table_parts.append(self._row(headers, widths, header=True, shaded=False))
         for index, row in enumerate(rows):
             padded = row + [""] * max(0, len(headers) - len(row))
-            table_parts.append(self._row(padded[: len(headers)], header=False, shaded=(index % 2 == 1)))
+            table_parts.append(self._row(padded[: len(headers)], widths, header=False, shaded=(index % 2 == 1)))
         table_parts.append('</w:tbl>')
         self.parts.append("".join(table_parts))
         self.paragraph("")
 
-    def _row(self, cells: list[Any], header: bool, shaded: bool) -> str:
+    def _row(self, cells: list[Any], widths: list[int], header: bool, shaded: bool) -> str:
         row_parts = ['<w:tr>']
-        for cell in cells:
+        for index, cell in enumerate(cells):
             if header:
                 shading = '<w:shd w:fill="D9EAF7"/>'
             elif shaded:
@@ -136,11 +194,11 @@ class DocxBuilder:
             else:
                 shading = ""
             bold_start = '<w:b/>' if header else ""
+            width = widths[index] if index < len(widths) else widths[-1]
             row_parts.append(
-                '<w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/>'
-                '<w:tcMar><w:top w:w="45" w:type="dxa"/><w:left w:w="60" w:type="dxa"/>'
-                '<w:bottom w:w="45" w:type="dxa"/><w:right w:w="60" w:type="dxa"/></w:tcMar>'
-                f'{shading}</w:tcPr><w:p><w:pPr><w:spacing w:after="0"/></w:pPr><w:r><w:rPr>{bold_start}</w:rPr>'
+                f'<w:tc><w:tcPr><w:tcW w:w="{width}" w:type="dxa"/>'
+                f'{shading}</w:tcPr><w:p><w:pPr><w:spacing w:after="0"/></w:pPr>'
+                f'<w:r><w:rPr>{bold_start}<w:sz w:val="16"/><w:szCs w:val="16"/></w:rPr>'
                 f'<w:t xml:space="preserve">{xml_text(cell)}</w:t></w:r></w:p></w:tc>'
             )
         row_parts.append('</w:tr>')
