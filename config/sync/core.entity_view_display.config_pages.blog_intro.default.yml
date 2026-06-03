@@ -13,6 +13,13 @@ targetEntityType: config_pages
 bundle: blog_intro
 mode: default
 content:
+  field_blog_intro_body:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
   field_blog_intro_heading:
     type: string
     label: hidden
@@ -20,12 +27,5 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 0
-    region: content
-  field_blog_intro_body:
-    type: text_default
-    label: hidden
-    settings: {  }
-    third_party_settings: {  }
-    weight: 1
     region: content
 hidden: {  }
