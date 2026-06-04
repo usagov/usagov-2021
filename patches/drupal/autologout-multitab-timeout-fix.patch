@@ -1,5 +1,5 @@
 diff --git a/js/autologout.js b/js/autologout.js
-index c9ab414..a7404f2 100644
+index c9ab414..2463605 100644
 --- a/js/autologout.js
 +++ b/js/autologout.js
 @@ -87,6 +87,73 @@
@@ -172,10 +172,23 @@ index c9ab414..a7404f2 100644
        // A user could have used the reset button on the tab/window they're
        // actively using, so we need to double check before actually logging out.
        function confirmLogout() {
-@@ -220,11 +309,14 @@
+@@ -196,7 +285,7 @@
+           currentDialog = null;
+         }
+ 
+-        Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(function (time) {
++        getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(function (time) {
+           if (time > 0) {
+             schedule(init, time);
+           }
+@@ -220,11 +309,18 @@
                samesite: localSettings.cookie_samesite,
              });
              clearTimeout(paddingTimer);
++            // Clear the open-dialog guard first so updateLastActiveState()
++            // actually records this "stay logged in" action as activity (and
++            // propagates it to other tabs via shared localStorage).
++            theDialog = null;
 +            updateLastActiveState();
              stayLoggedIn = true;
              if (currentDialog) {
@@ -187,7 +200,18 @@ index c9ab414..a7404f2 100644
              refresh();
            };
  
-@@ -260,6 +352,9 @@
+@@ -248,6 +344,10 @@
+           close(event, ui) {
+             $(event.target).remove();
+             currentDialog = null;
++            // Reset the open-dialog guard so activity recording resumes once
++            // the dialog is dismissed (otherwise updateLastActiveState() would
++            // stay disabled for the life of the page).
++            theDialog = null;
+             if (!stayLoggedIn && !skipLogoutOnClose) {
+               logout();
+             }
+@@ -260,6 +360,9 @@
            return;
          }
  
@@ -197,7 +221,7 @@ index c9ab414..a7404f2 100644
          currentDialog = Drupal.dialog($modal.get(0), modalSettings);
          currentDialog.showModal();
          return $modal;
-@@ -272,11 +367,11 @@
+@@ -272,11 +375,11 @@
        document.body.appendChild(timerMarkup);
  
        if (localSettings.refresh_only) {
@@ -210,7 +234,7 @@ index c9ab414..a7404f2 100644
          if (localSettings.logout_regardless_of_activity) {
            // Ignore users activity and set timeout.
            const timestamp = Math.round((new Date()).getTime() / 1000);
-@@ -296,6 +391,11 @@
+@@ -296,6 +399,11 @@
              document.body.dispatchEvent(new Event('preventAutologout'));
            }));
  
@@ -222,7 +246,7 @@ index c9ab414..a7404f2 100644
            // Replaces the CKEditor5 check because keyup should always prevent autologout.
            document.body.addEventListener('keyup', debounce(function () {
              document.body.dispatchEvent(new Event('preventAutologout'));
-@@ -303,16 +403,7 @@
+@@ -303,16 +411,7 @@
  
            document.body.addEventListener('preventAutologout', function () {
              // When the preventAutologout event fires, we set activity to true.
@@ -240,7 +264,7 @@ index c9ab414..a7404f2 100644
            });
  
            // On pages where the user should be logged out, set the timer to popup
-@@ -321,6 +412,9 @@
+@@ -321,6 +420,9 @@
          }
        }
  
@@ -250,7 +274,7 @@ index c9ab414..a7404f2 100644
        /**
         * Get the remaining time.
         *
-@@ -333,11 +427,14 @@
+@@ -333,11 +435,14 @@
         */
        Drupal.Ajax.prototype.autologoutGetTimeLeft = function (callback) {
          const ajax = this;
@@ -266,7 +290,7 @@ index c9ab414..a7404f2 100644
          };
          ajax.options.success = function (response, status, xmlhttprequest) {
            if (typeof response === 'string') {
-@@ -362,6 +459,13 @@
+@@ -362,6 +467,13 @@
            return originalSuccess.call(ajax, response, status, xmlhttprequest);
          };
  
@@ -280,7 +304,7 @@ index c9ab414..a7404f2 100644
          try {
            $.ajax(ajax.options);
          }
-@@ -370,18 +474,20 @@
+@@ -370,18 +482,20 @@
          }
        };
  
@@ -313,7 +337,7 @@ index c9ab414..a7404f2 100644
  
        /**
         * Handle refresh event.
-@@ -419,6 +525,12 @@
+@@ -419,6 +533,12 @@
            return originalSuccess.call(ajax, response, status, xmlhttprequest);
          };
  
@@ -326,7 +350,7 @@ index c9ab414..a7404f2 100644
          try {
            $.ajax(ajax.options);
          } catch (e) {
-@@ -426,15 +538,30 @@
+@@ -426,15 +546,30 @@
          }
        };
  
