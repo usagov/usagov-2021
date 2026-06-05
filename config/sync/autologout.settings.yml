@@ -27,3 +27,4 @@ no_button: ''
 whitelisted_ip_addresses: ''
 cookie_secure: false
 cookie_httponly: false
+console_logging: false
