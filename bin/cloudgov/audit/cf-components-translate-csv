@@ -59,16 +59,108 @@ fi
 mkdir -p "$out_dir"
 
 jq -r '
-  (["organization","organization_guid","space","space_guid","app_guid","app_name","state","lifecycle_type","task_count","process_count","sidecar_count","created_at","updated_at"] | @csv),
+  (["organization","organization_guid","space","space_guid","app_guid","app_name","state","lifecycle_type","lifecycle_buildpacks","lifecycle_stack","current_droplet_guid","current_droplet_state","current_droplet_created_at","current_droplet_updated_at","current_droplet_stack","current_droplet_image","task_count","process_count","sidecar_count","created_at","updated_at"] | @csv),
   (.organizations[]? as $org | $org.spaces[]? as $space | $space.apps[]? |
-    [ $org.name, $org.guid, $space.name, $space.guid, .guid, .name, (.state // ""), (.lifecycle.type // ""), (.task_count | tostring), (.processes | length | tostring), (.sidecars | length | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
+    [
+      $org.name,
+      $org.guid,
+      $space.name,
+      $space.guid,
+      .guid,
+      .name,
+      (.state // ""),
+      (.lifecycle.type // ""),
+      ((.lifecycle.data.buildpacks // []) | join(",")),
+      (.lifecycle.data.stack // ""),
+      (.current_droplet.guid // ""),
+      (.current_droplet.state // ""),
+      (.current_droplet.created_at // ""),
+      (.current_droplet.updated_at // ""),
+      (.current_droplet.stack // ""),
+      (.current_droplet.image // ""),
+      (.task_count | tostring),
+      (.processes | length | tostring),
+      (.sidecars | length | tostring),
+      (.created_at // ""),
+      (.updated_at // "")
+    ] | @csv)
 ' <<<"$input_data" > "$out_dir/apps.csv"
 status "apps.csv written"
 
 jq -r '
-  (["organization","organization_guid","space","space_guid","service_guid","service_name","plan_name","offering_name","credential_bindings_count","route_bindings_count","created_at","updated_at"] | @csv),
+  (["organization","organization_guid","space","space_guid","app_guid","app_name","process_guid","process_type","command","instances","memory_in_mb","disk_in_mb","log_rate_limit_in_bytes_per_second","health_check_type","health_check_timeout","health_check_invocation_timeout","health_check_interval","readiness_health_check_type","readiness_health_check_invocation_timeout","readiness_health_check_interval","ports","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.apps[]? as $app | $app.processes[]? |
+    [
+      $org.name,
+      $org.guid,
+      $space.name,
+      $space.guid,
+      $app.guid,
+      $app.name,
+      .guid,
+      (.type // ""),
+      (.command // ""),
+      (.instances // "" | tostring),
+      (.memory_in_mb // "" | tostring),
+      (.disk_in_mb // "" | tostring),
+      (.log_rate_limit_in_bytes_per_second // "" | tostring),
+      (.health_check.type // ""),
+      (.health_check.data.timeout // "" | tostring),
+      (.health_check.data.invocation_timeout // "" | tostring),
+      (.health_check.data.interval // "" | tostring),
+      (.readiness_health_check.type // ""),
+      (.readiness_health_check.data.invocation_timeout // "" | tostring),
+      (.readiness_health_check.data.interval // "" | tostring),
+      ((.ports // []) | join(",")),
+      (.created_at // ""),
+      (.updated_at // "")
+    ] | @csv)
+' <<<"$input_data" > "$out_dir/apps-processes.csv"
+status "apps-processes.csv written"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","app_guid","app_name","sidecar_guid","sidecar_name","command","process_types","memory_in_mb","origin","created_at","updated_at"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.apps[]? as $app | $app.sidecars[]? |
+    [
+      $org.name,
+      $org.guid,
+      $space.name,
+      $space.guid,
+      $app.guid,
+      $app.name,
+      .guid,
+      .name,
+      (.command // ""),
+      ((.process_types // []) | join(",")),
+      (.memory_in_mb // "" | tostring),
+      (.origin // ""),
+      (.created_at // ""),
+      (.updated_at // "")
+    ] | @csv)
+' <<<"$input_data" > "$out_dir/apps-sidecars.csv"
+status "apps-sidecars.csv written"
+
+jq -r '
+  (["organization","organization_guid","space","space_guid","service_guid","service_name","plan_name","offering_name","last_operation_type","last_operation_state","last_operation_description","last_operation_updated_at","credential_bindings_count","route_bindings_count","created_at","updated_at"] | @csv),
   (.organizations[]? as $org | $org.spaces[]? as $space | $space.services[]? |
-    [ $org.name, $org.guid, $space.name, $space.guid, .guid, .name, (.service_plan.name // ""), (.service_plan.service_offering.name // ""), (.counts.credential_bindings | tostring), (.counts.route_bindings | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
+    [
+      $org.name,
+      $org.guid,
+      $space.name,
+      $space.guid,
+      .guid,
+      .name,
+      (.service_plan.name // ""),
+      (.service_plan.service_offering.name // "User Created"),
+      (.last_operation.type // ""),
+      (.last_operation.state // ""),
+      (.last_operation.description // ""),
+      (.last_operation.updated_at // ""),
+      (.counts.credential_bindings | tostring),
+      (.counts.route_bindings | tostring),
+      (.created_at // ""),
+      (.updated_at // "")
+    ] | @csv)
 ' <<<"$input_data" > "$out_dir/services.csv"
 status "services.csv written"
 
@@ -80,11 +172,49 @@ jq -r '
 status "routes.csv written"
 
 jq -r '
+  (["organization","organization_guid","space","space_guid","route_guid","route_url","destination_guid","app_guid","app_name","process_type","protocol","port","weight"] | @csv),
+  (.organizations[]? as $org | $org.spaces[]? as $space | $space.routes[]? as $route | $route.destinations[]? |
+    [
+      $org.name,
+      $org.guid,
+      $space.name,
+      $space.guid,
+      $route.guid,
+      ($route.url // ""),
+      (.guid // ""),
+      (.app.guid // ""),
+      (.app.name // ""),
+      (.process.type // ""),
+      (.protocol // ""),
+      (.port // "" | tostring),
+      (.weight // "" | tostring)
+    ] | @csv)
+' <<<"$input_data" > "$out_dir/routes-destinations.csv"
+status "routes-destinations.csv written"
+
+jq -r '
   (["security_group_guid","name","rules_count","created_at","updated_at"] | @csv),
   (.security_groups[]? |
     [ .guid, .name, (.rules | length | tostring), (.created_at // ""), (.updated_at // "") ] | @csv)
 ' <<<"$input_data" > "$out_dir/security-groups.csv"
 status "security-groups.csv written"
+
+jq -r '
+  (["security_group_guid","security_group_name","rule_index","description","destination","protocol","ports","type","log"] | @csv),
+  (.security_groups[]? as $group | ($group.rules // []) | to_entries[]? |
+    [
+      $group.guid,
+      $group.name,
+      (.key | tostring),
+      (.value.description // ""),
+      (.value.destination // ""),
+      (.value.protocol // ""),
+      (.value.ports // ""),
+      (.value.type // ""),
+      (.value.log // "" | tostring)
+    ] | @csv)
+' <<<"$input_data" > "$out_dir/security-groups-rules.csv"
+status "security-groups-rules.csv written"
 
 jq -r '
   (["organization","organization_guid","space","space_guid","service_guid","service_name","binding_guid","binding_name","binding_type","app_guid","app_name","created_at","updated_at"] | @csv),

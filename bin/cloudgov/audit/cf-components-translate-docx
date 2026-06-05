@@ -43,16 +43,20 @@ def text_value(value: Any) -> str:
     return str(value)
 
 
-def clean_cell(value: Any) -> str:
+def clean_text(value: Any, max_chars: int | None = None) -> str:
     value = re.sub(r"\s+", " ", text_value(value)).strip()
-    if len(value) > MAX_CELL_CHARS:
-        return value[: MAX_CELL_CHARS - 1].rstrip() + "…"
+    if max_chars is not None and len(value) > max_chars:
+        return value[: max_chars - 1].rstrip() + "…"
     return value
 
 
-def wrap_friendly_text(value: Any) -> str:
+def clean_cell(value: Any) -> str:
+    return clean_text(value, MAX_CELL_CHARS)
+
+
+def wrap_friendly_text(value: Any, max_chars: int | None = None) -> str:
     """Insert zero-width break opportunities into long identifiers and URLs."""
-    text = clean_cell(value)
+    text = clean_text(value, max_chars)
     if len(text) < 24:
         return text
 
@@ -70,8 +74,8 @@ def wrap_friendly_text(value: Any) -> str:
     return "".join(pieces)
 
 
-def xml_text(value: Any) -> str:
-    return escape(wrap_friendly_text(value), {'"': "&quot;"})
+def xml_text(value: Any, max_chars: int | None = None) -> str:
+    return escape(wrap_friendly_text(value, max_chars), {'"': "&quot;"})
 
 
 def column_widths(headers: list[str], rows: list[list[Any]]) -> list[int]:
@@ -199,7 +203,7 @@ class DocxBuilder:
                 f'<w:tc><w:tcPr><w:tcW w:w="{width}" w:type="dxa"/>'
                 f'{shading}</w:tcPr><w:p><w:pPr><w:spacing w:after="0"/></w:pPr>'
                 f'<w:r><w:rPr>{bold_start}<w:sz w:val="16"/><w:szCs w:val="16"/></w:rPr>'
-                f'<w:t xml:space="preserve">{xml_text(cell)}</w:t></w:r></w:p></w:tc>'
+                f'<w:t xml:space="preserve">{xml_text(cell, MAX_CELL_CHARS)}</w:t></w:r></w:p></w:tc>'
             )
         row_parts.append('</w:tr>')
         return "".join(row_parts)
@@ -284,6 +288,12 @@ def service_binding_apps(service: dict[str, Any]) -> list[str]:
     return names
 
 
+def service_offering_name(service: dict[str, Any]) -> str:
+    """Return a readable offering label for brokered and user-created services."""
+    offering = clean_cell(get_nested(service, ["service_plan", "service_offering", "name"], ""))
+    return offering if offering else "User Created"
+
+
 def build_report(report: dict[str, Any], input_path: Path, output_path: Path) -> DocxBuilder:
     doc = DocxBuilder()
     meta = report.get("meta", {}) or {}
@@ -316,8 +326,15 @@ def build_report(report: dict[str, Any], input_path: Path, output_path: Path) ->
     else:
         space_value = "all"
 
+    csv_dir = output_path.parent / f"{input_path.stem}-csv"
+
     doc.heading("Cloud.gov Component Audit", 1)
     doc.paragraph("Human-readable inventory report generated from the component audit JSON.")
+    doc.paragraph(
+        "This document provides a detailed, review-friendly summary of the environment, but it is not an exhaustive "
+        "record of every captured field. For the complete source data and spreadsheet-friendly detail, refer to the "
+        f"JSON file at {input_path.as_posix()} and the CSV output folder at {csv_dir.as_posix()}."
+    )
 
     doc.heading("How to Read This Report", 2)
     doc.paragraph(
@@ -345,12 +362,15 @@ def build_report(report: dict[str, Any], input_path: Path, output_path: Path) ->
         [input_path.name, "Full raw audit source data for this run"],
         [output_path.name, "Human-readable report for review and sharing"],
     ]
-    csv_dir = output_path.parent / f"{input_path.stem}-csv"
     for csv_name, purpose in [
         ("apps.csv", "Application inventory"),
+        ("apps-processes.csv", "Application process details"),
+        ("apps-sidecars.csv", "Application sidecar details"),
         ("services.csv", "Service inventory"),
         ("routes.csv", "Route inventory"),
+        ("routes-destinations.csv", "Route destination details"),
         ("security-groups.csv", "Global security group inventory"),
+        ("security-groups-rules.csv", "Global security group rule details"),
         ("service-credential-bindings.csv", "App service credential binding details"),
         ("service-route-bindings.csv", "Route service binding details"),
     ]:
@@ -436,7 +456,7 @@ def build_report(report: dict[str, Any], input_path: Path, output_path: Path) ->
     for _org, space, service in services:
         bound_apps = service_binding_apps(service)
         for app_name in bound_apps:
-            binding_rows.append([space.get("name"), app_name, service.get("name"), get_nested(service, ["service_plan", "service_offering", "name"], "")])
+            binding_rows.append([space.get("name"), app_name, service.get("name"), service_offering_name(service)])
     doc.table(["Space", "App", "Service", "Offering"], binding_rows)
 
     doc.heading("Detailed Inventory", 1)
@@ -491,7 +511,7 @@ def build_report(report: dict[str, Any], input_path: Path, output_path: Path) ->
                     [
                         service.get("name"),
                         clean_cell(get_nested(service, ["service_plan", "name"], "")),
-                        clean_cell(get_nested(service, ["service_plan", "service_offering", "name"], "")),
+                        service_offering_name(service),
                         count(service.get("credential_bindings")),
                         count(service.get("route_bindings")),
                         summarize(service_binding_apps(service), max_items=4),
