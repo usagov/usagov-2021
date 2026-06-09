@@ -7,7 +7,7 @@ label: 'Blog Intro'
 token: false
 context:
   show_warning: false
-  group: [ ]
+  group: {  }
 menu:
   path: /admin/content/blog-intro
   weight: 0
