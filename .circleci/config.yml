@@ -836,11 +836,19 @@ workflows:
     jobs:
       - approve-deploy-reporter:
           type: approval
+      - approve-deploy-reporter-stage:
+          type: approval
+          requires:
+            - approve-deploy-reporter
       - deploy-reporter-stage:
           filters:
             branches:
               only:
                 - stage
+          requires:
+            - approve-deploy-reporter-stage
+      - approve-deploy-reporter-prod:
+          type: approval
           requires:
             - approve-deploy-reporter
       - deploy-reporter-prod:
@@ -849,12 +857,9 @@ workflows:
               only:
                 - prod
           requires:
-            - approve-deploy-reporter
-      - deploy-reporter-dr:
-          filters:
-            branches:
-              only:
-                - dr
+            - approve-deploy-reporter-prod
+      - approve-deploy-reporter-dev:
+          type: approval
           requires:
             - approve-deploy-reporter
       - deploy-reporter-dev:
@@ -863,7 +868,18 @@ workflows:
               only:
                 - dev
           requires:
+            - approve-deploy-reporter-dev
+      - approve-deploy-reporter-dr:
+          type: approval
+          requires:
             - approve-deploy-reporter
+      - deploy-reporter-dr:
+          filters:
+            branches:
+              only:
+                - dr
+          requires:
+            - approve-deploy-reporter-dr
 
   build-and-deploy:
     jobs:
