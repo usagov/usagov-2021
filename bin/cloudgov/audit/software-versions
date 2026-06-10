@@ -1,0 +1,334 @@
+#!/bin/sh
+
+set -eu
+
+usage() {
+  cat <<'EOF'
+Print Cloud.gov software versions for the monthly audit.
+
+Default output is one value per line, in the order used by the audit sheet, so it
+can be pasted directly into a single spreadsheet column.
+
+Usage:
+  bin/cloudgov/audit/software-versions [--labels] [--space SPACE]
+
+Options:
+  --labels             Print "software<TAB>version" rows instead of version-only rows.
+  -s, --space SPACE    App space to query. Defaults to current cf target space, then prod.
+  --org ORG            Cloud.gov org. Defaults to current target org, then gsa-tts-usagov.
+  --tools-space SPACE  Space with shared log-shipper. Defaults to tools.
+  --egress-space SPACE Space with egress proxy apps. Defaults to shared-egress.
+  --egress-app APP     Egress proxy app. Auto-detects SPACE-proxy or SPACE-egress if unset.
+  -h, --help           Show this help.
+
+Environment overrides:
+  CF_ORG             Cloud.gov org. Defaults to current target org, then gsa-tts-usagov.
+  APP_SPACE          App space to query. Defaults to current target space, then PROD_SPACE, then prod.
+  PROD_SPACE         Backward-compatible alias for APP_SPACE.
+  TOOLS_SPACE        Tools/log-shipper space. Defaults to tools.
+  EGRESS_SPACE       Egress proxy space. Defaults to shared-egress.
+  EGRESS_APP         Egress proxy app. Auto-detects APP_SPACE-proxy or APP_SPACE-egress if unset.
+  LOG_SHIPPER_SPACE  Log-shipper space. Auto-detects if unset.
+  LOG_SHIPPER_APP    Log-shipper app. Auto-detects if unset.
+EOF
+}
+
+WITH_LABELS=0
+CLI_APP_SPACE=""
+CLI_CF_ORG=""
+CLI_TOOLS_SPACE=""
+CLI_EGRESS_SPACE=""
+CLI_EGRESS_APP=""
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --labels)
+      WITH_LABELS=1
+      ;;
+    -s|--space)
+      CLI_APP_SPACE=${2:-}
+      if [ -z "$CLI_APP_SPACE" ]; then
+        echo "No value provided for $1" >&2
+        exit 2
+      fi
+      shift
+      ;;
+    --org)
+      CLI_CF_ORG=${2:-}
+      if [ -z "$CLI_CF_ORG" ]; then
+        echo "No value provided for $1" >&2
+        exit 2
+      fi
+      shift
+      ;;
+    --tools-space)
+      CLI_TOOLS_SPACE=${2:-}
+      if [ -z "$CLI_TOOLS_SPACE" ]; then
+        echo "No value provided for $1" >&2
+        exit 2
+      fi
+      shift
+      ;;
+    --egress-space)
+      CLI_EGRESS_SPACE=${2:-}
+      if [ -z "$CLI_EGRESS_SPACE" ]; then
+        echo "No value provided for $1" >&2
+        exit 2
+      fi
+      shift
+      ;;
+    --egress-app)
+      CLI_EGRESS_APP=${2:-}
+      if [ -z "$CLI_EGRESS_APP" ]; then
+        echo "No value provided for $1" >&2
+        exit 2
+      fi
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Required command not found: $1" >&2
+    exit 1
+  fi
+}
+
+require_command cf
+require_command git
+
+ORIGINAL_TARGET=$(cf target 2>/dev/null || true)
+ORIGINAL_ORG=$(printf '%s\n' "$ORIGINAL_TARGET" | awk '/org:/ {print $2; exit}')
+ORIGINAL_SPACE=$(printf '%s\n' "$ORIGINAL_TARGET" | awk '/space:/ {print $2; exit}')
+
+CF_ORG=${CLI_CF_ORG:-${CF_ORG:-${ORIGINAL_ORG:-gsa-tts-usagov}}}
+APP_SPACE=${CLI_APP_SPACE:-${APP_SPACE:-${ORIGINAL_SPACE:-${PROD_SPACE:-prod}}}}
+TOOLS_SPACE=${CLI_TOOLS_SPACE:-${TOOLS_SPACE:-tools}}
+EGRESS_SPACE=${CLI_EGRESS_SPACE:-${EGRESS_SPACE:-shared-egress}}
+if [ -n "$CLI_EGRESS_APP" ]; then
+  EGRESS_APP=$CLI_EGRESS_APP
+fi
+
+restore_target() {
+  if [ -n "${ORIGINAL_ORG}" ] && [ -n "${ORIGINAL_SPACE}" ]; then
+    cf target -o "$ORIGINAL_ORG" -s "$ORIGINAL_SPACE" >/dev/null 2>&1 || true
+  fi
+}
+trap restore_target EXIT
+
+clean_value() {
+  tr -d '\r' | awk 'NF {print; exit}'
+}
+
+emit() {
+  label=$1
+  value=$2
+
+  if [ "$WITH_LABELS" -eq 1 ]; then
+    printf '%s\t%s\n' "$label" "$value"
+  else
+    printf '%s\n' "$value"
+  fi
+}
+
+target_space() {
+  space=$1
+  cf target -o "$CF_ORG" -s "$space" >/dev/null
+}
+
+app_exists() {
+  space=$1
+  app=$2
+
+  target_space "$space"
+  cf app "$app" >/dev/null 2>&1
+}
+
+version_from_app() {
+  label=$1
+  space=$2
+  app=$3
+  command=$4
+  output=''
+
+  if ! app_exists "$space" "$app"; then
+    echo "Unable to find app ${CF_ORG}/${space}/${app} for ${label}" >&2
+    printf 'ERROR'
+    return
+  fi
+
+  if ! output=$(cf ssh "$app" -c "$command" 2>&1); then
+    echo "Unable to query ${label} from ${CF_ORG}/${space}/${app}:" >&2
+    printf '%s\n' "$output" >&2
+    printf 'ERROR'
+    return
+  fi
+
+  output=$(printf '%s\n' "$output" | clean_value)
+  if [ -z "$output" ]; then
+    echo "No version output for ${label} from ${CF_ORG}/${space}/${app}" >&2
+    printf 'ERROR'
+    return
+  fi
+
+  printf '%s' "$output"
+}
+
+combined_version_from_apps() {
+  label=$1
+  space=$2
+  app_one=$3
+  app_two=$4
+  command=$5
+  version_one=''
+  version_two=''
+
+  version_one=$(version_from_app "$label" "$space" "$app_one" "$command")
+  version_two=$(version_from_app "$label" "$space" "$app_two" "$command")
+
+  if [ "$version_one" = "$version_two" ]; then
+    printf '%s' "$version_one"
+  else
+    printf '%s: %s; %s: %s' "$app_one" "$version_one" "$app_two" "$version_two"
+  fi
+}
+
+detect_egress_app() {
+  app=''
+
+  if [ -n "${EGRESS_APP:-}" ]; then
+    printf '%s' "$EGRESS_APP"
+    return
+  fi
+
+  target_space "$EGRESS_SPACE"
+  for app in "${APP_SPACE}-proxy" "${APP_SPACE}-egress"; do
+    if cf app "$app" >/dev/null 2>&1; then
+      printf '%s' "$app"
+      return
+    fi
+  done
+
+  cf apps 2>/dev/null \
+    | awk 'NR > 3 {print $1}' \
+    | grep -E "^${APP_SPACE}-(proxy|egress)" \
+    | head -n 1
+}
+
+detect_log_shipper() {
+  app=''
+  candidate_space=''
+
+  if [ -n "${LOG_SHIPPER_SPACE:-}" ] && [ -n "${LOG_SHIPPER_APP:-}" ]; then
+    printf '%s %s' "$LOG_SHIPPER_SPACE" "$LOG_SHIPPER_APP"
+    return
+  fi
+
+  for candidate_space in "$APP_SPACE" "$TOOLS_SPACE"; do
+    target_space "$candidate_space" || continue
+    for app in "${LOG_SHIPPER_APP:-}" "log-shipper-${APP_SPACE}" "log-shipper"; do
+      if [ -n "$app" ] && cf app "$app" >/dev/null 2>&1; then
+        printf '%s %s' "$candidate_space" "$app"
+        return
+      fi
+    done
+  done
+}
+
+node_build_container_version() {
+  commit=''
+  dockerfile=''
+  tag=''
+
+  commit=$(version_from_app \
+    "Node (NodeJS, node build container) source commit" \
+    "$APP_SPACE" \
+    "cms" \
+    "awk -F': ' '/commit:/ {gsub(/^[[:space:]]+|[[:space:]]+$/, \"\", \$2); print \$2; exit}' /etc/motd")
+
+  if [ -n "$commit" ] && [ "$commit" != "none" ] && [ "$commit" != "ERROR" ]; then
+    dockerfile=$(git show "${commit}:.docker/Dockerfile-cms" 2>/dev/null || true)
+  fi
+
+  if [ -z "${dockerfile:-}" ]; then
+    dockerfile=$(sed -n '1,220p' .docker/Dockerfile-cms)
+  fi
+
+  tag=$(printf '%s\n' "$dockerfile" | sed -n -E 's/^FROM[[:space:]]+node:([^[:space:]]+).*/\1/p' | head -n 1)
+  if [ -z "$tag" ]; then
+    printf 'ERROR'
+  else
+    printf 'node:%s' "$tag"
+  fi
+}
+
+OS_CMD='. /etc/os-release 2>/dev/null && printf "%s\n" "${PRETTY_NAME:-unknown}" || cat /etc/alpine-release 2>/dev/null || cat /etc/debian_version 2>/dev/null'
+NGINX_CMD='(/usr/sbin/nginx -v 2>&1 || /usr/local/sbin/nginx -v 2>&1 || nginx -v 2>&1) | sed -E "s#^nginx version: ##"'
+OPENRESTY_CMD='DEPS_DIR=${DEPS_DIR:-/home/vcap/deps}; for PROFILE in /home/vcap/deps/*/profile.d/openresty; do [ -f "$PROFILE" ] && . "$PROFILE"; done; if command -v openresty >/dev/null 2>&1; then openresty -v 2>&1; elif command -v nginx >/dev/null 2>&1; then nginx -v 2>&1; else NGINX_BIN=$(find /home/vcap/deps -type f -path "*/nginx/nginx/sbin/nginx" | head -n 1); [ -n "$NGINX_BIN" ] && "$NGINX_BIN" -v 2>&1; fi | sed -E "s#^(openresty|nginx) version: ##"'
+CADDY_EGRESS_CMD='cd /home/vcap/app && ./caddy version 2>&1 | head -n 1'
+CADDY_REPORTER_CMD='/local_proxy/caddy version 2>&1 | head -n 1'
+CF_CLI_CMD='cf version 2>&1'
+DRUPAL_CMD='cd /var/www && /var/www/vendor/bin/drush status --field=drupal-version 2>/dev/null'
+MYSQL_CMD="cd /var/www && /var/www/vendor/bin/drush sql:query 'SELECT VERSION();' --extra=--skip-column-names 2>/dev/null"
+NODE_CMD='/usr/local/bin/node --version 2>/dev/null || node --version 2>&1'
+PHP_CMD="php -r 'echo PHP_VERSION, PHP_EOL;' 2>/dev/null || php83 -r 'echo PHP_VERSION, PHP_EOL;' 2>/dev/null"
+PYTHON_CMD='for PYTHON_BIN in /home/vcap/deps/*/python/bin/python /home/vcap/deps/*/python/bin/python3; do [ -x "$PYTHON_BIN" ] && "$PYTHON_BIN" --version && exit 0; done; python --version 2>/dev/null || python3 --version 2>&1'
+FLUENT_BIT_CMD='(/home/vcap/deps/0/apt/opt/fluent-bit/bin/fluent-bit --version || fluent-bit --version) 2>&1 | head -n 1'
+
+EGRESS_APP_DETECTED=$(detect_egress_app || true)
+LOG_SHIPPER_DETECTED=$(detect_log_shipper || true)
+LOG_SHIPPER_SPACE_DETECTED=$(printf '%s' "$LOG_SHIPPER_DETECTED" | awk '{print $1}')
+LOG_SHIPPER_APP_DETECTED=$(printf '%s' "$LOG_SHIPPER_DETECTED" | awk '{print $2}')
+
+emit "Alpine Linux (CMS, WWW)" "$(combined_version_from_apps "Alpine Linux (CMS, WWW)" "$APP_SPACE" cms www "$OS_CMD")"
+emit "Alpine Linux (CRON)" "$(version_from_app "Alpine Linux (CRON)" "$APP_SPACE" cron "$OS_CMD")"
+emit "nginx (CMS, WWW)" "$(combined_version_from_apps "nginx (CMS, WWW)" "$APP_SPACE" cms www "$NGINX_CMD")"
+emit "Debian Linux (WAF)" "$(version_from_app "Debian Linux (WAF)" "$APP_SPACE" waf "$OS_CMD")"
+emit "nginx (WAF)" "$(version_from_app "nginx (WAF)" "$APP_SPACE" waf "$NGINX_CMD")"
+
+if [ -n "$LOG_SHIPPER_SPACE_DETECTED" ] && [ -n "$LOG_SHIPPER_APP_DETECTED" ]; then
+  emit "nginx openresty (log-shipper)" "$(version_from_app "nginx openresty (log-shipper)" "$LOG_SHIPPER_SPACE_DETECTED" "$LOG_SHIPPER_APP_DETECTED" "$OPENRESTY_CMD")"
+else
+  echo "Unable to detect log-shipper app for ${CF_ORG}/${APP_SPACE}; set LOG_SHIPPER_SPACE and LOG_SHIPPER_APP to override." >&2
+  emit "nginx openresty (log-shipper)" "ERROR"
+fi
+
+if [ -n "$EGRESS_APP_DETECTED" ]; then
+  emit "caddy (egress proxy)" "$(version_from_app "caddy (egress proxy)" "$EGRESS_SPACE" "$EGRESS_APP_DETECTED" "$CADDY_EGRESS_CMD")"
+else
+  echo "Unable to detect egress app in ${CF_ORG}/${EGRESS_SPACE} for ${APP_SPACE}; set EGRESS_APP to override." >&2
+  emit "caddy (egress proxy)" "ERROR"
+fi
+
+emit "caddy (AnalyticsReporter)" "$(version_from_app "caddy (AnalyticsReporter)" "$APP_SPACE" AnalyticsReporter "$CADDY_REPORTER_CMD")"
+emit "cloudfoundry cli (cron)" "$(version_from_app "cloudfoundry cli (cron)" "$APP_SPACE" cron "$CF_CLI_CMD")"
+emit "Drupal" "$(version_from_app "Drupal" "$APP_SPACE" cms "$DRUPAL_CMD")"
+emit "AWS RDS MySQL" "$(version_from_app "AWS RDS MySQL" "$APP_SPACE" cms "$MYSQL_CMD")"
+emit "Node (NodeJS, node build container)" "$(node_build_container_version)"
+emit "Node (NodeJS, AR)" "$(version_from_app "Node (NodeJS, AR)" "$APP_SPACE" AnalyticsReporter "$NODE_CMD")"
+emit "PHP" "$(version_from_app "PHP" "$APP_SPACE" cms "$PHP_CMD")"
+emit "python (api-proxy)" "$(version_from_app "python (api-proxy)" "$APP_SPACE" api-proxy "$PYTHON_CMD")"
+
+if [ -n "$LOG_SHIPPER_SPACE_DETECTED" ] && [ -n "$LOG_SHIPPER_APP_DETECTED" ]; then
+  emit "Ubuntu Linux (log-shipper)" "$(version_from_app "Ubuntu Linux (log-shipper)" "$LOG_SHIPPER_SPACE_DETECTED" "$LOG_SHIPPER_APP_DETECTED" "$OS_CMD")"
+else
+  emit "Ubuntu Linux (log-shipper)" "ERROR"
+fi
+
+emit "Ubuntu Linux (api-proxy)" "$(version_from_app "Ubuntu Linux (api-proxy)" "$APP_SPACE" api-proxy "$OS_CMD")"
+
+if [ -n "$LOG_SHIPPER_SPACE_DETECTED" ] && [ -n "$LOG_SHIPPER_APP_DETECTED" ]; then
+  emit "Fluent-bit (log-shipper)" "$(version_from_app "Fluent-bit (log-shipper)" "$LOG_SHIPPER_SPACE_DETECTED" "$LOG_SHIPPER_APP_DETECTED" "$FLUENT_BIT_CMD")"
+else
+  emit "Fluent-bit (log-shipper)" "ERROR"
+fi
