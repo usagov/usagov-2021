@@ -852,33 +852,37 @@ workflows:
             - approve-dev-deploy-reporter
       - approve-stage-deploy-reporter:
           type: approval
-          requires:
-            - approve-deploy-reporter
-      - deploy-reporter-stage:
-          requires:
-            - approve-stage-deploy-reporter
           filters:
             branches:
               only: stage
+          requires:
+            - approve-deploy-reporter
+      - deploy-reporter-stage:
+          filters:
+            branches:
+              only: stage
+          requires:
+            - approve-stage-deploy-reporter
       - approve-prod-deploy-reporter:
           type: approval
+          filters:
+            branches:
+              only: prod
           requires:
             - approve-deploy-reporter
       - really-approve-prod-deploy-reporter:
           type: approval
+          filters:
+            branches:
+              only: prod
           requires:
             - approve-prod-deploy-reporter
+      - deploy-reporter-prod:
           filters:
             branches:
-              only:
-                - prod
-      - deploy-reporter-prod:
+              only: prod
           requires:
             - really-approve-prod-deploy-reporter
-          filters:
-            branches:
-              only:
-                - prod
 
   build-and-deploy:
     jobs:
