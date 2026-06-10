@@ -36,7 +36,7 @@ AWSRDS=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"]')
 if [ "$AWSRDS" = "null" ]; then
   echo "WARNING: The aws-rds variable is not set in the VCAP_SERVICES which is only a problem if this is NOT the WWW instance."
 else
-  echo "NOTICE: This bootstrap.sh sees the aws-rds variable is indeed set in the VCAP_SERVICES so this application should be able to connect to RDS/MySQL."
+  echo "NOTICE: This bootstrap.sh sees the aws-rds variable is indeed set in the VCAP_SERVICES so this application should be able to connect to RDS/MariaDB."
   DB_NAME=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.db_name')
   DB_USER=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.username')
   DB_PW=$(echo $VCAP_SERVICES | jq -r '.["aws-rds"][] | .credentials.password')
@@ -208,6 +208,7 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
 
     drush cr
     drush updatedb --no-cache-clear -y
+
     drush cim -y || drush cim -y
     drush cim -y
     echo "Notice: If a TXNDATA error is seen above this line, we believe it is likely NewRelic having a connection-reset-by-peer issue. We dont believe this is causing drush-cim to crash."
@@ -218,6 +219,8 @@ if [ "${CF_INSTANCE_INDEX:-''}" == "0" ] && [ -z "${SKIP_DRUPAL_BOOTSTRAP:-}" ];
       drush state:set system.maintenance_mode 0 -y
     fi
     drush cr
+
+    drush user:block root
 
     echo "Bootstrap finished"
 else
@@ -240,3 +243,11 @@ fi
 
 echo "Setting lightweight cron key"
 drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"
+
+# SFTWR_AUDIT: emit software versions for monthly security audit log search
+OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
+NGINX_V=$(/usr/sbin/nginx -v 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
+PHP_V=$(php --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
+MYSQL_CLIENT_V=$(mysql --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-MariaDB|[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
+DB_SERVER_V=$(mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PW" "$DB_NAME" --ssl-ca=/etc/ssl/certs/rds-combined-ca-us-gov-bundle.pem -e "SELECT VERSION();" -s --skip-column-names 2>/dev/null || echo "unknown")
+echo "SFTWR_AUDIT: app=${APP_NAME} space=${SPACE} os=\"${OS_VERSION}\" nginx=${NGINX_V} php=${PHP_V} mariadb_client=${MYSQL_CLIENT_V} mariadb_server=${DB_SERVER_V}"

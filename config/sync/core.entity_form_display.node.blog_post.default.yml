@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.blog_post.field_hide_featured_image_from_n
     - field.field.node.blog_post.field_tags
     - node.type.blog_post
+    - workflows.workflow.basic_workflow
   module:
     - content_moderation
     - media_library

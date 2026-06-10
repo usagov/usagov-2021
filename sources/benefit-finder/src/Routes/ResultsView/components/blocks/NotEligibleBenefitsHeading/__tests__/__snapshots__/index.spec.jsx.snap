@@ -1,0 +1,49 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`NotEligibleBenefitsHeading > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div>
+    <h2
+      aria-level="2"
+      class="bf-not-eligible-view-heading "
+      role="heading"
+    />
+    <h3
+      aria-level="3"
+      class="bf-not-eligible-view-description "
+      role="heading"
+    />
+    <div
+      aria-labelledby="bf-summary-box-key-information"
+      class="bf-usa-summary-box usa-summary-box"
+      role="region"
+    >
+      <div
+        class="bf-usa-summary-box__body usa-summary-box__body"
+      >
+        <h4
+          aria-level="4"
+          class="bf-usa-summary-box__heading usa-summary-box__heading "
+          id="bf-summary-box-key-information"
+          role="heading"
+        />
+        <div
+          class="bf-usa-summary-box__text usa-summary-box__text"
+        >
+          <ul
+            class="bf-usa-list usa-list"
+          >
+            <li>
+               
+              <a
+                class="bf-usa-summary-box__link usa-summary-box__link"
+                href="#"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

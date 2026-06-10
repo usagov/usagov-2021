@@ -64,55 +64,20 @@
 
 {{ attach_library('uswds_paragraph_components/uswds-alerts') }}
 
-{% if node.langcode.langcode == "es" %}
-  {% set translations = {
-    'info': 'información',
-    'warning': 'aviso',
-    'error': 'error',
-    'success': 'exito',
-  } %}
-{% else %}
-  {% set translations = {
-    'info': 'info',
-    'warning': 'warning',
-    'error': 'error',
-    'success': 'success',
-  } %}
-{% endif %}
+{# Alert status label translations are set in usagov_preprocess_paragraph() in usagov.theme. #}
+{% set translations = alert_translations %}
 
 {# Prints div with classes, and content without Width and Background. #}
 {% if alert_status %}
-  {% if alert_status == "info" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.info }}>
-  {% endif %}
-  {% if alert_status == "warning" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.warning }}>
-  {% endif %}
-  {% if alert_status == "error" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.error }}>
-  {% endif %}
-  {% if alert_status == "success" %}
-    <div{{ attributes.addClass(classes) }} role="region" aria-label={{ translations.success }}>
-  {% endif %}
+  <div{{ attributes.addClass(classes) }} role="region" aria-label="{{ translations[alert_status] }}">
 {% else %}
   <div{{ attributes.addClass(classes) }}>
 {% endif %}
     <div class="usa-alert__body">
     {% if alert_status %}
       <span class="usa-alert__a11y-label visually-hidden" id="usa-alert--1__a11y-label">
-        <svg role="img" aria-label={{ alert_status }}>
-        {% if alert_status == "info" %}
-          <title aria-labelledby="usa-alert--1__heading">{{translations.info}}</title>
-        {% endif %}
-         {% if alert_status == "warning" %}
-           <title>{{translations.warning}}</title>
-        {% endif %}
-         {% if alert_status == "error" %}
-           <title>{{translations.error}}</title>
-        {% endif %}
-         {% if alert_status == "success" %}
-           <title>{{translations.success}}</title>
-        {% endif %}
+        <svg role="img" aria-label="{{ translations[alert_status] }}">
+          <title>{{ translations[alert_status] }}</title>
         </svg>
      </span>
     {% endif %}

@@ -3,10 +3,12 @@ langcode: en
 status: true
 dependencies:
   config:
+    - config_pages.type.blog_intro
     - media.type.audio
     - media.type.file
     - node.type.agency_synonym
     - node.type.basic_page
+    - node.type.blog_post
     - node.type.bears_agency
     - node.type.bears_benefit
     - node.type.bears_criteria
@@ -19,6 +21,7 @@ dependencies:
     - taxonomy.vocabulary.wizard
     - workflows.workflow.basic_workflow
   module:
+    - config_pages
     - content_moderation
     - content_translation
     - media
@@ -50,6 +53,7 @@ permissions:
   - 'create bears_criteria content'
   - 'create bears_life_event content'
   - 'create bears_life_event_form content'
+  - 'create blog_post content'
   - 'create content translations'
   - 'create directory_record content'
   - 'create file media'
@@ -65,6 +69,7 @@ permissions:
   - 'delete any bears_criteria content'
   - 'delete any bears_life_event content'
   - 'delete any bears_life_event_form content'
+  - 'delete any blog_post content'
   - 'delete any directory_record content'
   - 'delete any state_directory_record content'
   - 'delete any wizard content'
@@ -80,6 +85,7 @@ permissions:
   - 'delete own bears_criteria content'
   - 'delete own bears_life_event content'
   - 'delete own bears_life_event_form content'
+  - 'delete own blog_post content'
   - 'delete own directory_record content'
   - 'delete own state_directory_record content'
   - 'delete own wizard content'
@@ -94,16 +100,19 @@ permissions:
   - 'edit any bears_criteria content'
   - 'edit any bears_life_event content'
   - 'edit any bears_life_event_form content'
+  - 'edit any blog_post content'
   - 'edit any directory_record content'
   - 'edit any state_directory_record content'
   - 'edit any wizard content'
   - 'edit any wizard_step content'
+  - 'edit blog_intro config page entity'
   - 'edit own basic_page content'
   - 'edit own bears_agency content'
   - 'edit own bears_benefit content'
   - 'edit own bears_criteria content'
   - 'edit own bears_life_event content'
   - 'edit own bears_life_event_form content'
+  - 'edit own blog_post content'
   - 'edit own directory_record content'
   - 'edit own state_directory_record content'
   - 'edit own wizard content'
@@ -118,6 +127,7 @@ permissions:
   - 'revert term revisions in wizard'
   - 'translate agency_synonym node'
   - 'translate basic_page node'
+  - 'translate blog_post node'
   - 'translate directory_record node'
   - 'translate editable entities'
   - 'translate state_directory_record node'
@@ -134,6 +144,8 @@ permissions:
   - 'view bears_criteria revisions'
   - 'view bears_life_event revisions'
   - 'view bears_life_event_form revisions'
+  - 'view blog_intro config page entity'
+  - 'view blog_post revisions'
   - 'view directory_record revisions'
   - 'view latest version'
   - 'view own unpublished content'

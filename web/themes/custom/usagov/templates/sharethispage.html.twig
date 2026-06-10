@@ -19,7 +19,7 @@
 
 {% if path|render not in exclusions %}
         {% set facebook = 'https://www.facebook.com/sharer/sharer.php?u=' %}
-        {% set twitter = 'https://twitter.com/intent/tweet?source=webclient&text=' %}
+        {% set twitter = 'https://x.com/intent/post?url=' %}
         {% set email = 'mailto:?subject=' %}
         {% set baseURL = url('<front>') %}
         {% set url = baseURL|render~path|render[1:] %}
@@ -32,7 +32,7 @@
                                         <img class="share-icon" id="fb" src="/themes/custom/usagov/images/social-media-icons/Facebook_Icon.svg" alt="Facebook"/>
                                 </div>
                         </a>
-                        <a aria-labelledby="share-page twr" href="{{ twitter }}{{ url }}">
+                        <a aria-labelledby="share-page twr" href="{{ twitter }}{{ url|url_encode }}">
                                 <div class="share-icon-div">
                                         <img class="share-icon" id="twr" src="/themes/custom/usagov/images/social-media-icons/X_Twitter_Icon.svg?version=2" alt="X Twitter USAGov"/>
                                 </div>

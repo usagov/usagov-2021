@@ -1,0 +1,9 @@
+import { render } from '@testing-library/react'
+import {{pascalCase name}} from '../index.jsx'
+
+describe('{{pascalCase name}}', () => {
+  it('renders a match to the previous snapshot', () => {
+    const { asFragment } = render(<{{pascalCase name}} />)
+    expect(asFragment()).toMatchSnapshot()
+  })
+})

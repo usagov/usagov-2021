@@ -1,0 +1,86 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/functions' as *;
+@use '@styles/breakpoints' as *;
+
+.bf-usa-card--relative-benefit {
+  margin-bottom: rem(16px);
+
+  .bf-usa-card__container {
+    border-radius: 0;
+    border: rem(2px) solid color.$dark-teal;
+    color: color.$dark-blue;
+    height: auto;
+    margin: 0;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover.bf-usa-card__container {
+    background-color: color.$medium-teal;
+  }
+
+  a:active.bf-usa-card__container {
+    border: rem(2px) solid color.$dark-teal;
+  }
+
+  &.bf-card-icon {
+    .bf-relative-icon svg {
+      margin: auto 0;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: rem(16px);
+      width: rem(70px);
+      height: rem(70px);
+      padding: rem(12px);
+    }
+
+    .bf-usa-card__container {
+      padding: 0 rem(40px) 0 rem(64px)-plus;
+    }
+  }
+
+  .bf-usa-card__header {
+    padding-bottom: 0;
+  }
+
+  h3.bf-usa-card__heading {
+    @include subheadings($font-family: 'sans');
+
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  .bf-usa-card__body {
+    display: none;
+  }
+
+  .bf-usa-card__cta,
+  .bf-usa-card__body {
+    padding: rem(24px);
+    padding-top: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  @media (width >= $desktop) {
+    .bf-usa-card__body {
+      display: block;
+      padding-top: 0;
+      padding-bottom: rem(24px);
+      margin-top: 0;
+      margin-bottom: 0;
+
+      p {
+        max-width: 90%;
+      }
+    }
+
+    .bf-usa-card__cta {
+      display: none;
+    }
+  }
+}

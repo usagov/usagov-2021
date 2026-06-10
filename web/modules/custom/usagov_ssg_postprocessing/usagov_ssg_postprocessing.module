@@ -7,7 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
  * Implements hook_entity_view_alter()
  *
  * From Drupal.org -> "If a module wishes to act on the rendered HTML of the
- * ntity rather than the structured content array, it may use this hook to add
+ * entity rather than the structured content array, it may use this hook to add
  * a #post_render callback."
  *
  * @param array<string, mixed> $build

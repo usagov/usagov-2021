@@ -1,0 +1,49 @@
+@use '@styles/colors' as color;
+@use '@styles/mixins' as *;
+@use '@styles/breakpoints' as *;
+@use '@styles/functions' as *;
+
+.bf-notices-list {
+  @media (width >= $desktop) {
+    margin-top: rem(36px);
+    margin-bottom: rem(64px);
+  }
+}
+
+.bf-notice {
+  display: flex;
+
+  @media (width >= $desktop) {
+    padding-bottom: rem(32px);
+  }
+
+  .bf-info {
+    margin-top: rem(4px);
+    margin-right: rem(12px);
+  }
+}
+
+.bf-line-separator-wrapper--vertical {
+  display: none;
+}
+
+.bf-line-separator--vertical {
+  display: none;
+}
+
+@media (width >= $desktop) {
+  .bf-line-separator-wrapper--vertical {
+    display: block;
+    padding-top: rem(128px);
+    padding-bottom: rem(32px);
+    margin: 0;
+    margin-right: rem(32px);
+  }
+
+  .bf-line-separator--vertical {
+    display: block;
+    border-left: rem(2px) solid color.$base-light-grey;
+    width: 100%;
+    height: 100%;
+  }
+}

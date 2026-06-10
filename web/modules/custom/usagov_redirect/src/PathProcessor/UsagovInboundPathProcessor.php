@@ -3,7 +3,6 @@
 namespace Drupal\usagov_redirect\PathProcessor;
 
 use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Processes the inbound path to handle redirects.

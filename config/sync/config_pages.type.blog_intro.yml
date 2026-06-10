@@ -1,0 +1,14 @@
+uuid: 50d65eb4-6f58-45a6-bed6-6039f12ad0b1
+langcode: en
+status: true
+dependencies: {  }
+id: blog_intro
+label: 'Blog Intro'
+token: false
+context:
+  show_warning: false
+  group: {  }
+menu:
+  path: /admin/content/blog-intro
+  weight: 0
+  description: 'Shared intro for the blog listing and blog post pages'

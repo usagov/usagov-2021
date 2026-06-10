@@ -44,8 +44,12 @@ class BenefitFinderTest extends ExistingSiteBase {
    * This test only needs to ensure that creating life event JSON data works.
    */
   public function testApi() {
-    $this->drupalLogin($this->adminUser);
     $this->drupalGet('/benefit-finder/api/life-event/death');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->drupalGet('/benefit-finder/api/life-event/death', ['query' => ['mode' => 'draft']]);
+    $this->assertSession()->statusCodeEquals(403);
+    $this->drupalLogin($this->adminUser);
+    $this->drupalGet('/benefit-finder/api/life-event/death', ['query' => ['mode' => 'draft']]);
     $this->assertSession()->statusCodeEquals(200);
     $this->drupalLogout();
   }
@@ -58,6 +62,8 @@ class BenefitFinderTest extends ExistingSiteBase {
   public function testPage() {
     $this->drupalGet('/benefit-finder/death');
     $this->assertSession()->elementExists('css', '#benefit-finder');
+    $this->assertSession()->responseContains('json-data-file-path="/s3/files/benefit-finder/api/life-event/death.json"');
+    $this->assertSession()->responseContains('draft-json-data-file-path="/benefit-finder/api/life-event/death?mode=draft"');
   }
 
 }
