@@ -836,29 +836,21 @@ workflows:
     jobs:
       - approve-deploy-reporter:
           type: approval
-      - approve-deploy-reporter-dr:
+      - approve-dr-deploy-reporter:
           type: approval
           requires:
             - approve-deploy-reporter
       - deploy-reporter-dr:
-          filters:
-            branches:
-              only:
-                - dr
           requires:
-            - approve-deploy-reporter-dr
-      - approve-deploy-reporter-dev:
+            - approve-dr-deploy-reporter
+      - approve-dev-deploy-reporter:
           type: approval
           requires:
             - approve-deploy-reporter
       - deploy-reporter-dev:
-          filters:
-            branches:
-              only:
-                - dev
           requires:
-            - approve-deploy-reporter-dev
-      - approve-deploy-reporter-stage:
+            - approve-dev-deploy-reporter
+      - approve-stage-deploy-reporter:
           type: approval
           requires:
             - approve-deploy-reporter
@@ -868,22 +860,29 @@ workflows:
               only:
                 - stage
           requires:
-            - approve-deploy-reporter-stage
-      - approve-deploy-reporter-prod:
+            - approve-stage-deploy-reporter
+          filters:
+            branches:
+              only: stage
+      - approve-prod-deploy-reporter:
           type: approval
           requires:
             - approve-deploy-reporter
-      - really-approve-deploy-reporter-prod:
+      - really-approve-prod-deploy-reporter:
           type: approval
           requires:
-            - approve-deploy-reporter-prod
+            - approve-prod-deploy-reporter
+          filters:
+            branches:
+              only:
+                - prod
       - deploy-reporter-prod:
           filters:
             branches:
               only:
                 - prod
           requires:
-            - really-approve-deploy-reporter-prod
+            - really-approve-prod-deploy-reporter
 
   build-and-deploy:
     jobs:
