@@ -832,24 +832,10 @@ workflows:
           requires:
             - approve-snapshot-backup-prod
 
-  try-deploy-reporter-any-branch-to-dev:
-    jobs:
-      - approve-deploy-reporter-to-dev:
-          type: approval
-      - deploy-reporter-dev:
-          requires:
-            - approve-deploy-reporter-to-dev
-
   try-deploy-reporter:
     jobs:
       - approve-deploy-reporter:
           type: approval
-          filters:
-            branches:
-              only:
-                - stage
-                - prod
-                - dr
       - deploy-reporter-stage:
           filters:
             branches:
@@ -871,6 +857,14 @@ workflows:
                 - dr
           requires:
             - approve-deploy-reporter
+      - deploy-reporter-dev:
+          filters:
+            branches:
+              only:
+                - dev
+          requires:
+            - approve-deploy-reporter
+
   build-and-deploy:
     jobs:
       - approve-build-and-push-container:
