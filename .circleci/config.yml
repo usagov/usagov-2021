@@ -855,10 +855,6 @@ workflows:
           requires:
             - approve-deploy-reporter
       - deploy-reporter-stage:
-          filters:
-            branches:
-              only:
-                - stage
           requires:
             - approve-stage-deploy-reporter
           filters:
@@ -877,12 +873,12 @@ workflows:
               only:
                 - prod
       - deploy-reporter-prod:
+          requires:
+            - really-approve-prod-deploy-reporter
           filters:
             branches:
               only:
                 - prod
-          requires:
-            - really-approve-prod-deploy-reporter
 
   build-and-deploy:
     jobs:
