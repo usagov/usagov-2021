@@ -13,14 +13,6 @@ targetEntityType: config_pages
 bundle: blog_intro
 mode: default
 content:
-  field_blog_intro_heading:
-    type: string_textfield
-    weight: 0
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
   field_blog_intro_body:
     type: text_textarea_with_summary
     weight: 1
@@ -30,6 +22,14 @@ content:
       summary_rows: 3
       placeholder: ''
       show_summary: false
+    third_party_settings: {  }
+  field_blog_intro_heading:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
 hidden:
   label: true
