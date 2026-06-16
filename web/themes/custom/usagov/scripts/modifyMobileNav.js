@@ -18,6 +18,28 @@
 })();
 
 
+(function syncMobileNavAriaHidden() {
+	"use strict";
+
+	let mobile_menu = document.querySelector('.usagov-mobile-menu');
+	if (!mobile_menu) {
+		return;
+	}
+
+	let setMobileMenuAriaHidden = function () {
+		mobile_menu.setAttribute('aria-hidden', mobile_menu.classList.contains('is-visible') ? 'false' : 'true');
+	};
+
+	setMobileMenuAriaHidden();
+
+	let observer = new MutationObserver(setMobileMenuAriaHidden);
+	observer.observe(mobile_menu, {
+		attributes: true,
+		attributeFilter: ['class'],
+	});
+})();
+
+
 (function menuButtonModifications() {
 	"use strict";
 	// USWDS applies aria-hidden attribute to non-nav elements but misses some because Drupal adds markup that USWDS does not account for.
