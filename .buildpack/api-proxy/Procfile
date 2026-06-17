@@ -1,1 +1,1 @@
-web: HTTPS_PROXY=$PROXYROUTE HTTP_PROXY=$PROXYROUTE https_proxy=$PROXYROUTE http_proxy=$PROXYROUTE gunicorn app.app:app
+web: ./start.sh
