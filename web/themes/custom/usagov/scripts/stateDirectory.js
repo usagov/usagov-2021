@@ -82,36 +82,40 @@
   const stateList = document.getElementById("statelist");
   if (stateList) stateList.remove();
 
-  window.addEventListener("load", function () {
-    const goButton = document.querySelector(".sd-go-btn");
-    if (goButton) {
-      goButton.addEventListener("click", function () {
+  function handleGoButtonClick() {
+    const select = document.getElementById("stateselect");
+    if (!select) return;
 
-        const select = document.getElementById("stateselect");
-        if (!select) return;
+    const url = select.value;
+    const statename = select.options[select.selectedIndex].text;
 
-        const url = select.value;
-        const statename = select.options[select.selectedIndex].text;
+    if (url !== "") {
+      const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option"))
+        .map(option => option.value)
+        .filter(value => value.trim() !== "");
 
-        if (url !== "") {
-          const allowedUrls = Array.from(document.querySelectorAll("#comboBoxDiv select option"))
-            .map(option => option.value)
-            .filter(value => value.trim() !== "");
-
-          if (allowedUrls.includes(url)) {
-            window.location = url;
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-              'event': '50_state_submit',
-              '50_state_url': url,
-              '50_state_name': statename
-            });
-          }
-        }
-      });
+      if (allowedUrls.includes(url)) {
+        window.location = url;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          'event': '50_state_submit',
+          '50_state_url': url,
+          '50_state_name': statename
+        });
+      }
     }
+  }
+
+  // We use the "load" event here to ensure that the DOM is loaded before
+  // we try to add an event listener to the button. In the past, the mobile
+  // view of the website has been affected if we don't do this (but somehow
+  // not the desktop view). There's probably a race condition involved.
+  // See USAGOV-2418 and USAGOV-2726.
+  window.addEventListener("load", function() {
+    const goButton = document.querySelector(".sd-go-btn");
+      if (goButton) {
+        goButton.addEventListener("click", handleGoButtonClick);
+      }
   });
 
-
 })();
-

@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Card > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <li
+    class=" add-list-reset"
+  >
+    <a
+      class="bf-usa-card__container usa-card__container"
+    >
+      <div
+        class="bf-usa-card__header usa-card__header"
+      >
+        <h3
+          aria-level="3"
+          class="bf-usa-card__heading usa-card__heading "
+          role="heading"
+        />
+      </div>
+      <div
+        class="bf-usa-card__body usa-card__body"
+      />
+      <div
+        class="bf-usa-card__cta usa-card__cta"
+      />
+      <i
+        aria-hidden="true"
+        data-testid="icon-undefined"
+      />
+    </a>
+  </li>
+</DocumentFragment>
+`;

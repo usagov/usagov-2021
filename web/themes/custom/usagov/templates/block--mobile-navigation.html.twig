@@ -1,4 +1,4 @@
-
+{# This block is pulled in through Block Layout for pages in the Wizards menus. #}
 {# Determine Language to decide which menu and translations to use #}
 {% if node.langcode.langcode == "es" %}
   {% set main_nav_items = simplify_menu('left-menu-spanish') %}
@@ -10,7 +10,6 @@
     'home_URL': '/es',
     'close': 'Cerrar',
     'search': 'Buscar',
-    'search_placeholder': 'Busque en este sitio...',
     'search_affiliate': usagov_affiliate_es,
     'all_topics': 'Todos los temas y servicios',
     'phone_URL': '/es/llamenos',
@@ -27,7 +26,6 @@
     'home_URL': '/',
     'close': 'Close',
     'search': 'Search',
-    'search_placeholder': 'Search all government',
     'search_affiliate': usagov_affiliate,
     'all_topics': 'All topics and services',
     'phone_URL': '/phone',
@@ -166,16 +164,10 @@
           alt_string,
         } %}
           {% set form_id = translations.form_id %}
-          {% set placeholder_string = translations.search_placeholder %}
           {% set value_string = translations.search_affiliate %}
           {% set label_string = translations.search %}
           {% set alt_string = translations.search %}
         {% endembed %}
-        <div class="usa-nav__secondary-links">
-          <span id="top-phone-mobile-menu" class="usa-nav__secondary-item" data-contact-callout="visible">
-            <a href="{{ translations.phone_URL }}" class="">1-844-USAGOV1</a>
-          </span>
-        </div>
       </div>
     </div>
 

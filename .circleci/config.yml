@@ -7,7 +7,8 @@ commands:
         default: "dev"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -22,7 +23,7 @@ commands:
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cms << pipeline.number >> $CMS_DIGEST
+            ./bin/cloudgov/deploy-cms << parameters.envname >> << pipeline.number >> $CMS_DIGEST
             if [ $? ]; then
               echo
               echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
@@ -194,7 +195,8 @@ commands:
         default: "dev"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - install-cloud-foundry
       - snapshot-preamble:
           envname: << parameters.envname >>
@@ -213,10 +215,11 @@ commands:
   deploy-reporter:
     parameters:
       envname:
-        default: "tools"
+        default: "dev"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - install-cloud-foundry
       - signed-dockerhub-login
       - run:
@@ -231,19 +234,10 @@ commands:
             export RDIG=`docker images --no-trunc --quiet | awk -F: '{print $2}'`
             echo RDIG is $RDIG
       - run:
-          name: Save Image Digest Reporter
+          name: Smoke Test Reporter Google Auth
           command: |
-            echo "docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'"
-            docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'
-            export REPORTER_DIGEST=`docker images --no-trunc --quiet | head -n 1 | awk -F: '{print $2}'`
-            echo "REPORTER_DIGEST is: "
-            echo $REPORTER_DIGEST
-            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
-            cf target -s shared-egress -o gsa-tts-usagov
-            . ./bin/cloudgov/get-s3-access key-value
-            mkdir /tmp/results || true
-            echo -n "$REPORTER_DIGEST" > /tmp/results/reporter_digest
-            aws s3 cp /tmp/results/reporter_digest s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-<< pipeline.number >>
+            export DOCKER_CONTENT_TRUST=0
+            docker run --rm --entrypoint sh ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> -lc 'cd /analytics-reporter && npm run smoke:google-auth'
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
@@ -252,14 +246,31 @@ commands:
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-push-reporter << pipeline.number >> latest
       - run:
+          name: Save Signed Image Digest Reporter
+          command: |
+            set -euo pipefail
+            export PIPELINE_NUM=<< pipeline.number >>
+            echo "PIPELINE_NUM is: $PIPELINE_NUM"
+            TAG="reporter-${PIPELINE_NUM}"
+            REPO="docker.io/${DOCKERUSER}/${DOCKERREPO}"
+            docker pull "${REPO}:${TAG}"
+            DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${REPO}:${TAG}" | cut -d@ -f2)
+            echo "SIGNED_DIGEST=${DIGEST}"
+            echo "${DIGEST}" > /tmp/reporter_digest
+            cf target -s shared-egress -o gsa-tts-usagov
+            . ./bin/cloudgov/get-s3-access key-value
+            echo "S3_BUCKET is: $S3_BUCKET"
+            aws s3 cp /tmp/reporter_digest "s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/reporter-${PIPELINE_NUM}"
+      - run:
           name: Deploy Analytics Reporter
           command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            export RDIG=`cat /tmp/results/reporter_digest`
+            export RDIG=`cat /tmp/reporter_digest`
             echo RDIG is $RDIG
             ./bin/cloudgov/deploy-reporter << pipeline.number >> $RDIG
+
 
   deploy-cloudgov-cron:
     parameters:
@@ -267,7 +278,8 @@ commands:
         default: "dr"
         type: string
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -289,7 +301,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - install-cloud-foundry
       - run:
           name: Setup Environment for use in Scripts
@@ -305,7 +318,6 @@ jobs:
             SCAN_CODE_RESULT=0
             if (./bin/scan-code low | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             echo "CMS Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
-            cat /tmp/results/scan-cms-code.log
             exit $SCAN_CODE_RESULT
       - run:
           name: Scan Dependencies
@@ -314,7 +326,6 @@ jobs:
             SCAN_DEPS_RESULT=0
             if (./bin/scan-dependencies low | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
             echo "CMS Dependency Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
-            cat /tmp/results/scan-cms-dependencies.log
             exit $SCAN_DEPS_RESULT
       - run:
           name: Check CIS Benchmarks
@@ -330,7 +341,6 @@ jobs:
             cd /home/circleci/project
             if (./bin/scan-container-cis | tee /tmp/results/scan-cms-cis.log); then export SCAN_CIS_RESULT=0; else export SCAN_CIS_RESULT=$?; fi
             echo "CMS CIS Benchmark Scan return code: $SCAN_CMS_RESULT" | tee -a /tmp/results/scan-cms-cis.log
-            cat /tmp/results/scan-cms-cis.log
             exit $SCAN_CIS_RESULT
       - store_artifacts:
           path: /tmp/results
@@ -343,7 +353,8 @@ jobs:
     docker:
       - image: cimg/php:8.3-node
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Install Linters and Sniffers
           command: |
@@ -384,7 +395,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
@@ -403,7 +415,6 @@ jobs:
             SCAN_CODE_RESULT=0
             if (./bin/scan-code high | tee /tmp/results/scan-cms-code.log); then export SCAN_CODE_RESULT=0; else export SCAN_CODE_RESULT=$?; fi
             echo "Code Scan return code: $SCAN_CODE_RESULT" | tee -a /tmp/results/scan-cms-code.log
-            cat /tmp/results/scan-cms-code.log
             exit 0
       - run:
           name: Scan Dependencies
@@ -411,7 +422,6 @@ jobs:
             SCAN_DEPS_RESULT=0
             if (./bin/scan-dependencies high | tee /tmp/results/scan-cms-dependencies.log); then export SCAN_DEPS_RESULT=0; else export SCAN_DEPS_RESULT=$?; fi
             echo "Dependencies Scan return code: $SCAN_DEPS_RESULT" | tee -a /tmp/results/scan-cms-dependencies.log
-            cat /tmp/results/scan-cms-dependencies.log
             exit 0
       - run:
           name: Build Container
@@ -431,7 +441,6 @@ jobs:
             SCAN_WWW_RESULT=0
             if (./bin/scan-container www << pipeline.number >> high | tee /tmp/results/scan-www-container.log); then export SCAN_WWW_RESULT=0; else export SCAN_WWW_RESULT=$?; fi
             echo "WWW Container Scan return code: $SCAN_WWW_RESULT" | tee -a /tmp/results/scan-www-container.log
-            cat /tmp/results/scan-www-container.log
             exit 0
       - run:
           name: Scan WAF Container
@@ -439,7 +448,6 @@ jobs:
             SCAN_WAF_RESULT=0
             if (./bin/scan-container waf << pipeline.number >> high | tee /tmp/results/scan-waf-container.log); then export SCAN_WAF_RESULT=0; else export SCAN_WAF_RESULT=$?; fi
             echo "WAF Container Scan return code: $SCAN_WAF_RESULT" | tee -a /tmp/results/scan-waf-container.log
-            cat /tmp/results/scan-waf-container.log
             exit 0
       - run:
           name: Prepare for CIS Benchmarks
@@ -562,13 +570,50 @@ jobs:
       - deploy-reporter:
           envname: tools
 
+  deploy-reporter-dev:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: dev
+
+  deploy-reporter-stage:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: stage
+
+  deploy-reporter-prod:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: prod
+
+  deploy-reporter-dr:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      BASH_ENV: /home/circleci/project/env.local
+    steps:
+      - deploy-reporter:
+          envname: dr
+
   build-and-push-container-cron:
     machine:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - signed-dockerhub-login
       - run:
           name: Setup Environment for use in Scripts
@@ -588,7 +633,6 @@ jobs:
             SCAN_CRON_RESULT=0
             if (./bin/scan-container cron << pipeline.number >> high | tee /tmp/results/scan-cron-container.log); then export SCAN_CRON_RESULT=0; else export SCAN_CRON_RESULT=$?; fi
             echo "Cron Container Scan return code: $SCAN_CRON_RESULT" | tee -a /tmp/results/scan-cron-container.log
-            cat /tmp/results/scan-cron-container.log
             exit 0
       - run:
           name: Create Container for Cron CIS Benchmarks
@@ -607,7 +651,6 @@ jobs:
             SCAN_CRON_CIS_RESULT=0
             if (./bin/scan-container-cis << pipeline.number >> | tee /tmp/results/scan-cron-container-cis.log); then export SCAN_CRON_CIS_RESULT=0; else export SCAN_CRON_CIS_RESULT=$?; fi
             echo "Cron CIS Benchmark Scan return code: $SCAN_CRON_CIS_RESULT" | tee -a /tmp/results/scan-cron-container-cis.log
-            cat /tmp/results/scan-cron-container-cis.log
             exit 0
       - run:
           name: Stop containers now that Benchmarks are done
@@ -669,7 +712,8 @@ jobs:
     environment:
       BASH_ENV: /home/circleci/project/env.local
     steps:
-      - checkout
+      - checkout:
+          method: blobless
       - run:
           name: Setup Environment for use in Scripts
           command: |
@@ -788,6 +832,14 @@ workflows:
           requires:
             - approve-snapshot-backup-prod
 
+  try-deploy-reporter-any-branch-to-dev:
+    jobs:
+      - approve-deploy-reporter-to-dev:
+          type: approval
+      - deploy-reporter-dev:
+          requires:
+            - approve-deploy-reporter-to-dev
+
   try-deploy-reporter:
     jobs:
       - approve-deploy-reporter:
@@ -795,16 +847,28 @@ workflows:
           filters:
             branches:
               only:
-                - dev
                 - stage
                 - prod
-      - deploy-reporter-tools:
+                - dr
+      - deploy-reporter-stage:
           filters:
             branches:
               only:
-                - dev
                 - stage
+          requires:
+            - approve-deploy-reporter
+      - deploy-reporter-prod:
+          filters:
+            branches:
+              only:
                 - prod
+          requires:
+            - approve-deploy-reporter
+      - deploy-reporter-dr:
+          filters:
+            branches:
+              only:
+                - dr
           requires:
             - approve-deploy-reporter
   build-and-deploy:
@@ -822,20 +886,12 @@ workflows:
           type: approval
           requires:
             - build-and-push-container
-          filters:
-            branches:
-              only:
-              - dr
       - deploy-to-cloudgov-dev:
           requires:
             - approve-dev-deployment
       - deploy-to-cloudgov-dr:
           requires:
             - approve-dr-deployment
-          filters:
-            branches:
-              only:
-              - dr
       - approve-stage-deployment:
           type: approval
           requires:
@@ -885,20 +941,12 @@ workflows:
           type: approval
           requires:
             - build-and-push-container-cron
-          filters:
-            branches:
-              only:
-              - dr
       - deploy-to-cloudgov-dev-cron:
           requires:
             - approve-dev-deployment-cron
       - deploy-to-cloudgov-dr-cron:
           requires:
             - approve-dr-deployment-cron
-          filters:
-            branches:
-              only:
-              - dr
       - approve-stage-deployment-cron:
           type: approval
           requires:

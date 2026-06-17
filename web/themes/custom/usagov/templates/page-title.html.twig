@@ -14,5 +14,14 @@
 #}
 {{ title_prefix }}
 {% if title %}
-  <h1{{ title_attributes.addClass('text-red-50')}} id ="skip-to-h1" >{{ title }} {{ title_suffix }}</h1>
+  {% if node and node.type.0.target_id == 'blog_post' %}
+    {# Blog posts use <h2>: the "Our blog" <h1 id="skip-to-h1"> in page.html.twig is the skip target. #}
+    <h2 id="skip-to-h2">{{ title }} {{ title_suffix }}</h2>
+  {% elseif '/blog' in path('<current>') and not node %}
+    {# Blog listing view: page.html.twig already provides id="skip-to-h1" on the blog-title h1.
+       Omit the id here to prevent a duplicate. #}
+    <h1{{ title_attributes.addClass('text-red-50') }}>{{ title }} {{ title_suffix }}</h1>
+  {% else %}
+    <h1{{ title_attributes.addClass('text-red-50')}} id="skip-to-h1" >{{ title }} {{ title_suffix }}</h1>
+  {% endif %}
 {% endif %}

@@ -1,0 +1,292 @@
+<?php
+
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\system\Entity\Menu;
+use Drupal\Core\Breadcrumb\Breadcrumb;
+use Drupal\Core\Link;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * Rebuilds the USAGov Blog menu when a blog post is created so that the menu
+ * reflects the latest posts.
+ */
+function usagov_blog_date_menu_entity_insert(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'blog_post') {
+    Cache::invalidateTags(['node_list:blog_post']);
+    usagov_blog_date_menu_rebuild_menu();
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Rebuilds the USAGov Blog menu when a blog post is updated so that the menu
+ * reflects the latest posts.
+ */
+function usagov_blog_date_menu_entity_update(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'blog_post') {
+    Cache::invalidateTags(['node_list:blog_post']);
+    usagov_blog_date_menu_rebuild_menu();
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Rebuilds the USAGov Blog menu when a blog post is deleted so that the menu
+ * reflects the latest posts.
+ */
+function usagov_blog_date_menu_entity_delete(EntityInterface $entity): void {
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'blog_post') {
+    Cache::invalidateTags(['node_list:blog_post']);
+    usagov_blog_date_menu_rebuild_menu();
+  }
+}
+
+/**
+ * Rebuilds the USAGov Blog menu.
+ */
+function usagov_blog_date_menu_rebuild_menu(): void {
+  $menu_name = 'usagov_blog_menu';
+
+  if (!Menu::load($menu_name)) {
+    Menu::create([
+      'id' => $menu_name,
+      'label' => 'USAGov Blog Menu',
+      'description' => 'Menu for blog posts by year and month.',
+      'title' => 'Our Blog',
+    ])->save();
+  }
+
+  $links = \Drupal::entityTypeManager()
+    ->getStorage('menu_link_content')
+    ->loadByProperties(['menu_name' => $menu_name]);
+  foreach ($links as $link) {
+    $link->delete();
+  }
+
+  $nodes = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->loadByProperties(['type' => 'blog_post', 'status' => 1]);
+
+  $groups = [];
+  foreach ($nodes as $node) {
+    /** @var \Drupal\node\NodeInterface $node */
+    // Use the 'created' field which is the "Authored on" date in Drupal
+    $authored = $node->get('created')->value;
+    $year = date('Y', $authored);
+    $month = date('Y-m', $authored);
+    $groups[$year][$month][] = $node;
+  }
+
+  // Sort each month's nodes by authored date (newest first)
+  foreach ($groups as $year => $months) {
+    foreach ($months as $month_key => $nodes_month) {
+      usort($groups[$year][$month_key], function ($a, $b) {
+        $a_authored = $a->get('created')->value;
+        $b_authored = $b->get('created')->value;
+        return $b_authored - $a_authored;
+      });
+    }
+  }
+
+  // Build menu links: Year > Month > Blog Title.
+  // Sort years in descending order (newest first)
+  krsort($groups);
+
+  $year_links = [];
+  foreach ($groups as $year => $months) {
+    uksort($months, function ($a, $b) {
+      $month_a = intval(substr($a, 5, 2));
+      $month_b = intval(substr($b, 5, 2));
+      return $month_b <=> $month_a;
+    });
+
+    $year_link = MenuLinkContent::create([
+      'title' => $year,
+      'link' => ['uri' => 'internal:/blog/' . $year],
+      'menu_name' => $menu_name,
+      'weight' => -1 * intval($year),
+      'expanded' => FALSE,
+      'enabled' => TRUE,
+    ]);
+    $year_link->save();
+    $year_id = $year_link->getPluginId();
+    $year_links[$year] = $year_id;
+
+    foreach ($months as $month_key => $nodes_month) {
+      $month_title = date('F', strtotime($month_key . '-01'));
+      $month_number = intval(date('m', strtotime($month_key . '-01')));
+      $month_weight = -1 * $month_number;
+
+      $month_link = MenuLinkContent::create([
+        'title' => $month_title,
+        'link' => ['uri' => 'internal:/blog/' . $year . '/' . date('m', strtotime($month_key . '-01'))],
+        'menu_name' => $menu_name,
+        'parent' => $year_id,
+        'weight' => $month_weight,
+        'expanded' => FALSE,
+        'enabled' => TRUE,
+      ]);
+      $month_link->save();
+      $month_id = $month_link->getPluginId();
+
+      foreach ($nodes_month as $index => $node) {
+        MenuLinkContent::create([
+          'title' => $node->getTitle(),
+          'link' => ['uri' => 'internal:/node/' . $node->id()],
+          'menu_name' => $menu_name,
+          'parent' => $month_id,
+          'weight' => $index,
+          'enabled' => TRUE,
+        ])->save();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * Alter the title of the blog view based on year/month arguments.
+ */
+function usagov_blog_date_menu_views_pre_render(ViewExecutable $view): void {
+  if ($view->id() === 'blog_menu' && $view->current_display === 'page_1') {
+    $args = $view->args;
+
+    if (!empty($args)) {
+      $year = $args[0];
+      $month = $args[1] ?? NULL;
+
+      if ($month) {
+        // Month page: "Our blog [month] [year]"
+        $month_name = date('F', mktime(0, 0, 0, (int) $month, 1));
+        $view->setTitle(t('Our blog @month @year', [
+          '@month' => $month_name,
+          '@year' => $year,
+        ]));
+      }
+      else {
+        // Year page: "Our blog [year]"
+        $view->setTitle(t('Our blog @year', ['@year' => $year]));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_system_breadcrumb_alter().
+ *
+ * This runs after menu_breadcrumb module, overriding standard breadcrumb implementation.
+ *
+ * @param array<string, mixed> $context
+ */
+function usagov_blog_date_menu_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context): void {
+  $route_name = $route_match->getRouteName();
+  $current_path = \Drupal::service('path.current')->getPath();
+
+  if ($route_name === 'entity.node.canonical') {
+    $node = $route_match->getParameter('node');
+    if (!$node instanceof NodeInterface || $node->bundle() !== 'blog_post') {
+      return;
+    }
+    usagov_blog_date_menu_build_blog_post_breadcrumb($breadcrumb, $node);
+    return;
+  }
+
+  if (preg_match('#^/blog/(\d{4})(?:/(\d{1,2}))?$#', $current_path, $matches)) {
+    $year = $matches[1];
+    $month = $matches[2] ?? NULL;
+    usagov_blog_date_menu_build_breadcrumb($breadcrumb, $year, $month);
+    return;
+  }
+
+  if ($current_path === '/blog') {
+    usagov_blog_date_menu_build_blog_listing_breadcrumb($breadcrumb);
+    return;
+  }
+}
+
+/**
+ * Builds breadcrumb for blog post pages.
+ */
+function usagov_blog_date_menu_build_blog_post_breadcrumb(Breadcrumb &$breadcrumb, NodeInterface $node): void {
+  $links = [];
+
+  $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
+  $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
+
+  // Use the 'created' field which is the "Authored on" date in Drupal
+  $authored = $node->get('created')->value;
+  $year = date('Y', $authored);
+  $month_name = date('F', $authored);
+  $month_numeric = date('m', $authored);
+
+  $links[] = Link::fromTextAndUrl($year, Url::fromUri('internal:/blog/' . $year));
+  $links[] = Link::fromTextAndUrl($month_name, Url::fromUri('internal:/blog/' . $year . '/' . $month_numeric));
+
+  $new_breadcrumb = new Breadcrumb();
+  $new_breadcrumb->setLinks($links);
+  $new_breadcrumb->addCacheContexts(['url.path']);
+  $new_breadcrumb->addCacheTags(['node:' . $node->id()]);
+
+  $breadcrumb = $new_breadcrumb;
+}
+
+/**
+ * Builds breadcrumb for blog archive pages (year/month).
+ */
+function usagov_blog_date_menu_build_breadcrumb(Breadcrumb &$breadcrumb, string $year, ?string $month = NULL): void {
+  $links = [];
+
+  $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
+  $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromUri('internal:/blog'));
+
+  // year is non-clickable if on the year page
+  if ($month) {
+    $links[] = Link::fromTextAndUrl($year, Url::fromUri('internal:/blog/' . $year));
+  }
+  else {
+    $links[] = Link::fromTextAndUrl($year, Url::fromRoute('<none>'));
+  }
+
+  if ($month) {
+    $month_name = date('F', mktime(0, 0, 0, (int) $month, 1));
+    $links[] = Link::fromTextAndUrl($month_name, Url::fromRoute('<none>'));
+  }
+
+  $new_breadcrumb = new Breadcrumb();
+  $new_breadcrumb->setLinks($links);
+  $new_breadcrumb->addCacheContexts(['url.path']);
+
+  $breadcrumb = $new_breadcrumb;
+}
+
+/**
+ * Builds breadcrumb for main blog listing page.
+ */
+function usagov_blog_date_menu_build_blog_listing_breadcrumb(Breadcrumb &$breadcrumb): void {
+  $links = [];
+
+  $links[] = Link::createFromRoute(t('Home'), '<front>');
+  $links[] = Link::fromTextAndUrl(t('About USAGov'), Url::fromUri('internal:/about'));
+  $links[] = Link::fromTextAndUrl(t('Products and programs'), Url::fromUri('internal:/products-programs'));
+  $links[] = Link::fromTextAndUrl(t('Our blog'), Url::fromRoute('<none>'));
+
+  $new_breadcrumb = new Breadcrumb();
+  $new_breadcrumb->setLinks($links);
+  $new_breadcrumb->addCacheContexts(['url.path']);
+
+  $breadcrumb = $new_breadcrumb;
+}

@@ -63,9 +63,12 @@ paths.forEach((path, idx) => {
           cy.url().should("include", fixtures.gsa_url);
           cy.go('back')
         });
+      // Verify identifier footer structure and links work (flexible about text content)
       cy.get(".usa-identifier__section--required-links")
         .should("have.attr", "aria-label", fixtures.important_links[idx])
+        .should("be.visible")
         .find("a")
+        .should("have.length.greaterThan", 0)
         .each((link) => {
           cy.wrap(link)
             .invoke("attr", "href")

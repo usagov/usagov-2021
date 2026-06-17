@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`RadioGroup > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-radio-group radio-group"
+    data-testid="radio-group"
+  />
+</DocumentFragment>
+`;

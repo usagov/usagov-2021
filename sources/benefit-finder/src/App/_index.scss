@@ -1,0 +1,7 @@
+@use '../shared/styles/colors/index.scss' as color;
+
+html {
+  background-color: color.$dark-blue;
+  height: 100%;
+  min-height: 100vh;
+}

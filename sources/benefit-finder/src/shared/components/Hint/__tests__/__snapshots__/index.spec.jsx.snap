@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Hint > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <span
+    class="bf-usa-hint usa-hint usa-hint--required bf-usa-hint--required bf-required required"
+    title="required"
+  >
+    (Required)
+  </span>
+</DocumentFragment>
+`;

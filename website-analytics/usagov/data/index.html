@@ -1,33 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- Initalize title and data source variables -->
-
   <head>
-  <!--
-
-    Hi! Welcome to our source code.
-
-    This dashboard uses data from the Digital Analytics Program, a US
-    government team inside the General Services Administration, an independent
-    federal agency.
-
-
-    For a detailed tech breakdown of how 18F and friends built this site:
-
-    https://18f.gsa.gov/2015/03/19/how-we-built-analytics-usa-gov/
-
-
-    This is a fully open source project, and your contributions are welcome.
-
-    Frontend static site: https://github.com/GSA/analytics.usa.gov
-    Backend data reporting: https://github.com/18F/analytics-reporter
-
-    -->
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-    <link rel="stylesheet" href="/website-analytics/css/vendor/css/uswds.v0.9.1.css">
+    <link rel="stylesheet" href="/website-analytics/css/vendor/css/uswds.css">
     <link rel="stylesheet" href="/website-analytics/css/public_analytics.css">
     <link rel="icon" type="image/x-icon" href="/website-analytics/images/analytics-favicon.ico">
 
@@ -96,10 +73,6 @@
 
     });
   </script>
-
-    <!--[if lte IE 9]>
-    <script src="/website-analytics/js/vendor/aight.v2.min.js"></script>
-    <![endif]-->
 
     <script src="/website-analytics/js/vendor/q.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -173,43 +146,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <tbody>
             <tr>
               <td>Visits to all domains over 30 days</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/all-domains-30-days.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/all-domains-30-days.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
               <td>Daily</td>
             </tr>
             <tr>
               <td>Visits over 30 days</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/traffic-sources-30-days.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/traffic-sources-30-days.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
               <td>Daily</td>
             </tr>
             <tr>
               <td>Top downloads yesterday</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-downloads-yesterday.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-downloads-yesterday.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
               <td>Daily</td>
             </tr>
             <tr>
               <td>Top traffic sources (30 days)</td>
               <td>
-                    <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-traffic-sources-30-days.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                    <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-traffic-sources-30-days.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                    <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-traffic-sources-30-days.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                    <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-traffic-sources-30-days.json" class="download-data"><span class="usa-label-big">JSON</span></a>
               </td>
               <td>Daily</td>
             </tr>
             <tr>
               <td>Top exit pages (30 days)</td>
               <td>
-                    <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-exit-pages-30-days.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                    <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-exit-pages-30-days.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                    <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-exit-pages-30-days.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                    <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-exit-pages-30-days.json" class="download-data"><span class="usa-label-big">JSON</span></a>
               </td>
               <td>Daily</td>
             </tr>
             <tr>
               <td>All pages people are visiting</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/all-pages-realtime.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/all-pages-realtime.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
               <td>Every 5 minutes</td>
             </tr>
             <tr>
               <td>Total people online</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/realtime.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/realtime.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
               <td>Every 5 minutes</td>
             </tr>
           </tbody>
@@ -227,96 +200,96 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <tr>
               <td>Language</td>
               <td>
-                    <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/language.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                    <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/language.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                    <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/language.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                    <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/language.json" class="download-data"><span class="usa-label-big">JSON</span></a>
               </td>
               <td>Daily</td>
             </tr>
             <tr>
               <td>Visitors per country</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-countries-90-days.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-countries-90-days.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
               <td>Every 5 minutes</td>
             </tr>
             <tr>
               <td>Visitors per city</td>
-              <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/top-cities-90-days.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
+              <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/top-cities-90-days.json" class="download-data"><span class="usa-label-big">JSON</span></a></td>
               <td>Every 5 minutes</td>
             </tr>
 
             <tr>
                 <td>Desktop/mobile/tablet</td>
-                <td><a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/devices.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
+                <td><a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/devices.csv" class="download-data"><span class="usa-label-big">CSV</span></a></td>
                 <td>Daily</td>
               </tr>
               <tr class="parent">
                 <td>Web browsers</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/browsers.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/browsers.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/browsers.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/browsers.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr class="subset">
                 <td>Versions of Internet Explorer</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/ie.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/ie.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/ie.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/ie.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr class="parent">
                 <td>Operating systems</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/os.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/os.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/os.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/os.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr class="subset">
                 <td>Versions of Windows</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/windows.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/windows.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/windows.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/windows.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr>
                 <td>OS &amp; browser (combined)</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/os-browsers.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/os-browsers.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/os-browsers.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/os-browsers.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr>
                 <td>Windows &amp; browser (combined)</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/windows-browsers.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/windows-browsers.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/windows-browsers.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/windows-browsers.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr>
                 <td>Windows &amp; IE (combined)</td>
                 <td>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/windows-ie.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                  <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/windows-ie.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/windows-ie.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                  <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/windows-ie.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr>
                 <td>Screen sizes</td>
                 <td>
-                      <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/screen-size.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                      <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/screen-size.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                      <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/screen-size.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                      <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/screen-size.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
               <tr>
                 <td>Device model</td>
                 <td>
-                      <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/device_model.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
-                      <a href="https://s3-us-gov-west-1.amazonaws.com/cg-c4ae21db-2fd9-4501-bce8-549dc06ab668/usagov-analytics/en/device_model.json" class="download-data"><span class="usa-label-big">JSON</span></a>
+                      <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/device_model.csv" class="download-data"><span class="usa-label-big">CSV</span></a>
+                      <a href="https://s3-us-gov-west-1.amazonaws.com/{{analytics_bucket}}/usagov-analytics/en/device_model.json" class="download-data"><span class="usa-label-big">JSON</span></a>
                 </td>
                 <td>Daily</td>
               </tr>
@@ -351,26 +324,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   </body>
 
-    <!--
-    IE detection, used to guide console formatting in subsequent include.
-  -->
-  <script type="text/javascript">window._ie9 = false;</script>
-
-  <!--[if IE 9 ]>
-    <script type="text/javascript">window._ie9 = true;</script>
-  <![endif]-->
-
-  <!--
-   IE10 JS targeting: https://stackoverflow.com/a/17099988
-   IE11 JS targeting: https://stackoverflow.com/a/17447695
-  -->
-  <script type="text/javascript">
-    window._ie10 = ("onpropertychange" in document && !!window.matchMedia);
-    window._ie11 = !!navigator.userAgent.match(/Trident\/7.0; rv 11/);
-    window._ie = window._ie9 || window._ie10 || window._ie11;
-  </script>
-
-  <script src="/website-analytics/js/vendor/uswds.v0.9.1.js"></script>
+  <script src="/website-analytics/js/vendor/uswds.js"></script>
   <script src="/website-analytics/js/index.js"></script>
 
 

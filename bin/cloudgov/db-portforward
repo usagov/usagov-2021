@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create an SSH tunnel to enable mysql access to the database in the current space.
+# Create an SSH tunnel to enable mariadb access to the database in the current space.
 
 if ! command -v cf &> /dev/null
 then
@@ -22,7 +22,7 @@ else
     LOCAL_PORT=33306
 fi
 
-echo "Mapping mysql to local $LOCAL_PORT"
+echo "Mapping mariadb to local $LOCAL_PORT"
 
 echo "Generating service key"
 cf create-service-key database db-portforward >/dev/null 2>&1
@@ -50,7 +50,7 @@ cf delete-service-key database db-portforward -f
 
 echo
 echo "Connection String:"
-echo "mysql -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME"
+echo "mariadb -h127.0.0.1 -P$LOCAL_PORT -u$CF_DB_USER -p$CF_DB_PASS $CF_DB_NAME"
 echo
 echo "Clean up:"
 echo "pkill -9 -P $CF_SSH_PID"

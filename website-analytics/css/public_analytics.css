@@ -277,6 +277,10 @@ header img {
   width: 140px;
   padding: 20px;
 }
+.header-logo a:focus {
+  outline: 3px solid #005ea2;
+  outline-offset: 4px;
+}
 
 .header-right {
   display: flex;
@@ -370,6 +374,14 @@ header #agency-selector {
   color: #fff;
   background-color: #112e51;
   border: 1px solid #fff;
+}
+
+/*
+* Overrides USWDS arrow-both
+*/
+select {
+  background-image: url("../css/vendor/img/arrow-down.png");
+  background-image: url("../css/vendor/img/arrow-down.svg");
 }
 
 /*
@@ -505,6 +517,11 @@ section h3 {
   padding: 0 10px;
 }
 
+th,
+td {
+  font-weight: 300;
+}
+
 #devices p {
   font-size: 1.3rem;
 }
@@ -517,6 +534,10 @@ section h3 {
 }
 #sessions .label::first-letter {
   text-transform: uppercase;
+}
+
+.usa-label, .usa-label-big {
+  background-color: #0071bc;
 }
 
 @media screen and (max-width: 500px) {
@@ -857,7 +878,9 @@ g.axis .tick text {
 }
 .time-series text.label {
   fill: #323a45;
-  font-size: 0.6rem;
+  font-size: 10px;
+  transform: rotate(45deg) translateY(-10px) translateX(10px);
+  font-weight: bold;
 }
 
 #site-wide-alert {
@@ -917,10 +940,9 @@ a {
   flex-wrap: nowrap;
 
   label {
-    position: absolute;
-    left: -999em;
-    width: 0;
-    margin: 0;
+    color: black;
+    width: 200px;
+    margin: auto;
   }
 }
 

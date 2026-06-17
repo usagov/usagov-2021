@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
@@ -23,9 +24,75 @@ function usagov_preprocess_html(array &$variables): void {
     $variables['faq'] = generate_faq($node);
   }
 
-  $affiliate = \Drupal::state()->get('usagov_affiliate');
   $variables['usagov_affiliate'] = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $variables['usagov_affiliate_es'] = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
+
+  // Set a reliable language variable for the template
+  // This ensures proper language detection even when there's no node context (like in views)
+  $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $variables['language'] = $current_language;
+}
+
+/**
+ * Builds the pager's numeric range to match Benefit Search pagination.
+ */
+function usagov_preprocess_pager(array &$variables): void {
+  $element = $variables['pager']['#element'];
+  $parameters = $variables['pager']['#parameters'];
+  $route_name = $variables['pager']['#route_name'];
+  $route_parameters = $variables['pager']['#route_parameters'] ?? [];
+  $pager_manager = \Drupal::service('pager.manager');
+  $pager = $pager_manager->getPager($element);
+  if (!$pager) {
+    return;
+  }
+
+  $last_page_number = $pager->getTotalPages();
+  $current_page_number = $pager->getCurrentPage() + 1;
+  $variables['last_page_number'] = $last_page_number;
+  $variables['usagov_pager_pages'] = [];
+
+  if ($last_page_number <= 1) {
+    return;
+  }
+
+  if ($last_page_number <= 7) {
+    $items = range(1, $last_page_number);
+  }
+  elseif ($current_page_number <= 4) {
+    $items = array_merge(range(1, 5), ['ellipsis'], [$last_page_number]);
+  }
+  elseif ($current_page_number >= $last_page_number - 3) {
+    $items = array_merge([1], ['ellipsis'], range($last_page_number - 4, $last_page_number));
+  }
+  else {
+    $items = [
+      1,
+      'ellipsis',
+      $current_page_number - 1,
+      $current_page_number,
+      $current_page_number + 1,
+      'ellipsis',
+      $last_page_number,
+    ];
+  }
+
+  foreach ($items as $item) {
+    if ($item === 'ellipsis') {
+      $variables['usagov_pager_pages'][] = ['type' => 'ellipsis'];
+      continue;
+    }
+
+    $variables['usagov_pager_pages'][] = [
+      'type' => 'page',
+      'number' => $item,
+      'href' => Url::fromRoute($route_name, $route_parameters, [
+        'query' => $pager_manager->getUpdatedParameters($parameters, $element, $item - 1),
+      ])->toString(),
+      'current' => $item === $current_page_number,
+      'is_last' => $item === $last_page_number,
+    ];
+  }
 }
 
 /**
@@ -154,6 +221,7 @@ function generate_faq(NodeInterface &$node): array {
  * and makes their content compatible with FAQ rich results
  */
 function faq_process_components(DOMDocument &$dom): void {
+  $entityTypeManager = \Drupal::entityTypeManager();
   // Iterate through embedded paragraphs
   $embeddedParagraphElements = $dom->getElementsByTagName('drupal-paragraph');
   // Loop backwards to allow for removing elements along the way without losing
@@ -162,7 +230,17 @@ function faq_process_components(DOMDocument &$dom): void {
     $element = $embeddedParagraphElements->item($n);
     // Get the component
     $uuid = $element->getAttribute('data-paragraph-id');
-    $embedded_paragraph = \Drupal::service('entity.repository')->loadEntityByUuid('embedded_paragraphs', $uuid);
+    $revision_id = $element->getAttribute('data-paragraph-revision-id');
+    $embedded_paragraph = NULL;
+
+    // This how it's done in ParagraphEmbedFilter.php, in the paragraphs_entity_embed module:
+    if (!empty($revision_id)) {
+      $embedded_paragraph = $entityTypeManager->getStorage('embedded_paragraphs')->loadRevision($revision_id);
+    }
+    else {
+      $embed_entity = $entityTypeManager->getStorage('embedded_paragraphs')->loadByProperties(['uuid' => $uuid]);
+      $embedded_paragraph = current($embed_entity);
+    }
     $component = $embedded_paragraph->get('paragraph')[0]->entity;
 
     // Process component by its type
@@ -178,8 +256,8 @@ function faq_process_components(DOMDocument &$dom): void {
       // iterate through accordion panels
       foreach ($component->get('field_accordion_section') as $accordionPanel) {
         // Get the accordion panel's node
-        $accordionPanelTID = $accordionPanel->get('target_id')->getValue();
-        $accordionPanelNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelTID);
+        $accordionPanelRevisionID = $accordionPanel->get('target_revision_id')->getValue();
+        $accordionPanelNode = $entityTypeManager->getStorage('paragraph')->loadRevision($accordionPanelRevisionID);
 
         // Get this panel's button text and add it to the dom as an h2
         $accordionPanelButtonText = $accordionPanelNode->get('field_accordion_section_title')[0]->value;
@@ -188,15 +266,18 @@ function faq_process_components(DOMDocument &$dom): void {
         $element->parentNode->insertBefore($accordionHeading, $element);
 
         // Get this panel's body content
-        $accordionPanelBodyNodeID = $accordionPanelNode->get('field_accordion_section_body')[0]->get('target_id')->getValue();
-        $accordionPanelBodyNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($accordionPanelBodyNodeID);
+        $accordionPanelBodyNodeBody = $accordionPanelNode->get('field_accordion_section_body')[0];
+        if ($accordionPanelBodyNodeBody) {
+          $accordionPanelBodyNodeRevisionID = $accordionPanelBodyNodeBody->get('target_revision_id')->getValue();
+          $accordionPanelBodyNode = $entityTypeManager->getStorage('paragraph')->loadRevision($accordionPanelBodyNodeRevisionID);
 
-        // append accordion body content
-        $accordionBody = new DOMDocument();
-        $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
-        foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
-          $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
-          $element->parentNode->insertBefore($accordionBodyElement, $element);
+          // append accordion body content
+          $accordionBody = new DOMDocument();
+          $accordionBody->loadHTML('<?xml encoding="UTF-8">' . $accordionPanelBodyNode->get('field_text')[0]->value);
+          foreach ($accordionBody->documentElement->childNodes[0]->childNodes as $accordionBodyElement) {
+            $accordionBodyElement = $dom->importNode($accordionBodyElement, TRUE);
+            $element->parentNode->insertBefore($accordionBodyElement, $element);
+          }
         }
       }
     }
@@ -232,7 +313,7 @@ function faq_simplify_list(DOMDocument &$dom, object &$component, string $listTy
 
   // Iterate through component items by field name
   foreach ($component->get($itemsFieldName) as $process_item) {
-    $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->load($process_item->get('target_id')->getValue());
+    $processItemNode = \Drupal::entityTypeManager()->getStorage('paragraph')->loadRevision($process_item->get('target_revision_id')->getValue());
 
     // Create a new <li> for this list item
     $processItemContent = $dom->createElement('li');
@@ -307,6 +388,18 @@ function usagov_preprocess_paragraph(array &$variables): void {
    */
   $node = \Drupal::routeMatch()->getParameter('node');
   $variables['node'] = $node;
+
+  /**
+   * Pass alert status label translations to uswds-alert paragraph templates.
+   * Centralised here so paragraph--uswds-alert.html.twig and its variants
+   * don't each need to duplicate the language check.
+   */
+  if (in_array($variables['paragraph']->bundle(), ['uswds_alert'])) {
+    $langcode = $node ? $node->language()->getId() : \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $variables['alert_translations'] = $langcode === 'es'
+      ? ['info' => 'información', 'warning' => 'aviso', 'error' => 'error', 'success' => 'exito']
+      : ['info' => 'Information', 'warning' => 'Warning', 'error' => 'Error', 'success' => 'Success'];
+  }
 }
 
 /**
@@ -355,6 +448,11 @@ function usagov_preprocess_block(array &$variables): void {
           $data->title = $child['title'];
           $data->description = $child['original_link']->getPluginDefinition()['description'];
         }
+        else {
+          // For all other routes (views, custom routes, etc.), use menu item data
+          $data->title = $child['title'];
+          $data->url = $child['url']->toString();
+        }
       }
       catch (Exception $e) {
         $menuItem = $child['original_link']->getPluginDefinition();
@@ -369,7 +467,25 @@ function usagov_preprocess_block(array &$variables): void {
       /* Get Description (Optional Field - A catch on this shouldn't
       trigger a catch on title or url). */
       try {
-        if (isset($child['url']->getRouteParameters()['node'])) {
+        // First, check if the menu item has a nav card content override
+        if (isset($child['original_link'])) {
+          $menu_link_entity = \Drupal::entityTypeManager()
+            ->getStorage('menu_link_content')
+            ->loadByProperties(['uuid' => $child['original_link']->getDerivativeId()]);
+
+          if ($menu_link_entity) {
+            $menu_link = reset($menu_link_entity);
+            if ($menu_link && $menu_link->hasField('field_nav_card_override')) {
+              $override_value = $menu_link->get('field_nav_card_override')->value;
+              if (!empty($override_value)) {
+                $data->description = $override_value;
+              }
+            }
+          }
+        }
+
+        // If no override, fall back to the node fields
+        if (!isset($data->description) && isset($child['url']->getRouteParameters()['node'])) {
           $childNid = $child['url']->getRouteParameters()['node'];
           $childNode = Node::load($childNid);
           if ($childNode->hasField('field_short_description') && $childNode->get('field_short_description')->value != "") {
@@ -384,8 +500,11 @@ function usagov_preprocess_block(array &$variables): void {
         }
       }
       catch (Exception $e) {
-        $menuItem = $child['original_link']->getPluginDefinition();
-        $data->description = $menuItem['description'];
+        // If we still don't have a description, try the menu item description
+        if (!isset($data->description)) {
+          $menuItem = $child['original_link']->getPluginDefinition();
+          $data->description = $menuItem['description'];
+        }
       }
 
       // Try for other fields.
@@ -435,6 +554,12 @@ function usagov_preprocess_views_view_list(array &$variables): void {
  * @param array<string, mixed> $variables
  */
 function usagov_theme_suggestions_alter(array &$suggestions, array $variables, string $hook): void {
+  if ($hook == 'menu' && isset($variables['menu_name']) && $variables['menu_name'] === 'usagov_blog_menu') {
+    // Ensure the blog menu always uses our custom template, regardless of
+    // what other modules/themes add to the suggestions list.
+    $suggestions[] = 'menu__usagov_blog_menu';
+  }
+
   if ($hook == 'views_view_fields') {
     $id = $variables['view']->storage->id();
     if ($id == "sub_children") {
@@ -567,10 +692,71 @@ function usagov_preprocess_block__mobile_navigation(array &$variables) {
   $variables['usagov_affiliate_es'] = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 }
 
+function usagov_preprocess_page_title(array &$variables): void {
+  // Make node available in page-title template
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node) {
+    $variables['node'] = $node;
+  }
+}
+
 function usagov_preprocess_page(array &$variables): void {
   $affiliate = \Drupal::state()->get('usagov_affiliate', 'usagov_en_all_gov');
   $affiliate_es = \Drupal::state()->get('usagov_affiliate_es', 'usagov_es_internal');
 
   $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
   $variables['usagov_affiliate_lang'] = $langcode == 'es' ? $affiliate_es : $affiliate;
+
+  // Add variables for blog detection
+  $route_match = \Drupal::routeMatch();
+  $route_name = $route_match->getRouteName();
+  $current_path = \Drupal::service('path.current')->getPath();
+  $current_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+
+  // Check if we're on the blog_menu view (multiple ways to detect)
+  $variables['is_blog_view'] = FALSE;
+  $variables['blog_intro_heading'] = NULL;
+  $variables['blog_intro_body'] = NULL;
+  if ($route_name === 'view.blog_menu.page_1' ||
+      $route_name === 'view.blog_menu.default' ||
+      $current_path === '/blog' ||
+      $current_alias === '/blog' ||
+      strpos($route_name, 'blog_menu') !== FALSE) {
+    $variables['is_blog_view'] = TRUE;
+  }
+
+  // content_type variable is already set in the template, but let's ensure it's available
+  $node = $route_match->getParameter('node');
+  if ($node && method_exists($node, 'bundle')) {
+    $variables['content_type'] = $node->bundle();
+  }
+
+  if ($variables['is_blog_view'] || (($variables['content_type'] ?? '') === 'blog_post')) {
+    $config_pages = \Drupal::entityTypeManager()
+      ->getStorage('config_pages')
+      ->loadByProperties(['type' => 'blog_intro']);
+
+    if (!empty($config_pages)) {
+      $blog_intro = reset($config_pages);
+      if ($blog_intro->hasField('field_blog_intro_heading')) {
+        $variables['blog_intro_heading'] = $blog_intro->get('field_blog_intro_heading')->value ?: NULL;
+      }
+      if ($blog_intro->hasField('field_blog_intro_body') && !$blog_intro->get('field_blog_intro_body')->isEmpty()) {
+        $variables['blog_intro_body'] = \Drupal::entityTypeManager()
+          ->getViewBuilder('config_pages')
+          ->viewField($blog_intro->get('field_blog_intro_body'), [
+            'label' => 'hidden',
+          ]);
+      }
+    }
+  }
+
+  // Alternative method: check if the page contains blog-related content
+  if (!$variables['is_blog_view']) {
+    // Check if we're viewing a page that renders the blog view
+    $view_storage = \Drupal::entityTypeManager()->getStorage('view');
+    if ($view_storage->load('blog_menu')) {
+      // Additional detection logic could go here if needed
+    }
+  }
 }

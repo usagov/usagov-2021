@@ -1,5 +1,5 @@
 ###
-FROM alpine:3.18 AS cron
+FROM alpine:3.22 AS cron
 
 ARG S6_VERSION
 ENV S6_VERSION ${S6_VERSION:-v2.2.0.3}
@@ -43,7 +43,9 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     tzdata \
     unzip \
     vim \
-    xz
+    xz \
+    python3 \
+    py3-pip
 
 # s6 supervisor setup
 ADD https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/s6overlay.tar.gz
@@ -79,6 +81,12 @@ HEALTHCHECK CMD s6-svstat /var/run/s6/services/cert-watcher \
 ADD https://packages.cloudfoundry.org/stable\?release\=linux64-binary\&version\=8.13.0\&source\=github-rel  /tmp/cf8.tar.gz
 RUN tar xzvpf /tmp/cf8.tar.gz -C /usr/bin
 RUN rm /tmp/cf8.tar.gz
+
+RUN apk add --no-cache python3 py3-pip ca-certificates \
+  && update-ca-certificates \
+  && python3 -m venv /opt/venv \
+  && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
+  && /opt/venv/bin/pip install --no-cache-dir boto3
 
 # Init s6
 ENTRYPOINT [ "/init" ]

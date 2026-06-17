@@ -1,0 +1,24 @@
+uuid: cedc3c3d-38fd-45c7-9a77-f9d3feca0d4f
+langcode: en
+status: true
+dependencies:
+  config:
+    - config_pages.type.blog_intro
+    - field.storage.config_pages.field_blog_intro_body
+  module:
+    - text
+id: config_pages.blog_intro.field_blog_intro_body
+field_name: field_blog_intro_body
+entity_type: config_pages
+bundle: blog_intro
+label: Content
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+  required_summary: false
+  allowed_formats: {  }
+field_type: text_with_summary

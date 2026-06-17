@@ -1,9 +1,30 @@
-const { defineConfig } = require('cypress')
-const getCompareSnapshotsPlugin = require('cypress-image-diff-js/plugin')
-const { beforeRunHook } = require('cypress-mochawesome-reporter/lib')
+const path = require('path')
+
+const dependencyRoot = path.resolve(__dirname, '../cypress_build/node_modules')
+const cypressPath = require.resolve('cypress', {
+  paths: [dependencyRoot],
+})
+const reporterPath = require.resolve('cypress-mochawesome-reporter', {
+  paths: [dependencyRoot],
+})
+const reporterPluginPath = require.resolve('cypress-mochawesome-reporter/plugin', {
+  paths: [dependencyRoot],
+})
+const imageDiffPluginPath = require.resolve('cypress-image-diff-js/plugin', {
+  paths: [dependencyRoot],
+})
+const { defineConfig } = require(cypressPath)
 
 module.exports = defineConfig({
-  reporter: 'cypress-mochawesome-reporter',
+  allowCypressEnv: false,
+  env: {
+    exampleHost: 'veronica.dev.local',
+    exampleApiServer: 'http://localhost:8888/v1/',
+  },
+  reporter: reporterPath,
+  reporterOptions: {
+    reportDir: path.join(__dirname, 'cypress/reports/html'),
+  },
   video: false,
   screenshotOnRunFailure: true,
   e2e: {
@@ -11,8 +32,8 @@ module.exports = defineConfig({
     viewportWidth: 1280,
     viewportHeight: 800,
     "retries": {
-      "runMode": 2,
-      // "openMode": 0
+      "runMode": 0,
+      "openMode": 0
     },
     chromeWebSecurity: false,
     responsetimeout: 10000,
@@ -28,12 +49,8 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
 
       // Plugins
-      require('cypress-image-diff-js/plugin')(on, config);
-      require('cypress-mochawesome-reporter/plugin')(on);
-      on('before:run', async (details) => {
-        console.log('override before:run')
-        await beforeRunHook(details)
-      });
+      require(imageDiffPluginPath)(on, config);
+      require(reporterPluginPath)(on);
       // Tasks
       on('task', {
         log(message) {

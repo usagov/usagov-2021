@@ -23,6 +23,7 @@ settings:
   provider: menu_block
   follow: false
   follow_parent: child
+  display_empty: false
   label_link: false
   label_type: block
   level: 1

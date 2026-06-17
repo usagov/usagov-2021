@@ -6,6 +6,7 @@ dependencies:
     - filter.format.html
     - filter.format.uswds
   module:
+    - config_pages
     - filter
     - media
     - paragraphs_entity_embed
@@ -23,4 +24,5 @@ permissions:
   - 'use text format uswds'
   - 'view media'
   - 'view paragraphs entity embed'
+  - 'view site_banner config page entity'
   - 'view sp metadata'

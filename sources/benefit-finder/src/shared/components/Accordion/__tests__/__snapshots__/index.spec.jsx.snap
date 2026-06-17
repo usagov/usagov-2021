@@ -1,0 +1,63 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Accordion > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="bf-usa-accordion usa-accordion"
+  >
+    <h4
+      class="bf-usa-accordion__heading usa-accordion__heading"
+      data-testid="accordion-heading"
+    >
+      <button
+        aria-controls="first-amendment"
+        aria-expanded="false"
+        class="bf-usa-accordion__button usa-accordion__button"
+        type="button"
+      >
+        <span
+          class="bf-accordion-heading"
+        >
+          First Amendment
+        </span>
+        <br />
+        <span
+          class="bf-accordion-sub-heading"
+        >
+          Likely Eligible
+        </span>
+        <i
+          aria-hidden="true"
+          data-testid="icon-open"
+        >
+          <svg
+            class="bf-open"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              fill="none"
+            />
+            <path
+              d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+              fill="none"
+            />
+          </svg>
+        </i>
+      </button>
+    </h4>
+    <div
+      class="bf-usa-accordion__content usa-accordion__content usa-prose"
+      hidden=""
+      id="first-amendment"
+    >
+      <div>
+        Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press; or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

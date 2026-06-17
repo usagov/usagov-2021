@@ -59,4 +59,12 @@
   <exclude-pattern>web/modules/custom/tome</exclude-pattern>
   <exclude-pattern>web/modules/custom/samlauth</exclude-pattern>
 
+  <!-- These files import types solely for PHPStan annotations (@phpstan-import-type
+       and array-shape @return docblocks). The use statements are required by static
+       analysis but are invisible to phpcs, so suppress the UnusedUse sniff for them. -->
+  <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse">
+    <exclude-pattern>web/modules/custom/usagov_wizard/src/MenuChecker.php</exclude-pattern>
+    <exclude-pattern>web/modules/custom/usagov_wizard/src/WizardDataLayer.php</exclude-pattern>
+  </rule>
+
 </ruleset>
