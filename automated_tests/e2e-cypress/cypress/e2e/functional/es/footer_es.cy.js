@@ -31,5 +31,16 @@ describe('Footer [ES]', () => {
             .find('.usa-identifier')
             .should('contain', 'USAGov')
             .should('contain', 'la guía oficial')
+        
+        // Verify identifier footer links work (flexible about text content)
+        cy.get('.usa-identifier__section--required-links')
+            .find('a')
+            .each((link) => {
+                cy.wrap(link)
+                    .invoke('attr', 'href')
+                    .then((href) => {
+                        cy.request(href).its('status').should('eq', 200)
+                    })
+            })
     })
 })

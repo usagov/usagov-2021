@@ -26,8 +26,8 @@
              title="{{ 'Go to previous page'|t }}"
              rel="prev"{{ items.previous.attributes|without('href', 'title', 'rel') }}
              aria-label="{{ 'Previous page (Page @page)'|t({'@page': items.current - 1}) }}">
-            <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#chevron_left"></use>
+            <svg class="usa-icon" aria-hidden="true" focusable="false">
+              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#navigate_before"></use>
             </svg>
             <span class="usa-pagination__link-text">{{ 'Previous'|t }}</span>
           </a>
@@ -36,7 +36,8 @@
 
       {% if items.current %}
         <li class="usa-pagination__item usa-pagination__page-no">
-          <span class="usa-pagination__button usa-current" aria-current="page" aria-label="{{ 'Page'|t }} {{ items.current }}">
+          <span class="usa-pagination__button usa-current" aria-current="page">
+            <span class="usa-sr-only">{{ 'Page'|t }} </span>
             {{ items.current }}
           </span>
         </li>
@@ -50,8 +51,8 @@
              rel="next"{{ items.next.attributes|without('href', 'title', 'rel') }}
              aria-label="{{ 'Next page (Page @page)'|t({'@page': items.current + 1}) }}">
             <span class="usa-pagination__link-text">{{ 'Next'|t }}</span>
-            <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#chevron_right"></use>
+            <svg class="usa-icon" aria-hidden="true" focusable="false">
+              <use xlink:href="/themes/custom/usagov/assets/img/sprite.svg#navigate_next"></use>
             </svg>
           </a>
         </li>

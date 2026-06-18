@@ -1,0 +1,25 @@
+uuid: 1b55fe64-2510-4f08-931b-70cd68b4014a
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+    - usagov_menus
+  theme:
+    - usagov
+id: usagov_mobilemenublock_2
+theme: usagov
+region: header_top
+weight: -20
+provider: null
+plugin: usagov_mobile_menu_block
+settings:
+  id: usagov_mobile_menu_block
+  label: 'Mobile Menu Block by Pages'
+  label_display: '0'
+  provider: usagov_menus
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: "/blog\r\n/blog/*"

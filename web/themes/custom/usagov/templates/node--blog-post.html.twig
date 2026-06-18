@@ -81,20 +81,22 @@
   {{ title_suffix }}
 
   {% if display_submitted %}
-    <footer>
+    <div class="submitted">
       <div{{ author_attributes }}>
         {% set post_date = node.getCreatedTime()|date('F j, Y') %}
-        {% trans %} 📅 Posted on {{ post_date }}{% endtrans %}
+        {% trans %}Posted on {{ post_date }}{% endtrans %}
         {{ metadata }}
       </div>
-    </footer>
+    </div>
   {% endif %}
 
   <div{{ content_attributes }}>
     {% if not node.field_hide_featured_image_from_n.value %}
       {{ content.field_featured_image }}
     {% endif %}
-    {{ content.body }}
+    <div {{ attributes.addClass('usa-prose body-copy') }}>
+      {{ node.body.processed }}
+    </div>
     {{ content.tags }}
   </div>
 

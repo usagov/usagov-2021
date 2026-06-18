@@ -163,30 +163,6 @@
     }
   </script>
 
-  {% if faq %}
-  {# Generate FAQ JSON #}
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {% for item in faq %}
-        {
-          "@type": "Question",
-          "name": "{{ item.question }}",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "{{ item.answer|replace({'\"': '\\\"'})|raw }}"
-          }
-        }{% if not loop.last %},
-        {% endif %}
-        {% endfor %}
-
-      ]
-    }
-    </script>
-    {% endif %}
-
 </head>
 <body{{ attributes }}>
   <!-- Google Tag Manager (noscript) -->
@@ -210,27 +186,6 @@
 
 <!-- Needed_for_USA.gov_uptime_check -->
 
-{% if lang == "en" %}
-<script>
-  //<![CDATA[
-    var usasearch_config = { siteHandle:"{{ usagov_affiliate }}" };
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = "https://search.usa.gov/javascripts/remote.loader.js";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  //]]>
-  </script>
-  {% elseif lang == "es" %}
-  <script>
-    //<![CDATA[
-      var usasearch_config = { siteHandle:"{{ usagov_affiliate_es }}" };
-      var script = document.createElement("script");
-      script.type = "text/javascript";
-      script.src = "https://search.usa.gov/javascripts/remote.loader.js";
-      document.getElementsByTagName("head")[0].appendChild(script);
-    //]]>
-    </script>
-{% endif %}
 <script>
   // Set a variable for our button element.
 const scrollToTopButton = document.getElementById('back-to-top');

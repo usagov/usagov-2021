@@ -377,6 +377,14 @@ header #agency-selector {
 }
 
 /*
+* Overrides USWDS arrow-both
+*/
+select {
+  background-image: url("../css/vendor/img/arrow-down.png");
+  background-image: url("../css/vendor/img/arrow-down.svg");
+}
+
+/*
 * end top navigation bar
 */
 
@@ -509,6 +517,11 @@ section h3 {
   padding: 0 10px;
 }
 
+th,
+td {
+  font-weight: 300;
+}
+
 #devices p {
   font-size: 1.3rem;
 }
@@ -521,6 +534,10 @@ section h3 {
 }
 #sessions .label::first-letter {
   text-transform: uppercase;
+}
+
+.usa-label, .usa-label-big {
+  background-color: #0071bc;
 }
 
 @media screen and (max-width: 500px) {

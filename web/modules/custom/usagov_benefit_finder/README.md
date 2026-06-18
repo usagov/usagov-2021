@@ -1,5 +1,5 @@
 
-# Benefit Finder v2 Custom Drupal Module
+# Benefit Finder Custom Drupal Module
 
 ## Structure
 
@@ -15,9 +15,9 @@
     |-usagov_benefit_finder_app
       |-usagov_benefit_finder_page
         |-css
-          benefit-finder.min.css
+          benefit-finder.min.css   ← Built by sources/benefit-finder
         |-js
-          benefit-finder.min.js
+          benefit-finder.min.js    ← Built by sources/benefit-finder
         |-templates
           page--benefit-finder-life-event.html.twig
         usagov_benefit_finder_page.libraries.yml
@@ -32,18 +32,26 @@
       BenefitFinderTrait.php
   |-tests
   |-README.md
+
+/sources
+  |-benefit-finder               ← React application source code
+    |-src                         React components and logic
+    |-package.json                Dependencies
+    |-package-lock.json           Locked dependency versions
+    |-vite.config.mjs             Build configuration
 ```
 
 ## Basics
 
 | File or folder                              | Description                                                        |
 |---------------------------------------------|--------------------------------------------------------------------|
+| `sources/benefit-finder/`                   | **React application source code**                                  |
 | `usagov_benefit_finder_api`                 | Benefit finder API module                                          |
 | `LifeEventController.php`                   | Process benefit finder content to generate JSON data and JSON file |
 | `usagov_benefit_finder_api.module`          | JSON file generation batch job                                     |
 | `usagov_benefit_finder_page`                | Benefit finder page module                                         |
-| `benefit-finder.min.css`                    | Benefit finder app css                                             |
-| `benefit-finder.min.js`                     | Benefit finder app JavaScript                                      |
+| `benefit-finder.min.css`                    | Benefit finder app css (generated from `sources/benefit-finder`)   |
+| `benefit-finder.min.js`                     | Benefit finder app JavaScript (generated from `sources/benefit-finder`) |
 | `page--benefit-finder-life-event.html.twig` | Benefit finder page template                                       |
 | `usagov_benefit_finder_page.libraries.yml`  | Benefit finder app library                                         |
 | `usagov_benefit_finder_page.module`         | Benefit finder page theme, preprocess, attach library              |
@@ -51,6 +59,62 @@
 | `usagov_benefit_finder_content.module`      | Provide benefit finder content form validation                     |
 | `src/Form/BenefitFinderSettingsForm.php`    | Form to set up automate JSON data file generation                  |
 | `src/Traits/BenefitFinderTrait.php`         | Functions to get benefit finder node                               |
+
+## React Application (`sources/benefit-finder/`)
+
+The benefit finder React application source code lives in `sources/benefit-finder/`.
+Its compiled assets are committed to this module's library directory so Drupal does
+not need to compile the app during local development or container builds.
+
+### Building the React App
+
+**Repo-level build scripts:**
+
+```bash
+./scripts/benefit-finder/build-module-assets.sh
+./scripts/benefit-finder/watch-module-assets.sh
+```
+
+When running local Drupal with `docker compose up`, the existing `node` container
+now runs the Benefit Finder watcher automatically alongside the theme watcher.
+
+The helper script `scripts/benefit-finder/sync-usagov-theme.sh` is not a normal
+manual setup step. It is called automatically by `npm start` and the Storybook
+commands so the Benefit Finder workspace has a current copy of the USAGov theme.
+You would only run it directly if you wanted to refresh those copied theme files
+without starting another command.
+
+**Manual work in the source directory:**
+
+```bash
+cd sources/benefit-finder
+npm install
+
+# Development mode with hot reload.
+# Uses http://localhost as the default Drupal proxy target.
+# If your Drupal site lives elsewhere, create .env.local and set VITE_PROXY_URL.
+npm start
+
+# Refresh copied USAGov theme assets only when needed
+npm run sync:usagov:theme
+
+# Build committed Drupal module assets
+npm run build
+
+# Run tests
+npm test
+```
+
+### React App Technologies
+- **React 18.3.1** - UI framework
+- **React Router 7.1.4** - Client-side routing
+- **Vite** - Build tool and bundler
+- **Vitest** - Testing framework
+- **USWDS** - US Web Design System styles
+
+### Security
+All dependencies have been updated to fix known vulnerabilities. The `package-lock.json` file 
+locks dependency versions to ensure consistent, secure builds.
 
 ## Benefit finder API module
 
@@ -95,7 +159,9 @@ The `usagov_benefit_finder_page.libraries.yml` defines benefit_finder_app librar
 benefit_finder_app:
   version: 1.x
   js:
-    js/benefit-finder.min.js: {}
+    js/benefit-finder.min.js:
+      attributes:
+        type: module
   css:
     theme:
       css/benefit-finder.min.css: {}

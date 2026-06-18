@@ -1,0 +1,11 @@
+// ['regular', 'bold', 'extrabold', 'light', 'thin']
+@use '@styles/mixins' as *;
+
+p,
+p.regular {
+  @include p($font-family: 'sans');
+}
+
+p.bold {
+  @include important-bold($font-family: 'sans');
+}

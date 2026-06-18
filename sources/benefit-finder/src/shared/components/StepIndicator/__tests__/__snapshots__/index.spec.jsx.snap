@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StepIndicator > renders a match to the previous snapshot 1`] = `
+<DocumentFragment>
+  <div>
+    <div
+      aria-label="progress"
+      class="bf-usa-step-indicator usa-step-indicator"
+      tabindex="0"
+    >
+      <ol
+        class="bf-usa-step-indicator__segments usa-step-indicator__segments"
+      >
+        <li
+          aria-current="false"
+          class="bf-usa-step-indicator__segment usa-step-indicator__segment bf-usa-step-indicator__segment usa-step-indicator__segment "
+        >
+          <span
+            class="bf-usa-step-indicator__segment-label usa-step-indicator__segment-label"
+          >
+            About the applicant
+            <span
+              class="usa-sr-only"
+            >
+               not completed
+            </span>
+          </span>
+        </li>
+        <li
+          aria-current="true"
+          class="bf-usa-step-indicator__segment usa-step-indicator__segment bf-usa-step-indicator__segment--current usa-step-indicator__segment--current "
+        >
+          <span
+            class="bf-usa-step-indicator__segment-label usa-step-indicator__segment-label"
+          >
+            About the deceased
+            <span
+              class="usa-sr-only"
+            >
+               not completed
+            </span>
+          </span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</DocumentFragment>
+`;
