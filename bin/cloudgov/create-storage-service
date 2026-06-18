@@ -14,7 +14,7 @@ fi
 if [ -f ./env.local ]; then
   . ./env.local
 fi
-FCNS=$SCRIPT_DIR/../../deploy/includes
+FCNS=$SCRIPT_DIR/../deploy/includes
 if [ -f $FCNS ]; then
   . $FCNS
 else
@@ -60,7 +60,7 @@ ORG=$(getOrg)
 TEST_STORAGE_SERVICE=${1:-test-state-storage}
 
 if [[ ! "$TEST_STORAGE_SERVICE" =~ ^[a-zA-Z][a-zA-Z0-9\-]*$ ]]; then
-  echo "ERROR: TEST_STORAGE_SERVICE must start with a letter and contain only letters and digits."
+  echo "ERROR: TEST_STORAGE_SERVICE must start with a letter and contain only letters, digits, and en dashes."
   usage
   exit 1
 fi
