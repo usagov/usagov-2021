@@ -17,7 +17,6 @@
 		});
 })();
 
-
 (function menuButtonModifications() {
 	"use strict";
 	// USWDS applies aria-hidden attribute to non-nav elements but misses some because Drupal adds markup that USWDS does not account for.
