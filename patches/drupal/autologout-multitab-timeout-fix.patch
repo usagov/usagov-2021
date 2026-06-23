@@ -1,0 +1,492 @@
+diff --git a/autologout.module b/autologout.module
+index 6ad0142..e2eacb4 100644
+--- a/autologout.module
++++ b/autologout.module
+@@ -282,6 +282,7 @@ function autologout_page_attachments_alter(array &$attachments) {
+     'cookie_secure' => $settings->get('cookie_secure') ?: FALSE,
+     'cookie_httponly' => FALSE,
+     'cookie_samesite' => $cookie_samesite,
++    'console_logging' => (bool) $settings->get('console_logging'),
+     'alt_logout_url' => _autologout_get_url_with_token('autologout.alt_logout'),
+     'ajax_logout_url' => _autologout_get_url_with_token('autologout.ajax_logout'),
+     'ajax_set_last_url' => _autologout_get_url_with_token('autologout.ajax_set_last'),
+diff --git a/config/install/autologout.settings.yml b/config/install/autologout.settings.yml
+index c6945da..fc5a1aa 100644
+--- a/config/install/autologout.settings.yml
++++ b/config/install/autologout.settings.yml
+@@ -22,3 +22,4 @@ use_watchdog: true
+ whitelisted_ip_addresses: ''
+ cookie_secure: false
+ cookie_httponly: false
++console_logging: false
+diff --git a/config/schema/autologout.schema.yml b/config/schema/autologout.schema.yml
+index ad40383..88db0ab 100644
+--- a/config/schema/autologout.schema.yml
++++ b/config/schema/autologout.schema.yml
+@@ -83,6 +83,9 @@ autologout.settings:
+     cookie_httponly:
+       type: boolean
+       label: 'Cookie httpOnly'
++    console_logging:
++      type: boolean
++      label: 'Log session countdown to the browser console'
+ 
+ autologout.role.*:
+   type: config_object
+diff --git a/js/autologout.js b/js/autologout.js
+index c9ab414..52ab669 100644
+--- a/js/autologout.js
++++ b/js/autologout.js
+@@ -80,13 +80,92 @@
+         return;
+       }
+ 
+-      let theDialog;
++      let warningDialog;
+       let currentDialog = null;
+       let skipLogoutOnClose = false;
+ 
+       // Timer to keep track of activity resets.
+       let activityResetTimer;
+ 
++      /**
++       * Keep track of the user's activity between tabs and windows.
++       */
++      function updateLastActiveState() {
++        // Skip if the logout confirmation dialog is currently open.
++        if (warningDialog) {
++          return;
++        }
++        localStorage.setItem('Drupal.autologout.last_active', Date.now());
++      }
++
++      /**
++       * Clears the last active state.
++       */
++      function clearLastActiveState() {
++        localStorage.removeItem('Drupal.autologout.last_active');
++      }
++
++      /**
++       * Get the timestamp (ms) of the last activity in this or another tab.
++       *
++       * @return {number}
++       *   The last-active time in ms since epoch, or 0 if none recorded.
++       */
++      function getLastActive() {
++        return Number.parseInt(localStorage.getItem('Drupal.autologout.last_active'), 10) || 0;
++      }
++
++      /**
++       * Resolve if the user is active in this or other tabs/windows.
++       */
++      function isUserActive() {
++        const delta = Date.now() - getLastActive();
++        return localSettings.timeout > delta;
++      }
++
++      // How often (ms) to log the remaining time to the browser console.
++      const AUTOLOGOUT_CONSOLE_INTERVAL = 5000;
++      let consoleTimer;
++
++      /**
++       * Log the seconds remaining before the warning dialog would appear.
++       *
++       * Always on; informational only and has no effect on logout behaviour.
++       * The value is derived from the same shared last-active timestamp used to
++       * schedule the inactivity timer, so it reflects activity in any tab.
++       */
++      function logRemainingTime() {
++        if (!window.console || typeof window.console.info !== 'function') {
++          return;
++        }
++        const remaining = localSettings.timeout - (Date.now() - getLastActive());
++        if (remaining > 0) {
++          window.console.info(
++            '[autologout] seconds until warning dialog:',
++            Math.round(remaining / 1000),
++          );
++        }
++        else {
++          window.console.info(
++            '[autologout] inactivity timeout reached; warning dialog pending or shown.',
++          );
++        }
++      }
++
++      /**
++       * Start (or restart) the periodic console countdown logger.
++       *
++       * Does nothing unless the 'console_logging' setting is enabled.
++       */
++      function startConsoleLogging() {
++        clearInterval(consoleTimer);
++        if (!localSettings.console_logging) {
++          return;
++        }
++        logRemainingTime();
++        consoleTimer = window.setInterval(logRemainingTime, AUTOLOGOUT_CONSOLE_INTERVAL);
++      }
++
+       // Prevent settings being overridden by ajax callbacks by cloning it.
+       const localSettings = jQuery.extend(true, {}, settings.autologout);
+ 
+@@ -98,6 +177,14 @@
+       }
+ 
+       // Schedules the dialog auto-logout countdown, replacing any pending one.
++      // Attachment may be run multiple times. Check if a #timer element has
++      // been created. If so there is already an attachment done. Skip this
++      // attachment.
++      // @todo the ID should probably be have an autologout prefix to reduce
++      // collisions.
++      if ($('#timer').length) {
++        return;
++      }
+       let paddingTimer;
+       function schedulePadding(fn, delay) {
+         clearTimeout(paddingTimer);
+@@ -106,8 +193,19 @@
+ 
+       function init() {
+         const noDialog = settings.autologout.no_dialog;
+-        if (settings.activity) {
+-          refresh();
++        // Time left before the configured timeout elapses, measured from the
++        // most recent activity in this or any other tab/window (shared via
++        // localStorage). Scheduling the next check against this remaining time,
++        // instead of re-granting a brand-new full timeout, prevents the
++        // effective timeout from roughly doubling when the user was active
++        // during the first interval.
++        const remaining = localSettings.timeout - (Date.now() - getLastActive());
++        if (remaining > 0) {
++          // The user has been active recently (possibly in another tab). Keep
++          // the server session alive, then re-check exactly when the timeout
++          // would actually elapse rather than starting a brand-new timeout.
++          keepServerAlive();
++          schedule(init, remaining);
+         }
+         else {
+           // The user has not been active, ask them if they want to stay logged
+@@ -116,7 +214,7 @@
+           // While the countdown timer is going, lookup the remaining time. If
+           // there is more time remaining (i.e. a user is navigating in another
+           // tab), then reset the timer for opening the dialog.
+-          Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(function (time) {
++          getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(function (time) {
+             if (time > 0) {
+               clearTimeout(paddingTimer);
+               schedule(init, time);
+@@ -127,12 +225,26 @@
+                 logout();
+                 return;
+               }
+-              theDialog = dialog();
++              warningDialog = dialog();
+             }
+           });
+         }
+       }
+ 
++      // Fire-and-forget ping that resets the server-side session activity
++      // timestamp without rescheduling the client inactivity timer. Used while
++      // the user is still active so the server session does not expire, while
++      // the client continues to count down only the *remaining* time.
++      function keepServerAlive() {
++        $.ajax({
++          url: localSettings.ajax_set_last_url,
++          type: 'POST',
++          error() {
++            // Disable error reporting to the screen.
++          },
++        });
++      }
++
+       function triggerLogoutEvent(logoutMethod, logoutUrl) {
+         const logoutEvent = new CustomEvent('autologout', {
+           detail: {
+@@ -144,6 +256,8 @@
+       }
+ 
+       function logout() {
++        clearInterval(consoleTimer);
++        clearLastActiveState();
+         if (localSettings.use_alt_logout_method) {
+           const logoutUrl = localSettings.alt_logout_url;
+           triggerLogoutEvent('alternative', logoutUrl);
+@@ -174,19 +288,6 @@
+         }
+       }
+ 
+-      function refresh() {
+-        Drupal.Ajax['autologout.refresh'].autologoutRefresh(init);
+-      }
+-
+-      function keepAlive() {
+-        if (!document.hidden) {
+-          Drupal.Ajax['autologout.refresh'].autologoutRefresh(keepAlive);
+-        }
+-        else {
+-          schedule(keepAlive, localSettings.timeout);
+-        }
+-      }
+-
+       // A user could have used the reset button on the tab/window they're
+       // actively using, so we need to double check before actually logging out.
+       function confirmLogout() {
+@@ -196,7 +297,7 @@
+           currentDialog = null;
+         }
+ 
+-        Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(function (time) {
++        getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(function (time) {
+           if (time > 0) {
+             schedule(init, time);
+           }
+@@ -220,6 +321,11 @@
+               samesite: localSettings.cookie_samesite,
+             });
+             clearTimeout(paddingTimer);
++            // Clear the open-dialog guard first so updateLastActiveState()
++            // actually records this "stay logged in" action as activity (and
++            // propagates it to other tabs via shared localStorage).
++            warningDialog = null;
++            updateLastActiveState();
+             stayLoggedIn = true;
+             if (currentDialog) {
+               currentDialog.close();
+@@ -248,6 +354,10 @@
+           close(event, ui) {
+             $(event.target).remove();
+             currentDialog = null;
++            // Reset the open-dialog guard so activity recording resumes once
++            // the dialog is dismissed (otherwise updateLastActiveState() would
++            // stay disabled for the life of the page).
++            warningDialog = null;
+             if (!stayLoggedIn && !skipLogoutOnClose) {
+               logout();
+             }
+@@ -272,11 +382,11 @@
+       document.body.appendChild(timerMarkup);
+ 
+       if (localSettings.refresh_only) {
++        updateLastActiveState();
+         // On pages where user shouldn't be logged out, don't set the timer.
+         schedule(keepAlive, localSettings.timeout);
+       }
+       else {
+-        settings.activity = false;
+         if (localSettings.logout_regardless_of_activity) {
+           // Ignore users activity and set timeout.
+           const timestamp = Math.round((new Date()).getTime() / 1000);
+@@ -296,6 +406,11 @@
+             document.body.dispatchEvent(new Event('preventAutologout'));
+           }));
+ 
++          // Bind touchmove events to preventAutoLogout event.
++          document.body.addEventListener('touchmove', debounce(function () {
++            document.body.dispatchEvent(new Event('preventAutologout'));
++          }));
++
+           // Replaces the CKEditor5 check because keyup should always prevent autologout.
+           document.body.addEventListener('keyup', debounce(function () {
+             document.body.dispatchEvent(new Event('preventAutologout'));
+@@ -303,16 +418,7 @@
+ 
+           document.body.addEventListener('preventAutologout', function () {
+             // When the preventAutologout event fires, we set activity to true.
+-            settings.activity = true;
+-
+-            // Clear timer if one exists.
+-            clearTimeout(activityResetTimer);
+-
+-            // Set a timer that goes off and resets this activity indicator after
+-            // half a minute, otherwise sessions never timeouts.
+-            activityResetTimer = setTimeout(function () {
+-              settings.activity = false;
+-            }, 30000);
++            updateLastActiveState();
+           });
+ 
+           // On pages where the user should be logged out, set the timer to popup
+@@ -321,6 +427,10 @@
+         }
+       }
+ 
++      // Begin the console countdown of time left before the warning dialog
++      // (only active when the 'console_logging' setting is enabled).
++      startConsoleLogging();
++
+       /**
+        * Get the remaining time.
+        *
+@@ -333,11 +443,14 @@
+        */
+       Drupal.Ajax.prototype.autologoutGetTimeLeft = function (callback) {
+         const ajax = this;
++        if (ajax.ajaxing) {
++           return false;
++        }
+ 
+         // Store the original success temporary to be called later.
+         const originalSuccess = ajax.options.success;
+         ajax.options.submit = {
+-          uactive: settings.activity,
++          uactive: isUserActive(),
+         };
+         ajax.options.success = function (response, status, xmlhttprequest) {
+           if (typeof response === 'string') {
+@@ -362,6 +475,13 @@
+           return originalSuccess.call(ajax, response, status, xmlhttprequest);
+         };
+ 
++        // If anything goes wrong, log the user out to be safe.
++        const originalError = ajax.options.error;
++        ajax.options.error = function (xmlhttprequest, status, error) {
++            logout();
++            return originalError.call(ajax, xmlhttprequest, status, error);
++        }
++
+         try {
+           $.ajax(ajax.options);
+         }
+@@ -370,18 +490,20 @@
+         }
+       };
+ 
+-      Drupal.Ajax['autologout.getTimeLeft'] = Drupal.ajax({
+-        base: null,
+-        element: document.body,
+-        url: localSettings.ajax_get_time_left_url,
+-        submit: {
+-          uactive: settings.activity,
+-        },
+-        event: 'autologout.getTimeLeft',
+-        error(XMLHttpRequest, textStatus) {
+-          // Disable error reporting to the screen.
+-        },
+-      });
++      function getDrupalAjaxTimeLeftObject() {
++        return Drupal.ajax({
++          base: null,
++          element: document.body,
++          url: localSettings.ajax_get_time_left_url,
++          submit: {
++            uactive: isUserActive(),
++          },
++          event: 'autologout.getTimeLeft',
++          error(XMLHttpRequest, textStatus) {
++           // Disable error reporting to the screen.
++          },
++        });
++      }
+ 
+       /**
+        * Handle refresh event.
+@@ -419,6 +541,12 @@
+           return originalSuccess.call(ajax, response, status, xmlhttprequest);
+         };
+ 
++        // If anything goes wrong, log the user out to be safe.
++        const originalError = ajax.options.error;
++        ajax.options.error = function (xmlhttprequest, status, error) {
++          logout();
++          return originalError.call(ajax, xmlhttprequest, status, error);
++        }
+         try {
+           $.ajax(ajax.options);
+         } catch (e) {
+@@ -426,15 +554,30 @@
+         }
+       };
+ 
+-      Drupal.Ajax['autologout.refresh'] = Drupal.ajax({
+-        base: null,
+-        element: document.body,
+-        url: localSettings.ajax_set_last_url,
+-        event: 'autologout.refresh',
+-        error(XMLHttpRequest, textStatus) {
+-          // Disable error reporting to the screen.
+-        },
+-      });
++      function getDrupalAjaxRefreshObject() {
++        return Drupal.ajax({
++          base: null,
++          element: document.body,
++          url: localSettings.ajax_set_last_url,
++          event: 'autologout.refresh',
++          error (XMLHttpRequest, textStatus) {
++            // Disable error reporting to the screen.
++          },
++        });
++      }
++
++      function keepAlive() {
++         updateLastActiveState();
++        if (!document.hidden) {
++            getDrupalAjaxRefreshObject().autologoutRefresh(keepAlive);
++        } else {
++          t = setTimeout(keepAlive, localSettings.timeout);
++        }
++      }
++
++      function refresh() {
++         getDrupalAjaxRefreshObject().autologoutRefresh(init);
++      }
+ 
+       // Check if the page was loaded via a back button click.
+       const dirtyBit = document.getElementById('autologout-cache-check-bit');
+diff --git a/src/Controller/AutologoutController.php b/src/Controller/AutologoutController.php
+index e7705c0..fc95d59 100644
+--- a/src/Controller/AutologoutController.php
++++ b/src/Controller/AutologoutController.php
+@@ -107,7 +107,6 @@ class AutologoutController extends ControllerBase {
+     $response = new AjaxResponse();
+     $markup = $this->autoLogoutManager->createTimer();
+     $response->addCommand(new ReplaceCommand('#timer', $markup));
+-    $response->addCommand(new SettingsCommand(['activity' => TRUE]));
+ 
+     return $response;
+   }
+@@ -124,7 +123,6 @@ class AutologoutController extends ControllerBase {
+       $response->addCommand(new ReplaceCommand('#timer', 0));
+       $response->addCommand(new SettingsCommand([
+         'time' => 0,
+-        'activity' => FALSE,
+       ]));
+ 
+       return $response;
+@@ -138,7 +136,6 @@ class AutologoutController extends ControllerBase {
+     $response->addCommand(new ReplaceCommand('#timer', $markup));
+     $response->addCommand(new SettingsCommand([
+       'time' => $time_remaining_ms,
+-      'activity' => TRUE,
+     ]));
+ 
+     return $response;
+diff --git a/src/Form/AutologoutSettingsForm.php b/src/Form/AutologoutSettingsForm.php
+index aefb8b6..ca60d44 100644
+--- a/src/Form/AutologoutSettingsForm.php
++++ b/src/Form/AutologoutSettingsForm.php
+@@ -289,6 +289,13 @@ class AutologoutSettingsForm extends ConfigFormBase {
+       '#description' => $this->t('Enable logging of automatically logged out users'),
+     ];
+ 
++    $form['console_logging'] = [
++      '#type' => 'checkbox',
++      '#title' => $this->t('Log session countdown to the browser console'),
++      '#default_value' => $config->get('console_logging'),
++      '#description' => $this->t('When enabled, the autologout JavaScript periodically logs the time remaining before the warning dialog to the browser console. Intended for debugging; leave disabled in production.'),
++    ];
++
+     $form['enforce_admin'] = [
+       '#type' => 'checkbox',
+       '#title' => $this->t('Enable Automated Logout on admin pages'),
+@@ -506,6 +513,7 @@ class AutologoutSettingsForm extends ConfigFormBase {
+       ->set('use_watchdog', $values['use_watchdog'])
+       ->set('cookie_secure', $values['cookie_secure'])
+       ->set('cookie_httponly', FALSE)
++      ->set('console_logging', $values['console_logging'])
+       ->save();
+ 
+     if (!empty($values['table'])) {
