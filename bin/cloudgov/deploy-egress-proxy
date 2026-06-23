@@ -89,15 +89,14 @@ if [[ "$1" == "-full" ]]; then
     shift
 fi
 
-# Protect the space requested, not necessarily the current space.
-protectedSpace=$1
-
 # Grab the org and space where the command was run
 startorg=$(   cf target | grep org:   | awk '{ print $2 }')
 startspace=$(   cf target | grep space:   | awk '{ print $2 }')
 
-egressspace=${1:-shared-egress}
-egressorg=${2:-$startorg}
+# Protect the space requested, not necessarily the current space.
+protectedSpace=${1:-$startspace}
+egressspace=${2:-shared-egress}
+egressorg=${3:-$startorg}
 
 # Drop them off where we found them
 function popspace() {
