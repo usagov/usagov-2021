@@ -4,7 +4,7 @@
 # CRON JOB SETUP FOR BACKUP SYSTEM
 # ===================================================================
 # Configures automated database backups via cron
-# Handles: time zone conversion (EST to UTC), cron job management
+# Handles: cron job management (all times in UTC)
 # ===================================================================
 
 # Load common utilities
@@ -17,7 +17,7 @@ CURDIR=$(pwd)
 init_backup_system
 
 # Set defaults from configuration
-DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
+DB_BACKUP_TIME=${DB_BACKUP_TIME:-"23:00"}
 ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 
 # ===================================================================
@@ -34,8 +34,8 @@ show_usage() {
     echo "  test        Test the exact cron command (simulates cron environment)"
     echo ""
     echo "Configuration:"
-    echo "  DB_BACKUP_TIME: Set backup time in EST (format: HH:MM)"
-    echo "  Default: 19:00 EST (converts to UTC for cron)"
+    echo "  DB_BACKUP_TIME: Set backup time in UTC (format: HH:MM)"
+    echo "  Default: 23:00 UTC"
     echo ""
 }
 
@@ -44,7 +44,7 @@ show_usage() {
 # ===================================================================
 
 # Setup automated database backup cron job
-# Converts EST time to UTC, validates format, and configures cron
+# Validates format and configures cron (all times in UTC)
 setup_cron() {
     if [ "$ENABLE_DB_BACKUPS" != "true" ]; then
         print_status $YELLOW "Database backups are disabled in configuration"
@@ -61,15 +61,8 @@ setup_cron() {
         return 1
     fi
 
-    # Convert Eastern Time to UTC (EST is UTC-5, EDT is UTC-4)
-    utc_hour=$((hour + 5))
-    if [ $utc_hour -ge 24 ]; then
-        utc_hour=$((utc_hour - 24))
-    fi
-
     print_status $GREEN "Setting up database backup cron job..."
-    print_status $YELLOW "⚠️ Time conversion: ${hour}:${minute} Eastern → ${utc_hour}:${minute} UTC"
-    print_status $YELLOW "📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed."
+    print_status $YELLOW "⏰ Backup time: ${hour}:${minute} UTC"
 
     crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
 
@@ -110,7 +103,7 @@ show_status() {
 # Executes the exact command that cron will run to verify functionality
 test_cron_command() {
     print_status $YELLOW "Testing cron command execution..."
-    print_status $BLUE "This simulates the exact environment and command that cron will use"
+    print_status $BLUE "This simulates thUTCxact environment and command that cron will use"
     echo ""
 
     # Determine working directory (same as setup_cron)

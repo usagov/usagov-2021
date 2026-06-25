@@ -352,8 +352,7 @@ scripts/snapshot/setup-cron.sh test     # Test the cron backup command
 
 **Automated Features:**
 
-- Runs daily at configured time (set via DB_BACKUP_TIME environment variable in EST, default: 19:00)
-- Automatically converts EST to UTC for cron scheduling
+- Runs daily at configured time (set via DB_BACKUP_TIME environment variable in UTC, default: 23:00)
 - Creates database backups with AUTO prefix
 - Automatically cleans old backups based on retention policy
 - Logs all operations for monitoring

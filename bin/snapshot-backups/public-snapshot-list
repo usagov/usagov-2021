@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-# List public files backup snapshots  
+# List public files backup snapshots
 # Usage: public-snapshot-list <space> [--with-dates] [--include-auto]
 #   --with-dates    Show last modified dates
 #   --include-auto  Include automatic backups (in addition to manual snapshots)
@@ -94,7 +94,7 @@ if [ "$WITH_DATES" == "1" ]; then
   for tag in $(echo $available_tags); do
     # gather the most recently update file under the path-tag
     # there are >1k files so make sure we push the sort/extract logic into the server side query
-    
+
     # Check if this is an auto backup (contains AUTO- prefix)
     if echo "$tag" | grep -q "^AUTO-"; then
       # Auto backup - check auto-backups path
