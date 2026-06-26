@@ -92,6 +92,8 @@ ul.navigation__items {
 .usagov-mobile-menu-controls > * {
   display: flex;
   align-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   background: transparent;
   border: 0;
   @include u-font('sans', 'md');
@@ -123,6 +125,12 @@ ul.navigation__items {
   margin: 1rem;
   display: block;
 
+  a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
   &[data-visibility="hidden"] {
     display: none;
   }
@@ -136,9 +144,10 @@ ul.navigation__items {
   background-size: 2.8rem;
   background-position: 1px 0;
   width: 3rem;
+  min-width: 2.75rem;
   padding: 0;
   padding-top: 2rem;
-  height: auto;
+  min-height: 2.75rem;
   @include u-font-size('sans', 'xs');
 
   font-weight: normal;
