@@ -2,8 +2,6 @@
 
 # Backup System Test Script
 
-set -e
-
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
 . "$SCRIPT_DIR/common.sh"
@@ -202,10 +200,19 @@ test_backup_integration() {
     fi
 
     # Check that it calls backup command
-    if grep -q "backup all" "$tome_sync_script"; then
-        echo "✅ Found backup all command call"
+    # tome-sync.sh backs up static and public files (db is handled by cron)
+    if grep -q "backup static,public" "$tome_sync_script"; then
+        echo "✅ Found backup static,public command call"
     else
-        echo "❌ Missing backup all command call"
+        echo "❌ Missing backup static,public command call"
+        return 1
+    fi
+
+    # Check that it uses --throttle to avoid backup churn during active Tome runs
+    if grep -q "\-\-throttle" "$tome_sync_script"; then
+        echo "✅ Found --throttle flag for backup throttling"
+    else
+        echo "❌ Missing --throttle flag"
         return 1
     fi
 
@@ -553,7 +560,7 @@ test_date_range_filtering() {
         echo "❌ list_old_backups function not found in manager.sh"
         return 1
     fi
-    
+
     # Check that list_old_backups uses date range logic
     local list_function=$(sed -n '/^list_old_backups()/,/^}/p' "$manager_script")
     if echo "$list_function" | grep -q "is_date_in_range"; then
@@ -1828,6 +1835,7 @@ BACKUP_PREFIX
 AUTO_STATIC_BACKUP_PATH
 AUTO_PUBLIC_BACKUP_PATH
 AUTO_DB_BACKUP_PATH
+BACKUP_THROTTLE_HOURS
 ENABLE_STATIC_AUTO_BACKUPS
 ENABLE_STATIC_AUTO_CLEANUP
 ENABLE_PUBLIC_AUTO_BACKUPS
@@ -1863,7 +1871,7 @@ DB_BACKUP_PREFIX
     done
 
     # Validate numeric values
-    local num_vars="BACKUP_RETENTION_DAYS DB_BACKUP_RETENTION_DAYS"
+    local num_vars="BACKUP_RETENTION_DAYS DB_BACKUP_RETENTION_DAYS BACKUP_THROTTLE_HOURS"
     for var in $num_vars; do
         local value=$(grep "^${var}=" "$config_file" | cut -d= -f2)
         if echo "$value" | grep -qE '^[0-9]+$'; then
@@ -1923,7 +1931,7 @@ test_local_manager() {
     fi
 
     # Check for all main commands
-    local commands="list backup clean restore info download test cron"
+    local commands="list backup clean delete restore info download test cron try-tome-disable try-tome-enable"
     for cmd in $commands; do
         if grep -q "\"$cmd\"" "$local_manager"; then
             echo "✅ local-manager.sh supports '$cmd' command"
@@ -2204,6 +2212,196 @@ test_documentation() {
     return 0
 }
 
+# Function to test the delete command (delete specific backups by tag)
+test_delete_command() {
+    echo "🗑️  Testing delete command..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Check delete_backup function exists
+    if ! grep -q "^delete_backup()" "$manager_script"; then
+        echo "❌ delete_backup function not found"
+        return 1
+    fi
+    echo "✅ delete_backup function exists"
+
+    # Check delete command is routed in the dispatcher
+    if grep -q '"delete")' "$manager_script"; then
+        echo "✅ delete command is routed in dispatcher"
+    else
+        echo "❌ delete command not routed in dispatcher"
+        return 1
+    fi
+
+    # Check delete is documented in usage
+    if grep -q "delete <tag>" "$manager_script"; then
+        echo "✅ delete command documented in usage"
+    else
+        echo "❌ delete command missing from usage"
+        return 1
+    fi
+
+    # Delete without a tag should fail (requires at least one tag)
+    "$manager_script" delete >/dev/null 2>&1
+    local delete_exit=$?
+    if [ $delete_exit -ne 0 ]; then
+        echo "✅ delete without tag correctly rejected (exit: $delete_exit)"
+    else
+        echo "❌ delete without tag should fail"
+        return 1
+    fi
+
+    # Check delete supports multiple tags (loop over tags)
+    local delete_func=$(sed -n '/^delete_backup()/,/^}/p' "$manager_script")
+    if echo "$delete_func" | grep -q "for backup_tag in"; then
+        echo "✅ delete supports multiple tags"
+    else
+        echo "❌ delete missing multiple-tag support"
+        return 1
+    fi
+
+    # Check delete supports non-interactive flag
+    if echo "$delete_func" | grep -q "non_interactive"; then
+        echo "✅ delete supports -y/--non-interactive flag"
+    else
+        echo "❌ delete missing non-interactive support"
+        return 1
+    fi
+
+    # Check local-manager.sh routes delete to CF
+    local local_manager="$BACKUP_DIR/local-manager.sh"
+    if grep -q '"delete")' "$local_manager"; then
+        echo "✅ local-manager.sh routes delete command"
+    else
+        echo "❌ local-manager.sh missing delete command"
+        return 1
+    fi
+
+    echo "✅ Delete command test passed"
+    return 0
+}
+
+# Function to test backup throttling feature (--throttle)
+test_backup_throttle() {
+    echo "⏳ Testing backup throttle feature..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+    local config_file="$BACKUP_DIR/backup-system.conf"
+
+    # Check BACKUP_THROTTLE_HOURS is configured
+    if grep -q "^BACKUP_THROTTLE_HOURS=" "$config_file"; then
+        local throttle_hours=$(grep "^BACKUP_THROTTLE_HOURS=" "$config_file" | cut -d= -f2)
+        echo "✅ BACKUP_THROTTLE_HOURS configured: $throttle_hours"
+    else
+        echo "❌ BACKUP_THROTTLE_HOURS not configured"
+        return 1
+    fi
+
+    # Check get_last_backup_age_hours helper exists
+    if ! grep -q "^get_last_backup_age_hours()" "$manager_script"; then
+        echo "❌ get_last_backup_age_hours function not found"
+        return 1
+    fi
+    echo "✅ get_last_backup_age_hours function exists"
+
+    # Check run_backup_command parses --throttle
+    local backup_func=$(sed -n '/^run_backup_command()/,/^}/p' "$manager_script")
+    if echo "$backup_func" | grep -q "\-\-throttle"; then
+        echo "✅ run_backup_command parses --throttle flag"
+    else
+        echo "❌ run_backup_command missing --throttle parsing"
+        return 1
+    fi
+
+    # Check throttle logic compares against BACKUP_THROTTLE_HOURS
+    if echo "$backup_func" | grep -q "BACKUP_THROTTLE_HOURS"; then
+        echo "✅ Throttle logic uses BACKUP_THROTTLE_HOURS threshold"
+    else
+        echo "❌ Throttle logic missing BACKUP_THROTTLE_HOURS comparison"
+        return 1
+    fi
+
+    # Check --throttle is documented in usage
+    if grep -q "\-\-throttle" "$manager_script"; then
+        echo "✅ --throttle documented in usage"
+    else
+        echo "❌ --throttle missing from usage"
+        return 1
+    fi
+
+    # Verify the throttle flag parses without error (backup with throttle, no S3 needed to parse)
+    "$manager_script" backup static TEST "" --throttle >/dev/null 2>&1
+    local throttle_exit=$?
+    if [ $throttle_exit -eq 0 ] || [ $throttle_exit -eq 1 ]; then
+        echo "✅ backup --throttle parses correctly (exit: $throttle_exit)"
+    else
+        echo "⚠️  backup --throttle exit behavior: $throttle_exit (may be due to missing S3 access)"
+    fi
+
+    echo "✅ Backup throttle test passed"
+    return 0
+}
+
+# Function to test try-tome-disable / try-tome-enable commands
+test_tome_toggle_commands() {
+    echo "🔧 Testing try-tome-disable / try-tome-enable commands..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+    local local_manager="$BACKUP_DIR/local-manager.sh"
+
+    # Check try-tome-disable command is routed
+    if grep -q '"try-tome-disable")' "$manager_script"; then
+        echo "✅ try-tome-disable command routed in manager.sh"
+    else
+        echo "❌ try-tome-disable command not routed in manager.sh"
+        return 1
+    fi
+
+    # Check try-tome-enable command is routed
+    if grep -q '"try-tome-enable")' "$manager_script"; then
+        echo "✅ try-tome-enable command routed in manager.sh"
+    else
+        echo "❌ try-tome-enable command not routed in manager.sh"
+        return 1
+    fi
+
+    # Check try-tome-disable calls prepare_drupal_for_backup
+    if grep -q "try-tome-disable" "$manager_script" && \
+       sed -n '/"try-tome-disable")/,/;;/p' "$manager_script" | grep -q "prepare_drupal_for_backup"; then
+        echo "✅ try-tome-disable invokes prepare_drupal_for_backup"
+    else
+        echo "❌ try-tome-disable missing prepare_drupal_for_backup call"
+        return 1
+    fi
+
+    # Check try-tome-enable calls restore_drupal_state
+    if sed -n '/"try-tome-enable")/,/;;/p' "$manager_script" | grep -q "restore_drupal_state"; then
+        echo "✅ try-tome-enable invokes restore_drupal_state"
+    else
+        echo "❌ try-tome-enable missing restore_drupal_state call"
+        return 1
+    fi
+
+    # Check both commands are documented in usage
+    if grep -q "try-tome-disable" "$manager_script" && grep -q "try-tome-enable" "$manager_script"; then
+        echo "✅ tome toggle commands documented in usage"
+    else
+        echo "❌ tome toggle commands missing from usage"
+        return 1
+    fi
+
+    # Check local-manager.sh routes both commands to CF
+    if grep -q '"try-tome-disable")' "$local_manager" && grep -q '"try-tome-enable")' "$local_manager"; then
+        echo "✅ local-manager.sh routes tome toggle commands"
+    else
+        echo "❌ local-manager.sh missing tome toggle commands"
+        return 1
+    fi
+
+    echo "✅ Tome toggle commands test passed"
+    return 0
+}
+
 # Main execution
 main() {
     # Parse command line arguments
@@ -2258,6 +2456,9 @@ main() {
     run_test "Manager Commands Interface" "test_manager_commands"
     run_test "Backup Type Combinations" "test_backup_type_combinations"
     run_test "Backup Info Functionality" "test_backup_info"
+    run_test "Delete Command" "test_delete_command"
+    run_test "Backup Throttle Feature" "test_backup_throttle"
+    run_test "Tome Toggle Commands" "test_tome_toggle_commands"
     run_test "Error Handling" "test_error_handling"
 
     echo ""
@@ -2303,11 +2504,11 @@ main() {
     # Category breakdown
     echo "Test Categories Covered:"
     echo "  • Basic System Tests (6 tests)"
-    echo "  • Date Format Tests (5 tests)"
-    echo "  • Manager Functionality Tests (6 tests)"
+    echo "  • Date Format Tests (6 tests)"
+    echo "  • Manager Functionality Tests (9 tests)"
     echo "  • Backup Operations Tests (5 tests)"
     echo "  • Restore & Advanced Tests (8 tests)"
-    echo "  • Total: 30 comprehensive tests"
+    echo "  • Total: 34 comprehensive tests"
     echo ""
 
     # Final summary

@@ -75,7 +75,7 @@ setup_cron() {
     fi
 
     # Add new cron job (using new command format)
-    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "$minute $hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup db >/dev/null 2>&1") | crontab -
 
     print_status $GREEN "✅ Cron job setup complete"
 }
@@ -96,14 +96,14 @@ show_status() {
     echo ""
     print_status $GREEN "Configuration:"
     echo "  Database backups enabled: $ENABLE_DB_BACKUPS"
-    echo "  Backup time: $DB_BACKUP_TIME EST"
+    echo "  Backup time: $DB_BACKUP_TIME UTC"
 }
 
 # Test the cron backup command in a simulated cron environment
 # Executes the exact command that cron will run to verify functionality
 test_cron_command() {
     print_status $YELLOW "Testing cron command execution..."
-    print_status $BLUE "This simulates thUTCxact environment and command that cron will use"
+    print_status $BLUE "This simulates the exact environment and command that cron will use"
     echo ""
 
     # Determine working directory (same as setup_cron)
