@@ -1,8 +1,8 @@
 _core:
   default_config_hash: j-ZIPT_JseG1aLxuAdzS-NomYUmBK3OUOjP53Pg8uA8
 enabled: true
-timeout: 900
-max_timeout: 900
+timeout: 1800
+max_timeout: 1800
 padding: 20
 logout_regardless_of_activity: false
 no_individual_logout_threshold: true
