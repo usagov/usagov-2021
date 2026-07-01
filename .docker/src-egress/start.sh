@@ -1,5 +1,13 @@
 #!/bin/bash
 
+empty_vcap={}
+SPACE=$(echo "${VCAP_APPLICATION:-${empty_vcap}}" | jq -r '.space_name // "unknown"')
+APP_NAME=$(echo "${VCAP_APPLICATION:-${empty_vcap}}" | jq -r '.name // "unknown"')
+OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
+CADDY_V=$(./caddy version 2>/dev/null | awk 'NR==1 {gsub(/^v/, "", $1); print $1}' || echo "unknown")
+
+echo "SFTWR_AUDIT: app=${APP_NAME} space=${SPACE} os=\"${OS_VERSION}\" caddy=${CADDY_V}"
+
 # c2c_cert_watcher() {
 #     while true ; do
 #         echo "C2C certificate info..."
