@@ -51,8 +51,7 @@ if [ -z "$DB_BACKUP_CREDS" -o "$DB_BACKUP_CREDS" = "null" ]; then
    exit 1
 fi
 
-echo "Retrieved credentials for service $DB_BACKUP_SERVICE_NAME:
-$DB_BACKUP_CREDS"
+echo "Retrieved credentials for service $DB_BACKUP_SERVICE_NAME"
 
 DBHOST=$(echo $DB_BACKUP_CREDS | jq -r '.host')
 DBPORT=$(echo $DB_BACKUP_CREDS | jq -r '.port')
@@ -60,7 +59,6 @@ DBUSER=$(echo $DB_BACKUP_CREDS | jq -r '.username')
 DBPASS=$(echo $DB_BACKUP_CREDS | jq -r '.password')
 DBNAME=$(echo $DB_BACKUP_CREDS | jq -r '.db_name') # | sed -r 's/-restore$//' | tr -d '-')
 
-TMPDIR=$(mktemp -d) # We'll put the file here.
 CREDSFILE=$(mktemp)
 
 echo "Writing creds to $CREDSFILE"
