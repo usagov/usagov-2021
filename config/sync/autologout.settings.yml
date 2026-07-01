@@ -25,6 +25,6 @@ disable_buttons: false
 yes_button: ''
 no_button: ''
 whitelisted_ip_addresses: ''
-cookie_secure: false
+cookie_secure: true
 cookie_httponly: false
 console_logging: false
