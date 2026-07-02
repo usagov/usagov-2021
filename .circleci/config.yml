@@ -561,15 +561,6 @@ jobs:
       - snapshot-backup:
           envname: prod
 
-  deploy-reporter-tools:
-    machine:
-      image: ubuntu-2204:current
-    environment:
-      BASH_ENV: /home/circleci/project/env.local
-    steps:
-      - deploy-reporter:
-          envname: tools
-
   deploy-reporter-dev:
     machine:
       image: ubuntu-2204:current
