@@ -142,7 +142,7 @@ commands:
     steps:
       - run:
           name: Log in to Docker Hub
-          no_output_timeout: 30 m
+          no_output_timeout: 30m
           command: |
             echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
 
