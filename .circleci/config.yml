@@ -73,9 +73,9 @@ commands:
       - run:
           name: Save Image Digest
           command: |
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>)
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WWW_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
@@ -94,7 +94,7 @@ commands:
       - run:
           name: Save Image Digest Cron
           command: |
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>)
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>
             CRON_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
@@ -144,22 +144,6 @@ commands:
             cd /usr/bin/ && sudo tar xzvpf /tmp/cf8.tar.gz
             rm -f /tmp/cf8.tar.gz
             cf -v
-
-  signed-dockerhub-login:
-    steps:
-      - run:
-          name: Set up DCT signer key
-          command: |
-            mkdir -p $HOME/.docker/trust/private
-            # Decode and store signer key to file named as the key hash
-            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
-            # Set required permissions level on key file
-            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
-      - run:
-          name: Login to Docker Hub
-          no_output_timeout: 30m
-          command: |
-            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
 
   snapshot-preamble:
     parameters:
@@ -236,7 +220,6 @@ commands:
       - run:
           name: Smoke Test Reporter Google Auth
           command: |
-            export DOCKER_CONTENT_TRUST=0
             docker run --rm --entrypoint sh ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> -lc 'cd /analytics-reporter && npm run smoke:google-auth'
       - run:
           name: Push Reporter Container to Docker Hub
@@ -486,7 +469,6 @@ jobs:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
-            export DOCKER_CONTENT_TRUST=1
             ./bin/cloudgov/container-push << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest
@@ -658,7 +640,6 @@ jobs:
           name: Push Cron Container to Docker Hub
           no_output_timeout: 30m
           command: |
-            export DOCKER_CONTENT_TRUST=1
             ./bin/cloudgov/container-push-cron << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest-cron
