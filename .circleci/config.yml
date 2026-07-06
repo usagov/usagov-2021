@@ -138,6 +138,14 @@ commands:
             rm -f /tmp/cf8.tar.gz
             cf -v
 
+  dockerhub-login:
+    steps:
+      run:
+        name: Log in to Docker Hub
+        no_output_timeout: 30 m
+        command: |
+          echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+
   setup-environment:
     steps:
       - run:
@@ -206,6 +214,7 @@ commands:
           method: blobless
       - install-cloud-foundry
       - setup-environment
+      - dockerhub-login
       - run:
           name: Build Reporter Container
           command: |
@@ -376,6 +385,7 @@ jobs:
       - checkout:
           method: blobless
       - setup-environment
+      - dockerhub-login
       - run:
           name: Create Log Files
           command: |
@@ -597,6 +607,7 @@ jobs:
       - checkout:
           method: blobless
       - setup-environment
+      - dockerhub-login
       - run:
           name: Create Log Files
           command: |
