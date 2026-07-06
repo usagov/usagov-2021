@@ -146,9 +146,10 @@ commands:
             cf -v
 
   setup-environment:
-    - run:
-        name: Setup Environment for use in Scripts
-        command: |
+    steps:
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
             printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
 
   snapshot-preamble:
