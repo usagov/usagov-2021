@@ -289,6 +289,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
@@ -383,6 +384,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
@@ -483,6 +485,8 @@ jobs:
   deploy-to-cloudgov-dr:
     machine:
       image: ubuntu-2204:current
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: dr
@@ -490,6 +494,8 @@ jobs:
   deploy-to-cloudgov-dev:
     machine:
       image: ubuntu-2204:current
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: dev
@@ -499,6 +505,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: stage
@@ -508,6 +515,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: prod
@@ -517,6 +525,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: dr
@@ -526,6 +535,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: dev
@@ -535,6 +545,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: stage
@@ -544,6 +555,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: prod
@@ -553,6 +565,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: dev
@@ -562,6 +575,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: stage
@@ -571,6 +585,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: prod
@@ -580,6 +595,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: dr
@@ -589,6 +605,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
@@ -651,6 +668,8 @@ jobs:
           path: /tmp/results
 
   deploy-to-cloudgov-dr-cron:
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     machine:
       image: ubuntu-2204:current
     steps:
@@ -658,6 +677,8 @@ jobs:
           envname: dr
 
   deploy-to-cloudgov-dev-cron:
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     machine:
       image: ubuntu-2204:current
     steps:
@@ -669,6 +690,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov-cron:
           envname: stage
@@ -678,6 +700,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov-cron:
           envname: prod
@@ -687,6 +710,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
