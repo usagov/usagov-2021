@@ -140,11 +140,11 @@ commands:
 
   dockerhub-login:
     steps:
-      run:
-        name: Log in to Docker Hub
-        no_output_timeout: 30 m
-        command: |
-          echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - run:
+          name: Log in to Docker Hub
+          no_output_timeout: 30 m
+          command: |
+            echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
 
   setup-environment:
     steps:
