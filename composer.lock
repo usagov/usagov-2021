@@ -8572,16 +8572,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "3.10.5",
+            "version": "3.10.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "13f709c73e417c3c8cadc87ac88f809fd8d1fa45"
+                "reference": "8de8215d6ff984f8db77a4a49dc089a396209e1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/13f709c73e417c3c8cadc87ac88f809fd8d1fa45",
-                "reference": "13f709c73e417c3c8cadc87ac88f809fd8d1fa45",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/8de8215d6ff984f8db77a4a49dc089a396209e1b",
+                "reference": "8de8215d6ff984f8db77a4a49dc089a396209e1b",
                 "shasum": ""
             },
             "require": {
@@ -8672,9 +8672,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.10.5"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.10.6"
             },
-            "time": "2026-04-19T05:54:30+00:00"
+            "time": "2026-06-07T02:39:57+00:00"
         },
         {
             "name": "phpowermove/docblock",
