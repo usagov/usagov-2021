@@ -12,7 +12,7 @@ commands:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
       - install-cloud-foundry
       - load-image-digest
       - run:
@@ -20,7 +20,7 @@ commands:
           command: |
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << parameters.envname >> << pipeline.number >> $CMS_DIGEST
@@ -39,14 +39,14 @@ commands:
           command: |
             export NEW_RELIC_APP_NAME="WWW-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-www-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-www << pipeline.number >> $WWW_DIGEST
       - run:
           name: CloudGov Deploy API Proxy
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-api-proxy
@@ -55,7 +55,7 @@ commands:
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-waf-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             DWAF_APP=waf
@@ -145,6 +145,12 @@ commands:
             rm -f /tmp/cf8.tar.gz
             cf -v
 
+  setup-environment:
+    - run:
+        name: Setup Environment for use in Scripts
+        command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+
   snapshot-preamble:
     parameters:
       envname:
@@ -154,7 +160,7 @@ commands:
       - run:
           name: Prepare Database and Tome in << parameters.envname >> for Backup.
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-disable
@@ -168,7 +174,7 @@ commands:
       - run:
           name: Restore << parameters.envname >> to normal/running state.
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-enable
@@ -187,7 +193,7 @@ commands:
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
@@ -208,7 +214,7 @@ commands:
       - run:
           name: Build Reporter Container
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-build-reporter << pipeline.number >> latest
@@ -223,7 +229,7 @@ commands:
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-push-reporter << pipeline.number >> latest
@@ -246,7 +252,7 @@ commands:
       - run:
           name: Deploy Analytics Reporter
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             export RDIG=`cat /tmp/reporter_digest`
@@ -265,13 +271,13 @@ commands:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
       - install-cloud-foundry
       - load-image-digest-cron
       - run:
           name: CloudGov Deploy Cron
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CRON_DIGEST
@@ -286,10 +292,10 @@ jobs:
       - checkout:
           method: blobless
       - install-cloud-foundry
+      - setup-environment
       - run:
-          name: Setup Environment for use in Scripts
+          name: Add Log Files
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
             touch /tmp/results/scan-cms-dependencies.log
@@ -382,7 +388,7 @@ jobs:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
             touch /tmp/results/scan-cms-dependencies.log
@@ -588,7 +594,7 @@ jobs:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cron-container.log
             touch /tmp/results/scan-cron-container-cis.log
@@ -686,7 +692,7 @@ jobs:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
       - run:
           name: Validate IP Allow Lists
           command: |
