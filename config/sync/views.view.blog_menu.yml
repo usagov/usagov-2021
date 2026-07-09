@@ -370,7 +370,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: '<a class="usa-button usa-button--secondary" href="{{ view_node }}">Read More</a>'
+            text: '<a class="usa-button usa-button--secondary" href="{{ view_node }}">Read More<span class="usa-sr-only"> about {{ title_1 }}</span></a>'
             make_link: false
             path: ''
             absolute: false

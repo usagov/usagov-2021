@@ -23,6 +23,14 @@
   @include u-text('blue-warm-70v');
 }
 
+.usa-banner__button {
+  @include at-media($theme-header-min-width) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+}
+
 .usa-banner__button-text:visited {
   color: $dark-gray;
 }
@@ -100,12 +108,9 @@
   }
 
   a.language-link {
-    @media (max-width: 64em) {
-      line-height: 1.5rem;
-      font-weight: 700;
-      margin-right: 2em;
-    }
-
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     text-decoration: none;
     padding: 10px 20px;
     line-height: .9;
@@ -123,6 +128,12 @@
       @include u-bg('white');
       @include u-text('blue-80v');
     }
+
+    @media (max-width: 64em) {
+      line-height: 1.5rem;
+      font-weight: 700;
+      margin-right: 2em;
+    }
   }
 }
 
@@ -130,7 +141,8 @@
   @media (max-width: 64em) {
     padding-right: 1.3rem;
     width: 7rem;
-    height: 2.3rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
     text-align: left;
     font-weight: 700;
     background-image: url("/themes/custom/usagov/images/ICONS_Search.png");
@@ -241,6 +253,9 @@
 }
 
 .usa-header--extended .usa-nav__secondary-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   @include u-font-size('sans', 'md');
   @include at-media($theme-header-min-width) {
     padding-left: 0.5rem;
@@ -257,6 +272,9 @@
 .usa-nav__primary>.usa-nav__primary-item>a,
 .usa-nav__primary>.usa-nav__primary-item>a:hover {
   @media (min-width: 64em) {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
     padding: 0.8rem;
     @include u-text('blue-warm-70v');
   }
@@ -341,6 +359,17 @@
 // adds visible focus around entire search box
 [type="search"] {
   z-index: 1;
+}
+
+.usa-header .usa-search--small [type="search"],
+.usagov-mobile-menu .usa-search--small [type="search"] {
+  min-height: 2.75rem;
+}
+
+.usa-header .usa-search--small .usa-button,
+.usagov-mobile-menu .usa-search--small .usa-button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 }
 
 // adds visible focus around entire search button and removes padding

@@ -19,7 +19,6 @@ dependencies:
     - field.field.node.basic_page.field_css_icon
     - field.field.node.basic_page.field_custom_twig_content
     - field.field.node.basic_page.field_exclude_from_contact_cente
-    - field.field.node.basic_page.field_faq_page
     - field.field.node.basic_page.field_footer_html
     - field.field.node.basic_page.field_for_contact_center_only
     - field.field.node.basic_page.field_header_html
@@ -308,13 +307,6 @@ content:
   field_exclude_from_contact_cente:
     type: boolean_checkbox
     weight: 30
-    region: content
-    settings:
-      display_label: true
-    third_party_settings: {  }
-  field_faq_page:
-    type: boolean_checkbox
-    weight: 19
     region: content
     settings:
       display_label: true

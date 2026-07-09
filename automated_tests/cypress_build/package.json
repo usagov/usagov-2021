@@ -4,21 +4,28 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "cy:functional": "cypress run --spec cypress/e2e/functional/eng/error_page.cy.js"
+    "cy:open": "./run-cypress.sh open",
+    "cy:run": "./run-cypress.sh run",
+    "cy:run:regression": "./run-cypress.sh run --spec cypress/e2e/regression_testing/*.cy.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "axe-core": "^4.8.1",
-    "cypress": "^13.6.6",
-    "cypress-axe": "^1.5.0",
-    "cypress-image-diff-js": "^2.1.0",
-    "cypress-mochawesome-reporter": "^3.6.0"
+    "axe-core": "^4.11.2",
+    "cypress": "^15.13.0",
+    "cypress-axe": "^1.7.0",
+    "cypress-image-diff-js": "^2.8.0",
+    "cypress-mochawesome-reporter": "^4.0.2",
+    "cypress-real-events": "^1.15.0",
+    "js-yaml": "^4.3.0"
   },
-  "dependencies": {
-    "cypress-mochawesome-reporter": "^3.6.0",
-    "cypress-real-events": "^1.10.3",
-    "js-yaml": ">=4.1.1"
+  "x-maintenanceTodo": "TODO: Remove these overrides once cypress-image-diff-js and mochawesome absorb the upstream fixes.",
+  "overrides": {
+    "handlebars": "4.7.9",
+    "mocha": "12.0.0-beta-10",
+    "mochawesome": {
+      "diff": "5.2.2"
+    }
   }
 }

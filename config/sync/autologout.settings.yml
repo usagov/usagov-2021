@@ -9,6 +9,7 @@ no_individual_logout_threshold: true
 role_logout: false
 role_logout_max: false
 redirect_url: /user/login
+include_destination: false
 no_dialog: false
 message: 'Your session is about to expire. Do you want to reset it?'
 inactivity_message: 'You have been logged out due to inactivity.'
@@ -24,3 +25,6 @@ disable_buttons: false
 yes_button: ''
 no_button: ''
 whitelisted_ip_addresses: ''
+cookie_secure: true
+cookie_httponly: false
+console_logging: false
