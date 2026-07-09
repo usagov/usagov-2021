@@ -79,6 +79,11 @@ function getSpaceGUID() {
   echo $(cf space $space --guid)
 }
 
+function getServiceGUID() {
+  service=$1
+  echo $(cf service $service --guid)
+
+}
 function envEmpty() { # list of env vars
   if [ -z "$1" ]; then # if zero length varname
     return 0; # true
