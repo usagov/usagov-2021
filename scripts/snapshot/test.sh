@@ -555,11 +555,18 @@ test_date_range_filtering() {
     fi
     
     # Check that list_old_backups uses date range logic
-    local list_function=$(sed -n '/^list_old_backups()/,/^}/p' "$manager_script")
+    local list_function=$(sed -n '/^list_old_backups()/,/^clean_old_backups()/p' "$manager_script")
     if echo "$list_function" | grep -q "is_date_in_range"; then
         echo "✅ list_old_backups integrates date range filtering"
     else
         echo "❌ list_old_backups missing date range filtering"
+        return 1
+    fi
+
+    if echo "$list_function" | grep -q "AUTO_DB_BACKUP_PATH" && echo "$list_function" | grep -q "\\.sql\\.gz"; then
+        echo "✅ list_old_backups includes database backup filtering"
+    else
+        echo "❌ list_old_backups missing database backup filtering"
         return 1
     fi
 

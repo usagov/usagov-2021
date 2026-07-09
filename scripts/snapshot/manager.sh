@@ -1982,6 +1982,20 @@ list_old_backups() {
             fi
         fi
     done
+
+    echo ""
+    print_status $GREEN "Database Backups:"
+    aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | while read -r line; do
+        backup_key=$(echo "$line" | awk '{print $4}')
+        backup_name=$(basename "$backup_key" .sql.gz)
+        backup_date=$(extract_date_from_backup_name "$backup_name")
+
+        if [ -n "$backup_date" ]; then
+            if check_backup_date "$backup_date"; then
+                echo "$line"
+            fi
+        fi
+    done
 }
 
 # Clean up old static and public backups based on filter criteria
