@@ -2498,10 +2498,10 @@ restore_backup() {
         audit_log "restore_database_started" "info" "Database restore initiated" "backup_tag=$db_backup_tag"
         print_status $YELLOW "🔄 Restoring database..."
 
-        # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
+        # Prepare Drupal state (enable maintenance mode for DB restores)
         local drupal_state_prepared=false
         if [ "$skip_state_management" != "true" ]; then
-            if prepare_drupal_for_backup 25; then
+            if prepare_drupal_state "maintenance" 25; then
                 drupal_state_prepared=true
             else
                 print_status $RED "❌ Failed to prepare Drupal state for restore"

@@ -2685,7 +2685,10 @@ rollback_single_type() {
     # Use confirmation helper with skip_confirmation flag
     confirm_rollback "$type only" "$tag" "$skip_confirmation"
 
-    exec_restore_command "$tag" "--only=$type"
+    if ! exec_restore_command "$tag" "--only=$type"; then
+        print_status $RED "❌ Data restore failed"
+        return 1
+    fi
 }
 
 # Rollback static site only (with confirmation)
@@ -4481,11 +4484,17 @@ rollback() {
         case "$data_types" in
             all)
                 # Restore all data types using backup system
-                exec_restore_command "$backup_tag"
+                if ! exec_restore_command "$backup_tag"; then
+                    print_status $RED "❌ Data restore failed"
+                    return 1
+                fi
                 ;;
             *)
                 # Restore specific types (db, static, public, or comma-separated)
-                exec_restore_command "$backup_tag" "--only=$data_types"
+                if ! exec_restore_command "$backup_tag" "--only=$data_types"; then
+                    print_status $RED "❌ Data restore failed"
+                    return 1
+                fi
                 ;;
         esac
 
