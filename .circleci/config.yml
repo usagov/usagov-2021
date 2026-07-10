@@ -155,7 +155,7 @@ commands:
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            scripts/devops/deploy.sh tome-disable
+            scripts/devops/deploy.sh state disable both
 
   snapshot-postamble:
     parameters:
@@ -169,7 +169,7 @@ commands:
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            scripts/devops/deploy.sh tome-enable
+            scripts/devops/deploy.sh state enable both
 
   snapshot-backup:
     parameters:

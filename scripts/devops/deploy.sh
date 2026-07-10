@@ -1517,31 +1517,8 @@ exec_backup_command() {
 
     # Run backup command
     local cmd
-    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
+    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
     cf ssh cms -c "$cmd"
-
-    # Determine the backup tag that was created
-    # Format: {ticket}-{env}-{container}-{date}-{suffix}-{sequence}
-    local env="${DEPLOY_ENV:-dev}"
-    local container=$(cf app cms 2>/dev/null | grep 'name:' | awk '{print $2}' | grep -oE '[0-9]+$' || echo "unknown")
-    local date=$(date +%Y-%m-%d)
-    local backup_tag="${ticket}-${env}-${container}-${date}--${suffix}-0"
-
-    # Update metadata in S3 with container digests
-    # Download existing metadata, update it, and re-upload
-    local temp_metadata="/tmp/${backup_tag}-metadata-update.json"
-
-    if fetch_deployment_metadata_remote "$backup_tag" > "$temp_metadata" 2>/dev/null; then
-        # Use sed to update the digest fields in place
-        sed -i.bak "s|\"cms\": {[^}]*}|\"cms\": { \"cci_build\": \"$cci_build\", \"digest\": \"$cms_digest\" }|" "$temp_metadata"
-        sed -i.bak "s|\"www\": {[^}]*}|\"www\": { \"cci_build\": \"$cci_build\", \"digest\": \"$www_digest\" }|" "$temp_metadata"
-        sed -i.bak "s|\"waf\": {[^}]*}|\"waf\": { \"cci_build\": \"$cci_build\", \"digest\": \"$waf_digest\" }|" "$temp_metadata"
-
-        # Re-upload updated metadata
-        cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && aws s3 cp - s3://\$BUCKET_NAME/deployment-metadata/${backup_tag}.json \$S3_EXTRA_PARAMS" < "$temp_metadata"
-
-        rm -f "$temp_metadata" "${temp_metadata}.bak"
-    fi
 }
 
 # Execute a restore command via cf ssh to cms container
@@ -1557,11 +1534,45 @@ exec_restore_command() {
     # Use printf %q for safe shell escaping to prevent command injection
     local cmd
     if [ -n "$only_flag" ]; then
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q %q' "$tag" "$only_flag")
+        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q %q --skip-confirmation' "$tag" "$only_flag")
     else
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q' "$tag")
+        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q --skip-confirmation' "$tag")
     fi
     cf ssh cms -c "$cmd"
+}
+
+# Execute a Drupal state command via cf ssh to cms container
+# Args:
+#   $1: action - enable or disable
+#   $2: state_type - tome, maintenance, sm, or both
+#   $3: max_wait - maximum minutes to wait for disable actions
+exec_state_command() {
+    local action="$1"
+    local state_type="${2:-both}"
+    local max_wait="${3:-25}"
+
+    case "$action" in
+        enable|disable) ;;
+        *)
+            print_status $RED "❌ Error: invalid state action: $action"
+            return 2
+            ;;
+    esac
+
+    case "$state_type" in
+        tome|maintenance|sm|both) ;;
+        *)
+            print_status $RED "❌ Error: invalid state type: $state_type"
+            return 2
+            ;;
+    esac
+
+    if ! echo "$max_wait" | grep -qE '^[0-9]+$'; then
+        print_status $RED "❌ Error: max_wait must be a number"
+        return 2
+    fi
+
+    cf ssh cms -c "cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
 }
 
 # Prompt for rollback confirmation
@@ -1744,8 +1755,8 @@ post_deploy() {
     # Query CF for current container digests using helper function
     local digests=$(get_all_app_digests)
     local cms_digest=$(echo "$digests" | sed -n '1p')
-    local waf_digest=$(echo "$digests" | sed -n '2p')
-    local www_digest=$(echo "$digests" | sed -n '3p')
+    local www_digest=$(echo "$digests" | sed -n '2p')
+    local waf_digest=$(echo "$digests" | sed -n '3p')
 
     # Extract CCI build number from digest using common function with motd fallback
     local cci_build=""
@@ -1764,7 +1775,7 @@ post_deploy() {
     fi
 
     # Create and push git tag
-    create_deployment_tag "$env" "$cci_build" "$cms_digest" "$waf_digest" "$www_digest"
+    create_deployment_tag "$env" "$cci_build" "cms=$cms_digest" "www=$www_digest" "waf=$waf_digest"
 }
 
 # Quick snapshot with auto-generated suffix
@@ -1867,7 +1878,9 @@ downsync() {
         # Get latest DB backup tag
         backup_tag=$(cf ssh cms -c "
             export AWS_DEFAULT_REGION='us-gov-west-1'
-            . /home/vcap/app/scripts/snapshot/includes
+            cd /var/www
+            . scripts/common.sh
+            init_backup_system >/dev/null 2>&1
             setup_s3_vars >/dev/null 2>&1
             aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ --recursive \$S3_EXTRA_PARAMS | \
             grep '\.sql\.gz\$' | \
@@ -1901,7 +1914,8 @@ downsync() {
     echo ""
     print_status $RED "⚠️  WARNING: This will OVERWRITE all data in $to_space!"
     echo ""
-    read -p "Type 'yes' to proceed: " confirm
+    printf "Type 'yes' to proceed: "
+    read -r confirm
 
     if [ "$confirm" != "yes" ]; then
         print_status $YELLOW "❌ Downsync cancelled"
@@ -1953,7 +1967,9 @@ downsync() {
     print_status $BLUE "  Downloading database..."
     cf ssh cms -c "
         export AWS_DEFAULT_REGION='us-gov-west-1'
-        . /home/vcap/app/scripts/snapshot/includes
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
         aws s3 cp s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz - \$S3_EXTRA_PARAMS
     " > "$db_file" 2>/dev/null
@@ -1971,7 +1987,9 @@ downsync() {
     mkdir -p "$public_dir"
     cf ssh cms -c "
         export AWS_DEFAULT_REGION='us-gov-west-1'
-        . /home/vcap/app/scripts/snapshot/includes
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
         cd /tmp
         aws s3 sync s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/ . \$S3_EXTRA_PARAMS
@@ -2047,7 +2065,9 @@ downsync() {
     print_status $BLUE "📤 Uploading public files to S3..."
     cf ssh cms -c "
         export AWS_DEFAULT_REGION='us-gov-west-1'
-        . /home/vcap/app/scripts/snapshot/includes
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
         cd /tmp
         rm -rf public_restore
@@ -2059,7 +2079,9 @@ downsync() {
 
     cf ssh cms -c "
         export AWS_DEFAULT_REGION='us-gov-west-1'
-        . /home/vcap/app/scripts/snapshot/includes
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
         aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --acl public-read \$S3_EXTRA_PARAMS
         rm -rf /tmp/public_restore
@@ -2777,7 +2799,7 @@ download_backups() {
         print_status $YELLOW "📦 Downloading database..."
     fi
     local cmd
-    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q db - --stream' "$tag")
+    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q db - --stream' "$tag")
     cf ssh cms -c "$cmd" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-database.sql.gz" ]; then
         db_success=true
@@ -2796,7 +2818,7 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading static site..."
     fi
-    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q static - --stream' "$tag")
+    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q static - --stream' "$tag")
     cf ssh cms -c "$cmd" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-static.tar.gz" ]; then
         static_success=true
@@ -2815,7 +2837,7 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading public files..."
     fi
-    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q public - --stream' "$tag")
+    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q public - --stream' "$tag")
     cf ssh cms -c "$cmd" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
     if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-public.tar.gz" ]; then
         public_success=true
@@ -3844,14 +3866,14 @@ validate_digest_metadata() {
     local www_digest=$(echo "$metadata_json" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
     local waf_digest=$(echo "$metadata_json" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
 
-    # Validate digest format (should start with sha256:)
-    if [ -n "$cms_digest" ] && ! echo "$cms_digest" | grep -q '^sha256:'; then
+    # Validate digest format. Metadata may store a bare sha256 digest or a full image ref.
+    if [ -n "$cms_digest" ] && ! echo "$cms_digest" | grep -qE '(^sha256:|@sha256:)'; then
         errors="${errors}cms digest format invalid,"
     fi
-    if [ -n "$www_digest" ] && ! echo "$www_digest" | grep -q '^sha256:'; then
+    if [ -n "$www_digest" ] && ! echo "$www_digest" | grep -qE '(^sha256:|@sha256:)'; then
         errors="${errors}www digest format invalid,"
     fi
-    if [ -n "$waf_digest" ] && ! echo "$waf_digest" | grep -q '^sha256:'; then
+    if [ -n "$waf_digest" ] && ! echo "$waf_digest" | grep -qE '(^sha256:|@sha256:)'; then
         errors="${errors}waf digest format invalid,"
     fi
 
@@ -4149,10 +4171,12 @@ check_backup_exists() {
     fi
 
     # Check via cf ssh to cms container (has S3 access)
+    validate_backup_tag "$backup_tag" >/dev/null 2>&1 || return 1
+
     local check_result=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars && \
         static_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
         public_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
-        db_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$S3_DB_PATH/$backup_tag.sql.gz \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
+        db_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/$backup_tag.sql.gz \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
         echo \"\$static_exists|\$public_exists|\$db_exists\"" 2>/dev/null | tail -1)
 
     if [ -z "$check_result" ]; then
@@ -4169,6 +4193,34 @@ check_backup_exists() {
     else
         return 1
     fi
+}
+
+# Check if one backup component exists remotely in the CMS S3 bucket.
+# Args: <type> <tag>
+# Returns: 0 if the component exists, 1 otherwise
+remote_backup_component_exists() {
+    local backup_type="$1"
+    local backup_tag="$2"
+    local remote_check=""
+
+    validate_backup_tag "$backup_tag" >/dev/null 2>&1 || return 1
+
+    case "$backup_type" in
+        static)
+            remote_check="aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS"
+            ;;
+        public)
+            remote_check="aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS"
+            ;;
+        db)
+            remote_check="aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/$backup_tag.sql.gz \$S3_EXTRA_PARAMS"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars >/dev/null 2>&1 && $remote_check" >/dev/null 2>&1
 }
 
 # Validate that a backup tag exists before attempting operations
@@ -4291,6 +4343,15 @@ rollback() {
 
     # Validate CF space matches DEPLOY_ENV
     validate_target_space "$skip_validation"
+
+    if [ "$apps" = "all" ]; then
+        apps="cms,www,waf"
+    fi
+    if [ "$apps" != "cms,www,waf" ]; then
+        print_status $RED "❌ Error: selective app rollback is not currently supported"
+        print_status $YELLOW "   This rollback implementation always rolls back cms,www,waf together."
+        return 2
+    fi
 
     # Fetch metadata from backup tag (or latest if empty)
     print_status $BLUE "📦 Fetching backup metadata..."
@@ -4868,7 +4929,7 @@ validate_deployment() {
         local db_exists=false
 
         if [ -n "$DEPLOY_ROLLBACK_STATIC_TAG" ]; then
-            if "$SCRIPT_DIR/manager.sh" info static "$DEPLOY_ROLLBACK_STATIC_TAG" >/dev/null 2>&1; then
+            if remote_backup_component_exists static "$DEPLOY_ROLLBACK_STATIC_TAG"; then
                 static_exists=true
                 if [ "$use_json" = false ]; then
                     print_status $GREEN "✅ Static backup exists: $DEPLOY_ROLLBACK_STATIC_TAG"
@@ -4883,7 +4944,7 @@ validate_deployment() {
         fi
 
         if [ -n "$DEPLOY_ROLLBACK_PUBLIC_TAG" ]; then
-            if "$SCRIPT_DIR/manager.sh" info public "$DEPLOY_ROLLBACK_PUBLIC_TAG" >/dev/null 2>&1; then
+            if remote_backup_component_exists public "$DEPLOY_ROLLBACK_PUBLIC_TAG"; then
                 public_exists=true
                 if [ "$use_json" = false ]; then
                     print_status $GREEN "✅ Public backup exists: $DEPLOY_ROLLBACK_PUBLIC_TAG"
@@ -4898,7 +4959,7 @@ validate_deployment() {
         fi
 
         if [ -n "$DEPLOY_ROLLBACK_DB_TAG" ]; then
-            if "$SCRIPT_DIR/manager.sh" info db "$DEPLOY_ROLLBACK_DB_TAG" >/dev/null 2>&1; then
+            if remote_backup_component_exists db "$DEPLOY_ROLLBACK_DB_TAG"; then
                 db_exists=true
                 if [ "$use_json" = false ]; then
                     print_status $GREEN "✅ Database backup exists: $DEPLOY_ROLLBACK_DB_TAG"
@@ -5272,7 +5333,13 @@ case "$COMMAND" in
             exit 1
         fi
 
-        cf ssh cms -c "source /etc/profile && cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
+        exec_state_command "$action" "$state_type" "$max_wait"
+        ;;
+    "tome-disable")
+        exec_state_command disable both
+        ;;
+    "tome-enable")
+        exec_state_command enable both
         ;;
     "switch")
         switch_env "$@"

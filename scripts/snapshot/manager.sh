@@ -227,6 +227,7 @@ show_command_help() {
             echo "Options:"
             echo "  --only=type,type              - Restore only specific types"
             echo "  --skip-state-management, --ssm - Skip Drupal state checks"
+            echo "  --skip-confirmation, --yes, -y - Skip restore confirmation"
             echo ""
             echo "Examples:"
             echo "  manager.sh restore AUTO-prod-14850-2025-10-28"
@@ -458,6 +459,7 @@ run_backup_command() {
     fi
 
     local result_count=0
+    local failure_count=0
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
@@ -478,6 +480,7 @@ run_backup_command() {
                 fi
                 create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
                 local backup_result=$?
+                [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
                 if [ "$use_json" = true ]; then
                     [ $result_count -gt 0 ] && json_output="${json_output},"
                     result_count=$((result_count + 1))
@@ -494,6 +497,7 @@ run_backup_command() {
             fi
             create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
             local backup_result=$?
+            [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
             if [ "$use_json" = true ]; then
                 [ $result_count -gt 0 ] && json_output="${json_output},"
                 result_count=$((result_count + 1))
@@ -525,6 +529,7 @@ run_backup_command() {
                 fi
                 create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
                 local backup_result=$?
+                [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
                 if [ "$use_json" = true ]; then
                     [ $result_count -gt 0 ] && json_output="${json_output},"
                     result_count=$((result_count + 1))
@@ -541,6 +546,7 @@ run_backup_command() {
             fi
             create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
             local backup_result=$?
+            [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
             if [ "$use_json" = true ]; then
                 [ $result_count -gt 0 ] && json_output="${json_output},"
                 result_count=$((result_count + 1))
@@ -560,6 +566,7 @@ run_backup_command() {
         fi
         create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
         local backup_result=$?
+        [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
         if [ "$use_json" = true ]; then
             [ $result_count -gt 0 ] && json_output="${json_output},"
             result_count=$((result_count + 1))
@@ -571,12 +578,26 @@ run_backup_command() {
         fi
     fi
 
+    local backup_status="complete"
+    if [ $failure_count -gt 0 ]; then
+        backup_status="failed"
+        if [ $result_count -gt 0 ] && [ $failure_count -lt $result_count ]; then
+            backup_status="partial"
+        fi
+    fi
+
     if [ "$use_json" = true ]; then
-        json_output="${json_output}},\"status\":\"complete\"}"
+        json_output="${json_output}},\"status\":\"$backup_status\",\"failures\":$failure_count}"
         format_json "$json_output"
     else
+        if [ $failure_count -gt 0 ]; then
+            print_status $RED "❌ Backup completed with $failure_count failure(s)"
+            return 1
+        fi
         print_status $BLUE "🎉 Done."
     fi
+
+    [ $failure_count -eq 0 ]
 }
 
 # Handle clean command
@@ -1047,8 +1068,8 @@ create_db_backup() {
     # Create database dump using drush
     if command -v drush >/dev/null 2>&1; then
         # Clear cache first, then create dump to SQL file
-        drush cr 2>&1 | tee -a "$LOGFILE"
-        drush sql:dump --result-file="$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
+        drush cr >> "$LOGFILE" 2>&1
+        drush sql:dump --result-file="$TEMP_SQL" >> "$LOGFILE" 2>&1
         DUMP_EXIT_CODE=$?
         if [ $DUMP_EXIT_CODE -eq 0 ] && [ -f "$TEMP_SQL" ] && [ -s "$TEMP_SQL" ]; then
             log_message "✅ Database dump created ($(du -h "$TEMP_SQL" | cut -f1))" | tee -a "$LOGFILE"
@@ -1076,7 +1097,7 @@ create_db_backup() {
 
     # Validate SQL dump structure
     log_message "🔍 Validating SQL dump structure..." | tee -a "$LOGFILE"
-    if ! validate_sql_dump "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"; then
+    if ! validate_sql_dump "$TEMP_SQL" >> "$LOGFILE" 2>&1; then
         audit_log "backup_database_failed" "error" "SQL dump validation failed" "backup_tag=$DB_BACKUP_TAG reason=invalid_structure"
         log_message "❌ ERROR: SQL dump validation failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
@@ -1086,7 +1107,7 @@ create_db_backup() {
 
     # Compress the SQL file using gzip
     log_message "🗜️ Compressing..." | tee -a "$LOGFILE"
-    gzip -c "$TEMP_SQL" > "$TEMP_GZIP" 2>&1 | tee -a "$LOGFILE"
+    gzip -c "$TEMP_SQL" > "$TEMP_GZIP" 2>> "$LOGFILE"
     GZIP_EXIT_CODE=$?
 
     # Remove uncompressed file
@@ -1120,13 +1141,15 @@ create_db_backup() {
     S3_DB_PATH="s3://${BUCKET_NAME}/${AUTO_DB_BACKUP_PATH}/${DB_BACKUP_TAG}.sql.gz"
     log_message "📍 Target: $S3_DB_PATH" | tee -a "$LOGFILE"
 
-    aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
+    aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors $S3_EXTRA_PARAMS >> "$LOGFILE" 2>&1
     UPLOAD_EXIT_CODE=$?
 
     # Upload checksum file if it exists
     if [ -s "$TEMP_CHECKSUM" ]; then
         S3_CHECKSUM_PATH="s3://${BUCKET_NAME}/${AUTO_DB_BACKUP_PATH}/${DB_BACKUP_TAG}.sql.gz.sha256"
-        aws s3 cp "$TEMP_CHECKSUM" "$S3_CHECKSUM_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
+        if ! aws s3 cp "$TEMP_CHECKSUM" "$S3_CHECKSUM_PATH" --only-show-errors $S3_EXTRA_PARAMS >> "$LOGFILE" 2>&1; then
+            log_message "⚠️ Warning: Checksum upload failed" | tee -a "$LOGFILE"
+        fi
     fi
 
     rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
@@ -1876,6 +1899,7 @@ cleanup_old_db_backups() {
                 audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date"
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
+                aws s3 rm "s3://$BUCKET_NAME/${backup_path}.sha256" $S3_EXTRA_PARAMS >/dev/null 2>&1 || true
             fi
         fi
     done
@@ -2237,6 +2261,7 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting database backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz --only-show-errors $S3_EXTRA_PARAMS; then
+                    aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256 --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1 || true
                     audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Database backup deleted"
                     types_deleted=$((types_deleted + 1))
@@ -2289,6 +2314,10 @@ parse_restore_options() {
                 # Skip this flag, handled elsewhere
                 shift
                 ;;
+            --skip-confirmation|--yes|--force|-y|--non-interactive)
+                # Skip this flag, handled elsewhere
+                shift
+                ;;
             *)
                 # This should be the backup tag
                 if [ -z "$backup_tag" ]; then
@@ -2309,6 +2338,7 @@ restore_backup() {
     local backup_tag=""
     local restore_types=""
     local skip_state_management=false
+    local skip_confirmation=false
 
     # Parse arguments
     if [ $# -eq 0 ]; then
@@ -2321,6 +2351,9 @@ restore_backup() {
     for arg in "$@"; do
         if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
             skip_state_management=true
+        fi
+        if [ "$arg" = "--skip-confirmation" ] || [ "$arg" = "--yes" ] || [ "$arg" = "--force" ] || [ "$arg" = "-y" ] || [ "$arg" = "--non-interactive" ]; then
+            skip_confirmation=true
         fi
     done
 
@@ -2412,14 +2445,18 @@ restore_backup() {
         fi
     fi
 
-    echo ""
-    print_status $RED "This will overwrite current data!"
-    printf "Continue with restore? (y/N): "
-    read -r confirmation
+    if [ "$skip_confirmation" = "true" ]; then
+        print_status $YELLOW "⚠️  Restore confirmation skipped"
+    else
+        echo ""
+        print_status $RED "This will overwrite current data!"
+        printf "Continue with restore? (y/N): "
+        read -r confirmation
 
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "❌ Cancelled."
-        exit 0
+        if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
+            print_status $YELLOW "❌ Cancelled."
+            exit 1
+        fi
     fi
 
     echo ""
