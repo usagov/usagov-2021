@@ -1470,7 +1470,13 @@ test_state_management() {
         if echo "$restore_section" | grep -q 'prepare_drupal_state.*"maintenance"'; then
             echo "✅ Database restore integrates state preparation (maintenance mode)"
         else
-            echo "⚠️  Database restore may not use state preparation (acceptable for restores)"
+            echo "❌ Database restore missing state preparation or not using maintenance mode"
+            return 1
+        fi
+
+        if echo "$restore_section" | grep -q "prepare_drupal_for_backup"; then
+            echo "❌ Database restore calls obsolete prepare_drupal_for_backup helper"
+            return 1
         fi
 
         if echo "$restore_section" | grep -q "restore_drupal_state"; then
@@ -1570,6 +1576,14 @@ test_restore_functionality() {
         echo "✅ Restore supports --force and --yes options"
     else
         echo "⚠️  Restore may not support all interactive options"
+    fi
+
+    local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
+    if grep -q "if ! exec_restore_command" "$deploy_script"; then
+        echo "✅ Deployment rollback checks data restore failures"
+    else
+        echo "❌ Deployment rollback does not check data restore failures"
+        return 1
     fi
 
     echo "✅ Restore functionality test passed"
