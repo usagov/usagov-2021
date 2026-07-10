@@ -9,10 +9,7 @@ commands:
     steps:
       - checkout:
           method: blobless
-      - run:
-          name: Setup Environment for use in Scripts
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+      - setup-environment
       - install-cloud-foundry
       - load-image-digest
       - run:
@@ -20,7 +17,6 @@ commands:
           command: |
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cms << parameters.envname >> << pipeline.number >> $CMS_DIGEST
@@ -39,14 +35,12 @@ commands:
           command: |
             export NEW_RELIC_APP_NAME="WWW-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-www-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-www << pipeline.number >> $WWW_DIGEST
       - run:
           name: CloudGov Deploy API Proxy
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-api-proxy
@@ -55,7 +49,6 @@ commands:
           command: |
             export NEW_RELIC_APP_NAME="WAF-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-waf-<< parameters.envname >>
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             DWAF_APP=waf
@@ -73,9 +66,9 @@ commands:
       - run:
           name: Save Image Digest
           command: |
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>)
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>)
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>)
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >>
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >>
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >>
             CMS_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cms-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WAF_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:waf-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             WWW_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:www-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
@@ -94,7 +87,7 @@ commands:
       - run:
           name: Save Image Digest Cron
           command: |
-            (export DOCKER_CONTENT_TRUST=1; docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>)
+            docker pull ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >>
             CRON_DIGEST=$(docker inspect ${DOCKERUSER}/${DOCKERREPO}:cron-<< pipeline.number >> --format '{{json .RepoDigests}}' | jq -r '.[]' | grep sha256 | sed 's/^[^@]*@//')
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS shared-egress
             cf target -s shared-egress -o gsa-tts-usagov
@@ -145,21 +138,20 @@ commands:
             rm -f /tmp/cf8.tar.gz
             cf -v
 
-  signed-dockerhub-login:
+  dockerhub-login:
     steps:
       - run:
-          name: Set up DCT signer key
-          command: |
-            mkdir -p $HOME/.docker/trust/private
-            # Decode and store signer key to file named as the key hash
-            echo $DCT_KEY | base64 --decode > $HOME/.docker/trust/private/$DCT_HASH.key
-            # Set required permissions level on key file
-            chmod 600 $HOME/.docker/trust/private/$DCT_HASH.key
-      - run:
-          name: Login to Docker Hub
+          name: Log in to Docker Hub
           no_output_timeout: 30m
           command: |
             echo $DOCKERHUB_ACCESS_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+
+  setup-environment:
+    steps:
+      - run:
+          name: Setup Environment for use in Scripts
+          command: |
+            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
 
   snapshot-preamble:
     parameters:
@@ -167,10 +159,10 @@ commands:
         default: "dev"
         type: string
     steps:
+      - setup-environment
       - run:
           name: Prepare Database and Tome in << parameters.envname >> for Backup.
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-disable
@@ -181,10 +173,10 @@ commands:
         default: "dev"
         type: string
     steps:
+      - setup-environment
       - run:
           name: Restore << parameters.envname >> to normal/running state.
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/deploy/try-tome-enable
@@ -200,10 +192,10 @@ commands:
       - install-cloud-foundry
       - snapshot-preamble:
           envname: << parameters.envname >>
+      - setup-environment
       - run:
           name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
@@ -221,11 +213,11 @@ commands:
       - checkout:
           method: blobless
       - install-cloud-foundry
-      - signed-dockerhub-login
+      - setup-environment
+      - dockerhub-login
       - run:
           name: Build Reporter Container
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-build-reporter << pipeline.number >> latest
@@ -236,12 +228,10 @@ commands:
       - run:
           name: Smoke Test Reporter Google Auth
           command: |
-            export DOCKER_CONTENT_TRUST=0
             docker run --rm --entrypoint sh ${DOCKERUSER}/${DOCKERREPO}:reporter-<< pipeline.number >> -lc 'cd /analytics-reporter && npm run smoke:google-auth'
       - run:
           name: Push Reporter Container to Docker Hub
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/container-push-reporter << pipeline.number >> latest
@@ -264,7 +254,6 @@ commands:
       - run:
           name: Deploy Analytics Reporter
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             export RDIG=`cat /tmp/reporter_digest`
@@ -280,16 +269,12 @@ commands:
     steps:
       - checkout:
           method: blobless
-      - run:
-          name: Setup Environment for use in Scripts
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+      - setup-environment
       - install-cloud-foundry
       - load-image-digest-cron
       - run:
           name: CloudGov Deploy Cron
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             ./bin/cloudgov/deploy-cron << parameters.envname >> << pipeline.number >> $CRON_DIGEST
@@ -300,14 +285,15 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
       - install-cloud-foundry
+      - setup-environment
       - run:
-          name: Setup Environment for use in Scripts
+          name: Add Log Files
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
             touch /tmp/results/scan-cms-dependencies.log
@@ -394,14 +380,15 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
-      - signed-dockerhub-login
+      - setup-environment
+      - dockerhub-login
       - run:
-          name: Setup Environment for use in Scripts
+          name: Create Log Files
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cms-code.log
             touch /tmp/results/scan-cms-dependencies.log
@@ -486,7 +473,6 @@ jobs:
           name: Push Container to Docker Hub
           no_output_timeout: 30m
           command: |
-            export DOCKER_CONTENT_TRUST=1
             ./bin/cloudgov/container-push << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest
@@ -496,6 +482,8 @@ jobs:
   deploy-to-cloudgov-dr:
     machine:
       image: ubuntu-2204:current
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: dr
@@ -503,6 +491,8 @@ jobs:
   deploy-to-cloudgov-dev:
     machine:
       image: ubuntu-2204:current
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: dev
@@ -512,6 +502,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: stage
@@ -521,6 +512,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov:
           envname: prod
@@ -530,6 +522,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: dr
@@ -539,6 +532,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: dev
@@ -548,6 +542,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: stage
@@ -557,6 +552,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - snapshot-backup:
           envname: prod
@@ -566,6 +562,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: dev
@@ -575,6 +572,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: stage
@@ -584,6 +582,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: prod
@@ -593,6 +592,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-reporter:
           envname: dr
@@ -602,14 +602,15 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
-      - signed-dockerhub-login
+      - setup-environment
+      - dockerhub-login
       - run:
-          name: Setup Environment for use in Scripts
+          name: Create Log Files
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
             mkdir -p /tmp/results
             touch /tmp/results/scan-cron-container.log
             touch /tmp/results/scan-cron-container-cis.log
@@ -658,7 +659,6 @@ jobs:
           name: Push Cron Container to Docker Hub
           no_output_timeout: 30m
           command: |
-            export DOCKER_CONTENT_TRUST=1
             ./bin/cloudgov/container-push-cron << pipeline.number >> latest
       - install-cloud-foundry
       - save-image-digest-cron
@@ -666,6 +666,8 @@ jobs:
           path: /tmp/results
 
   deploy-to-cloudgov-dr-cron:
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     machine:
       image: ubuntu-2204:current
     steps:
@@ -673,6 +675,8 @@ jobs:
           envname: dr
 
   deploy-to-cloudgov-dev-cron:
+    environment:
+      DOCKER_CONTENT_TRUST: 0
     machine:
       image: ubuntu-2204:current
     steps:
@@ -684,6 +688,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov-cron:
           envname: stage
@@ -693,6 +698,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - deploy-cloudgov-cron:
           envname: prod
@@ -702,13 +708,11 @@ jobs:
       image: ubuntu-2204:current
     environment:
       BASH_ENV: /home/circleci/project/env.local
+      DOCKER_CONTENT_TRUST: 0
     steps:
       - checkout:
           method: blobless
-      - run:
-          name: Setup Environment for use in Scripts
-          command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+      - setup-environment
       - run:
           name: Validate IP Allow Lists
           command: |

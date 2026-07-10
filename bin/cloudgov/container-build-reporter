@@ -35,9 +35,7 @@ docker build --force-rm \
      --build-arg GITTAG=$GITTAG
 
 echo "Running the Docker container"
-export DOCKER_CONTENT_TRUST=0
 docker run -d --name reporter-container --rm $DOCKERUSER/$DOCKERREPO:reporter-$CONTAINERTAG
-export DOCKER_CONTENT_TRUST=1
 
 
 if [ -n "$CONTAINERTAG2" ]
