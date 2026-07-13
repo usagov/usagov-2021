@@ -1,5 +1,6 @@
 #!/bin/sh
 
+SCRIPT_NAME=$(basename "$0")
 TOME_MAX_CHANGE_ALLOWED=0.10
 TR_START_TIME=$(date -u +"%s")
 SCRIPT_PATH=$(dirname "$0")
@@ -17,14 +18,61 @@ if [ -z "$TOMELOGFILE" ]; then
   TOMELOGFILE="${YMDHMS}.log"
 fi;
 
+TOMELOG=/tmp/tome-log/$TOMELOGFILE
+mkdir -p "$(dirname "$TOMELOG")"
+touch $TOMELOG
+
+ssg_now() {
+  date -u +"%s"
+}
+
+ssg_metric_line() {
+  phase=$1
+  status=$2
+  ts=$(ssg_now)
+  shift 2
+
+  printf 'SSG_METRIC script=%s phase=%s status=%s ts=%s' "$SCRIPT_NAME" "$phase" "$status" "$ts"
+  for field in "$@"; do
+    printf ' %s' "$field"
+  done
+  printf '\n'
+}
+
+ssg_metric() {
+  ssg_metric_line "$@" | tee -a "$TOMELOG"
+}
+
+ssg_metric_end() {
+  phase=$1
+  start=$2
+  status=$3
+  now=$(ssg_now)
+  duration=$((now - start))
+  shift 3
+
+  ssg_metric "$phase" "$status" "duration_s=$duration" "$@"
+}
+
+RUN_START=$(ssg_now)
+ssg_metric "tome_sync_script" "start" "log_file=$TOMELOGFILE" "ymdhms=$YMDHMS" "force=$FORCE"
+
 # make sure there is a static site to sync
+STATIC_SITE_CHECK_START=$(ssg_now)
+ssg_metric "static_site_check" "start"
 STATIC_COUNT=$(ls /var/www/html/ | wc -l)
 if [ "$STATIC_COUNT" = "0" ]; then
   MSG="NO SITE TO SYNC"
+  ssg_metric_end "static_site_check" "$STATIC_SITE_CHECK_START" "failed" "static_count=$STATIC_COUNT"
   echo $MSG
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "$MSG"
+  ssg_metric_end "tome_sync_script" "$RUN_START" "exit" "exit_code=1" "reason=no_site_to_sync"
   exit 1;
 fi;
+ssg_metric_end "static_site_check" "$STATIC_SITE_CHECK_START" "end" "static_count=$STATIC_COUNT"
+
+S3_CONFIG_START=$(ssg_now)
+ssg_metric "s3_config" "start"
 
 export BUCKET_NAME=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.bucket')
 export AWS_DEFAULT_REGION=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.region')
@@ -44,9 +92,13 @@ S3_EXTRA_PARAMS=""
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
 fi
+ssg_metric_end "s3_config" "$S3_CONFIG_START" "end" "app_space=$APP_SPACE" "bucket=$BUCKET_NAME"
 
 # Use a unique dir for each run - just in case more than one of this is running
 RENDER_DIR=/tmp/tome/$YMDHMS
+
+RENDER_DIR_PREP_START=$(ssg_now)
+ssg_metric "render_dir_prep" "start" "render_dir=$RENDER_DIR"
 
 if [ -d "$RENDER_DIR" ]; then
   rm -rf $RENDER_DIR
@@ -57,15 +109,18 @@ mkdir -p $RENDER_DIR
 # RISK: tome's output diretory is not locked, mulitple processes could cause issues
 cp -Rp /var/www/html/* $RENDER_DIR
 cd $RENDER_DIR
-
-mkdir -p /tmp/tome-log/
-TOMELOG=/tmp/tome-log/$TOMELOGFILE
-touch $TOMELOG
+ssg_metric_end "render_dir_prep" "$RENDER_DIR_PREP_START" "end" "render_dir=$RENDER_DIR"
 
 # Tome is failing to pull in these assets so we will pull them in ourself
 echo "Add in any extra or missing files ... "
+PUBLIC_FILE_COPY_START=$(ssg_now)
+ssg_metric "public_file_copy" "start"
 aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+PUBLIC_FILE_COPY_SUCCESS=$?
+ssg_metric_end "public_file_copy" "$PUBLIC_FILE_COPY_START" "end" "exit_code=$PUBLIC_FILE_COPY_SUCCESS"
 
+THEME_WEBROOT_COPY_START=$(ssg_now)
+ssg_metric "theme_webroot_copy" "start"
 cp -rfp /var/www/web/themes/custom/usagov/fonts  $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/images $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
 cp -rfp /var/www/web/themes/custom/usagov/assets $RENDER_DIR/themes/custom/usagov 2>&1 | tee -a $TOMELOG
@@ -80,12 +135,16 @@ fi
 
 # Copy "webroot" assets (files like robots.txt and site.xml)
 cp -rfp /var/www/webroot/* $RENDER_DIR/ 2>&1 | tee -a $TOMELOG
+ssg_metric_end "theme_webroot_copy" "$THEME_WEBROOT_COPY_START" "end"
 
 echo "Removing unwanted files ... "
+UNWANTED_FILE_REMOVAL_START=$(ssg_now)
+ssg_metric "unwanted_file_removal" "start"
 rm -rf $RENDER_DIR/jsonapi/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/node/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/es/node/ 2>&1 | tee -a $TOMELOG
 rm -rf $RENDER_DIR/s3/files/benefit-finder/api/draft/life-event/ 2>&1 | tee -a $TOMELOG
+ssg_metric_end "unwanted_file_removal" "$UNWANTED_FILE_REMOVAL_START" "end"
 
 # WWW_HOST is not present in CMS app, as of USAGOV-1083.
 # Determine WWW_HOST based on space name
@@ -112,6 +171,8 @@ esac
 # replacing inaccurate hostnames
 # Note that we explicitly do not replace hostnames in .js files, so we can include conditionals based
 # on the host; see themes/custom/usagov/scripts/ceoResults.js
+HOSTNAME_REWRITE_START=$(ssg_now)
+ssg_metric "hostname_rewrites" "start" "www_host=$WWW_HOST"
 echo "Replacing references to CMS hostname ... "
 find $RENDER_DIR -type f \( -name "*.css" -o -name "*.html" -o -name "*.xml" \) -exec sed -i 's|cms\(\-[^\.]*\)\?\.usa\.gov|'"$WWW_HOST"'|ig' {} \;
 
@@ -155,6 +216,7 @@ do
   find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
   i=$((i+1))
 done
+ssg_metric_end "hostname_rewrites" "$HOSTNAME_REWRITE_START" "end" "bucket_count=$n"
 
 
 ################################################################################
@@ -162,16 +224,24 @@ done
 # and rewrite HTML references to use static file paths. This is done via Drush command.
 ################################################################################
 echo "Running Drush static image sync (usagov:ssg-sync-images) ..." | tee -a $TOMELOG
+STATIC_IMAGE_SYNC_START=$(ssg_now)
+ssg_metric "static_image_sync" "start"
 if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" 2>&1 | tee -a $TOMELOG; then
+  ssg_metric_end "static_image_sync" "$STATIC_IMAGE_SYNC_START" "end" "exit_code=0"
   echo "Drush static image sync completed successfully." | tee -a $TOMELOG
 else
+  STATIC_IMAGE_SYNC_SUCCESS=$?
+  ssg_metric_end "static_image_sync" "$STATIC_IMAGE_SYNC_START" "failed" "exit_code=$STATIC_IMAGE_SYNC_SUCCESS"
   echo "ERROR: Drush static image sync failed!" | tee -a $TOMELOG
+  ssg_metric_end "tome_sync_script" "$RUN_START" "exit" "exit_code=1" "reason=static_image_sync_failed"
   exit 1
 fi
 
 # lower case all filenames in the copied dir before uploading
 LCF=0
 echo "Lower-casing files:"
+LOWERCASE_FILES_START=$(ssg_now)
+ssg_metric "lowercase_files" "start"
 old_IFS="$IFS"
 IFS=$'\n'
 # Process paths in reverse depth order (deepest first) to avoid "No such file or directory" errors
@@ -187,8 +257,11 @@ for f in `find $RENDER_DIR/* -depth`; do
 done
 IFS="$old_IFS"
 echo "    $LCF"
+ssg_metric_end "lowercase_files" "$LOWERCASE_FILES_START" "end" "renamed_count=$LCF"
 
 # get a count of current AWS files, total and by extension
+PRE_SYNC_SAFETY_COUNTS_START=$(ssg_now)
+ssg_metric "pre_sync_safety_counts" "start"
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
 S3_COUNT=$(aws s3 ls --recursive s3://$BUCKET_NAME/web/ $S3_EXTRA_PARAMS 2>&1 | uniq | grep "^\d\{4\}\-" | grep -v "\bweb\/s3\/files\/" | wc -l)
 echo "     $S3_COUNT" | tee -a $TOMELOG
@@ -236,8 +309,11 @@ fi
 if [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]]; then
   TOME_PUSH_NEW_CONTENT=1
 fi
+ssg_metric_end "pre_sync_safety_counts" "$PRE_SYNC_SAFETY_COUNTS_START" "end" "s3_count=$S3_COUNT" "tome_count=$TOME_COUNT" "push_new_content=$TOME_PUSH_NEW_CONTENT"
 
 ANALYTICS_DIR=/var/www/website-analytics
+ANALYTICS_AND_PPR_START=$(ssg_now)
+ssg_metric "analytics_and_ppr" "start"
 echo "Copying $ANALYTICS_DIR to $RENDER_DIR" | tee -a $TOMELOG
 cp -rfp "$ANALYTICS_DIR" "$RENDER_DIR"
 export ANALYTICS_BUCKET=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "s3forAnalyticsReporter") | .credentials.bucket')
@@ -249,10 +325,13 @@ find "$RENDER_DIR/website-analytics" -type f -exec sed -i "s|{{analytics_bucket}
 
 mkdir -p $RENDER_DIR/ppr
 cp -fp "/var/www/web/modules/custom/usagov_ssg_postprocessing/files/published-pages.csv" "$RENDER_DIR/ppr/published-pages.csv"
+ssg_metric_end "analytics_and_ppr" "$ANALYTICS_AND_PPR_START" "end"
 
 ###############################################################################
 ## The *HOME_HTML* tests looked for problems we have since solved. They remain
 ## in case such problems recur.
+HOME_HTML_CHECKS_START=$(ssg_now)
+ssg_metric "home_html_checks" "start"
 EN_HOME_HTML_FILE=/var/www/html/index.html
 ES_HOME_HTML_FILE=/var/www/html/es/index.html
 EN_HOME_HTML_BAD=0
@@ -326,12 +405,15 @@ fi
 #
 # End of *HOME_HTML* checks
 ##############################################################
+ssg_metric_end "home_html_checks" "$HOME_HTML_CHECKS_START" "end" "en_home_bad=$EN_HOME_HTML_BAD" "es_home_bad=$ES_HOME_HTML_BAD"
 
 
 
 ##############################################################
 # Missing blog pages; Jira USAGOV-2667
 #
+BLOG_CHECKS_START=$(ssg_now)
+ssg_metric "blog_checks" "start"
 
 BLOG_DIR=/var/www/html/blog
 BLOG_TOP_INDEX_MISSING=
@@ -411,16 +493,24 @@ fi
 #
 # End of blog page checks (USAGOV-2667)
 ##############################################################
+ssg_metric_end "blog_checks" "$BLOG_CHECKS_START" "end" "blog_problem=$BLOG_PROBLEM"
 
 
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
+  S3_SYNC_START=$(ssg_now)
+  ssg_metric "s3_sync" "start" "render_dir=$RENDER_DIR" "bucket=$BUCKET_NAME"
   aws s3 sync $RENDER_DIR s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  S3_SYNC_SUCCESS=$?
+  ssg_metric_end "s3_sync" "$S3_SYNC_START" "end" "exit_code=$S3_SYNC_SUCCESS"
 
   # Check if the sync command was successful
-  if [ $? -eq 0 ]; then
+  if [ $S3_SYNC_SUCCESS -eq 0 ]; then
       echo "Sync operation completed successfully." | tee -a "$TOMELOG"
+
+      POST_SYNC_VALIDATION_START=$(ssg_now)
+      ssg_metric "post_sync_validation" "start"
 
       # get a count of current AWS files, total and by extension
       echo "S3 dir storage files : count total" | tee -a $TOMELOG
@@ -481,6 +571,7 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       else
         echo "Success: The number of files in S3 matches (close enough) to the local count." | tee -a "$TOMELOG"
       fi
+      ssg_metric_end "post_sync_validation" "$POST_SYNC_VALIDATION_START" "end" "s3_count=$S3_COUNT" "tome_count=$TOME_COUNT" "diff_bad=$DIFF_S3_TOME_IS_BAD"
 
   else
       echo "Error: Sync operation failed." | tee -a "$TOMELOG"
@@ -489,33 +580,41 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
 
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation and Sync Completed Successfully"
 else
+  ssg_metric "s3_sync" "skipped" "reason=push_new_content_false"
   echo "Not pushing content to S3."
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Completed Successfully, but sync to S3 failed or was not attempted"
 fi
 
+RENDER_CLEANUP_START=$(ssg_now)
+ssg_metric "render_cleanup" "start" "render_dir=$RENDER_DIR"
 if [ -d "$RENDER_DIR" ]; then
   echo "Removing Render Dir: $RENDER_DIR" | tee -a $TOMELOG
   rm -rf "$RENDER_DIR"
 else
   echo "No Render Dir to remove" | tee -a $TOMELOG
 fi
+ssg_metric_end "render_cleanup" "$RENDER_CLEANUP_START" "end"
 
 echo "Changing directory to /tmp/ since the rend-directory we are currently in just got deleted..."
 # Note: That change-dir is done in order to stop the "aws" call below from crashing.
 cd /tmp/
 
+LOG_UPLOAD_START=$(ssg_now)
+ssg_metric "log_upload" "start" "log_file=$TOMELOGFILE"
 if [ -f "$TOMELOG" ]; then
   echo "Saving logs of this run to S3: $TOMELOG -> $BUCKET_NAME/tome-log/$TOMELOGFILE" | tee -a $TOMELOG
   echo "SYNC FINISHED" | tee -a $TOMELOG
   aws s3 cp $TOMELOG s3://$BUCKET_NAME/tome-log/$TOMELOGFILE $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  LOG_UPLOAD_SUCCESS=$?
 
   # Check if the AWS S3 copy command was successful
-  if [ $? -eq 0 ]; then
+  if [ $LOG_UPLOAD_SUCCESS -eq 0 ]; then
       echo "s3-cp command successfully ran to copy log to S3." | tee -a "$TOMELOG"
 
       # Verify the file exists in S3
       aws s3 ls "s3://$BUCKET_NAME/tome-log/$TOMELOGFILE" > /dev/null 2>&1
-      if [ $? -eq 0 ]; then
+      LOG_UPLOAD_VERIFY_SUCCESS=$?
+      if [ $LOG_UPLOAD_VERIFY_SUCCESS -eq 0 ]; then
           echo "Confirmed: File exists in S3." | tee -a "$TOMELOG"
       else
           echo "Error: File not found in S3 after upload." | tee -a "$TOMELOG"
@@ -526,4 +625,8 @@ if [ -f "$TOMELOG" ]; then
 else
   echo "No logs of this run to S3 available"
   echo "SYNC FINISHED"
+  LOG_UPLOAD_SUCCESS=1
+  LOG_UPLOAD_VERIFY_SUCCESS=1
 fi
+ssg_metric_end "log_upload" "$LOG_UPLOAD_START" "end" "exit_code=$LOG_UPLOAD_SUCCESS" "verify_exit_code=${LOG_UPLOAD_VERIFY_SUCCESS:-0}"
+ssg_metric_end "tome_sync_script" "$RUN_START" "end" "exit_code=0" "push_new_content=$TOME_PUSH_NEW_CONTENT"

@@ -5,6 +5,7 @@ namespace Drupal\usagov_ssg_postprocessing\EventSubscriber;
 use Drupal\tome_static\Event\ModifyDestinationEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Drupal\usagov_ssg_postprocessing\SsgMetricTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -15,6 +16,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class PagerPathSubscriber implements EventSubscriberInterface {
 
+  use SsgMetricTrait;
+
   /**
    * Reacts to a modify destination event.
    *
@@ -22,10 +25,16 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function modifyDestination(ModifyDestinationEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $destination = $event->getDestination();
     $new_destination = $this->modifyUrl($destination);
     if ($destination != $new_destination) {
       $event->setDestination($new_destination);
+      $this->ssgMetricEnd('tome_letter_modify_destination', $metric_start, 'end', [
+        'changed' => TRUE,
+        'destination' => $destination,
+        'new_destination' => $new_destination,
+      ]);
     }
   }
 
@@ -36,6 +45,7 @@ class PagerPathSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function modifyHtml(ModifyHtmlEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $html = $event->getHtml();
     $path = $event->getPath();
 
@@ -44,8 +54,11 @@ class PagerPathSubscriber implements EventSubscriberInterface {
     $document = new \DOMDocument();
     @$document->loadHTML($html, LIBXML_SCHEMA_CREATE);
     $xpath = new \DOMXPath($document);
+    $letter_link_count = 0;
+    $letter_rewrite_count = 0;
     /** @var \DOMElement $node */
     foreach ($xpath->query('//a[(contains(@href,"?letter=") or contains(@href,"&letter="))]') as $node) {
+      $letter_link_count++;
       $original_href = $node->getAttribute('href');
       if ($original_href[0] === '?') {
         $new_href = strtok($path, '?') . $original_href;
@@ -58,8 +71,15 @@ class PagerPathSubscriber implements EventSubscriberInterface {
       $event->addExcludePath($new_href);
       $html = str_replace($original_href, $new_href, $html);
       $html = str_replace(htmlentities($original_href), $new_href, $html);
+      $letter_rewrite_count++;
     }
     $event->setHtml($html);
+    $this->ssgMetricEnd('tome_letter_modify_html', $metric_start, 'end', [
+      'path' => $path,
+      'letter_link_count' => $letter_link_count,
+      'letter_rewrite_count' => $letter_rewrite_count,
+      'html_bytes' => strlen($html),
+    ]);
   }
 
   /**

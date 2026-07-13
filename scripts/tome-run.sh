@@ -38,19 +38,72 @@ TOMELOG=$TOMELOGPATH$TOMELOGFILE
 mkdir -p /tmp/tome-log/$YMD
 touch $TOMELOG
 
+ssg_now() {
+  date -u +"%s"
+}
+
+ssg_metric_line() {
+  phase=$1
+  status=$2
+  ts=$(ssg_now)
+  shift 2
+
+  printf 'SSG_METRIC script=%s phase=%s status=%s ts=%s' "$SCRIPT_NAME" "$phase" "$status" "$ts"
+  for field in "$@"; do
+    printf ' %s' "$field"
+  done
+  printf '\n'
+}
+
+ssg_metric() {
+  ssg_metric_line "$@" | tee -a "$TOMELOG"
+}
+
+ssg_metric_end() {
+  phase=$1
+  start=$2
+  status=$3
+  now=$(ssg_now)
+  duration=$((now - start))
+  shift 3
+
+  ssg_metric "$phase" "$status" "duration_s=$duration" "$@"
+}
+
+RUN_START=$(ssg_now)
+ssg_metric "tome_run" "start" "app_space=$APP_SPACE" "force=$FORCE" "uri=$URI"
+
+PREFLIGHT_START=$(ssg_now)
+ssg_metric "preflight" "start"
+
+PREFLIGHT_JSON=$(drush usagov:ssg-preflight)
+PREFLIGHT_SUCCESS=$?
+if [ "$PREFLIGHT_SUCCESS" != "0" ]; then
+  ssg_metric_end "preflight" "$PREFLIGHT_START" "failed" "exit_code=$PREFLIGHT_SUCCESS"
+  echo "Static site generation preflight failed." | tee -a $TOMELOG
+  ssg_metric_end "tome_run" "$RUN_START" "exit" "exit_code=1" "reason=preflight_failed"
+  exit 1
+fi
+
+export NO_RUN=$(echo "$PREFLIGHT_JSON" | jq -r '.tome_run_disabled // ""')
+export MAINT_MODE_STATE=$(echo "$PREFLIGHT_JSON" | jq -r '.maintenance_mode // ""')
+export CONTENT_UPDATED=$(echo "$PREFLIGHT_JSON" | jq -r '.content_updated // 0')
+
 # Don't even start if this flag is set:
-export NO_RUN=$(drush sget usagov.tome_run_disabled)
 if [ "$NO_RUN" != '' ]; then
+    ssg_metric_end "preflight" "$PREFLIGHT_START" "blocked" "reason=tome_disabled"
     echo "Tome run is disabled. Exiting." | tee -a $TOMELOG
     $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation is disabled"
+    ssg_metric_end "tome_run" "$RUN_START" "exit" "exit_code=2" "reason=tome_disabled"
     exit 2
 fi
 
 # Also, don't start if we're in maintenance mode:
-export MAINT_MODE_STATE=$(drush sget system.maintenance_mode)
 if [ x$MAINT_MODE_STATE == x1 ]; then
+    ssg_metric_end "preflight" "$PREFLIGHT_START" "blocked" "reason=maintenance_mode"
     echo "Maintenance mode is enabled. Exiting." | tee -a $TOMELOG
     $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Maintenance mode is enabled; static site will not generate"
+    ssg_metric_end "tome_run" "$RUN_START" "exit" "exit_code=2" "reason=maintenance_mode"
     exit 2
 fi
 
@@ -63,6 +116,8 @@ if [ "$ALREADY_RUNNING" -gt "0" ]; then
     echo "Another Tome is already running. Forcing another run anyway." | tee -a $TOMELOG
   else
     echo "Another Tome is already running. Exiting." | tee -a $TOMELOG
+    ssg_metric_end "preflight" "$PREFLIGHT_START" "blocked" "reason=already_running"
+    ssg_metric_end "tome_run" "$RUN_START" "exit" "exit_code=2" "reason=already_running"
     exit 2
   fi
 else
@@ -89,12 +144,12 @@ if [ -f $RETRY_SEMAPHORE_FILE ]; then
   rm $RETRY_SEMAPHORE_FILE
 fi
 
+ssg_metric_end "preflight" "$PREFLIGHT_START" "end" "already_running=$ALREADY_RUNNING" "container_updated=$CONTAINER_UPDATED" "retry_semaphore_exists=$RETRY_SEMAPHORE_EXISTS"
 
-# check nodes, blocks, taxonomy terms, and config pages for any content changes in the last 30 minutes
-export CONTENT_UPDATED=$(drush sql:query "SELECT SUM(c) FROM ( (SELECT count(*) as c from node_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
- UNION ( SELECT count(*) as c from block_content_field_data where changed > (UNIX_TIMESTAMP(now())-(1800)))
- UNION ( SELECT count(*) as c from taxonomy_term_field_data WHERE changed > (UNIX_TIMESTAMP(now())-(1800)))
- UNION ( SELECT count(*) as c from config_pages WHERE changed > (UNIX_TIMESTAMP(now())-(1800)))) as x")
+CHANGE_DETECTION_START=$(ssg_now)
+ssg_metric "change_detection" "start" "source=preflight_payload"
+ssg_metric_end "change_detection" "$CHANGE_DETECTION_START" "end" "content_updated=$CONTENT_UPDATED" "container_updated=$CONTAINER_UPDATED" "retry_semaphore_exists=$RETRY_SEMAPHORE_EXISTS" "force=$FORCE"
+
 if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "$CONTAINER_UPDATED" != "0" ] || [ "$RETRY_SEMAPHORE_EXISTS" != "0" ] ; then
 
   echo "Running static site build: content-updated($CONTENT_UPDATED) container-updated($CONTAINER_UPDATED) forced($FORCED) $TOMELOG" | tee -a $TOMELOG
@@ -102,11 +157,21 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
   set -o pipefail  # Need to capture tome-static failure on next line.
   $SCRIPT_PATH/tome-status-indicator-update.sh "$TR_START_TIME" "Static Site Generation Started"
 
+  TOME_GENERATION_START=$(ssg_now)
+  ssg_metric "tome_generation" "start" "process_count=${TOME_PROCESS_COUNT:-4}"
   $SCRIPT_PATH/tome-static.sh $URI 2>&1 | tee -a $TOMELOG
   TOME_SUCCESS=$?
+  ssg_metric_end "tome_generation" "$TOME_GENERATION_START" "end" "exit_code=$TOME_SUCCESS"
+
   if [ "$TOME_SUCCESS" == "0" ]; then
+    SYNC_START=$(ssg_now)
+    ssg_metric "sync" "start" "log_file=$TOMELOGFILE"
     $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS $FORCE
+    SYNC_SUCCESS=$?
+    ssg_metric_end "sync" "$SYNC_START" "end" "exit_code=$SYNC_SUCCESS"
   else
+    FAILURE_CLEANUP_START=$(ssg_now)
+    ssg_metric "failure_cleanup" "start" "tome_exit_code=$TOME_SUCCESS"
     echo "Tome static build failed with status $TOME_SUCCESS - not pushing to S3" | tee -a $TOMELOG
     echo "Deleting Tome files to prevent inconsistency in next run" | tee -a $TOMELOG
     rm -rf /var/www/html/* | tee -a $TOMELOG
@@ -116,9 +181,13 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     fi
     GEN_FAIL_TIME=$(date +"%s")
     $SCRIPT_PATH/tome-status-indicator-update.sh "$GEN_FAIL_TIME" "Static Site Generation Failed"
+    ssg_metric_end "failure_cleanup" "$FAILURE_CLEANUP_START" "end"
+    ssg_metric_end "tome_run" "$RUN_START" "exit" "exit_code=1" "reason=tome_generation_failed"
     exit 1
   fi
   echo "Removing logs that are not from today, we don't need them and they are saved in S3/NR" | tee -a $TOMELOG
+  LOG_CLEANUP_START=$(ssg_now)
+  ssg_metric "log_cleanup" "start"
   TOMELOGDATEPATH=$TOMELOGPATH$(date +"%Y/%m/")
   for d in $TOMELOGDATEPATH*/ ; do
     TOMELOGDATEPATHTODAY=$TOMELOGDATEPATH$(date +"%d/")
@@ -127,6 +196,12 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
       rm -rf $d
     fi
   done
+  ssg_metric_end "log_cleanup" "$LOG_CLEANUP_START" "end"
 else
+  NO_OP_START=$(ssg_now)
+  ssg_metric "no_op_exit" "start" "content_updated=$CONTENT_UPDATED" "container_updated=$CONTAINER_UPDATED" "retry_semaphore_exists=$RETRY_SEMAPHORE_EXISTS" "force=$FORCE"
   echo "No change to any node, block, or taxonomy, content in the last 30 minutes: no need for static site build" | tee -a $TOMELOG
+  ssg_metric_end "no_op_exit" "$NO_OP_START" "end"
 fi
+
+ssg_metric_end "tome_run" "$RUN_START" "end" "exit_code=0"
