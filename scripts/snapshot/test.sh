@@ -44,7 +44,7 @@ run_test() {
     else
         print_status $RED "❌ FAILED: $test_name"
         TESTS_FAILED=$((TESTS_FAILED + 1))
-        return 1
+        return 0
     fi
 }
 
@@ -1032,6 +1032,21 @@ test_database_backup_system() {
         return 1
     fi
 
+    local db_backup_section=$(sed -n '/^create_db_backup()/,/^create_static_backup()/p' "$manager_script")
+    if echo "$db_backup_section" | grep -q 'drush sql:dump.*| tee\|gzip -c.*| tee\|aws s3 cp "$TEMP_GZIP".*| tee'; then
+        echo "❌ Database backup masks critical command failures through tee pipelines"
+        return 1
+    fi
+    echo "✅ Database backup preserves critical command exit codes"
+
+    local backup_command_section=$(sed -n '/^run_backup_command()/,/^run_clean_command()/p' "$manager_script")
+    if echo "$backup_command_section" | grep -q "failure_count" && echo "$backup_command_section" | grep -q "backup_status" && echo "$backup_command_section" | grep -q "failures"; then
+        echo "✅ Backup command reports aggregate failures"
+    else
+        echo "❌ Backup command does not report aggregate failures"
+        return 1
+    fi
+
     echo "✅ Database backup system test passed"
     return 0
 }
@@ -1532,18 +1547,13 @@ test_restore_functionality() {
     fi
     echo "✅ parse_restore_options function exists"
 
-    # Check find_corresponding functions exist
-    if ! grep -q "^find_corresponding_public_backup()" "$manager_script"; then
-        echo "❌ find_corresponding_public_backup function not found"
+    # Check smart restore finder exists in common utilities
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
+    if ! grep -q "^find_corresponding_backup()" "$common_script"; then
+        echo "❌ find_corresponding_backup function not found"
         return 1
     fi
-    echo "✅ find_corresponding_public_backup function exists"
-
-    if ! grep -q "^find_corresponding_db_backup()" "$manager_script"; then
-        echo "❌ find_corresponding_db_backup function not found"
-        return 1
-    fi
-    echo "✅ find_corresponding_db_backup function exists"
+    echo "✅ find_corresponding_backup function exists"
 
     # Test restore command requires tag
     "$manager_script" restore >/dev/null 2>&1
@@ -1575,7 +1585,16 @@ test_restore_functionality() {
     if grep -q "\-\-force" "$manager_script" && grep -q "\-\-yes" "$manager_script"; then
         echo "✅ Restore supports --force and --yes options"
     else
-        echo "⚠️  Restore may not support all interactive options"
+        echo "❌ Restore confirmation skip options not found"
+        return 1
+    fi
+
+    local restore_section=$(sed -n '/^restore_backup()/,/^backup_info()/p' "$manager_script")
+    if echo "$restore_section" | grep -q 'skip_confirmation=true' && echo "$restore_section" | grep -q 'exit 1'; then
+        echo "✅ Restore cancellation returns failure unless confirmation is skipped"
+    else
+        echo "❌ Restore cancellation/skip-confirmation handling is incomplete"
+        return 1
     fi
 
     local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
@@ -2020,6 +2039,13 @@ test_common_utilities() {
     else
         echo "❌ log_message function failed"
         return 1
+    fi
+
+    if printf 'no\n' | confirm_action "Test confirmation" >/dev/null 2>&1; then
+        echo "❌ confirm_action should fail when confirmation is declined"
+        return 1
+    else
+        echo "✅ confirm_action fails when confirmation is declined"
     fi
 
     # Test validate_sql_dump function exists

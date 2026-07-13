@@ -353,7 +353,7 @@ check_cf_cli() {
 remote_command() {
     local _cmd
     _cmd=$(printf ' %q' "$@")
-    cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/manager.sh${_cmd}"
+    cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/manager.sh${_cmd}"
 }
 
 # Download backups from CF to local machine with streaming support
@@ -455,7 +455,7 @@ download_command() {
 
         # Start download in background and show progress
         local cmd
-        cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$backup_tag" "$type")
+        cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$backup_tag" "$type")
         cf ssh cms -c "$cmd" > "$output_file" 2>/dev/null &
         local download_pid=$!
 
@@ -643,15 +643,18 @@ check_cf_cli
 case "$COMMAND" in
     "list")
         # list [types] [days]
-        remote_command list "$2" "$3"
+        shift
+        remote_command list "$@"
         ;;
     "backup")
         # backup [types] [prefix] [suffix]
-        remote_command backup "$2" "$3" "$4"
+        shift
+        remote_command backup "$@"
         ;;
     "clean")
         # clean [types] [days]
-        remote_command clean "$2" "$3"
+        shift
+        remote_command clean "$@"
         ;;
     "delete")
         # delete <tag> [tag2 tag3...] [types] [-y]
@@ -665,7 +668,8 @@ case "$COMMAND" in
         ;;
     "info")
         # info [types] <tag>
-        remote_command info "$2" "$3"
+        shift
+        remote_command info "$@"
         ;;
     "download")
         # download <tag> [type] [output-dir] - special handling for local streaming
@@ -676,7 +680,7 @@ case "$COMMAND" in
         # test - run test suite on CF
         echo "🧪 Running backup system test suite on Cloud Foundry..."
         echo ""
-        cf ssh cms -c "source /etc/profile && cd /var/www && scripts/snapshot/test.sh"
+        cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/test.sh"
         ;;
     "current-digests")
         # current-digests - show current live container digests via CF CLI
@@ -705,9 +709,9 @@ case "$COMMAND" in
                 # Use printf %q for safe shell escaping
                 cmd=
                 if [ -n "$CRON_TYPES" ]; then
-                    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q %q' "$CRON_SUBCOMMAND" "$CRON_TYPES")
+                    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q %q' "$CRON_SUBCOMMAND" "$CRON_TYPES")
                 else
-                    cmd=$(printf 'source /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
+                    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
                 fi
                 cf ssh cms -c "$cmd"
                 ;;

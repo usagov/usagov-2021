@@ -17,6 +17,8 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m'
 
 # ===================================================================
@@ -253,12 +255,14 @@ confirm_action() {
     case "$mode" in
         yn)
             # Simple yes/no confirmation
-            read -p "Type 'yes' to proceed: " confirm
+            printf "Type 'yes' to proceed: "
+            read -r confirm
             if [ "$confirm" = "yes" ]; then
                 echo ""
                 return 0
             else
                 handle_error "" "cancelled" "return"
+                return 1
             fi
             ;;
 
@@ -266,6 +270,7 @@ confirm_action() {
             # Exact text matching with retry logic
             if [ -z "$required_text" ]; then
                 handle_error "required_text not provided for exact mode" "validation" "return"
+                return 2
             fi
 
             local attempts=0
@@ -279,7 +284,8 @@ confirm_action() {
                     echo ""
                 fi
 
-                read -p "Type '$required_text' to confirm: " user_input
+                printf "Type '%s' to confirm: " "$required_text"
+                read -r user_input
 
                 if [ "$user_input" = "$required_text" ]; then
                     echo ""
@@ -289,6 +295,7 @@ confirm_action() {
 
             # Max attempts exceeded
             handle_error "Maximum attempts exceeded" "cancelled" "return"
+            return 1
             ;;
 
         *)
@@ -473,9 +480,11 @@ parse_backup_tag_metadata() {
     local ticket="none"
     local backup_type="manual"
     local prefix=""
+    local extracted_ticket=""
 
     # Extract prefix (first segment before first hyphen)
     prefix=$(echo "$tag" | cut -d'-' -f1)
+    extracted_ticket=$(echo "$tag" | grep -oE 'USAGOV-[0-9]+' | head -1)
 
     # Determine backup type and ticket from prefix and suffix patterns
     case "$prefix" in
@@ -486,12 +495,13 @@ parse_backup_tag_metadata() {
         HOTFIX)
             backup_type="hotfix"
             # Extract USAGOV ticket if present anywhere in tag
-            ticket=$(echo "$tag" | grep -oE 'USAGOV-[0-9]+' | head -1)
+            ticket="$extracted_ticket"
             [ -z "$ticket" ] && ticket="none"
             ;;
         USAGOV*)
             # Prefix starts with USAGOV (e.g., USAGOV-1234-prod-...)
-            ticket=$(echo "$prefix" | grep -oE 'USAGOV-[0-9]+')
+            ticket="$extracted_ticket"
+            [ -z "$ticket" ] && ticket="none"
             # Check suffix for deployment type
             if echo "$tag" | grep -q -- '-pre-deploy-'; then
                 backup_type="pre-deploy"
@@ -503,7 +513,7 @@ parse_backup_tag_metadata() {
             ;;
         *)
             # Unknown prefix - try to extract ticket
-            ticket=$(echo "$tag" | grep -oE 'USAGOV-[0-9]+' | head -1)
+            ticket="$extracted_ticket"
             [ -z "$ticket" ] && ticket="none"
 
             # Check for deployment suffixes
