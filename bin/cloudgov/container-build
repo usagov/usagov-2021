@@ -22,7 +22,6 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:cms-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-export DOCKER_CONTENT_TRUST=1
 docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG \
      -f .docker/Dockerfile-cms . \
@@ -32,9 +31,7 @@ docker build --force-rm \
      --build-arg CONTAINERTAG=$CONTAINERTAG
 
 echo "Running the Docker container"
-export DOCKER_CONTENT_TRUST=0
 docker run -d --name cms-container --rm $DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG
-export DOCKER_CONTENT_TRUST=1
 
 if [ -n "$CONTAINERTAG2" ]
 then
@@ -54,9 +51,7 @@ docker build --force-rm \
     --build-arg GITTAG=$GITTAG
 
 echo "Running the Docker container"
-export DOCKER_CONTENT_TRUST=0
 docker run -d --name waf-container --rm $DOCKERUSER/$DOCKERREPO:waf-$CONTAINERTAG
-export DOCKER_CONTENT_TRUST=1
 
 if [ -n "$CONTAINERTAG2" ]
 then
@@ -67,7 +62,6 @@ echo "Building ${DOCKERUSER}/${DOCKERREPO}:www-${CONTAINERTAG} ${CONTAINERTAG2}"
 
 chmod -R u+w ./web/sites/default/
 
-export DOCKER_CONTENT_TRUST=1
 docker build --force-rm \
      -t $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG \
      -f .docker/Dockerfile-www . \
@@ -77,9 +71,7 @@ docker build --force-rm \
      --build-arg CONTAINERTAG=$CONTAINERTAG
 
 echo "Running the Docker container"
-export DOCKER_CONTENT_TRUST=0
 docker run -d --name www-container --rm $DOCKERUSER/$DOCKERREPO:www-$CONTAINERTAG
-export DOCKER_CONTENT_TRUST=1
 
 if [ -n "$CONTAINERTAG2" ]
 then

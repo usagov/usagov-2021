@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+# List public files backup snapshots
+# Usage: public-snapshot-list <space> [--with-dates] [--include-auto]
+#   --with-dates    Show last modified dates
+#   --include-auto  Include automatic backups (in addition to manual snapshots)
 
 # we might be running in circleci
 if [ -f /home/circleci/project/env.local ]; then
@@ -48,17 +53,40 @@ fi
 printf "Existing $BACKUP_DESCRIPTION Tags ..."
 
 WITH_DATES="0"
+INCLUDE_AUTO="0"
 SORT_METHOD="sort"
-if [ "$1" == "--with-dates" ]; then
-  WITH_DATES="1"
-  SORT_METHOD="sort -rn -k1"
-fi
+
+# Parse arguments
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --with-dates)
+      WITH_DATES="1"
+      SORT_METHOD="sort -rn -k1"
+      shift
+      ;;
+    --include-auto)
+      INCLUDE_AUTO="1"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
 # locate a directory within an s3 bucket that contains a build of the static site
 # display a list of available tags (directories) and their last updated date
 
-
+# Get manual snapshot backups
 export available_tags=$(aws s3 ls s3://$S3_BUCKET/$BUCKET_BACKUP_FOLDER/ | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+
+# Optionally include auto backups
+if [ "$INCLUDE_AUTO" == "1" ]; then
+  export auto_tags=$(aws s3 ls s3://$S3_BUCKET/auto-backups/public_backup/ 2>/dev/null | awk '{print $NF}' | sed 's/[\/ ]*$//g')
+  if [ -n "$auto_tags" ]; then
+    available_tags=$(echo -e "$available_tags\n$auto_tags" | grep -v "^$")
+  fi
+fi
 # printf "\r                             \r"
 if [ "$WITH_DATES" == "1" ]; then
   # sort by date, most recent first
@@ -66,13 +94,30 @@ if [ "$WITH_DATES" == "1" ]; then
   for tag in $(echo $available_tags); do
     # gather the most recently update file under the path-tag
     # there are >1k files so make sure we push the sort/extract logic into the server side query
-    export last_updated=$(aws s3api list-objects-v2 --bucket $S3_BUCKET --prefix $BUCKET_BACKUP_FOLDER/$tag/ --query 'sort_by(Contents, &LastModified)[-1].LastModified' | sed 's/"//g')
-    echo "$last_updated $tag"
+
+    # Check if this is an auto backup (contains AUTO- prefix)
+    if echo "$tag" | grep -q "^AUTO-"; then
+      # Auto backup - check auto-backups path
+      export last_updated=$(aws s3api list-objects-v2 --bucket $S3_BUCKET --prefix auto-backups/public_backup/$tag/ --query 'sort_by(Contents, &LastModified)[-1].LastModified' 2>/dev/null | sed 's/"//g')
+      if [ "$last_updated" != "null" ] && [ -n "$last_updated" ]; then
+        echo "$last_updated $tag (auto)"
+      fi
+    else
+      # Manual backup - check regular path
+      export last_updated=$(aws s3api list-objects-v2 --bucket $S3_BUCKET --prefix $BUCKET_BACKUP_FOLDER/$tag/ --query 'sort_by(Contents, &LastModified)[-1].LastModified' 2>/dev/null | sed 's/"//g')
+      if [ "$last_updated" != "null" ] && [ -n "$last_updated" ]; then
+        echo "$last_updated $tag"
+      fi
+    fi
   done | sort -rn -k1
 else
   # default to alphabetical sorting by tag name
   echo
-  echo "$available_tags" | sort
+  if [ "$INCLUDE_AUTO" == "1" ]; then
+    echo "$available_tags" | sort | sed 's/^AUTO-/AUTO- (auto) /'
+  else
+    echo "$available_tags" | sort
+  fi
 fi
 
 # todo: add a file count next to each dir so we can tell if it is a bogus build
