@@ -135,8 +135,9 @@ jq -n -r --slurpfile old "$old_json" --slurpfile new "$new_json" '
   def row($item; $status; $changed_field; $old_value; $new_value):
     {
       resource_type: $item.resource_type,
-      status: $status,
       guid: $item.guid,
+      status: $status,
+      datetime: ($item.resource.updated_at // ""),
       name: $item.name,
       organization: $item.organization,
       space: $item.space,
@@ -163,8 +164,8 @@ jq -n -r --slurpfile old "$old_json" --slurpfile new "$new_json" '
       );
   ($old[0]) as $old_root
   | ($new[0]) as $new_root
-  | (["resource_type","status","guid","name","organization","space","changed_field","old_value","new_value"] | @csv),
-    (diff(all_resources($old_root); all_resources($new_root)) | sort_by(.resource_type, .status, .organization, .space, .name, .changed_field) | .[] | [ .resource_type, .status, .guid, (.name // ""), (.organization // ""), (.space // ""), .changed_field, .old_value, .new_value ] | @csv)
+  | (["resource_type","guid","status","datetime","name","organization","space","changed_field","old_value","new_value"] | @csv),
+    (diff(all_resources($old_root); all_resources($new_root)) | sort_by(.resource_type, .status, .organization, .space, .name, .changed_field) | .[] | [ .resource_type, .guid, .status, .datetime, (.name // ""), (.organization // ""), (.space // ""), .changed_field, .old_value, .new_value ] | @csv)
 ' > "$output_file"
 
 status "Diff CSV written to $output_file"
