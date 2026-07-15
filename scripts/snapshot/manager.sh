@@ -995,6 +995,7 @@ create_db_backup() {
     fi
 
     # Prepare Drupal state (enable maintenance mode only for DB backups)
+    # NIST 800-53: CP-10 - Preserve service state throughout recovery.
     local drupal_state_prepared=false
     if [ "$skip_state_management" != "true" ]; then
         if prepare_drupal_state "maintenance" 25; then
@@ -2464,6 +2465,16 @@ restore_backup() {
 
     audit_log "restore_started" "info" "Restore operation initiated" "backup_tag=$backup_tag static=$restore_static public=$restore_public database=$restore_database"
 
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "both" 25; then
+            drupal_state_prepared=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state for restore"
+            exit 1
+        fi
+    fi
+
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
@@ -2502,6 +2513,7 @@ restore_backup() {
         else
             audit_log "restore_static_failed" "error" "Static site restore failed" "backup_tag=$static_backup_tag"
             print_status $RED "❌ ERROR: Static site restore failed"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
             exit 1
         fi
     fi
@@ -2526,6 +2538,7 @@ restore_backup() {
         else
             audit_log "restore_public_failed" "error" "Public files restore failed" "backup_tag=$public_backup_tag"
             print_status $RED "❌ ERROR: Public files restore failed"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
             exit 1
         fi
     fi
@@ -2535,31 +2548,22 @@ restore_backup() {
         audit_log "restore_database_started" "info" "Database restore initiated" "backup_tag=$db_backup_tag"
         print_status $YELLOW "🔄 Restoring database..."
 
-        # Prepare Drupal state (enable maintenance mode for DB restores)
-        local drupal_state_prepared=false
-        if [ "$skip_state_management" != "true" ]; then
-            if prepare_drupal_state "maintenance" 25; then
-                drupal_state_prepared=true
-            else
-                print_status $RED "❌ Failed to prepare Drupal state for restore"
-                exit 1
-            fi
-        fi
-
         # Download and restore database backup (use secure temp files)
         temp_db_base="$(mktemp /tmp/restore_db.XXXXXX)"
         temp_db_file="${temp_db_base}.sql.gz"
         temp_sql_file="${temp_db_base}.sql"
         temp_checksum_file="${temp_db_base}.sha256"
-        chmod 600 "$temp_db_base" "$temp_db_file" "$temp_sql_file" "$temp_checksum_file"
+        chmod 600 "$temp_db_base"
 
         # Ensure cleanup
         trap "rm -f '$temp_db_base' '$temp_db_file' '$temp_sql_file' '$temp_checksum_file'" EXIT INT TERM
 
         if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
+            chmod 600 "$temp_db_file"
             # Try to download and verify checksum
             local checksum_verified=false
             if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${db_backup_tag}.sha256 "$temp_checksum_file" $S3_EXTRA_PARAMS 2>/dev/null; then
+                chmod 600 "$temp_checksum_file"
                 print_status $YELLOW "🔐 Verifying backup integrity..."
                 local expected_checksum=$(cat "$temp_checksum_file")
                 local actual_checksum=$(sha256sum "$temp_db_file" | awk '{print $1}')
@@ -2573,7 +2577,7 @@ restore_backup() {
                     print_status $YELLOW "   Expected: $expected_checksum"
                     print_status $YELLOW "   Got:      $actual_checksum"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                     exit 1
                 fi
             else
@@ -2581,50 +2585,51 @@ restore_backup() {
             fi
 
             if gunzip -c "$temp_db_file" > "$temp_sql_file" 2>/dev/null; then
+                chmod 600 "$temp_sql_file"
                 # Validate SQL content for dangerous patterns
                 if ! validate_sql_content "$temp_sql_file"; then
                     audit_log "restore_database_failed" "error" "SQL content validation failed" "backup_tag=$db_backup_tag"
                     print_status $RED "❌ SQL content validation failed"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                     exit 1
                 fi
 
                 if command -v drush >/dev/null 2>&1; then
                     # Use drush for database import
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
-                        # Restore Drupal state before success message
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
                         audit_log "restore_database_success" "success" "Database restored successfully" "backup_tag=$db_backup_tag"
                         print_status $GREEN "✅ Database restored"
                     else
                         audit_log "restore_database_failed" "error" "Database import failed" "backup_tag=$db_backup_tag"
                         print_status $RED "❌ ERROR: Database import failed"
                         rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                         exit 1
                     fi
                 else
                     print_status $RED "❌ ERROR: Drush not available for database restore"
                     rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                     exit 1
                 fi
             else
                     print_status $RED "❌ ERROR: Failed to decompress database backup"
                 rm -f "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                 exit 1
             fi
         else
             print_status $RED "❌ ERROR: Failed to download database backup"
             rm -f "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
             exit 1
         fi
 
         rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
     fi
+
+    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
 
     echo ""
     print_status $GREEN "🎉 Restore complete!"

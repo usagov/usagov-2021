@@ -1073,6 +1073,7 @@ validate_output_path() {
 }
 
 # Validate SQL dump content for dangerous patterns
+# NIST 800-53: SI-10 - Information Input Validation
 # Args:
 #   $1: sql_file - Path to SQL file
 # Returns: 0 if safe, 1 if dangerous patterns found
@@ -1083,9 +1084,10 @@ validate_sql_content() {
         handle_error "SQL file not found: $sql_file" "validation" "return"
     fi
 
-    # Check for dangerous SQL patterns that could be used for exploitation
-    # Note: This is a basic check - more sophisticated validation may be needed
-    local dangerous_patterns="INTO OUTFILE|INTO DUMPFILE|LOAD_FILE|LOAD DATA|SYSTEM|EXEC |GRANT ALL|CREATE USER"
+    # Check for dangerous SQL statements that could be used for exploitation.
+    # Anchor to a statement boundary so words such as "system" in serialized
+    # Drupal data within INSERT values do not reject an otherwise valid dump.
+    local dangerous_patterns='^[[:space:]]*(SELECT[[:space:]].*INTO[[:space:]]+(OUTFILE|DUMPFILE)|LOAD[[:space:]]+(DATA|FILE)|SYSTEM[[:space:]]|EXEC[[:space:]]|GRANT[[:space:]]+ALL|CREATE[[:space:]]+USER)'
 
     if grep -qiE "($dangerous_patterns)" "$sql_file"; then
         print_status $RED "❌ Error: Dangerous SQL patterns detected in dump file"
@@ -1575,6 +1577,31 @@ is_tome_running() {
     fi
 }
 
+# State captured before a backup or restore changes Drupal. These values are
+# process-local because the manager prepares and restores state in one run.
+# NIST 800-53: CP-10 - Information System Recovery and Reconstitution
+SAVED_MAINTENANCE_MODE=""
+SAVED_TOME_DISABLED=""
+DRUPAL_STATE_CAPTURED=false
+
+capture_drupal_state() {
+    if [ "$DRUPAL_STATE_CAPTURED" = "true" ]; then
+        return 0
+    fi
+
+    SAVED_MAINTENANCE_MODE=$(drush sget system.maintenance_mode 2>/dev/null || true)
+    [ "$SAVED_MAINTENANCE_MODE" = "1" ] || SAVED_MAINTENANCE_MODE="0"
+
+    SAVED_TOME_DISABLED=$(drush sget usagov.tome_run_disabled 2>/dev/null || true)
+    case "$SAVED_TOME_DISABLED" in
+        ""|0|null|NULL) SAVED_TOME_DISABLED="0" ;;
+        *) SAVED_TOME_DISABLED="1" ;;
+    esac
+
+    DRUPAL_STATE_CAPTURED=true
+    audit_log "drupal_state_captured" "info" "Captured Drupal state" "maintenance_mode=\"$SAVED_MAINTENANCE_MODE\" tome_disabled=\"$SAVED_TOME_DISABLED\""
+}
+
 # Prepare Drupal state for backup/restore operations
 # Manages Tome and/or maintenance mode based on state type
 # Args:
@@ -1596,6 +1623,8 @@ prepare_drupal_state() {
         print_status $RED "Error: max_wait_minutes must be an integer less than or equal to 30"
         return 1
     fi
+
+    capture_drupal_state
 
     case "$state_type" in
         "tome")
@@ -1699,8 +1728,7 @@ prepare_drupal_state() {
             else
                 print_status $RED "❌ Failed to enable maintenance mode"
                 audit_log "maintenance_mode_enable" "failure" "Failed to enable maintenance mode, rolling back Tome disable"
-                # Try to re-enable tome before returning
-                drush sdel usagov.tome_run_disabled 2>/dev/null
+                restore_drupal_state "tome"
                 return 1
             fi
             ;;
@@ -1716,6 +1744,8 @@ prepare_drupal_state() {
 # Returns: 0 on success, 1 on failure
 restore_drupal_state() {
     local state_type="${1:-both}"
+    local target_maintenance_mode="0"
+    local target_tome_disabled="0"
 
     # Validate state_type
     if [ "$state_type" != "tome" ] && [ "$state_type" != "maintenance" ] && [ "$state_type" != "both" ]; then
@@ -1723,61 +1753,53 @@ restore_drupal_state() {
         return 1
     fi
 
+    if [ "$DRUPAL_STATE_CAPTURED" = "true" ]; then
+        target_maintenance_mode="$SAVED_MAINTENANCE_MODE"
+        target_tome_disabled="$SAVED_TOME_DISABLED"
+    fi
+
     case "$state_type" in
         "tome")
-            # Re-enable Tome only
-            print_status $YELLOW "🔓 Re-enabling Tome..."
-            audit_log "tome_enable" "started" "Re-enabling Tome"
-            if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
-                print_status $RED "❌ Failed to re-enable Tome"
-                audit_log "tome_enable" "failure" "Failed to re-enable Tome"
-                return 1
+            if [ "$target_tome_disabled" = "1" ]; then
+                print_status $YELLOW "🔒 Restoring Tome to disabled..."
+                drush sset usagov.tome_run_disabled 1 2>/dev/null || return 1
+            else
+                print_status $YELLOW "🔓 Re-enabling Tome..."
+                drush sdel usagov.tome_run_disabled 2>/dev/null || return 1
             fi
-
-            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
-            print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
-            audit_log "tome_enable" "success" "Tome re-enabled" "tome_disabled_state=\"${tome_disabled:-none}\""
+            audit_log "tome_state_restore" "success" "Tome state restored" "tome_disabled_state=\"$target_tome_disabled\""
             ;;
 
         "maintenance")
-            # Disable maintenance mode only
-            print_status $YELLOW "🚧 Disabling maintenance mode..."
-            audit_log "maintenance_mode_disable" "started" "Disabling maintenance mode"
-            if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
+            print_status $YELLOW "🚧 Restoring maintenance mode to: $target_maintenance_mode..."
+            if drush sset system.maintenance_mode "$target_maintenance_mode" 2>/dev/null && drush cr 2>/dev/null; then
                 local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
-                print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
-                audit_log "maintenance_mode_disable" "success" "Maintenance mode disabled" "maint_mode_state=\"${maint_mode}\""
+                print_status $GREEN "✅ Maintenance mode restored: $maint_mode"
+                audit_log "maintenance_mode_restore" "success" "Maintenance mode restored" "maint_mode_state=\"${maint_mode}\""
             else
-                print_status $RED "❌ Failed to disable maintenance mode"
-                audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
+                print_status $RED "❌ Failed to restore maintenance mode"
                 return 1
             fi
             ;;
 
         "both")
-            # Disable maintenance mode and re-enable Tome
-            print_status $YELLOW "🚧 Disabling maintenance mode..."
-            audit_log "maintenance_mode_disable" "started" "Restoring Drupal state"
-            if drush sset system.maintenance_mode 0 2>/dev/null && drush cr 2>/dev/null; then
+            print_status $YELLOW "🚧 Restoring maintenance mode to: $target_maintenance_mode..."
+            if drush sset system.maintenance_mode "$target_maintenance_mode" 2>/dev/null && drush cr 2>/dev/null; then
                 local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
-                print_status $GREEN "✅ Maintenance mode disabled: $maint_mode"
-                audit_log "maintenance_mode_disable" "success" "Maintenance mode disabled" "maint_mode_state=\"${maint_mode}\""
+                print_status $GREEN "✅ Maintenance mode restored: $maint_mode"
+                audit_log "maintenance_mode_restore" "success" "Maintenance mode restored" "maint_mode_state=\"${maint_mode}\""
             else
-                print_status $RED "❌ Failed to disable maintenance mode"
-                audit_log "maintenance_mode_disable" "failure" "Failed to disable maintenance mode"
+                print_status $RED "❌ Failed to restore maintenance mode"
             fi
 
-            print_status $YELLOW "🔓 Re-enabling Tome..."
-            audit_log "tome_enable" "started" "Re-enabling Tome"
-            if ! drush sdel usagov.tome_run_disabled 2>/dev/null; then
-                print_status $RED "❌ Failed to re-enable Tome"
-                audit_log "tome_enable" "failure" "Failed to re-enable Tome"
-                return 1
+            if [ "$target_tome_disabled" = "1" ]; then
+                print_status $YELLOW "🔒 Restoring Tome to disabled..."
+                drush sset usagov.tome_run_disabled 1 2>/dev/null || return 1
+            else
+                print_status $YELLOW "🔓 Re-enabling Tome..."
+                drush sdel usagov.tome_run_disabled 2>/dev/null || return 1
             fi
-
-            local tome_disabled=$(drush sget usagov.tome_run_disabled 2>/dev/null)
-            print_status $GREEN "✅ Tome re-enabled (disabled flag: ${tome_disabled:-none})"
-            audit_log "tome_enable" "success" "Tome re-enabled" "tome_disabled_state=\"${tome_disabled:-none}\""
+            audit_log "tome_state_restore" "success" "Tome state restored" "tome_disabled_state=\"$target_tome_disabled\""
             ;;
     esac
 

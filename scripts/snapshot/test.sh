@@ -1482,10 +1482,10 @@ test_state_management() {
         echo "⚠️  restore_backup function not found"
     else
         local restore_section=$(sed -n '/^restore_backup()/,/^}/p' "$manager_script")
-        if echo "$restore_section" | grep -q 'prepare_drupal_state.*"maintenance"'; then
-            echo "✅ Database restore integrates state preparation (maintenance mode)"
+        if echo "$restore_section" | grep -q 'prepare_drupal_state.*"both"'; then
+            echo "✅ Restore integrates Tome and maintenance state preparation"
         else
-            echo "❌ Database restore missing state preparation or not using maintenance mode"
+            echo "❌ Restore missing Tome and maintenance state preparation"
             return 1
         fi
 
@@ -2109,6 +2109,26 @@ EOF
         return 1
     fi
 
+    # Serialized Drupal data commonly contains words like "system"; it is not
+    # a dangerous SQL statement and must not block a database restore.
+    echo "INSERT INTO config VALUES (1, 'system');" > "$test_sql"
+    if validate_sql_content "$test_sql" >/dev/null 2>&1; then
+        echo "✅ validate_sql_content accepts serialized data"
+    else
+        echo "❌ validate_sql_content rejected safe serialized data"
+        rm -f "$test_sql"
+        return 1
+    fi
+
+    echo "SYSTEM whoami;" > "$test_sql"
+    if ! validate_sql_content "$test_sql" >/dev/null 2>&1; then
+        echo "✅ validate_sql_content rejects dangerous SQL statements"
+    else
+        echo "❌ validate_sql_content accepted a dangerous SQL statement"
+        rm -f "$test_sql"
+        return 1
+    fi
+
     # Test with invalid content
     echo "This is not a SQL dump" > "$test_sql"
     if ! validate_sql_dump "$test_sql" >/dev/null 2>&1; then
@@ -2120,6 +2140,34 @@ EOF
     fi
 
     rm -f "$test_sql"
+
+    # Database backup and restore must return Drupal to the state found at
+    # the beginning of the operation, including an already-disabled Tome.
+    if (
+        fake_maintenance=1
+        fake_tome_disabled=1
+        drush() {
+            case "$1:$2" in
+                sget:system.maintenance_mode) echo "$fake_maintenance" ;;
+                sget:usagov.tome_run_disabled) [ "$fake_tome_disabled" = "1" ] && echo "1" ;;
+                sset:system.maintenance_mode) fake_maintenance="$3" ;;
+                sset:usagov.tome_run_disabled) fake_tome_disabled=1 ;;
+                sdel:usagov.tome_run_disabled) fake_tome_disabled=0 ;;
+                cr:*) : ;;
+                *) return 1 ;;
+            esac
+        }
+        INSIDE_TOME_PROCESS=1
+        prepare_drupal_state both 0 >/dev/null &&
+            restore_drupal_state both >/dev/null &&
+            [ "$fake_maintenance" = "1" ] &&
+            [ "$fake_tome_disabled" = "1" ]
+    ); then
+        echo "✅ Drupal state is restored to captured values"
+    else
+        echo "❌ Drupal state was not restored to captured values"
+        return 1
+    fi
 
     echo "✅ Common utilities test passed"
     return 0
