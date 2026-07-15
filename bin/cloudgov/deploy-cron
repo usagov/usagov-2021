@@ -178,4 +178,27 @@ if [ $SPACE = "prod" ]; then
 
 fi
 
+# Bind CMS storage to cron for digest file access
+echo "Binding CMS storage service to cron for container digest synchronization"
+if cf services | grep -q '^storage'; then
+  # Check if already bound
+  if cf service storage | grep -q "bound apps:.*cron"; then
+    echo "storage already bound to cron"
+  else
+    echo "Binding storage service to cron"
+    cf bind-service cron storage
+  fi
+  
+  # Set target bucket for digest updates
+  CMS_BUCKET=$(cf service storage --guid | xargs -I {} cf curl /v3/service_instances/{}/credentials | jq -r '.bucket')
+  if [ -n "$CMS_BUCKET" ] && [ "$CMS_BUCKET" != "null" ]; then
+    echo "Setting TARGET_BUCKET to CMS storage bucket: $CMS_BUCKET"
+    cf set-env $APPNAME TARGET_BUCKET "$CMS_BUCKET"
+  else
+    echo "WARNING: Could not determine CMS bucket ID, digest updates will use cron's own bucket"
+  fi
+else
+  echo "WARNING: storage service not found, digest updates will use cron's own bucket"
+fi
+
 cf restage $APPNAME --strategy rolling
