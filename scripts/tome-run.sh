@@ -4,6 +4,10 @@ SCRIPT_PATH=$(dirname "$0")
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_PID=$$
 
+# Set flag to indicate we're inside a Tome process
+# This prevents is_tome_running() from detecting itself during automatic backups
+export INSIDE_TOME_PROCESS=1
+
 URI=${1:-https://www.usa.gov}
 FORCE=${2:-0}
 RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
