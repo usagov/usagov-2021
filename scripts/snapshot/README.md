@@ -365,10 +365,10 @@ scripts/snapshot/setup-cron.sh test all        # Test the cron backup command
 
 **Automated Features:**
 
-- Runs daily at configured time (set via DB_BACKUP_TIME environment variable in EST, default: 19:00)
-- Automatically converts EST to UTC for cron scheduling
+- Runs daily at configured time (set via DB_BACKUP_TIME environment variable in UTC, default: 23:00)
 - Flexible backup type selection (all, db, static, public, or comma-separated combinations)
 - When backing up multiple types, they share the same timestamp for perfect synchronization
+- Creates backups with the AUTO prefix
 - Automatically cleans old backups based on retention policy
 - Logs all operations for monitoring
 - Smart optimization: skips unchanged static/public backups to save space
@@ -470,7 +470,7 @@ The backup system integrates with:
 
 #### Cron Issues
 
-- Check DB_BACKUP_TIME environment variable is set (format: HH:MM in EST)
+- Check DB_BACKUP_TIME environment variable is set (format: HH:MM in UTC)
 - Verify cron status: `scripts/devops/local-manager.sh cron status`
 - Test cron command: `scripts/devops/local-manager.sh cron test`
 - Check CF instance index (cron only runs on instance 0)

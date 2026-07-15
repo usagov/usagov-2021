@@ -4,7 +4,7 @@
 # CRON JOB SETUP FOR BACKUP SYSTEM
 # ===================================================================
 # Configures automated database backups via cron
-# Handles: time zone conversion (EST to UTC), cron job management
+# Handles: cron job management (all times in UTC)
 # ===================================================================
 
 # Load common utilities
@@ -17,7 +17,7 @@ CURDIR=$(pwd)
 init_backup_system
 
 # Set defaults from configuration
-DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
+DB_BACKUP_TIME=${DB_BACKUP_TIME:-"23:00"}
 ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 
 # ===================================================================
@@ -35,8 +35,8 @@ show_usage() {
     echo "  test [types]   Test the exact cron command (simulates cron environment)"
     echo ""
     echo "Configuration:"
-    echo "  DB_BACKUP_TIME: Set backup time in EST (format: HH:MM)"
-    echo "  Default: 19:00 EST (converts to UTC for cron)"
+    echo "  DB_BACKUP_TIME: Set backup time in UTC (format: HH:MM)"
+    echo "  Default: 23:00 UTC"
     echo ""
     echo "Examples:"
     echo "  setup-cron.sh setup all         # Backup all types (db, static, public)"
@@ -48,7 +48,7 @@ show_usage() {
 # Show command-specific help
 show_command_help() {
     local command="$1"
-    
+
     case "$command" in
         "setup")
             echo "Setup Automated Backup Cron Job"
@@ -57,19 +57,19 @@ show_command_help() {
             echo ""
             echo "Description:"
             echo "  Configures automated backups via cron."
-            echo "  Converts EST time to UTC and creates cron job."
+            echo "  Uses the configured UTC time and creates the cron job."
             echo ""
             echo "Arguments:"
             echo "  types  - Backup types: all, db, static, public, or comma-separated (default: all)"
             echo ""
             echo "Configuration:"
-            echo "  DB_BACKUP_TIME environment variable sets backup time (default: 19:00 EST)"
+            echo "  DB_BACKUP_TIME environment variable sets backup time (default: 23:00 UTC)"
             echo ""
             echo "Examples:"
             echo "  setup-cron.sh setup all          # All backup types"
             echo "  setup-cron.sh setup db           # Database only"
             echo "  setup-cron.sh setup static,db    # Static and database"
-            echo "  DB_BACKUP_TIME=19:00 setup-cron.sh setup all"
+            echo "  DB_BACKUP_TIME=23:00 setup-cron.sh setup all"
             echo ""
             ;;
         "remove")
@@ -117,7 +117,7 @@ show_command_help() {
 # ===================================================================
 
 # Setup automated backup cron job
-# Converts EST time to UTC, validates format, and configures cron
+# Validates the UTC time and configures cron
 # Args: $1 - backup types (default: all)
 setup_cron() {
     local backup_types="${1:-all}"
@@ -144,16 +144,9 @@ setup_cron() {
         return 1
     fi
 
-    # Convert Eastern Time to UTC (EST is UTC-5, EDT is UTC-4)
-    utc_hour=$((hour + 5))
-    if [ $utc_hour -ge 24 ]; then
-        utc_hour=$((utc_hour - 24))
-    fi
-
     print_status $GREEN "Setting up automated backup cron job..."
     print_status $BLUE "📦 Backup types: $backup_types"
-    print_status $YELLOW "⚠️ Time conversion: ${hour}:${minute} Eastern → ${utc_hour}:${minute} UTC"
-    print_status $YELLOW "📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed."
+    print_status $YELLOW "⏰ Backup time: ${hour}:${minute} UTC"
 
     crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
 
@@ -166,7 +159,7 @@ setup_cron() {
     fi
 
     # Add new cron job with specified backup types
-    (crontab -l 2>/dev/null; echo "$minute $utc_hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup $backup_types >/dev/null 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "$minute $hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup $backup_types >/dev/null 2>&1") | crontab -
 
     print_status $GREEN "✅ Cron job setup complete ($backup_types)"
 }
@@ -187,7 +180,7 @@ show_status() {
     echo ""
     print_status $GREEN "Configuration:"
     echo "  Database backups enabled: $ENABLE_DB_BACKUPS"
-    echo "  Backup time: $DB_BACKUP_TIME EST"
+    echo "  Backup time: $DB_BACKUP_TIME UTC"
 }
 
 # Test the cron backup command in a simulated cron environment

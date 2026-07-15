@@ -39,11 +39,11 @@ init_backup_system() {
         # Running from project root
         PROJECT_ROOT="$(pwd)"
         BACKUP_DIR="$PROJECT_ROOT/scripts/snapshot"
-    elif [ -d "snapshot" ] && [ -f "snapshot/common.sh" ]; then
+    elif [ -d "snapshot" ] && [ -f "common.sh" ]; then
         # Running from scripts directory
         PROJECT_ROOT="$(cd .. && pwd)"
         BACKUP_DIR="$PROJECT_ROOT/scripts/snapshot"
-    elif [ "$(basename "$(pwd)")" = "snapshot" ] && [ -f "common.sh" ]; then
+    elif [ "$(basename "$(pwd)")" = "snapshot" ] && [ -f "../common.sh" ]; then
         # Running from scripts/snapshot directory
         PROJECT_ROOT="$(cd ../.. && pwd)"
         BACKUP_DIR="$(pwd)"

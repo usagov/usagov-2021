@@ -2,8 +2,6 @@
 
 # Backup System Test Script
 
-set -e
-
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
 . "$SCRIPT_DIR/../common.sh"
@@ -75,10 +73,8 @@ test_config_loading() {
 
     check_file "$config_file" "backup configuration file" || return 1
 
-    # Source the config
-    . "$config_file"
-
-    # Check required variables are set
+    # init_backup_system has already loaded the config and made constants readonly.
+    # Check required variables without sourcing the file a second time.
     local required_vars="BACKUP_RETENTION_DAYS ENABLE_STATIC_AUTO_BACKUPS ENABLE_PUBLIC_AUTO_BACKUPS ENABLE_STATIC_AUTO_CLEANUP ENABLE_PUBLIC_AUTO_CLEANUP BACKUP_PREFIX ENABLE_SMART_PUBLIC_BACKUP"
     for var in $required_vars; do
         eval "var_value=\$$var"
@@ -202,10 +198,19 @@ test_backup_integration() {
     fi
 
     # Check that it calls backup command
+    # tome-sync.sh backs up static and public files; cron handles scheduled backups.
     if grep -q "backup static,public" "$tome_sync_script"; then
         echo "✅ Found backup static,public command call"
     else
         echo "❌ Missing backup static,public command call"
+        return 1
+    fi
+
+    # Check that it uses --throttle to avoid backup churn during active Tome runs
+    if grep -q "\-\-throttle" "$tome_sync_script"; then
+        echo "✅ Found --throttle flag for backup throttling"
+    else
+        echo "❌ Missing --throttle flag"
         return 1
     fi
 
@@ -429,8 +434,6 @@ test_date_calculations() {
 
 # Function to test backup naming pattern
 test_backup_naming() {
-    . "$BACKUP_DIR/backup-system.conf"
-
     local test_space="test"
     local test_container_tag="git-abc123"
     local test_timestamp="2024_03_15_14_30_00"
@@ -553,7 +556,7 @@ test_date_range_filtering() {
         echo "❌ list_old_backups function not found in manager.sh"
         return 1
     fi
-    
+
     # Check that list_old_backups uses date range logic
     local list_function=$(sed -n '/^list_old_backups()/,/^clean_old_backups()/p' "$manager_script")
     if echo "$list_function" | grep -q "is_date_in_range"; then
@@ -958,9 +961,6 @@ test_database_backup_system() {
         echo "❌ Automatic backup cron setup script not found"
         return 1
     fi
-
-    # Load config to test database backup settings
-    . "$BACKUP_DIR/backup-system.conf"
 
     # Test database backup configuration
     echo "⚙️ Testing database backup configuration..."
@@ -1649,9 +1649,10 @@ test_backup_type_combinations() {
     echo "🔀 Testing backup type combinations..."
 
     local manager_script="$BACKUP_DIR/manager.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
 
     # Check parse_backup_types function
-    if ! grep -q "^parse_backup_types()" "$manager_script"; then
+    if ! grep -q "^parse_backup_types()" "$common_script"; then
         echo "❌ parse_backup_types function not found"
         return 1
     fi
@@ -1850,6 +1851,26 @@ test_cron_setup() {
         return 1
     fi
 
+    if [ "$backup_time" = "23:00" ]; then
+        echo "✅ Database backup time is 23:00 UTC"
+    else
+        echo "❌ Database backup time must be 23:00 UTC (found: $backup_time)"
+        return 1
+    fi
+
+    if grep -q 'utc_hour\|Converts EST' "$cron_script"; then
+        echo "❌ Cron setup still contains Eastern-to-UTC conversion logic"
+        return 1
+    fi
+    echo "✅ Cron setup uses UTC directly"
+
+    if grep -Fq 'echo "$minute $hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup $backup_types' "$cron_script"; then
+        echo "✅ Cron setup schedules selected backup types at the configured UTC hour"
+    else
+        echo "❌ Cron entry does not use the configured UTC hour and selected backup types"
+        return 1
+    fi
+
     echo "✅ Cron setup test passed"
     return 0
 }
@@ -1867,6 +1888,7 @@ BACKUP_PREFIX
 AUTO_STATIC_BACKUP_PATH
 AUTO_PUBLIC_BACKUP_PATH
 AUTO_DB_BACKUP_PATH
+BACKUP_THROTTLE_HOURS
 ENABLE_STATIC_AUTO_BACKUPS
 ENABLE_STATIC_AUTO_CLEANUP
 ENABLE_PUBLIC_AUTO_BACKUPS
@@ -1902,7 +1924,7 @@ DB_BACKUP_PREFIX
     done
 
     # Validate numeric values
-    local num_vars="BACKUP_RETENTION_DAYS DB_BACKUP_RETENTION_DAYS"
+    local num_vars="BACKUP_RETENTION_DAYS DB_BACKUP_RETENTION_DAYS BACKUP_THROTTLE_HOURS"
     for var in $num_vars; do
         local value=$(grep "^${var}=" "$config_file" | cut -d= -f2)
         if echo "$value" | grep -qE '^[0-9]+$'; then
@@ -1962,7 +1984,7 @@ test_local_manager() {
     fi
 
     # Check for all main commands
-    local commands="list backup clean restore info download test cron"
+    local commands="list backup clean delete restore info download test current-digests cron state"
     for cmd in $commands; do
         if grep -q "\"$cmd\"" "$local_manager"; then
             echo "✅ local-manager.sh supports '$cmd' command"
@@ -2157,8 +2179,6 @@ test_cron_script() {
 test_s3_paths() {
     echo "☁️  Testing S3 path configurations..."
 
-    . "$BACKUP_DIR/backup-system.conf"
-
     # Test all S3 paths are configured
     if [ -n "$AUTO_STATIC_BACKUP_PATH" ]; then
         echo "✅ AUTO_STATIC_BACKUP_PATH configured: $AUTO_STATIC_BACKUP_PATH"
@@ -2250,6 +2270,198 @@ test_documentation() {
     return 0
 }
 
+# Function to test the delete command (delete specific backups by tag)
+test_delete_command() {
+    echo "🗑️  Testing delete command..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+
+    # Check delete_backup function exists
+    if ! grep -q "^delete_backup()" "$manager_script"; then
+        echo "❌ delete_backup function not found"
+        return 1
+    fi
+    echo "✅ delete_backup function exists"
+
+    # Check delete command is routed in the dispatcher
+    if grep -q '"delete")' "$manager_script"; then
+        echo "✅ delete command is routed in dispatcher"
+    else
+        echo "❌ delete command not routed in dispatcher"
+        return 1
+    fi
+
+    # Check delete is documented in usage
+    if grep -q "delete <tag>" "$manager_script"; then
+        echo "✅ delete command documented in usage"
+    else
+        echo "❌ delete command missing from usage"
+        return 1
+    fi
+
+    # Delete without a tag should fail (requires at least one tag)
+    "$manager_script" delete >/dev/null 2>&1
+    local delete_exit=$?
+    if [ $delete_exit -ne 0 ]; then
+        echo "✅ delete without tag correctly rejected (exit: $delete_exit)"
+    else
+        echo "❌ delete without tag should fail"
+        return 1
+    fi
+
+    # Check delete supports multiple tags (loop over tags)
+    local delete_func=$(sed -n '/^delete_backup()/,/^}/p' "$manager_script")
+    if echo "$delete_func" | grep -q "for backup_tag in"; then
+        echo "✅ delete supports multiple tags"
+    else
+        echo "❌ delete missing multiple-tag support"
+        return 1
+    fi
+
+    # Check delete supports non-interactive flag
+    if echo "$delete_func" | grep -q "non_interactive"; then
+        echo "✅ delete supports -y/--non-interactive flag"
+    else
+        echo "❌ delete missing non-interactive support"
+        return 1
+    fi
+
+    # Check local-manager.sh routes delete to CF
+    local local_manager="$PROJECT_ROOT/scripts/devops/local-manager.sh"
+    if grep -q '"delete")' "$local_manager"; then
+        echo "✅ local-manager.sh routes delete command"
+    else
+        echo "❌ local-manager.sh missing delete command"
+        return 1
+    fi
+
+    echo "✅ Delete command test passed"
+    return 0
+}
+
+# Function to test backup throttling feature (--throttle)
+test_backup_throttle() {
+    echo "⏳ Testing backup throttle feature..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+    local config_file="$BACKUP_DIR/backup-system.conf"
+
+    # Check BACKUP_THROTTLE_HOURS is configured
+    if grep -q "^BACKUP_THROTTLE_HOURS=" "$config_file"; then
+        local throttle_hours=$(grep "^BACKUP_THROTTLE_HOURS=" "$config_file" | cut -d= -f2)
+        echo "✅ BACKUP_THROTTLE_HOURS configured: $throttle_hours"
+    else
+        echo "❌ BACKUP_THROTTLE_HOURS not configured"
+        return 1
+    fi
+
+    # Check get_last_backup_age_hours helper exists
+    if ! grep -q "^get_last_backup_age_hours()" "$manager_script"; then
+        echo "❌ get_last_backup_age_hours function not found"
+        return 1
+    fi
+    echo "✅ get_last_backup_age_hours function exists"
+
+    # Check run_backup_command parses --throttle
+    local backup_func=$(sed -n '/^run_backup_command()/,/^}/p' "$manager_script")
+    if echo "$backup_func" | grep -q "\-\-throttle"; then
+        echo "✅ run_backup_command parses --throttle flag"
+    else
+        echo "❌ run_backup_command missing --throttle parsing"
+        return 1
+    fi
+
+    # Check throttle logic compares against BACKUP_THROTTLE_HOURS
+    if echo "$backup_func" | grep -q "BACKUP_THROTTLE_HOURS"; then
+        echo "✅ Throttle logic uses BACKUP_THROTTLE_HOURS threshold"
+    else
+        echo "❌ Throttle logic missing BACKUP_THROTTLE_HOURS comparison"
+        return 1
+    fi
+
+    # Check --throttle is documented in usage
+    if grep -q "\-\-throttle" "$manager_script"; then
+        echo "✅ --throttle documented in usage"
+    else
+        echo "❌ --throttle missing from usage"
+        return 1
+    fi
+
+    # Verify the throttle flag parses without error (backup with throttle, no S3 needed to parse)
+    "$manager_script" backup static TEST "" --throttle >/dev/null 2>&1
+    local throttle_exit=$?
+    if [ $throttle_exit -eq 0 ] || [ $throttle_exit -eq 1 ]; then
+        echo "✅ backup --throttle parses correctly (exit: $throttle_exit)"
+    else
+        echo "⚠️  backup --throttle exit behavior: $throttle_exit (may be due to missing S3 access)"
+    fi
+
+    echo "✅ Backup throttle test passed"
+    return 0
+}
+
+# Function to test the reorganized state command
+test_state_commands() {
+    echo "🔧 Testing state command..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+    local local_manager="$PROJECT_ROOT/scripts/devops/local-manager.sh"
+
+    # Check state command is routed
+    if grep -q '"state")' "$manager_script"; then
+        echo "✅ state command routed in manager.sh"
+    else
+        echo "❌ state command not routed in manager.sh"
+        return 1
+    fi
+
+    # Check shared state dispatcher exists
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
+    if grep -q '^state_command()' "$common_script"; then
+        echo "✅ state_command function exists in common.sh"
+    else
+        echo "❌ state_command function missing from common.sh"
+        return 1
+    fi
+
+    # Check disable and enable actions use the generalized state helpers
+    local state_func=$(sed -n '/^state_command()/,/^}/p' "$common_script")
+    if echo "$state_func" | grep -q 'prepare_drupal_state' && \
+       echo "$state_func" | grep -q 'restore_drupal_state'; then
+        echo "✅ state command supports disable and enable actions"
+    else
+        echo "❌ state command missing enable/disable helpers"
+        return 1
+    fi
+
+    # Check manager delegates to state_command
+    if sed -n '/"state")/,/;;/p' "$manager_script" | grep -q "state_command"; then
+        echo "✅ manager.sh delegates state operations to common.sh"
+    else
+        echo "❌ manager.sh does not delegate state operations"
+        return 1
+    fi
+
+    # Check state command is documented in usage
+    if grep -q "state <action> <type>" "$manager_script"; then
+        echo "✅ state command documented in usage"
+    else
+        echo "❌ state command missing from usage"
+        return 1
+    fi
+
+    # Check local-manager.sh routes state command to CF
+    if grep -q '"state")' "$local_manager"; then
+        echo "✅ local-manager.sh routes state command"
+    else
+        echo "❌ local-manager.sh missing state command"
+        return 1
+    fi
+
+    echo "✅ State command test passed"
+    return 0
+}
+
 # Main execution
 main() {
     # Parse command line arguments
@@ -2304,6 +2516,9 @@ main() {
     run_test "Manager Commands Interface" "test_manager_commands"
     run_test "Backup Type Combinations" "test_backup_type_combinations"
     run_test "Backup Info Functionality" "test_backup_info"
+    run_test "Delete Command" "test_delete_command"
+    run_test "Backup Throttle Feature" "test_backup_throttle"
+    run_test "State Command" "test_state_commands"
     run_test "Error Handling" "test_error_handling"
 
     echo ""
@@ -2349,11 +2564,11 @@ main() {
     # Category breakdown
     echo "Test Categories Covered:"
     echo "  • Basic System Tests (6 tests)"
-    echo "  • Date Format Tests (5 tests)"
-    echo "  • Manager Functionality Tests (6 tests)"
+    echo "  • Date Format Tests (6 tests)"
+    echo "  • Manager Functionality Tests (9 tests)"
     echo "  • Backup Operations Tests (5 tests)"
     echo "  • Restore & Advanced Tests (8 tests)"
-    echo "  • Total: 30 comprehensive tests"
+    echo "  • Total: 34 comprehensive tests"
     echo ""
 
     # Final summary

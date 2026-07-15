@@ -445,26 +445,26 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
           if (cd /var/www && $BACKUP_MANAGER backup static,public --throttle) 2>&1 | tee -a $TOMELOG; then
               echo "Automatic backup completed successfully." | tee -a $TOMELOG
           else
-              echo "Warning: Backup process encountered issues." | tee -a $TOMELOG
+              echo "WARNING (backup): *** Backup process encountered issues. ***" | tee -a $TOMELOG
           fi
 
           # Run cleanup using manager.sh clean command
-          # Clean static/public backups older than BACKUP_RETENTION_DAYS (default: 180 days, SSPP requirement)
+          # Clean static/public backups older than BACKUP_RETENTION_DAYS (default: 180 days, system requirement)
           # Use --non-interactive flag to skip confirmation prompts in automated context
           CLEANUP_DAYS=180
           if [ -n "$BACKUP_RETENTION_DAYS" ] && [ "$BACKUP_RETENTION_DAYS" -ge 180 ]; then
               CLEANUP_DAYS=$BACKUP_RETENTION_DAYS
           elif [ -n "$BACKUP_RETENTION_DAYS" ] && [ "$BACKUP_RETENTION_DAYS" -lt 180 ]; then
-              echo "Warning: BACKUP_RETENTION_DAYS ($BACKUP_RETENTION_DAYS) is less than SSPP minimum of 180 days. Using 180 days." | tee -a $TOMELOG
+              echo "WARNING (backup): *** BACKUP_RETENTION_DAYS ($BACKUP_RETENTION_DAYS) is less than minimum of 180 days. Using 180 days. ***" | tee -a $TOMELOG
           fi
           echo "Running automatic cleanup (retention: $CLEANUP_DAYS days for static/public)..." | tee -a $TOMELOG
           if (cd /var/www && $BACKUP_MANAGER clean static,public $CLEANUP_DAYS --non-interactive) 2>&1 | tee -a $TOMELOG; then
               echo "Cleanup completed." | tee -a $TOMELOG
           else
-              echo "Warning: Cleanup encountered issues." | tee -a $TOMELOG
+              echo "WARNING (backup): *** Cleanup encountered issues. ***" | tee -a $TOMELOG
           fi
       else
-          echo "Warning: Backup system not found at $BACKUP_MANAGER - skipping backups" | tee -a $TOMELOG
+          echo "WARNING (backup): *** Backup system not found at $BACKUP_MANAGER - skipping backups ***" | tee -a $TOMELOG
       fi
 
       # calculate the diff between s3 and tome
