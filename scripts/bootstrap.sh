@@ -244,6 +244,9 @@ fi
 echo "Setting lightweight cron key"
 drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"
 
+# Set up automatic backup cron system
+echo "Setting up automatic backup cron system"
+/var/www/scripts/snapshot/setup-cron.sh setup
 # SFTWR_AUDIT: emit software versions for monthly security audit log search
 OS_VERSION=$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo "unknown")
 NGINX_V=$(/usr/sbin/nginx -v 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
