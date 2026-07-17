@@ -2479,34 +2479,6 @@ restore_backup() {
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
         if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
-            # Sync theme assets from current container to match deployed code version
-            # Theme assets (logos, fonts, images) are part of the codebase, not dynamic content
-            # So we need to ensure S3 has the current version from the container
-            if [ -d "/var/www/web/themes/custom/usagov" ]; then
-                print_status $YELLOW "🔄 Syncing theme assets from current codebase..."
-
-                # Create temporary directory for theme assets
-                THEME_TMP_DIR="/tmp/theme-assets-$$"
-                mkdir -p "$THEME_TMP_DIR/themes/custom/usagov"
-
-                # Copy current theme assets from container
-                cp -rfp /var/www/web/themes/custom/usagov/fonts "$THEME_TMP_DIR/themes/custom/usagov/" 2>/dev/null || true
-                cp -rfp /var/www/web/themes/custom/usagov/images "$THEME_TMP_DIR/themes/custom/usagov/" 2>/dev/null || true
-                cp -rfp /var/www/web/themes/custom/usagov/assets "$THEME_TMP_DIR/themes/custom/usagov/" 2>/dev/null || true
-
-                # Sync theme assets to S3
-                if aws s3 sync "$THEME_TMP_DIR/" "s3://$BUCKET_NAME/web/" --only-show-errors --acl public-read $S3_EXTRA_PARAMS 2>&1; then
-                    print_status $GREEN "✅ Theme assets synced"
-                else
-                    print_status $YELLOW "⚠️ Theme asset sync had issues (non-fatal)"
-                fi
-
-                # Cleanup
-                rm -rf "$THEME_TMP_DIR"
-            else
-                print_status $YELLOW "⚠️ Theme directory not found, skipping asset sync"
-            fi
-
             print_status $GREEN "✅ Static site restored"
             audit_log "restore_static_success" "success" "Static site restored successfully" "backup_tag=$static_backup_tag"
             print_status $YELLOW "ℹ️  Note: Browser caches may take up to 15 minutes to refresh"

@@ -1597,6 +1597,19 @@ test_restore_functionality() {
         return 1
     fi
 
+    if echo "$restore_section" | grep -q 's3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/\$static_backup_tag/.*s3://\$BUCKET_NAME/web/.*--delete'; then
+        echo "✅ Static restore deletes objects absent from the backup"
+    else
+        echo "❌ Static restore must sync the backup to web/ with --delete"
+        return 1
+    fi
+
+    if echo "$restore_section" | grep -q 'Syncing theme assets from current codebase'; then
+        echo "❌ Static restore must not overlay assets from the current container"
+        return 1
+    fi
+    echo "✅ Static restore does not reintroduce current-container theme assets"
+
     local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
     if grep -q "if ! exec_restore_command" "$deploy_script"; then
         echo "✅ Deployment rollback checks data restore failures"
