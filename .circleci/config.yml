@@ -17,8 +17,8 @@ commands:
           command: |
             export DEPLOY_ENV=<< parameters.envname >>
             export DEPLOY_TICKET=CCI-<< pipeline.number >>
-            echo "export DEPLOY_ENV=<< parameters.envname >>" | tee -a $BASH_ENV
-            echo "export DEPLOY_TICKET=CCI-<< pipeline.number >>" | tee -a $BASH_ENV
+            printf 'export DEPLOY_ENV=%q\n' "$DEPLOY_ENV" >> "$BASH_ENV"
+            printf 'export DEPLOY_TICKET=%q\n' "$DEPLOY_TICKET" >> "$BASH_ENV"
             echo "Deployment context set: $DEPLOY_ENV / $DEPLOY_TICKET"
       - run:
           name: CloudGov Deploy CMS
@@ -182,7 +182,9 @@ commands:
       - run:
           name: Setup Environment for use in Scripts
           command: |
-            printenv | grep -i -v -E "^(PWD|OLDPWD|SHLVL|DOCKER_CONTENT_TRUST|_)=" | sed -e 's/^\([^=]*=\)\(.*\)/export \1"\2"/' | tee /home/circleci/project/env.local
+            umask 077
+            : > /home/circleci/project/env.local
+            chmod 600 /home/circleci/project/env.local
 
   snapshot-preamble:
     parameters:
