@@ -337,19 +337,19 @@ scripts/snapshot/manager.sh clean all all
 
 ## Cron Setup
 
-### Setup Automatic Database Backups
+### Setup Automatic Backups
 
 **Command:**
 ```bash
-scripts/snapshot/setup-cron.sh setup
+scripts/snapshot/setup-cron.sh setup all
 ```
 
 **Output:**
 ```
-Setting up database backup cron job...
-⚠️ Time conversion: 19:00 Eastern → 0:00 UTC
-📝 Note: This assumes EST (UTC-5). Adjust manually for EDT if needed.
-✅ Cron job setup complete
+Setting up automated backup cron job...
+📦 Backup types: all
+⏰ Backup time: 23:00 UTC
+✅ Cron job setup complete (all)
 ```
 
 ### Check Cron Status
@@ -363,18 +363,18 @@ scripts/snapshot/setup-cron.sh status
 ```
 Current backup cron jobs:
 =========================
-00 0 * * * cd /var/www && /var/www/scripts/snapshot/manager.sh backup db >/dev/null 2>&1
+0 23 * * * cd /var/www && /var/www/scripts/snapshot/manager.sh backup all >/dev/null 2>&1
 
 Configuration:
   Database backups enabled: true
-  Backup time: 19:00 EST
+  Backup time: 23:00 UTC
 ```
 
 ### Test Cron Command
 
 **Command:**
 ```bash
-scripts/snapshot/setup-cron.sh test
+scripts/snapshot/setup-cron.sh test all
 ```
 
 **Output:**
@@ -383,16 +383,14 @@ Testing cron command execution...
 This simulates the exact environment and command that cron will use
 
 Found cron job:
-  00 0 * * * cd /var/www && scripts/snapshot/manager.sh backup db >/dev/null 2>&1
+  0 23 * * * cd /var/www && scripts/snapshot/manager.sh backup all >/dev/null 2>&1
 
 Executing cron command in minimal environment...
-Command: cd /var/www && scripts/snapshot/manager.sh backup db
+Command: cd /var/www && scripts/snapshot/manager.sh backup all
 
-📦 Creating backup: db
+📦 Creating backup: static,public,db
 Timestamp: Oct-28-25
-💾 Backing up database...
-[... database backup output ...]
-✅ Database backup saved: AUTO-prod-14855-Oct-28-25
+[... backup output ...]
 🎉 Done.
 
 ✅ Cron command test successful!
@@ -460,11 +458,11 @@ AUTO-prod-14855-Oct-28-25-emergency    # Emergency manual backup
 
 ## Automatic Backup Triggers
 
-### Daily Database Backup (Cron)
-- **Schedule**: 00:00 UTC daily (7:00 PM EST)
-- **Command**: `scripts/snapshot/manager.sh backup db`
+### Daily Scheduled Backup (Cron)
+- **Schedule**: 23:00 UTC daily (6:00 PM EST / 7:00 PM EDT)
+- **Command**: `scripts/snapshot/manager.sh backup all` (types are configurable)
 - **Tag Format**: `AUTO-{space}-{container}-{date}`
-- **Retention**: 30 days (configurable)
+- **Retention**: 180 days (configurable)
 
 ### Tome Sync Backups
 - **Trigger**: After successful static site generation
@@ -478,13 +476,13 @@ All automatic backup settings are in `scripts/snapshot/backup-system.conf`:
 ```bash
 # Database backups
 ENABLE_DB_BACKUPS=true
-DB_BACKUP_TIME="19:00"
-DB_BACKUP_RETENTION_DAYS=30
+DB_BACKUP_TIME="23:00"
+DB_BACKUP_RETENTION_DAYS=180
 
 # Static/Public backups
 ENABLE_STATIC_AUTO_BACKUPS=true
 ENABLE_PUBLIC_AUTO_BACKUPS=true
-BACKUP_RETENTION_DAYS=7
+BACKUP_RETENTION_DAYS=180
 ```
 
 ---
