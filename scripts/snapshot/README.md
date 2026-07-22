@@ -37,12 +37,12 @@ scripts/snapshot/manager.sh info                        # Get system information
 
 ```bash
 # From project root - control CF backups remotely
-scripts/snapshot/local-manager.sh list                              # List all backups
-scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy  # Create backup on CF
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/  # Download to local
-scripts/snapshot/local-manager.sh cron status                       # Check automated backup schedule
-scripts/snapshot/local-manager.sh test                              # Run test suite on CF
-scripts/snapshot/local-manager.sh info                              # Get system info from CF
+scripts/devops/local-manager.sh list                              # List all backups
+scripts/devops/local-manager.sh backup all USAGOV-123 pre-deploy  # Create backup on CF
+scripts/devops/local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/  # Download to local
+scripts/devops/local-manager.sh cron status                       # Check automated backup schedule
+scripts/devops/local-manager.sh test                              # Run test suite on CF
+scripts/devops/local-manager.sh info                              # Get system info from CF
 ```
 
 ## Commands
@@ -64,9 +64,9 @@ scripts/snapshot/manager.sh list db 2025-11-01:               # Database backups
 scripts/snapshot/manager.sh list static :2025-10-15           # Static backups up to Oct 15th
 
 # From local machine
-scripts/snapshot/local-manager.sh list              # Show all backups on CF
-scripts/snapshot/local-manager.sh list db 7         # Show database backups from last 7 days
-scripts/snapshot/local-manager.sh list all 2025-09-01:2025-09-30  # September 2025 backups
+scripts/devops/local-manager.sh list              # Show all backups on CF
+scripts/devops/local-manager.sh list db 7         # Show database backups from last 7 days
+scripts/devops/local-manager.sh list all 2025-09-01:2025-09-30  # September 2025 backups
 ```
 
 ### Create Backups
@@ -89,8 +89,8 @@ scripts/snapshot/manager.sh backup db AUTO "" --skip-state-management
 scripts/snapshot/manager.sh backup db AUTO "" --ssm  # Shorthand
 
 # From local machine - same commands, executed remotely
-scripts/snapshot/local-manager.sh backup all USAGOV-123 pre-deploy    # Create backup on CF
-scripts/snapshot/local-manager.sh backup db                           # Database backup only on CF
+scripts/devops/local-manager.sh backup all USAGOV-123 pre-deploy    # Create backup on CF
+scripts/devops/local-manager.sh backup db                           # Database backup only on CF
 ```
 
 **Drupal State Management:**
@@ -120,7 +120,7 @@ scripts/snapshot/manager.sh clean all --older-than 30  # Keep last 30 days (expl
 scripts/snapshot/manager.sh clean db 14 -y          # Database only, non-interactive
 
 # From local machine
-scripts/snapshot/local-manager.sh clean all 7 -y    # Non-interactive cleanup on CF
+scripts/devops/local-manager.sh clean all 7 -y    # Non-interactive cleanup on CF
 ```
 
 #### Delete Specific Time Periods
@@ -135,7 +135,7 @@ scripts/snapshot/manager.sh clean db --in-range 2025-11-01: -y  # Delete from No
 scripts/snapshot/manager.sh clean all --in-range :2025-09-30    # Delete up to September
 
 # From local machine
-scripts/snapshot/local-manager.sh clean all --in-range 2024-01-01:2024-12-31 -y
+scripts/devops/local-manager.sh clean all --in-range 2024-01-01:2024-12-31 -y
 ```
 
 #### Keep Specific Time Periods
@@ -149,7 +149,7 @@ scripts/snapshot/manager.sh clean all --except-range 2025-11-01:  # Keep from No
 scripts/snapshot/manager.sh clean db --except-range :2025-10-31   # Keep up to Oct, delete newer
 
 # From local machine
-scripts/snapshot/local-manager.sh clean all --except-range 2025-11-01: -y  # Keep Q4, delete rest
+scripts/devops/local-manager.sh clean all --except-range 2025-11-01: -y  # Keep Q4, delete rest
 ```
 
 #### Delete by Date Boundaries
@@ -163,7 +163,7 @@ scripts/snapshot/manager.sh clean all --newer-than-date 2025-10-31  # Delete eve
 scripts/snapshot/manager.sh clean db --older-than-date 2024-01-01 -y  # Delete 2023 and older
 
 # From local machine
-scripts/snapshot/local-manager.sh clean all --older-than-date 2024-01-01 -y
+scripts/devops/local-manager.sh clean all --older-than-date 2024-01-01 -y
 ```
 
 #### Delete All Backups (Dangerous!)
@@ -198,8 +198,8 @@ scripts/snapshot/manager.sh info db                 # Show database-specific inf
 scripts/snapshot/manager.sh info all AUTO-prod-14850-2025-10-28  # Show details for specific backup
 
 # From local machine
-scripts/snapshot/local-manager.sh info                          # Show system configuration from CF
-scripts/snapshot/local-manager.sh info db AUTO-prod-14850-2025-10-28  # Show specific backup details
+scripts/devops/local-manager.sh info                          # Show system configuration from CF
+scripts/devops/local-manager.sh info db AUTO-prod-14850-2025-10-28  # Show specific backup details
 ```
 
 ### Restore Backups
@@ -211,8 +211,8 @@ scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28 --only=db    # Re
 scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28 --only=db --ssm  # Skip state management
 
 # From local machine (restores on CF, not locally)
-scripts/snapshot/local-manager.sh restore AUTO-prod-14850-2025-10-28        # Restore on CF (interactive)
-scripts/snapshot/local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=static,db  # Selective restore
+scripts/devops/local-manager.sh restore AUTO-prod-14850-2025-10-28        # Restore on CF (interactive)
+scripts/devops/local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=static,db  # Selective restore
 ```
 
 **Note:** Database restores automatically manage Drupal state (wait for tome, disable it, enable maintenance mode) before importing, then restore state after completion. Use `--skip-state-management` (or `--ssm`) to bypass this.
@@ -225,10 +225,10 @@ Download backups from Cloud Foundry to your local machine or to the CF container
 
 ```bash
 # Download to local machine (streams through SSH - no CF disk usage)
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28              # All types to current dir
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 db           # Database only
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/  # All to ./backups/
-scripts/snapshot/local-manager.sh download AUTO-prod-14850-2025-10-28 db,static ./backups/  # Multiple types
+scripts/devops/local-manager.sh download AUTO-prod-14850-2025-10-28              # All types to current dir
+scripts/devops/local-manager.sh download AUTO-prod-14850-2025-10-28 db           # Database only
+scripts/devops/local-manager.sh download AUTO-prod-14850-2025-10-28 all ./backups/  # All to ./backups/
+scripts/devops/local-manager.sh download AUTO-prod-14850-2025-10-28 db,static ./backups/  # Multiple types
 ```
 
 #### Direct on Cloud Foundry
@@ -305,23 +305,33 @@ This format ensures:
 ## File Structure
 
 ```text
-scripts/snapshot/
-├── manager.sh                  # Main backup management script (runs on CF)
-├── local-manager.sh            # Local wrapper for remote CF control
-├── common.sh                   # Shared utilities and functions
-├── backup-system.conf          # Configuration file
-├── setup-cron.sh               # Cron job management
-├── test.sh                     # Test suite
-└── README.md                   # This file
+scripts/
+├── common.sh                      # Shared utilities (used by all scripts)
+├── devops/                        # LOCAL execution scripts
+│   ├── deploy.sh                  # Deployment orchestration (runs locally)
+│   ├── local-manager.sh           # Local backup management wrapper
+│   └── README.md                  # DevOps scripts documentation
+└── snapshot/                      # REMOTE execution scripts
+    ├── manager.sh                 # Main backup operations (runs on CF via cf ssh)
+    ├── setup-cron.sh              # Cron job management (runs on CF)
+    ├── test.sh                    # Test suite (runs on CF)
+    ├── backup-system.conf         # Configuration file
+    └── README.md                  # This file
 ```
+
+### Execution Context
+
+**Important**: Scripts in this folder execute **inside Cloud Foundry containers** via `cf ssh`. They are designed for remote execution, not local execution.
+
+For local execution, use scripts in `../devops/` folder:
+- `../devops/local-manager.sh` - Control backups from your local machine
+- `../devops/deploy.sh` - Deployment orchestration from your local machine
 
 ### Script Purposes
 
-- **manager.sh**: Core backup operations - runs on Cloud Foundry containers
-- **local-manager.sh**: Remote control wrapper - runs on local machine, executes all commands via `cf ssh`
-- **common.sh**: Shared functions, configuration loading, and utilities
-- **setup-cron.sh**: Automated backup scheduling - runs on CF, controlled via local-manager.sh or directly
-- **test.sh**: Comprehensive test suite for validation
+- **manager.sh**: Core backup operations - runs on Cloud Foundry containers via `cf ssh`
+- **setup-cron.sh**: Automated backup scheduling - runs on CF, controlled via `../devops/local-manager.sh` or directly
+- **test.sh**: Comprehensive test suite for validation - runs on CF
 
 ## Configuration
 
@@ -334,29 +344,34 @@ The system is configured through `backup-system.conf`. Key settings include:
 
 ## Automated Backups
 
-Database backups can be scheduled automatically using cron:
+Backups can be scheduled automatically using cron. You can configure which types to backup (all, db only, static+public, etc.):
 
 ```bash
 # From local machine (recommended)
-scripts/snapshot/local-manager.sh cron setup    # Set up daily database backups (uses DB_BACKUP_TIME env var)
-scripts/snapshot/local-manager.sh cron remove   # Remove scheduled backups
-scripts/snapshot/local-manager.sh cron status   # Check current cron status
-scripts/snapshot/local-manager.sh cron test     # Test the cron backup command
+scripts/devops/local-manager.sh cron setup all        # Daily backups of all types (default)
+scripts/devops/local-manager.sh cron setup db         # Daily database backups only
+scripts/devops/local-manager.sh cron setup static,db  # Daily static and database backups
+scripts/devops/local-manager.sh cron remove           # Remove scheduled backups
+scripts/devops/local-manager.sh cron status           # Check current cron status
+scripts/devops/local-manager.sh cron test all         # Test the cron backup command
 
 # On Cloud Foundry (direct)
-scripts/snapshot/setup-cron.sh setup    # Set up daily database backups
-scripts/snapshot/setup-cron.sh remove   # Remove scheduled backups
-scripts/snapshot/setup-cron.sh status   # Check current cron status
-scripts/snapshot/setup-cron.sh test     # Test the cron backup command
+scripts/snapshot/setup-cron.sh setup all       # Daily backups of all types
+scripts/snapshot/setup-cron.sh setup db        # Daily database backups only
+scripts/snapshot/setup-cron.sh remove          # Remove scheduled backups
+scripts/snapshot/setup-cron.sh status          # Check current cron status
+scripts/snapshot/setup-cron.sh test all        # Test the cron backup command
 ```
 
 **Automated Features:**
 
 - Runs daily at configured time (set via DB_BACKUP_TIME environment variable in UTC, default: 23:00)
-- Creates database backups with AUTO prefix
+- Flexible backup type selection (all, db, static, public, or comma-separated combinations)
+- When backing up multiple types, they share the same timestamp for perfect synchronization
+- Creates backups with the AUTO prefix
 - Automatically cleans old backups based on retention policy
 - Logs all operations for monitoring
-- Independent of static site generation backups
+- Smart optimization: skips unchanged static/public backups to save space
 
 ## Storage Structure
 
@@ -390,7 +405,7 @@ Run the comprehensive test suite to verify system functionality:
 
 ```bash
 # From local machine (recommended)
-scripts/snapshot/local-manager.sh test
+scripts/devops/local-manager.sh test
 
 # On Cloud Foundry (direct)
 cd /var/www
@@ -455,9 +470,9 @@ The backup system integrates with:
 
 #### Cron Issues
 
-- Check DB_BACKUP_TIME environment variable is set (format: HH:MM in EST)
-- Verify cron status: `scripts/snapshot/local-manager.sh cron status`
-- Test cron command: `scripts/snapshot/local-manager.sh cron test`
+- Check DB_BACKUP_TIME environment variable is set (format: HH:MM in UTC)
+- Verify cron status: `scripts/devops/local-manager.sh cron status`
+- Test cron command: `scripts/devops/local-manager.sh cron test`
 - Check CF instance index (cron only runs on instance 0)
 
 ### Getting Help
@@ -466,13 +481,13 @@ The backup system integrates with:
 
    ```bash
    scripts/snapshot/manager.sh info              # On CF
-   scripts/snapshot/local-manager.sh info        # From local
+   scripts/devops/local-manager.sh info        # From local
    ```
 
 2. **Run test suite**:
 
    ```bash
-   scripts/snapshot/local-manager.sh test        # From local
+   scripts/devops/local-manager.sh test        # From local
    scripts/snapshot/test.sh                      # On CF
    ```
 
