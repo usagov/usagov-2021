@@ -55,20 +55,17 @@ class StaticImageSyncCommands extends DrushCommands {
     $finder = new Finder();
     $finder->files()->in($html_dir)->name('*.html');
     $all_files = [];
+    $html_file_count = 0;
+    $rewritten_html_file_count = 0;
     foreach ($finder as $file) {
       $html = file_get_contents($file->getRealPath());
-      // Match only src URLs (exclude srcset).
-      preg_match_all('/src="([^"]+)"/', $html, $matches);
-      foreach ($matches[1] as $url) {
-        // Only process /s3/files/ or /sites/default/files/ or /files/.
-        if (preg_match('#/(s3/files|sites/default/files|files)/(.+?)(["\?\s])#', $url . ' ', $m)) {
-          $relative_path = $m[1] . '/' . $m[2];
-          // Remove query/fragment.
-          $relative_path = preg_replace('/[\?"].*$/', '', $relative_path);
-          // Normalize spaces and %20 to plus signs for consistency
-          $relative_path = str_replace(['%20', ' '], '+', $relative_path);
-          $all_files[$relative_path] = TRUE;
-        }
+      $html_file_count++;
+      $this->collectReferencedFiles($html, $all_files);
+
+      $rewritten_html = $this->normalizeImageUrls($html);
+      if ($rewritten_html !== $html) {
+        file_put_contents($file->getRealPath(), $rewritten_html);
+        $rewritten_html_file_count++;
       }
     }
     $this->output()->writeln('Found ' . count($all_files) . ' unique referenced files.');
@@ -116,33 +113,53 @@ class StaticImageSyncCommands extends DrushCommands {
         $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) do not exist');
       }
     }
-    // Now rewrite HTML references to use static paths and normalize URLs.
-    foreach ($finder as $file) {
-      $html = file_get_contents($file->getRealPath());
-
-      // Process only src attributes in img tags (exclude srcset)
-      $html = preg_replace_callback(
-        '/src="([^"]+)"/i',
-        function ($src_matches) {
-          $src_url = $src_matches[1];
-
-          // Only process image files with /files/ and spaces or %20
-          if (strpos($src_url, '/files/') !== FALSE &&
-              (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
-              preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
-
-            $normalized_url = $this->normalizeImageUrl($src_url);
-            return 'src="' . $normalized_url . '"';
-          }
-
-          return $src_matches[0];
-        },
-        $html
-      );
-
-      file_put_contents($file->getRealPath(), $html);
-    }
+    $this->output()->writeln('Scanned ' . $html_file_count . ' HTML files and rewrote ' . $rewritten_html_file_count . '.');
     $this->output()->writeln('HTML references normalized to use pluses.');
+  }
+
+  /**
+   * Collects referenced file paths using the current src-only contract.
+   *
+   * @param array<string, bool> $all_files
+   *   The unique referenced file paths.
+   */
+  private function collectReferencedFiles(string $html, array &$all_files): void {
+    // Match only src URLs (exclude srcset).
+    preg_match_all('/src="([^"]+)"/', $html, $matches);
+    foreach ($matches[1] as $url) {
+      // Only process /s3/files/ or /sites/default/files/ or /files/.
+      if (preg_match('#/(s3/files|sites/default/files|files)/(.+?)(["\?\s])#', $url . ' ', $match)) {
+        $relative_path = $match[1] . '/' . $match[2];
+        // Remove query/fragment.
+        $relative_path = preg_replace('/[\?"].*$/', '', $relative_path);
+        // Normalize spaces and %20 to plus signs for consistency.
+        $relative_path = str_replace(['%20', ' '], '+', $relative_path);
+        $all_files[$relative_path] = TRUE;
+      }
+    }
+  }
+
+  /**
+   * Normalizes supported image src attributes without reparsing the HTML file.
+   */
+  private function normalizeImageUrls(string $html): string {
+    return preg_replace_callback(
+      '/src="([^"]+)"/i',
+      function ($src_matches) {
+        $src_url = $src_matches[1];
+
+        // Only process image files with /files/ and spaces or %20.
+        if (strpos($src_url, '/files/') !== FALSE &&
+            (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
+            preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
+
+          return 'src="' . $this->normalizeImageUrl($src_url) . '"';
+        }
+
+        return $src_matches[0];
+      },
+      $html
+    ) ?? $html;
   }
 
   /**
