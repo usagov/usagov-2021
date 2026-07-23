@@ -173,6 +173,11 @@ if [ "$CONTENT_UPDATED" != "0" ] || [[ "$FORCE" =~ ^\-{0,2}f\(orce\)?$ ]] || [ "
     $SCRIPT_PATH/tome-sync.sh $TOMELOGFILE $YMDHMS $FORCE
     SYNC_SUCCESS=$?
     ssg_metric_end "sync" "$SYNC_START" "end" "exit_code=$SYNC_SUCCESS"
+    if [ "$SYNC_SUCCESS" != "0" ]; then
+      echo "Static site sync failed with status $SYNC_SUCCESS." | tee -a $TOMELOG
+      ssg_metric_end "tome_run" "$RUN_START" "exit" "exit_code=1" "reason=sync_failed"
+      exit 1
+    fi
   else
     FAILURE_CLEANUP_START=$(ssg_now)
     ssg_metric "failure_cleanup" "start" "tome_exit_code=$TOME_SUCCESS"
