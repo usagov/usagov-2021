@@ -73,8 +73,17 @@ sync_failure() {
 
 collect_s3_inventory() {
   inventory_file=$1
+  response_file=$(mktemp "/tmp/tome-s3-response-${YMDHMS}.XXXXXX")
 
-  aws s3 ls --recursive "s3://$BUCKET_NAME/web/" $S3_EXTRA_PARAMS > "$inventory_file" 2>>"$TOMELOG"
+  if ! aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --prefix "web/" --output json $S3_EXTRA_PARAMS > "$response_file" 2>>"$TOMELOG"; then
+    rm -f "$response_file"
+    return 1
+  fi
+  if ! jq -r '.Contents[]?.Key' "$response_file" > "$inventory_file"; then
+    rm -f "$response_file"
+    return 1
+  fi
+  rm -f "$response_file"
 }
 
 collect_render_inventory() {
@@ -129,6 +138,8 @@ APP_SPACE=${APP_SPACE:-local}
 S3_EXTRA_PARAMS=""
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
+  export AWS_REQUEST_CHECKSUM_CALCULATION=when_required
+  export AWS_RESPONSE_CHECKSUM_VALIDATION=when_required
 fi
 ssg_metric_end "s3_config" "$S3_CONFIG_START" "end" "app_space=$APP_SPACE" "bucket=$BUCKET_NAME"
 
