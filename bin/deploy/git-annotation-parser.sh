@@ -154,7 +154,7 @@ if [ -n $ANNOTATED_TAG ]; then
       echo
       echo "   ROUTE_SERVICE_APP_NAME=waf \\
        ROUTE_SERVICE_NAME=waf-route-${SPACE}-usagov \\
-       PROTECTED_APP_NAMES=cms \\
+       PROTECTED_APP_NAMES=cms,www,api-proxy \\
           bin/cloudgov/deploy-waf $CCI_BUILD $WAF_DIGEST"
       echo
       echo
