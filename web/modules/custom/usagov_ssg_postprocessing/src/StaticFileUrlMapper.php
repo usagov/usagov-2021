@@ -21,7 +21,7 @@ final class StaticFileUrlMapper {
         continue;
       }
 
-      $relative_path = substr($url, $prefix_position + 1);
+      $relative_path = substr($url, $prefix_position + strlen($prefix));
       $relative_path = preg_split('/[?#]/', $relative_path, 2)[0];
       $relative_path = str_replace(['%20', ' '], '+', $relative_path);
 
@@ -40,6 +40,21 @@ final class StaticFileUrlMapper {
       '/files/',
       $url,
     );
+  }
+
+  /**
+   * Returns the path used beneath the static output directory.
+   */
+  public static function staticOutputRelativePathFromFileUrl(string $url): ?string {
+    if (self::publicUriFromFileUrl($url) === NULL) {
+      return NULL;
+    }
+
+    $static_url = self::normalizeStaticFileUrlPrefix($url);
+    $path = preg_split('/[?#]/', $static_url, 2)[0];
+    $path_position = strpos($path, '/files/');
+
+    return $path_position === FALSE ? NULL : substr($path, $path_position + 1);
   }
 
 }

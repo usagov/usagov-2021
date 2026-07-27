@@ -78,12 +78,15 @@ class StaticImageSyncCommands extends DrushCommands {
     }
     $this->output()->writeln('Found ' . count($all_files) . ' unique referenced files.');
     $reference_manifest = [];
-    foreach (array_keys($all_files) as $rel_path) {
-      // Try public://files/... or public://s3/files/....
-      $public_path = 'public://' . $rel_path;
+    foreach ($all_files as $public_path => $source_url) {
+      $source_relative_path = substr($public_path, strlen('public://'));
+      $dest_rel_path = StaticFileUrlMapper::staticOutputRelativePathFromFileUrl($source_url);
+      if ($dest_rel_path === NULL) {
+        continue;
+      }
 
       // Create destination with sanitized filename
-      $rel_path_parts = pathinfo($rel_path);
+      $rel_path_parts = pathinfo($dest_rel_path);
       $sanitized_filename = $this->sanitizeFilename($rel_path_parts['basename']);
       $dest_rel_path = $rel_path_parts['dirname'] . '/' . $sanitized_filename;
 
@@ -94,34 +97,30 @@ class StaticImageSyncCommands extends DrushCommands {
       }
       $reference_manifest[$public_path] = [$dest_rel_path, 'unresolved'];
 
-      $real_source = $this->fileSystem->realpath($public_path);
-
-      // If not found, try alternative encodings and variations to find the actual file
-      if (!$real_source || !file_exists($real_source)) {
-        $alt_paths = [
-          str_replace('+', ' ', $rel_path),
-          str_replace('+', '%20', $rel_path),
-          urldecode($rel_path), // Try URL decoded version
-          str_replace('-', ' ', $rel_path), // In case it was already sanitized with hyphens
-        ];
-        foreach ($alt_paths as $alt_rel_path) {
-          $alt_public_path = 'public://' . $alt_rel_path;
-          $alt_real_source = $this->fileSystem->realpath($alt_public_path);
-          if ($alt_real_source && file_exists($alt_real_source)) {
-            $real_source = $alt_real_source;
-            $this->output()->writeln('Mapped ' . $rel_path . ' to ' . $alt_rel_path);
-            break;
-          }
+      // S3FS can read uncached objects through its stream wrapper, so avoid
+      // requiring a local realpath before copying the source object.
+      $source_uri = NULL;
+      $source_uri_candidates = [
+        $public_path,
+        'public://' . str_replace('+', ' ', $source_relative_path),
+        'public://' . str_replace('+', '%20', $source_relative_path),
+        'public://' . urldecode($source_relative_path),
+        // In case it was already sanitized with hyphens.
+        'public://' . str_replace('-', ' ', $source_relative_path),
+      ];
+      foreach ($source_uri_candidates as $candidate_source_uri) {
+        if (file_exists($candidate_source_uri)) {
+          $source_uri = $candidate_source_uri;
+          break;
         }
       }
 
-      if ($real_source && file_exists($real_source)) {
-        copy($real_source, $dest_path);
+      if ($source_uri !== NULL && copy($source_uri, $dest_path)) {
         $reference_manifest[$public_path][1] = 'resolved';
-        $this->output()->writeln('Copied ' . $real_source . ' to ' . $dest_path);
+        $this->output()->writeln('Copied ' . $source_uri . ' to ' . $dest_path);
       }
       else {
-        $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) do not exist');
+        $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) could not be copied');
       }
     }
     if (!empty($reference_manifest_path)) {
@@ -134,8 +133,8 @@ class StaticImageSyncCommands extends DrushCommands {
   /**
    * Collects referenced file paths using the current src-only contract.
    *
-   * @param array<string, bool> $all_files
-   *   The unique referenced file paths.
+  * @param array<string, string> $all_files
+  *   The unique public URIs keyed to their source URLs.
    */
   private function collectReferencedFiles(string $html, array &$all_files): void {
     // Match only src URLs (exclude srcset).
@@ -143,7 +142,7 @@ class StaticImageSyncCommands extends DrushCommands {
     foreach ($matches[1] as $url) {
       $public_uri = StaticFileUrlMapper::publicUriFromFileUrl($url);
       if ($public_uri !== NULL) {
-        $all_files[substr($public_uri, strlen('public://'))] = TRUE;
+        $all_files[$public_uri] = $url;
       }
     }
   }
