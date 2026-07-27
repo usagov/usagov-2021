@@ -253,6 +253,7 @@ fi
 # duplicate the logic used by the egress proxy to find bucket names
 n=$(echo -E "$VCAP_SERVICES" | jq -r '.s3 | length')
 i=0
+HOSTNAME_REWRITE_SED_SCRIPT=$(mktemp "/tmp/tome-s3-hostname-rewrites-${YMDHMS}.XXXXXX")
 echo "Replacing references to S3 Bucket hostnames ... "
 while [ $i -lt "$n" ]
 do
@@ -262,12 +263,18 @@ do
   REF_AWS_ENDPOINT_ALT=$(  echo -E "$REF_AWS_ENDPOINT"  | sed 's/s3\-us\-/s3.us-/' | uniq )
   REF_AWS_FIPS_ENDPOINT=$( echo -E "$VCAP_SERVICES" | jq -r ".s3[$i].credentials.fips_endpoint" | uniq )
   echo " ... $REF_BUCKET"
-  # the (cms)? of the regex was used for a specfic reference we kept finding that used /public instead of /cms/public
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_ENDPOINT_ALT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
-  find $RENDER_DIR -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i 's|'"${REF_BUCKET}.${REF_AWS_FIPS_ENDPOINT}"'\(/cms\)\?/public/|'"$WWW_HOST"'/s3/files/|ig' {} \;
+  # The optional /cms segment handles legacy /public references. Build all
+  # replacement rules first so the render tree is scanned only once.
+  printf '%s\n' "s|${REF_BUCKET}.${REF_AWS_ENDPOINT}\(/cms\)\?/public/|${WWW_HOST}/s3/files/|ig" >> "$HOSTNAME_REWRITE_SED_SCRIPT"
+  printf '%s\n' "s|${REF_BUCKET}.${REF_AWS_ENDPOINT_ALT}\(/cms\)\?/public/|${WWW_HOST}/s3/files/|ig" >> "$HOSTNAME_REWRITE_SED_SCRIPT"
+  printf '%s\n' "s|${REF_BUCKET}.${REF_AWS_FIPS_ENDPOINT}\(/cms\)\?/public/|${WWW_HOST}/s3/files/|ig" >> "$HOSTNAME_REWRITE_SED_SCRIPT"
   i=$((i+1))
 done
+if ! find "$RENDER_DIR" -type f \( -name "*.css" -o -name "*.js" -o -name "*.html" \) -exec sed -i -f "$HOSTNAME_REWRITE_SED_SCRIPT" {} +; then
+  rm -f "$HOSTNAME_REWRITE_SED_SCRIPT"
+  sync_failure "hostname_rewrites" 1 "Static site sync failed while rewriting S3 bucket hostnames."
+fi
+rm -f "$HOSTNAME_REWRITE_SED_SCRIPT"
 ssg_metric_end "hostname_rewrites" "$HOSTNAME_REWRITE_START" "end" "bucket_count=$n"
 
 
@@ -277,9 +284,13 @@ ssg_metric_end "hostname_rewrites" "$HOSTNAME_REWRITE_START" "end" "bucket_count
 ################################################################################
 echo "Running Drush static image sync (usagov:ssg-sync-images) ..." | tee -a $TOMELOG
 STATIC_IMAGE_SYNC_START=$(ssg_now)
+REFERENCE_ASSET_MANIFEST="/tmp/tome-referenced-assets-${YMDHMS}.tsv"
 ssg_metric "static_image_sync" "start"
-if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" 2>&1 | tee -a $TOMELOG; then
+if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" --reference_manifest_path="$REFERENCE_ASSET_MANIFEST" 2>&1 | tee -a $TOMELOG; then
   ssg_metric_end "static_image_sync" "$STATIC_IMAGE_SYNC_START" "end" "exit_code=0"
+  REFERENCE_ASSET_COUNT=$(awk 'END { print NR - 1 }' "$REFERENCE_ASSET_MANIFEST")
+  REFERENCE_ASSET_UNRESOLVED=$(awk -F '\t' '$3 == "unresolved" { count++ } END { print count + 0 }' "$REFERENCE_ASSET_MANIFEST")
+  ssg_metric "referenced_asset_manifest" "end" "entry_count=$REFERENCE_ASSET_COUNT" "unresolved_count=$REFERENCE_ASSET_UNRESOLVED" "path=$REFERENCE_ASSET_MANIFEST"
   echo "Drush static image sync completed successfully." | tee -a $TOMELOG
 else
   STATIC_IMAGE_SYNC_SUCCESS=$?

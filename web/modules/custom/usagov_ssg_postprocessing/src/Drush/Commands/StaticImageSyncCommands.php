@@ -3,6 +3,7 @@
 namespace Drupal\usagov_ssg_postprocessing\Drush\Commands;
 
 use Drush\Commands\DrushCommands;
+use Drupal\usagov_ssg_postprocessing\StaticFileUrlMapper;
 use Symfony\Component\Finder\Finder;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Database\Connection;
@@ -48,9 +49,16 @@ class StaticImageSyncCommands extends DrushCommands {
    * @command usagov:ssg-sync-images
    * @aliases ssg-sync-images
    */
-  public function syncImages(array $options = ['html_dir' => 'html', 'output_files_dir' => 'html/files']): void {
+  public function syncImages(
+    array $options = [
+      'html_dir' => 'html',
+      'output_files_dir' => 'html/files',
+      'reference_manifest_path' => NULL,
+    ],
+  ): void {
     $html_dir = $options['html_dir'];
     $output_files_dir = $options['output_files_dir'];
+    $reference_manifest_path = $options['reference_manifest_path'];
 
     $finder = new Finder();
     $finder->files()->in($html_dir)->name('*.html');
@@ -69,6 +77,7 @@ class StaticImageSyncCommands extends DrushCommands {
       }
     }
     $this->output()->writeln('Found ' . count($all_files) . ' unique referenced files.');
+    $reference_manifest = [];
     foreach (array_keys($all_files) as $rel_path) {
       // Try public://files/... or public://s3/files/....
       $public_path = 'public://' . $rel_path;
@@ -83,6 +92,7 @@ class StaticImageSyncCommands extends DrushCommands {
       if (!is_dir($dest_dir)) {
         mkdir($dest_dir, 0775, TRUE);
       }
+      $reference_manifest[$public_path] = [$dest_rel_path, 'unresolved'];
 
       $real_source = $this->fileSystem->realpath($public_path);
 
@@ -107,11 +117,15 @@ class StaticImageSyncCommands extends DrushCommands {
 
       if ($real_source && file_exists($real_source)) {
         copy($real_source, $dest_path);
+        $reference_manifest[$public_path][1] = 'resolved';
         $this->output()->writeln('Copied ' . $real_source . ' to ' . $dest_path);
       }
       else {
         $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) do not exist');
       }
+    }
+    if (!empty($reference_manifest_path)) {
+      $this->writeReferenceManifest($reference_manifest_path, $reference_manifest);
     }
     $this->output()->writeln('Scanned ' . $html_file_count . ' HTML files and rewrote ' . $rewritten_html_file_count . '.');
     $this->output()->writeln('HTML references normalized to use pluses.');
@@ -127,16 +141,27 @@ class StaticImageSyncCommands extends DrushCommands {
     // Match only src URLs (exclude srcset).
     preg_match_all('/src="([^"]+)"/', $html, $matches);
     foreach ($matches[1] as $url) {
-      // Only process /s3/files/ or /sites/default/files/ or /files/.
-      if (preg_match('#/(s3/files|sites/default/files|files)/(.+?)(["\?\s])#', $url . ' ', $match)) {
-        $relative_path = $match[1] . '/' . $match[2];
-        // Remove query/fragment.
-        $relative_path = preg_replace('/[\?"].*$/', '', $relative_path);
-        // Normalize spaces and %20 to plus signs for consistency.
-        $relative_path = str_replace(['%20', ' '], '+', $relative_path);
-        $all_files[$relative_path] = TRUE;
+      $public_uri = StaticFileUrlMapper::publicUriFromFileUrl($url);
+      if ($public_uri !== NULL) {
+        $all_files[substr($public_uri, strlen('public://'))] = TRUE;
       }
     }
+  }
+
+  /**
+   * Writes the current reference-to-source mapping without changing publish behavior.
+   *
+   * @param array<string, array{string, string}> $reference_manifest
+   *   The public URI, destination path, and source resolution status for each file.
+   */
+  private function writeReferenceManifest(string $reference_manifest_path, array $reference_manifest): void {
+    ksort($reference_manifest);
+    $rows = ["public_uri\tdestination_relative_path\tsource_status"];
+    foreach ($reference_manifest as $public_uri => [$destination_path, $source_status]) {
+      $rows[] = $public_uri . "\t" . $destination_path . "\t" . $source_status;
+    }
+    file_put_contents($reference_manifest_path, implode("\n", $rows) . "\n");
+    $this->output()->writeln('Wrote referenced asset manifest to ' . $reference_manifest_path . '.');
   }
 
   /**
@@ -559,8 +584,7 @@ class StaticImageSyncCommands extends DrushCommands {
    */
   private function normalizeImageUrl(string $url): string {
     // Replace /s3/files/ and /sites/default/files/ with /files/
-    $normalized_url = preg_replace('#/s3/files/#', '/files/', $url);
-    $normalized_url = preg_replace('#/sites/default/files/#', '/files/', $normalized_url);
+    $normalized_url = StaticFileUrlMapper::normalizeStaticFileUrlPrefix($url);
 
     // Parse URL to separate path from query/fragment
     $url_parts = parse_url($normalized_url);
