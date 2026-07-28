@@ -57,4 +57,11 @@ final class StaticFileUrlMapper {
     return $path_position === FALSE ? NULL : substr($path, $path_position + 1);
   }
 
+  /**
+   * Determines whether a URL is a generated static asset, not an S3FS object.
+   */
+  public static function isGeneratedStaticAssetUrl(string $url): bool {
+    return str_contains($url, '/files/js/');
+  }
+
 }

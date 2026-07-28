@@ -18,4 +18,8 @@ return [
     '/files/documents/benefits.pdf' => 'files/documents/benefits.pdf',
     'https://example.gov/assets/example.png' => NULL,
   ],
+  'generated_static_asset' => [
+    '/files/js/js_example.js' => TRUE,
+    '/s3/files/styles/large/public/example.png' => FALSE,
+  ],
 ];

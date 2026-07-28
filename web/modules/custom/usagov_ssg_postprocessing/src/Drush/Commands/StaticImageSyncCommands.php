@@ -133,13 +133,16 @@ class StaticImageSyncCommands extends DrushCommands {
   /**
    * Collects referenced file paths using the current src-only contract.
    *
-  * @param array<string, string> $all_files
-  *   The unique public URIs keyed to their source URLs.
+    * @param array<string, string> $all_files
+    *   The unique public URIs keyed to their source URLs.
    */
   private function collectReferencedFiles(string $html, array &$all_files): void {
     // Match only src URLs (exclude srcset).
     preg_match_all('/src="([^"]+)"/', $html, $matches);
     foreach ($matches[1] as $url) {
+      if (StaticFileUrlMapper::isGeneratedStaticAssetUrl($url)) {
+        continue;
+      }
       $public_uri = StaticFileUrlMapper::publicUriFromFileUrl($url);
       if ($public_uri !== NULL) {
         $all_files[$public_uri] = $url;
