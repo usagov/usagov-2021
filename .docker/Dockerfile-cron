@@ -62,12 +62,14 @@ RUN mkdir -p /etc/periodic/1min \
 
 COPY .docker/src-cron /
 COPY bin/cloudgov/events/get-events /opt/cfevents/get-events
+COPY scripts/cron/update-container-digests.sh /etc/periodic/5min/update-container-digests.sh
 
 # For testing the job serialization lock code:
 #COPY scripts/cron/task-lock-reference-script /opt/cron
 #COPY scripts/cron/task-lock-test-locking-capabilities /opt/cron
 
 RUN chmod -R +x /etc/periodic \
+    && chmod +x /opt/cron/* \
     && echo "    built:" $(date) >> /etc/motd \
     && echo "    branch: " $GITBRANCH >> /etc/motd \
     && echo "    gittag: " $GITTAG >> /etc/motd \

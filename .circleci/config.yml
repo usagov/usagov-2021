@@ -13,23 +13,21 @@ commands:
       - install-cloud-foundry
       - load-image-digest
       - run:
+          name: Set Deployment Context
+          command: |
+            export DEPLOY_ENV=<< parameters.envname >>
+            export DEPLOY_TICKET=CCI-<< pipeline.number >>
+            echo "export DEPLOY_ENV=<< parameters.envname >>" | tee -a $BASH_ENV
+            echo "export DEPLOY_TICKET=CCI-<< pipeline.number >>" | tee -a $BASH_ENV
+            echo "Deployment context set: $DEPLOY_ENV / $DEPLOY_TICKET"
+      - run:
           name: CloudGov Deploy CMS
           command: |
             export NEW_RELIC_APP_NAME="CMS-<< parameters.envname >>;USA.gov"
             export NEW_RELIC_DISPLAY_NAME=usa-cms-<< parameters.envname >>
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-cms << parameters.envname >> << pipeline.number >> $CMS_DIGEST
-            if [ $? ]; then
-              echo
-              echo "Please run the following commands in a local build environment, while targetting << parameters.envname >>:"
-              echo "cf target -s << parameters.envname >>"
-              echo "git checkout << parameters.envname >>"
-              echo "git fetch --all --tags"
-              echo "git pull"
-              echo bin/deploy/git-annotated-tag-creator.sh << parameters.envname >> << pipeline.number >> $CMS_DIGEST $WAF_DIGEST $WWW_DIGEST
-              echo
-            fi
+            scripts/devops/deploy.sh push cms << pipeline.number >> $CMS_DIGEST --skip-confirmation
       - run:
           name: CloudGov Deploy Static Site
           command: |
@@ -37,7 +35,7 @@ commands:
             export NEW_RELIC_DISPLAY_NAME=usa-www-<< parameters.envname >>
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/cloudgov/deploy-www << pipeline.number >> $WWW_DIGEST
+            scripts/devops/deploy.sh push www << pipeline.number >> $WWW_DIGEST --skip-confirmation
       - run:
           name: CloudGov Deploy API Proxy
           command: |
@@ -51,15 +49,7 @@ commands:
             export NEW_RELIC_DISPLAY_NAME=usa-waf-<< parameters.envname >>
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            DWAF_APP=waf
-            DCMS_APP=cms
-            DWWW_APP=www
-            DPROXY_APP=api-proxy
-            DAPP_SPACE=<< parameters.envname >>
-            ROUTE_SERVICE_APP_NAME=$DWAF_APP \
-            ROUTE_SERVICE_NAME=waf-route-${DAPP_SPACE}-usagov \
-            PROTECTED_APP_NAMES="$DCMS_APP,$DWWW_APP,$DPROXY_APP" \
-            ./bin/cloudgov/deploy-waf waf-<< pipeline.number >> $WAF_DIGEST
+            scripts/devops/deploy.sh push waf << pipeline.number >> $WAF_DIGEST --skip-confirmation
 
   save-image-digest:
     steps:
@@ -165,7 +155,7 @@ commands:
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/deploy/try-tome-disable
+            scripts/devops/deploy.sh state disable both
 
   snapshot-postamble:
     parameters:
@@ -179,7 +169,7 @@ commands:
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/deploy/try-tome-enable
+            scripts/devops/deploy.sh state enable both
 
   snapshot-backup:
     parameters:
@@ -194,13 +184,13 @@ commands:
           envname: << parameters.envname >>
       - setup-environment
       - run:
-          name: Snapshot Backup of Static Site and Database. Tag will be << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+          name: Snapshot Backup of Static Site, Database, and Public Files
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            ./bin/snapshot-backups/site-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
-            ./bin/snapshot-backups/db-dump-to-snapshot << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
-            ./bin/snapshot-backups/public-snapshot-create << pipeline.git.tag >>.<< parameters.envname >>.<< pipeline.number >>
+            export DEPLOY_ENV=<< parameters.envname >>
+            export DEPLOY_TICKET=SNAPSHOT-<< pipeline.number >>
+            scripts/devops/deploy.sh snapshot << pipeline.git.tag >>-<< parameters.envname >>-<< pipeline.number >>
       - snapshot-postamble:
           envname: << parameters.envname >>
 
