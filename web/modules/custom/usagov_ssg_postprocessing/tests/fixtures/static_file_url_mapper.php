@@ -29,25 +29,28 @@ return [
     '/files/css/css_example.css' => TRUE,
     '/s3/files/styles/large/public/example.png' => FALSE,
   ],
-  // Raw candidate URLs extracted from an HTML document, before any public://
-  // filtering. Non-file URLs (page links, off-site assets) are intentionally
-  // included here because callers filter them out downstream.
+  // Raw candidate URLs extracted from HTML, before any public:// filtering.
+  // Non-file URLs (page links, off-site assets) are intentionally included
+  // here because callers filter them out downstream. Each markup snippet maps
+  // to every URL the extractor should return, in any order.
   'referenced_urls' => [
-    '<img src="/s3/files/a.png">'
-    . '<img srcset="/files/b-320.png 320w, /files/c-640.png 640w">'
-    . '<a href="/files/documents/benefits.pdf">doc</a>'
-    . '<a href="/about-us">nav</a>'
-    . '<div style="background:url(\'/files/bg.png\')"></div>'
-    . '<style>@font-face{src:url(/files/fonts/font.woff2)}</style>'
-    . '<script src="https://example.gov/app.js"></script>' => [
-      '/about-us',
-      '/files/b-320.png',
-      '/files/bg.png',
-      '/files/c-640.png',
-      '/files/documents/benefits.pdf',
-      '/files/fonts/font.woff2',
+    '<img src="/s3/files/a.png"><script src="https://example.gov/app.js"></script>' => [
       '/s3/files/a.png',
       'https://example.gov/app.js',
+    ],
+    '<img srcset="/files/b-320.png 320w, /files/c-640.png 640w">' => [
+      '/files/b-320.png',
+      '/files/c-640.png',
+    ],
+    '<a href="/files/documents/benefits.pdf">doc</a><a href="/about-us">nav</a>' => [
+      '/about-us',
+      '/files/documents/benefits.pdf',
+    ],
+    '<div style="background:url(\'/files/bg.png\')"></div>' => [
+      '/files/bg.png',
+    ],
+    '<style>@font-face{src:url(/files/fonts/font.woff2)}</style>' => [
+      '/files/fonts/font.woff2',
     ],
   ],
 ];
