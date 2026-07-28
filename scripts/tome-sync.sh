@@ -12,6 +12,11 @@ YMDHMS=$2
 FORCE=${3:-0}
 RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
+# Referenced-only publishing (USAGOV-2781): when set to 1, skip the broad
+# cms/public copy and publish only the assets referenced by the rendered HTML.
+# Defaults to 0, so the flag is inert unless explicitly enabled per environment.
+SSG_REFERENCED_ONLY=${SSG_REFERENCED_ONLY:-0}
+
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
 fi
@@ -160,15 +165,26 @@ cp -Rp /var/www/html/* $RENDER_DIR
 cd $RENDER_DIR
 ssg_metric_end "render_dir_prep" "$RENDER_DIR_PREP_START" "end" "render_dir=$RENDER_DIR"
 
-# Tome is failing to pull in these assets so we will pull them in ourself
+# Tome is failing to pull in these assets so we will pull them in ourself.
+# Copies the entire cms/public bucket into the render tree's /s3/files path.
+run_public_file_copy() {
+  copy_reason=${1:-broad}
+  PUBLIC_FILE_COPY_START=$(ssg_now)
+  ssg_metric "public_file_copy" "start" "reason=$copy_reason"
+  aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
+  PUBLIC_FILE_COPY_SUCCESS=$?
+  ssg_metric_end "public_file_copy" "$PUBLIC_FILE_COPY_START" "end" "exit_code=$PUBLIC_FILE_COPY_SUCCESS" "reason=$copy_reason"
+  if [ "$PUBLIC_FILE_COPY_SUCCESS" != "0" ]; then
+    sync_failure "public_file_copy" "$PUBLIC_FILE_COPY_SUCCESS" "Static site sync failed while copying public files."
+  fi
+}
+
 echo "Add in any extra or missing files ... "
-PUBLIC_FILE_COPY_START=$(ssg_now)
-ssg_metric "public_file_copy" "start"
-aws s3 cp --recursive s3://$BUCKET_NAME/cms/public/ $RENDER_DIR/s3/files/ --exclude "php/*" --exclude "*.gz" $S3_EXTRA_PARAMS 2>&1 | tee -a $TOMELOG
-PUBLIC_FILE_COPY_SUCCESS=$?
-ssg_metric_end "public_file_copy" "$PUBLIC_FILE_COPY_START" "end" "exit_code=$PUBLIC_FILE_COPY_SUCCESS"
-if [ "$PUBLIC_FILE_COPY_SUCCESS" != "0" ]; then
-  sync_failure "public_file_copy" "$PUBLIC_FILE_COPY_SUCCESS" "Static site sync failed while copying public files."
+if [ "$SSG_REFERENCED_ONLY" = "1" ]; then
+  echo "Referenced-only mode: skipping broad cms/public copy; referenced assets are copied during image sync." | tee -a $TOMELOG
+  ssg_metric "public_file_copy" "skipped" "reason=referenced_only"
+else
+  run_public_file_copy "broad"
 fi
 
 THEME_WEBROOT_COPY_START=$(ssg_now)
@@ -285,13 +301,30 @@ ssg_metric_end "hostname_rewrites" "$HOSTNAME_REWRITE_START" "end" "bucket_count
 echo "Running Drush static image sync (usagov:ssg-sync-images) ..." | tee -a $TOMELOG
 STATIC_IMAGE_SYNC_START=$(ssg_now)
 REFERENCE_ASSET_MANIFEST="/tmp/tome-referenced-assets-${YMDHMS}.tsv"
-ssg_metric "static_image_sync" "start"
-if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" --reference_manifest_path="$REFERENCE_ASSET_MANIFEST" 2>&1 | tee -a $TOMELOG; then
+REFERENCED_ONLY_ARG=""
+if [ "$SSG_REFERENCED_ONLY" = "1" ]; then
+  REFERENCED_ONLY_ARG="--s3_files_dir=$RENDER_DIR/s3/files"
+fi
+ssg_metric "static_image_sync" "start" "referenced_only=$SSG_REFERENCED_ONLY"
+if drush usagov:ssg-sync-images --html_dir="$RENDER_DIR" --output_files_dir="$RENDER_DIR/files" --reference_manifest_path="$REFERENCE_ASSET_MANIFEST" $REFERENCED_ONLY_ARG 2>&1 | tee -a $TOMELOG; then
   ssg_metric_end "static_image_sync" "$STATIC_IMAGE_SYNC_START" "end" "exit_code=0"
   REFERENCE_ASSET_COUNT=$(awk 'END { print NR - 1 }' "$REFERENCE_ASSET_MANIFEST")
   REFERENCE_ASSET_UNRESOLVED=$(awk -F '\t' '$3 == "unresolved" { count++ } END { print count + 0 }' "$REFERENCE_ASSET_MANIFEST")
   ssg_metric "referenced_asset_manifest" "end" "entry_count=$REFERENCE_ASSET_COUNT" "unresolved_count=$REFERENCE_ASSET_UNRESOLVED" "path=$REFERENCE_ASSET_MANIFEST"
   echo "Drush static image sync completed successfully." | tee -a $TOMELOG
+
+  # Referenced-only guard: if more than ~10% of referenced assets failed to
+  # materialize, fall back to the broad cms/public copy so we never publish a
+  # render tree missing assets the rendered pages need.
+  if [ "$SSG_REFERENCED_ONLY" = "1" ]; then
+    if [ "${REFERENCE_ASSET_COUNT:-0}" -gt 0 ] && [ $(( ${REFERENCE_ASSET_UNRESOLVED:-0} * 10 )) -le "${REFERENCE_ASSET_COUNT:-0}" ]; then
+      ssg_metric "referenced_only_guard" "passed" "entry_count=$REFERENCE_ASSET_COUNT" "unresolved_count=$REFERENCE_ASSET_UNRESOLVED"
+    else
+      echo "Referenced-only guard failed (entry_count=$REFERENCE_ASSET_COUNT unresolved_count=$REFERENCE_ASSET_UNRESOLVED); falling back to broad copy." | tee -a $TOMELOG
+      ssg_metric "referenced_only_guard" "failed" "entry_count=$REFERENCE_ASSET_COUNT" "unresolved_count=$REFERENCE_ASSET_UNRESOLVED" "action=broad_copy_fallback"
+      run_public_file_copy "referenced_only_fallback"
+    fi
+  fi
 else
   STATIC_IMAGE_SYNC_SUCCESS=$?
   ssg_metric_end "static_image_sync" "$STATIC_IMAGE_SYNC_START" "failed" "exit_code=$STATIC_IMAGE_SYNC_SUCCESS"

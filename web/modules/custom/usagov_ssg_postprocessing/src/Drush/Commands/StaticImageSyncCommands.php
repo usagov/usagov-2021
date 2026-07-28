@@ -48,17 +48,23 @@ class StaticImageSyncCommands extends DrushCommands {
    *
    * @command usagov:ssg-sync-images
    * @aliases ssg-sync-images
+   * @option s3_files_dir When set (referenced-only publishing), also copy each
+   *   referenced asset to this /s3/files output directory using its literal
+   *   name, so existing /s3/files references resolve without a broad cms/public
+   *   copy.
    */
   public function syncImages(
     array $options = [
       'html_dir' => 'html',
       'output_files_dir' => 'html/files',
       'reference_manifest_path' => NULL,
+      's3_files_dir' => NULL,
     ],
   ): void {
     $html_dir = $options['html_dir'];
     $output_files_dir = $options['output_files_dir'];
     $reference_manifest_path = $options['reference_manifest_path'];
+    $s3_files_dir = $options['s3_files_dir'];
 
     $finder = new Finder();
     $finder->files()->in($html_dir)->name('*.html');
@@ -115,9 +121,34 @@ class StaticImageSyncCommands extends DrushCommands {
         }
       }
 
-      if ($source_uri !== NULL && copy($source_uri, $dest_path)) {
-        $reference_manifest[$public_path][1] = 'resolved';
+      if ($source_uri === NULL) {
+        $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) could not be read');
+        continue;
+      }
+
+      // Copy to the sanitized /files/ path that rewritten <img src> references use.
+      $copied = copy($source_uri, $dest_path);
+      if ($copied) {
         $this->output()->writeln('Copied ' . $source_uri . ' to ' . $dest_path);
+      }
+
+      // Referenced-only publishing: also materialize the asset at its /s3/files
+      // served path using the literal (decoded) name, matching what the broad
+      // cms/public copy produced, so existing /s3/files references still resolve.
+      if ($s3_files_dir !== NULL) {
+        $s3_dest_path = rtrim($s3_files_dir, '/') . '/' . self::literalRelativePath($source_relative_path);
+        $s3_dest_dir = dirname($s3_dest_path);
+        if (!is_dir($s3_dest_dir)) {
+          mkdir($s3_dest_dir, 0775, TRUE);
+        }
+        $copied = copy($source_uri, $s3_dest_path) && $copied;
+        if ($copied) {
+          $this->output()->writeln('Copied ' . $source_uri . ' to ' . $s3_dest_path);
+        }
+      }
+
+      if ($copied) {
+        $reference_manifest[$public_path][1] = 'resolved';
       }
       else {
         $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) could not be copied');
@@ -150,6 +181,18 @@ class StaticImageSyncCommands extends DrushCommands {
         $all_files[$public_uri] = $url;
       }
     }
+  }
+
+  /**
+   * Returns the literal on-disk relative path for a normalized public path.
+   *
+   * Referenced-asset keys use '+' for spaces and percent-encode other
+   * characters. The /s3/files served copy must use the decoded literal name so
+   * it matches what the broad cms/public copy produced and what URL requests
+   * resolve to.
+   */
+  private static function literalRelativePath(string $relative_path): string {
+    return str_replace('+', ' ', rawurldecode($relative_path));
   }
 
   /**
