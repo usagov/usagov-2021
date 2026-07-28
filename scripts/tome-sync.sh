@@ -12,10 +12,15 @@ YMDHMS=$2
 FORCE=${3:-0}
 RETRY_SEMAPHORE_FILE=/tmp/tome-log/retry-on-next-run
 
-# Referenced-only publishing (USAGOV-2781): when set to 1, skip the broad
-# cms/public copy and publish only the assets referenced by the rendered HTML.
-# Defaults to 0, so the flag is inert unless explicitly enabled per environment.
-SSG_REFERENCED_ONLY=${SSG_REFERENCED_ONLY:-0}
+# Referenced-only publishing (USAGOV-2781): skips the broad cms/public copy
+# and publishes only the assets referenced by the rendered HTML, guarded by an
+# automatic fallback to the broad copy if too many referenced assets fail to
+# resolve (see the static_image_sync section below). This is the default
+# behavior. Set SSG_REFERENCED_ONLY=0 as a per-environment kill switch to
+# restore the old broad-copy behavior without a code change or deploy, e.g. if
+# a future content/theme change references public files in a way this mode's
+# collector does not yet cover.
+SSG_REFERENCED_ONLY=${SSG_REFERENCED_ONLY:-1}
 
 if [ -z "$YMDHMS" ]; then
   YMDHMS=$(date +"%Y_%m_%d_%H_%M_%S")
