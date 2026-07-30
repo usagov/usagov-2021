@@ -525,6 +525,7 @@ show_command_help() {
             echo "Example:"
             echo "  deploy.sh download-backups"
             echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0"
+            echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0 --output-dir=./backups"
             echo "  deploy.sh download-backups --json"
             echo ""
             ;;
@@ -2368,10 +2369,20 @@ download_backups() {
                 output_dir="${1#*=}"
                 shift
                 ;;
+            -*)
+                print_status $RED "❌ Unknown option: $1"
+                echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
+                return 2
+                ;;
             *)
-                # First non-flag arg is tag
+                # First non-flag arg is tag; there is no second positional -
+                # output dir must be passed as --output-dir=<path>
                 if [ -z "$tag" ]; then
                     tag="$1"
+                else
+                    print_status $RED "❌ Unexpected argument: $1"
+                    echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
+                    return 2
                 fi
                 shift
                 ;;
