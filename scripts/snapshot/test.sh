@@ -2491,10 +2491,43 @@ test_state_commands() {
     fi
 
     # Check state command is documented in usage
-    if grep -q "state <action> <type>" "$manager_script"; then
+    if grep -q "state <action> \[type\]" "$manager_script"; then
         echo "✅ state command documented in usage"
     else
         echo "❌ state command missing from usage"
+        return 1
+    fi
+
+    # Check the shared local-machine controller exists and is used by both
+    # local-manager.sh and deploy.sh, so there is a single code path that
+    # sources /etc/profile before toggling state remotely
+    if grep -q '^remote_state_command()' "$common_script"; then
+        echo "✅ remote_state_command controller exists in common.sh"
+    else
+        echo "❌ remote_state_command controller missing from common.sh"
+        return 1
+    fi
+
+    local remote_state_func=$(sed -n '/^remote_state_command()/,/^}/p' "$common_script")
+    if echo "$remote_state_func" | grep -q '/etc/profile'; then
+        echo "✅ remote_state_command sources /etc/profile before toggling state"
+    else
+        echo "❌ remote_state_command does not source /etc/profile"
+        return 1
+    fi
+
+    if grep -q 'remote_state_command' "$local_manager"; then
+        echo "✅ local-manager.sh uses the shared remote_state_command controller"
+    else
+        echo "❌ local-manager.sh does not use remote_state_command"
+        return 1
+    fi
+
+    local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
+    if grep -q 'remote_state_command' "$deploy_script"; then
+        echo "✅ deploy.sh uses the shared remote_state_command controller"
+    else
+        echo "❌ deploy.sh does not use remote_state_command"
         return 1
     fi
 

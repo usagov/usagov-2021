@@ -1941,6 +1941,50 @@ state_command() {
     fi
 }
 
+# Single entry point for toggling Drupal state (Tome/maintenance mode) from a
+# local machine. Every caller (local-manager.sh, deploy.sh) must go through
+# this function instead of building its own `cf ssh` invocation, so the
+# remote environment is always set up the same way.
+# Always sources /etc/profile before running - the CF container's PATH
+# (vendor/bin, for drush) is only guaranteed once /etc/profile.d/drupal.sh
+# has run, and a bare `cf ssh -c` shell does not source it automatically.
+# Also routes through manager.sh (not state_command directly) so
+# init_backup_system's own PATH setup is a second line of defense.
+# Args:
+#   $1: action - "enable" or "disable"
+#   $2: state_type - "tome", "sm" (site maintenance), or "both" (default: "both")
+#   $3: max_wait_minutes - For disable actions only (default: 25)
+# Returns: exit code of the remote state command (2 on local validation failure)
+remote_state_command() {
+    local action="$1"
+    local state_type="${2:-both}"
+    local max_wait="${3:-25}"
+
+    if [ "$action" != "enable" ] && [ "$action" != "disable" ]; then
+        print_status $RED "❌ Error: invalid state action: $action"
+        print_status $YELLOW "   Must be 'enable' or 'disable'"
+        return 2
+    fi
+
+    case "$state_type" in
+        tome|sm|maintenance|both) ;;
+        *)
+            print_status $RED "❌ Error: invalid state type: $state_type"
+            print_status $YELLOW "   Must be 'tome', 'sm', or 'both'"
+            return 2
+            ;;
+    esac
+
+    if ! echo "$max_wait" | grep -qE '^[0-9]+$'; then
+        print_status $RED "❌ Error: max_wait_mins must be a positive integer"
+        return 2
+    fi
+
+    local _cmd
+    _cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh state %q %q %q' "$action" "$state_type" "$max_wait")
+    cf ssh cms -c "$_cmd"
+}
+
 # ===================================================================
 # AWS S3 CONFIGURATION
 # ===================================================================

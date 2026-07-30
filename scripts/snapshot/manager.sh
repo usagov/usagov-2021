@@ -42,7 +42,7 @@ show_usage() {
     echo "  info [types] [tag] [--verify] [--json]   Show backup system info or specific backup details"
   echo "                                             Use --verify to validate integrity (DB: streams from S3)"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
-    echo "  state <action> <type> [max_wait_mins]    Manage Drupal state (action: enable|disable, type: tome|sm|both)"
+    echo "  state <action> [type] [max_wait_mins]    Manage Drupal state (action: enable|disable, type: tome|sm|both, default: both)"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -276,17 +276,18 @@ show_command_help() {
         "state")
             echo "Manage Drupal State"
             echo ""
-            echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: manager.sh state <action> [type] [max_wait_mins]"
             echo ""
             echo "Description:"
             echo "  Enable or disable Drupal state management for backups/maintenance."
             echo ""
             echo "Arguments:"
             echo "  action         - 'enable' or 'disable'"
-            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default: both)"
             echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
             echo "Examples:"
+            echo "  manager.sh state disable              # both, defaults to 25 min wait"
             echo "  manager.sh state disable tome 30      # Disable Tome with 30 min wait"
             echo "  manager.sh state enable tome          # Re-enable Tome"
             echo "  manager.sh state disable sm           # Enable site maintenance mode"
@@ -3574,15 +3575,15 @@ case "$COMMAND" in
         download_backup "$2" "$3" "$4" "$5"
         ;;
     "state")
-        # state <action> <type> [max_wait_mins] - Manage Drupal state
-        # e.g., "state disable tome 30" or "state enable both"
+        # state <action> [type] [max_wait_mins] - Manage Drupal state
+        # e.g., "state disable tome 30" or "state enable both" or "state disable"
         action="$2"
         state_type="${3:-both}"
         max_wait="${4:-25}"
 
         if [ -z "$action" ]; then
             print_status $RED "❌ Error: action required (enable|disable)"
-            echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: manager.sh state <action> [type] [max_wait_mins]"
             exit 1
         fi
 

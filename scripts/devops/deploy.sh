@@ -119,7 +119,7 @@ show_usage() {
     echo ""
     echo "Tome Utilities:"
     echo "  tome-log [--recent]                   Tail the latest running Tome log (--recent shows last 50 lines of most recent log)"
-    echo "  state <action> <type> [max_wait_mins] Manage Drupal state (action: enable|disable, type: tome|sm|both)"
+    echo "  state <action> [type] [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both, default: both)"
     echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
@@ -592,7 +592,7 @@ show_command_help() {
         "state")
             echo "Manage Drupal State"
             echo ""
-            echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: deploy.sh state <action> [type] [max_wait_mins]"
             echo ""
             echo "Description:"
             echo "  Enable or disable Drupal state management for backups/maintenance."
@@ -600,10 +600,11 @@ show_command_help() {
             echo ""
             echo "Arguments:"
             echo "  action         - 'enable' or 'disable'"
-            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default: both)"
             echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
             echo "Examples:"
+            echo "  deploy.sh state disable               # both, defaults to 25 min wait"
             echo "  deploy.sh state disable tome 30"
             echo "  deploy.sh state enable tome"
             echo "  deploy.sh state disable both"
@@ -1541,40 +1542,6 @@ exec_restore_command() {
     cf ssh cms -c "$cmd"
 }
 
-# Execute a Drupal state command via cf ssh to cms container
-# Args:
-#   $1: action - enable or disable
-#   $2: state_type - tome, maintenance, sm, or both
-#   $3: max_wait - maximum minutes to wait for disable actions
-exec_state_command() {
-    local action="$1"
-    local state_type="${2:-both}"
-    local max_wait="${3:-25}"
-
-    case "$action" in
-        enable|disable) ;;
-        *)
-            print_status $RED "❌ Error: invalid state action: $action"
-            return 2
-            ;;
-    esac
-
-    case "$state_type" in
-        tome|maintenance|sm|both) ;;
-        *)
-            print_status $RED "❌ Error: invalid state type: $state_type"
-            return 2
-            ;;
-    esac
-
-    if ! echo "$max_wait" | grep -qE '^[0-9]+$'; then
-        print_status $RED "❌ Error: max_wait must be a number"
-        return 2
-    fi
-
-    cf ssh cms -c "cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
-}
-
 # Prompt for rollback confirmation
 # Args:
 #   $1: rollback_type - Description of what's being rolled back
@@ -2027,7 +1994,9 @@ downsync() {
 
     # Enable maintenance mode and disable tome using unified state command
     print_status $BLUE "🔒 Preparing for restore (maintenance mode + disable tome)..."
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state disable both" >/dev/null 2>&1
+    if ! remote_state_command disable both >/dev/null 2>&1; then
+        print_status $YELLOW "⚠️  Warning: Failed to prepare Drupal state (maintenance mode may not be enabled)"
+    fi
 
     # Upload and restore database
     print_status $BLUE "📤 Uploading and restoring database..."
@@ -2118,10 +2087,13 @@ downsync() {
     print_status $BLUE "🔓 Restoring site state..."
     if [ "$tome_disabled" != "1" ]; then
         # Tome was enabled before, restore both to enabled state
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable both" >/dev/null 2>&1
+        remote_state_command enable both >/dev/null 2>&1
     else
         # Tome was disabled before, only disable maintenance mode
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable sm" >/dev/null 2>&1
+        remote_state_command enable sm >/dev/null 2>&1
+    fi
+    if [ $? -ne 0 ]; then
+        print_status $YELLOW "⚠️  Warning: Failed to fully restore Drupal state — check maintenance mode/Tome manually"
     fi
 
     # Fix MFA configuration
@@ -5322,24 +5294,22 @@ case "$COMMAND" in
         tome_log "$@"
         ;;
     "state")
-        # state <action> <type> [max_wait_mins] - Manage Drupal state
+        # state <action> [type] [max_wait_mins] - Manage Drupal state
         action="$1"
-        state_type="${2:-both}"
-        max_wait="${3:-25}"
 
         if [ -z "$action" ]; then
             print_status $RED "❌ Error: action required (enable|disable)"
-            echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: deploy.sh state <action> [type] [max_wait_mins]"
             exit 1
         fi
 
-        exec_state_command "$action" "$state_type" "$max_wait"
+        remote_state_command "$action" "$2" "$3"
         ;;
     "tome-disable")
-        exec_state_command disable both
+        remote_state_command disable both
         ;;
     "tome-enable")
-        exec_state_command enable both
+        remote_state_command enable both
         ;;
     "switch")
         switch_env "$@"

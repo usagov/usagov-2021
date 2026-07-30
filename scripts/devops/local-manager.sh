@@ -12,6 +12,9 @@ umask 077
 # Requires: CF CLI installed and authenticated
 # ===================================================================
 
+SCRIPT_DIR=$(dirname "$0")
+. "$SCRIPT_DIR/../common.sh"
+
 COMMAND="${1:-}"
 
 # ===================================================================
@@ -39,7 +42,7 @@ show_usage() {
     echo "  test                                   Run backup system test suite on CF"
     echo "  current-digests                        Show container digests captured by cron (what backup would capture)"
     echo "  cron <subcommand>                      Manage automated database backup cron jobs"
-    echo "  state <action> <type> [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both)"
+    echo "  state <action> [type] [max_wait_mins]   Manage Drupal state (action: enable|disable, type: tome|sm|both, default: both)"
     echo ""
     echo "Cron Subcommands:"
     echo "  setup                    Configure automated database backups (uses DB_BACKUP_TIME env var)"
@@ -279,17 +282,18 @@ show_command_help() {
         "state")
             echo "Manage Drupal State"
             echo ""
-            echo "Usage: local-manager.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: local-manager.sh state <action> [type] [max_wait_mins]"
             echo ""
             echo "Description:"
             echo "  Enable or disable Drupal state management for backups/maintenance."
             echo ""
             echo "Arguments:"
             echo "  action         - 'enable' or 'disable'"
-            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default: both)"
             echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
             echo "Examples:"
+            echo "  local-manager.sh state disable            # both, defaults to 25 min wait"
             echo "  local-manager.sh state disable tome 30"
             echo "  local-manager.sh state enable tome"
             echo "  local-manager.sh state disable sm"
@@ -724,8 +728,13 @@ case "$COMMAND" in
         esac
         ;;
     "state")
-        # state <action> <type> [max_wait_mins] - Manage Drupal state
-        remote_command state "$2" "$3" "$4"
+        # state <action> [type] [max_wait_mins] - Manage Drupal state
+        if [ -z "$2" ]; then
+            echo "❌ Error: action required (enable|disable)"
+            echo "Usage: local-manager.sh state <action> [type] [max_wait_mins]"
+            exit 1
+        fi
+        remote_state_command "$2" "$3" "$4"
         ;;
     *)
         echo "❌ Unknown command: $COMMAND"
