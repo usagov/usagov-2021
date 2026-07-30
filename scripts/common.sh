@@ -1942,14 +1942,10 @@ state_command() {
 }
 
 # Single entry point for toggling Drupal state (Tome/maintenance mode) from a
-# local machine. Every caller (local-manager.sh, deploy.sh) must go through
-# this function instead of building its own `cf ssh` invocation, so the
-# remote environment is always set up the same way.
-# Always sources /etc/profile before running - the CF container's PATH
-# (vendor/bin, for drush) is only guaranteed once /etc/profile.d/drupal.sh
-# has run, and a bare `cf ssh -c` shell does not source it automatically.
-# Also routes through manager.sh (not state_command directly) so
-# init_backup_system's own PATH setup is a second line of defense.
+# local machine. All callers (local-manager.sh, deploy.sh) route through
+# this function to invoke `cf ssh`.
+# Sources /etc/profile and routes through manager.sh, which sets up PATH
+# via init_backup_system before calling state_command.
 # Args:
 #   $1: action - "enable" or "disable"
 #   $2: state_type - "tome", "sm" (site maintenance), or "both" (default: "both")

@@ -45,14 +45,12 @@ show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
     echo "Setup Commands:"
-    echo "  set-context <env> <ticket> [pre] [post]  Set deployment context (creates env vars)"
-    echo "                                        Example: deploy.sh set-context prod USAGOV-1234"
-    echo "                                        Optional: deploy.sh set-context prod USAGOV-1234 pre-deploy post-deploy"
-    echo "                                        From tag: deploy.sh set-context --from-tag=USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
-    echo "                                        Sets: DEPLOY_ENV, DEPLOY_TICKET, DEPLOY_PRE_SUFFIX, DEPLOY_POST_SUFFIX"
+    echo "  NOTE: Setting context is done in a separate script to allow sourcing!"
+    echo "  . scripts/devops/context.sh set <env> <ticket> [pre] [post]  Set deployment context"
+    echo "  . scripts/devops/context.sh show                            Show deployment context"
+    echo "  . scripts/devops/context.sh clear                           Clear deployment context"
+    echo "  Sets: DEPLOY_ENV, DEPLOY_TICKET, DEPLOY_PRE_SUFFIX, DEPLOY_POST_SUFFIX"
     echo ""
-    echo "  show-context                          Show current deployment context"
-    echo "  clear-context                         Clear all deployment context variables"
     echo "  contexts list [limit]                 Show recently used contexts (default: 10)"
     echo ""
     echo "Status Commands:"
@@ -139,7 +137,7 @@ show_usage() {
     echo ""
     echo "Example Workflow:"
     echo "  # Set up deployment context"
-    echo "  \$0 set-context prod USAGOV-1234"
+    echo "  . scripts/devops/context.sh set prod USAGOV-1234"
     echo "  "
     echo "  # Before deployment"
     echo "  \$0 pre-deploy"
@@ -161,47 +159,15 @@ show_command_help() {
     local command="$1"
 
     case "$command" in
-        "set-context")
-            echo "Set Deployment Context"
+        "set-context"|"show-context"|"clear-context")
+            echo "Deployment Context"
             echo ""
-            echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--from-tag=TAG]"
+            echo "Usage:"
+            echo "  . scripts/devops/context.sh set <env> <ticket> [pre-suffix] [post-suffix] [--from-tag=TAG]"
+            echo "  . scripts/devops/context.sh show"
+            echo "  . scripts/devops/context.sh clear"
             echo ""
-            echo "Description:"
-            echo "  Creates environment variables for a deployment session. This sets up"
-            echo "  the context that other commands will use automatically."
-            echo "  Automatically saves context to history for 'contexts list' command."
-            echo ""
-            echo "Arguments:"
-            echo "  env          - Environment name (dev, stage, prod, dr)"
-            echo "  ticket       - JIRA ticket number (e.g., USAGOV-1234)"
-            echo "  pre-suffix   - Optional pre-deployment backup suffix (default: 'pre-deploy')"
-            echo "  post-suffix  - Optional post-deployment backup suffix (default: 'post-deploy')"
-            echo ""
-            echo "Options:"
-            echo "  --from-tag=TAG  - Extract env/ticket from backup tag"
-            echo "  --export        - Output export commands for eval"
-            echo ""
-            echo "Examples:"
-            echo "  deploy.sh set-context prod USAGOV-1234"
-            echo "  deploy.sh set-context stage USAGOV-5678 pre-deploy post-deploy"
-            echo "  deploy.sh set-context --from-tag=USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
-            echo "  eval \$(deploy.sh set-context prod USAGOV-1234 --export)"
-            echo ""
-            ;;
-        "clear-context")
-            echo "Clear Deployment Context"
-            echo ""
-            echo "Usage: deploy.sh clear-context [--export]"
-            echo ""
-            echo "Description:"
-            echo "  Clears all deployment context environment variables."
-            echo ""
-            echo "Options:"
-            echo "  --export  - Output unset commands for eval"
-            echo ""
-            echo "Examples:"
-            echo "  deploy.sh clear-context"
-            echo "  eval \$(deploy.sh clear-context --export)"
+            echo "For full details: . scripts/devops/context.sh -h"
             echo ""
             ;;
         "contexts")
@@ -224,16 +190,6 @@ show_command_help() {
             echo "  deploy.sh contexts list"
             echo "  deploy.sh contexts list 20"
             echo "  deploy.sh contexts list --json"
-            echo ""
-            ;;
-        "show-context")
-            echo "Show Deployment Context"
-            echo ""
-            echo "Usage: deploy.sh show-context"
-            echo ""
-            echo "Description:"
-            echo "  Displays current deployment context variables including environment,"
-            echo "  ticket number, and backup suffixes."
             echo ""
             ;;
         "last-backup")
@@ -681,286 +637,6 @@ show_command_help() {
     esac
 }
 
-# Set deployment context (stores in shell variables for session)
-set_context() {
-    local export_only=false
-    local env=""
-    local ticket=""
-    local pre_suffix="pre-deploy"
-    local post_suffix="post-deploy"
-    local from_tag=""
-
-    # Parse arguments with while loop for proper flag and positional handling
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --export)
-                export_only=true
-                shift
-                ;;
-            --from-tag=*)
-                from_tag="${1#*=}"
-                shift
-                ;;
-            --)
-                shift
-                break
-                ;;
-            -*)
-                print_status $RED "❌ Unknown option: $1"
-                echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export] [--from-tag=TAG]"
-                exit 2
-                ;;
-            *)
-                # First positional is env, second is ticket, third is pre_suffix, fourth is post_suffix
-                if [ -z "$env" ]; then
-                    env="$1"
-                elif [ -z "$ticket" ]; then
-                    ticket="$1"
-                elif [ "$pre_suffix" = "pre-deploy" ]; then
-                    pre_suffix="$1"
-                elif [ "$post_suffix" = "post-deploy" ]; then
-                    post_suffix="$1"
-                else
-                    print_status $RED "❌ Too many arguments"
-                    echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export] [--from-tag=TAG]"
-                    exit 2
-                fi
-                shift
-                ;;
-        esac
-    done
-
-    # If --from-tag provided, parse it to extract env and ticket
-    if [ -n "$from_tag" ]; then
-        if [ "$export_only" = "false" ]; then
-            print_status $BLUE "🔍 Parsing backup tag: $from_tag"
-        fi
-
-        local parsed
-        parsed=$(parse_backup_tag "$from_tag")
-
-        if [ $? -ne 0 ] || [ -z "$parsed" ]; then
-            handle_error "Could not parse backup tag: $from_tag" "validation" "exit"
-        fi
-
-        ticket=$(echo "$parsed" | cut -d'|' -f1)
-        env=$(echo "$parsed" | cut -d'|' -f2)
-
-        if [ "$export_only" = "false" ]; then
-            print_status $GREEN "✅ Extracted: ticket=$ticket, env=$env"
-            echo ""
-        fi
-    fi
-
-    if [ -z "$env" ] || [ -z "$ticket" ]; then
-        print_status $RED "❌ Error: Environment and ticket required"
-        echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export] [--from-tag=TAG]"
-        echo ""
-        echo "Examples:"
-        echo "  deploy.sh set-context prod USAGOV-1234"
-        echo "  deploy.sh set-context --from-tag=USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
-        exit 2
-    fi
-
-    # Validate ticket format (basic check)
-    if ! validate_backup_tag "$ticket"; then
-        handle_error "Invalid ticket format" "validation" "exit"
-    fi
-
-    # Validate suffix formats
-    if ! validate_backup_tag "$pre_suffix"; then
-        handle_error "Invalid pre-suffix format" "validation" "exit"
-    fi
-
-    if ! validate_backup_tag "$post_suffix"; then
-        handle_error "Invalid post-suffix format" "validation" "exit"
-    fi
-
-    if [ "$export_only" = "false" ]; then
-        print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
-    fi
-
-    # Query S3 to get the most recent valid backup tag for each type
-    local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && \
-        echo 'STATIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
-        echo 'PUBLIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
-        echo 'DB:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print \$4}' | sed 's/\.sql\.gz$//'")
-
-    local static_tag=$(echo "$backup_tags" | grep -A1 "^STATIC:" | tail -1)
-    local public_tag=$(echo "$backup_tags" | grep -A1 "^PUBLIC:" | tail -1)
-    local db_tag=$(echo "$backup_tags" | grep -A1 "^DB:" | tail -1)
-
-    # If --export flag, output only export commands for eval
-    if [ "$export_only" = "true" ]; then
-        echo "export DEPLOY_ENV='$env'"
-        echo "export DEPLOY_TICKET='$ticket'"
-        echo "export DEPLOY_PRE_SUFFIX='$pre_suffix'"
-        echo "export DEPLOY_POST_SUFFIX='$post_suffix'"
-        echo "export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
-        echo "export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
-        echo "export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
-        return
-    fi
-
-    # Export variables for this session (only affects this script execution)
-    export DEPLOY_ENV="$env"
-    export DEPLOY_TICKET="$ticket"
-    export DEPLOY_PRE_SUFFIX="$pre_suffix"
-    export DEPLOY_POST_SUFFIX="$post_suffix"
-    export DEPLOY_ROLLBACK_STATIC_TAG="$static_tag"
-    export DEPLOY_ROLLBACK_PUBLIC_TAG="$public_tag"
-    export DEPLOY_ROLLBACK_DB_TAG="$db_tag"
-
-    # Save context to history for 'contexts list' command
-    save_context_to_history "$env" "$ticket" "$pre_suffix" "$post_suffix"
-
-    print_status $GREEN "✅ Deployment context set"
-    echo ""
-    echo "Environment variables:"
-    echo "  DEPLOY_ENV=$DEPLOY_ENV"
-    echo "  DEPLOY_TICKET=$DEPLOY_TICKET"
-    echo "  DEPLOY_PRE_SUFFIX=$DEPLOY_PRE_SUFFIX"
-    echo "  DEPLOY_POST_SUFFIX=$DEPLOY_POST_SUFFIX"
-    echo ""
-    echo "Captured backup tags for rollback:"
-    echo "  DEPLOY_ROLLBACK_STATIC_TAG=$DEPLOY_ROLLBACK_STATIC_TAG"
-    echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=$DEPLOY_ROLLBACK_PUBLIC_TAG"
-    echo "  DEPLOY_ROLLBACK_DB_TAG=$DEPLOY_ROLLBACK_DB_TAG"
-    echo ""
-    print_status $RED "⚠️  IMPORTANT: These variables are NOT set in your current shell!"
-    echo ""
-    print_status $YELLOW "To use these variables, you MUST run ONE of the following:"
-    echo ""
-    echo "Option 1 - Use eval (recommended):"
-    echo "  eval \$(scripts/devops/deploy.sh set-context $env $ticket --export)"
-    echo ""
-    echo "Option 2 - Manually export each variable:"
-    echo "  export DEPLOY_ENV='$env'"
-    echo "  export DEPLOY_TICKET='$ticket'"
-    echo "  export DEPLOY_PRE_SUFFIX='$pre_suffix'"
-    echo "  export DEPLOY_POST_SUFFIX='$post_suffix'"
-    echo "  export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
-    echo "  export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
-    echo "  export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
-}
-
-# Show current deployment context
-# Safe Operation: Read-only query, no resources modified
-show_context() {
-    # Check for --json flag
-    if has_json_flag "$@"; then
-        local deploy_env="${DEPLOY_ENV:-(not set)}"
-        local deploy_ticket="${DEPLOY_TICKET:-(not set)}"
-        local deploy_pre="${DEPLOY_PRE_SUFFIX:-(not set)}"
-        local deploy_post="${DEPLOY_POST_SUFFIX:-(not set)}"
-        local rollback_static="${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-        local rollback_public="${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-        local rollback_db="${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-
-        local has_context=false
-        if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-            has_context=true
-        fi
-
-        local json_data=$(cat <<EOF
-{
-  "deployment_context": {
-    "environment": "$deploy_env",
-    "ticket": "$deploy_ticket",
-    "pre_suffix": "$deploy_pre",
-    "post_suffix": "$deploy_post"
-  },
-  "rollback_tags": {
-    "static": "$rollback_static",
-    "public": "$rollback_public",
-    "database": "$rollback_db"
-  },
-  "has_context": $has_context
-}
-EOF
-)
-        format_json "$json_data"
-        return
-    fi
-
-    # Default table output
-    print_status $BLUE "📋 Current Deployment Context"
-    echo ""
-    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-        echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
-        echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
-        echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
-        echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
-        echo ""
-        echo "Rollback tags:"
-        echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-    else
-        print_status $YELLOW "⚠️  No deployment context set"
-        echo ""
-        echo "Run: deploy.sh set-context <env> <ticket>"
-    fi
-    echo ""
-}
-
-# Clear deployment context
-clear_context() {
-    local export_only=false
-
-    # Parse arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --export)
-                export_only=true
-                shift
-                ;;
-            *)
-                print_status $RED "❌ Unknown option: $1"
-                echo "Usage: deploy.sh clear-context [--export]"
-                exit 2
-                ;;
-        esac
-    done
-
-    # If --export flag, output only unset commands for eval
-    if [ "$export_only" = "true" ]; then
-        echo "unset DEPLOY_ENV"
-        echo "unset DEPLOY_TICKET"
-        echo "unset DEPLOY_PRE_SUFFIX"
-        echo "unset DEPLOY_POST_SUFFIX"
-        echo "unset DEPLOY_ROLLBACK_STATIC_TAG"
-        echo "unset DEPLOY_ROLLBACK_PUBLIC_TAG"
-        echo "unset DEPLOY_ROLLBACK_DB_TAG"
-        return
-    fi
-
-    # Show current context before clearing
-    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ]; then
-        print_status $YELLOW "🗑️  Clearing deployment context:"
-        echo "  Current ENV: ${DEPLOY_ENV:-(not set)}"
-        echo "  Current TICKET: ${DEPLOY_TICKET:-(not set)}"
-        echo ""
-    fi
-
-    # Unset variables for this session
-    unset DEPLOY_ENV
-    unset DEPLOY_TICKET
-    unset DEPLOY_PRE_SUFFIX
-    unset DEPLOY_POST_SUFFIX
-    unset DEPLOY_ROLLBACK_STATIC_TAG
-    unset DEPLOY_ROLLBACK_PUBLIC_TAG
-    unset DEPLOY_ROLLBACK_DB_TAG
-
-    print_status $GREEN "✅ Deployment context cleared"
-    echo ""
-    print_status $RED "⚠️  IMPORTANT: These variables are NOT unset in your current shell!"
-    echo ""
-    print_status $YELLOW "To clear these variables in your shell, run:"
-    echo "  eval \$(scripts/devops/deploy.sh clear-context --export)"
-    echo ""
-}
-
 # List recently used deployment contexts
 list_contexts() {
     local use_json=false
@@ -1001,7 +677,7 @@ list_contexts() {
         else
             print_status $YELLOW "📋 No deployment contexts saved yet"
             echo ""
-            echo "Contexts are automatically saved when you use 'set-context'"
+            echo "Contexts are automatically saved when you use 'context.sh set'"
             return 0
         fi
     fi
@@ -1055,72 +731,6 @@ $contexts
 EOF
         echo ""
     fi
-}
-
-# Helper: Save context to history file
-save_context_to_history() {
-    local env="$1"
-    local ticket="$2"
-    local pre_suffix="${3:-pre-deploy}"
-    local post_suffix="${4:-post-deploy}"
-
-    local contexts_file="${HOME}/.deploy-contexts"
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-
-    # Create file if it doesn't exist
-    touch "$contexts_file"
-
-    # Add new context (keep last 100 entries)
-    echo "${timestamp}|${env}|${ticket}|${pre_suffix}|${post_suffix}" >> "$contexts_file"
-
-    # Keep only last 100 entries
-    if [ -f "$contexts_file" ]; then
-        local temp_file="${contexts_file}.tmp"
-        tail -n 100 "$contexts_file" > "$temp_file"
-        mv "$temp_file" "$contexts_file"
-    fi
-}
-
-# Helper: Parse backup tag to extract environment and ticket
-parse_backup_tag() {
-    local tag="$1"
-
-    # Tag format: {ticket}-{env}-{container}-{date}--{suffix}-{sequence}
-    # Example: USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0
-
-    # Extract ticket (everything before the second-to-last dash before double dash)
-    # This is complex because ticket can contain dashes (e.g., USAGOV-1234)
-
-    # Split on double dash first to isolate the base part
-    local base_part=$(echo "$tag" | sed 's/--.*$//')
-
-    # Now we have: USAGOV-1234-prod-12345-2025-12-22
-    # We need to extract ticket and env
-
-    # A simpler approach: env is one of known values (dev, stage, prod, dr)
-    # Find env in the tag
-    local env=""
-    local ticket=""
-
-    if echo "$base_part" | grep -q -- "-prod-"; then
-        env="prod"
-        ticket=$(echo "$base_part" | sed 's/-prod-.*$//')
-    elif echo "$base_part" | grep -q -- "-stage-"; then
-        env="stage"
-        ticket=$(echo "$base_part" | sed 's/-stage-.*$//')
-    elif echo "$base_part" | grep -q -- "-dev-"; then
-        env="dev"
-        ticket=$(echo "$base_part" | sed 's/-dev-.*$//')
-    elif echo "$base_part" | grep -q -- "-dr-"; then
-        env="dr"
-        ticket=$(echo "$base_part" | sed 's/-dr-.*$//')
-    else
-        # Could not parse
-        return 1
-    fi
-
-    echo "${ticket}|${env}"
-    return 0
 }
 
 # Show when last backup of each type was taken
@@ -1348,7 +958,7 @@ EOF
         fi
     else
         print_status $YELLOW "  ⚠️  No deployment context set"
-        echo "  Run: deploy.sh set-context <env> <ticket>"
+        echo "  Run: . scripts/devops/context.sh set <env> <ticket>"
     fi
     echo ""
 
@@ -1430,7 +1040,7 @@ EOF
     echo "  View digests:        deploy.sh digests current"
     echo "  Check changes:       deploy.sh ccb prod stage"
     echo "  Validate deployment: deploy.sh validate"
-    echo "  Set context:         deploy.sh set-context <env> <ticket>"
+    echo "  Set context:         . scripts/devops/context.sh set <env> <ticket>"
     echo ""
 
     print_status $BLUE "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -1479,7 +1089,7 @@ validate_target_space() {
         print_status $YELLOW "This is a safety check to ensure you have deployment context set."
         echo ""
         echo "To proceed, either:"
-        echo "  1. Set context: deploy.sh set-context $current_space <ticket>"
+        echo "  1. Set context: . scripts/devops/context.sh set $current_space <ticket>"
         echo "  2. Use --skip-validation flag to skip validation (NOT RECOMMENDED)"
         echo ""
         exit 1
@@ -1496,7 +1106,7 @@ validate_target_space() {
         echo ""
         echo "To proceed anyway, either:"
         echo "  1. Switch spaces: deploy.sh switch $DEPLOY_ENV"
-        echo "  2. Update context: deploy.sh set-context $current_space <ticket>"
+        echo "  2. Update context: . scripts/devops/context.sh set $current_space <ticket>"
         echo "  3. Use --skip-validation flag (NOT RECOMMENDED)"
         echo ""
         exit 1
@@ -1596,7 +1206,7 @@ create_deployment_backup() {
     eval "suffix=\${${suffix_var}:-$default_suffix}"
 
     if [ -z "$ticket" ]; then
-        handle_error "DEPLOY_TICKET not set. Run: deploy.sh set-context <env> <ticket>" "validation" "exit"
+        handle_error "DEPLOY_TICKET not set. Run: . scripts/devops/context.sh set <env> <ticket>" "validation" "exit"
     fi
 
     print_status $BLUE "📦 Creating ${backup_type}-deployment backup"
@@ -2672,7 +2282,7 @@ rollback_single_type() {
     if [ -z "$tag" ]; then
         print_status $RED "❌ Error: Backup tag required"
         echo "Usage: deploy.sh rollback-$type <tag> [--skip-validation] [--skip-confirmation]"
-        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
+        echo "Or set deployment context first: . scripts/devops/context.sh set <env> <ticket>"
         exit 2
     fi
 
@@ -5003,14 +4613,11 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 fi
 
 case "$COMMAND" in
-    "set-context")
-        set_context "$@"
-        ;;
-    "show-context")
-        show_context "$@"
-        ;;
-    "clear-context")
-        clear_context "$@"
+    "set-context"|"show-context"|"clear-context")
+        print_status $RED "❌ Use scripts/devops/context.sh for deployment context:"
+        echo ""
+        echo "  . scripts/devops/context.sh ${COMMAND%-context} $*"
+        exit 1
         ;;
     "contexts")
         # Handle contexts subcommands
