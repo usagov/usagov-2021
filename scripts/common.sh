@@ -1177,10 +1177,23 @@ get_next_backup_suffix() {
 
     local lockfile="/tmp/backup-suffix-${backup_type}.lock"
     local lockfd=200
+    local lock_waited=0
 
     eval "exec $lockfd>$lockfile"
-    if ! flock -x -w $FLOCK_TIMEOUT_SECONDS $lockfd 2>/dev/null; then
-        print_status $YELLOW "⚠️  Could not acquire lock, proceeding without lock" >&2
+    if ! command -v flock >/dev/null 2>&1; then
+        print_status $YELLOW "⚠️  flock is unavailable, proceeding without backup suffix lock" >&2
+        eval "exec $lockfd>&-"
+    else
+        # BusyBox flock does not support util-linux's -w timeout option.
+        while ! flock -x -n $lockfd 2>/dev/null; do
+            if [ $lock_waited -ge $FLOCK_TIMEOUT_SECONDS ]; then
+                print_status $YELLOW "⚠️  Could not acquire backup suffix lock within ${FLOCK_TIMEOUT_SECONDS} seconds, proceeding without lock" >&2
+                eval "exec $lockfd>&-"
+                break
+            fi
+            sleep 1
+            lock_waited=$((lock_waited + 1))
+        done
     fi
 
     local s3_path=""
@@ -1200,10 +1213,8 @@ get_next_backup_suffix() {
             search_pattern="${base_tag}-"
             ;;
         *)
-            flock -u $lockfd 2>/dev/null
             eval "exec $lockfd>&-"
-            echo "0"
-            return 0
+            return 1
             ;;
     esac
 
@@ -1258,11 +1269,9 @@ get_next_backup_suffix() {
         sleep 1
     done
 
-    # Release lock
-    flock -u $lockfd 2>/dev/null
-    eval "exec $lockfd>&-"
-
-    echo "$result"
+    # The descriptor remains locked until this process exits or allocates another type.
+    # That keeps the selected suffix reserved while its backup uploads to S3.
+    NEXT_BACKUP_SUFFIX="$result"
 }
 
 # Check if a backup date falls within a date range

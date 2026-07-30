@@ -974,6 +974,26 @@ run_info_command_json() {
 # DATABASE BACKUP FUNCTIONS
 # ===================================================================
 
+prepare_backup_tag() {
+    local backup_type="$1"
+    local base_tag="$2"
+    local backup_suffix="$3"
+    local state_type="$4"
+    local state_prepared="$5"
+
+    if ! get_next_backup_suffix "$backup_type" "$base_tag"; then
+        print_status $RED "❌ Failed to determine ${backup_type} backup suffix"
+        [ "$state_prepared" = "true" ] && restore_drupal_state "$state_type"
+        return 1
+    fi
+
+    if [ -n "$backup_suffix" ]; then
+        NEXT_BACKUP_TAG="${base_tag}-${backup_suffix}-${NEXT_BACKUP_SUFFIX}"
+    else
+        NEXT_BACKUP_TAG="${base_tag}-${NEXT_BACKUP_SUFFIX}"
+    fi
+}
+
 # Create a database backup with optional custom prefix, suffix, and timestamp
 # Args:
 #   $1: custom_prefix (default: DB_BACKUP_PREFIX from config)
@@ -1012,15 +1032,10 @@ create_db_backup() {
     CONTAINER_TAG=$(get_container_tag)
     local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
 
-    # Get next available numeric suffix for same-day backups
-    local numeric_suffix=$(get_next_backup_suffix "db" "$base_tag")
-
-    # Construct final tag with user suffix (if any) and numeric suffix
-    if [ -n "$backup_suffix" ]; then
-        DB_BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
-    else
-        DB_BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    if ! prepare_backup_tag "db" "$base_tag" "$backup_suffix" "maintenance" "$drupal_state_prepared"; then
+        return 1
     fi
+    DB_BACKUP_TAG="$NEXT_BACKUP_TAG"
 
     # Validate final backup tag
     if ! validate_backup_tag "$DB_BACKUP_TAG"; then
@@ -1229,15 +1244,10 @@ create_static_backup() {
     CONTAINER_TAG=$(get_container_tag)
     local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
 
-    # Get next available numeric suffix for same-day backups
-    local numeric_suffix=$(get_next_backup_suffix "static" "$base_tag")
-
-    # Construct final tag with user suffix (if any) and numeric suffix
-    if [ -n "$backup_suffix" ]; then
-        BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
-    else
-        BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    if ! prepare_backup_tag "static" "$base_tag" "$backup_suffix" "tome" "$drupal_state_prepared"; then
+        return 1
     fi
+    BACKUP_TAG="$NEXT_BACKUP_TAG"
 
     audit_log "backup_static_started" "info" "Static site backup initiated" "backup_tag=$BACKUP_TAG"
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
@@ -1318,15 +1328,10 @@ create_public_backup() {
     CONTAINER_TAG=$(get_container_tag)
     local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
 
-    # Get next available numeric suffix for same-day backups
-    local numeric_suffix=$(get_next_backup_suffix "public" "$base_tag")
-
-    # Construct final tag with user suffix (if any) and numeric suffix
-    if [ -n "$backup_suffix" ]; then
-        BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
-    else
-        BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    if ! prepare_backup_tag "public" "$base_tag" "$backup_suffix" "tome" "$drupal_state_prepared"; then
+        return 1
     fi
+    BACKUP_TAG="$NEXT_BACKUP_TAG"
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true
