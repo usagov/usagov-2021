@@ -24,7 +24,7 @@ The **proxy application** intercepts API calls and appends the required API key 
 
 - This project utilizes Cloud.gov Python buildpack and **NOT DOCKER CONTAINERS**.
   - This means there is no need to have a container build step in a deploy script or pipeline, nor do we need a Dockerfile.
-  - Version of Python and other libraries in Cloud.gov buildpacks are updated upon restart to ensure we have the most recent version of Python.
+  - The Python version is pinned in [`runtime.txt`](runtime.txt) (currently `python-3.14.x`, i.e. the latest 3.14 patch release). Other buildpack libraries are updated upon restart to ensure we have the most recent compatible versions.
 - **Encrypted Container-to-Container Communication**: **This setup utilizes the automatic C2C network traffic encryption provided by Cloud.gov's Envoy proxy over port 61443**
   - As detailed in: [https://cloud.gov/docs/management/container-to-container/](https://cloud.gov/docs/management/container-to-container/)
   - Makes API requests but **lacks direct API credentials**.
