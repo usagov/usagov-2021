@@ -159,10 +159,15 @@ set_context() {
     print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
 
     # Query S3 to get the most recent valid backup tag for each type
-    local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && \
+    local backup_tags
+    backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && \
         echo 'STATIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
         echo 'PUBLIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
-        echo 'DB:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print \$4}' | sed 's/\.sql\.gz$//'")
+        echo 'DB:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print \$4}' | sed 's/\.sql\.gz$//'" 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$backup_tags" ]; then
+        print_status $YELLOW "⚠️  Could not capture rollback tags from the cms container - DEPLOY_ROLLBACK_* will be empty"
+        diagnose_cf_ssh_failure cms
+    fi
 
     local static_tag=$(echo "$backup_tags" | grep -A1 "^STATIC:" | tail -1)
     local public_tag=$(echo "$backup_tags" | grep -A1 "^PUBLIC:" | tail -1)

@@ -1941,6 +1941,65 @@ state_command() {
     fi
 }
 
+# Explain why a `cf ssh` (or `cf app`) call failed or returned no output.
+# Call this from a failure path only - it probes the CF session to find the
+# first broken link in the chain (CLI missing, not logged in, app
+# unreachable, SSH disabled) and prints the cause and fix to stderr.
+# Probes run once per process; later calls are silent no-ops so multi-step
+# commands do not repeat the same diagnosis.
+# Args:
+#   $1: app name (default: cms)
+# Returns: 1 always, so callers can chain with `|| diagnose_cf_ssh_failure`
+diagnose_cf_ssh_failure() {
+    local app="${1:-cms}"
+
+    if [ "$CF_SSH_FAILURE_DIAGNOSED" = "true" ]; then
+        return 1
+    fi
+    CF_SSH_FAILURE_DIAGNOSED=true
+
+    if ! command -v cf >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ Cloud Foundry CLI (cf) not found on PATH"
+            print_status $YELLOW "   Install: https://docs.cloudfoundry.org/cf-cli/install-go-cli.html"
+        } >&2
+        return 1
+    fi
+
+    if ! cf target >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ Not logged in to Cloud Foundry (or the session expired)"
+            print_status $YELLOW "   Run: bin/cloudgov/login --sso"
+        } >&2
+        return 1
+    fi
+
+    local space
+    space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
+
+    if ! cf app "$app" >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ App '$app' is not reachable in space '${space:-unknown}'"
+            print_status $YELLOW "   Check the target space with 'cf target' and the app with 'cf app $app'"
+        } >&2
+        return 1
+    fi
+
+    if ! cf ssh-enabled "$app" 2>/dev/null | grep -qi 'enabled'; then
+        {
+            print_status $RED "❌ SSH access to '$app' is disabled in space '${space:-unknown}'"
+            print_status $YELLOW "   Enable it with: cf enable-ssh $app (then restart the app)"
+        } >&2
+        return 1
+    fi
+
+    {
+        print_status $RED "❌ SSH to '$app' in space '${space:-unknown}' works, but the remote command failed or returned no data"
+        print_status $YELLOW "   Debug interactively with: cf ssh $app"
+    } >&2
+    return 1
+}
+
 # Single entry point for toggling Drupal state (Tome/maintenance mode) from a
 # local machine. All callers (local-manager.sh, deploy.sh) route through
 # this function to invoke `cf ssh`.
@@ -1979,6 +2038,11 @@ remote_state_command() {
     local _cmd
     _cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh state %q %q %q' "$action" "$state_type" "$max_wait")
     cf ssh cms -c "$_cmd"
+    local _rc=$?
+    if [ $_rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $_rc
 }
 
 # ===================================================================

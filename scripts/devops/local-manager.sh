@@ -358,6 +358,11 @@ remote_command() {
     local _cmd
     _cmd=$(printf ' %q' "$@")
     cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/manager.sh${_cmd}"
+    local _rc=$?
+    if [ $_rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $_rc
 }
 
 # Download backups from CF to local machine with streaming support
@@ -560,6 +565,7 @@ download_command() {
             fi
         else
             echo "❌ $label backup failed or not found"
+            diagnose_cf_ssh_failure cms
             rm -f "$output_file"
             return 1
         fi
@@ -684,10 +690,15 @@ case "$COMMAND" in
         # test - run test suite on CF
         echo "🧪 Running backup system test suite on Cloud Foundry..."
         echo ""
-        cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/test.sh"
+        cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/test.sh" || diagnose_cf_ssh_failure cms
         ;;
     "current-digests")
         # current-digests - show current live container digests via CF CLI
+        if ! cf app cms >/dev/null 2>&1; then
+            echo "❌ Could not query apps in the current space"
+            diagnose_cf_ssh_failure cms
+            exit 1
+        fi
         _space=$(cf target | grep 'space:' | awk '{print $2}')
         _cms=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
         _www=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
@@ -717,7 +728,7 @@ case "$COMMAND" in
                 else
                     cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
                 fi
-                cf ssh cms -c "$cmd"
+                cf ssh cms -c "$cmd" || diagnose_cf_ssh_failure cms
                 ;;
             *)
                 echo "❌ Unknown cron subcommand: $CRON_SUBCOMMAND"

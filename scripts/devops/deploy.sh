@@ -780,13 +780,16 @@ last_backup() {
     echo "PUBLIC_DATE=${public_date:-(none)}"
     echo "DB_TAG=${db_tag:-(none)}"
     echo "DB_DATE=${db_date:-(none)}"' 2>/dev/null)
+    local ssh_rc=$?
 
-    if [ -z "$backup_data" ]; then
+    if [ $ssh_rc -ne 0 ] || [ -z "$backup_data" ]; then
         if [ "$use_json" = true ]; then
-            echo '{"error":"Could not fetch backup data"}' | jq .
+            diagnose_cf_ssh_failure cms
+            echo '{"error":"Could not fetch backup data from the cms container"}' | jq .
             return 3
         else
-            print_status $RED "❌ System Error: Could not fetch backup data"
+            print_status $RED "❌ System Error: Could not fetch backup data from the cms container"
+            diagnose_cf_ssh_failure cms
             return 3
         fi
     fi
@@ -1049,7 +1052,7 @@ EOF
 # Show message of the day from CMS container
 # Safe Operation: Read-only query, displays /etc/motd from container
 show_motd() {
-    cf ssh cms -c "cat /etc/motd"
+    cf ssh cms -c "cat /etc/motd" || diagnose_cf_ssh_failure cms
 }
 
 # ===================================================================
@@ -1130,6 +1133,11 @@ exec_backup_command() {
     local cmd
     cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
     cf ssh cms -c "$cmd"
+    local rc=$?
+    if [ $rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $rc
 }
 
 # Execute a restore command via cf ssh to cms container
@@ -1150,6 +1158,11 @@ exec_restore_command() {
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q --skip-confirmation' "$tag")
     fi
     cf ssh cms -c "$cmd"
+    local rc=$?
+    if [ $rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $rc
 }
 
 # Prompt for rollback confirmation
@@ -1453,7 +1466,8 @@ downsync() {
         fi
 
         # Get latest DB backup tag
-        backup_tag=$(cf ssh cms -c "
+        local tag_output
+        tag_output=$(cf ssh cms -c "
             export AWS_DEFAULT_REGION='us-gov-west-1'
             cd /var/www
             . scripts/common.sh
@@ -1465,7 +1479,14 @@ downsync() {
             head -1 | \
             awk '{print \$4}' | \
             xargs basename | \
-            sed 's/\.sql\.gz\$/'" 2>/dev/null | tail -1)
+            sed 's/\.sql\.gz\$/'" 2>/dev/null)
+        if [ $? -ne 0 ]; then
+            print_status $RED "❌ Could not query backups in $from_space"
+            diagnose_cf_ssh_failure cms
+            [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+            exit 3
+        fi
+        backup_tag=$(echo "$tag_output" | tail -1)
 
         if [ -z "$backup_tag" ]; then
             print_status $RED "❌ Error: No backups found in $from_space"
@@ -1553,6 +1574,7 @@ downsync() {
 
     if [ ! -s "$db_file" ]; then
         print_status $RED "❌ System Error: Failed to download database backup"
+        diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 3
@@ -1575,6 +1597,7 @@ downsync() {
 
     if [ ! -s "$temp_dir/public.tar.gz" ]; then
         print_status $RED "❌ System Error: Failed to download public files backup"
+        diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 3
@@ -1600,7 +1623,13 @@ downsync() {
 
     # Get tome state before restore
     print_status $BLUE "📋 Checking tome state..."
-    local tome_disabled=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null | tail -1)
+    local tome_state_output
+    tome_state_output=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        print_status $YELLOW "⚠️  Warning: Could not read Tome state from $to_space - assuming Tome is enabled"
+        diagnose_cf_ssh_failure cms
+    fi
+    local tome_disabled=$(echo "$tome_state_output" | tail -1)
 
     # Enable maintenance mode and disable tome using unified state command
     print_status $BLUE "🔒 Preparing for restore (maintenance mode + disable tome)..."
@@ -1766,7 +1795,12 @@ list_backups() {
         local cmd
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q --json' "$days")
         local raw_json
-        raw_json=$(cf ssh cms -c "$cmd")
+        raw_json=$(cf ssh cms -c "$cmd" 2>/dev/null)
+        if [ $? -ne 0 ] || [ -z "$raw_json" ]; then
+            diagnose_cf_ssh_failure cms
+            echo '{"error":"Could not list backups from the cms container"}' | jq .
+            return 3
+        fi
         if [ -n "$ticket" ]; then
             echo "$raw_json" | jq --arg t "$ticket" \
                 '{backups: [.backups[] | select(.tag | contains($t))], count: ([.backups[] | select(.tag | contains($t))] | length), bucket: .bucket}'
@@ -1785,9 +1819,21 @@ list_backups() {
         local cmd
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
         if [ -n "$ticket" ]; then
-            cf ssh cms -c "$cmd" | grep -i "$ticket" || echo "  No backups found matching '$ticket'"
+            local list_output
+            list_output=$(cf ssh cms -c "$cmd" 2>/dev/null)
+            if [ $? -ne 0 ]; then
+                print_status $RED "❌ Could not list backups from the cms container"
+                diagnose_cf_ssh_failure cms
+                return 3
+            fi
+            echo "$list_output" | grep -i "$ticket" || echo "  No backups found matching '$ticket'"
         else
             cf ssh cms -c "$cmd"
+            if [ $? -ne 0 ]; then
+                print_status $RED "❌ Could not list backups from the cms container"
+                diagnose_cf_ssh_failure cms
+                return 3
+            fi
         fi
     fi
 }
@@ -2339,13 +2385,26 @@ download_backups() {
         fi
 
         # Query S3 to get the most recent backup tag
-        tag=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
+        local tag_output
+        tag_output=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
             aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS |
             grep '\.sql\.gz$' |
             sort -r |
             head -1 |
             awk '{print \$4}' |
-            sed 's/\.sql\.gz$//'" 2>/dev/null | tail -1 | tr -d '\r')
+            sed 's/\.sql\.gz$//'" 2>/dev/null)
+        if [ $? -ne 0 ]; then
+            if [ "$use_json" = true ]; then
+                diagnose_cf_ssh_failure cms
+                echo '{"error":"Could not query backups from the cms container"}' | jq .
+                return 3
+            else
+                print_status $RED "❌ Could not query backups from the cms container"
+                diagnose_cf_ssh_failure cms
+                return 3
+            fi
+        fi
+        tag=$(echo "$tag_output" | tail -1 | tr -d '\r')
 
         if [ -z "$tag" ]; then
             if [ "$use_json" = true ]; then
@@ -2393,6 +2452,7 @@ download_backups() {
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Database download failed"
         fi
+        diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2412,6 +2472,7 @@ download_backups() {
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Static site download failed"
         fi
+        diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2431,6 +2492,7 @@ download_backups() {
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Public files download failed"
         fi
+        diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2498,10 +2560,13 @@ tome_log() {
     fi
 
     # Do all the filtering in a single SSH session for efficiency
-    # This script finds logs, checks their content, and returns the appropriate one
+    # This script finds logs, checks their content, and returns the appropriate
+    # one. The __TOME_LOG_QUERY_OK__ marker proves the remote script actually
+    # ran, so an unreachable container is not mistaken for "no logs found".
+    local log_query
     if [ "$recent_mode" = "yes" ]; then
         # Recent mode: skip only "already running" logs
-        local target_log=$(cf ssh cms -c '
+        log_query=$(cf ssh cms -c '
             for log_file in $(find /tmp/tome-log/20* -type f -name "*.log" 2>/dev/null | sort -r); do
                 if grep -q "Another Tome is already running. Exiting." "$log_file" 2>/dev/null; then
                     continue
@@ -2509,10 +2574,11 @@ tome_log() {
                 echo "$log_file"
                 break
             done
-        ' 2>/dev/null | tail -1 | tr -d '\r')
+            echo "__TOME_LOG_QUERY_OK__"
+        ' 2>/dev/null | tr -d '\r')
     else
         # Active mode: skip both "already running" AND completed logs
-        local target_log=$(cf ssh cms -c '
+        log_query=$(cf ssh cms -c '
             for log_file in $(find /tmp/tome-log/20* -type f -name "*.log" 2>/dev/null | sort -r); do
                 if grep -q "Another Tome is already running. Exiting." "$log_file" 2>/dev/null; then
                     continue
@@ -2523,8 +2589,17 @@ tome_log() {
                 echo "$log_file"
                 break
             done
-        ' 2>/dev/null | tail -1 | tr -d '\r')
+            echo "__TOME_LOG_QUERY_OK__"
+        ' 2>/dev/null | tr -d '\r')
     fi
+
+    if ! echo "$log_query" | grep -q "__TOME_LOG_QUERY_OK__"; then
+        print_status $RED "❌ Could not search Tome logs on the cms container"
+        diagnose_cf_ssh_failure cms
+        return 3
+    fi
+
+    local target_log=$(echo "$log_query" | grep -v "__TOME_LOG_QUERY_OK__" | tail -1)
 
     if [ -z "$target_log" ]; then
         if [ "$recent_mode" = "yes" ]; then
@@ -3262,12 +3337,24 @@ fetch_deployment_metadata_remote() {
     fi
 
     # Fetch metadata from CMS container (needs S3 access)
-    cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null
+    local metadata
+    metadata=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+        return 1
+    fi
+    echo "$metadata"
 }
 
 # Helper function to fetch the latest backup tag from S3 via CMS container
 fetch_latest_backup_tag() {
-    cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null | tail -1
+    local tag_output
+    tag_output=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+        return 1
+    fi
+    echo "$tag_output" | tail -1
 }
 
 # Show current container digests - wrapper that handles space switching
@@ -3755,13 +3842,19 @@ check_backup_exists() {
     # Check via cf ssh to cms container (has S3 access)
     validate_backup_tag "$backup_tag" >/dev/null 2>&1 || return 1
 
-    local check_result=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars && \
+    local check_output
+    check_output=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars && \
         static_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
         public_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
         db_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/$backup_tag.sql.gz \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
-        echo \"\$static_exists|\$public_exists|\$db_exists\"" 2>/dev/null | tail -1)
+        echo \"\$static_exists|\$public_exists|\$db_exists\"" 2>/dev/null)
+    local ssh_rc=$?
+    local check_result=$(echo "$check_output" | tail -1)
 
-    if [ -z "$check_result" ]; then
+    if [ $ssh_rc -ne 0 ] || [ -z "$check_result" ]; then
+        # Distinguish "could not check" from "backup missing" for the user;
+        # callers still treat both as a failed existence check.
+        diagnose_cf_ssh_failure cms
         return 1
     fi
 
@@ -3802,7 +3895,20 @@ remote_backup_component_exists() {
             ;;
     esac
 
-    cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars >/dev/null 2>&1 && $remote_check" >/dev/null 2>&1
+    # Markers distinguish "component missing" from "could not reach the
+    # container to check" - the exit code alone cannot tell them apart.
+    local result
+    result=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars >/dev/null 2>&1 && \
+        if $remote_check >/dev/null 2>&1; then echo __FOUND__; else echo __MISSING__; fi" 2>/dev/null)
+
+    case "$result" in
+        *__FOUND__*) return 0 ;;
+        *__MISSING__*) return 1 ;;
+        *)
+            diagnose_cf_ssh_failure cms
+            return 1
+            ;;
+    esac
 }
 
 # Validate that a backup tag exists before attempting operations
@@ -4401,12 +4507,23 @@ validate_deployment() {
                 ;;
         esac
 
-        local health_check
-        health_check=$(cf ssh "$app" -c "$health_cmd" 2>/dev/null | grep -c "^up")
+        # The marker proves the SSH session ran, so an unreachable container
+        # is not reported as "services not responding"
+        local health_output
+        health_output=$(cf ssh "$app" -c "$health_cmd; echo __HC_REACHED__" 2>/dev/null)
+        local health_check=$(echo "$health_output" | grep -c "^up")
 
         local expected_count=$(echo "$expected_health_services" | tr ',' '\n' | wc -l | tr -d ' ')
 
-        if [ "$health_check" -ge "$expected_count" ]; then
+        if ! echo "$health_output" | grep -q "__HC_REACHED__"; then
+            health_ok=false
+            health_status="unreachable"
+            overall_success=false
+            if [ "$use_json" = false ]; then
+                print_status $RED "  ❌ Container health: could not reach $app over SSH to check"
+            fi
+            diagnose_cf_ssh_failure "$app"
+        elif [ "$health_check" -ge "$expected_count" ]; then
             health_ok=true
             health_status="ok"
             if [ "$use_json" = false ]; then
