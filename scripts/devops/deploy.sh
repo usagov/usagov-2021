@@ -2705,14 +2705,17 @@ show_changes() {
             return 0
         fi
 
-        # Show commits in 'to' that are not in 'from'
+        # Show commits in 'from' that are not yet in 'to' - i.e. what would
+        # move if you deployed/merged 'from' into 'to' (git's A..B range
+        # shows commits unique to B, so that's "$to..$from" here, not
+        # "$from..$to")
         local commits_ahead
-        commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+        commits_ahead=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
 
         if [ -z "$commits_ahead" ]; then
-            # Check if 'from' is ahead instead
+            # Nothing pending from -> to. Check if 'to' is actually ahead instead.
             local commits_behind
-            commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+            commits_behind=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
             local behind_count=0
             if [ -n "$commits_behind" ]; then
                 behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
@@ -2725,7 +2728,7 @@ show_changes() {
 
         # Extract tickets from commit messages
         local tickets
-        tickets=$(git log --first-parent "$from..$to" | \
+        tickets=$(git log --first-parent "$to..$from" | \
             grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
             sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
             grep -iv usagov-2021 | \
@@ -2790,23 +2793,25 @@ EOF
         return 0
     fi
 
-    # Show commits in 'to' that are not in 'from'
+    # Show commits in 'from' that are not yet in 'to' - i.e. what would move
+    # if you deployed/merged 'from' into 'to'. Git's A..B range shows commits
+    # unique to B, so that's "$to..$from" here, not "$from..$to".
     # Using --first-parent to follow main branch history and avoid seeing every merged commit
     local commits_ahead
-    commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+    commits_ahead=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
 
     if [ -z "$commits_ahead" ]; then
-        # Check if 'from' is ahead instead
+        # Nothing pending from -> to. Check if 'to' is actually ahead instead.
         local commits_behind
-        commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+        commits_behind=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
         local behind_count=0
         if [ -n "$commits_behind" ]; then
             behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
         fi
 
-        print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
+        print_status $YELLOW "ℹ️  No new commits in $from that aren't already in $to"
         if [ -n "$commits_behind" ]; then
-            print_status $YELLOW "⚠️  Warning: $to is behind $from by $behind_count commits"
+            print_status $YELLOW "⚠️  Warning: $from is behind $to by $behind_count commits"
         fi
         return 0
     fi
@@ -2815,7 +2820,7 @@ EOF
     # Accept: "Usa 123", "usa_123", "USAGOV-123", etc.
     # Pattern matches: hyphen, underscore, space, or tab
     local tickets
-    tickets=$(git log --first-parent "$from..$to" | \
+    tickets=$(git log --first-parent "$to..$from" | \
         grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
         sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
         grep -iv usagov-2021 | \
