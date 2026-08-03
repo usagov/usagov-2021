@@ -114,7 +114,11 @@ init_backup_system() {
 print_status() {
     local color=$1
     local message=$2
-    printf "${color}${message}${NC}\n"
+    # The message is data, not a format string: passing it as one made any '%'
+    # in a message corrupt the output (e.g. "50% floor" printed as "50 0.000000loor").
+    # %b expands the escape sequences in the colour codes; %s prints the message
+    # literally.
+    printf '%b%s%b\n' "$color" "$message" "$NC"
 }
 
 # Show loading message
@@ -1026,7 +1030,9 @@ normalize_backup_types() {
             public)
                 want_public="yes"
                 ;;
-            db)
+            db|database)
+                # "database" is accepted as an alias so documented restore
+                # options such as --only=database keep working.
                 want_db="yes"
                 ;;
             *)
@@ -2132,5 +2138,29 @@ s3_list_backup_namespace() {
         printf '%s\n' "$item"
     done
 
+    return 0
+}
+
+# Count the objects under an S3 prefix, failing instead of reporting zero
+# A `--query 'length(Contents)'` count cannot be used here: the AWS CLI applies
+# --query once per page, so a prefix holding more than 1000 objects reports 1000
+# (verified: a 5091-object prefix reported "1000"). Any guard built on that value
+# passes regardless of reality, so count the keys the listing actually returned.
+# Args:
+#   $1: base_path - S3 key prefix without bucket or trailing slash
+# Outputs: object count on stdout (only when the listing succeeded)
+# Returns: 0 if counted, non-zero if the listing failed
+s3_count_objects() {
+    local base_path="$1"
+    local listing=""
+    local status=0
+
+    listing=$(s3_list_backup_namespace keys "$base_path")
+    status=$?
+    if [ "$status" -ne 0 ]; then
+        return "$status"
+    fi
+
+    printf '%s\n' "$listing" | grep -c '.'
     return 0
 }

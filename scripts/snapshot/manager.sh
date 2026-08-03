@@ -27,6 +27,8 @@ ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
 DB_BACKUP_TIME=${DB_BACKUP_TIME:-"23:00"}
 ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
 BACKUP_THROTTLE_HOURS=${BACKUP_THROTTLE_HOURS:-4}
+RESTORE_MIN_SOURCE_PERCENT=${RESTORE_MIN_SOURCE_PERCENT:-50}
+RESTORE_POINT_PREFIX=${RESTORE_POINT_PREFIX:-PRERESTORE}
 
 show_usage() {
     echo "Usage: $0 <command> [options]"
@@ -39,6 +41,7 @@ show_usage() {
     echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
     echo "  delete <tag> [tag2 tag3...] [types] [-y]    Delete specific backup(s) by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
+    echo "                [--no-recovery-point] [--force-destructive-sync]"
     echo "  info [types] [tag] [--verify] [--json]   Show backup system info or specific backup details"
   echo "                                             Use --verify to validate integrity (DB: streams from S3)"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
@@ -241,6 +244,21 @@ show_command_help() {
             echo "  --only=type,type              - Restore only specific types"
             echo "  --skip-state-management, --ssm - Skip Drupal state checks"
             echo "  --skip-confirmation, --yes, -y - Skip restore confirmation"
+            echo "  --no-recovery-point           - Skip the pre-restore recovery point"
+            echo "                                  (a failed restore cannot be rolled back)"
+            echo "  --force-destructive-sync      - Allow a backup holding far fewer objects"
+            echo "                                  than live content to overwrite it"
+            echo ""
+            echo "How a restore proceeds:"
+            echo "  1. Every requested component is verified first - including downloading,"
+            echo "     checksumming, decompressing, and validating the database dump - so"
+            echo "     nothing is modified until all checks pass."
+            echo "  2. A pre-restore recovery point is created and verified."
+            echo "  3. Components are restored. If a later phase fails, the phases already"
+            echo "     applied are rolled back to that recovery point."
+            echo ""
+            echo "  A requested component with no matching backup is an error: the restore"
+            echo "  stops rather than leaving that store on a different generation."
             echo ""
             echo "Examples:"
             echo "  manager.sh restore AUTO-prod-14850-2025-10-28"
@@ -2069,7 +2087,20 @@ cleanup_old_db_backups() {
         log_message "❌ Error: Could not read current time for retention calculation"
         return 1
     fi
-    local min_retention_seconds="${RETENTION_MIN_SECONDS:-$((RETENTION_MIN_HOURS * 3600))}"
+    local min_retention_seconds="${RETENTION_MIN_SECONDS:-}"
+    if [ -z "$min_retention_seconds" ] && [ -n "${RETENTION_MIN_HOURS:-}" ]; then
+        min_retention_seconds=$((RETENTION_MIN_HOURS * 3600))
+    fi
+
+    # The floor is a safety control, so an unreadable value must stop the
+    # cleanup. Never fall back to a bare arithmetic default: an unset variable
+    # evaluates to 0, which would silently drop the protection window and expose
+    # backups created today to deletion.
+    if ! echo "$min_retention_seconds" | grep -qE '^[0-9]+$'; then
+        log_message "❌ Error: Minimum retention window is not configured (RETENTION_MIN_HOURS)"
+        return 1
+    fi
+
     local min_retention_epoch=$((now_epoch - min_retention_seconds))
 
     local listing=""
@@ -2642,6 +2673,11 @@ parse_restore_options() {
                 # Skip this flag, handled elsewhere
                 shift
                 ;;
+            --no-recovery-point|--force-destructive-sync)
+                # Skip these flags, handled elsewhere. They must be listed here or
+                # the catch-all below would treat them as the backup tag.
+                shift
+                ;;
             *)
                 # This should be the backup tag
                 if [ -z "$backup_tag" ]; then
@@ -2658,28 +2694,455 @@ parse_restore_options() {
     echo "$restore_types" >&2
 }
 
+# ===================================================================
+# RESTORE SAFETY: PREFLIGHT, RECOVERY POINT, COMPENSATION
+# ===================================================================
+#
+# Restore mutates three independent stores (the static S3 tree, the public S3
+# tree, and the database) which cannot be committed as one transaction. S3 has no
+# atomic prefix swap, so staging a copy and "switching" would still leave a
+# non-atomic window while doubling the data copied. The protection model is
+# therefore:
+#
+#   1. Complete every check for every requested component before the first
+#      mutation - including downloading, verifying, and decompressing the
+#      database dump, which previously happened only after the S3 trees had
+#      already been overwritten.
+#   2. Capture a pre-restore recovery point and verify it exists.
+#   3. Mutate, and compensate from that recovery point if a later phase fails,
+#      so a partial restore converges back to a single consistent generation.
+#
+# NIST 800-53: CP-10, CP-9, SI-7.
+
+# State shared with restore_cleanup() so an interrupted or failed restore cannot
+# leave temp files behind or leave Drupal in maintenance mode.
+RESTORE_TEMP_DIR=""
+RESTORE_STATE_PREPARED=false
+RESTORE_APPLIED_PHASES=""
+RESTORE_POINT_STATIC=""
+RESTORE_POINT_PUBLIC=""
+RESTORE_POINT_DB=""
+RESTORE_DB_SQL_FILE=""
+
+# Release restore resources and Drupal state on any exit path
+# Installed as an EXIT/INT/TERM trap so a signal during a long S3 sync cannot
+# strand the site in maintenance mode with Tome disabled.
+restore_cleanup() {
+    local exit_code=$?
+
+    if [ -n "$RESTORE_TEMP_DIR" ] && [ -d "$RESTORE_TEMP_DIR" ]; then
+        rm -rf "$RESTORE_TEMP_DIR"
+    fi
+    RESTORE_TEMP_DIR=""
+    RESTORE_DB_SQL_FILE=""
+
+    if [ "$RESTORE_STATE_PREPARED" = "true" ]; then
+        RESTORE_STATE_PREPARED=false
+        if ! restore_drupal_state "both"; then
+            print_status $RED "❌ CRITICAL: Could not restore Drupal state"
+            print_status $YELLOW "   Verify and fix with: $0 state enable both"
+            audit_log "restore_state_restore_failed" "error" "Drupal state could not be restored after restore" ""
+        fi
+    fi
+
+    return $exit_code
+}
+
+# Verify a static/public backup is safe to sync over live content
+# The restore uses "aws s3 sync --delete", so a truncated or partially written
+# backup silently deletes the live objects it does not contain. An empty backup
+# would delete the entire live tree.
+# Args:
+#   $1: label - human-readable component name
+#   $2: source_path - backup prefix (no bucket, no trailing slash)
+#   $3: live_path - live prefix that would be overwritten
+#   $4: force - "true" to proceed despite the shrink guard
+# Returns: 0 if safe to restore, 1 otherwise
+restore_preflight_s3_component() {
+    local label="$1"
+    local source_path="$2"
+    local live_path="$3"
+    local force="$4"
+
+    local source_count=""
+    local live_count=""
+    local min_required=0
+
+    source_count=$(s3_count_objects "$source_path")
+    if [ $? -ne 0 ]; then
+        print_status $RED "❌ Preflight failed: could not list the $label backup ($source_path)"
+        return 1
+    fi
+
+    if [ "$source_count" -eq 0 ]; then
+        audit_log "restore_preflight_failed" "error" "Backup component is empty" "component=$label source_path=$source_path"
+        print_status $RED "❌ Preflight failed: the $label backup contains no objects"
+        print_status $YELLOW "   Restoring it would delete all live $label content."
+        return 1
+    fi
+
+    live_count=$(s3_count_objects "$live_path")
+    if [ $? -ne 0 ]; then
+        print_status $RED "❌ Preflight failed: could not list live $label content ($live_path)"
+        return 1
+    fi
+
+    print_status $GREEN "✓ $label backup readable: $source_count objects (live: $live_count)"
+
+    if [ "$RESTORE_MIN_SOURCE_PERCENT" -gt 0 ] && [ "$live_count" -gt 0 ]; then
+        min_required=$((live_count * RESTORE_MIN_SOURCE_PERCENT / 100))
+        if [ "$source_count" -lt "$min_required" ]; then
+            print_status $RED "❌ The $label backup holds $source_count objects but $live_count are live"
+            print_status $YELLOW "   Below the ${RESTORE_MIN_SOURCE_PERCENT}% floor of $min_required objects;"
+            print_status $YELLOW "   'sync --delete' would remove the difference from the live site."
+            if [ "$force" = "true" ]; then
+                audit_log "restore_shrink_guard_overridden" "warning" "Destructive sync guard overridden" "component=$label source_count=$source_count live_count=$live_count"
+                print_status $YELLOW "⚠️  --force-destructive-sync given: continuing anyway"
+            else
+                audit_log "restore_shrink_guard_blocked" "error" "Restore blocked by destructive sync guard" "component=$label source_count=$source_count live_count=$live_count"
+                print_status $YELLOW "   Re-run with --force-destructive-sync if this is intended."
+                return 1
+            fi
+        fi
+    fi
+
+    return 0
+}
+
+# Download and fully validate the database dump before anything is mutated
+# Everything that can reject a bad dump happens here: download, checksum,
+# archive integrity, free space, decompression, structure, and content. Only the
+# import itself remains once mutation begins.
+# Args:
+#   $1: db_backup_key - object name within AUTO_DB_BACKUP_PATH
+# Sets: RESTORE_DB_SQL_FILE on success
+# Returns: 0 if the dump is ready to import, 1 otherwise
+restore_preflight_database() {
+    local db_backup_key="$1"
+
+    local gz_file="$RESTORE_TEMP_DIR/restore.sql.gz"
+    local sql_file="$RESTORE_TEMP_DIR/restore.sql"
+    local checksum_file="$RESTORE_TEMP_DIR/restore.sha256"
+    local expected_checksum=""
+    local actual_checksum=""
+    local avail_kb=0
+    local needed_kb=0
+
+    print_status $YELLOW "🔄 Downloading database backup for validation..."
+    if ! aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_key" "$gz_file" --only-show-errors $S3_EXTRA_PARAMS; then
+        audit_log "restore_preflight_failed" "error" "Database backup download failed" "backup=$db_backup_key"
+        print_status $RED "❌ Preflight failed: could not download the database backup"
+        return 1
+    fi
+    chmod 600 "$gz_file"
+
+    if aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${db_backup_key}.sha256" "$checksum_file" --only-show-errors $S3_EXTRA_PARAMS 2>/dev/null; then
+        chmod 600 "$checksum_file"
+        expected_checksum=$(awk '{print $1}' "$checksum_file")
+        actual_checksum=$(sha256sum "$gz_file" | awk '{print $1}')
+        if [ "$expected_checksum" != "$actual_checksum" ]; then
+            audit_log "restore_preflight_failed" "error" "Checksum mismatch" "backup=$db_backup_key expected=$expected_checksum actual=$actual_checksum"
+            print_status $RED "❌ Preflight failed: checksum mismatch, the backup may be corrupt"
+            print_status $YELLOW "   Expected: $expected_checksum"
+            print_status $YELLOW "   Got:      $actual_checksum"
+            return 1
+        fi
+        print_status $GREEN "✓ Checksum verified"
+    else
+        print_status $YELLOW "⚠️  No checksum sidecar found - integrity cannot be verified"
+    fi
+
+    # Archive integrity before spending disk on decompression. This is also the
+    # real guard against a truncated dump: a cut-off gzip stream fails here.
+    if ! gunzip -t "$gz_file" 2>/dev/null; then
+        audit_log "restore_preflight_failed" "error" "Corrupt database archive" "backup=$db_backup_key"
+        print_status $RED "❌ Preflight failed: the database archive is corrupt"
+        return 1
+    fi
+    print_status $GREEN "✓ Archive integrity verified"
+
+    # Refuse to decompress into a filesystem that cannot hold the result.
+    avail_kb=$(df -P "$RESTORE_TEMP_DIR" 2>/dev/null | awk 'NR==2 {print $4}')
+    needed_kb=$(gzip -l "$gz_file" 2>/dev/null | awk 'NR==2 {print int($2/1024)}')
+    if [ -z "$needed_kb" ] || [ "$needed_kb" -le 0 ] 2>/dev/null; then
+        # gzip -l is unavailable or unreliable here; assume a 10x ratio.
+        needed_kb=$(( $(wc -c < "$gz_file") / 1024 * 10 ))
+    fi
+    if [ -n "$avail_kb" ] && [ "$avail_kb" -gt 0 ] 2>/dev/null; then
+        if [ "$needed_kb" -gt "$avail_kb" ]; then
+            audit_log "restore_preflight_failed" "error" "Insufficient disk space for restore" "needed_kb=$needed_kb available_kb=$avail_kb"
+            print_status $RED "❌ Preflight failed: not enough disk space to decompress the dump"
+            print_status $YELLOW "   Needs ~${needed_kb}KB, ${avail_kb}KB available"
+            return 1
+        fi
+        print_status $GREEN "✓ Disk space sufficient (~${needed_kb}KB needed, ${avail_kb}KB free)"
+    fi
+
+    print_status $YELLOW "🔄 Decompressing and validating dump..."
+    if ! gunzip -c "$gz_file" > "$sql_file" 2>/dev/null; then
+        print_status $RED "❌ Preflight failed: could not decompress the database backup"
+        return 1
+    fi
+    chmod 600 "$sql_file"
+
+    if ! validate_sql_dump "$sql_file"; then
+        audit_log "restore_preflight_failed" "error" "SQL dump structure validation failed" "backup=$db_backup_key"
+        print_status $RED "❌ Preflight failed: the dump does not look like a complete SQL dump"
+        return 1
+    fi
+
+    if ! validate_sql_content "$sql_file"; then
+        audit_log "restore_preflight_failed" "error" "SQL content validation failed" "backup=$db_backup_key"
+        print_status $RED "❌ Preflight failed: SQL content validation rejected the dump"
+        return 1
+    fi
+
+    RESTORE_DB_SQL_FILE="$sql_file"
+    return 0
+}
+
+# Capture a verified pre-restore recovery point for the components being mutated
+# Reuses the normal backup implementations so there is only one backup code path.
+# The ENABLE_* toggles and smart-skip are overridden for the duration: those
+# govern routine automatic backups, and a recovery point that silently does
+# nothing would leave the restore with no way back.
+# Args: $1/$2/$3 - "yes" when static/public/db will be restored
+# Returns: 0 if every required recovery component was created and verified
+restore_create_recovery_point() {
+    local want_static="$1"
+    local want_public="$2"
+    local want_db="$3"
+
+    local timestamp=$(date +"%Y-%m-%d")
+    local failures=0
+    local saved_static="$ENABLE_STATIC_AUTO_BACKUPS"
+    local saved_public="$ENABLE_PUBLIC_AUTO_BACKUPS"
+    local saved_db="$ENABLE_DB_BACKUPS"
+    local saved_smart="$ENABLE_SMART_PUBLIC_BACKUP"
+
+    ENABLE_STATIC_AUTO_BACKUPS=true
+    ENABLE_PUBLIC_AUTO_BACKUPS=true
+    ENABLE_DB_BACKUPS=true
+    ENABLE_SMART_PUBLIC_BACKUP=false
+
+    print_status $BLUE "🛟 Creating pre-restore recovery point (prefix: $RESTORE_POINT_PREFIX)..."
+
+    if [ "$want_static" = "yes" ]; then
+        BACKUP_TAG=""
+        create_static_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
+        # create_*_backup installs its own EXIT trap and then clears it, which
+        # would leave the restore with no cleanup handler. Re-arm ours.
+        trap restore_cleanup EXIT INT TERM
+        RESTORE_POINT_STATIC="$BACKUP_TAG"
+        if [ -z "$RESTORE_POINT_STATIC" ] || [ "$(s3_count_objects "$AUTO_STATIC_BACKUP_PATH/$RESTORE_POINT_STATIC")" = "0" ]; then
+            print_status $RED "❌ Could not create a static recovery point"
+            RESTORE_POINT_STATIC=""
+            failures=$((failures + 1))
+        else
+            print_status $GREEN "✓ Static recovery point: $RESTORE_POINT_STATIC"
+        fi
+    fi
+
+    if [ "$want_public" = "yes" ]; then
+        BACKUP_TAG=""
+        create_public_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
+        trap restore_cleanup EXIT INT TERM
+        RESTORE_POINT_PUBLIC="$BACKUP_TAG"
+        if [ -z "$RESTORE_POINT_PUBLIC" ] || [ "$(s3_count_objects "$AUTO_PUBLIC_BACKUP_PATH/$RESTORE_POINT_PUBLIC")" = "0" ]; then
+            print_status $RED "❌ Could not create a public files recovery point"
+            RESTORE_POINT_PUBLIC=""
+            failures=$((failures + 1))
+        else
+            print_status $GREEN "✓ Public files recovery point: $RESTORE_POINT_PUBLIC"
+        fi
+    fi
+
+    if [ "$want_db" = "yes" ]; then
+        DB_BACKUP_TAG=""
+        create_db_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
+        trap restore_cleanup EXIT INT TERM
+        RESTORE_POINT_DB="$DB_BACKUP_TAG"
+        if [ -z "$RESTORE_POINT_DB" ] || ! aws s3api head-object --bucket "$BUCKET_NAME" \
+                --key "$AUTO_DB_BACKUP_PATH/${RESTORE_POINT_DB}.sql.gz" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            print_status $RED "❌ Could not create a database recovery point"
+            RESTORE_POINT_DB=""
+            failures=$((failures + 1))
+        else
+            print_status $GREEN "✓ Database recovery point: ${RESTORE_POINT_DB}.sql.gz"
+        fi
+    fi
+
+    ENABLE_STATIC_AUTO_BACKUPS="$saved_static"
+    ENABLE_PUBLIC_AUTO_BACKUPS="$saved_public"
+    ENABLE_DB_BACKUPS="$saved_db"
+    ENABLE_SMART_PUBLIC_BACKUP="$saved_smart"
+
+    if [ "$failures" -gt 0 ]; then
+        audit_log "restore_recovery_point_failed" "error" "Pre-restore recovery point incomplete" "failures=$failures"
+        return 1
+    fi
+
+    audit_log "restore_recovery_point_created" "success" "Pre-restore recovery point created" "static=$RESTORE_POINT_STATIC public=$RESTORE_POINT_PUBLIC db=$RESTORE_POINT_DB"
+    return 0
+}
+
+# Roll every already-mutated component back to the pre-restore recovery point
+# Called when a phase fails after earlier phases succeeded, so the environment
+# converges back to one consistent generation instead of a mixed one.
+# Args: $1 - space-separated list of applied phases
+# Returns: 0 if every applied phase was rolled back, 1 otherwise
+restore_compensate() {
+    local applied="$1"
+    local phase=""
+    local failures=0
+    local recovery_gz="$RESTORE_TEMP_DIR/recovery.sql.gz"
+    local recovery_sql="$RESTORE_TEMP_DIR/recovery.sql"
+
+    if [ -z "$applied" ]; then
+        return 0
+    fi
+
+    print_status $YELLOW "↩️  Rolling back to the pre-restore recovery point..."
+    audit_log "restore_compensation_started" "warning" "Rolling back partial restore" "applied_phases=$applied"
+
+    for phase in $applied; do
+        case "$phase" in
+            db)
+                if [ -z "$RESTORE_POINT_DB" ]; then
+                    print_status $RED "❌ No database recovery point available to roll back to"
+                    failures=$((failures + 1))
+                    continue
+                fi
+                print_status $YELLOW "   Restoring database from $RESTORE_POINT_DB..."
+                if aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${RESTORE_POINT_DB}.sql.gz" "$recovery_gz" --only-show-errors $S3_EXTRA_PARAMS \
+                    && gunzip -c "$recovery_gz" > "$recovery_sql" 2>/dev/null \
+                    && drush sql:drop -y \
+                    && drush sql:cli < "$recovery_sql"; then
+                    print_status $GREEN "   ✓ Database rolled back"
+                else
+                    print_status $RED "   ❌ Database rollback FAILED"
+                    failures=$((failures + 1))
+                fi
+                rm -f "$recovery_gz" "$recovery_sql" 2>/dev/null
+                ;;
+            public)
+                if [ -z "$RESTORE_POINT_PUBLIC" ]; then
+                    print_status $RED "❌ No public files recovery point available to roll back to"
+                    failures=$((failures + 1))
+                    continue
+                fi
+                print_status $YELLOW "   Restoring public files from $RESTORE_POINT_PUBLIC..."
+                if aws s3 sync "s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$RESTORE_POINT_PUBLIC/" "s3://$BUCKET_NAME/cms/public/" --only-show-errors --delete $S3_EXTRA_PARAMS; then
+                    print_status $GREEN "   ✓ Public files rolled back"
+                else
+                    print_status $RED "   ❌ Public files rollback FAILED"
+                    failures=$((failures + 1))
+                fi
+                ;;
+            static)
+                if [ -z "$RESTORE_POINT_STATIC" ]; then
+                    print_status $RED "❌ No static recovery point available to roll back to"
+                    failures=$((failures + 1))
+                    continue
+                fi
+                print_status $YELLOW "   Restoring static site from $RESTORE_POINT_STATIC..."
+                if aws s3 sync "s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$RESTORE_POINT_STATIC/" "s3://$BUCKET_NAME/web/" --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
+                    print_status $GREEN "   ✓ Static site rolled back"
+                else
+                    print_status $RED "   ❌ Static site rollback FAILED"
+                    failures=$((failures + 1))
+                fi
+                ;;
+        esac
+    done
+
+    if [ "$failures" -gt 0 ]; then
+        audit_log "restore_compensation_failed" "error" "Rollback incomplete" "applied_phases=$applied failures=$failures"
+        print_status $RED "❌ CRITICAL: rollback did not fully succeed. The environment is in a MIXED state."
+        print_status $YELLOW "   Recovery point tags - static: ${RESTORE_POINT_STATIC:-none}  public: ${RESTORE_POINT_PUBLIC:-none}  db: ${RESTORE_POINT_DB:-none}"
+        print_status $YELLOW "   Restore them explicitly with: $0 restore <recovery-point-tag>"
+        return 1
+    fi
+
+    audit_log "restore_compensation_success" "success" "Partial restore rolled back" "applied_phases=$applied"
+    print_status $GREEN "✓ Rolled back to the pre-restore state"
+    return 0
+}
+
 restore_backup() {
     local backup_tag=""
     local restore_types=""
     local skip_state_management=false
     local skip_confirmation=false
 
+    local no_recovery_point=false
+    local force_destructive_sync=false
+    local unknown_flags=""
+
     # Parse arguments
     if [ $# -eq 0 ]; then
         print_status $RED "❌ Error: Backup tag is required"
         print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,db] [--skip-state-management|--ssm]"
+        print_status $YELLOW "                             [--no-recovery-point] [--force-destructive-sync] [-y]"
         exit 1
     fi
 
-    # Check for --skip-state-management or --ssm flag
+    local positional_count=0
+    local extra_positionals=""
+    local skip_next=false
+
     for arg in "$@"; do
-        if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
-            skip_state_management=true
+        if [ "$skip_next" = true ]; then
+            skip_next=false
+            continue
         fi
-        if [ "$arg" = "--skip-confirmation" ] || [ "$arg" = "--yes" ] || [ "$arg" = "--force" ] || [ "$arg" = "-y" ] || [ "$arg" = "--non-interactive" ]; then
-            skip_confirmation=true
-        fi
+        case "$arg" in
+            --skip-state-management|--ssm)
+                skip_state_management=true
+                ;;
+            --skip-confirmation|--yes|--force|-y|--non-interactive)
+                skip_confirmation=true
+                ;;
+            --no-recovery-point)
+                no_recovery_point=true
+                ;;
+            --force-destructive-sync)
+                force_destructive_sync=true
+                ;;
+            --only)
+                # Value form: the next argument belongs to this option
+                skip_next=true
+                ;;
+            --only=*)
+                ;;
+            -*)
+                # An unrecognized flag must not be silently ignored or mistaken
+                # for the backup tag on a destructive command.
+                unknown_flags="${unknown_flags:+$unknown_flags }$arg"
+                ;;
+            *)
+                positional_count=$((positional_count + 1))
+                if [ "$positional_count" -gt 1 ]; then
+                    extra_positionals="${extra_positionals:+$extra_positionals }$arg"
+                fi
+                ;;
+        esac
     done
+
+    if [ -n "$unknown_flags" ]; then
+        print_status $RED "❌ Error: Unrecognized option(s): $unknown_flags"
+        print_status $YELLOW "   Run '$0 restore --help' for supported options"
+        exit 1
+    fi
+
+    # A trailing type name was silently ignored, so a documented command such as
+    # "restore <tag> db" quietly restored every component instead of just the
+    # database. Reject it rather than doing more than was asked.
+    if [ -n "$extra_positionals" ]; then
+        print_status $RED "❌ Error: Unexpected argument(s): $extra_positionals"
+        print_status $YELLOW "   Select components with --only=type,type (e.g. --only=db)"
+        exit 1
+    fi
 
     # Parse options and get backup tag
     restore_types=$(parse_restore_options "$@" 2>&1 >/dev/null | tail -n1)
@@ -2690,12 +3153,30 @@ restore_backup() {
         exit 1
     fi
 
+    # Validate the tag before it reaches any S3 path or command construction
+    if ! validate_backup_tag "$backup_tag"; then
+        exit 1
+    fi
+
+    # Resolve the requested types to an exact set. Substring matching would let a
+    # value such as "notstatic" select static, and an unknown value would restore
+    # nothing while still reporting success.
+    local normalized_types=""
+    normalized_types=$(normalize_backup_types "$restore_types")
+    if [ $? -ne 0 ]; then
+        print_status $RED "❌ Error: Invalid --only value: $restore_types"
+        exit 1
+    fi
+
     setup_s3_vars || exit 1
 
     # Determine what to restore
-    restore_static=$(echo "$restore_types" | grep -q "static" && echo "yes" || echo "no")
-    restore_public=$(echo "$restore_types" | grep -q "public" && echo "yes" || echo "no")
-    restore_database=$(echo "$restore_types" | grep -qE "\<(db|database)\>" && echo "yes" || echo "no")
+    restore_static=no
+    restore_public=no
+    restore_database=no
+    has_exact_backup_type "$normalized_types" "static" && restore_static=yes
+    has_exact_backup_type "$normalized_types" "public" && restore_public=yes
+    has_exact_backup_type "$normalized_types" "db" && restore_database=yes
 
     print_status $BLUE "🔄 Checking restore options"
     echo ""
@@ -2727,7 +3208,12 @@ restore_backup() {
                 print_status $YELLOW "⚠️ Using closest public backup: $public_backup_tag"
             fi
         else
-            print_status $YELLOW "⚠️ No public backup found - files will stay as-is"
+            # Fail closed: silently skipping a requested component reports a
+            # successful restore while leaving public files on their current
+            # generation, mixed with restored static content and database.
+            print_status $RED "❌ Public files backup not found for: $backup_tag"
+            print_status $YELLOW "   Restore only the components that exist, e.g. --only=static,db"
+            exit 1
         fi
     fi
 
@@ -2744,29 +3230,48 @@ restore_backup() {
                 print_status $YELLOW "⚠️ Using closest database backup: $db_backup_tag"
             fi
         else
-            print_status $YELLOW "⚠️ No database backup found - database will stay as-is"
+            print_status $RED "❌ Database backup not found for: $backup_tag"
+            print_status $YELLOW "   Restore only the components that exist, e.g. --only=static,public"
+            exit 1
+        fi
+    fi
+
+    # ---------------------------------------------------------------
+    # Phase 1: non-mutating preflight of the S3 components
+    # ---------------------------------------------------------------
+    echo ""
+    print_status $BLUE "🔍 Preflight checks..."
+
+    if [ "$restore_static" = "yes" ]; then
+        if ! restore_preflight_s3_component "static site" \
+                "$AUTO_STATIC_BACKUP_PATH/$static_backup_tag" "web" "$force_destructive_sync"; then
+            exit 1
+        fi
+    fi
+
+    if [ "$restore_public" = "yes" ]; then
+        if ! restore_preflight_s3_component "public files" \
+                "$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag" "cms/public" "$force_destructive_sync"; then
+            exit 1
         fi
     fi
 
     echo ""
     print_status $YELLOW "Restore plan:"
 
-    if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
+    if [ "$restore_static" = "yes" ]; then
         echo "Static site:   $static_backup_tag"
     fi
     if [ "$restore_public" = "yes" ]; then
-        if [ -n "$public_backup_tag" ]; then
-            echo "Public files:  $public_backup_tag"
-        else
-            echo "Public files:  skip (no backup)"
-        fi
+        echo "Public files:  $public_backup_tag"
     fi
     if [ "$restore_database" = "yes" ]; then
-        if [ -n "$db_backup_tag" ]; then
-            echo "Database:      $db_backup_tag"
-        else
-            echo "Database:      skip (no backup)"
-        fi
+        echo "Database:      $db_backup_tag"
+    fi
+    if [ "$no_recovery_point" = "true" ]; then
+        print_status $RED "Recovery point: DISABLED (--no-recovery-point) - a failed restore cannot be rolled back"
+    else
+        echo "Recovery point: will be created with prefix $RESTORE_POINT_PREFIX"
     fi
 
     if [ "$skip_confirmation" = "true" ]; then
@@ -2784,24 +3289,71 @@ restore_backup() {
     fi
 
     echo ""
-    print_status $BLUE "🔄 Restoring..."
+    audit_log "restore_started" "info" "Restore operation initiated" "backup_tag=$backup_tag static=$restore_static public=$restore_public database=$restore_database recovery_point=$([ "$no_recovery_point" = "true" ] && echo disabled || echo enabled)"
 
-    audit_log "restore_started" "info" "Restore operation initiated" "backup_tag=$backup_tag static=$restore_static public=$restore_public database=$restore_database"
+    # From here on, resources and Drupal state must be released on every exit
+    # path, including a signal during a long sync.
+    trap restore_cleanup EXIT INT TERM
 
-    local drupal_state_prepared=false
-    if [ "$skip_state_management" != "true" ]; then
-        if prepare_drupal_state "both" 25; then
-            drupal_state_prepared=true
-        else
-            print_status $RED "❌ Failed to prepare Drupal state for restore"
-            exit 1
+    RESTORE_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/restore.XXXXXX") || {
+        print_status $RED "❌ Error: Could not create a temporary working directory"
+        return 1
+    }
+    chmod 700 "$RESTORE_TEMP_DIR"
+
+    # ---------------------------------------------------------------
+    # Phase 2: download and validate the database dump - still no mutation
+    # This has to complete before the S3 trees are touched. Previously a failed
+    # download, checksum, decompression, or validation happened only after the
+    # static and public trees had already been replaced, leaving the environment
+    # with content from two different generations.
+    # ---------------------------------------------------------------
+    if [ "$restore_database" = "yes" ]; then
+        if ! restore_preflight_database "$db_backup_tag"; then
+            return 1
         fi
     fi
+
+    print_status $GREEN "✅ Preflight complete - all requested components verified"
+    echo ""
+
+    # ---------------------------------------------------------------
+    # Phase 3: Drupal state
+    # ---------------------------------------------------------------
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "both" 25; then
+            RESTORE_STATE_PREPARED=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state for restore"
+            return 1
+        fi
+    fi
+
+    # ---------------------------------------------------------------
+    # Phase 4: pre-restore recovery point
+    # ---------------------------------------------------------------
+    if [ "$no_recovery_point" = "true" ]; then
+        audit_log "restore_recovery_point_skipped" "warning" "Pre-restore recovery point skipped by operator" "backup_tag=$backup_tag"
+        print_status $RED "⚠️  Skipping the pre-restore recovery point (--no-recovery-point)"
+    else
+        if ! restore_create_recovery_point "$restore_static" "$restore_public" "$restore_database"; then
+            print_status $RED "❌ Aborting: could not create a complete pre-restore recovery point"
+            print_status $YELLOW "   Nothing has been modified. Fix the backup path or re-run with"
+            print_status $YELLOW "   --no-recovery-point to accept an unrecoverable restore."
+            return 1
+        fi
+    fi
+
+    echo ""
+    print_status $BLUE "🔄 Restoring..."
 
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring static site..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/ s3://$BUCKET_NAME/web/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
+        # Mark the phase before mutating: a sync that fails partway through has
+        # already changed live content and must be compensated.
+        RESTORE_APPLIED_PHASES="static $RESTORE_APPLIED_PHASES"
+        if aws s3 sync "s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$static_backup_tag/" "s3://$BUCKET_NAME/web/" --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
             # Sync theme assets from current container to match deployed code version
             # Theme assets (logos, fonts, images) are part of the codebase, not dynamic content
             # So we need to ensure S3 has the current version from the container
@@ -2836,15 +3388,16 @@ restore_backup() {
         else
             audit_log "restore_static_failed" "error" "Static site restore failed" "backup_tag=$static_backup_tag"
             print_status $RED "❌ ERROR: Static site restore failed"
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-            exit 1
+            restore_compensate "$RESTORE_APPLIED_PHASES"
+            return 1
         fi
     fi
 
     # Restore public files
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring public files..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete $S3_EXTRA_PARAMS; then
+        RESTORE_APPLIED_PHASES="public $RESTORE_APPLIED_PHASES"
+        if aws s3 sync "s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/" "s3://$BUCKET_NAME/cms/public/" --only-show-errors --delete $S3_EXTRA_PARAMS; then
             audit_log "restore_public_success" "success" "Public files restored successfully" "backup_tag=$public_backup_tag"
             print_status $GREEN "✅ Public files restored"
             # Refresh S3FS metadata cache so Drupal sees the restored files
@@ -2861,8 +3414,8 @@ restore_backup() {
         else
             audit_log "restore_public_failed" "error" "Public files restore failed" "backup_tag=$public_backup_tag"
             print_status $RED "❌ ERROR: Public files restore failed"
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-            exit 1
+            restore_compensate "$RESTORE_APPLIED_PHASES"
+            return 1
         fi
     fi
 
@@ -2871,88 +3424,47 @@ restore_backup() {
         audit_log "restore_database_started" "info" "Database restore initiated" "backup_tag=$db_backup_tag"
         print_status $YELLOW "🔄 Restoring database..."
 
-        # Download and restore database backup (use secure temp files)
-        temp_db_base="$(mktemp /tmp/restore_db.XXXXXX)"
-        temp_db_file="${temp_db_base}.sql.gz"
-        temp_sql_file="${temp_db_base}.sql"
-        temp_checksum_file="${temp_db_base}.sha256"
-        chmod 600 "$temp_db_base"
-
-        # Ensure cleanup
-        trap "rm -f '$temp_db_base' '$temp_db_file' '$temp_sql_file' '$temp_checksum_file'" EXIT INT TERM
-
-        if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
-            chmod 600 "$temp_db_file"
-            # Try to download and verify checksum
-            local checksum_verified=false
-            if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${db_backup_tag}.sha256 "$temp_checksum_file" $S3_EXTRA_PARAMS 2>/dev/null; then
-                chmod 600 "$temp_checksum_file"
-                print_status $YELLOW "🔐 Verifying backup integrity..."
-                local expected_checksum=$(cat "$temp_checksum_file")
-                local actual_checksum=$(sha256sum "$temp_db_file" | awk '{print $1}')
-
-                if [ "$expected_checksum" = "$actual_checksum" ]; then
-                    print_status $GREEN "✓ Checksum verified"
-                    checksum_verified=true
-                else
-                    audit_log "restore_database_failed" "error" "Checksum mismatch detected" "backup_tag=$db_backup_tag expected=$expected_checksum actual=$actual_checksum"
-                    print_status $RED "❌ Checksum mismatch! Backup may be corrupted."
-                    print_status $YELLOW "   Expected: $expected_checksum"
-                    print_status $YELLOW "   Got:      $actual_checksum"
-                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-                    exit 1
-                fi
-            else
-                print_status $YELLOW "⚠️  No checksum file found, skipping integrity check"
-            fi
-
-            if gunzip -c "$temp_db_file" > "$temp_sql_file" 2>/dev/null; then
-                chmod 600 "$temp_sql_file"
-                # Validate SQL content for dangerous patterns
-                if ! validate_sql_content "$temp_sql_file"; then
-                    audit_log "restore_database_failed" "error" "SQL content validation failed" "backup_tag=$db_backup_tag"
-                    print_status $RED "❌ SQL content validation failed"
-                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-                    exit 1
-                fi
-
-                if command -v drush >/dev/null 2>&1; then
-                    # Use drush for database import
-                    if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
-                        audit_log "restore_database_success" "success" "Database restored successfully" "backup_tag=$db_backup_tag"
-                        print_status $GREEN "✅ Database restored"
-                    else
-                        audit_log "restore_database_failed" "error" "Database import failed" "backup_tag=$db_backup_tag"
-                        print_status $RED "❌ ERROR: Database import failed"
-                        rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-                        exit 1
-                    fi
-                else
-                    print_status $RED "❌ ERROR: Drush not available for database restore"
-                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-                    exit 1
-                fi
-            else
-                    print_status $RED "❌ ERROR: Failed to decompress database backup"
-                rm -f "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-                exit 1
-            fi
-        else
-            print_status $RED "❌ ERROR: Failed to download database backup"
-            rm -f "$temp_db_base" "$temp_checksum_file" 2>/dev/null
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
-            exit 1
+        # The dump was downloaded, checksum-verified, decompressed, and validated
+        # during preflight, so the only remaining failure is the import itself.
+        if ! command -v drush >/dev/null 2>&1; then
+            print_status $RED "❌ ERROR: Drush not available for database restore"
+            restore_compensate "$RESTORE_APPLIED_PHASES"
+            return 1
         fi
 
-        rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+        if [ -z "$RESTORE_DB_SQL_FILE" ] || [ ! -s "$RESTORE_DB_SQL_FILE" ]; then
+            print_status $RED "❌ ERROR: Validated dump is missing - refusing to drop the database"
+            restore_compensate "$RESTORE_APPLIED_PHASES"
+            return 1
+        fi
+
+        # Mark the phase before dropping: from this point the database needs
+        # compensation even if the drop itself fails partway through.
+        RESTORE_APPLIED_PHASES="db $RESTORE_APPLIED_PHASES"
+
+        if drush sql:drop -y && drush sql:cli < "$RESTORE_DB_SQL_FILE"; then
+            audit_log "restore_database_success" "success" "Database restored successfully" "backup_tag=$db_backup_tag"
+            print_status $GREEN "✅ Database restored"
+        else
+            audit_log "restore_database_failed" "error" "Database import failed" "backup_tag=$db_backup_tag"
+            print_status $RED "❌ ERROR: Database import failed - the database may be empty or partial"
+            restore_compensate "$RESTORE_APPLIED_PHASES"
+            return 1
+        fi
     fi
 
-    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
+    # Release Drupal state before reporting success so the site is serving again
+    # by the time the operator sees the summary. The trap remains as the fallback
+    # for abnormal exits.
+    if [ "$RESTORE_STATE_PREPARED" = "true" ]; then
+        RESTORE_STATE_PREPARED=false
+        if ! restore_drupal_state "both"; then
+            print_status $RED "❌ CRITICAL: Restore succeeded but Drupal state was not restored"
+            print_status $YELLOW "   Fix with: $0 state enable both"
+            audit_log "restore_state_restore_failed" "error" "Drupal state not restored after successful restore" "backup_tag=$backup_tag"
+            return 1
+        fi
+    fi
 
     echo ""
     print_status $GREEN "🎉 Restore complete!"

@@ -1944,6 +1944,242 @@ INVENTORY
     return 0
 }
 
+# Function to test that restore completes every check before the first mutation,
+# captures a verified recovery point, and rolls back when a later phase fails.
+# Hermetic: a directory-backed fake S3 and fake drush, so no real store is touched.
+test_restore_preflight_and_compensation() {
+    echo "🛟 Testing restore preflight ordering and compensation..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+    local tag="AUTO-test-1-2020-01-01-0"
+
+    # Run against a copy of the scripts: init_backup_system prepends
+    # $PROJECT_ROOT/vendor/bin to PATH, which would shadow the fake drush.
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/bin"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$BACKUP_DIR/manager.sh" "$BACKUP_DIR/backup-system.conf" "$sandbox/tree/scripts/snapshot/"
+    chmod +x "$sandbox/tree/scripts/snapshot/manager.sh"
+
+    # Fake aws: S3 keys are files under $FS3, giving real sync --delete semantics
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+R="$FS3"
+k() { echo "$1" | sed 's|^s3://[^/]*/||; s|/$||'; }
+r() { case "$1" in s3://*) echo "$R/$(k "$1")" ;; *) echo "${1%/}" ;; esac; }
+svc="$1"; shift; act="$1"; shift
+case "$svc $act" in
+"s3 ls")
+    t=""; rec=0
+    for a in "$@"; do case "$a" in --recursive) rec=1 ;; s3://*) [ -z "$t" ] && t="$a" ;; esac; done
+    p=$(r "$t"); o=""
+    if [ -d "$p" ]; then o=$(find "$p" -type f | head -50); elif [ -f "$p" ]; then o="$p"; fi
+    [ -z "$o" ] && exit 1
+    echo "$o" | sed 's|^|2026-01-01 00:00:00 1 |'; exit 0 ;;
+"s3 cp")
+    rec=0; s=""; d=""
+    for a in "$@"; do case "$a" in --recursive) rec=1 ;; --*) ;; *) if [ -z "$s" ]; then s="$a"; elif [ -z "$d" ]; then d="$a"; fi ;; esac; done
+    if [ "$s" = "-" ]; then dd=$(r "$d"); mkdir -p "$(dirname "$dd")"; cat > "$dd"; exit 0; fi
+    ss=$(r "$s"); dd=$(r "$d")
+    if [ "$rec" = 1 ]; then
+        [ -d "$ss" ] || exit 1
+        mkdir -p "$dd"; (cd "$ss" && find . -type f | sed 's|^\./||') | while read -r f; do
+            mkdir -p "$dd/$(dirname "$f")"; cp "$ss/$f" "$dd/$f"; done
+        exit 0
+    fi
+    [ -f "$ss" ] || exit 1
+    mkdir -p "$(dirname "$dd")"; cp "$ss" "$dd"; exit 0 ;;
+"s3 sync")
+    del=0; s=""; d=""
+    for a in "$@"; do case "$a" in --delete) del=1 ;; --*) ;; *) if [ -z "$s" ]; then s="$a"; elif [ -z "$d" ]; then d="$a"; fi ;; esac; done
+    [ -n "$FAKE_FAIL_SYNC" ] && echo "$d" | grep -q "$FAKE_FAIL_SYNC" && { echo "sync failed" >&2; exit 1; }
+    ss=$(r "$s"); dd=$(r "$d"); mkdir -p "$dd"
+    [ -d "$ss" ] && (cd "$ss" && find . -type f | sed 's|^\./||') | while read -r f; do
+        mkdir -p "$dd/$(dirname "$f")"; cp "$ss/$f" "$dd/$f"; done
+    if [ "$del" = 1 ]; then
+        (cd "$dd" && find . -type f | sed 's|^\./||') | while read -r f; do
+            [ -f "$ss/$f" ] || rm -f "$dd/$f"; done
+    fi
+    exit 0 ;;
+"s3 rm")
+    t=""; rec=0
+    for a in "$@"; do case "$a" in --recursive) rec=1 ;; s3://*) [ -z "$t" ] && t="$a" ;; esac; done
+    p=$(r "$t"); if [ "$rec" = 1 ]; then rm -rf "$p"; else rm -f "$p"; fi; exit 0 ;;
+"s3api list-objects-v2")
+    pfx=""; q=""
+    while [ $# -gt 0 ]; do case "$1" in --prefix) pfx="$2"; shift 2 ;; --query) q="$2"; shift 2 ;; *) shift ;; esac; done
+    base="$R/${pfx%/}"; res=""
+    case "$q" in
+    *CommonPrefixes*)
+        [ -d "$base" ] && for e in "$base"/*; do [ -d "$e" ] && res="${res}${pfx}$(basename "$e")/	"; done ;;
+    *)
+        if [ -d "$base" ]; then res=$(cd "$base" && find . -type f | sed "s|^\./|${pfx}|" | tr '\n' '\t')
+        elif [ -f "$base" ]; then res="${pfx%/}	"; fi ;;
+    esac
+    res=$(printf '%s' "$res" | sed 's/\t$//')
+    [ -z "$res" ] && echo "None" || echo "$res"
+    exit 0 ;;
+"s3api head-object")
+    key=""; while [ $# -gt 0 ]; do case "$1" in --key) key="$2"; shift 2 ;; *) shift ;; esac; done
+    [ -f "$R/$key" ] && exit 0; exit 254 ;;
+esac
+exit 99
+FAKEAWS
+
+    cat > "$sandbox/bin/drush" <<'FAKEDRUSH'
+#!/bin/sh
+case "$1" in
+sql:dump)
+    out=""; for a in "$@"; do case "$a" in --result-file=*) out="${a#--result-file=}" ;; esac; done
+    [ -z "$out" ] && exit 1
+    printf -- '-- MySQL dump 10.13\n-- Host: x  Database: d\nCREATE TABLE `n` (i int);\nINSERT INTO `n` VALUES (1);\n-- RECOVERY-DUMP\n-- Dump completed on 2026-01-01\n' > "$out"
+    exit 0 ;;
+sql:drop) echo DROPPED >> "$FAKE_DB_LOG"; exit 0 ;;
+sql:cli)
+    cat > "$FAKE_DB_CONTENT"
+    if [ -n "$FAKE_IMPORT_FAIL_ONCE" ] && [ -f "$FAKE_IMPORT_FAIL_ONCE" ]; then
+        rm -f "$FAKE_IMPORT_FAIL_ONCE"; exit 1
+    fi
+    exit 0 ;;
+*) exit 0 ;;
+esac
+FAKEDRUSH
+    chmod +x "$sandbox/bin/aws" "$sandbox/bin/drush"
+
+    seed_restore_fixture() {
+        local live_count="${1:-3}"
+        rm -rf "$sandbox/s3"
+        : > "$sandbox/db-ops.log"
+        local b="$sandbox/s3/auto-backups"
+        mkdir -p "$b/web-backup/$tag" "$b/public_backup/$tag" "$b/database" "$sandbox/s3/web" "$sandbox/s3/cms/public"
+        echo "backup-page" > "$b/web-backup/$tag/page1.html"
+        echo "backup-page2" > "$b/web-backup/$tag/page2.html"
+        echo "backup-file" > "$b/public_backup/$tag/file1.pdf"
+        printf -- '-- MySQL dump 10.13\n-- Host: x  Database: d\nCREATE TABLE `n` (i int);\nINSERT INTO `n` VALUES (42);\n-- TARGET-DUMP\n-- Dump completed on 2026-01-01\n' > "$sandbox/seed.sql"
+        gzip -c "$sandbox/seed.sql" > "$b/database/$tag.sql.gz"
+        sha256sum "$b/database/$tag.sql.gz" | awk '{print $1}' > "$b/database/$tag.sql.gz.sha256"
+        local i=0
+        while [ "$i" -lt "$live_count" ]; do
+            i=$((i + 1)); echo "live-$i" > "$sandbox/s3/web/rlive$i.html"
+        done
+        echo "live-pub" > "$sandbox/s3/cms/public/rlive1.pdf"
+        echo "-- LIVE-DB" > "$sandbox/db-content.sql"
+    }
+
+    run_fake_restore() {
+        (
+            PATH="$sandbox/bin:$PATH"
+            FS3="$sandbox/s3"
+            FAKE_DB_LOG="$sandbox/db-ops.log"
+            FAKE_DB_CONTENT="$sandbox/db-content.sql"
+            BUCKET_NAME="fake-bucket"; APP_SPACE="test"; S3_EXTRA_PARAMS=""
+            export PATH FS3 FAKE_DB_LOG FAKE_DB_CONTENT BUCKET_NAME APP_SPACE S3_EXTRA_PARAMS
+            export FAKE_FAIL_SYNC FAKE_IMPORT_FAIL_ONCE
+            cd "$sandbox/tree" && ./scripts/snapshot/manager.sh restore "$@" >"$sandbox/out" 2>&1
+        )
+        echo $?
+    }
+
+    FAKE_FAIL_SYNC=""
+    FAKE_IMPORT_FAIL_ONCE=""
+
+    # A bad database dump must abort before the S3 trees are replaced
+    seed_restore_fixture 3
+    echo "0000000000000000000000000000000000000000000000000000000000000000" \
+        > "$sandbox/s3/auto-backups/database/$tag.sql.gz.sha256"
+    if [ "$(run_fake_restore "$tag" -y --ssm)" != "0" ] \
+        && grep -q 'checksum mismatch' "$sandbox/out" \
+        && [ ! -f "$sandbox/s3/web/page1.html" ] \
+        && [ -f "$sandbox/s3/web/rlive1.html" ] \
+        && ! grep -q DROPPED "$sandbox/db-ops.log"; then
+        echo "✅ Database checksum failure aborts before any S3 or database mutation"
+    else
+        echo "❌ Database preflight failure did not prevent mutation"
+        failures=$((failures + 1))
+    fi
+
+    # A requested component that does not exist must fail closed
+    seed_restore_fixture 3
+    rm -rf "$sandbox/s3/auto-backups/public_backup/$tag"
+    if [ "$(run_fake_restore "$tag" -y --ssm)" != "0" ] \
+        && grep -q 'Public files backup not found' "$sandbox/out" \
+        && ! grep -q 'Restore complete' "$sandbox/out" \
+        && [ -f "$sandbox/s3/web/rlive1.html" ]; then
+        echo "✅ Missing requested component fails closed instead of reporting success"
+    else
+        echo "❌ Missing component was skipped rather than failing closed"
+        failures=$((failures + 1))
+    fi
+
+    # A backup far smaller than live content must not silently delete the rest
+    seed_restore_fixture 20
+    if [ "$(run_fake_restore "$tag" --only=static -y --ssm)" != "0" ] \
+        && grep -q 'floor' "$sandbox/out" \
+        && [ -f "$sandbox/s3/web/rlive20.html" ]; then
+        echo "✅ Destructive-sync guard blocks a backup smaller than live content"
+    else
+        echo "❌ Destructive-sync guard did not block an undersized backup"
+        failures=$((failures + 1))
+    fi
+
+    # A successful restore must capture a verified recovery point first
+    seed_restore_fixture 3
+    if [ "$(run_fake_restore "$tag" -y --ssm)" = "0" ] \
+        && [ -f "$sandbox/s3/web/page1.html" ] \
+        && [ ! -f "$sandbox/s3/web/rlive1.html" ] \
+        && grep -q 'TARGET-DUMP' "$sandbox/db-content.sql" \
+        && ls "$sandbox/s3/auto-backups/web-backup" | grep -q PRERESTORE \
+        && ls "$sandbox/s3/auto-backups/database" | grep -q PRERESTORE; then
+        echo "✅ Successful restore captures a verified pre-restore recovery point"
+    else
+        echo "❌ Restore did not capture a complete recovery point"
+        failures=$((failures + 1))
+    fi
+
+    # A failed database import must roll every applied phase back
+    seed_restore_fixture 3
+    FAKE_IMPORT_FAIL_ONCE="$sandbox/fail-once"
+    : > "$FAKE_IMPORT_FAIL_ONCE"
+    if [ "$(run_fake_restore "$tag" -y --ssm)" != "0" ] \
+        && grep -q 'Rolled back to the pre-restore state' "$sandbox/out" \
+        && [ -f "$sandbox/s3/web/rlive1.html" ] \
+        && [ ! -f "$sandbox/s3/web/page1.html" ] \
+        && grep -q 'RECOVERY-DUMP' "$sandbox/db-content.sql" \
+        && ! grep -q 'Restore complete' "$sandbox/out"; then
+        echo "✅ Failed database import rolls all applied phases back"
+    else
+        echo "❌ Failed import did not compensate the applied phases"
+        failures=$((failures + 1))
+    fi
+    FAKE_IMPORT_FAIL_ONCE=""
+
+    # A failed public sync must roll the already-applied static phase back
+    seed_restore_fixture 3
+    FAKE_FAIL_SYNC="cms/public"
+    if [ "$(run_fake_restore "$tag" --only=static,public -y --ssm)" != "0" ] \
+        && grep -q 'Rolling back' "$sandbox/out" \
+        && [ -f "$sandbox/s3/web/rlive1.html" ] \
+        && ! grep -q DROPPED "$sandbox/db-ops.log"; then
+        echo "✅ Failed public sync rolls the static phase back"
+    else
+        echo "❌ Failed public sync left a mixed-generation environment"
+        failures=$((failures + 1))
+    fi
+    FAKE_FAIL_SYNC=""
+
+    rm -rf "$sandbox"
+
+    if [ "$failures" -gt 0 ]; then
+        echo "❌ Restore preflight/compensation test failed ($failures issue(s))"
+        return 1
+    fi
+
+    echo "✅ Restore preflight and compensation test passed"
+    return 0
+}
+
 # Function to test backup info commands
 test_backup_info() {
     echo "ℹ️  Testing backup info functionality..."
@@ -2800,6 +3036,7 @@ main() {
     print_status $BLUE "🔄 RESTORE & ADVANCED TESTS"
     print_status $BLUE "==========================="
     run_test "Restore Functionality" "test_restore_functionality"
+    run_test "Restore Preflight and Compensation" "test_restore_preflight_and_compensation"
     run_test "Drupal State Management" "test_state_management"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"

@@ -229,6 +229,40 @@ scripts/devops/local-manager.sh restore AUTO-prod-14850-2025-10-28 --only=static
 
 **Note:** Database restores automatically manage Drupal state (wait for tome, disable it, enable maintenance mode) before importing, then restore state after completion. Use `--skip-state-management` (or `--ssm`) to bypass this.
 
+#### How a restore proceeds
+
+Restore writes to three independent stores (the static S3 tree, the public S3
+tree, and the database) which cannot be committed as one transaction. S3 has no
+atomic prefix swap, so safety comes from ordering and from being able to go back:
+
+1. **Preflight — nothing is modified.** Every requested component is verified,
+   including downloading the database dump, verifying its checksum, testing the
+   archive, checking free disk space, decompressing it, and validating its
+   structure and content. Static and public backups are checked for object count
+   against live content.
+2. **Recovery point.** A pre-restore backup of each component being replaced is
+   created with the `PRERESTORE` prefix and confirmed present in S3.
+3. **Restore, then compensate on failure.** Components are written in order. If a
+   later phase fails, the phases already applied are rolled back to the recovery
+   point so the environment ends on one consistent generation.
+
+A requested component with no matching backup is an error — the restore stops
+instead of leaving that store on a different generation while reporting success.
+Select a subset explicitly with `--only=` instead.
+
+Two flags relax this, and both are audit-logged:
+
+- `--no-recovery-point` — skip step 2. A failed restore then cannot be rolled
+  back.
+- `--force-destructive-sync` — allow a backup holding fewer than
+  `RESTORE_MIN_SOURCE_PERCENT` (default 50) percent of the live object count to
+  overwrite it. Without this, such a restore is refused, because `sync --delete`
+  would remove the difference from the live site.
+
+```bash
+scripts/snapshot/manager.sh restore AUTO-prod-14850-2025-10-28 --only=static --force-destructive-sync
+```
+
 ### Download Backups
 
 Download backups from Cloud Foundry to your local machine or to the CF container filesystem.

@@ -225,9 +225,16 @@ All components restored. Note: Database was from fallback backup AUTO-prod-14850
 
 ### Restore Single Component (Database Only)
 
+Components are selected with `--only=`. A trailing type name is rejected rather
+than silently restoring everything:
+
+```bash
+scripts/snapshot/manager.sh restore AUTO-prod-14852-Oct-08-25 db      # ❌ rejected
+```
+
 **Command:**
 ```bash
-scripts/snapshot/manager.sh restore AUTO-prod-14852-Oct-08-25 db
+scripts/snapshot/manager.sh restore AUTO-prod-14852-Oct-08-25 --only=db
 ```
 
 **Output:**
