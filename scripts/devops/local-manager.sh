@@ -136,12 +136,15 @@ show_command_help() {
             echo ""
             echo "Arguments:"
             echo "  types  - Backup types: all, static, public, db (default: all)"
-            echo "  days   - Keep last N days (default: 30), or 'all'/'0' to delete everything"
+            echo "  days   - Keep last N days (default: 30), or 'all'/'0' to delete every"
+            echo "           backup of the named types (types must be named explicitly and"
+            echo "           cannot include db, which keeps a 48-hour minimum retention)"
             echo "  -y     - Non-interactive mode (no confirmation)"
             echo ""
             echo "Examples:"
             echo "  local-manager.sh clean all 30"
             echo "  local-manager.sh clean db 7 -y"
+            echo "  local-manager.sh clean static,public all -y"
             echo ""
             ;;
         "delete")

@@ -67,7 +67,9 @@ show_usage() {
     echo "  "
     echo "  Flags:"
     echo "    -y, --non-interactive            Skip confirmation prompts"
-    echo "    all | 0                          Delete ALL backups (requires 'DELETE ALL')"
+    echo "    all | 0                          Delete ALL backups of the named types"
+    echo "                                     (requires 'DELETE ALL'; types must be named"
+    echo "                                      explicitly and cannot include db)"
     echo ""
     echo "Backup Tag Format:"
     echo "  PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD[-SUFFIX]"
@@ -105,9 +107,11 @@ show_usage() {
     echo "  $0 clean all --older-than-date 2025-01-01              # Delete everything before 2025"
     echo "  $0 clean all --newer-than-date 2025-10-31              # Delete everything after Oct 31"
     echo "  "
-    echo "  # Delete ALL backups (dangerous!)"
-    echo "  $0 clean all 0                                         # ⚠️  DELETE ALL (requires confirmation)"
-    echo "  $0 clean all all                                       # ⚠️  DELETE ALL (same as above)"
+    echo "  # Delete ALL backups of a type (dangerous!)"
+    echo "  $0 clean static,public all                             # ⚠️  DELETE ALL static/public (requires confirmation)"
+    echo "  $0 clean static 0                                      # ⚠️  DELETE ALL static (same filter, one type)"
+    echo "  #   Database backups are never removed by 'all': clean them by age,"
+    echo "  #   then remove what remains with the 'delete' command."
     echo "  "
     echo "  # Delete specific backups by name"
     echo "  $0 delete TEST-dev-14913-2025-12-12-acl-test-0         # Delete all types for this tag"
@@ -186,12 +190,21 @@ show_command_help() {
             echo "             N (number)                  - Keep last N days"
             echo "             --older-than N              - Keep last N days"
             echo "             --in-range START:END        - Delete specific range"
+            echo "             all | 0                     - Delete every backup of the"
+            echo "                                           named types (db not allowed)"
             echo "  -y       - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Notes:"
+            echo "  Only the types you name are touched, and each type reports its own"
+            echo "  result. The command exits non-zero if any requested type did not"
+            echo "  fully complete. Database backups always keep a 48-hour minimum"
+            echo "  retention, so 'all'/'0' cannot be used with db."
             echo ""
             echo "Examples:"
             echo "  manager.sh clean all 7"
             echo "  manager.sh clean db --older-than 30 -y"
             echo "  manager.sh clean all --in-range 2024-01-01:2024-12-31"
+            echo "  manager.sh clean static,public all -y"
             echo ""
             ;;
         "delete")
@@ -601,15 +614,52 @@ run_backup_command() {
 }
 
 # Handle clean command
+# Report a clean-command error in the caller's requested output format
+# Keeps JSON consumers from receiving plain text on validation failures.
+# Args:
+#   $1: use_json - true to emit JSON, anything else for text
+#   $2: message - error message
+#   $3..: optional hint lines (text mode only)
+# Returns: 1 always, so callers can `clean_command_error ...; return 1`
+clean_command_error() {
+    local use_json="$1"
+    local message="$2"
+    shift 2
+
+    if [ "$use_json" = true ]; then
+        jq -n --arg message "$message" '{operation:"clean",status:"error",message:$message}'
+    else
+        print_status $RED "❌ Error: $message"
+        while [ $# -gt 0 ]; do
+            echo "   $1"
+            shift
+        done
+    fi
+
+    return 1
+}
+
 run_clean_command() {
-    local types_arg="${1:-all}"
-    shift || true
+    local types_arg="all"
+    local types_explicit=false
+
+    # Only consume the first argument as a type list when it actually names
+    # types. A day count or filter flag stays with the filter parser below so a
+    # value such as `clean 0` is never silently read as a type selection.
+    case "${1:-}" in
+        static|public|db|all|*,*)
+            types_arg="$1"
+            types_explicit=true
+            shift
+            ;;
+    esac
 
     local non_interactive=false
     local filter_type=""
     local filter_value=""
     local filter_count=0
     local use_json=false
+    local unknown_args=""
 
     # Check for --json flag early
     if has_json_flag "$@"; then
@@ -619,6 +669,17 @@ run_clean_command() {
 
     # Parse all arguments
     while [ $# -gt 0 ]; do
+        # Options that take a value must have one; otherwise the shift below
+        # would consume the wrong argument or abort the shell.
+        case "$1" in
+            --older-than|--in-range|-r|--except-range|-x|--older-than-date|--newer-than-date)
+                if [ $# -lt 2 ]; then
+                    clean_command_error "$use_json" "$1 requires a value"
+                    return 1
+                fi
+                ;;
+        esac
+
         case "$1" in
             --non-interactive|-y)
                 non_interactive=true
@@ -670,21 +731,26 @@ run_clean_command() {
                     filter_type="days"
                     filter_value="$1"
                     filter_count=$((filter_count + 1))
+                else
+                    unknown_args="${unknown_args:+$unknown_args }$1"
                 fi
                 shift
                 ;;
         esac
     done
 
+    # Never guess at an argument this command does not understand: a typo must
+    # not fall through to the default retention window and delete backups.
+    if [ -n "$unknown_args" ]; then
+        clean_command_error "$use_json" "Unrecognized argument(s): $unknown_args" \
+            "Run '$0 clean --help' for supported types, filters, and flags"
+        return 1
+    fi
+
     # Check for conflicting filters
     if [ $filter_count -gt 1 ]; then
-        if [ "$use_json" = true ]; then
-            local json_error='{"status":"error","message":"Cannot mix multiple date filtering methods"}'
-            format_json "$json_error"
-        else
-            print_status $RED "❌ Error: Cannot mix multiple date filtering methods"
-            echo "   Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
-        fi
+        clean_command_error "$use_json" "Cannot mix multiple date filtering methods" \
+            "Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
         return 1
     fi
 
@@ -695,22 +761,28 @@ run_clean_command() {
     fi
 
     # Validate date formats for date-based filters
-    if [ "$filter_type" = "in-range" ] || [ "$filter_type" = "except-range" ]; then
+    if [ "$filter_type" = "days" ]; then
+        if ! echo "$filter_value" | grep -qE '^[0-9]+$'; then
+            clean_command_error "$use_json" "Invalid retention days: $filter_value" \
+                "Days must be a whole number (e.g., 30)"
+            return 1
+        fi
+    elif [ "$filter_type" = "in-range" ] || [ "$filter_type" = "except-range" ]; then
         if ! echo "$filter_value" | grep -q ':'; then
-            print_status $RED "❌ Error: Invalid date range format: $filter_value"
-            echo "   Expected format: YYYY-MM-DD:YYYY-MM-DD (e.g., 2025-01-01:2025-12-31)"
+            clean_command_error "$use_json" "Invalid date range format: $filter_value" \
+                "Expected format: YYYY-MM-DD:YYYY-MM-DD (e.g., 2025-01-01:2025-12-31)"
             return 1
         fi
         local start_date=$(echo "$filter_value" | cut -d: -f1)
         local end_date=$(echo "$filter_value" | cut -d: -f2)
         if [ -n "$start_date" ] && [ -z "$(date_to_epoch "$start_date")" ]; then
-            print_status $RED "❌ Error: Invalid start date format: $start_date"
-            echo "   Expected format: YYYY-MM-DD (e.g., 2025-01-01)"
+            clean_command_error "$use_json" "Invalid start date format: $start_date" \
+                "Expected format: YYYY-MM-DD (e.g., 2025-01-01)"
             return 1
         fi
         if [ -n "$end_date" ] && [ -z "$(date_to_epoch "$end_date")" ]; then
-            print_status $RED "❌ Error: Invalid end date format: $end_date"
-            echo "   Expected format: YYYY-MM-DD (e.g., 2025-12-31)"
+            clean_command_error "$use_json" "Invalid end date format: $end_date" \
+                "Expected format: YYYY-MM-DD (e.g., 2025-12-31)"
             return 1
         fi
         # Check that start <= end if both provided
@@ -718,20 +790,43 @@ run_clean_command() {
             local start_epoch=$(date_to_epoch "$start_date")
             local end_epoch=$(date_to_epoch "$end_date")
             if [ "$start_epoch" -gt "$end_epoch" ]; then
-                print_status $RED "❌ Error: Invalid date range: $filter_value"
-                echo "   Start date ($start_date) must be before or equal to end date ($end_date)"
+                clean_command_error "$use_json" "Invalid date range: $filter_value" \
+                    "Start date ($start_date) must be before or equal to end date ($end_date)"
                 return 1
             fi
         fi
     elif [ "$filter_type" = "older-date" ] || [ "$filter_type" = "newer-date" ]; then
         if [ -z "$(date_to_epoch "$filter_value")" ]; then
-            print_status $RED "❌ Error: Invalid date format: $filter_value"
-            echo "   Expected format: YYYY-MM-DD (e.g., 2025-01-01)"
+            clean_command_error "$use_json" "Invalid date format: $filter_value" \
+                "Expected format: YYYY-MM-DD (e.g., 2025-01-01)"
             return 1
         fi
     fi
 
-    local backup_types=$(parse_backup_types "$types_arg")
+    # Resolve the requested types to an exact set before anything destructive
+    # happens, so cleanup only ever touches the types the operator named.
+    local backup_types=""
+    backup_types=$(normalize_backup_types "$types_arg")
+    if [ $? -ne 0 ]; then
+        clean_command_error "$use_json" "Invalid backup types: $types_arg"
+        return 1
+    fi
+
+    # 'all' deletes without regard to age. Fail closed before any deletion if the
+    # request cannot be carried out for every type named.
+    if [ "$filter_type" = "all" ]; then
+        if [ "$types_explicit" != true ]; then
+            clean_command_error "$use_json" "Deleting ALL backups requires an explicit type argument" \
+                "Example: $0 clean static,public all"
+            return 1
+        fi
+        if has_exact_backup_type "$backup_types" "db"; then
+            clean_command_error "$use_json" "Database cleanup does not support 'all' (minimum retention is $RETENTION_MIN_HOURS hours)" \
+                "Remove static/public backups with: $0 clean static,public all" \
+                "Remove database backups with: $0 delete <tag> db"
+            return 1
+        fi
+    fi
 
     # Show appropriate warning based on filter type
     if [ "$filter_type" = "all" ]; then
@@ -832,30 +927,101 @@ run_clean_command() {
         fi
     fi
 
-    # Initialize JSON output if needed
-    local json_output=""
-    if [ "$use_json" = true ]; then
-        json_output='{"operation":"clean","filter":{"type":"'$filter_type'","value":"'$filter_value'"},"types":"'$(parse_backup_types "$types_arg")'"'
-    else
-        print_status $BLUE "🧹 Cleaning up backups..."
+    if [ "$use_json" != true ]; then
+        print_status $BLUE "🧹 Cleaning up backups: $backup_types"
     fi
 
-    # Clean static and public backups if requested
-    if has_backup_type "$(parse_backup_types "$types_arg")" "static" || has_backup_type "$(parse_backup_types "$types_arg")" "public"; then
-        clean_old_backups "$filter_type" "$filter_value"
+    local failures=0
+    local static_status="not-requested"
+    local public_status="not-requested"
+    local db_status="not-requested"
+
+    # Clean static and/or public backups. The exact type set is passed through so
+    # the helper only touches the namespaces that were requested.
+    if has_exact_backup_type "$backup_types" "static" || has_exact_backup_type "$backup_types" "public"; then
+        clean_old_backups "$filter_type" "$filter_value" "$backup_types" || failures=$((failures + 1))
     fi
 
     # Clean database backups if requested
-    if has_backup_type "$(parse_backup_types "$types_arg")" "db"; then
-        cleanup_old_db_backups "$filter_type" "$filter_value"
+    if has_exact_backup_type "$backup_types" "db"; then
+        cleanup_old_db_backups "$filter_type" "$filter_value" || failures=$((failures + 1))
+    fi
+
+    # Two independent signals decide the outcome: the helper's exit status above
+    # and its per-type counters below. Either one failing marks the run failed, so
+    # neither a bad return code nor an uncounted namespace can slip through as
+    # success. An unset counter means the type never ran, which is also a failure.
+    if has_exact_backup_type "$backup_types" "static"; then
+        if [ "${CLEAN_STATIC_FAILED:-1}" -eq 0 ]; then
+            static_status="complete"
+        else
+            static_status="failed"
+        fi
+    fi
+    if has_exact_backup_type "$backup_types" "public"; then
+        if [ "${CLEAN_PUBLIC_FAILED:-1}" -eq 0 ]; then
+            public_status="complete"
+        else
+            public_status="failed"
+        fi
+    fi
+    if has_exact_backup_type "$backup_types" "db"; then
+        if [ -n "${CLEAN_DB_SKIPPED:-}" ]; then
+            db_status="skipped"
+        elif [ "${CLEAN_DB_FAILED:-1}" -eq 0 ]; then
+            db_status="complete"
+        else
+            db_status="failed"
+        fi
+    fi
+
+    if [ "$static_status" = "failed" ] || [ "$public_status" = "failed" ] || [ "$db_status" = "failed" ]; then
+        failures=$((failures + 1))
+    fi
+
+    local overall_status="complete"
+    if [ "$failures" -gt 0 ]; then
+        overall_status="failed"
     fi
 
     if [ "$use_json" = true ]; then
-        json_output="${json_output},\"status\":\"complete\"}"
-        format_json "$json_output"
+        jq -n \
+            --arg filter_type "$filter_type" \
+            --arg filter_value "$filter_value" \
+            --arg types "$backup_types" \
+            --arg status "$overall_status" \
+            --arg static_status "$static_status" \
+            --arg public_status "$public_status" \
+            --arg db_status "$db_status" \
+            --argjson static_deleted "${CLEAN_STATIC_DELETED:-0}" \
+            --argjson static_failed "${CLEAN_STATIC_FAILED:-0}" \
+            --argjson public_deleted "${CLEAN_PUBLIC_DELETED:-0}" \
+            --argjson public_failed "${CLEAN_PUBLIC_FAILED:-0}" \
+            --argjson db_deleted "${CLEAN_DB_DELETED:-0}" \
+            --argjson db_failed "${CLEAN_DB_FAILED:-0}" \
+            '{
+                operation: "clean",
+                filter: {type: $filter_type, value: $filter_value},
+                types: $types,
+                results: {
+                    static: {status: $static_status, deleted: $static_deleted, failed: $static_failed},
+                    public: {status: $public_status, deleted: $public_deleted, failed: $public_failed},
+                    db: {status: $db_status, deleted: $db_deleted, failed: $db_failed}
+                },
+                status: $status
+            }'
+    elif [ "$failures" -gt 0 ]; then
+        print_status $RED "❌ Cleanup did not complete for all requested types:"
+        echo "   static: $static_status  public: $public_status  db: $db_status"
     else
         print_status $BLUE "🎉 Cleanup complete."
     fi
+
+    if [ "$failures" -gt 0 ]; then
+        return 1
+    fi
+
+    return 0
 }
 
 # Handle info command
@@ -1844,19 +2010,30 @@ list_all_backups_json() {
 
 # Clean up old database backups based on retention days
 # Removes backups older than the specified number of days from S3
-# Special case: days=0 deletes ALL database backups (requires confirmation)
+# 'all' and '0' are rejected: bulk removal must go through the delete command
+# Every list and delete result is checked and each deletion is verified as gone,
+# so a failed listing or delete cannot be reported as a completed cleanup.
 # Args:
-#   $1: days - Number of days to retain (default: DB_BACKUP_RETENTION_DAYS)
+#   $1: filter_type - Type of filter (days, in-range, except-range, older-date, newer-date)
+#   $2: filter_value - Filter value (days number, date range, or date)
+# Sets: CLEAN_DB_DELETED/CLEAN_DB_FAILED, and CLEAN_DB_SKIPPED when cleanup was
+#       not attempted because ENABLE_DB_AUTO_CLEANUP is not "true"
+# Returns: 0 if the requested cleanup completed, 1 otherwise
 cleanup_old_db_backups() {
     local filter_type="${1:-days}"
     local filter_value="${2:-$DB_BACKUP_RETENTION_DAYS}"
 
+    CLEAN_DB_DELETED=""
+    CLEAN_DB_FAILED=""
+    CLEAN_DB_SKIPPED=""
+
     if [ "$ENABLE_DB_AUTO_CLEANUP" != "true" ]; then
-        log_message "⚠️ Database automatic cleanup is disabled"
+        log_message "⚠️ Database automatic cleanup is disabled (ENABLE_DB_AUTO_CLEANUP=$ENABLE_DB_AUTO_CLEANUP)"
+        CLEAN_DB_SKIPPED="auto-cleanup-disabled"
         return 0
     fi
 
-    setup_s3_vars || exit 1
+    setup_s3_vars || return 1
 
     # Reject 'all' and '0' - use delete command for bulk deletion
     if [ "$filter_type" = "all" ] || [ "$filter_value" = "0" ] || [ "$filter_value" = "all" ]; then
@@ -1869,6 +2046,10 @@ cleanup_old_db_backups() {
 
     # Validate minimum retention to protect deployment windows
     if [ "$filter_type" = "days" ]; then
+        if ! echo "$filter_value" | grep -qE '^[0-9]+$'; then
+            log_message "❌ Error: Retention days must be a whole number: $filter_value"
+            return 1
+        fi
         if [ "$filter_value" -lt 2 ]; then
             log_message "❌ Error: Minimum retention is 2 days ($RETENTION_MIN_HOURS hours)"
             return 1
@@ -1886,31 +2067,91 @@ cleanup_old_db_backups() {
         return 1
     fi
 
-    # List and delete database backups matching filter
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
-        backup_path=$(echo "$line" | awk '{print $4}')
+    local listing=""
+    local list_status=0
+    local backup_path=""
+    local backup_date=""
+    local backup_epoch=""
+    local deleted=0
+    local failures=0
+
+    listing=$(s3_list_backup_namespace keys "$AUTO_DB_BACKUP_PATH")
+    list_status=$?
+    if [ "$list_status" -ne 0 ]; then
+        audit_log "cleanup_database_list_failed" "error" "Could not list database backups for cleanup" "base_path=$AUTO_DB_BACKUP_PATH filter_type=$filter_type"
+        log_message "❌ Error: Failed to list database backups (s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/) - nothing deleted"
+        CLEAN_DB_DELETED=0
+        CLEAN_DB_FAILED=1
+        return 1
+    fi
+
+    # Fed by redirection rather than a pipe so delete failures below are counted
+    # instead of being discarded with the subshell.
+    while IFS= read -r backup_path; do
+        case "$backup_path" in
+            *.sql.gz) ;;
+            *) continue ;;
+        esac
+
         backup_date=$(extract_date_from_backup_name "$backup_path")
+        [ -n "$backup_date" ] || continue
 
-        if [ -n "$backup_date" ]; then
-            # Convert backup date to epoch for comparison
-            local backup_epoch=$(date_to_epoch "$backup_date")
+        # Convert backup date to epoch for comparison
+        backup_epoch=$(date_to_epoch "$backup_date")
 
-            # Skip if backup is newer than minimum retention (safety check)
-            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -gt "$min_retention_epoch" ]; then
-                log_message "⏭️  Skipping recent backup (< $RETENTION_MIN_HOURS hours): $backup_path"
+        # Skip if backup is newer than minimum retention (safety check)
+        if [ -n "$backup_epoch" ] && [ "$backup_epoch" -gt "$min_retention_epoch" ]; then
+            log_message "⏭️  Skipping recent backup (< $RETENTION_MIN_HOURS hours): $backup_path"
+            continue
+        fi
+
+        matches_clean_filter "$backup_date" "$filter_type" "$filter_value" || continue
+
+        log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
+        if ! aws s3 rm "s3://$BUCKET_NAME/$backup_path" --only-show-errors $S3_EXTRA_PARAMS; then
+            audit_log "backup_database_delete_failed" "error" "Failed to delete database backup" "backup_path=$backup_path backup_date=$backup_date"
+            log_message "❌ Failed to delete database backup: $backup_path"
+            failures=$((failures + 1))
+            continue
+        fi
+
+        # Verify the payload is gone before counting a success.
+        if aws s3api head-object --bucket "$BUCKET_NAME" --key "$backup_path" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            audit_log "backup_database_delete_unverified" "error" "Database backup still present after delete" "backup_path=$backup_path"
+            log_message "❌ Database backup not verified as removed: $backup_path"
+            failures=$((failures + 1))
+            continue
+        fi
+
+        # The checksum sidecar is optional; only a delete failure on an existing
+        # sidecar counts against the cleanup.
+        if aws s3api head-object --bucket "$BUCKET_NAME" --key "${backup_path}.sha256" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            if ! aws s3 rm "s3://$BUCKET_NAME/${backup_path}.sha256" --only-show-errors $S3_EXTRA_PARAMS; then
+                audit_log "backup_database_checksum_delete_failed" "error" "Failed to delete database backup checksum" "backup_path=${backup_path}.sha256"
+                log_message "❌ Failed to delete database backup checksum: ${backup_path}.sha256"
+                failures=$((failures + 1))
                 continue
             fi
-
-            if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
-                audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date"
-                log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
-                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
-                aws s3 rm "s3://$BUCKET_NAME/${backup_path}.sha256" $S3_EXTRA_PARAMS >/dev/null 2>&1 || true
-            fi
         fi
-    done
-    audit_log "cleanup_database_success" "success" "Database cleanup completed" "filter_type=$filter_type filter_value=$filter_value"
-    log_message "✅ Database backup cleanup complete"
+
+        audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date filter_type=$filter_type"
+        deleted=$((deleted + 1))
+    done <<EOF
+$listing
+EOF
+
+    CLEAN_DB_DELETED=$deleted
+    CLEAN_DB_FAILED=$failures
+
+    if [ "$failures" -gt 0 ]; then
+        audit_log "cleanup_database_failed" "error" "Database cleanup completed with failures" "filter_type=$filter_type filter_value=$filter_value deleted=$deleted failures=$failures"
+        log_message "❌ Database backup cleanup incomplete: $deleted removed, $failures failed"
+        return 1
+    fi
+
+    audit_log "cleanup_database_success" "success" "Database cleanup completed" "filter_type=$filter_type filter_value=$filter_value deleted=$deleted"
+    log_message "✅ Database backup cleanup complete: $deleted removed"
+    return 0
 }
 
 # List backups older than specified days or within date range
@@ -2029,70 +2270,135 @@ list_old_backups() {
 }
 
 # Clean up old static and public backups based on filter criteria
+# Only the namespaces named in the requested type set are touched, so cleaning
+# one type can never delete the other. Every list and delete result is checked,
+# each deletion is verified as gone, and a non-zero status is returned if any
+# part of the requested cleanup did not complete.
 # Args:
 #   $1: filter_type - Type of filter (days, in-range, except-range, older-date, newer-date, all)
 #   $2: filter_value - Filter value (days number, date range, or date)
+#   $3: types - Normalized type set to clean (default: static,public)
+# Sets: CLEAN_STATIC_DELETED/CLEAN_STATIC_FAILED, CLEAN_PUBLIC_DELETED/CLEAN_PUBLIC_FAILED
+#       (empty when the type was not requested)
+# Returns: 0 if every requested namespace was fully cleaned, 1 otherwise
 clean_old_backups() {
     local filter_type="${1:-days}"
     local filter_value="${2:-$BACKUP_RETENTION_DAYS}"
-    setup_s3_vars || exit 1
+    local types="${3:-static,public}"
 
-    # Special handling for deleting ALL backups
-    if [ "$filter_type" = "all" ]; then
-        print_status $YELLOW "$(show_filter_message "$filter_type" "$filter_value" "static/public backups")"
+    setup_s3_vars || return 1
 
-        # Clean ALL static site backups
-        aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
-            backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            if [ -n "$backup_name" ]; then
-                print_status $YELLOW "Removing static site backup: $backup_name"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
+    local namespace=""
+    local label=""
+    local base_path=""
+    local listing=""
+    local list_status=0
+    local backup_name=""
+    local backup_date=""
+    local remaining=""
+    local verify_status=0
+    local ns_deleted=0
+    local ns_failures=0
+    local total_failures=0
+
+    CLEAN_STATIC_DELETED=""
+    CLEAN_STATIC_FAILED=""
+    CLEAN_PUBLIC_DELETED=""
+    CLEAN_PUBLIC_FAILED=""
+
+    print_status $YELLOW "$(show_filter_message "$filter_type" "$filter_value" "$(echo "$types" | tr ',' '/') backups")"
+
+    for namespace in static public; do
+        has_exact_backup_type "$types" "$namespace" || continue
+
+        case "$namespace" in
+            static)
+                label="static site"
+                base_path="$AUTO_STATIC_BACKUP_PATH"
+                ;;
+            public)
+                label="public files"
+                base_path="$AUTO_PUBLIC_BACKUP_PATH"
+                ;;
+        esac
+
+        ns_deleted=0
+        ns_failures=0
+
+        listing=$(s3_list_backup_namespace prefixes "$base_path")
+        list_status=$?
+        if [ "$list_status" -ne 0 ]; then
+            audit_log "cleanup_${namespace}_list_failed" "error" "Could not list backups for cleanup" "base_path=$base_path filter_type=$filter_type"
+            print_status $RED "❌ Failed to list $label backups (s3://$BUCKET_NAME/$base_path/) - nothing deleted for this type"
+            ns_failures=$((ns_failures + 1))
+        fi
+
+        # Fed by redirection rather than a pipe so the counters below survive the
+        # loop; in a pipeline the loop body runs in a subshell and every delete
+        # failure would be discarded.
+        while IFS= read -r backup_name; do
+            [ -n "$backup_name" ] || continue
+
+            backup_date=$(extract_date_from_backup_name "$backup_name")
+
+            if [ "$filter_type" != "all" ]; then
+                if [ -z "$backup_date" ]; then
+                    print_status $YELLOW "⏭️  Skipping $label backup with no date in its name: $backup_name"
+                    continue
+                fi
+                matches_clean_filter "$backup_date" "$filter_type" "$filter_value" || continue
             fi
-        done
 
-        # Clean ALL public files backups
-        aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
-            backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            if [ -n "$backup_name" ]; then
-                print_status $YELLOW "Removing public files backup: $backup_name"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
+            print_status $YELLOW "Removing $label backup: $backup_name${backup_date:+ (date: $backup_date)}"
+            if ! aws s3 rm "s3://$BUCKET_NAME/$base_path/$backup_name/" --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                audit_log "backup_${namespace}_delete_failed" "error" "Failed to delete $label backup" "backup_tag=$backup_name filter_type=$filter_type"
+                print_status $RED "❌ Failed to delete $label backup: $backup_name"
+                ns_failures=$((ns_failures + 1))
+                continue
             fi
-        done
 
-        print_status $GREEN "✅ All static/public backups removed."
-        return 0
+            # Verify the objects are actually gone before counting a success.
+            remaining=$(s3_list_backup_namespace keys "$base_path/$backup_name")
+            verify_status=$?
+            if [ "$verify_status" -ne 0 ] || [ -n "$remaining" ]; then
+                audit_log "backup_${namespace}_delete_unverified" "error" "Objects remain after $label backup delete" "backup_tag=$backup_name"
+                print_status $RED "❌ $label backup not verified as removed: $backup_name"
+                ns_failures=$((ns_failures + 1))
+                continue
+            fi
+
+            audit_log "backup_${namespace}_deleted" "info" "$label backup deleted" "backup_tag=$backup_name backup_date=$backup_date filter_type=$filter_type"
+            ns_deleted=$((ns_deleted + 1))
+        done <<EOF
+$listing
+EOF
+
+        case "$namespace" in
+            static)
+                CLEAN_STATIC_DELETED=$ns_deleted
+                CLEAN_STATIC_FAILED=$ns_failures
+                ;;
+            public)
+                CLEAN_PUBLIC_DELETED=$ns_deleted
+                CLEAN_PUBLIC_FAILED=$ns_failures
+                ;;
+        esac
+
+        total_failures=$((total_failures + ns_failures))
+
+        if [ "$ns_failures" -gt 0 ]; then
+            print_status $RED "❌ $label cleanup incomplete: $ns_deleted removed, $ns_failures failed"
+        else
+            print_status $GREEN "✅ $label cleanup completed: $ns_deleted removed"
+        fi
+    done
+
+    if [ "$total_failures" -gt 0 ]; then
+        audit_log "cleanup_static_public_failed" "error" "Static/public cleanup completed with failures" "types=$types failures=$total_failures filter_type=$filter_type"
+        return 1
     fi
 
-    # Display what we're doing using consolidated helper
-    print_status $YELLOW "$(show_filter_message "$filter_type" "$filter_value" "static/public backups")"
-
-    # Clean static site backups
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
-        backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(extract_date_from_backup_name "$backup_name")
-
-        if [ -n "$backup_date" ]; then
-            if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
-                print_status $YELLOW "Removing static site backup: $backup_name (date: $backup_date)"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
-            fi
-        fi
-    done
-
-    # Clean public files backups
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
-        backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        backup_date=$(extract_date_from_backup_name "$backup_name")
-
-        if [ -n "$backup_date" ]; then
-            if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
-                print_status $YELLOW "Removing public files backup: $backup_name (date: $backup_date)"
-                aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_name/ --only-show-errors --recursive $S3_EXTRA_PARAMS
-            fi
-        fi
-    done
-
-    print_status $GREEN "✅ Static/public backup cleanup completed."
+    return 0
 }
 
 
@@ -2100,13 +2406,20 @@ clean_old_backups() {
 cleanup_all_old_backups() {
     local filter_type=${1:-days}
     local filter_value=${2:-$BACKUP_RETENTION_DAYS}
+    local failures=0
 
     print_status $BLUE "🧹 Cleaning up all old automatic backups..."
 
-    clean_old_backups "$filter_type" "$filter_value"
-    cleanup_old_db_backups "$filter_type" "$filter_value"
+    clean_old_backups "$filter_type" "$filter_value" "static,public" || failures=$((failures + 1))
+    cleanup_old_db_backups "$filter_type" "$filter_value" || failures=$((failures + 1))
+
+    if [ "$failures" -gt 0 ]; then
+        print_status $RED "❌ Backup cleanup did not complete for all types."
+        return 1
+    fi
 
     print_status $GREEN "✅ All backup cleanup completed."
+    return 0
 }
 
 # Delete a specific backup by tag name (supports multiple tags)

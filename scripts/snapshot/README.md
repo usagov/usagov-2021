@@ -166,11 +166,23 @@ scripts/snapshot/manager.sh clean db --older-than-date 2024-01-01 -y  # Delete 2
 scripts/devops/local-manager.sh clean all --older-than-date 2024-01-01 -y
 ```
 
-#### Delete All Backups (Dangerous!)
+#### Delete All Backups of a Type (Dangerous!)
 
 ```bash
-scripts/snapshot/manager.sh clean all 0             # ⚠️  DELETE ALL backups (requires "DELETE ALL")
-scripts/snapshot/manager.sh clean all all           # ⚠️  Same as above
+scripts/snapshot/manager.sh clean static,public all # ⚠️  DELETE ALL static/public (requires "DELETE ALL")
+scripts/snapshot/manager.sh clean static 0          # ⚠️  Same filter, single type
+```
+
+The types must be named explicitly: `clean all` / `clean 0` without a type
+argument is rejected so an unqualified command cannot wipe every namespace.
+
+Database backups are never removed by the `all` filter, because a minimum
+retention of `RETENTION_MIN_HOURS` (48h) applies to them. Clean them by age and
+remove anything still left with `delete`:
+
+```bash
+scripts/snapshot/manager.sh clean db 2 -y           # Remove all db backups older than 2 days
+scripts/snapshot/manager.sh delete <tag> db -y      # Remove a specific remaining db backup
 ```
 
 #### Date Filter Reference

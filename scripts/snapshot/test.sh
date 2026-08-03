@@ -1727,6 +1727,216 @@ test_cleanup_retention() {
     return 0
 }
 
+# Function to test that cleanup acts only on the requested backup types and
+# never reports success after a failed list, delete, or unverified removal.
+# Hermetic: runs the real clean command against a fake aws CLI on PATH, so it
+# never contacts S3 and never deletes a real backup.
+test_cleanup_type_isolation() {
+    echo "🔒 Testing cleanup type isolation and failure reporting..."
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+    local sandbox=""
+    sandbox=$(mktemp -d) || {
+        echo "❌ Could not create test sandbox"
+        return 1
+    }
+
+    local objects="$sandbox/objects"
+    local calls="$sandbox/calls"
+    local failures=0
+
+    # Fake aws CLI: an object inventory in a flat file, with injectable
+    # list/delete failures. Supports only the calls cleanup makes.
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/aws" <<'FAKE_AWS'
+#!/bin/sh
+echo "aws $*" >> "$FAKE_CALLS"
+service="$1"; shift
+action="$1"; shift
+key=""; prefix=""; query=""; target=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --key) key="$2"; shift 2 ;;
+        --prefix) prefix="$2"; shift 2 ;;
+        --query) query="$2"; shift 2 ;;
+        s3://*) target=$(echo "$1" | sed 's|^s3://[^/]*/||'); shift ;;
+        *) shift ;;
+    esac
+done
+
+case "$service $action" in
+"s3api list-objects-v2")
+    if [ -n "$FAKE_FAIL_LS" ] && echo "$prefix" | grep -q "$FAKE_FAIL_LS"; then
+        echo "An error occurred (InternalError) calling ListObjectsV2" >&2
+        exit 255
+    fi
+    matches=$(grep "^$prefix" "$FAKE_OBJECTS" 2>/dev/null)
+    case "$query" in
+        *CommonPrefixes*)
+            result=$(printf '%s\n' "$matches" | sed "s|^$prefix||" | grep '/' | cut -d/ -f1 \
+                | sort -u | sed "s|^|$prefix|; s|\$|/|" | tr '\n' '\t' | sed 's/\t$//')
+            ;;
+        *)
+            result=$(printf '%s\n' "$matches" | grep -v '^$' | tr '\n' '\t' | sed 's/\t$//')
+            ;;
+    esac
+    [ -n "$result" ] && echo "$result" || echo "None"
+    exit 0
+    ;;
+"s3api head-object")
+    grep -qx "$key" "$FAKE_OBJECTS" 2>/dev/null && exit 0
+    exit 254
+    ;;
+"s3 rm")
+    if [ -n "$FAKE_FAIL_RM" ] && echo "$target" | grep -q "$FAKE_FAIL_RM"; then
+        echo "delete failed: AccessDenied" >&2
+        exit 1
+    fi
+    grep -v "^$target" "$FAKE_OBJECTS" > "$FAKE_OBJECTS.tmp" 2>/dev/null
+    mv "$FAKE_OBJECTS.tmp" "$FAKE_OBJECTS"
+    exit 0
+    ;;
+esac
+echo "fake aws: unsupported call: $service $action" >&2
+exit 99
+FAKE_AWS
+    chmod +x "$sandbox/bin/aws"
+
+    reset_fake_inventory() {
+        : > "$calls"
+        cat > "$objects" <<'INVENTORY'
+auto-backups/web-backup/AUTO-test-1-2020-01-01/index.html
+auto-backups/web-backup/AUTO-test-2-2020-01-02/index.html
+auto-backups/public_backup/AUTO-test-1-2020-01-01/a.pdf
+auto-backups/public_backup/AUTO-test-2-2020-01-02/b.pdf
+auto-backups/database/AUTO-test-1-2020-01-01.sql.gz
+auto-backups/database/AUTO-test-1-2020-01-01.sql.gz.sha256
+INVENTORY
+    }
+
+    # Run the clean command in an isolated environment; echoes the exit code
+    run_fake_clean() {
+        (
+            PATH="$sandbox/bin:$PATH"
+            FAKE_OBJECTS="$objects"
+            FAKE_CALLS="$calls"
+            BUCKET_NAME="fake-test-bucket"
+            APP_SPACE="test"
+            S3_EXTRA_PARAMS=""
+            export PATH FAKE_OBJECTS FAKE_CALLS BUCKET_NAME APP_SPACE S3_EXTRA_PARAMS
+            export FAKE_FAIL_LS FAKE_FAIL_RM
+            cd "$PROJECT_ROOT" && "$manager_script" clean "$@" >"$sandbox/out" 2>&1
+        )
+        echo $?
+    }
+
+    has_key() { grep -qx "$1" "$objects"; }
+
+    FAKE_FAIL_LS=""
+    FAKE_FAIL_RM=""
+
+    # Cleaning one type must not touch the others
+    reset_fake_inventory
+    if [ "$(run_fake_clean static --older-than-date 2021-01-01 -y)" = "0" ] \
+        && ! has_key "auto-backups/web-backup/AUTO-test-1-2020-01-01/index.html" \
+        && has_key "auto-backups/public_backup/AUTO-test-1-2020-01-01/a.pdf" \
+        && has_key "auto-backups/database/AUTO-test-1-2020-01-01.sql.gz" \
+        && ! grep -q "public_backup" "$calls"; then
+        echo "✅ 'clean static' deletes only static backups"
+    else
+        echo "❌ 'clean static' did not isolate the static type"
+        failures=$((failures + 1))
+    fi
+
+    reset_fake_inventory
+    if [ "$(run_fake_clean public --older-than-date 2021-01-01 -y)" = "0" ] \
+        && ! has_key "auto-backups/public_backup/AUTO-test-1-2020-01-01/a.pdf" \
+        && has_key "auto-backups/web-backup/AUTO-test-1-2020-01-01/index.html"; then
+        echo "✅ 'clean public' deletes only public backups"
+    else
+        echo "❌ 'clean public' did not isolate the public type"
+        failures=$((failures + 1))
+    fi
+
+    # Every matching backup must be processed, not only the first listed
+    reset_fake_inventory
+    if [ "$(run_fake_clean static,public --older-than-date 2021-01-01 -y)" = "0" ] \
+        && ! grep -q "web-backup" "$objects" && ! grep -q "public_backup" "$objects" \
+        && has_key "auto-backups/database/AUTO-test-1-2020-01-01.sql.gz"; then
+        echo "✅ 'clean static,public' removes every match in both namespaces"
+    else
+        echo "❌ 'clean static,public' left matching backups behind"
+        failures=$((failures + 1))
+    fi
+
+    # 'clean all all' cannot delete database backups, so it must fail closed
+    reset_fake_inventory
+    if [ "$(run_fake_clean all all -y)" != "0" ] \
+        && ! grep -q "aws s3 rm" "$calls" \
+        && ! grep -q "Cleanup complete" "$sandbox/out"; then
+        echo "✅ 'clean all all' fails closed without deleting or reporting success"
+    else
+        echo "❌ 'clean all all' did not fail closed"
+        failures=$((failures + 1))
+    fi
+
+    # A failed delete must not be reported as a completed cleanup
+    reset_fake_inventory
+    FAKE_FAIL_RM="web-backup/AUTO-test-1"
+    if [ "$(run_fake_clean static --older-than-date 2021-01-01 -y)" != "0" ] \
+        && grep -q "Failed to delete static site backup" "$sandbox/out"; then
+        echo "✅ Delete failure produces a non-zero exit and is reported"
+    else
+        echo "❌ Delete failure was hidden"
+        failures=$((failures + 1))
+    fi
+    FAKE_FAIL_RM=""
+
+    # A failed listing must not be treated as an empty namespace
+    reset_fake_inventory
+    FAKE_FAIL_LS="public_backup"
+    if [ "$(run_fake_clean static,public --older-than-date 2021-01-01 -y)" != "0" ] \
+        && grep -q "Failed to list public files backups" "$sandbox/out"; then
+        echo "✅ Listing failure produces a non-zero exit and is reported"
+    else
+        echo "❌ Listing failure was treated as nothing-to-do"
+        failures=$((failures + 1))
+    fi
+    FAKE_FAIL_LS=""
+
+    # Database cleanup removes payload and checksum, and only when requested
+    reset_fake_inventory
+    if [ "$(run_fake_clean db --older-than-date 2021-01-01 -y)" = "0" ] \
+        && ! has_key "auto-backups/database/AUTO-test-1-2020-01-01.sql.gz" \
+        && ! has_key "auto-backups/database/AUTO-test-1-2020-01-01.sql.gz.sha256" \
+        && has_key "auto-backups/web-backup/AUTO-test-1-2020-01-01/index.html"; then
+        echo "✅ 'clean db' removes payload and checksum without touching other types"
+    else
+        echo "❌ 'clean db' did not clean the database type correctly"
+        failures=$((failures + 1))
+    fi
+
+    # Unknown and substring type names must be rejected before any S3 call
+    reset_fake_inventory
+    if [ "$(run_fake_clean notstatic --older-than-date 2021-01-01 -y)" != "0" ] \
+        && [ ! -s "$calls" ]; then
+        echo "✅ Unknown backup type is rejected before any S3 call"
+    else
+        echo "❌ Unknown backup type was not rejected"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "$sandbox"
+
+    if [ "$failures" -gt 0 ]; then
+        echo "❌ Cleanup type isolation test failed ($failures issue(s))"
+        return 1
+    fi
+
+    echo "✅ Cleanup type isolation test passed"
+    return 0
+}
+
 # Function to test backup info commands
 test_backup_info() {
     echo "ℹ️  Testing backup info functionality..."
@@ -2575,6 +2785,7 @@ main() {
     run_test "Database Backup System" "test_database_backup_system"
     run_test "Smart Public Backup" "test_smart_public_backup"
     run_test "Cleanup with Retention Periods" "test_cleanup_retention"
+    run_test "Cleanup Type Isolation" "test_cleanup_type_isolation"
     run_test "Backup Simulation" "test_backup_simulation"
     run_test "Backup Download Functionality" "test_backup_download"
 

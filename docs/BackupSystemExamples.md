@@ -306,11 +306,16 @@ scripts/snapshot/manager.sh clean db 30
 ✅ Removed 2 database backups
 ```
 
-### Delete ALL Backups (Dangerous!)
+### Delete ALL Backups of a Type (Dangerous!)
+
+The types to wipe must be named explicitly, and database backups are excluded:
+they always keep a `RETENTION_MIN_HOURS` (48h) floor, so `clean all all` is
+rejected rather than deleting static/public and silently leaving the database
+backups in place.
 
 **Command:**
 ```bash
-scripts/snapshot/manager.sh clean all all
+scripts/snapshot/manager.sh clean static,public all
 ```
 
 **Output:**
@@ -318,19 +323,32 @@ scripts/snapshot/manager.sh clean all all
 ⚠️  WARNING: This will DELETE ALL BACKUPS!
 ⚠️  Type 'DELETE ALL' to confirm (or anything else to cancel): DELETE ALL
 
-🧹 Removing ALL static site backups...
-🗑️ Removing: AUTO-prod-14850-Oct-07-25
-🗑️ Removing: AUTO-prod-14851-Oct-08-25
-[... more deletions ...]
-✅ All static site backups removed
+🧹 Cleaning up backups: static,public
+🧹 Removing ALL static/public backups...
+Removing static site backup: AUTO-prod-14850-2025-10-07
+Removing static site backup: AUTO-prod-14851-2025-10-08
+✅ static site cleanup completed: 2 removed
+✅ public files cleanup completed: 2 removed
+🎉 Cleanup complete.
+```
 
-🧹 Removing ALL public files backups...
-✅ All public files backups removed
+**Rejected command:**
+```bash
+scripts/snapshot/manager.sh clean all all
+```
 
-🧹 Removing ALL database backups...
-✅ All database backups removed
+**Output:**
+```
+❌ Error: Database cleanup does not support 'all' (minimum retention is 48 hours)
+   Remove static/public backups with: manager.sh clean static,public all
+   Remove database backups with: manager.sh delete <tag> db
+```
 
-🎉 All backups have been deleted!
+To remove database backups, clean them by age and then delete what remains:
+
+```bash
+scripts/snapshot/manager.sh clean db 2 -y
+scripts/snapshot/manager.sh delete AUTO-prod-14850-2025-10-07 db -y
 ```
 
 ---

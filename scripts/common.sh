@@ -997,6 +997,87 @@ has_backup_type() {
     echo "$backup_types" | grep -q "$check_type"
 }
 
+# Normalize a requested backup-type argument into an exact type set
+# Accepts comma- and space-separated tokens, deduplicates them, and emits them
+# in canonical order. Unknown tokens are rejected so a destructive command can
+# never act on a type the operator did not name.
+# Args:
+#   $1: types_arg - "all", or any combination of static, public, db
+# Outputs: normalized comma-separated set (e.g. "static,public,db")
+# Returns: 0 on success, 1 if a token is unknown or nothing was requested
+normalize_backup_types() {
+    local types_arg="${1:-all}"
+    local token=""
+    local want_static=""
+    local want_public=""
+    local want_db=""
+    local normalized=""
+
+    for token in $(echo "$types_arg" | tr ',' ' '); do
+        case "$token" in
+            all)
+                want_static="yes"
+                want_public="yes"
+                want_db="yes"
+                ;;
+            static)
+                want_static="yes"
+                ;;
+            public)
+                want_public="yes"
+                ;;
+            db)
+                want_db="yes"
+                ;;
+            *)
+                print_status $RED "❌ Error: Unknown backup type: $token" >&2
+                echo "   Valid types: static, public, db, all (comma-separated)" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    if [ -n "$want_static" ]; then
+        normalized="static"
+    fi
+    if [ -n "$want_public" ]; then
+        normalized="${normalized:+$normalized,}public"
+    fi
+    if [ -n "$want_db" ]; then
+        normalized="${normalized:+$normalized,}db"
+    fi
+
+    if [ -z "$normalized" ]; then
+        print_status $RED "❌ Error: No backup types requested" >&2
+        echo "   Valid types: static, public, db, all (comma-separated)" >&2
+        return 1
+    fi
+
+    echo "$normalized"
+    return 0
+}
+
+# Exact membership test against a normalized backup-type set
+# Unlike has_backup_type(), this never matches a substring, so values such as
+# "notstatic" cannot select the static type.
+# Args:
+#   $1: backup_types - normalized set from normalize_backup_types()
+#   $2: check_type   - exact type to look for
+# Returns: 0 if present, 1 otherwise
+has_exact_backup_type() {
+    local backup_types="$1"
+    local check_type="$2"
+    local token=""
+
+    for token in $(echo "$backup_types" | tr ',' ' '); do
+        if [ "$token" = "$check_type" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 # Get current Cloud Foundry environment
 get_current_environment() {
     local env="${DEPLOY_ENV:-$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')}"
@@ -1994,4 +2075,62 @@ setup_s3_vars() {
         print_status $RED "❌ Error: Could not determine S3 bucket name. Make sure VCAP_SERVICES is set."
         return 1
     fi
+}
+
+# List a backup namespace through the structured S3 API
+# `aws s3 ls` exits non-zero both when a prefix holds no objects and when the
+# request fails, so a caller cannot tell an empty inventory from an unreadable
+# one. list-objects-v2 succeeds with no results for an empty prefix and fails
+# only on a real error, so destructive callers can fail closed on a bad listing
+# instead of treating it as "nothing to do".
+# Args:
+#   $1: mode - "prefixes" for immediate child names, "keys" for every object key
+#   $2: base_path - S3 key prefix without bucket or trailing slash
+# Outputs: one backup name (prefixes) or object key (keys) per line
+# Returns: 0 if the namespace was read successfully, non-zero if the request failed
+s3_list_backup_namespace() {
+    local mode="$1"
+    local base_path="$2"
+    local output=""
+    local status=0
+    local item=""
+
+    case "$mode" in
+        prefixes)
+            output=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --prefix "$base_path/" \
+                --delimiter / --query 'CommonPrefixes[].Prefix' --output text $S3_EXTRA_PARAMS)
+            status=$?
+            ;;
+        keys)
+            output=$(aws s3api list-objects-v2 --bucket "$BUCKET_NAME" --prefix "$base_path/" \
+                --query 'Contents[].Key' --output text $S3_EXTRA_PARAMS)
+            status=$?
+            ;;
+        *)
+            print_status $RED "❌ Internal error: unknown S3 list mode: $mode" >&2
+            return 2
+            ;;
+    esac
+
+    if [ "$status" -ne 0 ]; then
+        return "$status"
+    fi
+
+    # `--output text` returns tab-separated values, and the literal None when the
+    # query matched nothing. The trailing newline matters: `read` discards an
+    # unterminated final line, which would silently drop the last backup.
+    printf '%s\n' "$output" | tr '\t' '\n' | while IFS= read -r item; do
+        [ -n "$item" ] || continue
+        [ "$item" = "None" ] && continue
+
+        if [ "$mode" = "prefixes" ]; then
+            item=${item#"$base_path/"}
+            item=${item%/}
+            [ -n "$item" ] || continue
+        fi
+
+        printf '%s\n' "$item"
+    done
+
+    return 0
 }
