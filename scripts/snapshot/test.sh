@@ -1812,6 +1812,8 @@ auto-backups/public_backup/AUTO-test-2-2020-01-02/b.pdf
 auto-backups/database/AUTO-test-1-2020-01-01.sql.gz
 auto-backups/database/AUTO-test-1-2020-01-01.sql.gz.sha256
 INVENTORY
+        # A backup dated today must survive the RETENTION_MIN_HOURS floor
+        echo "auto-backups/database/AUTO-test-now-$(date -u '+%Y-%m-%d').sql.gz" >> "$objects"
     }
 
     # Run the clean command in an isolated environment; echoes the exit code
@@ -1904,13 +1906,18 @@ INVENTORY
     fi
     FAKE_FAIL_LS=""
 
-    # Database cleanup removes payload and checksum, and only when requested
+    # Database cleanup removes payload and checksum, and only when requested.
+    # Also pins the RETENTION_MIN_HOURS floor, whose cutoff must be computed with
+    # epoch arithmetic: BusyBox date supports neither "-v-48H" nor
+    # "-d 48 hours ago", and an empty cutoff aborts the whole cleanup.
     reset_fake_inventory
     if [ "$(run_fake_clean db --older-than-date 2021-01-01 -y)" = "0" ] \
         && ! has_key "auto-backups/database/AUTO-test-1-2020-01-01.sql.gz" \
         && ! has_key "auto-backups/database/AUTO-test-1-2020-01-01.sql.gz.sha256" \
+        && has_key "auto-backups/database/AUTO-test-now-$(date -u '+%Y-%m-%d').sql.gz" \
+        && grep -q "Skipping recent backup" "$sandbox/out" \
         && has_key "auto-backups/web-backup/AUTO-test-1-2020-01-01/index.html"; then
-        echo "✅ 'clean db' removes payload and checksum without touching other types"
+        echo "✅ 'clean db' removes old payload/checksum, keeps backups inside the retention floor"
     else
         echo "❌ 'clean db' did not clean the database type correctly"
         failures=$((failures + 1))

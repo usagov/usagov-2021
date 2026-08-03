@@ -2060,12 +2060,17 @@ cleanup_old_db_backups() {
     audit_log "cleanup_database_started" "info" "Database cleanup initiated" "filter_type=$filter_type filter_value=$filter_value"
     log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
 
-    # Calculate minimum retention cutoff
-    local min_retention_epoch=$(date -u -v-${RETENTION_MIN_HOURS}H +%s 2>/dev/null || date -u -d "${RETENTION_MIN_HOURS} hours ago" +%s 2>/dev/null)
-    if [ -z "$min_retention_epoch" ]; then
-        log_message "❌ Error: Could not calculate minimum retention date"
+    # Calculate minimum retention cutoff using epoch arithmetic for BusyBox date
+    # compatibility: it supports neither BSD "-v-48H" nor GNU "-d 48 hours ago",
+    # so both spellings returned empty in the CMS container and this cleanup
+    # aborted before deleting anything.
+    local now_epoch=$(date -u '+%s')
+    if [ -z "$now_epoch" ]; then
+        log_message "❌ Error: Could not read current time for retention calculation"
         return 1
     fi
+    local min_retention_seconds="${RETENTION_MIN_SECONDS:-$((RETENTION_MIN_HOURS * 3600))}"
+    local min_retention_epoch=$((now_epoch - min_retention_seconds))
 
     local listing=""
     local list_status=0
