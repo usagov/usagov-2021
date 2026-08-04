@@ -543,9 +543,22 @@ show_command_help() {
             echo "  Automatically finds latest backup if tag not specified."
             echo "  Fixes MFA configuration after restore."
             echo ""
+            echo "How it proceeds:"
+            echo "  1. Takes a safety backup of TO and verifies it exists. If that fails,"
+            echo "     the downsync stops and nothing is modified."
+            echo "  2. Downloads the backup from FROM and verifies the archive."
+            echo "  3. Stages it into TO's own backup namespace with a checksum."
+            echo "  4. Restores it with the maintained restore path, which preflights the"
+            echo "     dump, captures its own recovery point, and rolls back on failure."
+            echo "  5. Runs post-import steps, reporting each one individually."
+            echo ""
+            echo "  The public files in TO are made to match FROM exactly, so files that"
+            echo "  exist only in TO are removed. Maintenance mode and Tome are restored"
+            echo "  on every exit path, including an interrupted run."
+            echo ""
             echo "Arguments:"
-            echo "  from-space  - Source environment (dev, stage, prod)"
-            echo "  to-space    - Destination environment (dev, stage, prod)"
+            echo "  from-space  - Source environment (dev, stage, prod, dr)"
+            echo "  to-space    - Destination environment (dev, stage, prod, dr)"
             echo "  backup-tag  - Optional backup tag (uses latest if not specified)"
             echo ""
             echo "Example:"
@@ -1522,23 +1535,49 @@ exec_backup_command() {
 }
 
 # Execute a restore command via cf ssh to cms container
+# This is the single maintained restore path: it preflights every requested
+# component, captures a verified recovery point, and compensates on failure.
+# Callers must not implement their own import.
 # NIST 800-53: CP-10 - Information System Recovery and Reconstitution
 # NIST 800-53: CM-5 - Access Restrictions for Change
 # Args:
 #   $1: tag - Backup tag
 #   $2: only_flag - Optional --only=type flag
+#   $3: extra_flags - Optional additional flags (e.g. --skip-state-management)
 exec_restore_command() {
     local tag="$1"
     local only_flag="${2:-}"
+    local extra_flags="${3:-}"
 
-    # Use printf %q for safe shell escaping to prevent command injection
-    local cmd
-    if [ -n "$only_flag" ]; then
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q %q --skip-confirmation' "$tag" "$only_flag")
-    else
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q --skip-confirmation' "$tag")
+    # Validate the tag at this boundary rather than relying on `printf %q`,
+    # which is a Bash extension that fails under dash (the interpreter this
+    # script declares). A validated tag contains only [A-Za-z0-9._-], so it is
+    # safe to place inside single quotes in the remote command.
+    if ! validate_backup_tag "$tag"; then
+        return 2
     fi
-    cf ssh cms -c "$cmd"
+
+    case "$only_flag" in
+        ""|--only=*) ;;
+        *)
+            print_status $RED "❌ Error: invalid --only argument: $only_flag"
+            return 2
+            ;;
+    esac
+
+    # Only flags this wrapper knows about may be forwarded.
+    local flag=""
+    for flag in $extra_flags; do
+        case "$flag" in
+            --skip-state-management|--ssm|--no-recovery-point|--force-destructive-sync) ;;
+            *)
+                print_status $RED "❌ Error: unsupported restore flag: $flag"
+                return 2
+                ;;
+        esac
+    done
+
+    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh restore '$tag' $only_flag $extra_flags --skip-confirmation"
 }
 
 # Execute a Drupal state command via cf ssh to cms container
@@ -1804,6 +1843,86 @@ snapshot_db() {
 # Args:
 #   $1: to_space - The space that was being written to
 #   $2: safety_backup_taken - "true" or "false"
+# ===================================================================
+# DOWNSYNC STATE AND CLEANUP
+# ===================================================================
+# Downsync disables Drupal state in the target space and switches the global CF
+# target. Both must be put back on every exit path, including a signal, or the
+# operator is left with a space in maintenance mode and their CLI pointed
+# somewhere they did not choose.
+DOWNSYNC_TEMP_DIR=""
+DOWNSYNC_ORIGINAL_SPACE=""
+DOWNSYNC_STATE_DISABLED_IN=""
+DOWNSYNC_TOME_WAS_DISABLED=""
+
+downsync_cleanup() {
+    local exit_code=$?
+
+    if [ -n "$DOWNSYNC_STATE_DISABLED_IN" ]; then
+        local state_space="$DOWNSYNC_STATE_DISABLED_IN"
+        DOWNSYNC_STATE_DISABLED_IN=""
+        print_status $BLUE "🔓 Restoring site state in $state_space..."
+        if cf target -s "$state_space" >/dev/null 2>&1; then
+            # Put Tome back the way it was found; only maintenance mode is
+            # unconditionally cleared.
+            local state_target="both"
+            [ "$DOWNSYNC_TOME_WAS_DISABLED" = "1" ] && state_target="sm"
+            if exec_state_command enable "$state_target" >/dev/null 2>&1; then
+                print_status $GREEN "✅ Site state restored in $state_space"
+            else
+                print_status $RED "❌ CRITICAL: could not restore site state in $state_space"
+                print_status $YELLOW "   $state_space may still be in maintenance mode with Tome disabled."
+                print_status $YELLOW "   Fix with: cf target -s $state_space && deploy.sh state enable $state_target"
+            fi
+        else
+            print_status $RED "❌ CRITICAL: could not target $state_space to restore site state"
+            print_status $YELLOW "   $state_space may still be in maintenance mode with Tome disabled."
+        fi
+    fi
+
+    if [ -n "$DOWNSYNC_TEMP_DIR" ] && [ -d "$DOWNSYNC_TEMP_DIR" ]; then
+        rm -rf "$DOWNSYNC_TEMP_DIR"
+    fi
+    DOWNSYNC_TEMP_DIR=""
+
+    if [ -n "$DOWNSYNC_ORIGINAL_SPACE" ]; then
+        local orig="$DOWNSYNC_ORIGINAL_SPACE"
+        DOWNSYNC_ORIGINAL_SPACE=""
+        cf target -s "$orig" >/dev/null 2>&1 || \
+            print_status $YELLOW "⚠️  Could not restore your original CF target ($orig)"
+    fi
+
+    return $exit_code
+}
+
+# Confirm a backup the safety step claims to have created actually exists
+# exec_backup_command reports the remote manager.sh status, but a backup whose
+# ENABLE_* toggle is false returns success without writing anything, so the
+# object itself has to be checked before the downsync is allowed to proceed.
+# Args:
+#   $1: prefix - backup tag prefix to look for (e.g. DOWNSYNC)
+# Outputs: the verified backup tag on stdout
+# Returns: 0 if a database object for that prefix exists, 1 otherwise
+_downsync_verify_safety_backup() {
+    local prefix="$1"
+    local found=""
+
+    found=$(cf ssh cms -c "set -e
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        setup_s3_vars >/dev/null 2>&1
+        aws s3 ls \"s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/\" \$S3_EXTRA_PARAMS 2>/dev/null \
+            | grep '${prefix}-' | grep '\.sql\.gz\$' | sort -k1,2 | tail -1 | awk '{print \$4}'" 2>/dev/null | tr -d '\r' | tail -1)
+
+    if [ -z "$found" ]; then
+        return 1
+    fi
+
+    echo "$found"
+    return 0
+}
+
 _print_downsync_recovery_hint() {
     local to_space="$1"
     local safety_backup_taken="${2:-false}"
@@ -1861,8 +1980,11 @@ downsync() {
         handle_error "FROM and TO spaces must be different" "validation" "exit"
     fi
 
-    # Save current space to restore later
+    # Save current space to restore later, and make sure every exit path puts
+    # the CF target and Drupal state back.
     local original_space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
+    DOWNSYNC_ORIGINAL_SPACE="$original_space"
+    trap downsync_cleanup EXIT INT TERM HUP
 
     # If no backup tag specified, get latest from FROM space
     if [ -z "$backup_tag" ]; then
@@ -1892,11 +2014,16 @@ downsync() {
 
         if [ -z "$backup_tag" ]; then
             print_status $RED "❌ Error: No backups found in $from_space"
-            [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
             exit 3
         fi
 
         print_status $GREEN "✅ Found latest backup: $backup_tag"
+    fi
+
+    # Validate the tag before it reaches any S3 key or remote command. This is
+    # the boundary: everything downstream may assume [A-Za-z0-9._-] only.
+    if ! validate_backup_tag "$backup_tag"; then
+        exit 2
     fi
 
     # Show confirmation
@@ -1919,19 +2046,20 @@ downsync() {
 
     if [ "$confirm" != "yes" ]; then
         print_status $YELLOW "❌ Downsync cancelled"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 0
     fi
 
     print_status $BLUE "🚀 Starting downsync..."
     echo ""
 
-    # === SAFETY BACKUP ===
-    # Take a snapshot of the TO space now, before any destructive operations begin.
-    # This gives us a recovery point if the downsync fails partway through.
+    # === SAFETY BACKUP (mandatory) ===
+    # A downsync without a recovery point cannot be undone, so a failure here
+    # stops the operation instead of continuing without a safety net.
     print_status $BLUE "🛡️  Taking safety backup of $to_space before any destructive operations..."
-    print_status $YELLOW "   This protects the current state of $to_space in case something goes wrong"
-    cf target -s "$to_space" >/dev/null 2>&1
+    if ! cf target -s "$to_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target $to_space for the safety backup"
+        exit 3
+    fi
 
     local saved_deploy_env="${DEPLOY_ENV:-}"
     export DEPLOY_ENV="$to_space"
@@ -1943,206 +2071,290 @@ downsync() {
         export DEPLOY_ENV=""
     fi
 
-    if [ $safety_backup_exit -eq 0 ]; then
-        safety_backup_taken=true
-        print_status $GREEN "✅ Safety backup of $to_space complete"
-        print_status $GREEN "   To find it later: deploy.sh list-backups (look for DOWNSYNC-${to_space}...)"
-    else
-        print_status $YELLOW "⚠️  Warning: Safety backup of $to_space failed — proceeding without a safety net"
-        print_status $YELLOW "   If the downsync fails partway through, you will need to restore from a pre-existing backup"
+    if [ $safety_backup_exit -ne 0 ]; then
+        print_status $RED "❌ Safety backup of $to_space failed (exit $safety_backup_exit)"
+        print_status $YELLOW "   Refusing to continue: a downsync with no recovery point cannot be undone."
+        print_status $YELLOW "   Nothing has been modified in $to_space."
+        exit 3
     fi
+
+    # A zero exit is not proof the objects exist: a backup type whose ENABLE_*
+    # setting is false returns success without writing anything.
+    local safety_backup_object=""
+    safety_backup_object=$(_downsync_verify_safety_backup "DOWNSYNC")
+    if [ -z "$safety_backup_object" ]; then
+        print_status $RED "❌ Safety backup reported success but no backup object was found in $to_space"
+        print_status $YELLOW "   Refusing to continue. Nothing has been modified in $to_space."
+        exit 3
+    fi
+    safety_backup_taken=true
+    print_status $GREEN "✅ Safety backup verified: $(basename "$safety_backup_object")"
     echo ""
     # === END SAFETY BACKUP ===
 
-    # Create temporary directory for downloads
-    local temp_dir=$(mktemp -d)
-    local db_file="$temp_dir/${backup_tag}.sql.gz"
-    local public_dir="$temp_dir/${backup_tag}_public"
+    DOWNSYNC_TEMP_DIR=$(mktemp -d) || {
+        print_status $RED "❌ Error: could not create a temporary working directory"
+        exit 3
+    }
+    local temp_dir="$DOWNSYNC_TEMP_DIR"
+    local db_file="$temp_dir/db.sql.gz"
+    local public_dir="$temp_dir/public"
+    mkdir -p "$public_dir"
 
-    # Switch to FROM space and download backups
+    # === DOWNLOAD FROM THE SOURCE SPACE ===
     print_status $BLUE "📥 Downloading backups from $from_space..."
-    cf target -s "$from_space" >/dev/null 2>&1
+    if ! cf target -s "$from_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target FROM space: $from_space"
+        exit 3
+    fi
 
-    # Download via CMS container
+    # Remote commands run under `set -e` so a failure in any step surfaces as a
+    # non-zero cf ssh status. The previous form chained commands with `;`, which
+    # returned the status of the final `rm` and reported success after a failed
+    # decompression or import.
     print_status $BLUE "  Downloading database..."
-    cf ssh cms -c "
+    if ! cf ssh cms -c "set -e
         export AWS_DEFAULT_REGION='us-gov-west-1'
         cd /var/www
         . scripts/common.sh
         init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
-        aws s3 cp s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz - \$S3_EXTRA_PARAMS
-    " > "$db_file" 2>/dev/null
+        aws s3 cp \"s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\" - \$S3_EXTRA_PARAMS" > "$db_file"; then
+        print_status $RED "❌ System Error: Failed to download the database backup from $from_space"
+        exit 3
+    fi
 
     if [ ! -s "$db_file" ]; then
-        print_status $RED "❌ System Error: Failed to download database backup"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        print_status $RED "❌ System Error: Downloaded database backup is empty"
         exit 3
     fi
 
-    print_status $GREEN "  ✅ Database downloaded ($(du -h "$db_file" | cut -f1))"
+    # A non-empty file is not necessarily a valid archive; a truncated transfer
+    # fails here rather than at import time.
+    if ! gunzip -t "$db_file" 2>/dev/null; then
+        print_status $RED "❌ System Error: Downloaded database backup is not a valid gzip archive"
+        print_status $YELLOW "   The transfer was probably truncated. Nothing has been modified in $to_space."
+        exit 3
+    fi
+    print_status $GREEN "  ✅ Database downloaded and verified ($(du -h "$db_file" | cut -f1))"
 
     print_status $BLUE "  Downloading public files..."
-    mkdir -p "$public_dir"
-    cf ssh cms -c "
+    if ! cf ssh cms -c "set -e
         export AWS_DEFAULT_REGION='us-gov-west-1'
         cd /var/www
         . scripts/common.sh
         init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
-        cd /tmp
-        aws s3 sync s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/ . \$S3_EXTRA_PARAMS
+        rm -rf /tmp/downsync_src
+        mkdir -p /tmp/downsync_src
+        cd /tmp/downsync_src
+        aws s3 sync \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" . --only-show-errors \$S3_EXTRA_PARAMS >/dev/null
         tar czf - .
-    " > "$temp_dir/public.tar.gz" 2>/dev/null
-
-    if [ ! -s "$temp_dir/public.tar.gz" ]; then
-        print_status $RED "❌ System Error: Failed to download public files backup"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 3
-    fi
-
-    tar xzf "$temp_dir/public.tar.gz" -C "$public_dir" 2>/dev/null
-    rm "$temp_dir/public.tar.gz"
-    print_status $GREEN "  ✅ Public files downloaded ($(du -sh "$public_dir" | cut -f1))"
-
-    # Switch to TO space for restore operations
-    print_status $BLUE "🎯 Targeting $to_space for restore operations..."
-    cf target -s "$to_space" >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        print_status $RED "❌ System Error: Failed to target $to_space for restore operations"
-        print_status $GREEN "✅ No data was written to $to_space — the environment is unchanged"
-        if [ "$safety_backup_taken" = "true" ]; then
-            print_status $GREEN "   (A safety backup was taken but is not needed — $to_space is intact)"
-        fi
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 3
-    fi
-
-    # Get tome state before restore
-    print_status $BLUE "📋 Checking tome state..."
-    local tome_disabled=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null | tail -1)
-
-    # Enable maintenance mode and disable tome using unified state command
-    print_status $BLUE "🔒 Preparing for restore (maintenance mode + disable tome)..."
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state disable both" >/dev/null 2>&1
-
-    # Upload and restore database
-    print_status $BLUE "📤 Uploading and restoring database..."
-    # Use printf %q for safe shell escaping
-    local upload_cmd
-    upload_cmd=$(printf 'cat > /tmp/%q.sql.gz' "$backup_tag")
-    print_status $BLUE "  Uploading database backup to $to_space..."
-    cf ssh cms -c "$upload_cmd" < "$db_file"
-    local db_upload_exit=$?
-
-    if [ $db_upload_exit -ne 0 ]; then
-        print_status $RED "  ❌ Failed to upload database backup to $to_space"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
-        exit 3
-    fi
-
-    print_status $BLUE "  Restoring database in $to_space (this may take several minutes)..."
-    local restore_cmd
-    restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql; rm -f %q.sql' "$backup_tag" "$backup_tag" "$backup_tag")
-    cf ssh cms -c "$restore_cmd" >/dev/null 2>&1
-    local db_restore_exit=$?
-
-    if [ $db_restore_exit -ne 0 ]; then
-        print_status $RED "  ❌ Database restore failed in $to_space"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
-        exit 3
-    fi
-    print_status $GREEN "  ✅ Database restored in $to_space"
-
-    # Upload and restore public files
-    print_status $BLUE "📤 Uploading public files to S3..."
-    cf ssh cms -c "
-        export AWS_DEFAULT_REGION='us-gov-west-1'
-        cd /var/www
-        . scripts/common.sh
-        init_backup_system >/dev/null 2>&1
-        setup_s3_vars >/dev/null 2>&1
         cd /tmp
-        rm -rf public_restore
-        mkdir public_restore
-    " >/dev/null 2>&1
+        rm -rf /tmp/downsync_src" > "$temp_dir/public.tar.gz"; then
+        print_status $RED "❌ System Error: Failed to download the public files backup from $from_space"
+        exit 3
+    fi
 
-    # Upload files in chunks via tar
-    (cd "$public_dir" && tar czf - .) | cf ssh cms -c "cd /tmp/public_restore && tar xzf -" 2>/dev/null
+    if [ ! -s "$temp_dir/public.tar.gz" ] || ! tar tzf "$temp_dir/public.tar.gz" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Downloaded public files archive is empty or invalid"
+        exit 3
+    fi
 
-    cf ssh cms -c "
+    if ! tar xzf "$temp_dir/public.tar.gz" -C "$public_dir"; then
+        print_status $RED "❌ System Error: Failed to extract the public files archive"
+        exit 3
+    fi
+    rm -f "$temp_dir/public.tar.gz"
+
+    local public_count=0
+    public_count=$(find "$public_dir" -type f 2>/dev/null | grep -c .)
+    if [ "$public_count" -eq 0 ]; then
+        print_status $RED "❌ System Error: The public files backup contained no files"
+        print_status $YELLOW "   Restoring it would delete the live public files in $to_space."
+        exit 3
+    fi
+    print_status $GREEN "  ✅ Public files downloaded and verified ($public_count files, $(du -sh "$public_dir" | cut -f1))"
+
+    # === STAGE INTO THE TARGET SPACE'S BACKUP NAMESPACE ===
+    # The restore below is the single maintained restore implementation and reads
+    # from the target space's own backup namespace. Staging there, rather than
+    # importing directly, is what lets downsync inherit preflight, checksum
+    # verification, a verified recovery point, and automatic compensation.
+    print_status $BLUE "🎯 Targeting $to_space..."
+    if ! cf target -s "$to_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target $to_space"
+        print_status $GREEN "✅ No data was written to $to_space — the environment is unchanged"
+        exit 3
+    fi
+
+    if cf ssh cms -c "set -e
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        setup_s3_vars >/dev/null 2>&1
+        aws s3api head-object --bucket \"\$BUCKET_NAME\" --key \"\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\" \$S3_EXTRA_PARAMS >/dev/null" >/dev/null 2>&1; then
+        print_status $RED "❌ Error: $to_space already holds a backup named $backup_tag"
+        print_status $YELLOW "   Refusing to overwrite it. Delete it first, or pass a different tag."
+        exit 3
+    fi
+
+    print_status $BLUE "  Staging database backup into $to_space..."
+    local db_checksum=""
+    db_checksum=$(sha256sum "$db_file" | awk '{print $1}')
+    if ! cf ssh cms -c "set -e
         export AWS_DEFAULT_REGION='us-gov-west-1'
         cd /var/www
         . scripts/common.sh
         init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
-        aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --acl public-read \$S3_EXTRA_PARAMS
-        rm -rf /tmp/public_restore
-    " >/dev/null 2>&1
+        umask 077
+        cat > /tmp/downsync_db.sql.gz
+        printf '%s' '$db_checksum' > /tmp/downsync_db.sha256
+        aws s3 cp /tmp/downsync_db.sql.gz \"s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\" --only-show-errors \$S3_EXTRA_PARAMS
+        aws s3 cp /tmp/downsync_db.sha256 \"s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256\" --only-show-errors \$S3_EXTRA_PARAMS
+        rm -f /tmp/downsync_db.sql.gz /tmp/downsync_db.sha256" < "$db_file"; then
+        print_status $RED "❌ System Error: Failed to stage the database backup into $to_space"
+        exit 3
+    fi
+    # The checksum was computed locally, so the restore's checksum gate now
+    # verifies this transfer end to end.
+    print_status $GREEN "  ✅ Database staged with checksum"
 
-    if [ $? -ne 0 ]; then
-        print_status $RED "❌ System Error: Failed to restore public files to $to_space"
-        print_status $YELLOW "⚠️  The database was already restored — $to_space is in a partial state (db updated, public files unchanged)"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+    print_status $BLUE "  Staging public files into $to_space..."
+    if ! (cd "$public_dir" && tar czf - .) | cf ssh cms -c "set -e
+        export AWS_DEFAULT_REGION='us-gov-west-1'
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        setup_s3_vars >/dev/null 2>&1
+        rm -rf /tmp/downsync_stage
+        mkdir -p /tmp/downsync_stage
+        cd /tmp/downsync_stage
+        tar xzf -
+        aws s3 sync . \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --only-show-errors \$S3_EXTRA_PARAMS
+        cd /tmp
+        rm -rf /tmp/downsync_stage"; then
+        print_status $RED "❌ System Error: Failed to stage public files into $to_space"
+        exit 3
+    fi
+
+    local staged_count=""
+    staged_count=$(cf ssh cms -c "set -e
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        setup_s3_vars >/dev/null 2>&1
+        aws s3 ls \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --recursive \$S3_EXTRA_PARAMS | grep -c ." 2>/dev/null | tr -d '\r' | tail -1)
+    if [ "$staged_count" != "$public_count" ]; then
+        print_status $RED "❌ Staged public file count ($staged_count) does not match the download ($public_count)"
+        print_status $YELLOW "   Refusing to restore from an incomplete staged backup."
+        exit 3
+    fi
+    print_status $GREEN "  ✅ Public files staged and verified ($staged_count objects)"
+    echo ""
+
+    # === RESTORE VIA THE MAINTAINED IMPLEMENTATION ===
+    print_status $BLUE "📋 Capturing site state in $to_space..."
+    DOWNSYNC_TOME_WAS_DISABLED=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null | tr -d '\r' | tail -1)
+
+    print_status $BLUE "🔒 Preparing $to_space (maintenance mode + disable tome)..."
+    if ! exec_state_command disable both; then
+        print_status $RED "❌ Failed to prepare site state in $to_space"
+        print_status $YELLOW "   Nothing has been restored. The staged backup remains in $to_space."
+        exit 3
+    fi
+    DOWNSYNC_STATE_DISABLED_IN="$to_space"
+
+    print_status $BLUE "♻️  Restoring database and public files in $to_space..."
+    print_status $YELLOW "   Using the maintained restore path: it validates the dump before touching"
+    print_status $YELLOW "   anything, captures its own verified recovery point, and rolls back on failure."
+    echo ""
+    if ! exec_restore_command "$backup_tag" "--only=db,public" "--skip-state-management"; then
+        echo ""
+        print_status $RED "❌ Restore of database and public files failed in $to_space"
+        print_status $YELLOW "   The restore compensates its own applied phases; see its output above."
         _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
         exit 1
     fi
-    print_status $GREEN "  ✅ Public files restored to $to_space"
+    echo ""
+    print_status $GREEN "✅ Database and public files restored in $to_space"
 
-    # Run database updates
-    print_status $BLUE "🔄 Running database updates..."
-    cf ssh cms -c "
-        . /etc/profile
-        drush cr
-        drush updatedb --no-cache-clear -y
-        drush cim -y || drush cim -y
-        drush cim -y
-        drush php-eval 'node_access_rebuild();' -y
-    " >/dev/null 2>&1
+    # === POST-IMPORT STEPS ===
+    # Each step is checked individually. Previously these ran as one `;`-chained
+    # remote command whose status came from the last one, so a failed updatedb or
+    # config import was invisible.
+    print_status $BLUE "🔄 Running post-import steps..."
+    local update_failures=0
 
-    if [ $? -ne 0 ]; then
-        print_status $YELLOW "⚠️  Warning: Some database updates may have failed"
+    printf '  %-30s' "cache rebuild"
+    if cf ssh cms -c ". /etc/profile && cd /var/www && drush cr" >/dev/null 2>&1; then
+        print_status $GREEN "ok"
     else
-        print_status $GREEN "  ✅ Database updates complete"
+        print_status $RED "FAILED"
+        update_failures=$((update_failures + 1))
     fi
 
-    # Restore original state (disable maintenance mode, restore tome state)
-    print_status $BLUE "🔓 Restoring site state..."
-    if [ "$tome_disabled" != "1" ]; then
-        # Tome was enabled before, restore both to enabled state
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable both" >/dev/null 2>&1
+    printf '  %-30s' "database updates"
+    if cf ssh cms -c ". /etc/profile && cd /var/www && drush updatedb --no-cache-clear -y" >/dev/null 2>&1; then
+        print_status $GREEN "ok"
     else
-        # Tome was disabled before, only disable maintenance mode
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable sm" >/dev/null 2>&1
+        print_status $RED "FAILED"
+        update_failures=$((update_failures + 1))
     fi
 
-    # Fix MFA configuration
-    print_status $BLUE "🔐 Fixing MFA configuration for $to_space..."
-    cf ssh cms -c "
-        . /etc/profile
-        /var/www/scripts/gsaauth/configset.sh $to_space
-    " >/dev/null 2>&1
-
-    if [ $? -ne 0 ]; then
-        print_status $YELLOW "⚠️  Warning: MFA configuration may have failed"
+    # Config import is retried once: the first pass can fail on dependency
+    # ordering that a second pass resolves.
+    printf '  %-30s' "config import"
+    if cf ssh cms -c ". /etc/profile && cd /var/www && drush cim -y" >/dev/null 2>&1 || \
+       cf ssh cms -c ". /etc/profile && cd /var/www && drush cim -y" >/dev/null 2>&1; then
+        print_status $GREEN "ok"
     else
-        print_status $GREEN "  ✅ MFA configuration updated"
+        print_status $RED "FAILED"
+        update_failures=$((update_failures + 1))
     fi
 
-    # Cleanup
-    rm -rf "$temp_dir"
+    printf '  %-30s' "node access rebuild"
+    if cf ssh cms -c ". /etc/profile && cd /var/www && drush php-eval 'node_access_rebuild();'" >/dev/null 2>&1; then
+        print_status $GREEN "ok"
+    else
+        print_status $RED "FAILED"
+        update_failures=$((update_failures + 1))
+    fi
 
-    # Restore original space
-    if [ -n "$original_space" ] && [ "$original_space" != "$to_space" ]; then
-        cf target -s "$original_space" >/dev/null 2>&1
+    printf '  %-30s' "MFA configuration"
+    if cf ssh cms -c ". /etc/profile && /var/www/scripts/gsaauth/configset.sh '$to_space'" >/dev/null 2>&1; then
+        print_status $GREEN "ok"
+    else
+        print_status $RED "FAILED"
+        update_failures=$((update_failures + 1))
+    fi
+
+    # Restore site state now so the space is serving before we report; the trap
+    # remains the fallback for abnormal exits.
+    echo ""
+    local state_target="both"
+    [ "$DOWNSYNC_TOME_WAS_DISABLED" = "1" ] && state_target="sm"
+    print_status $BLUE "🔓 Restoring site state in $to_space..."
+    if exec_state_command enable "$state_target" >/dev/null 2>&1; then
+        DOWNSYNC_STATE_DISABLED_IN=""
+        print_status $GREEN "✅ Site state restored"
+    else
+        print_status $RED "❌ Failed to restore site state in $to_space"
+        print_status $YELLOW "   Fix with: cf target -s $to_space && deploy.sh state enable $state_target"
+        exit 1
+    fi
+
+    if [ "$update_failures" -gt 0 ]; then
+        echo ""
+        print_status $RED "❌ Downsync completed the data copy but $update_failures post-import step(s) failed"
+        echo ""
+        echo "  Data from $from_space was restored to $to_space, but $to_space may not be"
+        echo "  fully functional until the failed steps above are resolved."
+        echo "  Backup used: $backup_tag"
+        echo "  Recovery point: $(basename "$safety_backup_object")"
+        echo ""
+        exit 1
     fi
 
     echo ""
@@ -2150,6 +2362,7 @@ downsync() {
     echo ""
     echo "  Data from $from_space has been copied to $to_space"
     echo "  Backup used: $backup_tag"
+    echo "  Recovery point: $(basename "$safety_backup_object")"
     echo ""
 }
 
