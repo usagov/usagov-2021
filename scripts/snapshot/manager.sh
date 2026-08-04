@@ -2932,7 +2932,7 @@ restore_create_recovery_point() {
         create_static_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
         # create_*_backup installs its own EXIT trap and then clears it, which
         # would leave the restore with no cleanup handler. Re-arm ours.
-        trap restore_cleanup EXIT INT TERM
+        trap restore_cleanup EXIT INT TERM HUP
         RESTORE_POINT_STATIC="$BACKUP_TAG"
         if [ -z "$RESTORE_POINT_STATIC" ] || [ "$(s3_count_objects "$AUTO_STATIC_BACKUP_PATH/$RESTORE_POINT_STATIC")" = "0" ]; then
             print_status $RED "❌ Could not create a static recovery point"
@@ -2946,7 +2946,7 @@ restore_create_recovery_point() {
     if [ "$want_public" = "yes" ]; then
         BACKUP_TAG=""
         create_public_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
-        trap restore_cleanup EXIT INT TERM
+        trap restore_cleanup EXIT INT TERM HUP
         RESTORE_POINT_PUBLIC="$BACKUP_TAG"
         if [ -z "$RESTORE_POINT_PUBLIC" ] || [ "$(s3_count_objects "$AUTO_PUBLIC_BACKUP_PATH/$RESTORE_POINT_PUBLIC")" = "0" ]; then
             print_status $RED "❌ Could not create a public files recovery point"
@@ -2960,7 +2960,7 @@ restore_create_recovery_point() {
     if [ "$want_db" = "yes" ]; then
         DB_BACKUP_TAG=""
         create_db_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
-        trap restore_cleanup EXIT INT TERM
+        trap restore_cleanup EXIT INT TERM HUP
         RESTORE_POINT_DB="$DB_BACKUP_TAG"
         if [ -z "$RESTORE_POINT_DB" ] || ! aws s3api head-object --bucket "$BUCKET_NAME" \
                 --key "$AUTO_DB_BACKUP_PATH/${RESTORE_POINT_DB}.sql.gz" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
@@ -3293,7 +3293,7 @@ restore_backup() {
 
     # From here on, resources and Drupal state must be released on every exit
     # path, including a signal during a long sync.
-    trap restore_cleanup EXIT INT TERM
+    trap restore_cleanup EXIT INT TERM HUP
 
     RESTORE_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/restore.XXXXXX") || {
         print_status $RED "❌ Error: Could not create a temporary working directory"
