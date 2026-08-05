@@ -4,9 +4,12 @@
 # Unified manager for all backups (static site, public files, and database)
 # Handles backup creation, listing, restore, and cleanup operations
 
+# Set restrictive permissions for all created files
+umask 077
+
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
-. "$SCRIPT_DIR/common.sh"
+. "$SCRIPT_DIR/../common.sh"
 
 # Initialize backup system (sets PROJECT_ROOT, BACKUP_DIR, CONFIG_FILE and loads config)
 init_backup_system
@@ -21,7 +24,7 @@ AUTO_PUBLIC_BACKUP_PATH=${AUTO_PUBLIC_BACKUP_PATH:-auto-backups/public_backup}
 AUTO_DB_BACKUP_PATH=${AUTO_DB_BACKUP_PATH:-auto-backups/database}
 ENABLE_DB_BACKUPS=${ENABLE_DB_BACKUPS:-true}
 ENABLE_DB_AUTO_CLEANUP=${ENABLE_DB_AUTO_CLEANUP:-true}
-DB_BACKUP_TIME=${DB_BACKUP_TIME:-"19:00"}
+DB_BACKUP_TIME=${DB_BACKUP_TIME:-"23:00"}
 ENABLE_SMART_PUBLIC_BACKUP=${ENABLE_SMART_PUBLIC_BACKUP:-true}
 BACKUP_THROTTLE_HOURS=${BACKUP_THROTTLE_HOURS:-4}
 
@@ -36,10 +39,10 @@ show_usage() {
     echo "  clean [types] [filters] [-y]             Remove backups by date filter (default: all types, 30 days)"
     echo "  delete <tag> [tag2 tag3...] [types] [-y]    Delete specific backup(s) by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
-    echo "  info [types] [tag]                       Show backup system info or specific backup details"
+    echo "  info [types] [tag] [--verify] [--json]   Show backup system info or specific backup details"
+  echo "                                             Use --verify to validate integrity (DB: streams from S3)"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
-    echo "  try-tome-disable [max_wait_mins]         Disable Drupal/Tome for backup (wait for tome, disable, enable maintenance)"
-    echo "  try-tome-enable                          Re-enable Drupal/Tome (disable maintenance, re-enable tome)"
+    echo "  state <action> <type> [max_wait_mins]    Manage Drupal state (action: enable|disable, type: tome|sm|both)"
     echo ""
     echo "Backup Types:"
     echo "  all                      All backup types (default)"
@@ -121,31 +124,189 @@ show_usage() {
     echo "      Browser caches may take up to 15 minutes to refresh cached content."
 }
 
+# Show command-specific help
+show_command_help() {
+    local command="$1"
+
+    case "$command" in
+        "list")
+            echo "List Backups"
+            echo ""
+            echo "Usage: manager.sh list [types] [days|start:end]"
+            echo ""
+            echo "Description:"
+            echo "  List available backups by type and time range."
+            echo ""
+            echo "Arguments:"
+            echo "  types      - Backup types: all, static, public, db, or comma-separated (default: all)"
+            echo "  days       - Number of days to show (default: 30)"
+            echo "  start:end  - Date range in YYYY-MM-DD:YYYY-MM-DD format"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh list"
+            echo "  manager.sh list db 7"
+            echo "  manager.sh list static,public 2025-10-01:2025-10-31"
+            echo ""
+            ;;
+        "backup")
+            echo "Create Backup"
+            echo ""
+            echo "Usage: manager.sh backup [types] [prefix] [suffix] [options]"
+            echo ""
+            echo "Description:"
+            echo "  Create new backups of specified types."
+            echo ""
+            echo "Arguments:"
+            echo "  types   - Backup types: all, static, public, db, or comma-separated (default: all)"
+            echo "  prefix  - Backup prefix (default: AUTO)"
+            echo "  suffix  - Optional backup suffix"
+            echo ""
+            echo "Options:"
+            echo "  --skip-state-management, --ssm  - Skip Drupal state checks"
+            echo "  --throttle                      - Skip if backup exists within BACKUP_THROTTLE_HOURS"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh backup"
+            echo "  manager.sh backup db"
+            echo "  manager.sh backup all USAGOV-123 post-deploy"
+            echo "  manager.sh backup db AUTO '' --throttle"
+            echo ""
+            ;;
+        "clean")
+            echo "Clean Old Backups"
+            echo ""
+            echo "Usage: manager.sh clean [types] [filters] [-y]"
+            echo ""
+            echo "Description:"
+            echo "  Remove backups based on retention policy or date range."
+            echo ""
+            echo "Arguments:"
+            echo "  types    - Backup types: all, static, public, db (default: all)"
+            echo "  filters  - Retention filters:"
+            echo "             N (number)                  - Keep last N days"
+            echo "             --older-than N              - Keep last N days"
+            echo "             --in-range START:END        - Delete specific range"
+            echo "  -y       - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh clean all 7"
+            echo "  manager.sh clean db --older-than 30 -y"
+            echo "  manager.sh clean all --in-range 2024-01-01:2024-12-31"
+            echo ""
+            ;;
+        "delete")
+            echo "Delete Specific Backups"
+            echo ""
+            echo "Usage: manager.sh delete <tag> [tag2 tag3...] [types] [-y]"
+            echo ""
+            echo "Description:"
+            echo "  Delete specific backups by tag name."
+            echo ""
+            echo "Arguments:"
+            echo "  tag    - Backup tag(s) to delete"
+            echo "  types  - Backup types to delete: all, static, public, db (default: all)"
+            echo "  -y     - Non-interactive mode (no confirmation)"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh delete AUTO-prod-14850-2025-10-28"
+            echo "  manager.sh delete AUTO-prod-14850 AUTO-prod-14851 -y"
+            echo "  manager.sh delete AUTO-prod-14850 db"
+            echo ""
+            ;;
+        "restore")
+            echo "Restore Backup"
+            echo ""
+            echo "Usage: manager.sh restore <tag> [options]"
+            echo ""
+            echo "Description:"
+            echo "  Restore backups from specified tag."
+            echo ""
+            echo "Arguments:"
+            echo "  tag  - Backup tag to restore"
+            echo ""
+            echo "Options:"
+            echo "  --only=type,type              - Restore only specific types"
+            echo "  --skip-state-management, --ssm - Skip Drupal state checks"
+            echo "  --skip-confirmation, --yes, -y - Skip restore confirmation"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh restore AUTO-prod-14850-2025-10-28"
+            echo "  manager.sh restore AUTO-prod-14850 --only=db"
+            echo "  manager.sh restore AUTO-prod-14850 --only=static,public --ssm"
+            echo ""
+            ;;
+        "info")
+            echo "Show Backup Information"
+            echo ""
+            echo "Usage: manager.sh info [types] [tag]"
+            echo ""
+            echo "Description:"
+            echo "  Show backup system information or details about specific backup."
+            echo ""
+            echo "Arguments:"
+            echo "  types  - Show info for specific types: all, static, public, db"
+            echo "  tag    - Show details for specific backup tag"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh info"
+            echo "  manager.sh info db"
+            echo "  manager.sh info all AUTO-prod-14850-2025-10-28"
+            echo ""
+            ;;
+        "download")
+            echo "Download Backup"
+            echo ""
+            echo "Usage: manager.sh download <tag> [type] [path] [--stream]"
+            echo ""
+            echo "Description:"
+            echo "  Download backups to local filesystem or stream to stdout."
+            echo ""
+            echo "Arguments:"
+            echo "  tag    - Backup tag to download"
+            echo "  type   - Type to download: all, static, public, db (default: all)"
+            echo "  path   - Output directory (default: current directory, or '-' for stdout)"
+            echo "  --stream - Stream to stdout (requires path '-')"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh download AUTO-prod-14850-2025-10-28"
+            echo "  manager.sh download AUTO-prod-14850 db ./backups/"
+            echo "  manager.sh download AUTO-prod-14850 db - --stream | gzip > backup.sql.gz"
+            echo ""
+            ;;
+        "state")
+            echo "Manage Drupal State"
+            echo ""
+            echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
+            echo ""
+            echo "Description:"
+            echo "  Enable or disable Drupal state management for backups/maintenance."
+            echo ""
+            echo "Arguments:"
+            echo "  action         - 'enable' or 'disable'"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
+            echo ""
+            echo "Examples:"
+            echo "  manager.sh state disable tome 30      # Disable Tome with 30 min wait"
+            echo "  manager.sh state enable tome          # Re-enable Tome"
+            echo "  manager.sh state disable sm           # Enable site maintenance mode"
+            echo "  manager.sh state enable sm            # Disable site maintenance mode"
+            echo "  manager.sh state disable both         # Disable Tome and enable maintenance"
+            echo "  manager.sh state enable both          # Enable Tome and disable maintenance"
+            echo ""
+            ;;
+        *)
+            echo "No help available for command: $command"
+            echo ""
+            echo "Run 'manager.sh' (no args) for list of all commands"
+            exit 1
+            ;;
+    esac
+}
+
 # ===================================================================
 # ARGUMENT PARSING FUNCTIONS
 # ===================================================================
-
-# Parse backup types from argument (e.g., "static,db" or "all" or empty)
-parse_backup_types() {
-    local types_arg="$1"
-
-    # Default to all if empty
-    if [ -z "$types_arg" ] || [ "$types_arg" = "all" ]; then
-        echo "static,public,db"
-        return 0
-    fi
-
-    # Return the types as provided
-    echo "$types_arg"
-}
-
-# Check if a backup type is in the list
-has_backup_type() {
-    local backup_types="$1"
-    local check_type="$2"
-
-    echo "$backup_types" | grep -q "$check_type"
-}
 
 # Get days argument with default
 get_days_arg() {
@@ -166,6 +327,33 @@ run_backup_command() {
     local custom_suffix=""
     local skip_state_management=false
     local enable_throttle=false
+    local use_json=false
+
+    # Check for --json flag early
+    if has_json_flag "$@"; then
+        use_json=true
+    fi
+
+    # Rate limiting check - prevent backup spam (max 1 backup per 5 minutes)
+    # Path is per-user (UID) so one user cannot block or spoof another's rate limit file.
+    local rate_limit_file="/tmp/backup_rate_limit_$(id -u 2>/dev/null || echo 0)"
+    if [ -f "$rate_limit_file" ]; then
+        local last_backup=$(cat "$rate_limit_file")
+        local current_time=$(date +%s)
+        local time_diff=$((current_time - last_backup))
+        if [ $time_diff -lt $RATE_LIMIT_SECONDS ]; then
+            if [ "$use_json" = true ]; then
+                local json_error="{\"status\":\"error\",\"message\":\"Rate limit exceeded\",\"wait_seconds\":$(($RATE_LIMIT_SECONDS - time_diff))}"
+                format_json "$json_error"
+            else
+                print_status $RED "❌ Rate limit: Please wait $(($RATE_LIMIT_SECONDS - time_diff)) seconds before next backup"
+            fi
+            return 1
+        fi
+    fi
+
+    # Update rate limit timestamp
+    date +%s > "$rate_limit_file"
 
     # Parse all arguments to separate flags from positional params
     shift  # Remove types_arg
@@ -177,6 +365,10 @@ run_backup_command() {
                 ;;
             --throttle)
                 enable_throttle=true
+                shift
+                ;;
+            --json)
+                # Already handled, just skip
                 shift
                 ;;
             *)
@@ -202,30 +394,72 @@ run_backup_command() {
 
     # Validate prefix and suffix don't contain spaces
     if echo "$backup_prefix" | grep -q ' '; then
-        print_status $RED "❌ Error: Backup prefix cannot contain spaces"
-        print_status $YELLOW "   Use hyphens or underscores instead: 'MY-PREFIX' or 'MY_PREFIX'"
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Backup prefix cannot contain spaces"}'
+            format_json "$json_error"
+        else
+            print_status $RED "❌ Error: Backup prefix cannot contain spaces"
+            print_status $YELLOW "   Use hyphens or underscores instead: 'MY-PREFIX' or 'MY_PREFIX'"
+        fi
         return 1
     fi
     if [ -n "$custom_suffix" ] && echo "$custom_suffix" | grep -q ' '; then
-        print_status $RED "❌ Error: Backup suffix cannot contain spaces"
-        print_status $YELLOW "   Use hyphens or underscores instead: 'my-suffix' or 'my_suffix'"
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Backup suffix cannot contain spaces"}'
+            format_json "$json_error"
+        else
+            print_status $RED "❌ Error: Backup suffix cannot contain spaces"
+            print_status $YELLOW "   Use hyphens or underscores instead: 'my-suffix' or 'my_suffix'"
+        fi
+        return 1
+    fi
+
+    # Validate prefix format to prevent command injection
+    if ! validate_backup_tag "$backup_prefix"; then
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Invalid backup prefix format"}'
+            format_json "$json_error"
+        fi
+        return 1
+    fi
+    if [ -n "$custom_suffix" ] && ! validate_backup_tag "$custom_suffix"; then
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Invalid backup suffix format"}'
+            format_json "$json_error"
+        fi
         return 1
     fi
 
     # Generate single timestamp for this backup event (format: 2025-10-24)
     local backup_timestamp=$(date +"%Y-%m-%d")
 
-    print_status $BLUE "📦 Creating backup: $backup_types"
-    if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
-        print_status $YELLOW "Prefix: $backup_prefix"
+    # Initialize JSON output if needed
+    local json_output=""
+    if [ "$use_json" = true ]; then
+        json_output='{"operation":"backup","timestamp":"'$backup_timestamp'","types":"'$backup_types'"'
+        json_output="${json_output},\"prefix\":\"$backup_prefix\""
+        if [ -n "$custom_suffix" ]; then
+            json_output="${json_output},\"suffix\":\"$custom_suffix\""
+        fi
+        json_output="${json_output},\"skip_state_management\":$skip_state_management"
+        json_output="${json_output},\"throttle_enabled\":$enable_throttle"
+        json_output="${json_output},\"results\":{"
+    else
+        print_status $BLUE "📦 Creating backup: $backup_types"
+        if [ "$backup_prefix" != "$BACKUP_PREFIX" ]; then
+            print_status $YELLOW "Prefix: $backup_prefix"
+        fi
+        if [ -n "$backup_suffix" ]; then
+            print_status $YELLOW "Suffix: $custom_suffix"
+        fi
+        print_status $YELLOW "Timestamp: $backup_timestamp"
+        if [ "$skip_state_management" = "true" ]; then
+            print_status $YELLOW "⚠️  Skipping Drupal state management"
+        fi
     fi
-    if [ -n "$backup_suffix" ]; then
-        print_status $YELLOW "Suffix: $custom_suffix"
-    fi
-    print_status $YELLOW "Timestamp: $backup_timestamp"
-    if [ "$skip_state_management" = "true" ]; then
-        print_status $YELLOW "⚠️  Skipping Drupal state management"
-    fi
+
+    local result_count=0
+    local failure_count=0
 
     # Run static backup if requested
     if has_backup_type "$backup_types" "static"; then
@@ -233,14 +467,46 @@ run_backup_command() {
         if [ "$enable_throttle" = true ]; then
             local age_hours=$(get_last_backup_age_hours "static")
             if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
-                print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    json_output="${json_output}\"static\":{\"status\":\"skipped\",\"reason\":\"throttled\",\"age_hours\":$age_hours}"
+                else
+                    print_status $YELLOW "ℹ️  Skipping static backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                fi
             else
-                print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
-                create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
+                fi
+                create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+                local backup_result=$?
+                [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    if [ $backup_result -eq 0 ]; then
+                        json_output="${json_output}\"static\":{\"status\":\"success\",\"tag\":\"$STATIC_BACKUP_TAG\"}"
+                    else
+                        json_output="${json_output}\"static\":{\"status\":\"failed\"}"
+                    fi
+                fi
             fi
         else
-            print_status $GREEN "🌐 Backing up static site..."
-            create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "🌐 Backing up static site..."
+            fi
+            create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+            local backup_result=$?
+            [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
+            if [ "$use_json" = true ]; then
+                [ $result_count -gt 0 ] && json_output="${json_output},"
+                result_count=$((result_count + 1))
+                if [ $backup_result -eq 0 ]; then
+                    json_output="${json_output}\"static\":{\"status\":\"success\",\"tag\":\"$STATIC_BACKUP_TAG\"}"
+                else
+                    json_output="${json_output}\"static\":{\"status\":\"failed\"}"
+                fi
+            fi
         fi
     fi
 
@@ -250,24 +516,88 @@ run_backup_command() {
         if [ "$enable_throttle" = true ]; then
             local age_hours=$(get_last_backup_age_hours "public")
             if [ "$age_hours" -lt "$BACKUP_THROTTLE_HOURS" ]; then
-                print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    json_output="${json_output}\"public\":{\"status\":\"skipped\",\"reason\":\"throttled\",\"age_hours\":$age_hours}"
+                else
+                    print_status $YELLOW "ℹ️  Skipping public backup: last backup was $age_hours hours ago (threshold: $BACKUP_THROTTLE_HOURS hours)"
+                fi
             else
-                print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
-                create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+                if [ "$use_json" = false ]; then
+                    print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
+                fi
+                create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+                local backup_result=$?
+                [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
+                if [ "$use_json" = true ]; then
+                    [ $result_count -gt 0 ] && json_output="${json_output},"
+                    result_count=$((result_count + 1))
+                    if [ $backup_result -eq 0 ]; then
+                        json_output="${json_output}\"public\":{\"status\":\"success\",\"tag\":\"$PUBLIC_BACKUP_TAG\"}"
+                    else
+                        json_output="${json_output}\"public\":{\"status\":\"failed\"}"
+                    fi
+                fi
             fi
         else
-            print_status $GREEN "📁 Backing up public files..."
-            create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp"
+            if [ "$use_json" = false ]; then
+                print_status $GREEN "📁 Backing up public files..."
+            fi
+            create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+            local backup_result=$?
+            [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
+            if [ "$use_json" = true ]; then
+                [ $result_count -gt 0 ] && json_output="${json_output},"
+                result_count=$((result_count + 1))
+                if [ $backup_result -eq 0 ]; then
+                    json_output="${json_output}\"public\":{\"status\":\"success\",\"tag\":\"$PUBLIC_BACKUP_TAG\"}"
+                else
+                    json_output="${json_output}\"public\":{\"status\":\"failed\"}"
+                fi
+            fi
         fi
     fi
 
     # Run database backup if requested
     if has_backup_type "$backup_types" "db"; then
-        print_status $GREEN "💾 Backing up database..."
+        if [ "$use_json" = false ]; then
+            print_status $GREEN "💾 Backing up database..."
+        fi
         create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
+        local backup_result=$?
+        [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
+        if [ "$use_json" = true ]; then
+            [ $result_count -gt 0 ] && json_output="${json_output},"
+            result_count=$((result_count + 1))
+            if [ $backup_result -eq 0 ]; then
+                json_output="${json_output}\"database\":{\"status\":\"success\",\"tag\":\"$DB_BACKUP_TAG\"}"
+            else
+                json_output="${json_output}\"database\":{\"status\":\"failed\"}"
+            fi
+        fi
     fi
 
-    print_status $BLUE "🎉 Done."
+    local backup_status="complete"
+    if [ $failure_count -gt 0 ]; then
+        backup_status="failed"
+        if [ $result_count -gt 0 ] && [ $failure_count -lt $result_count ]; then
+            backup_status="partial"
+        fi
+    fi
+
+    if [ "$use_json" = true ]; then
+        json_output="${json_output}},\"status\":\"$backup_status\",\"failures\":$failure_count}"
+        format_json "$json_output"
+    else
+        if [ $failure_count -gt 0 ]; then
+            print_status $RED "❌ Backup completed with $failure_count failure(s)"
+            return 1
+        fi
+        print_status $BLUE "🎉 Done."
+    fi
+
+    [ $failure_count -eq 0 ]
 }
 
 # Handle clean command
@@ -279,12 +609,23 @@ run_clean_command() {
     local filter_type=""
     local filter_value=""
     local filter_count=0
+    local use_json=false
+
+    # Check for --json flag early
+    if has_json_flag "$@"; then
+        use_json=true
+        non_interactive=true  # JSON mode implies non-interactive
+    fi
 
     # Parse all arguments
     while [ $# -gt 0 ]; do
         case "$1" in
             --non-interactive|-y)
                 non_interactive=true
+                shift
+                ;;
+            --json)
+                # Already handled, just skip
                 shift
                 ;;
             --older-than)
@@ -337,8 +678,13 @@ run_clean_command() {
 
     # Check for conflicting filters
     if [ $filter_count -gt 1 ]; then
-        print_status $RED "❌ Error: Cannot mix multiple date filtering methods"
-        echo "   Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
+        if [ "$use_json" = true ]; then
+            local json_error='{"status":"error","message":"Cannot mix multiple date filtering methods"}'
+            format_json "$json_error"
+        else
+            print_status $RED "❌ Error: Cannot mix multiple date filtering methods"
+            echo "   Use only ONE of: days, --older-than, --in-range, --except-range, --older-than-date, --newer-than-date"
+        fi
         return 1
     fi
 
@@ -389,7 +735,7 @@ run_clean_command() {
 
     # Show appropriate warning based on filter type
     if [ "$filter_type" = "all" ]; then
-        if [ "$non_interactive" = "false" ]; then
+        if [ "$non_interactive" != "true" ]; then
             echo ""
             print_status $RED "╔════════════════════════════════════════════════════════════════╗"
             print_status $RED "║                    ⚠️  DANGER ZONE  ⚠️                         ║"
@@ -409,7 +755,7 @@ run_clean_command() {
             fi
         fi
     else
-        if [ "$non_interactive" = "false" ]; then
+        if [ "$non_interactive" != "true" ]; then
             # Show context-specific warning
             case "$filter_type" in
                 "days")
@@ -451,14 +797,20 @@ run_clean_command() {
                     ;;
             esac
 
-            printf "Continue? [y/N]: "
-            read -r confirm
+            # Only prompt if not in non-interactive mode
+            if [ "$non_interactive" != "true" ]; then
+                printf "Continue? [y/N]: "
+                read -r confirm
 
-            if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-                print_status $RED "❌ Cancelled."
-                return 1
+                if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+                    print_status $RED "❌ Cancelled."
+                    return 1
+                fi
             fi
-        else
+        fi
+
+        # Show what we're doing in non-interactive mode
+        if [ "$non_interactive" = "true" ]; then
             # Non-interactive mode - just show what we're doing
             case "$filter_type" in
                 "days")
@@ -480,19 +832,30 @@ run_clean_command() {
         fi
     fi
 
-    print_status $BLUE "🧹 Cleaning up backups..."
+    # Initialize JSON output if needed
+    local json_output=""
+    if [ "$use_json" = true ]; then
+        json_output='{"operation":"clean","filter":{"type":"'$filter_type'","value":"'$filter_value'"},"types":"'$(parse_backup_types "$types_arg")'"'
+    else
+        print_status $BLUE "🧹 Cleaning up backups..."
+    fi
 
     # Clean static and public backups if requested
-    if has_backup_type "$backup_types" "static" || has_backup_type "$backup_types" "public"; then
+    if has_backup_type "$(parse_backup_types "$types_arg")" "static" || has_backup_type "$(parse_backup_types "$types_arg")" "public"; then
         clean_old_backups "$filter_type" "$filter_value"
     fi
 
     # Clean database backups if requested
-    if has_backup_type "$backup_types" "db"; then
+    if has_backup_type "$(parse_backup_types "$types_arg")" "db"; then
         cleanup_old_db_backups "$filter_type" "$filter_value"
     fi
 
-    print_status $BLUE "🎉 Cleanup complete."
+    if [ "$use_json" = true ]; then
+        json_output="${json_output},\"status\":\"complete\"}"
+        format_json "$json_output"
+    else
+        print_status $BLUE "🎉 Cleanup complete."
+    fi
 }
 
 # Handle info command
@@ -500,11 +863,18 @@ run_info_command() {
     local types_arg="${1:-all}"
     local tag="${2:-}"
 
+    # Check for --json flag in remaining arguments
+    shift 2 2>/dev/null
+    if has_json_flag "$@"; then
+        run_info_command_json "$types_arg" "$tag" "$@"
+        return $?
+    fi
+
     local backup_types=$(parse_backup_types "$types_arg")
 
     if [ -n "$tag" ]; then
         # Show info for specific tag with requested types
-        backup_info "$tag" "$backup_types"
+        backup_info "$tag" "$backup_types" "$@"
     else
         # Show general backup info for requested types
         setup_s3_vars || exit 1
@@ -542,9 +912,87 @@ run_info_command() {
     fi
 }
 
+# JSON version of run_info_command
+run_info_command_json() {
+    local types_arg="${1:-all}"
+    local tag="${2:-}"
+    shift 2 2>/dev/null
+
+    local backup_types=$(parse_backup_types "$types_arg")
+
+    if [ -n "$tag" ]; then
+        # Show info for specific tag with requested types
+        backup_info_json "$tag" "$backup_types" "$@"
+    else
+        # Show general backup system configuration
+        setup_s3_vars || exit 1
+
+        local json_output='{"system":{'
+        json_output="${json_output}\"bucket\":\"$BUCKET_NAME\""
+        json_output="${json_output},\"config_file\":\"$CONFIG_FILE\""
+        json_output="${json_output},\"backup_types\":{"
+
+        local type_count=0
+
+        if has_backup_type "$backup_types" "static"; then
+            [ $type_count -gt 0 ] && json_output="${json_output},"
+            type_count=$((type_count + 1))
+            json_output="${json_output}\"static\":{"
+            json_output="${json_output}\"path\":\"$AUTO_STATIC_BACKUP_PATH\""
+            json_output="${json_output},\"prefix\":\"$BACKUP_PREFIX\""
+            json_output="${json_output},\"retention_days\":$BACKUP_RETENTION_DAYS"
+            json_output="${json_output}}"
+        fi
+
+        if has_backup_type "$backup_types" "public"; then
+            [ $type_count -gt 0 ] && json_output="${json_output},"
+            type_count=$((type_count + 1))
+            json_output="${json_output}\"public\":{"
+            json_output="${json_output}\"path\":\"$AUTO_PUBLIC_BACKUP_PATH\""
+            json_output="${json_output},\"prefix\":\"$BACKUP_PREFIX\""
+            json_output="${json_output},\"retention_days\":$BACKUP_RETENTION_DAYS"
+            json_output="${json_output}}"
+        fi
+
+        if has_backup_type "$backup_types" "db"; then
+            [ $type_count -gt 0 ] && json_output="${json_output},"
+            type_count=$((type_count + 1))
+            json_output="${json_output}\"database\":{"
+            json_output="${json_output}\"path\":\"$AUTO_DB_BACKUP_PATH\""
+            json_output="${json_output},\"prefix\":\"$DB_BACKUP_PREFIX\""
+            json_output="${json_output},\"retention_days\":$DB_BACKUP_RETENTION_DAYS"
+            json_output="${json_output}}"
+        fi
+
+        json_output="${json_output}}}"
+
+        format_json "$json_output"
+    fi
+}
+
 # ===================================================================
 # DATABASE BACKUP FUNCTIONS
 # ===================================================================
+
+prepare_backup_tag() {
+    local backup_type="$1"
+    local base_tag="$2"
+    local backup_suffix="$3"
+    local state_type="$4"
+    local state_prepared="$5"
+
+    if ! get_next_backup_suffix "$backup_type" "$base_tag"; then
+        print_status $RED "❌ Failed to determine ${backup_type} backup suffix"
+        [ "$state_prepared" = "true" ] && restore_drupal_state "$state_type"
+        return 1
+    fi
+
+    if [ -n "$backup_suffix" ]; then
+        NEXT_BACKUP_TAG="${base_tag}-${backup_suffix}-${NEXT_BACKUP_SUFFIX}"
+    else
+        NEXT_BACKUP_TAG="${base_tag}-${NEXT_BACKUP_SUFFIX}"
+    fi
+}
 
 # Create a database backup with optional custom prefix, suffix, and timestamp
 # Args:
@@ -566,10 +1014,11 @@ create_db_backup() {
         return 0
     fi
 
-    # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
+    # Prepare Drupal state (enable maintenance mode only for DB backups)
+    # NIST 800-53: CP-10 - Preserve service state throughout recovery.
     local drupal_state_prepared=false
     if [ "$skip_state_management" != "true" ]; then
-        if prepare_drupal_for_backup 25; then
+        if prepare_drupal_state "maintenance" 25; then
             drupal_state_prepared=true
         else
             log_message "❌ Failed to prepare Drupal state for backup"
@@ -583,21 +1032,25 @@ create_db_backup() {
     CONTAINER_TAG=$(get_container_tag)
     local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
 
-    # Get next available numeric suffix for same-day backups
-    local numeric_suffix=$(get_next_backup_suffix "db" "$base_tag")
+    if ! prepare_backup_tag "db" "$base_tag" "$backup_suffix" "maintenance" "$drupal_state_prepared"; then
+        return 1
+    fi
+    DB_BACKUP_TAG="$NEXT_BACKUP_TAG"
 
-    # Construct final tag with user suffix (if any) and numeric suffix
-    if [ -n "$backup_suffix" ]; then
-        DB_BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
-    else
-        DB_BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    # Validate final backup tag
+    if ! validate_backup_tag "$DB_BACKUP_TAG"; then
+        print_status $RED "❌ Invalid backup tag generated"
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
+        return 1
     fi
 
+    audit_log "backup_database_started" "info" "Database backup initiated" "backup_tag=$DB_BACKUP_TAG"
     log_message "💾 Database backup: $DB_BACKUP_TAG"
 
     # Setup log file
     LOG_DIR="/tmp/tome-log"
     mkdir -p "$LOG_DIR"
+    chmod 700 "$LOG_DIR"
     LOGFILE="$LOG_DIR/db-backup-${backup_timestamp}.log"
 
     log_message "🔄 Dumping database..." | tee -a "$LOGFILE"
@@ -607,74 +1060,95 @@ create_db_backup() {
     if [ -n "$VCAP_APPLICATION" ] && [ -d "/var/www" ]; then
         if ! cd /var/www 2>/dev/null; then
             log_message "❌ ERROR: Cannot change to /var/www directory" | tee -a "$LOGFILE"
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
             return 1
         fi
     elif [ "$PROJECT_ROOT" != "$original_dir" ]; then
         # Change to project root if not already there
         if ! cd "$PROJECT_ROOT" 2>/dev/null; then
             log_message "❌ ERROR: Cannot change to project root: $PROJECT_ROOT" | tee -a "$LOGFILE"
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
             return 1
         fi
     fi
 
-    TEMP_SQL="/tmp/${DB_BACKUP_TAG}.sql"
-    TEMP_GZIP="/tmp/${DB_BACKUP_TAG}.sql.gz"
+    # Use secure temp files with mktemp (compatible with both GNU and BSD)
+    TEMP_SQL=$(mktemp) && mv "$TEMP_SQL" "${TEMP_SQL}.sql" && TEMP_SQL="${TEMP_SQL}.sql"
+    TEMP_GZIP=$(mktemp) && mv "$TEMP_GZIP" "${TEMP_GZIP}.sql.gz" && TEMP_GZIP="${TEMP_GZIP}.sql.gz"
+    TEMP_CHECKSUM=$(mktemp) && mv "$TEMP_CHECKSUM" "${TEMP_CHECKSUM}.sha256" && TEMP_CHECKSUM="${TEMP_CHECKSUM}.sha256"
+    chmod 600 "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM"
+
+    # Ensure cleanup on exit
+    trap "rm -f '$TEMP_SQL' '$TEMP_GZIP' '$TEMP_CHECKSUM'" EXIT INT TERM
 
     # Create database dump using drush
     if command -v drush >/dev/null 2>&1; then
         # Clear cache first, then create dump to SQL file
-        drush cr 2>&1 | tee -a "$LOGFILE"
-        drush sql:dump --result-file="$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
+        drush cr >> "$LOGFILE" 2>&1
+        drush sql:dump --result-file="$TEMP_SQL" >> "$LOGFILE" 2>&1
         DUMP_EXIT_CODE=$?
+        if [ $DUMP_EXIT_CODE -eq 0 ] && [ -f "$TEMP_SQL" ] && [ -s "$TEMP_SQL" ]; then
+            log_message "✅ Database dump created ($(du -h "$TEMP_SQL" | cut -f1))" | tee -a "$LOGFILE"
+        fi
     else
         log_message "❌ ERROR: drush not found" | tee -a "$LOGFILE"
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
     if [ $DUMP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Database dump failed" | tee -a "$LOGFILE"
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
     # Verify the SQL dump file was created and has content
     if [ ! -f "$TEMP_SQL" ] || [ ! -s "$TEMP_SQL" ]; then
+        audit_log "backup_database_failed" "error" "Database dump empty or missing" "backup_tag=$DB_BACKUP_TAG"
         log_message "❌ ERROR: Database dump empty or missing" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
     # Validate SQL dump structure
     log_message "🔍 Validating SQL dump structure..." | tee -a "$LOGFILE"
-    if ! validate_sql_dump "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"; then
+    if ! validate_sql_dump "$TEMP_SQL" >> "$LOGFILE" 2>&1; then
+        audit_log "backup_database_failed" "error" "SQL dump validation failed" "backup_tag=$DB_BACKUP_TAG reason=invalid_structure"
         log_message "❌ ERROR: SQL dump validation failed" | tee -a "$LOGFILE"
         rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
     # Compress the SQL file using gzip
     log_message "🗜️ Compressing..." | tee -a "$LOGFILE"
-    gzip "$TEMP_SQL" 2>&1 | tee -a "$LOGFILE"
+    gzip -c "$TEMP_SQL" > "$TEMP_GZIP" 2>> "$LOGFILE"
     GZIP_EXIT_CODE=$?
+
+    # Remove uncompressed file
+    rm -f "$TEMP_SQL"
 
     if [ $GZIP_EXIT_CODE -ne 0 ]; then
         log_message "❌ ERROR: Compression failed" | tee -a "$LOGFILE"
-        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
     fi
 
     # Verify the compressed file was created
     if [ ! -f "$TEMP_GZIP" ] || [ ! -s "$TEMP_GZIP" ]; then
         log_message "❌ ERROR: Compressed file empty or missing" | tee -a "$LOGFILE"
-        rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
-        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+        rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "maintenance"
         return 1
+    fi
+
+    # Generate SHA-256 checksum for integrity verification
+    log_message "🔐 Generating checksum..." | tee -a "$LOGFILE"
+    sha256sum "$TEMP_GZIP" | awk '{print $1}' > "$TEMP_CHECKSUM"
+    if [ ! -s "$TEMP_CHECKSUM" ]; then
+        log_message "⚠️ Warning: Could not generate checksum" | tee -a "$LOGFILE"
     fi
 
     # Upload compressed file to S3
@@ -683,17 +1157,27 @@ create_db_backup() {
     S3_DB_PATH="s3://${BUCKET_NAME}/${AUTO_DB_BACKUP_PATH}/${DB_BACKUP_TAG}.sql.gz"
     log_message "📍 Target: $S3_DB_PATH" | tee -a "$LOGFILE"
 
-    aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors 2>&1 | tee -a "$LOGFILE"
+    aws s3 cp "$TEMP_GZIP" "$S3_DB_PATH" --only-show-errors $S3_EXTRA_PARAMS >> "$LOGFILE" 2>&1
     UPLOAD_EXIT_CODE=$?
 
-    rm -f "$TEMP_SQL" "$TEMP_GZIP" 2>/dev/null
+    # Upload checksum file if it exists
+    if [ -s "$TEMP_CHECKSUM" ]; then
+        S3_CHECKSUM_PATH="s3://${BUCKET_NAME}/${AUTO_DB_BACKUP_PATH}/${DB_BACKUP_TAG}.sql.gz.sha256"
+        if ! aws s3 cp "$TEMP_CHECKSUM" "$S3_CHECKSUM_PATH" --only-show-errors $S3_EXTRA_PARAMS >> "$LOGFILE" 2>&1; then
+            log_message "⚠️ Warning: Checksum upload failed" | tee -a "$LOGFILE"
+        fi
+    fi
+
+    rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
+    cleanup_needed=false  # Disable cleanup trap since we cleaned up manually
 
     # Restore Drupal state before checking results
     if [ "$drupal_state_prepared" = "true" ]; then
-        restore_drupal_state  # Disable maintenance mode, then re-enable tome
+        restore_drupal_state "maintenance"  # Disable maintenance mode
     fi
 
     if [ $UPLOAD_EXIT_CODE -eq 0 ]; then
+        audit_log "backup_database_success" "success" "Database backup completed and uploaded" "backup_tag=$DB_BACKUP_TAG s3_path=$S3_DB_PATH"
         log_message "✅ Database backup complete: $S3_DB_PATH" | tee -a "$LOGFILE"
         print_status $GREEN "✅ Database backup saved: $DB_BACKUP_TAG"
 
@@ -702,8 +1186,20 @@ create_db_backup() {
             aws s3 cp "$LOGFILE" "s3://$BUCKET_NAME/db-backup-logs/$(basename "$LOGFILE")" $S3_EXTRA_PARAMS >/dev/null 2>&1
         fi
 
+        # Capture and upload deployment metadata (REQUIRED for all backups)
+        if command -v capture_deployment_metadata >/dev/null 2>&1; then
+            local metadata=$(capture_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE")
+            if ! upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata"; then
+                log_message "❌ ERROR: Failed to upload metadata" | tee -a "$LOGFILE"
+                print_status $RED "❌ Backup metadata upload failed"
+                return 1
+            fi
+        fi
+
+        trap - EXIT ERR  # Clear trap before successful return
         return 0
     else
+        audit_log "backup_database_failed" "error" "Database backup upload failed" "backup_tag=$DB_BACKUP_TAG exit_code=$UPLOAD_EXIT_CODE"
         log_message "❌ ERROR: Database backup upload failed with exit code: $UPLOAD_EXIT_CODE" | tee -a "$LOGFILE"
         print_status $RED "❌ Database backup failed: $DB_BACKUP_TAG"
         return 1
@@ -724,6 +1220,7 @@ create_static_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
     local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
+    local skip_state_management="${4:-false}"
 
     setup_s3_vars || exit 1
 
@@ -732,33 +1229,62 @@ create_static_backup() {
         return 0
     fi
 
+    # Prepare Drupal state (disable Tome)
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "tome" 25; then
+            drupal_state_prepared=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state"
+            return 1
+        fi
+    fi
+
     # Generate base backup tag
     CONTAINER_TAG=$(get_container_tag)
     local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
 
-    # Get next available numeric suffix for same-day backups
-    local numeric_suffix=$(get_next_backup_suffix "static" "$base_tag")
-
-    # Construct final tag with user suffix (if any) and numeric suffix
-    if [ -n "$backup_suffix" ]; then
-        BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
-    else
-        BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    if ! prepare_backup_tag "static" "$base_tag" "$backup_suffix" "tome" "$drupal_state_prepared"; then
+        return 1
     fi
+    BACKUP_TAG="$NEXT_BACKUP_TAG"
 
+    audit_log "backup_static_started" "info" "Static site backup initiated" "backup_tag=$BACKUP_TAG"
     log_message "🌐 Creating static site backup: $BACKUP_TAG"
 
     # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
     if aws s3 cp --only-show-errors s3://$BUCKET_NAME/web/ s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
         local exit_code=$?
         if [ $exit_code -eq 0 ]; then
+            # Restore Drupal state before returning
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+            audit_log "backup_static_success" "success" "Static site backup completed" "backup_tag=$BACKUP_TAG"
             print_status $GREEN "✅ Static site backed up: $BACKUP_TAG"
+
+            # Capture and upload deployment metadata (REQUIRED for all backups)
+            if command -v capture_deployment_metadata >/dev/null 2>&1; then
+                local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
+                if ! upload_deployment_metadata "$BACKUP_TAG" "$metadata"; then
+                    print_status $RED "❌ Static backup metadata upload failed"
+                    return 1
+                fi
+            fi
+
             return 0
         else
+            # Restore Drupal state before returning error
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+            audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
             print_status $RED "❌ Static site backup failed with exit code: $exit_code"
             return 1
         fi
     else
+        # Restore Drupal state before returning error
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+        audit_log "backup_static_failed" "error" "Static site backup failed" "backup_tag=$BACKUP_TAG"
         print_status $RED "❌ Static site backup failed: $BACKUP_TAG"
         return 1
     fi
@@ -778,6 +1304,7 @@ create_public_backup() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local backup_suffix="${2:-}"
     local backup_timestamp="${3:-$(date +"%Y-%m-%d")}"
+    local skip_state_management="${4:-false}"
 
     setup_s3_vars || exit 1
 
@@ -786,25 +1313,31 @@ create_public_backup() {
         return 0
     fi
 
+    # Prepare Drupal state (disable Tome)
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "tome" 25; then
+            drupal_state_prepared=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state"
+            return 1
+        fi
+    fi
+
     # Generate base backup tag
     CONTAINER_TAG=$(get_container_tag)
     local base_tag="${custom_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
 
-    # Get next available numeric suffix for same-day backups
-    local numeric_suffix=$(get_next_backup_suffix "public" "$base_tag")
-
-    # Construct final tag with user suffix (if any) and numeric suffix
-    if [ -n "$backup_suffix" ]; then
-        BACKUP_TAG="${base_tag}-${backup_suffix}-${numeric_suffix}"
-    else
-        BACKUP_TAG="${base_tag}-${numeric_suffix}"
+    if ! prepare_backup_tag "public" "$base_tag" "$backup_suffix" "tome" "$drupal_state_prepared"; then
+        return 1
     fi
+    BACKUP_TAG="$NEXT_BACKUP_TAG"
 
     # Smart backup check if enabled
     PUBLIC_BACKUP_NEEDED=true
 
     if [ "$ENABLE_SMART_PUBLIC_BACKUP" = "true" ]; then
-        log_message "🔍 Checking if public files backup needed..."
+        local loader=$(show_loading "Checking if public files backup needed")
 
         # Find the most recent automatic public files backup
         LATEST_PUBLIC_BACKUP=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "${BACKUP_PREFIX}-${APP_SPACE}-" | sort -r | head -n1 | awk '{print $2}' | tr -d '/')
@@ -824,22 +1357,46 @@ create_public_backup() {
     fi
 
     if [ "$PUBLIC_BACKUP_NEEDED" = "true" ]; then
+        audit_log "backup_public_started" "info" "Public files backup initiated" "backup_tag=$BACKUP_TAG"
         log_message "📁 Creating public files backup: $BACKUP_TAG"
         # Note: S3_EXTRA_PARAMS may contain multiple parameters, so we don't quote it
         if aws s3 cp --only-show-errors s3://$BUCKET_NAME/cms/public/ s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$BACKUP_TAG/ --recursive $S3_EXTRA_PARAMS 2>&1; then
             local exit_code=$?
             if [ $exit_code -eq 0 ]; then
+                # Restore Drupal state before returning
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+                audit_log "backup_public_success" "success" "Public files backup completed" "backup_tag=$BACKUP_TAG"
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
+
+                # Capture and upload deployment metadata
+                if command -v capture_deployment_metadata >/dev/null 2>&1; then
+                    local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
+                    upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+                fi
+
                 return 0
             else
+                # Restore Drupal state before returning error
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+                audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG exit_code=$exit_code"
                 print_status $RED "❌ Public files backup failed with exit code: $exit_code"
                 return 1
             fi
         else
+            # Restore Drupal state before returning error
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+            audit_log "backup_public_failed" "error" "Public files backup failed" "backup_tag=$BACKUP_TAG"
             print_status $RED "❌ Public files backup failed: $BACKUP_TAG"
             return 1
         fi
     else
+        # Restore Drupal state even if backup was skipped
+        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
+
+        audit_log "backup_public_skipped" "info" "Public files unchanged, backup skipped" "backup_tag=$BACKUP_TAG"
         print_status $YELLOW "⚠️ Public files unchanged - skipped"
         return 0
     fi
@@ -971,18 +1528,50 @@ get_last_backup_age_hours() {
 list_backups() {
     local types_arg="${1:-all}"
     local filter_arg="${2:-}"
+    local use_json=false
+
+    # Check for --json flag in all arguments
+    shift 2 2>/dev/null  # Remove first two args
+    if has_json_flag "$@"; then
+        use_json=true
+    fi
 
     local backup_types=$(parse_backup_types "$types_arg")
 
-    # If a filter argument (days or date range) is provided, use list_old_backups
+    # If a filter argument (days or date range) is provided, filter the listing.
+    # A plain number N means "last N days" (backups from N days ago to now).
+    # A colon-containing value is a date range passed through as-is.
     if [ -n "$filter_arg" ]; then
-        list_old_backups "$filter_arg"
+        local range_arg="$filter_arg"
+        if echo "$filter_arg" | grep -qE '^[0-9]+$'; then
+            # Convert N days to a forward date range: "{N_days_ago}:" = from that date onward.
+            # Use epoch arithmetic for BusyBox date compatibility (no "N days ago" string support).
+            local now_epoch since_epoch since_date
+            now_epoch=$(date +%s 2>/dev/null)
+            since_epoch=$((now_epoch - filter_arg * 86400))
+            since_date=$(date -u -d "@${since_epoch}" '+%Y-%m-%d' 2>/dev/null || \
+                         date -u -r "$since_epoch" '+%Y-%m-%d' 2>/dev/null)
+            if [ -z "$since_date" ]; then
+                print_status $RED "❌ Error: could not compute date for '$filter_arg days ago'"
+                return 1
+            fi
+            range_arg="${since_date}:"
+        fi
+        if [ "$use_json" = true ]; then
+            list_old_backups "$range_arg" --json
+        else
+            list_old_backups "$range_arg"
+        fi
         return 0
     fi
 
     # If no specific types requested, show all backups with restore tags
     if [ "$types_arg" = "all" ] || [ -z "$types_arg" ]; then
-        list_all_backups
+        if [ "$use_json" = true ]; then
+            list_all_backups_json
+        else
+            list_all_backups
+        fi
         return 0
     fi
 
@@ -1009,6 +1598,7 @@ list_static_backups() {
     print_status $GREEN "Static Site Backups:"
     echo "===================="
 
+    local loader=$(show_loading "Loading backup list")
     # Get list of backup directories with metadata
     aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
         backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
@@ -1026,6 +1616,11 @@ list_static_backups() {
             backup_date="unknown"
         fi
 
+        # Stop loader on first iteration (static backups)
+        if [ -n "$loader" ]; then
+            loader=""
+        fi
+
         local formatted_size=$(format_file_size "$backup_size")
         echo "  $backup_tag ($formatted_size) - $backup_date"
     done
@@ -1037,6 +1632,7 @@ list_public_backups() {
     print_status $GREEN "Public Files Backups:"
     echo "====================="
 
+    local loader=$(show_loading "Loading backup list")
     # Get list of backup directories with metadata
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE" | sort -r | while read -r line; do
         backup_tag=$(echo "$line" | awk '{print $2}' | tr -d '/')
@@ -1054,6 +1650,11 @@ list_public_backups() {
             backup_date="unknown"
         fi
 
+        # Stop loader on first iteration (public backups)
+        if [ -n "$loader" ]; then
+            loader=""
+        fi
+
         local formatted_size=$(format_file_size "$backup_size")
         echo "  $backup_tag ($formatted_size) - $backup_date"
     done
@@ -1066,11 +1667,17 @@ list_db_backups() {
     echo "=================="
 
     if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+        local loader=$(show_loading "Loading backup list")
         aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | sort -r | while read -r line; do
             # Extract backup name from S3 listing
             backup_file=$(echo "$line" | awk '{print $4}' | xargs basename)
             backup_size=$(echo "$line" | awk '{print $3}')
             backup_date=$(echo "$line" | awk '{print $1" "$2}')
+
+            # Stop loader on first iteration (db backups)
+            if [ -n "$loader" ]; then
+                loader=""
+            fi
 
             local formatted_size=$(format_file_size "$backup_size")
             echo "  $backup_file ($formatted_size) - $backup_date"
@@ -1151,6 +1758,86 @@ list_all_backups() {
     print_status $YELLOW "✅ = Available    ❌ = Missing (smart fallback may apply)"
 }
 
+# JSON version of list_all_backups
+list_all_backups_json() {
+    setup_s3_vars || exit 1
+
+    # Create temporary files to collect backup data
+    static_list="/tmp/static_backups_$$"
+    public_list="/tmp/public_backups_$$"
+    db_list="/tmp/db_backups_$$"
+
+    # Get all backup lists
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort > "$static_list" 2>/dev/null
+    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | awk '{print $2}' | tr -d '/' | sort > "$public_list" 2>/dev/null
+    aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} | sort > "$db_list" 2>/dev/null
+
+    # Create unified list of all backup tags
+    all_tags="/tmp/all_backup_tags_$$"
+    (
+        cat "$static_list" 2>/dev/null
+        cat "$public_list" 2>/dev/null
+        cat "$db_list" 2>/dev/null | sed 's/\.sql\.gz$//'
+    ) | sort -u > "$all_tags"
+
+    # Build JSON array
+    local json_output='{"backups":['
+    local first=true
+    local count=0
+
+    while read -r tag; do
+        if [ -n "$tag" ]; then
+            count=$((count + 1))
+
+            # Check what backup types exist for this tag
+            local has_static=false
+            local has_public=false
+            local has_database=false
+
+            if grep -q "^$tag$" "$static_list" 2>/dev/null; then
+                has_static=true
+            fi
+
+            if grep -q "^$tag$" "$public_list" 2>/dev/null; then
+                has_public=true
+            fi
+
+            local db_tag="${tag}.sql.gz"
+            if grep -q "^$db_tag$" "$db_list" 2>/dev/null; then
+                has_database=true
+            fi
+
+            # Extract date from tag
+            local tag_date=$(extract_date_from_backup_name "$tag")
+            local days_ago=""
+            if [ -n "$tag_date" ]; then
+                local tag_epoch=$(date -d "$tag_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null)
+                if [ -n "$tag_epoch" ]; then
+                    days_ago=$(( ($(date +%s) - tag_epoch) / 86400 ))
+                fi
+            fi
+
+            if [ "$first" = true ]; then
+                first=false
+            else
+                json_output="${json_output},"
+            fi
+
+            json_output="${json_output}{\"tag\":\"$tag\",\"static\":$has_static,\"public\":$has_public,\"database\":$has_database,\"date\":\"${tag_date:-unknown}\""
+            if [ -n "$days_ago" ]; then
+                json_output="${json_output},\"age_days\":$days_ago"
+            fi
+            json_output="${json_output},\"restore_command\":\"restore $tag\"}"
+        fi
+    done < "$all_tags"
+
+    json_output="${json_output}],\"count\":$count,\"bucket\":\"$BUCKET_NAME\"}"
+
+    rm -f "$static_list" "$public_list" "$db_list" "$all_tags" 2>/dev/null
+
+    format_json "$json_output"
+}
+
 # ===================================================================
 # BACKUP CLEANUP FUNCTIONS
 # ===================================================================
@@ -1171,24 +1858,33 @@ cleanup_old_db_backups() {
 
     setup_s3_vars || exit 1
 
-    # Special handling for deleting ALL database backups
-    if [ "$filter_type" = "all" ]; then
-        log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
+    # Reject 'all' and '0' - use delete command for bulk deletion
+    if [ "$filter_type" = "all" ] || [ "$filter_value" = "0" ] || [ "$filter_value" = "all" ]; then
+        log_message "❌ Error: Minimum retention is 2 days ($RETENTION_MIN_HOURS hours)"
+        log_message "   To delete all backups, clean all but 2 days worth and"
+        log_message "   use the 'delete' command instead to remove remaining backups."
+        log_message "   This prevents accidental deletion of recent backups."
+        return 1
+    fi
 
-        # Delete ALL database backups
-        aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
-            backup_path=$(echo "$line" | awk '{print $4}')
-            if [ -n "$backup_path" ]; then
-                log_message "🗑️ Removing database backup: $backup_path"
-                aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
-            fi
-        done
-        log_message "✅ All database backups removed"
-        return 0
+    # Validate minimum retention to protect deployment windows
+    if [ "$filter_type" = "days" ]; then
+        if [ "$filter_value" -lt 2 ]; then
+            log_message "❌ Error: Minimum retention is 2 days ($RETENTION_MIN_HOURS hours)"
+            return 1
+        fi
     fi
 
     # Display what we're doing using consolidated helper
+    audit_log "cleanup_database_started" "info" "Database cleanup initiated" "filter_type=$filter_type filter_value=$filter_value"
     log_message "$(show_filter_message "$filter_type" "$filter_value" "database backups")"
+
+    # Calculate minimum retention cutoff
+    local min_retention_epoch=$(date -u -v-${RETENTION_MIN_HOURS}H +%s 2>/dev/null || date -u -d "${RETENTION_MIN_HOURS} hours ago" +%s 2>/dev/null)
+    if [ -z "$min_retention_epoch" ]; then
+        log_message "❌ Error: Could not calculate minimum retention date"
+        return 1
+    fi
 
     # List and delete database backups matching filter
     aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS 2>/dev/null | grep "\.sql\.gz$" | while read -r line; do
@@ -1196,12 +1892,24 @@ cleanup_old_db_backups() {
         backup_date=$(extract_date_from_backup_name "$backup_path")
 
         if [ -n "$backup_date" ]; then
+            # Convert backup date to epoch for comparison
+            local backup_epoch=$(date_to_epoch "$backup_date")
+
+            # Skip if backup is newer than minimum retention (safety check)
+            if [ -n "$backup_epoch" ] && [ "$backup_epoch" -gt "$min_retention_epoch" ]; then
+                log_message "⏭️  Skipping recent backup (< $RETENTION_MIN_HOURS hours): $backup_path"
+                continue
+            fi
+
             if matches_clean_filter "$backup_date" "$filter_type" "$filter_value"; then
+                audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_path=$backup_path backup_date=$backup_date"
                 log_message "🗑️ Removing old database backup: $backup_path (date: $backup_date)"
                 aws s3 rm "s3://$BUCKET_NAME/$backup_path" $S3_EXTRA_PARAMS 2>&1
+                aws s3 rm "s3://$BUCKET_NAME/${backup_path}.sha256" $S3_EXTRA_PARAMS >/dev/null 2>&1 || true
             fi
         fi
     done
+    audit_log "cleanup_database_success" "success" "Database cleanup completed" "filter_type=$filter_type filter_value=$filter_value"
     log_message "✅ Database backup cleanup complete"
 }
 
@@ -1296,6 +2004,20 @@ list_old_backups() {
     print_status $GREEN "Public Files Backups:"
     aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " | while read -r line; do
         backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
+        backup_date=$(extract_date_from_backup_name "$backup_name")
+
+        if [ -n "$backup_date" ]; then
+            if check_backup_date "$backup_date"; then
+                echo "$line"
+            fi
+        fi
+    done
+
+    echo ""
+    print_status $GREEN "Database Backups:"
+    aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | while read -r line; do
+        backup_key=$(echo "$line" | awk '{print $4}')
+        backup_name=$(basename "$backup_key" .sql.gz)
         backup_date=$(extract_date_from_backup_name "$backup_name")
 
         if [ -n "$backup_date" ]; then
@@ -1430,6 +2152,13 @@ delete_backup() {
         exit 1
     fi
 
+    # Validate all tags
+    for tag in $tags; do
+        if ! validate_backup_tag "$tag"; then
+            exit 1
+        fi
+    done
+
     setup_s3_vars || exit 1
 
     local backup_types=$(parse_backup_types "$types_arg")
@@ -1504,9 +2233,11 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting static site backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                    audit_log "backup_static_deleted" "info" "Static backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Static backup deleted"
                     types_deleted=$((types_deleted + 1))
                 else
+                    audit_log "backup_static_delete_failed" "error" "Failed to delete static backup" "backup_tag=$backup_tag"
                     print_status $RED "❌ Failed to delete static backup"
                 fi
             else
@@ -1519,9 +2250,11 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting public files backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ --only-show-errors --recursive $S3_EXTRA_PARAMS; then
+                    audit_log "backup_public_deleted" "info" "Public backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Public files backup deleted"
                     types_deleted=$((types_deleted + 1))
                 else
+                    audit_log "backup_public_delete_failed" "error" "Failed to delete public backup" "backup_tag=$backup_tag"
                     print_status $RED "❌ Failed to delete public files backup"
                 fi
             else
@@ -1534,9 +2267,12 @@ delete_backup() {
             if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz $S3_EXTRA_PARAMS >/dev/null 2>&1; then
                 print_status $YELLOW "Deleting database backup..."
                 if aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz --only-show-errors $S3_EXTRA_PARAMS; then
+                    aws s3 rm s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256 --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1 || true
+                    audit_log "backup_database_deleted" "info" "Database backup deleted" "backup_tag=$backup_tag"
                     print_status $GREEN "✅ Database backup deleted"
                     types_deleted=$((types_deleted + 1))
                 else
+                    audit_log "backup_database_delete_failed" "error" "Failed to delete database backup" "backup_tag=$backup_tag"
                     print_status $RED "❌ Failed to delete database backup"
                 fi
             else
@@ -1558,122 +2294,6 @@ delete_backup() {
             echo ""
         fi
     done
-}
-
-# Find corresponding public backup for smart restore
-find_corresponding_public_backup() {
-    local static_backup_tag=$1
-
-    # First, check if there's an exact match
-    if aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$static_backup_tag/ $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        echo "$static_backup_tag"
-        return 0
-    fi
-
-    # If no exact match, find the most recent public backup before or at the static backup time
-    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
-    static_date=$(extract_date_from_backup_name "$static_backup_tag")
-
-    if [ -z "$static_date" ]; then
-        return 1
-    fi
-
-    # Convert to epoch for comparison
-    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
-    if [ -z "$static_epoch" ]; then
-        return 1
-    fi
-
-    # Use a temp file to avoid subshell variable issues
-    temp_list="/tmp/public_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/ $S3_EXTRA_PARAMS | grep "PRE " > "$temp_list" 2>/dev/null
-
-    best_public_backup=""
-    best_epoch=0
-
-    while read -r line; do
-        if [ -n "$line" ]; then
-            public_backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-            public_date=$(extract_date_from_backup_name "$public_backup_name")
-
-            if [ -n "$public_date" ]; then
-                public_epoch=$(date -u -d "$public_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$public_date" '+%s' 2>/dev/null)
-
-                # Find most recent backup at or before static backup time
-                if [ -n "$public_epoch" ] && [ "$public_epoch" -le "$static_epoch" ] && [ "$public_epoch" -gt "$best_epoch" ]; then
-                    best_public_backup="$public_backup_name"
-                    best_epoch="$public_epoch"
-                fi
-            fi
-        fi
-    done < "$temp_list"
-
-    rm -f "$temp_list" 2>/dev/null
-
-    if [ -n "$best_public_backup" ]; then
-        echo "$best_public_backup"
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Find corresponding database backup for smart restore
-find_corresponding_db_backup() {
-    local static_backup_tag=$1
-
-    # Extract date from static backup tag (format: PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD)
-    static_date=$(extract_date_from_backup_name "$static_backup_tag")
-
-    if [ -z "$static_date" ]; then
-        return 1
-    fi
-
-    # Convert to epoch for comparison
-    static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
-    if [ -z "$static_epoch" ]; then
-        return 1
-    fi
-
-    # First, check if there's an exact match
-    exact_db_tag="${static_backup_tag}.sql.gz"
-    if aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$exact_db_tag $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        echo "$exact_db_tag"
-        return 0
-    fi
-
-    # Use a temp file to avoid subshell variable issues
-    temp_list="/tmp/db_backup_search_$$"
-    aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
-
-    best_db_backup=""
-    best_epoch=0
-
-    while read -r line; do
-        if [ -n "$line" ]; then
-            # Extract date from database backup name (PREFIX-SPACE-CONTAINERTAG-YYYY-MM-DD.sql.gz)
-            db_date=$(extract_date_from_backup_name "$line")
-
-            if [ -n "$db_date" ]; then
-                db_epoch=$(date -u -d "$db_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$db_date" '+%s' 2>/dev/null)
-
-                # Find most recent backup at or before static backup time
-                if [ -n "$db_epoch" ] && [ "$db_epoch" -le "$static_epoch" ] && [ "$db_epoch" -gt "$best_epoch" ]; then
-                    best_db_backup="$line"
-                    best_epoch="$db_epoch"
-                fi
-            fi
-        fi
-    done < "$temp_list"
-
-    rm -f "$temp_list" 2>/dev/null
-
-    if [ -n "$best_db_backup" ]; then
-        echo "$best_db_backup"
-        return 0
-    else
-        return 1
-    fi
 }
 
 parse_restore_options() {
@@ -1700,6 +2320,10 @@ parse_restore_options() {
                 # Skip this flag, handled elsewhere
                 shift
                 ;;
+            --skip-confirmation|--yes|--force|-y|--non-interactive)
+                # Skip this flag, handled elsewhere
+                shift
+                ;;
             *)
                 # This should be the backup tag
                 if [ -z "$backup_tag" ]; then
@@ -1720,6 +2344,7 @@ restore_backup() {
     local backup_tag=""
     local restore_types=""
     local skip_state_management=false
+    local skip_confirmation=false
 
     # Parse arguments
     if [ $# -eq 0 ]; then
@@ -1732,6 +2357,9 @@ restore_backup() {
     for arg in "$@"; do
         if [ "$arg" = "--skip-state-management" ] || [ "$arg" = "--ssm" ]; then
             skip_state_management=true
+        fi
+        if [ "$arg" = "--skip-confirmation" ] || [ "$arg" = "--yes" ] || [ "$arg" = "--force" ] || [ "$arg" = "-y" ] || [ "$arg" = "--non-interactive" ]; then
+            skip_confirmation=true
         fi
     done
 
@@ -1772,7 +2400,7 @@ restore_backup() {
 
     # Public files backup analysis
     if [ "$restore_public" = "yes" ]; then
-        public_backup_tag=$(find_corresponding_public_backup "$backup_tag")
+        public_backup_tag=$(find_corresponding_backup "$backup_tag" "public")
 
         if [ -n "$public_backup_tag" ]; then
             if [ "$public_backup_tag" = "$backup_tag" ]; then
@@ -1787,7 +2415,7 @@ restore_backup() {
 
     # Database backup analysis
     if [ "$restore_database" = "yes" ]; then
-        db_backup_tag=$(find_corresponding_db_backup "$backup_tag")
+        db_backup_tag=$(find_corresponding_backup "$backup_tag" "db")
 
         if [ -n "$db_backup_tag" ]; then
             # Convert to expected database tag format for comparison
@@ -1823,18 +2451,34 @@ restore_backup() {
         fi
     fi
 
-    echo ""
-    print_status $RED "This will overwrite current data!"
-    printf "Continue with restore? (y/N): "
-    read -r confirmation
+    if [ "$skip_confirmation" = "true" ]; then
+        print_status $YELLOW "⚠️  Restore confirmation skipped"
+    else
+        echo ""
+        print_status $RED "This will overwrite current data!"
+        printf "Continue with restore? (y/N): "
+        read -r confirmation
 
-    if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
-        print_status $GREEN "❌ Cancelled."
-        exit 0
+        if [ "$confirmation" != "y" ] && [ "$confirmation" != "Y" ]; then
+            print_status $YELLOW "❌ Cancelled."
+            exit 1
+        fi
     fi
 
     echo ""
     print_status $BLUE "🔄 Restoring..."
+
+    audit_log "restore_started" "info" "Restore operation initiated" "backup_tag=$backup_tag static=$restore_static public=$restore_public database=$restore_database"
+
+    local drupal_state_prepared=false
+    if [ "$skip_state_management" != "true" ]; then
+        if prepare_drupal_state "both" 25; then
+            drupal_state_prepared=true
+        else
+            print_status $RED "❌ Failed to prepare Drupal state for restore"
+            exit 1
+        fi
+    fi
 
     # Restore static site
     if [ "$restore_static" = "yes" ] && [ -n "$static_backup_tag" ]; then
@@ -1869,9 +2513,12 @@ restore_backup() {
             fi
 
             print_status $GREEN "✅ Static site restored"
+            audit_log "restore_static_success" "success" "Static site restored successfully" "backup_tag=$static_backup_tag"
             print_status $YELLOW "ℹ️  Note: Browser caches may take up to 15 minutes to refresh"
         else
+            audit_log "restore_static_failed" "error" "Static site restore failed" "backup_tag=$static_backup_tag"
             print_status $RED "❌ ERROR: Static site restore failed"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
             exit 1
         fi
     fi
@@ -1880,6 +2527,7 @@ restore_backup() {
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring public files..."
         if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete $S3_EXTRA_PARAMS; then
+            audit_log "restore_public_success" "success" "Public files restored successfully" "backup_tag=$public_backup_tag"
             print_status $GREEN "✅ Public files restored"
             # Refresh S3FS metadata cache so Drupal sees the restored files
             if command -v drush >/dev/null 2>&1; then
@@ -1893,66 +2541,100 @@ restore_backup() {
                 print_status $YELLOW "⚠️ Could not refresh file cache (drush not available)"
             fi
         else
+            audit_log "restore_public_failed" "error" "Public files restore failed" "backup_tag=$public_backup_tag"
             print_status $RED "❌ ERROR: Public files restore failed"
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
             exit 1
         fi
     fi
 
     # Restore database
     if [ "$restore_database" = "yes" ] && [ -n "$db_backup_tag" ]; then
+        audit_log "restore_database_started" "info" "Database restore initiated" "backup_tag=$db_backup_tag"
         print_status $YELLOW "🔄 Restoring database..."
-
-        # Prepare Drupal state (wait for tome, disable it, enable maintenance mode)
-        local drupal_state_prepared=false
-        if [ "$skip_state_management" != "true" ]; then
-            if prepare_drupal_for_backup 25; then
-                drupal_state_prepared=true
-            else
-                print_status $RED "❌ Failed to prepare Drupal state for restore"
-                exit 1
-            fi
-        fi
 
         # Download and restore database backup (use secure temp files)
         temp_db_base="$(mktemp /tmp/restore_db.XXXXXX)"
         temp_db_file="${temp_db_base}.sql.gz"
         temp_sql_file="${temp_db_base}.sql"
+        temp_checksum_file="${temp_db_base}.sha256"
+        chmod 600 "$temp_db_base"
+
+        # Ensure cleanup
+        trap "rm -f '$temp_db_base' '$temp_db_file' '$temp_sql_file' '$temp_checksum_file'" EXIT INT TERM
 
         if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_backup_tag "$temp_db_file" $S3_EXTRA_PARAMS; then
-            if gunzip "$temp_db_file" 2>/dev/null; then
+            chmod 600 "$temp_db_file"
+            # Try to download and verify checksum
+            local checksum_verified=false
+            if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${db_backup_tag}.sha256 "$temp_checksum_file" $S3_EXTRA_PARAMS 2>/dev/null; then
+                chmod 600 "$temp_checksum_file"
+                print_status $YELLOW "🔐 Verifying backup integrity..."
+                local expected_checksum=$(cat "$temp_checksum_file")
+                local actual_checksum=$(sha256sum "$temp_db_file" | awk '{print $1}')
+
+                if [ "$expected_checksum" = "$actual_checksum" ]; then
+                    print_status $GREEN "✓ Checksum verified"
+                    checksum_verified=true
+                else
+                    audit_log "restore_database_failed" "error" "Checksum mismatch detected" "backup_tag=$db_backup_tag expected=$expected_checksum actual=$actual_checksum"
+                    print_status $RED "❌ Checksum mismatch! Backup may be corrupted."
+                    print_status $YELLOW "   Expected: $expected_checksum"
+                    print_status $YELLOW "   Got:      $actual_checksum"
+                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
+                    exit 1
+                fi
+            else
+                print_status $YELLOW "⚠️  No checksum file found, skipping integrity check"
+            fi
+
+            if gunzip -c "$temp_db_file" > "$temp_sql_file" 2>/dev/null; then
+                chmod 600 "$temp_sql_file"
+                # Validate SQL content for dangerous patterns
+                if ! validate_sql_content "$temp_sql_file"; then
+                    audit_log "restore_database_failed" "error" "SQL content validation failed" "backup_tag=$db_backup_tag"
+                    print_status $RED "❌ SQL content validation failed"
+                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
+                    exit 1
+                fi
+
                 if command -v drush >/dev/null 2>&1; then
                     # Use drush for database import
                     if drush sql:drop -y && drush sql:cli < "$temp_sql_file"; then
-                        # Restore Drupal state before success message
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                        audit_log "restore_database_success" "success" "Database restored successfully" "backup_tag=$db_backup_tag"
                         print_status $GREEN "✅ Database restored"
                     else
+                        audit_log "restore_database_failed" "error" "Database import failed" "backup_tag=$db_backup_tag"
                         print_status $RED "❌ ERROR: Database import failed"
-                        rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
-                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                        rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                        [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                         exit 1
                     fi
                 else
                     print_status $RED "❌ ERROR: Drush not available for database restore"
-                    rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
-                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                    rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                     exit 1
                 fi
             else
                     print_status $RED "❌ ERROR: Failed to decompress database backup"
-                rm -f "$temp_db_file" "$temp_db_base" 2>/dev/null
-                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+                rm -f "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+                [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
                 exit 1
             fi
         else
             print_status $RED "❌ ERROR: Failed to download database backup"
-            rm -f "$temp_db_base" 2>/dev/null
-            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state
+            rm -f "$temp_db_base" "$temp_checksum_file" 2>/dev/null
+            [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
             exit 1
         fi
 
-        rm -f "$temp_sql_file" "$temp_db_base" 2>/dev/null
+        rm -f "$temp_sql_file" "$temp_db_file" "$temp_db_base" "$temp_checksum_file" 2>/dev/null
     fi
+
+    [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
 
     echo ""
     print_status $GREEN "🎉 Restore complete!"
@@ -1973,6 +2655,7 @@ restore_backup() {
     restored_items=$(echo "$restored_items" | sed 's/, $//')
 
     if [ -n "$restored_items" ]; then
+        audit_log "restore_completed" "success" "Restore operation completed successfully" "backup_tag=$backup_tag restored_types=$restored_items"
         print_status $GREEN "Restored: $restored_items"
     fi
 }
@@ -1980,14 +2663,27 @@ restore_backup() {
 backup_info() {
     local backup_tag=$1
     local backup_types=${2:-"all"}
-    local static_exists="no"
-    local public_exists="no"
-    local db_exists="no"
 
     if [ -z "$backup_tag" ]; then
         print_status $RED "Error: Backup tag is required"
         exit 1
     fi
+
+    # Check for --json flag in remaining arguments
+    shift 2 2>/dev/null
+    if has_json_flag "$@"; then
+        backup_info_json "$backup_tag" "$backup_types" "$@"
+        return $?
+    fi
+
+    local do_verify=false
+    for arg in "$@"; do
+        [ "$arg" = "--verify" ] && do_verify=true
+    done
+
+    local static_exists="no"
+    local public_exists="no"
+    local db_exists="no"
 
     setup_s3_vars || exit 1
 
@@ -2051,11 +2747,21 @@ backup_info() {
             local total_size=$(echo "$static_output" | grep "Total Size:" | awk '{print $3}')
 
             if [ -n "$total_objects" ]; then
-                echo "  Total Files: $(printf "%'d" $total_objects)"
+                echo "  Total Files: $total_objects"
             fi
             if [ -n "$total_size" ]; then
                 local formatted_size=$(format_file_size "$total_size")
                 echo "  Total Size: $formatted_size"
+            fi
+
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    print_status $GREEN "  Verify: ✅ VALID"
+                    static_valid=true
+                else
+                    print_status $RED "  Verify: ❌ INVALID (exists but is empty)"
+                    static_valid=false
+                fi
             fi
 
             # Show sample files
@@ -2070,6 +2776,7 @@ backup_info() {
         else
             echo "  Status: ❌ Not found"
             echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/"
+            [ "$do_verify" = "true" ] && static_valid=false
         fi
         echo ""
     fi
@@ -2098,11 +2805,21 @@ backup_info() {
             local total_size=$(echo "$public_output" | grep "Total Size:" | awk '{print $3}')
 
             if [ -n "$total_objects" ]; then
-                echo "  Total Files: $(printf "%'d" $total_objects)"
+                echo "  Total Files: $total_objects"
             fi
             if [ -n "$total_size" ]; then
                 local formatted_size=$(format_file_size "$total_size")
                 echo "  Total Size: $formatted_size"
+            fi
+
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    print_status $GREEN "  Verify: ✅ VALID"
+                    public_valid=true
+                else
+                    print_status $RED "  Verify: ❌ INVALID (exists but is empty)"
+                    public_valid=false
+                fi
             fi
 
             # Show sample files
@@ -2117,6 +2834,7 @@ backup_info() {
         else
             echo "  Status: ❌ Not found"
             echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/"
+            [ "$do_verify" = "true" ] && public_valid=false
 
             # If static exists but public doesn't, show the smart relationship
             if [ "$static_exists" = "yes" ]; then
@@ -2127,7 +2845,7 @@ backup_info() {
                 echo "  This means public files were unchanged at backup time (smart optimization)."
                 echo ""
 
-                local corresponding_public=$(find_corresponding_public_backup "$backup_tag")
+                local corresponding_public=$(find_corresponding_backup "$backup_tag" "public")
                 if [ -n "$corresponding_public" ]; then
                     if [ "$corresponding_public" != "$backup_tag" ]; then
                         print_status $GREEN "  📍 Linked Public Backup: $corresponding_public"
@@ -2186,9 +2904,43 @@ backup_info() {
             local uncompressed_estimate=$((backup_size * 15))
             local formatted_uncompressed=$(format_file_size "$uncompressed_estimate")
             echo "  Estimated Uncompressed: ~$formatted_uncompressed"
+
+            # Check for checksum sidecar (stream 64-byte file into variable, no disk writes)
+            local stored_checksum
+            stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            if [ -z "$stored_checksum" ]; then
+                stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            fi
+            if [ -n "$stored_checksum" ]; then
+                echo "  Checksum (SHA-256): $stored_checksum"
+            else
+                echo "  Checksum: not available"
+            fi
+
+            # Verify DB integrity if requested (streams full .sql.gz from S3, no disk writes)
+            if [ "$do_verify" = "true" ]; then
+                if [ -n "$stored_checksum" ]; then
+                    echo "  Verifying integrity (streaming from S3)..."
+                    local actual_checksum
+                    actual_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz" $S3_EXTRA_PARAMS - 2>/dev/null | sha256sum | awk '{print $1}')
+                    if [ "$stored_checksum" = "$actual_checksum" ]; then
+                        print_status $GREEN "  Integrity: ✅ VALID"
+                        db_valid=true
+                    else
+                        print_status $RED "  Integrity: ❌ INVALID (checksum mismatch)"
+                        echo "    Expected: $stored_checksum"
+                        echo "    Computed: $actual_checksum"
+                        db_valid=false
+                    fi
+                else
+                    print_status $YELLOW "  Integrity: ⚠️  cannot verify (no checksum file)"
+                    db_valid=unverifiable
+                fi
+            fi
         else
             echo "  Status: ❌ Not found"
             echo "  S3 Path: s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz"
+            [ "$do_verify" = "true" ] && db_valid=false
         fi
         echo ""
     fi
@@ -2255,8 +3007,279 @@ backup_info() {
         print_status $YELLOW "    ⚠️  Partial - $components_found of $components_expected components present"
     fi
 
+    if [ "$do_verify" = "true" ]; then
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "🔍 VERIFICATION RESULTS"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        local all_valid=true
+        if has_backup_type "$backup_types" "static"; then
+            case "${static_valid:-}" in
+                true)  echo "  ✅ Static Site" ;;
+                false) echo "  ❌ Static Site"; all_valid=false ;;
+                *)     echo "  ⚠️  Static Site (not checked)" ;;
+            esac
+        fi
+        if has_backup_type "$backup_types" "public"; then
+            case "${public_valid:-}" in
+                true)  echo "  ✅ Public Files" ;;
+                false) echo "  ❌ Public Files"; all_valid=false ;;
+                *)     echo "  ⚠️  Public Files (not checked)" ;;
+            esac
+        fi
+        if has_backup_type "$backup_types" "db"; then
+            case "${db_valid:-}" in
+                true)         echo "  ✅ Database (checksum verified)" ;;
+                false)        echo "  ❌ Database"; all_valid=false ;;
+                unverifiable) echo "  ⚠️  Database (no checksum file on record)" ;;
+                *)            echo "  ⚠️  Database (not checked)" ;;
+            esac
+        fi
+        echo ""
+        if [ "$all_valid" = "true" ]; then
+            print_status $GREEN "  Overall: ✅ VALID"
+        else
+            print_status $RED "  Overall: ❌ INVALID"
+        fi
+        echo ""
+    fi
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# JSON version of backup_info
+backup_info_json() {
+    local backup_tag=$1
+    local backup_types=${2:-"all"}
+    shift 2 2>/dev/null
+
+    local do_verify=false
+    for arg in "$@"; do
+        [ "$arg" = "--verify" ] && do_verify=true
+    done
+
+    # Track per-component validity for --verify summary
+    local static_json_valid=true
+    local public_json_valid=true
+    local db_json_valid=true
+
+    setup_s3_vars || exit 1
+
+    # Initialize JSON structure
+    local json_output='{'
+
+    # Tag Analysis
+    json_output="${json_output}\"tag\":\"$backup_tag\""
+
+    local tag_date=$(extract_date_from_backup_name "$backup_tag")
+    if [ -n "$tag_date" ]; then
+        json_output="${json_output},\"date\":\"$tag_date\""
+        local tag_epoch=$(date -d "$tag_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$tag_date" +%s 2>/dev/null)
+        if [ -n "$tag_epoch" ]; then
+            local days_ago=$(( ($(date +%s) - tag_epoch) / 86400 ))
+            if [ $days_ago -ge 0 ]; then
+                json_output="${json_output},\"age_days\":$days_ago"
+            fi
+        fi
+    fi
+
+    local tag_prefix=$(echo "$backup_tag" | awk -F'-' '{print $1}')
+    local tag_space=$(echo "$backup_tag" | awk -F'-' '{print $2}')
+    if [ -n "$tag_prefix" ]; then
+        json_output="${json_output},\"prefix\":\"$tag_prefix\""
+    fi
+    if [ -n "$tag_space" ]; then
+        json_output="${json_output},\"space\":\"$tag_space\""
+    fi
+
+    json_output="${json_output},\"bucket\":\"$BUCKET_NAME\",\"components\":{"
+
+    local component_count=0
+    local components_found=0
+
+    # Static site backup
+    if has_backup_type "$backup_types" "static"; then
+        [ $component_count -gt 0 ] && json_output="${json_output},"
+        component_count=$((component_count + 1))
+
+        json_output="${json_output}\"static\":{"
+        local static_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+
+        if echo "$static_output" | grep -q "Total Objects:"; then
+            components_found=$((components_found + 1))
+            json_output="${json_output}\"exists\":true"
+
+            local first_file=$(echo "$static_output" | grep -v "Total" | grep -v "^$" | head -1)
+            local static_date=$(echo "$first_file" | awk '{print $1" "$2}')
+            if [ -n "$static_date" ]; then
+                json_output="${json_output},\"created\":\"$static_date\""
+            fi
+
+            json_output="${json_output},\"path\":\"s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/\""
+
+            local total_objects=$(echo "$static_output" | grep "Total Objects:" | awk '{print $3}')
+            local total_size=$(echo "$static_output" | grep "Total Size:" | awk '{print $3}')
+
+            if [ -n "$total_objects" ]; then
+                json_output="${json_output},\"file_count\":$total_objects"
+            fi
+            if [ -n "$total_size" ]; then
+                json_output="${json_output},\"size_bytes\":$total_size"
+            fi
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    json_output="${json_output},\"valid\":true"
+                else
+                    json_output="${json_output},\"valid\":false"
+                    static_json_valid=false
+                fi
+            fi
+        else
+            json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/\""
+            if [ "$do_verify" = "true" ]; then
+                json_output="${json_output},\"valid\":false"
+                static_json_valid=false
+            fi
+        fi
+        json_output="${json_output}}"
+    fi
+
+    # Public files backup
+    if has_backup_type "$backup_types" "public"; then
+        [ $component_count -gt 0 ] && json_output="${json_output},"
+        component_count=$((component_count + 1))
+
+        json_output="${json_output}\"public\":{"
+        local public_output=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ $S3_EXTRA_PARAMS --recursive --summarize 2>&1)
+
+        if echo "$public_output" | grep -q "Total Objects:"; then
+            components_found=$((components_found + 1))
+            json_output="${json_output}\"exists\":true"
+
+            local first_file=$(echo "$public_output" | grep -v "Total" | grep -v "^$" | head -1)
+            local public_date=$(echo "$first_file" | awk '{print $1" "$2}')
+            if [ -n "$public_date" ]; then
+                json_output="${json_output},\"created\":\"$public_date\""
+            fi
+
+            json_output="${json_output},\"path\":\"s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/\""
+
+            local total_objects=$(echo "$public_output" | grep "Total Objects:" | awk '{print $3}')
+            local total_size=$(echo "$public_output" | grep "Total Size:" | awk '{print $3}')
+
+            if [ -n "$total_objects" ]; then
+                json_output="${json_output},\"file_count\":$total_objects"
+            fi
+            if [ -n "$total_size" ]; then
+                json_output="${json_output},\"size_bytes\":$total_size"
+            fi
+            if [ "$do_verify" = "true" ]; then
+                if [ "${total_objects:-0}" -gt 0 ] 2>/dev/null && [ "${total_size:-0}" -gt 0 ] 2>/dev/null; then
+                    json_output="${json_output},\"valid\":true"
+                else
+                    json_output="${json_output},\"valid\":false"
+                    public_json_valid=false
+                fi
+            fi
+        else
+            json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/\""
+            if [ "$do_verify" = "true" ]; then
+                json_output="${json_output},\"valid\":false"
+                public_json_valid=false
+            fi
+
+            # Check for linked backup
+            local corresponding_public=$(find_corresponding_backup "$backup_tag" "public")
+            if [ -n "$corresponding_public" ] && [ "$corresponding_public" != "$backup_tag" ]; then
+                json_output="${json_output},\"linked_backup\":\"$corresponding_public\""
+            fi
+        fi
+        json_output="${json_output}}"
+    fi
+
+    # Database backup
+    if has_backup_type "$backup_types" "db"; then
+        [ $component_count -gt 0 ] && json_output="${json_output},"
+        component_count=$((component_count + 1))
+
+        json_output="${json_output}\"database\":{"
+        local backup_name="${backup_tag}.sql.gz"
+        local db_file_info=$(aws s3 ls s3://"$BUCKET_NAME"/$AUTO_DB_BACKUP_PATH/ --recursive $S3_EXTRA_PARAMS | grep "$backup_name")
+
+        if [ -n "$db_file_info" ]; then
+            components_found=$((components_found + 1))
+            json_output="${json_output}\"exists\":true"
+
+            local backup_size=$(echo "$db_file_info" | awk '{print $3}')
+            local backup_date=$(echo "$db_file_info" | awk '{print $1" "$2}')
+            local backup_file=$(echo "$db_file_info" | awk '{print $4}')
+
+            json_output="${json_output},\"created\":\"$backup_date\""
+            json_output="${json_output},\"path\":\"s3://$BUCKET_NAME/$backup_file\""
+            json_output="${json_output},\"filename\":\"$backup_name\""
+            json_output="${json_output},\"size_bytes\":$backup_size"
+
+            local uncompressed_estimate=$((backup_size * 15))
+            json_output="${json_output},\"estimated_uncompressed_bytes\":$uncompressed_estimate"
+
+            # Always check for checksum sidecar (stream 64-byte file into variable, no disk writes)
+            local stored_checksum
+            stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            if [ -z "$stored_checksum" ]; then
+                stored_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sha256" $S3_EXTRA_PARAMS - 2>/dev/null)
+            fi
+            if [ -n "$stored_checksum" ]; then
+                json_output="${json_output},\"checksum_on_file\":\"$stored_checksum\""
+            else
+                json_output="${json_output},\"checksum_available\":false"
+            fi
+
+            if [ "$do_verify" = "true" ]; then
+                if [ -n "$stored_checksum" ]; then
+                    local actual_checksum
+                    actual_checksum=$(aws s3 cp "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz" $S3_EXTRA_PARAMS - 2>/dev/null | sha256sum | awk '{print $1}')
+                    json_output="${json_output},\"checksum_computed\":\"$actual_checksum\""
+                    if [ "$stored_checksum" = "$actual_checksum" ]; then
+                        json_output="${json_output},\"valid\":true"
+                    else
+                        json_output="${json_output},\"valid\":false"
+                        db_json_valid=false
+                    fi
+                else
+                    json_output="${json_output},\"valid\":null"
+                fi
+            fi
+        else
+            json_output="${json_output}\"exists\":false,\"path\":\"s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\""
+            if [ "$do_verify" = "true" ]; then
+                json_output="${json_output},\"valid\":false"
+                db_json_valid=false
+            fi
+        fi
+        json_output="${json_output}}"
+    fi
+
+    json_output="${json_output}},\"summary\":{"
+    json_output="${json_output}\"components_found\":$components_found"
+    json_output="${json_output},\"components_expected\":$component_count"
+
+    if [ $components_found -eq $component_count ]; then
+        json_output="${json_output},\"complete\":true"
+    else
+        json_output="${json_output},\"complete\":false"
+    fi
+
+    if [ "$do_verify" = "true" ]; then
+        local all_valid=true
+        [ "$static_json_valid" = "false" ] && all_valid=false
+        [ "$public_json_valid" = "false" ] && all_valid=false
+        [ "$db_json_valid" = "false" ] && all_valid=false
+        json_output="${json_output},\"all_valid\":$all_valid"
+    fi
+
+    json_output="${json_output}}}"
+
+    format_json "$json_output"
 }
 
 # Show database backup information
@@ -2357,10 +3380,15 @@ download_single_backup() {
     local output_path=$3
     local stream_mode=$4
 
+    # Validate backup tag
+    if ! validate_backup_tag "$backup_tag"; then
+        return 1
+    fi
+
     case "$backup_type" in
         "db")
             # Find database backup file
-            db_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ $S3_EXTRA_PARAMS 2>/dev/null | grep "$backup_tag" | awk '{print $4}')
+            db_file=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/ $S3_EXTRA_PARAMS 2>/dev/null | grep "$backup_tag" | grep '\.sql\.gz$' | awk '{print $4}')
 
             if [ -z "$db_file" ]; then
                 log_message "❌ Error: Database backup not found for tag: $backup_tag" >&2
@@ -2371,14 +3399,35 @@ download_single_backup() {
                 # Stream mode: output to stdout
                 log_message "📥 Streaming database backup: $db_file" >&2
                 aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file - $S3_EXTRA_PARAMS 2>/dev/null
+                return $?
             else
-                # Local download mode - default to current working directory
-                output_dir=${output_path:-$(pwd)}
-                mkdir -p "$output_dir"
-                output_file="$output_dir/${backup_tag}-database.sql.gz"
+                # Local download mode - validate and normalize output path
+                local validated_path
+                if [ -n "$output_path" ]; then
+                    validated_path=$(validate_output_path "$output_path")
+                    if [ $? -ne 0 ]; then
+                        log_message "❌ Invalid output path" >&2
+                        return 1
+                    fi
+                else
+                    validated_path=$(pwd)
+                fi
+
+                mkdir -p "$validated_path"
+                output_file="$validated_path/${backup_tag}-database.sql.gz"
 
                 log_message "📥 Downloading database backup: $db_file"
+
+                # Get expected file size
+                local expected_size=$(aws s3 ls s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file $S3_EXTRA_PARAMS 2>/dev/null | awk '{print $3}')
+
                 if aws s3 cp s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/$db_file "$output_file" $S3_EXTRA_PARAMS; then
+                    # Verify downloaded file size
+                    local actual_size=$(stat -f%z "$output_file" 2>/dev/null || stat -c%s "$output_file" 2>/dev/null)
+                    if [ -n "$expected_size" ] && [ -n "$actual_size" ] && [ "$expected_size" != "$actual_size" ]; then
+                        log_message "⚠️  Warning: File size mismatch (expected: $expected_size, got: $actual_size)"
+                    fi
+
                     log_message "✅ Database backup saved: $output_file"
                     return 0
                 else
@@ -2403,7 +3452,9 @@ download_single_backup() {
                 temp_dir=$(mktemp -d)
                 aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
+                local tar_exit=$?
                 rm -rf "$temp_dir"
+                return $tar_exit
             else
                 # Local download mode - default to current working directory
                 output_dir=${output_path:-$(pwd)}
@@ -2442,7 +3493,9 @@ download_single_backup() {
                 temp_dir=$(mktemp -d)
                 aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
                 tar -czf - -C "$temp_dir" .
+                local tar_exit=$?
                 rm -rf "$temp_dir"
+                return $tar_exit
             else
                 # Local download mode - default to current working directory
                 output_dir=${output_path:-$(pwd)}
@@ -2476,14 +3529,25 @@ download_single_backup() {
 # MAIN SCRIPT LOGIC
 # ===================================================================
 
-case "${1:-}" in
-    "-h"|"--help"|"help")
-        show_usage
-        exit 0
-        ;;
+COMMAND="${1:-}"
+
+# Handle help
+if [ "$COMMAND" = "-h" ] || [ "$COMMAND" = "--help" ] || [ "$COMMAND" = "help" ] || [ -z "$COMMAND" ]; then
+    show_usage
+    exit 0
+fi
+
+# Check if second arg is -h/--help for command-specific help
+if [ "$2" = "-h" ] || [ "$2" = "--help" ]; then
+    show_command_help "$COMMAND"
+    exit 0
+fi
+
+case "$COMMAND" in
     "list")
-        # list [types] [days] - e.g., "list static,db" or "list all 7"
-        list_backups "$2" "$3"
+        # list [types] [days] [--json] - e.g., "list static,db" or "list all 7" or "list all 7 --json"
+        shift  # Remove the 'list' command
+        list_backups "$@"
         ;;
     "backup")
         # backup [types] [prefix] [suffix] [--skip-state-management|--ssm] - e.g., "backup db" or "backup all USAGOV-123 post-deploy"
@@ -2491,7 +3555,8 @@ case "${1:-}" in
         ;;
     "clean")
         # clean [types] [days] [-y|--non-interactive] - e.g., "clean all 30" or "clean db 7 -y"
-        run_clean_command "$2" "$3" "$4"
+        shift  # Remove the 'clean' command
+        run_clean_command "$@"  # Pass all remaining arguments
         ;;
     "delete")
         # delete <tag> [tag2 tag3...] [types] [-y] - e.g., "delete AUTO-dev-123-2025-01-15" or "delete TAG1 TAG2 static -y"
@@ -2504,37 +3569,34 @@ case "${1:-}" in
         restore_backup "$@"  # Pass all remaining arguments
         ;;
     "info")
-        # info [types] <tag> - e.g., "info db" or "info all backup-tag"
-        run_info_command "$2" "$3"
+        # info [types] <tag> [--json] - e.g., "info db" or "info all backup-tag" or "info all backup-tag --json"
+        shift  # Remove the 'info' command
+        run_info_command "$@"
         ;;
     "download")
         # download <tag> <type> [output-path] [--stream]
         # e.g., "download AUTO-prod-14850-2025-10-28 db ./backups/" or "download AUTO-prod-14850-2025-10-28 db - --stream"
         download_backup "$2" "$3" "$4" "$5"
         ;;
-    "try-tome-disable")
-        # try-tome-disable [max_wait_minutes] - Disable Drupal/Tome for backup
-        print_status $BLUE "🔧 Disabling Drupal/Tome for backup..."
-        if prepare_drupal_for_backup "${2:-25}"; then
-            print_status $GREEN "✅ Drupal/Tome disabled: Tome stopped and disabled, maintenance mode enabled"
-            exit 0
-        else
-            print_status $RED "❌ Failed to disable Drupal/Tome"
+    "state")
+        # state <action> <type> [max_wait_mins] - Manage Drupal state
+        # e.g., "state disable tome 30" or "state enable both"
+        action="$2"
+        state_type="${3:-both}"
+        max_wait="${4:-25}"
+
+        if [ -z "$action" ]; then
+            print_status $RED "❌ Error: action required (enable|disable)"
+            echo "Usage: manager.sh state <action> <type> [max_wait_mins]"
             exit 1
         fi
-        ;;
-    "try-tome-enable")
-        # try-tome-enable - Re-enable Drupal/Tome to normal operation
-        print_status $BLUE "🔧 Re-enabling Drupal/Tome..."
-        if restore_drupal_state; then
-            print_status $GREEN "✅ Drupal/Tome enabled: Maintenance mode disabled, Tome re-enabled"
-            exit 0
-        else
-            print_status $RED "❌ Failed to re-enable Drupal/Tome"
-            exit 1
-        fi
+
+        state_command "$action" "$state_type" "$max_wait"
+        exit $?
         ;;
     *)
+        print_status $RED "❌ Unknown command: $COMMAND"
+        echo ""
         show_usage
         exit 1
         ;;

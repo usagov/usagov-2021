@@ -4,7 +4,7 @@
 
 # Load common utilities
 SCRIPT_DIR=$(dirname "$0")
-. "$SCRIPT_DIR/common.sh"
+. "$SCRIPT_DIR/../common.sh"
 
 # Test tracking
 TESTS_PASSED=0
@@ -42,7 +42,7 @@ run_test() {
     else
         print_status $RED "❌ FAILED: $test_name"
         TESTS_FAILED=$((TESTS_FAILED + 1))
-        return 1
+        return 0
     fi
 }
 
@@ -73,10 +73,8 @@ test_config_loading() {
 
     check_file "$config_file" "backup configuration file" || return 1
 
-    # Source the config
-    . "$config_file"
-
-    # Check required variables are set
+    # init_backup_system has already loaded the config and made constants readonly.
+    # Check required variables without sourcing the file a second time.
     local required_vars="BACKUP_RETENTION_DAYS ENABLE_STATIC_AUTO_BACKUPS ENABLE_PUBLIC_AUTO_BACKUPS ENABLE_STATIC_AUTO_CLEANUP ENABLE_PUBLIC_AUTO_CLEANUP BACKUP_PREFIX ENABLE_SMART_PUBLIC_BACKUP"
     for var in $required_vars; do
         eval "var_value=\$$var"
@@ -200,7 +198,7 @@ test_backup_integration() {
     fi
 
     # Check that it calls backup command
-    # tome-sync.sh backs up static and public files (db is handled by cron)
+    # tome-sync.sh backs up static and public files; cron handles scheduled backups.
     if grep -q "backup static,public" "$tome_sync_script"; then
         echo "✅ Found backup static,public command call"
     else
@@ -436,8 +434,6 @@ test_date_calculations() {
 
 # Function to test backup naming pattern
 test_backup_naming() {
-    . "$BACKUP_DIR/backup-system.conf"
-
     local test_space="test"
     local test_container_tag="git-abc123"
     local test_timestamp="2024_03_15_14_30_00"
@@ -469,7 +465,7 @@ test_backup_naming() {
 test_date_range_filtering() {
     echo "📅 Testing date range filtering functionality..."
 
-    local common_script="$BACKUP_DIR/common.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
 
     # Test 1: Check if date_to_epoch function exists
     if ! grep -q "^date_to_epoch()" "$common_script"; then
@@ -562,11 +558,18 @@ test_date_range_filtering() {
     fi
 
     # Check that list_old_backups uses date range logic
-    local list_function=$(sed -n '/^list_old_backups()/,/^}/p' "$manager_script")
+    local list_function=$(sed -n '/^list_old_backups()/,/^clean_old_backups()/p' "$manager_script")
     if echo "$list_function" | grep -q "is_date_in_range"; then
         echo "✅ list_old_backups integrates date range filtering"
     else
         echo "❌ list_old_backups missing date range filtering"
+        return 1
+    fi
+
+    if echo "$list_function" | grep -q "AUTO_DB_BACKUP_PATH" && echo "$list_function" | grep -q "\\.sql\\.gz"; then
+        echo "✅ list_old_backups includes database backup filtering"
+    else
+        echo "❌ list_old_backups missing database backup filtering"
         return 1
     fi
 
@@ -621,7 +624,7 @@ test_date_range_filtering() {
 test_explicit_clean_flags() {
     echo "🎯 Testing explicit clean flags functionality..."
 
-    local common_script="$BACKUP_DIR/common.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
     local manager_script="$BACKUP_DIR/manager.sh"
 
     # Test 1: Check if matches_clean_filter function exists
@@ -959,9 +962,6 @@ test_database_backup_system() {
         return 1
     fi
 
-    # Load config to test database backup settings
-    . "$BACKUP_DIR/backup-system.conf"
-
     # Test database backup configuration
     echo "⚙️ Testing database backup configuration..."
     if [ "$ENABLE_DB_BACKUPS" = "true" ]; then
@@ -1029,6 +1029,21 @@ test_database_backup_system() {
         echo "✅ Database backup script uses direct implementation"
     else
         echo "❌ Database backup script missing direct implementation"
+        return 1
+    fi
+
+    local db_backup_section=$(sed -n '/^create_db_backup()/,/^create_static_backup()/p' "$manager_script")
+    if echo "$db_backup_section" | grep -q 'drush sql:dump.*| tee\|gzip -c.*| tee\|aws s3 cp "$TEMP_GZIP".*| tee'; then
+        echo "❌ Database backup masks critical command failures through tee pipelines"
+        return 1
+    fi
+    echo "✅ Database backup preserves critical command exit codes"
+
+    local backup_command_section=$(sed -n '/^run_backup_command()/,/^run_clean_command()/p' "$manager_script")
+    if echo "$backup_command_section" | grep -q "failure_count" && echo "$backup_command_section" | grep -q "backup_status" && echo "$backup_command_section" | grep -q "failures"; then
+        echo "✅ Backup command reports aggregate failures"
+    else
+        echo "❌ Backup command does not report aggregate failures"
         return 1
     fi
 
@@ -1392,7 +1407,7 @@ AUTO-staging-14851-2025-12-31-post-update"
 test_state_management() {
     echo "🔧 Testing Drupal state management..."
 
-    local common_script="$BACKUP_DIR/common.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
     local manager_script="$BACKUP_DIR/manager.sh"
 
     # Check if state management functions exist in common.sh
@@ -1402,11 +1417,11 @@ test_state_management() {
     fi
     echo "✅ is_tome_running function exists"
 
-    if ! grep -q "^prepare_drupal_for_backup()" "$common_script"; then
-        echo "❌ prepare_drupal_for_backup function not found in common.sh"
+    if ! grep -q "^prepare_drupal_state()" "$common_script"; then
+        echo "❌ prepare_drupal_state function not found in common.sh"
         return 1
     fi
-    echo "✅ prepare_drupal_for_backup function exists"
+    echo "✅ prepare_drupal_state function exists"
 
     if ! grep -q "^restore_drupal_state()" "$common_script"; then
         echo "❌ restore_drupal_state function not found in common.sh"
@@ -1415,11 +1430,11 @@ test_state_management() {
     echo "✅ restore_drupal_state function exists"
 
     # Check that backup functions call state management
-    if ! grep -q "prepare_drupal_for_backup" "$manager_script"; then
-        echo "❌ manager.sh doesn't call prepare_drupal_for_backup"
+    if ! grep -q "prepare_drupal_state" "$manager_script"; then
+        echo "❌ manager.sh doesn't call prepare_drupal_state"
         return 1
     fi
-    echo "✅ manager.sh integrates prepare_drupal_for_backup"
+    echo "✅ manager.sh integrates prepare_drupal_state"
 
     if ! grep -q "restore_drupal_state" "$manager_script"; then
         echo "❌ manager.sh doesn't call restore_drupal_state"
@@ -1447,10 +1462,10 @@ test_state_management() {
     else
         # Check that create_db_backup has state management logic
         local db_backup_section=$(sed -n '/^create_db_backup()/,/^}/p' "$manager_script")
-        if echo "$db_backup_section" | grep -q "prepare_drupal_for_backup"; then
-            echo "✅ Database backup integrates state preparation"
+        if echo "$db_backup_section" | grep -q 'prepare_drupal_state.*"maintenance"'; then
+            echo "✅ Database backup integrates state preparation (maintenance mode)"
         else
-            echo "❌ Database backup missing state preparation"
+            echo "❌ Database backup missing state preparation or not using maintenance mode"
             return 1
         fi
 
@@ -1467,10 +1482,15 @@ test_state_management() {
         echo "⚠️  restore_backup function not found"
     else
         local restore_section=$(sed -n '/^restore_backup()/,/^}/p' "$manager_script")
-        if echo "$restore_section" | grep -q "prepare_drupal_for_backup"; then
-            echo "✅ Database restore integrates state preparation"
+        if echo "$restore_section" | grep -q 'prepare_drupal_state.*"both"'; then
+            echo "✅ Restore integrates Tome and maintenance state preparation"
         else
-            echo "❌ Database restore missing state preparation"
+            echo "❌ Restore missing Tome and maintenance state preparation"
+            return 1
+        fi
+
+        if echo "$restore_section" | grep -q "prepare_drupal_for_backup"; then
+            echo "❌ Database restore calls obsolete prepare_drupal_for_backup helper"
             return 1
         fi
 
@@ -1527,18 +1547,13 @@ test_restore_functionality() {
     fi
     echo "✅ parse_restore_options function exists"
 
-    # Check find_corresponding functions exist
-    if ! grep -q "^find_corresponding_public_backup()" "$manager_script"; then
-        echo "❌ find_corresponding_public_backup function not found"
+    # Check smart restore finder exists in common utilities
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
+    if ! grep -q "^find_corresponding_backup()" "$common_script"; then
+        echo "❌ find_corresponding_backup function not found"
         return 1
     fi
-    echo "✅ find_corresponding_public_backup function exists"
-
-    if ! grep -q "^find_corresponding_db_backup()" "$manager_script"; then
-        echo "❌ find_corresponding_db_backup function not found"
-        return 1
-    fi
-    echo "✅ find_corresponding_db_backup function exists"
+    echo "✅ find_corresponding_backup function exists"
 
     # Test restore command requires tag
     "$manager_script" restore >/dev/null 2>&1
@@ -1570,7 +1585,24 @@ test_restore_functionality() {
     if grep -q "\-\-force" "$manager_script" && grep -q "\-\-yes" "$manager_script"; then
         echo "✅ Restore supports --force and --yes options"
     else
-        echo "⚠️  Restore may not support all interactive options"
+        echo "❌ Restore confirmation skip options not found"
+        return 1
+    fi
+
+    local restore_section=$(sed -n '/^restore_backup()/,/^backup_info()/p' "$manager_script")
+    if echo "$restore_section" | grep -q 'skip_confirmation=true' && echo "$restore_section" | grep -q 'exit 1'; then
+        echo "✅ Restore cancellation returns failure unless confirmation is skipped"
+    else
+        echo "❌ Restore cancellation/skip-confirmation handling is incomplete"
+        return 1
+    fi
+
+    local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
+    if grep -q "if ! exec_restore_command" "$deploy_script"; then
+        echo "✅ Deployment rollback checks data restore failures"
+    else
+        echo "❌ Deployment rollback does not check data restore failures"
+        return 1
     fi
 
     echo "✅ Restore functionality test passed"
@@ -1617,9 +1649,10 @@ test_backup_type_combinations() {
     echo "🔀 Testing backup type combinations..."
 
     local manager_script="$BACKUP_DIR/manager.sh"
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
 
     # Check parse_backup_types function
-    if ! grep -q "^parse_backup_types()" "$manager_script"; then
+    if ! grep -q "^parse_backup_types()" "$common_script"; then
         echo "❌ parse_backup_types function not found"
         return 1
     fi
@@ -1818,6 +1851,26 @@ test_cron_setup() {
         return 1
     fi
 
+    if [ "$backup_time" = "23:00" ]; then
+        echo "✅ Database backup time is 23:00 UTC"
+    else
+        echo "❌ Database backup time must be 23:00 UTC (found: $backup_time)"
+        return 1
+    fi
+
+    if grep -q 'utc_hour\|Converts EST' "$cron_script"; then
+        echo "❌ Cron setup still contains Eastern-to-UTC conversion logic"
+        return 1
+    fi
+    echo "✅ Cron setup uses UTC directly"
+
+    if grep -Fq 'echo "$minute $hour * * * cd $CRON_WORK_DIR && $BACKUP_DIR/manager.sh backup $backup_types' "$cron_script"; then
+        echo "✅ Cron setup schedules selected backup types at the configured UTC hour"
+    else
+        echo "❌ Cron entry does not use the configured UTC hour and selected backup types"
+        return 1
+    fi
+
     echo "✅ Cron setup test passed"
     return 0
 }
@@ -1890,7 +1943,7 @@ DB_BACKUP_PREFIX
 test_local_manager() {
     echo "💻 Testing local-manager.sh wrapper..."
 
-    local local_manager="$BACKUP_DIR/local-manager.sh"
+    local local_manager="$PROJECT_ROOT/scripts/devops/local-manager.sh"
 
     if [ ! -f "$local_manager" ]; then
         echo "❌ local-manager.sh not found"
@@ -1931,7 +1984,7 @@ test_local_manager() {
     fi
 
     # Check for all main commands
-    local commands="list backup clean delete restore info download test cron try-tome-disable try-tome-enable"
+    local commands="list backup clean delete restore info download test current-digests cron state"
     for cmd in $commands; do
         if grep -q "\"$cmd\"" "$local_manager"; then
             echo "✅ local-manager.sh supports '$cmd' command"
@@ -1949,7 +2002,7 @@ test_local_manager() {
 test_common_utilities() {
     echo "🔧 Testing common.sh utility functions..."
 
-    local common_file="$BACKUP_DIR/common.sh"
+    local common_file="$PROJECT_ROOT/scripts/common.sh"
 
     if [ ! -f "$common_file" ]; then
         echo "❌ common.sh not found"
@@ -2010,6 +2063,13 @@ test_common_utilities() {
         return 1
     fi
 
+    if printf 'no\n' | confirm_action "Test confirmation" >/dev/null 2>&1; then
+        echo "❌ confirm_action should fail when confirmation is declined"
+        return 1
+    else
+        echo "✅ confirm_action fails when confirmation is declined"
+    fi
+
     # Test validate_sql_dump function exists
     if ! grep -q "^validate_sql_dump()" "$common_file"; then
         echo "❌ validate_sql_dump function not found"
@@ -2049,6 +2109,26 @@ EOF
         return 1
     fi
 
+    # Serialized Drupal data commonly contains words like "system"; it is not
+    # a dangerous SQL statement and must not block a database restore.
+    echo "INSERT INTO config VALUES (1, 'system');" > "$test_sql"
+    if validate_sql_content "$test_sql" >/dev/null 2>&1; then
+        echo "✅ validate_sql_content accepts serialized data"
+    else
+        echo "❌ validate_sql_content rejected safe serialized data"
+        rm -f "$test_sql"
+        return 1
+    fi
+
+    echo "SYSTEM whoami;" > "$test_sql"
+    if ! validate_sql_content "$test_sql" >/dev/null 2>&1; then
+        echo "✅ validate_sql_content rejects dangerous SQL statements"
+    else
+        echo "❌ validate_sql_content accepted a dangerous SQL statement"
+        rm -f "$test_sql"
+        return 1
+    fi
+
     # Test with invalid content
     echo "This is not a SQL dump" > "$test_sql"
     if ! validate_sql_dump "$test_sql" >/dev/null 2>&1; then
@@ -2060,6 +2140,34 @@ EOF
     fi
 
     rm -f "$test_sql"
+
+    # Database backup and restore must return Drupal to the state found at
+    # the beginning of the operation, including an already-disabled Tome.
+    if (
+        fake_maintenance=1
+        fake_tome_disabled=1
+        drush() {
+            case "$1:$2" in
+                sget:system.maintenance_mode) echo "$fake_maintenance" ;;
+                sget:usagov.tome_run_disabled) [ "$fake_tome_disabled" = "1" ] && echo "1" ;;
+                sset:system.maintenance_mode) fake_maintenance="$3" ;;
+                sset:usagov.tome_run_disabled) fake_tome_disabled=1 ;;
+                sdel:usagov.tome_run_disabled) fake_tome_disabled=0 ;;
+                cr:*) : ;;
+                *) return 1 ;;
+            esac
+        }
+        INSIDE_TOME_PROCESS=1
+        prepare_drupal_state both 0 >/dev/null &&
+            restore_drupal_state both >/dev/null &&
+            [ "$fake_maintenance" = "1" ] &&
+            [ "$fake_tome_disabled" = "1" ]
+    ); then
+        echo "✅ Drupal state is restored to captured values"
+    else
+        echo "❌ Drupal state was not restored to captured values"
+        return 1
+    fi
 
     echo "✅ Common utilities test passed"
     return 0
@@ -2118,8 +2226,6 @@ test_cron_script() {
 # Function to test S3 path configurations
 test_s3_paths() {
     echo "☁️  Testing S3 path configurations..."
-
-    . "$BACKUP_DIR/backup-system.conf"
 
     # Test all S3 paths are configured
     if [ -n "$AUTO_STATIC_BACKUP_PATH" ]; then
@@ -2269,7 +2375,7 @@ test_delete_command() {
     fi
 
     # Check local-manager.sh routes delete to CF
-    local local_manager="$BACKUP_DIR/local-manager.sh"
+    local local_manager="$PROJECT_ROOT/scripts/devops/local-manager.sh"
     if grep -q '"delete")' "$local_manager"; then
         echo "✅ local-manager.sh routes delete command"
     else
@@ -2342,63 +2448,65 @@ test_backup_throttle() {
     return 0
 }
 
-# Function to test try-tome-disable / try-tome-enable commands
-test_tome_toggle_commands() {
-    echo "🔧 Testing try-tome-disable / try-tome-enable commands..."
+# Function to test the reorganized state command
+test_state_commands() {
+    echo "🔧 Testing state command..."
 
     local manager_script="$BACKUP_DIR/manager.sh"
-    local local_manager="$BACKUP_DIR/local-manager.sh"
+    local local_manager="$PROJECT_ROOT/scripts/devops/local-manager.sh"
 
-    # Check try-tome-disable command is routed
-    if grep -q '"try-tome-disable")' "$manager_script"; then
-        echo "✅ try-tome-disable command routed in manager.sh"
+    # Check state command is routed
+    if grep -q '"state")' "$manager_script"; then
+        echo "✅ state command routed in manager.sh"
     else
-        echo "❌ try-tome-disable command not routed in manager.sh"
+        echo "❌ state command not routed in manager.sh"
         return 1
     fi
 
-    # Check try-tome-enable command is routed
-    if grep -q '"try-tome-enable")' "$manager_script"; then
-        echo "✅ try-tome-enable command routed in manager.sh"
+    # Check shared state dispatcher exists
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
+    if grep -q '^state_command()' "$common_script"; then
+        echo "✅ state_command function exists in common.sh"
     else
-        echo "❌ try-tome-enable command not routed in manager.sh"
+        echo "❌ state_command function missing from common.sh"
         return 1
     fi
 
-    # Check try-tome-disable calls prepare_drupal_for_backup
-    if grep -q "try-tome-disable" "$manager_script" && \
-       sed -n '/"try-tome-disable")/,/;;/p' "$manager_script" | grep -q "prepare_drupal_for_backup"; then
-        echo "✅ try-tome-disable invokes prepare_drupal_for_backup"
+    # Check disable and enable actions use the generalized state helpers
+    local state_func=$(sed -n '/^state_command()/,/^}/p' "$common_script")
+    if echo "$state_func" | grep -q 'prepare_drupal_state' && \
+       echo "$state_func" | grep -q 'restore_drupal_state'; then
+        echo "✅ state command supports disable and enable actions"
     else
-        echo "❌ try-tome-disable missing prepare_drupal_for_backup call"
+        echo "❌ state command missing enable/disable helpers"
         return 1
     fi
 
-    # Check try-tome-enable calls restore_drupal_state
-    if sed -n '/"try-tome-enable")/,/;;/p' "$manager_script" | grep -q "restore_drupal_state"; then
-        echo "✅ try-tome-enable invokes restore_drupal_state"
+    # Check manager delegates to state_command
+    if sed -n '/"state")/,/;;/p' "$manager_script" | grep -q "state_command"; then
+        echo "✅ manager.sh delegates state operations to common.sh"
     else
-        echo "❌ try-tome-enable missing restore_drupal_state call"
+        echo "❌ manager.sh does not delegate state operations"
         return 1
     fi
 
-    # Check both commands are documented in usage
-    if grep -q "try-tome-disable" "$manager_script" && grep -q "try-tome-enable" "$manager_script"; then
-        echo "✅ tome toggle commands documented in usage"
+    # Check state command is documented in usage
+    if grep -q "state <action> <type>" "$manager_script"; then
+        echo "✅ state command documented in usage"
     else
-        echo "❌ tome toggle commands missing from usage"
+        echo "❌ state command missing from usage"
         return 1
     fi
 
-    # Check local-manager.sh routes both commands to CF
-    if grep -q '"try-tome-disable")' "$local_manager" && grep -q '"try-tome-enable")' "$local_manager"; then
-        echo "✅ local-manager.sh routes tome toggle commands"
+    # Check local-manager.sh routes state command to CF
+    if grep -q '"state")' "$local_manager"; then
+        echo "✅ local-manager.sh routes state command"
     else
-        echo "❌ local-manager.sh missing tome toggle commands"
+        echo "❌ local-manager.sh missing state command"
         return 1
     fi
 
-    echo "✅ Tome toggle commands test passed"
+    echo "✅ State command test passed"
     return 0
 }
 
@@ -2458,7 +2566,7 @@ main() {
     run_test "Backup Info Functionality" "test_backup_info"
     run_test "Delete Command" "test_delete_command"
     run_test "Backup Throttle Feature" "test_backup_throttle"
-    run_test "Tome Toggle Commands" "test_tome_toggle_commands"
+    run_test "State Command" "test_state_commands"
     run_test "Error Handling" "test_error_handling"
 
     echo ""
