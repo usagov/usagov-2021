@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() { echo "$*" >&2; exit 2; }
+status() { printf '[cf-components-translate-csv-diff] %s\n' "$*" >&2; }
+
+usage() {
+  cat <<'EOF'
+Usage: cf-components-translate-csv-diff OLD_JSON NEW_JSON [--out-dir DIR]
+
+Compare component audit JSON files and write a field-level changes.csv.
+
+Options:
+  --out-dir DIR   Write changes.csv into DIR. Defaults to current directory.
+  -h, --help      Show this help message.
+EOF
+}
+
+out_dir="."
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --out-dir)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --out-dir option"
+      [[ -n "$1" ]] || die "No arg for --out-dir option"
+      out_dir="$1"
+      ;;
+    --out-dir=*)
+      out_dir="${1#*=}"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --*)
+      die "Illegal option $1"
+      ;;
+    *)
+      if [[ -z "${old_json:-}" ]]; then
+        old_json="$1"
+      elif [[ -z "${new_json:-}" ]]; then
+        new_json="$1"
+      else
+        die "Unexpected argument: $1"
+      fi
+      ;;
+  esac
+  shift
+done
+
+[[ -n "${old_json:-}" ]] || die "Missing OLD_JSON argument"
+[[ -n "${new_json:-}" ]] || die "Missing NEW_JSON argument"
+[[ -f "$old_json" ]] || die "Old JSON file not found: $old_json"
+[[ -f "$new_json" ]] || die "New JSON file not found: $new_json"
+
+mkdir -p "$out_dir"
+output_file="$out_dir/changes.csv"
+
+jq -n -r --slurpfile old "$old_json" --slurpfile new "$new_json" '
+  def flatten_apps($root):
+    [ $root.organizations[]? as $org | $org.spaces[]? as $space | $space.apps[]? |
+      {resource_type: "app", guid: .guid, name: .name, organization: $org.name, space: $space.name, resource: .} ];
+  def flatten_services($root):
+    [ $root.organizations[]? as $org | $org.spaces[]? as $space | $space.services[]? |
+      {resource_type: "service", guid: .guid, name: .name, organization: $org.name, space: $space.name, resource: .} ];
+  def flatten_routes($root):
+    [ $root.organizations[]? as $org | $org.spaces[]? as $space | $space.routes[]? |
+      {resource_type: "route", guid: .guid, name: .url, organization: $org.name, space: $space.name, resource: .} ];
+  def flatten_security_groups($root):
+    [ $root.security_groups[]? |
+      {resource_type: "security_group", guid: .guid, name: .name, organization: "", space: "", resource: .} ];
+  def all_resources($root):
+    (flatten_apps($root) + flatten_services($root) + flatten_routes($root) + flatten_security_groups($root));
+  def resource_key($item):
+    ($item.resource_type + ":" + $item.guid);
+  def index_by_key($items):
+    ($items | map({key: resource_key(.), value: .}) | from_entries);
+  def path_label($path):
+    if ($path | length) == 0 then
+      "<resource>"
+    else
+      reduce $path[] as $part ("";
+        if ($part | type) == "number" then
+          . + "[" + ($part | tostring) + "]"
+        else
+          . + (if . == "" then "" else "." end) + ($part | tostring)
+        end
+      )
+    end;
+  def cell_value:
+    if . == null then
+      ""
+    elif (type == "array" or type == "object") then
+      tojson
+    else
+      tostring
+    end;
+  def value_diffs($old; $new; $path):
+    if ($old | type) != ($new | type) then
+      [{changed_field: path_label($path), old_value: $old, new_value: $new}]
+    elif ($old | type) == "object" then
+      ((($old | keys_unsorted) + ($new | keys_unsorted)) | unique) as $keys
+      | [
+          $keys[] as $key
+          | if ($old | has($key) | not) then
+              {changed_field: path_label($path + [$key]), old_value: null, new_value: $new[$key]}
+            elif ($new | has($key) | not) then
+              {changed_field: path_label($path + [$key]), old_value: $old[$key], new_value: null}
+            else
+              value_diffs($old[$key]; $new[$key]; $path + [$key])[]
+            end
+        ]
+    elif ($old | type) == "array" then
+      if $old == $new then
+        []
+      else
+        [range(0; ([($old | length), ($new | length)] | max))] as $indexes
+        | [
+            $indexes[] as $index
+            | if $index >= ($old | length) then
+                {changed_field: path_label($path + [$index]), old_value: null, new_value: $new[$index]}
+              elif $index >= ($new | length) then
+                {changed_field: path_label($path + [$index]), old_value: $old[$index], new_value: null}
+              else
+                value_diffs($old[$index]; $new[$index]; $path + [$index])[]
+              end
+          ]
+      end
+    elif $old == $new then
+      []
+    else
+      [{changed_field: path_label($path), old_value: $old, new_value: $new}]
+    end;
+  def row($item; $status; $changed_field; $old_value; $new_value):
+    {
+      resource_type: $item.resource_type,
+      guid: $item.guid,
+      status: $status,
+      datetime: ($item.resource.updated_at // ""),
+      name: $item.name,
+      organization: $item.organization,
+      space: $item.space,
+      changed_field: $changed_field,
+      old_value: $old_value,
+      new_value: $new_value
+    };
+  def diff($old_items; $new_items):
+    index_by_key($old_items) as $old_index
+    | index_by_key($new_items) as $new_index
+    | (
+        ($old_items | map(select($new_index[resource_key(.)] == null) | row(.; "removed"; "<resource>"; "present"; "missing")))
+        + ($new_items | map(select($old_index[resource_key(.)] == null) | row(.; "added"; "<resource>"; "missing"; "present")))
+        + (
+            $new_items
+            | map(
+                select($old_index[resource_key(.)] != null and ($old_index[resource_key(.)].resource | tojson) != (.resource | tojson))
+                | . as $new_item
+                | $old_index[resource_key($new_item)] as $old_item
+                | value_diffs($old_item.resource; $new_item.resource; [])[] as $change
+                | row($new_item; "changed"; $change.changed_field; ($change.old_value | cell_value); ($change.new_value | cell_value))
+              )
+          )
+      );
+  ($old[0]) as $old_root
+  | ($new[0]) as $new_root
+  | (["resource_type","guid","status","datetime","name","organization","space","changed_field","old_value","new_value"] | @csv),
+    (diff(all_resources($old_root); all_resources($new_root)) | sort_by(.resource_type, .status, .organization, .space, .name, .changed_field) | .[] | [ .resource_type, .guid, .status, .datetime, (.name // ""), (.organization // ""), (.space // ""), .changed_field, .old_value, .new_value ] | @csv)
+' > "$output_file"
+
+status "Diff CSV written to $output_file"
