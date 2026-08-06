@@ -155,6 +155,13 @@ commands:
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
+            # Record what the state was before we change it. The postamble runs in
+            # a separate process, so without this it can only restore hardcoded
+            # defaults — which silently re-enables Tome in an environment that
+            # intentionally had it disabled. Written to the job's filesystem, which
+            # later steps in the same job share.
+            scripts/devops/deploy.sh state capture > prior-state.env
+            cat prior-state.env
             scripts/devops/deploy.sh state disable both
 
   snapshot-postamble:
@@ -165,11 +172,24 @@ commands:
     steps:
       - setup-environment
       - run:
-          name: Restore << parameters.envname >> to normal/running state.
+          name: Restore << parameters.envname >> to its prior state.
+          # Runs even when the backup failed. Without this the job stopped at the
+          # failed step and left the environment in maintenance mode with Tome
+          # disabled, reporting only the original backup failure.
+          when: always
           command: |
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
-            scripts/devops/deploy.sh state enable both
+            if [ -f prior-state.env ]; then
+              . ./prior-state.env
+              export USAGOV_PRIOR_MAINTENANCE_MODE USAGOV_PRIOR_TOME_DISABLED
+              scripts/devops/deploy.sh state restore-prior
+            else
+              # The preamble never got far enough to record the prior state, so
+              # normal operation is the best available target.
+              echo "No captured prior state found; restoring to normal operation."
+              scripts/devops/deploy.sh state enable both
+            fi
 
   snapshot-backup:
     parameters:

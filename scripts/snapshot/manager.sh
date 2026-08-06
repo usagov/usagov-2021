@@ -352,6 +352,37 @@ get_days_arg() {
 }
 
 # Handle backup command
+# Cleanup handler for the whole backup command.
+#
+# Each create_*_backup restores the state half it prepared on its own exit paths,
+# but the backup command had no trap at all: a signal or a shell error between
+# prepare and restore left the site in maintenance mode, or with Tome disabled,
+# with nothing to put it back. Cron and CircleCI both reach this path.
+#
+# Idempotent, so it is harmless when the operation already restored state — the
+# active flags are false by then and only temp-file removal runs.
+# NIST 800-53: CP-10, AU-3
+backup_cleanup() {
+    local exit_code=$?
+
+    for tmp in "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM"; do
+        [ -n "$tmp" ] && rm -f "$tmp" 2>/dev/null
+    done
+
+    if [ "$DRUPAL_STATE_ACTIVE_MAINT" = "true" ] || [ "$DRUPAL_STATE_ACTIVE_TOME" = "true" ]; then
+        print_status $YELLOW "⚠️  Backup ended with Drupal state still held — restoring it..."
+        if [ "$DRUPAL_STATE_ACTIVE_MAINT" = "true" ] && [ "$DRUPAL_STATE_ACTIVE_TOME" = "true" ]; then
+            restore_drupal_state "both"
+        elif [ "$DRUPAL_STATE_ACTIVE_MAINT" = "true" ]; then
+            restore_drupal_state "maintenance"
+        else
+            restore_drupal_state "tome"
+        fi
+    fi
+
+    return $exit_code
+}
+
 run_backup_command() {
     local types_arg="${1:-all}"
     local custom_prefix=""
@@ -489,6 +520,9 @@ run_backup_command() {
         fi
     fi
 
+    # Armed before any state is touched, and covers every backup type below.
+    trap backup_cleanup EXIT INT TERM HUP
+
     local result_count=0
     local failure_count=0
 
@@ -609,6 +643,19 @@ run_backup_command() {
         fi
     fi
 
+    # A backup whose data landed but left the site in maintenance mode, or with
+    # Tome disabled, is not a success: the site is still down or not publishing.
+    # The individual restore calls above discard their status, so this flag is
+    # what carries the failure out.
+    local state_restore_failed=false
+    if [ "$DRUPAL_STATE_RESTORE_FAILED" = "true" ]; then
+        state_restore_failed=true
+        failure_count=$((failure_count + 1))
+        if [ "$use_json" = false ]; then
+            print_status $RED "❌ Drupal state was not restored after the backup"
+        fi
+    fi
+
     local backup_status="complete"
     if [ $failure_count -gt 0 ]; then
         backup_status="failed"
@@ -618,7 +665,8 @@ run_backup_command() {
     fi
 
     if [ "$use_json" = true ]; then
-        json_output="${json_output}},\"status\":\"$backup_status\",\"failures\":$failure_count}"
+        json_output="${json_output}},\"status\":\"$backup_status\",\"failures\":$failure_count"
+        json_output="${json_output},\"state_restore_failed\":$state_restore_failed}"
         format_json "$json_output"
     else
         if [ $failure_count -gt 0 ]; then
@@ -1262,8 +1310,13 @@ create_db_backup() {
     TEMP_CHECKSUM=$(mktemp) && mv "$TEMP_CHECKSUM" "${TEMP_CHECKSUM}.sha256" && TEMP_CHECKSUM="${TEMP_CHECKSUM}.sha256"
     chmod 600 "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM"
 
-    # Ensure cleanup on exit
-    trap "rm -f '$TEMP_SQL' '$TEMP_GZIP' '$TEMP_CHECKSUM'" EXIT INT TERM
+    # No trap is installed here on purpose. This function used to set its own
+    # EXIT/INT/TERM handler and then clear it with `trap - EXIT ERR` on success,
+    # which silently discarded the caller's handler — the restore path had to
+    # re-arm its trap after every call to work around it (N-03). The temp paths
+    # are globals, so the caller's handler removes them: backup_cleanup for the
+    # backup command, restore_cleanup for the restore path. Every return below
+    # also removes them directly, so the handler is only the signal safety net.
 
     # Create database dump using drush
     if command -v drush >/dev/null 2>&1; then
@@ -1353,7 +1406,6 @@ create_db_backup() {
     fi
 
     rm -f "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM" 2>/dev/null
-    cleanup_needed=false  # Disable cleanup trap since we cleaned up manually
 
     # Restore Drupal state before checking results
     if [ "$drupal_state_prepared" = "true" ]; then
@@ -1380,7 +1432,6 @@ create_db_backup() {
             fi
         fi
 
-        trap - EXIT ERR  # Clear trap before successful return
         return 0
     else
         audit_log "backup_database_failed" "error" "Database backup upload failed" "backup_tag=$DB_BACKUP_TAG exit_code=$UPLOAD_EXIT_CODE"
@@ -2930,9 +2981,6 @@ restore_create_recovery_point() {
     if [ "$want_static" = "yes" ]; then
         BACKUP_TAG=""
         create_static_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
-        # create_*_backup installs its own EXIT trap and then clears it, which
-        # would leave the restore with no cleanup handler. Re-arm ours.
-        trap restore_cleanup EXIT INT TERM HUP
         RESTORE_POINT_STATIC="$BACKUP_TAG"
         if [ -z "$RESTORE_POINT_STATIC" ] || [ "$(s3_count_objects "$AUTO_STATIC_BACKUP_PATH/$RESTORE_POINT_STATIC")" = "0" ]; then
             print_status $RED "❌ Could not create a static recovery point"
@@ -2946,7 +2994,6 @@ restore_create_recovery_point() {
     if [ "$want_public" = "yes" ]; then
         BACKUP_TAG=""
         create_public_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
-        trap restore_cleanup EXIT INT TERM HUP
         RESTORE_POINT_PUBLIC="$BACKUP_TAG"
         if [ -z "$RESTORE_POINT_PUBLIC" ] || [ "$(s3_count_objects "$AUTO_PUBLIC_BACKUP_PATH/$RESTORE_POINT_PUBLIC")" = "0" ]; then
             print_status $RED "❌ Could not create a public files recovery point"
@@ -2960,7 +3007,6 @@ restore_create_recovery_point() {
     if [ "$want_db" = "yes" ]; then
         DB_BACKUP_TAG=""
         create_db_backup "$RESTORE_POINT_PREFIX" "" "$timestamp" "true" || true
-        trap restore_cleanup EXIT INT TERM HUP
         RESTORE_POINT_DB="$DB_BACKUP_TAG"
         if [ -z "$RESTORE_POINT_DB" ] || ! aws s3api head-object --bucket "$BUCKET_NAME" \
                 --key "$AUTO_DB_BACKUP_PATH/${RESTORE_POINT_DB}.sql.gz" $S3_EXTRA_PARAMS >/dev/null 2>&1; then

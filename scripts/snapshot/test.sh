@@ -1449,8 +1449,10 @@ test_state_management() {
     fi
     echo "✅ skip_state_management flag implemented"
 
-    # Check for --ssm shorthand
-    if ! grep -q '"--ssm"' "$manager_script"; then
+    # Check for --ssm shorthand. The pattern was '"--ssm"' with quotes, which the
+    # code has never used — it appears as an unquoted case pattern — so this
+    # assertion failed permanently and masked real failures in this suite.
+    if ! grep -q -- '--ssm' "$manager_script"; then
         echo "❌ --ssm shorthand flag not found in manager.sh"
         return 1
     fi
@@ -1947,6 +1949,255 @@ INVENTORY
 # Function to test that restore completes every check before the first mutation,
 # captures a verified recovery point, and rolls back when a later phase fails.
 # Hermetic: a directory-backed fake S3 and fake drush, so no real store is touched.
+# H-04: state restoration must be verified, aggregated, and impossible to lose.
+#
+# Every case here turns on a distinction the old code could not make: a Drupal
+# state write that reports success without taking effect. The fake drush can
+# no-op a specific key, which is what makes the read-back verification testable.
+test_state_restoration_guarantees() {
+    echo "🔒 Testing Drupal state restoration guarantees..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+
+    # Run against a copy: init_backup_system prepends $PROJECT_ROOT/vendor/bin to
+    # PATH, which would shadow the fake drush with the real one.
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/bin" "$sandbox/s3"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$BACKUP_DIR/manager.sh" "$BACKUP_DIR/backup-system.conf" "$sandbox/tree/scripts/snapshot/"
+    chmod +x "$sandbox/tree/scripts/snapshot/manager.sh"
+
+    cat > "$sandbox/bin/drush" <<'FAKEDRUSH'
+#!/bin/sh
+# Drupal state is key=value lines in $DSTATE.
+#   FAKE_SSET_FAIL=<key>        the write returns non-zero
+#   FAKE_SSET_NOOP=<key>        the write returns zero but does not persist
+#   FAKE_SSET_NOOP_VALUE=<val>  writes of this value silently do not persist,
+#                               which isolates the restore (writes 0) from the
+#                               prepare (writes 1) for the same key
+#   FAKE_SDEL_NOOP=<key>        the delete returns zero but the key survives
+#   FAKE_CR_FAIL=1              cache rebuild fails
+DS="$DSTATE"
+get() { grep "^$1=" "$DS" 2>/dev/null | tail -1 | sed 's/^[^=]*=//'; }
+put() { t="$DS.t"; grep -v "^$1=" "$DS" 2>/dev/null > "$t"; echo "$1=$2" >> "$t"; mv "$t" "$DS"; }
+del() { t="$DS.t"; grep -v "^$1=" "$DS" 2>/dev/null > "$t"; mv "$t" "$DS"; }
+case "$1" in
+    sget) get "$2"; exit 0 ;;
+    sset)
+        [ -n "$FAKE_SSET_FAIL" ] && [ "$2" = "$FAKE_SSET_FAIL" ] && exit 1
+        [ -n "$FAKE_SSET_NOOP" ] && [ "$2" = "$FAKE_SSET_NOOP" ] && exit 0
+        [ -n "$FAKE_SSET_NOOP_VALUE" ] && [ "$3" = "$FAKE_SSET_NOOP_VALUE" ] && exit 0
+        put "$2" "$3"; exit 0 ;;
+    sdel)
+        [ -n "$FAKE_SDEL_NOOP" ] && [ "$2" = "$FAKE_SDEL_NOOP" ] && exit 0
+        del "$2"; exit 0 ;;
+    cr) [ -n "$FAKE_CR_FAIL" ] && exit 1; exit 0 ;;
+    sql:dump)
+        out=$(echo "$@" | sed -n 's/.*--result-file=\([^ ]*\).*/\1/p')
+        [ -n "$out" ] && printf -- '-- MySQL dump 10.13\nCREATE TABLE `node` (`nid` int);\nINSERT INTO `node` VALUES (1);\n-- Dump completed\n' > "$out"
+        exit 0 ;;
+    sqlq|sql:query) echo 1; exit 0 ;;
+esac
+exit 0
+FAKEDRUSH
+    chmod +x "$sandbox/bin/drush"
+
+    # Minimal fake aws: enough for a database backup to complete.
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+R="$FS3"
+k() { echo "$1" | sed 's|^s3://[^/]*/||; s|/$||'; }
+r() { case "$1" in s3://*) echo "$R/$(k "$1")" ;; *) echo "${1%/}" ;; esac; }
+svc="$1"; shift; act="$1"; shift
+case "$svc $act" in
+"s3 ls")
+    t=""; for a in "$@"; do case "$a" in s3://*) [ -z "$t" ] && t="$a" ;; esac; done
+    p=$(r "$t"); o=""
+    if [ -d "$p" ]; then o=$(find "$p" -type f); elif [ -f "$p" ]; then o="$p"; fi
+    [ -z "$o" ] && exit 1
+    echo "$o" | sed 's|^|2026-01-01 00:00:00 1 |'; exit 0 ;;
+"s3 cp")
+    s=""; d=""
+    for a in "$@"; do case "$a" in --*) ;; *) if [ -z "$s" ]; then s="$a"; elif [ -z "$d" ]; then d="$a"; fi ;; esac; done
+    ss=$(r "$s"); dd=$(r "$d"); mkdir -p "$(dirname "$dd")"
+    if [ "$s" = "-" ]; then cat > "$dd"; else [ -f "$ss" ] || exit 1; cp "$ss" "$dd"; fi
+    exit 0 ;;
+"s3api head-object") exit 0 ;;
+esac
+exit 0
+FAKEAWS
+    chmod +x "$sandbox/bin/aws"
+
+    # Drivers run as separate processes on purpose: this suite has already sourced
+    # common.sh, and re-sourcing it in a subshell re-runs `readonly` on constants
+    # that already hold values, which is fatal in a non-interactive shell.
+    cat > "$sandbox/restore-driver.sh" <<'DRIVER'
+#!/bin/sh
+# $1=state_type $2=saved_maint $3=saved_tome
+. ./scripts/common.sh
+init_backup_system >/dev/null 2>&1
+DRUPAL_STATE_CAPTURED=true
+SAVED_MAINTENANCE_MODE="$2"
+SAVED_TOME_DISABLED="$3"
+restore_drupal_state "$1" >/dev/null 2>&1
+echo "rc=$? sticky=$DRUPAL_STATE_RESTORE_FAILED"
+DRIVER
+
+    # Args: $1=state_type $2=saved_maint $3=saved_tome
+    restore_case() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            sh "$sandbox/restore-driver.sh" "$1" "$2" "$3"
+        )
+    }
+
+    # --- Case 1: a maintenance write that does not persist is caught ---------
+    export DSTATE="$sandbox/state1"
+    printf 'system.maintenance_mode=1\nusagov.tome_run_disabled=1\n' > "$DSTATE"
+    local out=""
+    out=$(FAKE_SSET_NOOP=system.maintenance_mode restore_case both 0 1)
+    if [ "$out" = "rc=1 sticky=true" ]; then
+        echo "✅ Unpersisted maintenance write is detected by read-back"
+    else
+        echo "❌ Unpersisted maintenance write not detected (got: $out)"
+        failures=$((failures + 1))
+    fi
+    # ...and the Tome half still ran, rather than being skipped by an early return
+    if grep -q '^usagov.tome_run_disabled=1$' "$DSTATE"; then
+        echo "✅ Tome half still attempted after the maintenance half failed"
+    else
+        echo "❌ Tome half was skipped when maintenance failed"
+        failures=$((failures + 1))
+    fi
+
+    # --- Case 2: a Tome write that does not persist is caught ----------------
+    export DSTATE="$sandbox/state2"
+    printf 'system.maintenance_mode=1\n' > "$DSTATE"
+    out=$(FAKE_SSET_NOOP=usagov.tome_run_disabled restore_case both 0 1)
+    if [ "$out" = "rc=1 sticky=true" ]; then
+        echo "✅ Unpersisted Tome write is detected (was logged as success unconditionally)"
+    else
+        echo "❌ Unpersisted Tome write not detected (got: $out)"
+        failures=$((failures + 1))
+    fi
+
+    # --- Case 3: the ordinary path still succeeds --------------------------
+    # Restoring a captured Tome value of 0 deletes the key, so the read-back has
+    # to treat absent as 0 or every normal restore would report failure.
+    export DSTATE="$sandbox/state3"
+    printf 'system.maintenance_mode=1\nusagov.tome_run_disabled=1\n' > "$DSTATE"
+    out=$(restore_case both 0 0)
+    if [ "$out" = "rc=0 sticky=false" ]; then
+        echo "✅ Normal restore of a captured Tome 0 is not a false failure"
+    else
+        echo "❌ Normal restore reported a failure (got: $out)"
+        failures=$((failures + 1))
+    fi
+    if [ "$(grep -c '^usagov.tome_run_disabled=' "$DSTATE")" = "0" ] &&
+       grep -q '^system.maintenance_mode=0$' "$DSTATE"; then
+        echo "✅ Both halves reached their captured values"
+    else
+        echo "❌ Captured values were not applied: $(tr '\n' ' ' < "$DSTATE")"
+        failures=$((failures + 1))
+    fi
+
+    # --- Case 4: a failed restore fails the backup command -----------------
+    # The database backup itself succeeds here; only the restoring write fails, so
+    # this is the case the old code called a success while leaving the site in
+    # maintenance mode. The twenty call sites in manager.sh discard
+    # restore_drupal_state's status, so the sticky flag is what carries it out.
+    export DSTATE="$sandbox/state4"
+    printf 'system.maintenance_mode=0\n' > "$DSTATE"
+    local backup_out="" backup_rc=0
+    backup_out=$(
+        cd "$sandbox/tree" 2>/dev/null || exit 9
+        PATH="$sandbox/bin:$PATH"; export PATH
+        FS3="$sandbox/s3"; export FS3
+        BUCKET_NAME=test-bucket; export BUCKET_NAME
+        S3_EXTRA_PARAMS=""; export S3_EXTRA_PARAMS
+        FAKE_SSET_NOOP_VALUE=0; export FAKE_SSET_NOOP_VALUE
+        rm -f "/tmp/backup_rate_limit_$(id -u 2>/dev/null || echo 0)"
+        sh ./scripts/snapshot/manager.sh backup db 2>&1
+    )
+    backup_rc=$?
+    if [ "$backup_rc" -ne 0 ]; then
+        echo "✅ Backup command exits non-zero when state restoration fails"
+    else
+        echo "❌ Backup command reported success after a failed state restoration"
+        failures=$((failures + 1))
+    fi
+    if echo "$backup_out" | grep -q 'Drupal state was not restored'; then
+        echo "✅ Backup command names the state failure"
+    else
+        echo "❌ Backup command did not report the state failure"
+        failures=$((failures + 1))
+    fi
+
+    # --- Case 5 (N-03): create_db_backup must not clear the caller's trap ---
+    # These two are structural rather than behavioral, deliberately. Calling
+    # create_db_backup outside manager.sh means stubbing the helpers it depends on,
+    # and the test then measures the stubs: an earlier version of this check passed
+    # against the unfixed code because the function returned at a missing helper
+    # long before reaching the trap lines. The clobbering is now absent by
+    # construction, which is what these assert.
+    local db_fn=""
+    db_fn=$(sed -n '/^create_db_backup()/,/^}/p' "$BACKUP_DIR/manager.sh")
+    if echo "$db_fn" | grep -qE '^[[:space:]]*trap '; then
+        echo "❌ create_db_backup still installs its own trap, replacing the caller's (N-03)"
+        failures=$((failures + 1))
+    else
+        echo "✅ create_db_backup installs no trap of its own (N-03)"
+    fi
+    if grep -qE '^[[:space:]]*trap - ' "$BACKUP_DIR/manager.sh"; then
+        echo "❌ manager.sh still clears an inherited EXIT trap somewhere (N-03)"
+        failures=$((failures + 1))
+    else
+        echo "✅ No code path clears an inherited EXIT trap (N-03)"
+    fi
+
+    # --- Case 6: the backup command installs a cleanup trap ----------------
+    # An interrupted backup used to leave maintenance mode on with no handler.
+    export DSTATE="$sandbox/state6"
+    printf 'system.maintenance_mode=1\n' > "$DSTATE"
+    cat > "$sandbox/cleanup-driver.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh
+eval "$(sed -n '/^backup_cleanup()/,/^}/p' ./scripts/snapshot/manager.sh)"
+init_backup_system >/dev/null 2>&1
+DRUPAL_STATE_CAPTURED=true
+SAVED_MAINTENANCE_MODE=0
+SAVED_TOME_DISABLED=0
+DRUPAL_STATE_ACTIVE_MAINT=true
+backup_cleanup >/dev/null 2>&1
+grep '^system.maintenance_mode=' "$DSTATE"
+DRIVER
+    local cleanup_out=""
+    cleanup_out=$(
+        cd "$sandbox/tree" 2>/dev/null || exit 9
+        PATH="$sandbox/bin:$PATH"; export PATH
+        sh "$sandbox/cleanup-driver.sh"
+    )
+    if [ "$cleanup_out" = "system.maintenance_mode=0" ]; then
+        echo "✅ Cleanup handler restores state left held by an interrupted backup"
+    else
+        echo "❌ Cleanup handler did not restore held state (got: $cleanup_out)"
+        failures=$((failures + 1))
+    fi
+    if grep -q 'trap backup_cleanup EXIT INT TERM HUP' "$BACKUP_DIR/manager.sh"; then
+        echo "✅ Backup command arms the cleanup trap"
+    else
+        echo "❌ Backup command does not arm a cleanup trap"
+        failures=$((failures + 1))
+    fi
+
+    unset DSTATE
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
 test_restore_preflight_and_compensation() {
     echo "🛟 Testing restore preflight ordering and compensation..."
 
@@ -3038,6 +3289,7 @@ main() {
     run_test "Restore Functionality" "test_restore_functionality"
     run_test "Restore Preflight and Compensation" "test_restore_preflight_and_compensation"
     run_test "Drupal State Management" "test_state_management"
+    run_test "State Restoration Guarantees" "test_state_restoration_guarantees"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"

@@ -119,7 +119,7 @@ show_usage() {
     echo ""
     echo "Tome Utilities:"
     echo "  tome-log [--recent]                   Tail the latest running Tome log (--recent shows last 50 lines of most recent log)"
-    echo "  state <action> <type> [max_wait_mins] Manage Drupal state (action: enable|disable, type: tome|sm|both)"
+    echo "  state <action> <type> [max_wait_mins] Manage Drupal state (action: enable|disable|capture|restore-prior, type: tome|sm|both)"
     echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
@@ -614,13 +614,29 @@ show_command_help() {
             echo "  Runs inside the CMS container."
             echo ""
             echo "Arguments:"
-            echo "  action         - 'enable' or 'disable'"
+            echo "  action         - 'enable', 'disable', 'capture', or 'restore-prior'"
             echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
             echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
+            echo ""
+            echo "Crossing process boundaries:"
+            echo "  'enable' restores the values captured earlier in the SAME process. A"
+            echo "  separate process has nothing captured, so it falls back to normal"
+            echo "  operation — which re-enables Tome even where it was deliberately off."
+            echo "  For a disable and enable that span two processes (CI steps, scripts),"
+            echo "  capture the prior state first and restore that instead:"
+            echo ""
+            echo "    deploy.sh state capture > prior-state.env   # emits two assignments"
+            echo "    deploy.sh state disable both"
+            echo "    ... work ..."
+            echo "    . ./prior-state.env && deploy.sh state restore-prior"
+            echo ""
+            echo "  'restore-prior' reads USAGOV_PRIOR_MAINTENANCE_MODE and"
+            echo "  USAGOV_PRIOR_TOME_DISABLED, and refuses to run if either is not 0 or 1."
             echo ""
             echo "Examples:"
             echo "  deploy.sh state disable tome 30"
             echo "  deploy.sh state enable tome"
+            echo "  deploy.sh state capture"
             echo "  deploy.sh state disable both"
             echo ""
             ;;
@@ -1621,6 +1637,77 @@ exec_state_command() {
     # so the failure was invisible and the site was never put into maintenance
     # mode before a restore.
     cf ssh cms -c ". /etc/profile && cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && state_command '$action' '$state_type' '$max_wait'"
+}
+
+# Print the current Drupal state in a form a later shell can source.
+#
+# CircleCI disables state in one step and re-enables it in another, which is a
+# separate process, so the values captured in the first are gone by the second and
+# restore_drupal_state falls back to hardcoded defaults — silently re-enabling Tome
+# in an environment that intentionally had it disabled. Emitting the prior state
+# lets the cleanup step restore what was actually there.
+# Outputs: two sourceable assignments on stdout
+# Returns: 0 if both values were read, 1 otherwise
+exec_state_capture() {
+    local captured=""
+    captured=$(cf ssh cms -c ". /etc/profile
+        maint=\$(drush sget system.maintenance_mode 2>/dev/null | tail -1)
+        tome=\$(drush sget usagov.tome_run_disabled 2>/dev/null | tail -1)
+        [ \"\$maint\" = '1' ] || maint=0
+        case \"\$tome\" in ''|0|null|NULL) tome=0 ;; *) tome=1 ;; esac
+        echo \"\$maint \$tome\"" 2>/dev/null | tr -d '\r' | tail -1)
+
+    local maint=$(echo "$captured" | awk '{print $1}')
+    local tome=$(echo "$captured" | awk '{print $2}')
+
+    # Refuse to emit a guess. A wrong "prior" value is worse than none, because the
+    # cleanup step would confidently restore the wrong state.
+    case "$maint$tome" in
+        00|01|10|11) ;;
+        *)
+            print_status $RED "❌ Error: could not read the current Drupal state" >&2
+            return 1
+            ;;
+    esac
+
+    echo "USAGOV_PRIOR_MAINTENANCE_MODE=$maint"
+    echo "USAGOV_PRIOR_TOME_DISABLED=$tome"
+}
+
+# Restore the Drupal state recorded by exec_state_capture.
+#
+# Reads USAGOV_PRIOR_MAINTENANCE_MODE and USAGOV_PRIOR_TOME_DISABLED from the
+# environment and hands them to the same verified restore path the in-process
+# callers use, rather than letting it fall back to defaults.
+# Returns: 0 if state was restored and verified, non-zero otherwise
+exec_state_restore_prior() {
+    local maint="${USAGOV_PRIOR_MAINTENANCE_MODE:-}"
+    local tome="${USAGOV_PRIOR_TOME_DISABLED:-}"
+
+    # Validated before interpolation into the remote command, not merely trusted.
+    case "$maint" in 0|1) ;; *)
+        print_status $RED "❌ Error: USAGOV_PRIOR_MAINTENANCE_MODE must be 0 or 1"
+        print_status $YELLOW "   Capture it first: deploy.sh state capture > prior-state.env"
+        return 2
+        ;;
+    esac
+    case "$tome" in 0|1) ;; *)
+        print_status $RED "❌ Error: USAGOV_PRIOR_TOME_DISABLED must be 0 or 1"
+        print_status $YELLOW "   Capture it first: deploy.sh state capture > prior-state.env"
+        return 2
+        ;;
+    esac
+
+    print_status $BLUE "🔧 Restoring Drupal state to its captured prior values (maintenance=$maint, tome_disabled=$tome)..."
+    cf ssh cms -c "set -e
+        . /etc/profile
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        DRUPAL_STATE_CAPTURED=true
+        SAVED_MAINTENANCE_MODE=$maint
+        SAVED_TOME_DISABLED=$tome
+        restore_drupal_state both"
 }
 
 # Prompt for rollback confirmation
@@ -5634,12 +5721,22 @@ case "$COMMAND" in
         max_wait="${3:-25}"
 
         if [ -z "$action" ]; then
-            print_status $RED "❌ Error: action required (enable|disable)"
+            print_status $RED "❌ Error: action required (enable|disable|capture|restore-prior)"
             echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
             exit 1
         fi
 
-        exec_state_command "$action" "$state_type" "$max_wait"
+        case "$action" in
+            capture)
+                exec_state_capture
+                ;;
+            restore-prior)
+                exec_state_restore_prior
+                ;;
+            *)
+                exec_state_command "$action" "$state_type" "$max_wait"
+                ;;
+        esac
         ;;
     "tome-disable")
         exec_state_command disable both
