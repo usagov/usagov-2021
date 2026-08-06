@@ -362,8 +362,15 @@ get_days_arg() {
 # Idempotent, so it is harmless when the operation already restored state — the
 # active flags are false by then and only temp-file removal runs.
 # NIST 800-53: CP-10, AU-3
+BACKUP_CLEANUP_DONE=false
 backup_cleanup() {
     local exit_code=$?
+
+    # Runs once: the signal handlers exit explicitly, which re-triggers EXIT.
+    if [ "$BACKUP_CLEANUP_DONE" = "true" ]; then
+        return $exit_code
+    fi
+    BACKUP_CLEANUP_DONE=true
 
     for tmp in "$TEMP_SQL" "$TEMP_GZIP" "$TEMP_CHECKSUM"; do
         [ -n "$tmp" ] && rm -f "$tmp" 2>/dev/null
@@ -521,7 +528,7 @@ run_backup_command() {
     fi
 
     # Armed before any state is touched, and covers every backup type below.
-    trap backup_cleanup EXIT INT TERM HUP
+    arm_cleanup_traps backup_cleanup
 
     local result_count=0
     local failure_count=0
@@ -2778,8 +2785,15 @@ RESTORE_DB_SQL_FILE=""
 # Release restore resources and Drupal state on any exit path
 # Installed as an EXIT/INT/TERM trap so a signal during a long S3 sync cannot
 # strand the site in maintenance mode with Tome disabled.
+RESTORE_CLEANUP_DONE=false
 restore_cleanup() {
     local exit_code=$?
+
+    # Runs once: the signal handlers exit explicitly, which re-triggers EXIT.
+    if [ "$RESTORE_CLEANUP_DONE" = "true" ]; then
+        return $exit_code
+    fi
+    RESTORE_CLEANUP_DONE=true
 
     if [ -n "$RESTORE_TEMP_DIR" ] && [ -d "$RESTORE_TEMP_DIR" ]; then
         rm -rf "$RESTORE_TEMP_DIR"
@@ -3339,7 +3353,7 @@ restore_backup() {
 
     # From here on, resources and Drupal state must be released on every exit
     # path, including a signal during a long sync.
-    trap restore_cleanup EXIT INT TERM HUP
+    arm_cleanup_traps restore_cleanup
 
     RESTORE_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/restore.XXXXXX") || {
         print_status $RED "❌ Error: Could not create a temporary working directory"

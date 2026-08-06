@@ -1951,8 +1951,15 @@ DOWNSYNC_ORIGINAL_SPACE=""
 DOWNSYNC_STATE_DISABLED_IN=""
 DOWNSYNC_TOME_WAS_DISABLED=""
 
+DOWNSYNC_CLEANUP_DONE=false
 downsync_cleanup() {
     local exit_code=$?
+
+    # Runs once: the signal handlers exit explicitly, which re-triggers EXIT.
+    if [ "$DOWNSYNC_CLEANUP_DONE" = "true" ]; then
+        return $exit_code
+    fi
+    DOWNSYNC_CLEANUP_DONE=true
 
     if [ -n "$DOWNSYNC_STATE_DISABLED_IN" ]; then
         local state_space="$DOWNSYNC_STATE_DISABLED_IN"
@@ -2125,7 +2132,7 @@ downsync() {
     # the CF target and Drupal state back.
     local original_space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
     DOWNSYNC_ORIGINAL_SPACE="$original_space"
-    trap downsync_cleanup EXIT INT TERM HUP
+    arm_cleanup_traps downsync_cleanup
 
     # If no backup tag specified, get latest from FROM space
     if [ -z "$backup_tag" ]; then

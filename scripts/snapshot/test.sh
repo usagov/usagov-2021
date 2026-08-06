@@ -2186,10 +2186,68 @@ DRIVER
         echo "❌ Cleanup handler did not restore held state (got: $cleanup_out)"
         failures=$((failures + 1))
     fi
-    if grep -q 'trap backup_cleanup EXIT INT TERM HUP' "$BACKUP_DIR/manager.sh"; then
+    if grep -q 'arm_cleanup_traps backup_cleanup' "$BACKUP_DIR/manager.sh"; then
         echo "✅ Backup command arms the cleanup trap"
     else
         echo "❌ Backup command does not arm a cleanup trap"
+        failures=$((failures + 1))
+    fi
+
+    # --- Case 7: a signal must terminate, not resume ------------------------
+    # A POSIX signal trap returns to the interrupted command, so a handler that
+    # only cleans up lets the work continue with its state already restored.
+    # Confirmed live before this was fixed: TERM cleared maintenance mode in dr and
+    # the backup carried on.
+    local sig_out=""
+    sig_out=$(
+        cd "$sandbox/tree" 2>/dev/null || exit 9
+        PATH="$sandbox/bin:$PATH"; export PATH
+        cat > "$sandbox/sig.sh" <<'SIG'
+#!/bin/sh
+. ./scripts/common.sh
+# Shaped like the real handlers, which must be idempotent because the explicit
+# exit in the signal trap re-triggers EXIT.
+MARKER_DONE=false
+cleanup_marker() {
+    [ "$MARKER_DONE" = "true" ] && return 0
+    MARKER_DONE=true
+    echo "CLEANED"
+}
+arm_cleanup_traps cleanup_marker
+kill -TERM $$
+echo "RESUMED_AFTER_SIGNAL"
+SIG
+        sh "$sandbox/sig.sh" 2>/dev/null
+        echo "rc=$?"
+    )
+    if echo "$sig_out" | grep -q 'CLEANED' && ! echo "$sig_out" | grep -q 'RESUMED_AFTER_SIGNAL'; then
+        echo "✅ A signal runs cleanup and terminates instead of resuming"
+    else
+        echo "❌ Execution resumed after the signal handler (got: $(echo "$sig_out" | tr '\n' ' '))"
+        failures=$((failures + 1))
+    fi
+    if echo "$sig_out" | grep -q 'rc=143'; then
+        echo "✅ Exits with the conventional 128+SIGTERM status"
+    else
+        echo "❌ Wrong exit status after TERM (got: $(echo "$sig_out" | grep '^rc='))"
+        failures=$((failures + 1))
+    fi
+    if [ "$(echo "$sig_out" | grep -c CLEANED)" = "1" ]; then
+        echo "✅ Cleanup runs once despite EXIT re-triggering after the explicit exit"
+    else
+        echo "❌ Cleanup ran $(echo "$sig_out" | grep -c CLEANED) times"
+        failures=$((failures + 1))
+    fi
+    # arm_cleanup_traps requires idempotent handlers, so every handler using it
+    # must carry the guard or its output doubles on every signal.
+    local guard_missing=0
+    grep -q 'BACKUP_CLEANUP_DONE' "$BACKUP_DIR/manager.sh" || guard_missing=$((guard_missing + 1))
+    grep -q 'RESTORE_CLEANUP_DONE' "$BACKUP_DIR/manager.sh" || guard_missing=$((guard_missing + 1))
+    grep -q 'DOWNSYNC_CLEANUP_DONE' "$PROJECT_ROOT/scripts/devops/deploy.sh" || guard_missing=$((guard_missing + 1))
+    if [ "$guard_missing" -eq 0 ]; then
+        echo "✅ All three cleanup handlers carry a run-once guard"
+    else
+        echo "❌ $guard_missing cleanup handler(s) lack a run-once guard"
         failures=$((failures + 1))
     fi
 

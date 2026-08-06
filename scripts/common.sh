@@ -1695,6 +1695,27 @@ DRUPAL_STATE_ACTIVE_TOME=false
 # NIST 800-53: CP-10, AU-3
 DRUPAL_STATE_RESTORE_FAILED=false
 
+# Install a cleanup handler for normal exit and for signals.
+#
+# A POSIX signal trap returns control to the point where the signal arrived, so a
+# handler that only cleans up lets the operation carry on afterwards — with its
+# state already restored. Confirmed live in `dr`: sending TERM to a running backup
+# cleared maintenance mode and the backup then continued, which is the opposite of
+# what maintenance mode is for. Signal handlers therefore terminate with the
+# conventional 128+signal status; the EXIT handler only cleans up.
+#
+# Handlers must be idempotent, because the explicit exit below re-triggers EXIT.
+# Args:
+#   $1: handler - name of the cleanup function
+arm_cleanup_traps() {
+    local handler="$1"
+
+    trap "$handler" EXIT
+    trap "$handler; exit 130" INT
+    trap "$handler; exit 143" TERM
+    trap "$handler; exit 129" HUP
+}
+
 # Set maintenance mode and confirm the value persisted.
 #
 # A Drupal state write can report success without taking effect. The previous
