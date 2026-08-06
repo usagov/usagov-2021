@@ -160,3 +160,6 @@ reporter-vcapsecrets.json
 # a11y audit outputs
 bin/a11y/json/
 bin/a11y/reports/
+
+# Cloud.gov audit outputs
+bin/cloudgov/audit/outputs/
