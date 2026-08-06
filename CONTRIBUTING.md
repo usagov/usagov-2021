@@ -1,12 +1,12 @@
 # Welcome!
 
-We're so glad you're thinking about contributing to an [open source project of the U.S. government](https://code.gov/)! If you're unsure about anything, just ask -- or submit the issue or pull request anyway. The worst that can happen is you'll be politely asked to change something. We love all friendly contributions.
+We're so glad you're thinking about contributing to an open source project of the U.S. government! If you're unsure about anything, just ask -- or submit the issue or pull request anyway. The worst that can happen is you'll be politely asked to change something. We love all friendly contributions.
 
 We encourage you to read this project's CONTRIBUTING policy (you are here), its [LICENSE](LICENSE.md), and its [README](README.md).
 
 ## Policies
 
-We want to ensure a welcoming environment for all of our projects. Our staff follow the [TTS Code of Conduct](https://handbook.tts.gsa.gov/about-us/code-of-conduct/) and all contributors should do the same.
+By contributing to this repository, you agree to adhere to the [GSA Social Media Policy](https://www.gsa.gov/directives-library/gsa-social-media-policy-2) (Section 10 Engagement). We expect all contributors, both internal and external, to engage respectfully and professionally in all project-related public communications.
 
 We adhere to the [18F Open Source Policy](https://github.com/18f/open-source-policy).
 
