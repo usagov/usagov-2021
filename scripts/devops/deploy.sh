@@ -546,8 +546,10 @@ show_command_help() {
             echo "How it proceeds:"
             echo "  1. Takes a safety backup of TO and verifies it exists. If that fails,"
             echo "     the downsync stops and nothing is modified."
-            echo "  2. Downloads the backup from FROM and verifies the archive."
-            echo "  3. Stages it into TO's own backup namespace with a checksum."
+            echo "  2. Downloads the backup from FROM, verifies the archive, and checks the"
+            echo "     file count against FROM's bucket so a lossy transfer cannot pass."
+            echo "  3. Stages it into TO's own backup namespace with a checksum, verifies"
+            echo "     the staged count, and discards the staged copy if it does not match."
             echo "  4. Restores it with the maintained restore path, which preflights the"
             echo "     dump, captures its own recovery point, and rolls back on failure."
             echo "  5. Runs post-import steps, reporting each one individually."
@@ -1611,7 +1613,14 @@ exec_state_command() {
         return 2
     fi
 
-    cf ssh cms -c "cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
+    # Sourcing common.sh alone is not enough to reach drush: it is
+    # init_backup_system that puts vendor/bin on PATH, and /etc/profile is what
+    # every other drush call in this file relies on. Without them every drush
+    # call inside state_command exits 127, which reads as "Tome has stopped" and
+    # then fails to disable it. The old downsync discarded this command's status,
+    # so the failure was invisible and the site was never put into maintenance
+    # mode before a restore.
+    cf ssh cms -c ". /etc/profile && cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && state_command '$action' '$state_type' '$max_wait'"
 }
 
 # Prompt for rollback confirmation
@@ -1923,6 +1932,51 @@ _downsync_verify_safety_backup() {
     return 0
 }
 
+# Remove a backup this run staged into the space currently targeted.
+#
+# Staging happens before anything in the target is modified, so aborting after it
+# would otherwise leave objects behind that look like a real backup, are offered
+# by list-backups, and block a rerun under the same tag.
+#
+# Only ever called for a tag the pre-staging guard proved absent from the target,
+# which is what makes the recursive delete safe: every object under it was put
+# there by this run.
+# Args:
+#   $1: backup_tag - the staged tag to remove
+#   $2: space - space to remove it from; targeted here, not assumed
+_downsync_discard_staged_backup() {
+    local backup_tag="$1"
+    local space="$2"
+
+    # Target explicitly instead of inheriting whatever cf currently points at. A
+    # recursive delete aimed by ambient state is a foot-gun: run out of band after
+    # the CF target had been restored to the source space, this deleted the
+    # source's own backup while reporting that it had cleaned the target.
+    if ! cf target -s "$space" >/dev/null 2>&1; then
+        print_status $YELLOW "  ⚠️  Could not target $space to remove the staged backup $backup_tag"
+        print_status $YELLOW "     Remove it before retrying with the same tag."
+        return 1
+    fi
+
+    print_status $BLUE "  Removing the staged backup from $space..."
+    if cf ssh cms -c "set -e
+        export AWS_DEFAULT_REGION='us-gov-west-1'
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        setup_s3_vars >/dev/null 2>&1
+        aws s3 rm \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --recursive --only-show-errors \$S3_EXTRA_PARAMS
+        for suffix in .sql.gz .sql.gz.sha256; do
+            aws s3 rm \"s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}\$suffix\" --only-show-errors \$S3_EXTRA_PARAMS >/dev/null 2>&1 || true
+        done" >/dev/null 2>&1; then
+        print_status $GREEN "  ✅ Staged backup removed"
+    else
+        # Reported, never fatal: the abort that brought us here is the outcome.
+        print_status $YELLOW "  ⚠️  Could not remove the staged backup $backup_tag from $space"
+        print_status $YELLOW "     Remove it before retrying with the same tag."
+    fi
+}
+
 _print_downsync_recovery_hint() {
     local to_space="$1"
     local safety_backup_taken="${2:-false}"
@@ -2098,8 +2152,10 @@ downsync() {
     }
     local temp_dir="$DOWNSYNC_TEMP_DIR"
     local db_file="$temp_dir/db.sql.gz"
-    local public_dir="$temp_dir/public"
-    mkdir -p "$public_dir"
+    # The public files archive is relayed byte for byte between the two
+    # containers and is never unpacked on this machine. See the comment above the
+    # staging step for why the local tar has to stay out of the transport.
+    local public_archive="$temp_dir/public.tar.gz"
 
     # === DOWNLOAD FROM THE SOURCE SPACE ===
     print_status $BLUE "📥 Downloading backups from $from_space..."
@@ -2151,30 +2207,41 @@ downsync() {
         aws s3 sync \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" . --only-show-errors \$S3_EXTRA_PARAMS >/dev/null
         tar czf - .
         cd /tmp
-        rm -rf /tmp/downsync_src" > "$temp_dir/public.tar.gz"; then
+        rm -rf /tmp/downsync_src" > "$public_archive"; then
         print_status $RED "❌ System Error: Failed to download the public files backup from $from_space"
         exit 3
     fi
 
-    if [ ! -s "$temp_dir/public.tar.gz" ] || ! tar tzf "$temp_dir/public.tar.gz" >/dev/null 2>&1; then
+    # Only the gzip layer is checked here. Nothing on this machine reads the tar
+    # members: the archive is relayed to the target container as bytes.
+    if [ ! -s "$public_archive" ] || ! gunzip -t "$public_archive" 2>/dev/null; then
         print_status $RED "❌ System Error: Downloaded public files archive is empty or invalid"
+        print_status $YELLOW "   The transfer was probably truncated. Nothing has been modified in $to_space."
         exit 3
     fi
 
-    if ! tar xzf "$temp_dir/public.tar.gz" -C "$public_dir"; then
-        print_status $RED "❌ System Error: Failed to extract the public files archive"
+    # The file count comes from the source bucket, and is later compared against a
+    # count taken in the target bucket. Both ends are counted by the container's
+    # own aws CLI, so the check covers the whole relay without trusting any local
+    # tool to interpret the archive. Still targeted at the source here.
+    local source_count=""
+    source_count=$(cf ssh cms -c "set -e
+        cd /var/www
+        . scripts/common.sh
+        init_backup_system >/dev/null 2>&1
+        setup_s3_vars >/dev/null 2>&1
+        aws s3 ls \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --recursive \$S3_EXTRA_PARAMS | grep -c ." 2>/dev/null | tr -d '\r' | tail -1)
+    if ! echo "$source_count" | grep -qE '^[0-9]+$'; then
+        print_status $RED "❌ System Error: Could not count the public files backup in $from_space"
+        print_status $YELLOW "   Nothing has been modified in $to_space."
         exit 3
     fi
-    rm -f "$temp_dir/public.tar.gz"
-
-    local public_count=0
-    public_count=$(find "$public_dir" -type f 2>/dev/null | grep -c .)
-    if [ "$public_count" -eq 0 ]; then
+    if [ "$source_count" -eq 0 ]; then
         print_status $RED "❌ System Error: The public files backup contained no files"
         print_status $YELLOW "   Restoring it would delete the live public files in $to_space."
         exit 3
     fi
-    print_status $GREEN "  ✅ Public files downloaded and verified ($public_count files, $(du -sh "$public_dir" | cut -f1))"
+    print_status $GREEN "  ✅ Public files downloaded and verified ($source_count files, $(du -h "$public_archive" | cut -f1) compressed)"
 
     # === STAGE INTO THE TARGET SPACE'S BACKUP NAMESPACE ===
     # The restore below is the single maintained restore implementation and reads
@@ -2188,13 +2255,24 @@ downsync() {
         exit 3
     fi
 
-    if cf ssh cms -c "set -e
+    # Both namespaces are checked, not just the database: the staged public files
+    # are uploaded with `sync`, which would merge into whatever already sits under
+    # the tag. Proving the tag is unused is also what licenses the recursive
+    # delete in _downsync_discard_staged_backup below.
+    local existing_stage=""
+    existing_stage=$(cf ssh cms -c "set -e
         cd /var/www
         . scripts/common.sh
         init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
-        aws s3api head-object --bucket \"\$BUCKET_NAME\" --key \"\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\" \$S3_EXTRA_PARAMS >/dev/null" >/dev/null 2>&1; then
-        print_status $RED "❌ Error: $to_space already holds a backup named $backup_tag"
+        if aws s3api head-object --bucket \"\$BUCKET_NAME\" --key \"\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz\" \$S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            echo 'a database backup'
+        fi
+        if [ \"\$(aws s3 ls \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --recursive \$S3_EXTRA_PARAMS 2>/dev/null | grep -c .)\" != 0 ]; then
+            echo 'public files'
+        fi" 2>/dev/null | tr -d '\r' | tr '\n' ',' | sed 's/,$//; s/,/ and /')
+    if [ -n "$existing_stage" ]; then
+        print_status $RED "❌ Error: $to_space already holds $existing_stage named $backup_tag"
         print_status $YELLOW "   Refusing to overwrite it. Delete it first, or pass a different tag."
         exit 3
     fi
@@ -2215,14 +2293,26 @@ downsync() {
         aws s3 cp /tmp/downsync_db.sha256 \"s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz.sha256\" --only-show-errors \$S3_EXTRA_PARAMS
         rm -f /tmp/downsync_db.sql.gz /tmp/downsync_db.sha256" < "$db_file"; then
         print_status $RED "❌ System Error: Failed to stage the database backup into $to_space"
+        _downsync_discard_staged_backup "$backup_tag" "$to_space"
         exit 3
     fi
     # The checksum was computed locally, so the restore's checksum gate now
     # verifies this transfer end to end.
     print_status $GREEN "  ✅ Database staged with checksum"
 
+    # The archive downloaded from the source is fed straight through: this machine
+    # never unpacks or repacks it. Doing so corrupted the transfer, because macOS
+    # tar carries extended attributes as AppleDouble side-car members named
+    # "._<entry>" and every file and directory on a current macOS holds at least
+    # com.apple.provenance. Repacking an extracted tree therefore emitted one
+    # side-car per entry — a 4,895 file tree staged as 10,105 objects, which
+    # busybox tar in the container unpacks as ordinary files — while unpacking
+    # dropped any file whose own name begins with "._", silently and with status
+    # 0, reading it as metadata for a partner not in the archive. Neither
+    # --no-mac-metadata nor COPYFILE_DISABLE suppresses both halves, so the local
+    # tar stays out of the transport entirely.
     print_status $BLUE "  Staging public files into $to_space..."
-    if ! (cd "$public_dir" && tar czf - .) | cf ssh cms -c "set -e
+    if ! cf ssh cms -c "set -e
         export AWS_DEFAULT_REGION='us-gov-west-1'
         cd /var/www
         . scripts/common.sh
@@ -2234,8 +2324,9 @@ downsync() {
         tar xzf -
         aws s3 sync . \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --only-show-errors \$S3_EXTRA_PARAMS
         cd /tmp
-        rm -rf /tmp/downsync_stage"; then
+        rm -rf /tmp/downsync_stage" < "$public_archive"; then
         print_status $RED "❌ System Error: Failed to stage public files into $to_space"
+        _downsync_discard_staged_backup "$backup_tag" "$to_space"
         exit 3
     fi
 
@@ -2246,9 +2337,10 @@ downsync() {
         init_backup_system >/dev/null 2>&1
         setup_s3_vars >/dev/null 2>&1
         aws s3 ls \"s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/\" --recursive \$S3_EXTRA_PARAMS | grep -c ." 2>/dev/null | tr -d '\r' | tail -1)
-    if [ "$staged_count" != "$public_count" ]; then
-        print_status $RED "❌ Staged public file count ($staged_count) does not match the download ($public_count)"
+    if [ "$staged_count" != "$source_count" ]; then
+        print_status $RED "❌ Staged public file count ($staged_count) does not match $from_space ($source_count)"
         print_status $YELLOW "   Refusing to restore from an incomplete staged backup."
+        _downsync_discard_staged_backup "$backup_tag" "$to_space"
         exit 3
     fi
     print_status $GREEN "  ✅ Public files staged and verified ($staged_count objects)"
@@ -2261,7 +2353,8 @@ downsync() {
     print_status $BLUE "🔒 Preparing $to_space (maintenance mode + disable tome)..."
     if ! exec_state_command disable both; then
         print_status $RED "❌ Failed to prepare site state in $to_space"
-        print_status $YELLOW "   Nothing has been restored. The staged backup remains in $to_space."
+        print_status $YELLOW "   Nothing has been restored."
+        _downsync_discard_staged_backup "$backup_tag" "$to_space"
         exit 3
     fi
     DOWNSYNC_STATE_DISABLED_IN="$to_space"
