@@ -1695,6 +1695,178 @@ DRUPAL_STATE_ACTIVE_TOME=false
 # NIST 800-53: CP-10, AU-3
 DRUPAL_STATE_RESTORE_FAILED=false
 
+# ===================================================================
+# CROSS-INSTANCE BACKUP LOCK
+# ===================================================================
+#
+# Production deploys two CMS instances and each one installs the same daily cron
+# entry, so both can dump the database, change Drupal state, and write the same S3
+# keys at the same time — overwriting objects, checksums and metadata. The existing
+# flock and rate-limit files live in each container's /tmp and cannot see across
+# instances.
+#
+# The lock is an S3 object created with `--if-none-match '*'`, which fails with
+# PreconditionFailed if the key already exists. That check happens at the bucket,
+# so it is atomic between instances. Verified against the `dr` bucket in GovCloud:
+# a second writer is rejected and the first writer's content is left intact.
+#
+# NIST 800-53: CP-9, SC-5
+BACKUP_LOCK_OWNED=false
+BACKUP_LOCK_TOKEN=""
+
+# A value unique to this process, used to prove ownership before releasing. CF
+# supplies a per-instance GUID; the PID and a random suffix separate concurrent
+# runs inside one container.
+_backup_lock_token() {
+    local rand=""
+    rand=$(head -c 6 /dev/urandom 2>/dev/null | od -An -tx1 2>/dev/null | tr -d ' \n')
+    [ -n "$rand" ] || rand="$$"
+    printf '%s' "${CF_INSTANCE_GUID:-nocf}-${CF_INSTANCE_INDEX:-x}-$$-$rand"
+}
+
+# Read a field out of a lock object's body.
+# Args: $1 - body text, $2 - field name
+_backup_lock_field() {
+    printf '%s\n' "$1" | grep "^$2=" | head -1 | sed "s/^$2=//"
+}
+
+# Acquire the backup lock.
+#
+# Returns 0 when the lock is held by this process, 1 when another live holder has
+# it, and 2 on an error that leaves ownership unknown. A caller that gets 1 should
+# skip its run: on a multi-instance app that is the expected outcome for every
+# instance but one, not a failure.
+backup_lock_acquire() {
+    local lock_path="${BACKUP_LOCK_PATH:-backup-locks/backup.lock}"
+    local ttl="${BACKUP_LOCK_TTL_SECONDS:-7200}"
+    local now_epoch=$(date -u '+%s')
+
+    if [ -z "$BUCKET_NAME" ]; then
+        print_status $RED "❌ Cannot acquire the backup lock: bucket is not configured"
+        return 2
+    fi
+
+    BACKUP_LOCK_TOKEN=$(_backup_lock_token)
+
+    local body="/tmp/backup-lock-$$.txt"
+    {
+        echo "token=$BACKUP_LOCK_TOKEN"
+        echo "acquired_epoch=$now_epoch"
+        echo "expires_epoch=$((now_epoch + ttl))"
+        echo "instance_index=${CF_INSTANCE_INDEX:-unknown}"
+        echo "space=${APP_SPACE:-unknown}"
+        echo "pid=$$"
+    } > "$body"
+
+    local attempt=0
+    while [ "$attempt" -lt 2 ]; do
+        attempt=$((attempt + 1))
+
+        local put_error="/tmp/backup-lock-err-$$.txt"
+        if aws s3api put-object --bucket "$BUCKET_NAME" --key "$lock_path" \
+                --if-none-match '*' --body "$body" $S3_EXTRA_PARAMS >/dev/null 2>"$put_error"; then
+            rm -f "$body" "$put_error"
+            BACKUP_LOCK_OWNED=true
+            audit_log "backup_lock_acquired" "info" "Backup lock acquired" \
+                "lock_path=\"$lock_path\" instance_index=\"${CF_INSTANCE_INDEX:-unknown}\""
+            return 0
+        fi
+
+        # An unrecognized option means this CLI cannot express the precondition at
+        # all, so no backup would ever run. That is a very different problem from
+        # losing a race, and it is worth naming rather than leaving the operator to
+        # infer it from a generic message.
+        if grep -qiE 'unknown options|invalid choice|unrecognized arguments|argument --if-none-match' "$put_error" 2>/dev/null; then
+            rm -f "$body"
+            print_status $RED "❌ This aws CLI does not support --if-none-match, so the backup lock cannot be taken"
+            print_status $YELLOW "   Refusing to continue: without it, concurrent backups cannot be excluded."
+            print_status $YELLOW "   CLI reported: $(tr -d '\n' < "$put_error" | cut -c1-160)"
+            audit_log "backup_lock_error" "error" "aws CLI lacks conditional write support" \
+                "lock_path=\"$lock_path\""
+            rm -f "$put_error"
+            return 2
+        fi
+        rm -f "$put_error"
+
+        # Someone holds it, or the conditional write is unsupported. Distinguish the
+        # two by reading the object: a missing object after a failed create means the
+        # precondition was not the reason, and proceeding would defeat the lock.
+        local existing=""
+        existing=$(aws s3 cp "s3://$BUCKET_NAME/$lock_path" - $S3_EXTRA_PARAMS 2>/dev/null)
+        if [ -z "$existing" ]; then
+            rm -f "$body"
+            print_status $RED "❌ Could not acquire the backup lock and no lock object is present"
+            print_status $YELLOW "   Refusing to continue: concurrent backups cannot be ruled out."
+            audit_log "backup_lock_error" "error" "Lock acquisition failed with no lock present" \
+                "lock_path=\"$lock_path\""
+            return 2
+        fi
+
+        local expires=$(_backup_lock_field "$existing" expires_epoch)
+        local holder=$(_backup_lock_field "$existing" instance_index)
+        local held_since=$(_backup_lock_field "$existing" acquired_epoch)
+
+        # An unparseable expiry is treated as live, never as stale: stealing on a
+        # bad read is what would allow two concurrent backups.
+        if ! echo "$expires" | grep -qE '^[0-9]+$'; then
+            rm -f "$body"
+            print_status $YELLOW "⏭️  Backup skipped: lock held by instance ${holder:-unknown} (expiry unreadable)"
+            return 1
+        fi
+
+        if [ "$now_epoch" -lt "$expires" ]; then
+            rm -f "$body"
+            print_status $YELLOW "⏭️  Backup skipped: another backup is running (instance ${holder:-unknown}, since epoch ${held_since:-unknown})"
+            audit_log "backup_lock_contended" "info" "Backup skipped, lock held elsewhere" \
+                "lock_path=\"$lock_path\" holder_instance=\"${holder:-unknown}\""
+            return 1
+        fi
+
+        # Expired: the holder died without releasing. Remove it and retry once.
+        print_status $YELLOW "⚠️  Removing an expired backup lock (instance ${holder:-unknown}, expired at epoch $expires)"
+        audit_log "backup_lock_expired" "warning" "Removed an expired backup lock" \
+            "lock_path=\"$lock_path\" holder_instance=\"${holder:-unknown}\" expires_epoch=\"$expires\""
+        aws s3 rm "s3://$BUCKET_NAME/$lock_path" $S3_EXTRA_PARAMS >/dev/null 2>&1
+    done
+
+    rm -f "$body"
+    print_status $YELLOW "⏭️  Backup skipped: could not take the lock after removing an expired one"
+    return 1
+}
+
+# Release the backup lock, but only if this process still owns it.
+#
+# Ownership is re-checked against the object because an expired lock may have been
+# taken over by another run; deleting it then would release someone else's lock.
+backup_lock_release() {
+    [ "$BACKUP_LOCK_OWNED" = "true" ] || return 0
+
+    local lock_path="${BACKUP_LOCK_PATH:-backup-locks/backup.lock}"
+    BACKUP_LOCK_OWNED=false
+
+    local existing=""
+    existing=$(aws s3 cp "s3://$BUCKET_NAME/$lock_path" - $S3_EXTRA_PARAMS 2>/dev/null)
+    local token=$(_backup_lock_field "$existing" token)
+
+    if [ -n "$token" ] && [ "$token" != "$BACKUP_LOCK_TOKEN" ]; then
+        print_status $YELLOW "⚠️  Not releasing the backup lock: it is now held by another run"
+        audit_log "backup_lock_release_skipped" "warning" "Lock taken over by another run" \
+            "lock_path=\"$lock_path\""
+        return 0
+    fi
+
+    if aws s3 rm "s3://$BUCKET_NAME/$lock_path" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        audit_log "backup_lock_released" "info" "Backup lock released" "lock_path=\"$lock_path\""
+        return 0
+    fi
+
+    print_status $YELLOW "⚠️  Could not remove the backup lock at $lock_path"
+    print_status $YELLOW "   Later backups will take it over after ${BACKUP_LOCK_TTL_SECONDS:-7200}s."
+    audit_log "backup_lock_release_failed" "error" "Could not remove the backup lock" \
+        "lock_path=\"$lock_path\""
+    return 1
+}
+
 # Install a cleanup handler for normal exit and for signals.
 #
 # A POSIX signal trap returns control to the point where the signal arrived, so a

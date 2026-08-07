@@ -376,6 +376,9 @@ backup_cleanup() {
         [ -n "$tmp" ] && rm -f "$tmp" 2>/dev/null
     done
 
+    # Released last of all, so it is still held through the metadata commit.
+    backup_lock_release
+
     if [ "$DRUPAL_STATE_ACTIVE_MAINT" = "true" ] || [ "$DRUPAL_STATE_ACTIVE_TOME" = "true" ]; then
         print_status $YELLOW "⚠️  Backup ended with Drupal state still held — restoring it..."
         if [ "$DRUPAL_STATE_ACTIVE_MAINT" = "true" ] && [ "$DRUPAL_STATE_ACTIVE_TOME" = "true" ]; then
@@ -529,6 +532,24 @@ run_backup_command() {
 
     # Armed before any state is touched, and covers every backup type below.
     arm_cleanup_traps backup_cleanup
+
+    # Taken after the trap is armed, so an interruption between the two cannot leak
+    # the lock. Contention is the expected outcome on every production instance but
+    # one, so it is reported and exits 0 rather than alerting a scheduler.
+    backup_lock_acquire
+    local lock_result=$?
+    if [ "$lock_result" -eq 1 ]; then
+        if [ "$use_json" = true ]; then
+            format_json '{"operation":"backup","status":"skipped","reason":"lock_held_elsewhere"}'
+        fi
+        return 0
+    fi
+    if [ "$lock_result" -ne 0 ]; then
+        if [ "$use_json" = true ]; then
+            format_json '{"operation":"backup","status":"error","reason":"lock_unavailable"}'
+        fi
+        return 1
+    fi
 
     local result_count=0
     local failure_count=0

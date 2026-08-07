@@ -1949,6 +1949,316 @@ INVENTORY
 # Function to test that restore completes every check before the first mutation,
 # captures a verified recovery point, and rolls back when a later phase fails.
 # Hermetic: a directory-backed fake S3 and fake drush, so no real store is touched.
+# H-05: only one instance may schedule the daily backup, and no two backups may run
+# against the same bucket at once.
+#
+# The fake aws implements PutObject's If-None-Match precondition, which is the
+# primitive the lock relies on. That behavior was confirmed against the real
+# GovCloud bucket in `dr`: a second conditional write is rejected with
+# PreconditionFailed and the first writer's object is left intact.
+test_backup_lock_and_scheduling() {
+    echo "🔐 Testing cross-instance backup lock and scheduling guard..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/bin" "$sandbox/s3"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$BACKUP_DIR/manager.sh" "$BACKUP_DIR/backup-system.conf" "$BACKUP_DIR/setup-cron.sh" \
+        "$sandbox/tree/scripts/snapshot/"
+    chmod +x "$sandbox/tree/scripts/snapshot/manager.sh" "$sandbox/tree/scripts/snapshot/setup-cron.sh"
+
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+# Directory-backed S3 with a real If-None-Match precondition on put-object.
+#   FAKE_PUT_FAIL=1         put-object fails for reasons other than the
+#                           precondition, which must be distinguishable from
+#                           losing a race
+#   FAKE_PUT_UNSUPPORTED=1  the CLI rejects --if-none-match outright, meaning no
+#                           backup could ever take the lock
+R="$FS3"
+k() { echo "$1" | sed 's|^s3://[^/]*/||; s|/$||'; }
+r() { case "$1" in s3://*) echo "$R/$(k "$1")" ;; *) echo "${1%/}" ;; esac; }
+svc="$1"; shift; act="$1"; shift
+case "$svc $act" in
+"s3api put-object")
+    key=""; body=""; cond=0
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --key) key="$2"; shift 2 ;;
+            --body) body="$2"; shift 2 ;;
+            --if-none-match) cond=1; shift 2 ;;
+            *) shift ;;
+        esac
+    done
+    [ -n "$FAKE_PUT_UNSUPPORTED" ] && { echo "Unknown options: --if-none-match" >&2; exit 252; }
+    [ -n "$FAKE_PUT_FAIL" ] && { echo "simulated put failure" >&2; exit 1; }
+    dest="$R/$key"
+    if [ "$cond" = 1 ] && [ -e "$dest" ]; then
+        echo "An error occurred (PreconditionFailed) when calling the PutObject operation" >&2
+        exit 1
+    fi
+    mkdir -p "$(dirname "$dest")"; cp "$body" "$dest"; exit 0 ;;
+"s3api head-object") exit 0 ;;
+"s3 cp")
+    s=""; d=""
+    for a in "$@"; do case "$a" in --*) ;; *) if [ -z "$s" ]; then s="$a"; elif [ -z "$d" ]; then d="$a"; fi ;; esac; done
+    ss=$(r "$s"); dd=$(r "$d")
+    if [ "$d" = "-" ]; then [ -f "$ss" ] || exit 1; cat "$ss"; exit 0; fi
+    if [ "$s" = "-" ]; then mkdir -p "$(dirname "$dd")"; cat > "$dd"; exit 0; fi
+    [ -f "$ss" ] || exit 1
+    mkdir -p "$(dirname "$dd")"; cp "$ss" "$dd"; exit 0 ;;
+"s3 rm")
+    t=""; for a in "$@"; do case "$a" in s3://*) [ -z "$t" ] && t="$a" ;; esac; done
+    p=$(r "$t"); [ -e "$p" ] || exit 1; rm -rf "$p"; exit 0 ;;
+"s3 ls")
+    t=""; for a in "$@"; do case "$a" in s3://*) [ -z "$t" ] && t="$a" ;; esac; done
+    p=$(r "$t"); o=""
+    if [ -d "$p" ]; then o=$(find "$p" -type f); elif [ -f "$p" ]; then o="$p"; fi
+    [ -z "$o" ] && exit 1
+    echo "$o" | sed 's|^|2026-01-01 00:00:00 1 |'; exit 0 ;;
+esac
+exit 0
+FAKEAWS
+    chmod +x "$sandbox/bin/aws"
+
+    # File-backed crontab so the scheduling guard can be observed.
+    cat > "$sandbox/bin/crontab" <<'FAKECRON'
+#!/bin/sh
+F="${FAKE_CRONTAB:-/tmp/fake-crontab}"
+case "$1" in
+    -l) [ -f "$F" ] || exit 1; cat "$F"; exit 0 ;;
+    -) cat > "$F"; exit 0 ;;
+esac
+exit 0
+FAKECRON
+    chmod +x "$sandbox/bin/crontab"
+
+    cat > "$sandbox/bin/drush" <<'FAKEDRUSH'
+#!/bin/sh
+case "$1" in
+    sget) exit 0 ;;
+    sql:dump)
+        out=$(echo "$@" | sed -n 's/.*--result-file=\([^ ]*\).*/\1/p')
+        [ -n "$out" ] && printf -- '-- MySQL dump 10.13\nCREATE TABLE `node` (`nid` int);\n-- Dump completed\n' > "$out"
+        exit 0 ;;
+esac
+exit 0
+FAKEDRUSH
+    chmod +x "$sandbox/bin/drush"
+
+    lock_driver() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            FS3="$sandbox/s3"; export FS3
+            sh "$sandbox/lock-driver.sh" "$@"
+        )
+    }
+
+    cat > "$sandbox/lock-driver.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+case "$1" in
+    acquire)
+        backup_lock_acquire >/dev/null 2>&1
+        echo "rc=$? owned=$BACKUP_LOCK_OWNED"
+        ;;
+    acquire-verbose)
+        out=$(backup_lock_acquire 2>&1); rc=$?
+        echo "rc=$rc"
+        echo "$out"
+        ;;
+    roundtrip)
+        backup_lock_acquire >/dev/null 2>&1
+        a=$?
+        backup_lock_release >/dev/null 2>&1
+        echo "acquire=$a released_object_present=$([ -f "$FS3/$BACKUP_LOCK_PATH" ] && echo yes || echo no)"
+        ;;
+    release-foreign)
+        backup_lock_acquire >/dev/null 2>&1
+        # Another run takes the lock over between our acquire and release.
+        sed 's/^token=.*/token=someone-else/' "$FS3/$BACKUP_LOCK_PATH" > "$FS3/$BACKUP_LOCK_PATH.new"
+        mv "$FS3/$BACKUP_LOCK_PATH.new" "$FS3/$BACKUP_LOCK_PATH"
+        backup_lock_release >/dev/null 2>&1
+        echo "foreign_lock_still_present=$([ -f "$FS3/$BACKUP_LOCK_PATH" ] && echo yes || echo no)"
+        ;;
+esac
+DRIVER
+
+    local lock_key="backup-locks/backup.lock"
+
+    # --- Mutual exclusion --------------------------------------------------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3"
+    local first=$(lock_driver acquire)
+    local second=$(lock_driver acquire)
+    if [ "$first" = "rc=0 owned=true" ]; then
+        echo "✅ First caller acquires the lock"
+    else
+        echo "❌ First caller did not acquire the lock (got: $first)"
+        failures=$((failures + 1))
+    fi
+    if [ "$second" = "rc=1 owned=false" ]; then
+        echo "✅ Second concurrent caller is refused"
+    else
+        echo "❌ Second caller was not refused (got: $second)"
+        failures=$((failures + 1))
+    fi
+
+    # --- Expired locks are taken over -------------------------------------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3/backup-locks"
+    printf 'token=dead-holder\nacquired_epoch=1\nexpires_epoch=2\ninstance_index=1\n' \
+        > "$sandbox/s3/$lock_key"
+    local stale=$(lock_driver acquire-verbose)
+    if echo "$stale" | grep -q '^rc=0'; then
+        echo "✅ An expired lock is taken over"
+    else
+        echo "❌ An expired lock blocked the backup (got: $(echo "$stale" | head -1))"
+        failures=$((failures + 1))
+    fi
+    if echo "$stale" | grep -q 'expired backup lock'; then
+        echo "✅ Taking over an expired lock is reported"
+    else
+        echo "❌ Expired-lock takeover was silent"
+        failures=$((failures + 1))
+    fi
+
+    # --- An unreadable expiry is treated as live, never stolen -------------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3/backup-locks"
+    printf 'token=other\nexpires_epoch=not-a-number\ninstance_index=1\n' > "$sandbox/s3/$lock_key"
+    local bad=$(lock_driver acquire)
+    if [ "$bad" = "rc=1 owned=false" ]; then
+        echo "✅ A lock with an unreadable expiry is left alone"
+    else
+        echo "❌ A lock with an unreadable expiry was stolen (got: $bad)"
+        failures=$((failures + 1))
+    fi
+
+    # --- Fail closed when the write fails for another reason ---------------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3"
+    local blind=$(FAKE_PUT_FAIL=1 lock_driver acquire)
+    if [ "$blind" = "rc=2 owned=false" ]; then
+        echo "✅ A failed write with no lock present fails closed (rc=2)"
+    else
+        echo "❌ Did not fail closed when ownership was unknown (got: $blind)"
+        failures=$((failures + 1))
+    fi
+
+    # --- A CLI without conditional writes is named, not left to guess -------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3"
+    local unsupported=$(FAKE_PUT_UNSUPPORTED=1 lock_driver acquire-verbose)
+    if echo "$unsupported" | grep -q '^rc=2' &&
+       echo "$unsupported" | grep -q 'does not support --if-none-match'; then
+        echo "✅ A CLI lacking conditional writes is reported by name"
+    else
+        echo "❌ Unsupported conditional write was not identified (got: $(echo "$unsupported" | head -2 | tr '\n' ' '))"
+        failures=$((failures + 1))
+    fi
+
+    # --- Release ----------------------------------------------------------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3"
+    local rt=$(lock_driver roundtrip)
+    if [ "$rt" = "acquire=0 released_object_present=no" ]; then
+        echo "✅ The lock object is removed on release"
+    else
+        echo "❌ The lock was not released (got: $rt)"
+        failures=$((failures + 1))
+    fi
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3"
+    local rf=$(lock_driver release-foreign)
+    if [ "$rf" = "foreign_lock_still_present=yes" ]; then
+        echo "✅ Release does not remove a lock another run has taken over"
+    else
+        echo "❌ Release removed someone else's lock (got: $rf)"
+        failures=$((failures + 1))
+    fi
+
+    # --- End to end: a held lock skips the backup without failing ---------
+    rm -rf "$sandbox/s3"; mkdir -p "$sandbox/s3/backup-locks"
+    local future=$(( $(date -u '+%s') + 3600 ))
+    printf 'token=other-run\nacquired_epoch=1\nexpires_epoch=%s\ninstance_index=0\n' "$future" \
+        > "$sandbox/s3/$lock_key"
+    local e2e="" e2e_rc=0
+    e2e=$(
+        cd "$sandbox/tree" 2>/dev/null || exit 9
+        PATH="$sandbox/bin:$PATH"; export PATH
+        FS3="$sandbox/s3"; export FS3
+        BUCKET_NAME=test-bucket; export BUCKET_NAME
+        S3_EXTRA_PARAMS=""; export S3_EXTRA_PARAMS
+        rm -f "/tmp/backup_rate_limit_$(id -u 2>/dev/null || echo 0)"
+        sh ./scripts/snapshot/manager.sh backup db 2>&1
+    )
+    e2e_rc=$?
+    if [ "$e2e_rc" -eq 0 ] && echo "$e2e" | grep -q 'another backup is running'; then
+        echo "✅ A held lock skips the backup and exits 0 rather than alerting"
+    else
+        echo "❌ Held-lock skip behaved unexpectedly (rc=$e2e_rc)"
+        failures=$((failures + 1))
+    fi
+    if [ "$(find "$sandbox/s3/auto-backups" -type f 2>/dev/null | grep -c .)" = "0" ]; then
+        echo "✅ The skipped run wrote no backup objects"
+    else
+        echo "❌ The skipped run still wrote backup objects"
+        failures=$((failures + 1))
+    fi
+    if [ -f "$sandbox/s3/$lock_key" ] && grep -q 'token=other-run' "$sandbox/s3/$lock_key"; then
+        echo "✅ The skipped run left the other run's lock intact"
+    else
+        echo "❌ The skipped run disturbed the holder's lock"
+        failures=$((failures + 1))
+    fi
+
+    # --- Scheduling guard --------------------------------------------------
+    cron_setup() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            FAKE_CRONTAB="$sandbox/crontab.txt"; export FAKE_CRONTAB
+            CF_INSTANCE_INDEX="$1"; export CF_INSTANCE_INDEX
+            sh ./scripts/snapshot/setup-cron.sh setup db >/dev/null 2>&1
+        )
+    }
+    rm -f "$sandbox/crontab.txt"
+    cron_setup 0
+    if grep -q 'snapshot/manager.sh backup' "$sandbox/crontab.txt" 2>/dev/null; then
+        echo "✅ Instance 0 schedules the backup"
+    else
+        echo "❌ Instance 0 did not schedule the backup"
+        failures=$((failures + 1))
+    fi
+    # A container deployed before the guard carries the entry; bootstrap must clear it.
+    cron_setup 1
+    if grep -q 'snapshot/manager.sh backup' "$sandbox/crontab.txt" 2>/dev/null; then
+        echo "❌ Instance 1 kept a backup cron entry"
+        failures=$((failures + 1))
+    else
+        echo "✅ Instance 1 schedules nothing and clears an inherited entry"
+    fi
+    # Outside Cloud Foundry the variable is unset, which must not disable scheduling.
+    rm -f "$sandbox/crontab.txt"
+    (
+        cd "$sandbox/tree" 2>/dev/null || exit 9
+        PATH="$sandbox/bin:$PATH"; export PATH
+        FAKE_CRONTAB="$sandbox/crontab.txt"; export FAKE_CRONTAB
+        unset CF_INSTANCE_INDEX
+        sh ./scripts/snapshot/setup-cron.sh setup db >/dev/null 2>&1
+    )
+    if grep -q 'snapshot/manager.sh backup' "$sandbox/crontab.txt" 2>/dev/null; then
+        echo "✅ An unset CF_INSTANCE_INDEX still schedules (local and non-CF use)"
+    else
+        echo "❌ An unset CF_INSTANCE_INDEX stopped scheduling"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
 # H-04: state restoration must be verified, aggregated, and impossible to lose.
 #
 # Every case here turns on a distinction the old code could not make: a Drupal
@@ -3348,6 +3658,7 @@ main() {
     run_test "Restore Preflight and Compensation" "test_restore_preflight_and_compensation"
     run_test "Drupal State Management" "test_state_management"
     run_test "State Restoration Guarantees" "test_state_restoration_guarantees"
+    run_test "Backup Lock and Scheduling" "test_backup_lock_and_scheduling"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"

@@ -134,6 +134,27 @@ setup_cron() {
         return 1
     fi
 
+    # Only instance 0 schedules the daily backup.
+    #
+    # Bootstrap runs on every instance, so production's two CMS instances each
+    # installed this entry and both fired at the same minute against one bucket.
+    # The guard lives here rather than at the call site because this is the single
+    # place the schedule is installed, so a manual run or any future caller inherits
+    # it. CF_INSTANCE_INDEX is unset outside Cloud Foundry, which is treated as
+    # "not a multi-instance app" so local and container-less use is unaffected.
+    #
+    # Existing entries are removed on the other instances, so a container that was
+    # deployed before this guard cleans itself up on its next bootstrap.
+    # NIST 800-53: CP-9, SC-5
+    if [ -n "${CF_INSTANCE_INDEX:-}" ] && [ "${CF_INSTANCE_INDEX}" != "0" ]; then
+        print_status $YELLOW "⏭️  Instance ${CF_INSTANCE_INDEX} does not schedule backups (instance 0 does)"
+        if crontab -l 2>/dev/null | grep -q "snapshot/manager.sh"; then
+            crontab -l 2>/dev/null | grep -v "snapshot/manager.sh" | crontab -
+            print_status $GREEN "✅ Removed a backup cron entry left from a previous deploy"
+        fi
+        return 0
+    fi
+
     # Parse backup time
     hour=$(echo "$DB_BACKUP_TIME" | cut -d: -f1)
     minute=$(echo "$DB_BACKUP_TIME" | cut -d: -f2)
