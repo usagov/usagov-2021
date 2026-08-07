@@ -1,5 +1,19 @@
 #!/bin/sh -e
 
+# KNOWN BUG (documented deliberately; behaviour intentionally left as-is).
+# Several of the seds below no longer match CRS 4.10.0's crs-setup.conf and
+# silently no-op -- sed exits 0 whether or not it substitutes anything, so the
+# failure is invisible. Confirmed by inspecting the running container: the
+# id:900000 (paranoia) and id:900110 (anomaly thresholds) SecActions are still
+# commented out after this script runs.
+#
+# Consequence: PARANOIA=2 from Dockerfile-waf is NOT applied. CRS falls back to
+# the defaults set in REQUEST-901-INITIALIZATION -- paranoia level 1, inbound
+# anomaly threshold 5. PL1 is the right level for the initial CRS rollout, so
+# this is being left alone on purpose rather than "fixed" into a much noisier
+# PL2. Repair the seds only alongside a false-positive tuning pass, and note
+# that ANOMALY_INBOUND/ANOMALY_OUTBOUND are equally inert today.
+
 # Paranoia Level
 sed -z -E -i 's/#SecAction.{7}id:900000.*tx\.paranoia_level=1\"/SecAction \\\n  \"id:900000, \\\n   phase:1, \\\n   nolog, \\\n   pass, \\\n   t:none, \\\n   setvar:tx.paranoia_level='"$PARANOIA"'\"/' /etc/modsecurity.d/modsecurity-crs/crs-setup.conf
 

@@ -15,6 +15,13 @@ ENV GITCOMMIT=${GITCOMMIT:-none}
 ARG GITTAG
 ENV GITTAG=${GITTAG:-none}
 
+# NOTE: only the vars read by opt/modsecurity/activate-rules.sh take effect
+# (PARANOIA, ANOMALY_*, MODSEC_DEFAULT_PHASE*_ACTION, MODSEC_TAG, and the other
+# tx.* tunables). The MODSEC_REQ_BODY_*, MODSEC_RESP_BODY_*, MODSEC_PCRE_* and
+# MODSEC_RULE_ENGINE vars are inert here -- they are consumed by the upstream
+# owasp/modsecurity-crs image's templating, which this image does not use. The
+# values that actually apply are hardcoded in src-waf/opt/owasp-crs/modsecurity.conf.
+# Kept in sync with that file so they are not misleading.
 ENV APP_NAME=USAGov \
     ANOMALY_INBOUND=5 \
     ANOMALY_OUTBOUND=4 \
@@ -26,7 +33,7 @@ ENV APP_NAME=USAGov \
     MODSEC_PCRE_MATCH_LIMIT_RECURSION=500000 \
     MODSEC_REQ_BODY_ACCESS=on \
     MODSEC_REQ_BODY_LIMIT=13107200 \
-    MODSEC_REQ_BODY_NOFILES_LIMIT=131072 \
+    MODSEC_REQ_BODY_NOFILES_LIMIT=320000 \
     MODSEC_RESP_BODY_ACCESS=on \
     MODSEC_RESP_BODY_LIMIT=1048576 \
     MODSEC_RULE_ENGINE=on \
