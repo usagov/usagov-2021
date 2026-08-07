@@ -183,6 +183,12 @@
   padding-left: 12px;
   padding-right: 20px;
   margin-bottom: 15px;
+
+  a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
 }
 
 /* Jump */

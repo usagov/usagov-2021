@@ -11,6 +11,15 @@ valid_cidr() {
   IFS="./" read -r ip1 ip2 ip3 ip4 N <<< "$CIDR"
 
   if [ -n "$ip1" -a -n "$ip2" -a -n "$ip3" -a -n "$ip4" -a -n "$N" ]; then
+    # Each octet must be numeric and within 0-255. valid_ip() enforces this for
+    # plain addresses; without the same check here an out-of-range octet in CIDR
+    # form (for example 300.0.0.0/8) would be accepted silently.
+    for octet in "$ip1" "$ip2" "$ip3" "$ip4"; do
+      if [[ ! $octet =~ ^[0-9]+$ ]] || [ "$octet" -gt 255 ]; then
+        return 1 # CIDR NOT OK!
+      fi
+    done
+
     # Convert IP address from quad notation to integer
     local ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 + $ip4))
 
@@ -32,7 +41,9 @@ valid_cidr() {
 valid_ip() {
   # Set up local variables
   local ip=$1
-  local IFS=.; local -a a=($ip)
+  # Drop any CIDR suffix so the final octet is validated, not "d/n"
+  local addr=${ip%%/*}
+  local IFS=.; local -a a=($addr)
   # Start with a regex format test
   if [[ ! $ip =~ ^[0-9]+(\.[0-9]+){3}(\/[0-9]+)?$ ]]; then
     return 1

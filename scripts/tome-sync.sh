@@ -174,12 +174,14 @@ LCF=0
 echo "Lower-casing files:"
 old_IFS="$IFS"
 IFS=$'\n'
-for f in `find $RENDER_DIR/*`; do
+# Process paths in reverse depth order (deepest first) to avoid "No such file or directory" errors
+# when parent directories are renamed before their children
+for f in `find $RENDER_DIR/* -depth`; do
   ff=$(echo $f | tr '[A-Z]' '[a-z]');
   if [ "$f" != "$ff" ]; then
     # VERBOSE MODE
     # mv -v "$f" "$fff"
-    mv -v "$f" "$ff" > /dev/null
+    mv -v "$f" "$ff" > /dev/null 2>&1
     LCF=$((LCF+1))
   fi
 done
@@ -429,6 +431,41 @@ if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
       echo "Tome generated files : count total" | tee -a $TOMELOG
       TOME_COUNT=$(find $RENDER_DIR -type f 2>&1 | uniq | grep -v "\bfiles/styles\/" | wc -l)
       echo "      $TOME_COUNT" | tee -a $TOMELOG
+
+      # Run automatic backups using manager.sh
+      BACKUP_MANAGER="$SCRIPT_PATH/snapshot/manager.sh"
+
+      if [ -f "$BACKUP_MANAGER" ]; then
+          echo "Starting automatic backups..." | tee -a $TOMELOG
+
+          # Create static and public backups using manager.sh backup command
+          # The manager.sh script will handle all the logic, config loading, and smart detection
+          # Run from /var/www to ensure manager.sh can find its dependencies
+          # Use --throttle to skip backups if one was created recently (configurable via BACKUP_THROTTLE_HOURS)
+          if (cd /var/www && $BACKUP_MANAGER backup static,public --throttle) 2>&1 | tee -a $TOMELOG; then
+              echo "Automatic backup completed successfully." | tee -a $TOMELOG
+          else
+              echo "WARNING (backup): *** Backup process encountered issues. ***" | tee -a $TOMELOG
+          fi
+
+          # Run cleanup using manager.sh clean command
+          # Clean static/public backups older than BACKUP_RETENTION_DAYS (default: 180 days, system requirement)
+          # Use --non-interactive flag to skip confirmation prompts in automated context
+          CLEANUP_DAYS=180
+          if [ -n "$BACKUP_RETENTION_DAYS" ] && [ "$BACKUP_RETENTION_DAYS" -ge 180 ]; then
+              CLEANUP_DAYS=$BACKUP_RETENTION_DAYS
+          elif [ -n "$BACKUP_RETENTION_DAYS" ] && [ "$BACKUP_RETENTION_DAYS" -lt 180 ]; then
+              echo "WARNING (backup): *** BACKUP_RETENTION_DAYS ($BACKUP_RETENTION_DAYS) is less than minimum of 180 days. Using 180 days. ***" | tee -a $TOMELOG
+          fi
+          echo "Running automatic cleanup (retention: $CLEANUP_DAYS days for static/public)..." | tee -a $TOMELOG
+          if (cd /var/www && $BACKUP_MANAGER clean static,public $CLEANUP_DAYS --non-interactive) 2>&1 | tee -a $TOMELOG; then
+              echo "Cleanup completed." | tee -a $TOMELOG
+          else
+              echo "WARNING (backup): *** Cleanup encountered issues. ***" | tee -a $TOMELOG
+          fi
+      else
+          echo "WARNING (backup): *** Backup system not found at $BACKUP_MANAGER - skipping backups ***" | tee -a $TOMELOG
+      fi
 
       # calculate the diff between s3 and tome
       DIFF_S3_TOME=$(echo "scale=2; $S3_COUNT - $TOME_COUNT" | bc)

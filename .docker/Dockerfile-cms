@@ -98,7 +98,9 @@ RUN chown -R node:node /var/www/web/themes \
 
 USER node
 
-RUN npm install --production=false --prefix /var/www/web/themes/custom/usagov \
+RUN mkdir -p /tmp/build-metadata \
+    && node --version 2>/dev/null | tr -d 'v' > /tmp/build-metadata/node-build-version.txt \
+    && npm install --production=false --prefix /var/www/web/themes/custom/usagov \
     && npm rebuild node-sass --prefix /var/www/web/themes/custom/usagov \
     && npm run build --prefix /var/www/web/themes/custom/usagov \
     && chown -R node:node /var/www/web/themes
@@ -132,7 +134,7 @@ ENV BUILD_ENV=${BUILD_ENV:-none}
 # Users and dependencies.
 # Note: we used to use adduser and addgroup to set up the nginx user (if not already present).
 #       alpine linux adduser/addgroup don't accept numbers over 256000 so now we update
-#       /etc/passwd and /etc/group directly; see 
+#       /etc/passwd and /etc/group directly; see
 #       https://stackoverflow.com/questions/41807026/cant-add-a-user-with-a-high-uid-in-docker-alpine
 RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
     && sed -E -i "s/:x:([0-9]+):${BGID}:/:x:\1:1919:/g" /etc/passwd \
@@ -269,6 +271,7 @@ COPY --chown=nginx:nginx website-analytics /var/www/website-analytics
 COPY --from=composer-builder --chown=nginx:nginx /var/www/vendor /var/www/vendor
 COPY --from=composer-builder --chown=nginx:nginx /var/www/web /var/www/web
 COPY --from=theme-builder --chown=nginx:nginx /var/www/web/themes/custom /var/www/web/themes/custom
+COPY --from=theme-builder --chown=nginx:nginx /tmp/build-metadata /etc/build-metadata
 
 # Add the zscaler certificate to the trusted certs only on local builds
 # COPY cannot be conditional, but RUN can run conditional code.
