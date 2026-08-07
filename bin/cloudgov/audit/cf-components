@@ -1,270 +1,214 @@
 #!/usr/bin/env bash
-#
-# This script will compile a report of our cf env's components
-#
+set -euo pipefail
 
-# Styling variables
-underline=`tput smul`
-nounderline=`tput rmul`
-bold=`tput bold`
-normal=`tput sgr0`
-level2="  "
-level3="    "
-level4="      "
-level5="        "
-level6="          "
+die() { echo "$*" >&2; exit 2; }
+status() { printf '[cf-components] %s\n' "$*" >&2; }
 
-die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
-needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+usage() {
+  cat <<'EOF'
+Usage: cf-components [OPTIONS]
 
-# Defaults (to be thorough, you could also assign alpha="" and charlie="")
-all=false       # Overridden by the value set by -b or --bravo
-spaces="all"       # Overridden by the value set by -s or --spaces
+Orchestrate component audit generation and translation.
 
-while getopts as: OPT; do  # allow -a, -b with arg, and -- "with arg"
-  # support long options: https://stackoverflow.com/a/28466267/519360
-  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
-    OPT="${OPTARG%%=*}"       # extract long option name
-    OPTARG="${OPTARG#"$OPT"}" # extract long option argument (may be empty)
-    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
-  fi
-  case "$OPT" in
-    a | all )      all=true ;;
-    s | spaces )   needs_arg; spaces="$OPTARG" ;;
-    \? )           exit 2 ;;  # bad short option (error reported via getopts)
-    * )            die "Illegal option --$OPT" ;;  # bad long option
-  esac
-done
-shift $((OPTIND-1)) # remove parsed options and args from $@ list
+Options:
+  -a, --all                 Report on all organizations.
+  -o, --org NAME            Report on a specific organization. Defaults to gsa-tts-usagov.
+  -s, --space NAMES         Limit spaces by comma-separated name. Defaults to all.
+  --json-only               Generate JSON only and write it to a file.
+  --to-file                 Write JSON to a generated file.
+  --output-json FILE        Write JSON report to FILE.
+  --docx                    Translate the generated JSON into a DOCX report.
+  --csv                     Translate the generated JSON into CSV files.
+  --csv-diff OLD_JSON       Compare OLD_JSON to generated JSON and emit field-level changes.csv.
+  --out-dir DIR             Write DOCX/CSV outputs into DIR.
+  --all-formats, --af       Generate JSON, DOCX, and CSV outputs.
+  -h, --help                Show this help message.
 
-getPaginationCount() { # $1 = resource, $2 = relationship, $3 = relationship id
-  PAGES=$(cf curl "/v3/$1" | jq -r '.pagination | .total_pages');
-  SELECT=""
-  if [ -n "$2" ]; then
-    SELECT=' select( .relationships.'"$2"'.data.guid == "'"$3"'" ) |'
-  fi
-  for i in $(seq 1 "$PAGES"); do
-    IDS=${IDS}$(cf curl "/v3/$1?page=$i&per_page=50" | jq -r '[.resources[] |'"$SELECT"' .guid]')
-  done
-  echo "$IDS"
+If no translation flags are provided, this command behaves like the JSON generator and emits JSON to stdout.
+File outputs default to bin/cloudgov/audit/outputs/SCOPE-YYYYMMDDTHHMMSS/.
+changes.csv is written to the component audit CSV directory only when
+--csv-diff OLD_JSON is provided.
+EOF
 }
 
-echo "${bold}${underline}CF Components${nounderline}${normal}"
+sanitize_scope() { # $1 = scope label
+  jq -nr --arg value "$1" '
+    $value
+    | ascii_downcase
+    | gsub("^\\s+|\\s+$"; "")
+    | gsub("\\s*,\\s*"; "-")
+    | gsub("[^a-z0-9]+"; "-")
+    | gsub("^-+|-+$"; "")
+    | if length == 0 then "all" else . end
+  '
+}
 
-# Orgs->Domains/Spaces->Apps/Services->Tasks/Sidecars
-if [ $all == true ]; then
-  ORGIDS=$(getPaginationCount "organizations")
-else
-  echo "Showing info for gsa-tts-usagov, add --all argument to see all orgs."
-  ORGIDS=$(cf curl "/v3/organizations" | jq -r '[.resources[] | select(.name == "gsa-tts-usagov") | .guid]')
-fi
+json_args=()
+json_only=false
+write_to_file=false
+translate_docx=false
+translate_csv=false
+translate_csv_diff=false
+csv_diff_old_json=""
+output_json=""
+out_dir=""
+output_scope="gsa-tts-usagov"
+all_formats=false
 
-IFS=',' read -r -a spaces_array <<< "$spaces"
-
-echo "$ORGIDS" | jq -r '.[]' | while read -r ORGID; do
-  ORG=$(cf curl "/v3/organizations/$ORGID")
-  ORGNAME=$(echo "$ORG" | jq -r '.name')
-  ORGCREATE=$(echo "$ORG" | jq -r '.created_at')
-  ORGUPDATE=$(echo "$ORG" | jq -r '.updated_at')
-
-  echo "Org: ${underline}$ORGNAME${nounderline} (Last updated: $ORGUPDATE | Created: $ORGCREATE)"
-
-  DOMIANIDS=$(getPaginationCount "domains" "organization" "$ORGID")
-  if [ "$DOMIANIDS" != "[]" ]; then
-    echo "$level2 Domains:"
-    echo "$DOMIANIDS" | jq -r '.[]' | while read -r DOMIANID; do
-      DOMAIN=$(cf curl "/v3/domains/$DOMIANID")
-      DOMAINNAME=$(echo "$DOMAIN" | jq -r '.name')
-      DOMAINCREATED=$(echo "$DOMAIN" | jq -r '.created_at')
-      DOMAINUPDATED=$(echo "$DOMAIN" | jq -r '.updated_at')
-      DOMAININTERNAL=$(echo "$DOMAIN" | jq -r '.internal')
-      DOMAINPROTOCOLS=$(echo "$DOMAIN" | jq -c '.supported_protocols')
-      echo "$level3 $DOMAINNAME (Last updated: $DOMAINUPDATED | Created: $DOMAINCREATED | Internal: $DOMAININTERNAL | Supported Protocols: $DOMAINPROTOCOLS)"
-    done
-  fi
-
-  if [ $spaces == "all" ]; then
-    SPACEPAGES=$(cf curl "/v3/spaces" | jq -r '.pagination | .total_pages');
-    if [[ $SPACEPAGES -gt 1 ]]; then
-      for i in $SPACEPAGES; do
-        SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
-      done
-    else
-      SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid')
-    fi
-  else
-    SPACEPAGES=$(cf curl "/v3/spaces" | jq -r '.pagination | .total_pages');
-    if [[ $SPACEPAGES -gt 1 ]]; then
-      for i in $SPACEPAGES; do
-        SPACEIDS=$(cf curl "/v3/spaces?page=$i&per_page=50" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
-          SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
-          for space in "${spaces_array[@]}"; do
-            if [[ "$space" == "$SPACENAME" ]]; then
-              echo "$SPACEID"
-            fi
-          done
-        done)
-      done
-    else
-      SPACEIDS=$(cf curl "/v3/spaces" | jq -r '.resources[] | select( .relationships.organization.data.guid == "'$ORGID'" ) | .guid' | while read -r SPACEID; do
-        SPACENAME=$(cf curl "/v3/spaces/$SPACEID" | jq -r '.name')
-        for space in "${spaces_array[@]}"; do
-          if [[ "$space" == "$SPACENAME" ]]; then
-            echo "$SPACEID"
-          fi
-        done
-      done)
-    fi
-  fi
-
-  echo "$SPACEIDS" | while read -r SPACEID; do
-    SPACE=$(cf curl "/v3/spaces/$SPACEID")
-    SPACENAME=$(echo "$SPACE" | jq -r '.name')
-    SPACECREATED=$(echo "$SPACE" | jq -r '.created_at')
-    SPACEUPDATE=$(echo "$SPACE" | jq -r '.updated_at')
-    echo "$level2 Space: ${underline}$SPACENAME${nounderline} (Last updated: $SPACEUPDATE | Created: $SPACECREATED)"
-
-    SERVICEIDS=$(getPaginationCount "service_instances" "space" "$SPACEID")
-    if [ "$SERVICEIDS" != "[]" ]; then
-      echo "$level3 Services:"
-      echo "$SERVICEIDS" | jq -r '.[]' | while read -r SERVICEID; do
-        SERVICELASTOPERATION=""
-        SERVICE=$(cf curl "/v3/service_instances/$SERVICEID")
-        SERVICENAME=$(echo "$SERVICE" | jq -r '.name')
-        SERVICECREATED=$(echo "$SERVICE" | jq -r '.created_at')
-        SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.updated_at')
-        if [ "$(echo "$SERVICE" | jq -r '.last_operation')" != "{}" ]; then
-          SERVICETYPE=$(echo "$SERVICE" | jq -r '.last_operation.type')
-          SERVICESTATE=$(echo "$SERVICE" | jq -r '.last_operation.state')
-          SERVICEDESCRIPTION=$(echo "$SERVICE" | jq -r '.last_operation.description')
-          SERVICEUPDATED=$(echo "$SERVICE" | jq -r '.last_operation.updated_at')
-
-          SERVICELASTOPERATION="(Last operation at $SERVICEUPDATED; Type: $SERVICETYPE | State: $SERVICESTATE | Description: $SERVICEDESCRIPTION)"
-        fi
-        echo "$level4 $SERVICENAME Last updated: $SERVICEUPDATED | Created: $SERVICECREATED $SERVICELASTOPERATION"
-      done
-    fi
-
-    ROUTEIDS=$(getPaginationCount "routes" "space" "$SPACEID")
-    if [ "$ROUTEIDS" != "[]" ]; then
-      echo "$level3 Routes:"
-      echo "$ROUTEIDS" | jq -r '.[]' | while read -r ROUTEID; do
-        ROUTE=$(cf curl "/v3/routes/$ROUTEID")
-        ROUTECREATED=$(echo "$ROUTE" | jq -r '.created_at')
-        ROUTEUPDATED=$(echo "$ROUTE" | jq -r '.updated_at')
-        ROUTEHOST=$(echo "$ROUTE" | jq -r '.host')
-        ROUTEPATH=$(echo "$ROUTE" | jq -r '.path')
-        ROUTEURL=$(echo "$ROUTE" | jq -r '.url')
-        echo "$level4 $ROUTEURL (Last updated: $ROUTEUPDATED | Created: $ROUTECREATED | Host: $ROUTEHOST | Path: $ROUTEPATH)"
-      done
-    fi
-
-    SGROUPIDS=$(getPaginationCount "spaces/$SPACEID/running_security_groups")
-    if [ "$SGROUPIDS" != "[]" ]; then
-      echo "$level3 Attached Security Groups:"
-      echo "$SGROUPIDS" | jq -r '.[]' | while read -r SGROUPID; do
-        SGROUP=$(cf curl "/v3/security_groups/$SGROUPID")
-        SGROUPCREATED=$(echo "$SGROUP" | jq -r '.created_at')
-        SGROUPUPDATED=$(echo "$SGROUP" | jq -r '.updated_at')
-        SGROUPNAME=$(echo "$SGROUP" | jq -r '.name')
-        echo "$level4 $SGROUPNAME (Last updated: $SGROUPUPDATED | Created: $SGROUPCREATED)"
-      done
-    fi
-
-    APPIDS=$(getPaginationCount "apps" "space" "$SPACEID")
-    if [ "$APPIDS" != "[]" ]; then
-      echo "$level3 Apps:"
-      echo "$APPIDS" | jq -r '.[]' | while read -r APPID; do
-        APP=$(cf curl "/v3/apps/$APPID")
-        APPNAME=$(echo "$APP" | jq -r '.name')
-        APPCREATED=$(echo "$APP" | jq -r '.created_at')
-        APPUPDATED=$(echo "$APP" | jq -r '.updated_at')
-        APPSTATE=$(echo "$APP" | jq -r '.state')
-        APPTYPE=$(echo "$APP" | jq -r '.lifecycle.type')
-
-        if [ "$APPTYPE" != "docker" ]; then
-          APPBUILDPACKS=$(echo "$APP" | jq -c '.lifecycle.data.buildpacks')
-          APPSTACK=$(echo "$APP" | jq -c '.lifecycle.data.stack')
-          APPSTACKINFO=" | Buildpacks: $APPBUILDPACKS | Stack: $APPSTACK"
-        fi
-        echo "$level4 $APPNAME (Last updated: $APPUPDATED | Created: $APPCREATED | State: $APPSTATE | Type: $APPTYPE$APPSTACKINFO)"
-
-        DROPLETID=$(cf curl "/v3/apps/$APPID/droplets/current" | jq -r '.guid')
-        if [ -n "$DROPLETID" ]; then
-          DROPLET=$(cf curl "/v3/droplets/$DROPLETID")
-          DROPLETSTATE=$(echo "$DROPLET" | jq -r '.state')
-          DROPLETCREATED=$(echo "$DROPLET" | jq -r '.created_at')
-          DROPLETUPDATED=$(echo "$DROPLET" | jq -r '.updated_at')
-          DROPLETSTACK=$(echo "$DROPLET" | jq -r '.stack')
-          DROPLETSTACKOUT=""
-          if [ "$DROPLETSTACK" != "null" ]; then
-            DROPLETSTACKOUT=" | Stack: $DROPLETSTACK"
-          fi
-          DROPLETIMAGEOUT=""
-          DROPLETIMAGE=$(echo "$DROPLET" | jq -r '.image')
-          if [ "$DROPLETIMAGE" != "null" ]; then
-            DROPLETIMAGEOUT=" | Image: $DROPLETIMAGE"
-          fi
-          echo "$level5 Current Droplet: $DROPLETSTATE (Last updated: $DROPLETUPDATED | Created: $DROPLETCREATED$DROPLETSTACKOUT$DROPLETIMAGEOUT)"
-        fi
-
-        TASKCOUNT=$(cf curl "/v3/apps/$APPID/tasks" | jq -r '.pagination | .total_results')
-        if [ "$TASKCOUNT" != "[]" ]; then
-          echo "$level5 Number of Tasks attached to $APPNAME: $TASKCOUNT"
-        fi
-
-        SIDECARIDS=$(getPaginationCount "apps/$APPID/sidecars" "app" "$APPID")
-        if [ "$SIDECARIDS" != "[]" ]; then
-          echo "$level5 Sidecars:"
-          echo "$SIDECARIDS" | jq -r '.[]' | while read -r SIDECARID; do
-            SIDECAR=$(cf curl "/v3/sidecars/$SIDECARID")
-            SIDECARNAME=$(echo "$SIDECAR" | jq -r '.name')
-            SIDECARCREATED=$(echo "$SIDECAR" | jq -r '.created_at')
-            SIDECARUPDATED=$(echo "$SIDECAR" | jq -r '.updated_at')
-            SIDECARCOMMAND=$(echo "$SIDECAR" | jq -r '.command')
-            SIDECARPROCESS=$(echo "$SIDECAR" | jq -c '.process_types')
-            SIDECARMEMORY=$(echo "$SIDECAR" | jq -r '.memory_in_mb')
-            SIDECARORIGIN=$(echo "$SIDECAR" | jq -r '.origin')
-            echo "$level6 $SIDECARNAME (Last updated: $SIDECARUPDATED | Created: $SIDECARCREATED | Command: $SIDECARCOMMAND | Process Types: $SIDECARPROCESS | Memory: $SIDECARMEMORY mb | Origin: $SIDECARORIGIN)"
-          done
-        fi
-      done
-    fi
-  done
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a|--all)
+      json_args+=(--all)
+      output_scope="all"
+      ;;
+    -o|--org)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --org option"
+      [[ -n "$1" ]] || die "No arg for --org option"
+      json_args+=(--org "$1")
+      output_scope="$1"
+      ;;
+    --org=*)
+      json_args+=(--org="${1#*=}")
+      [[ -n "${1#*=}" ]] || die "No arg for --org option"
+      output_scope="${1#*=}"
+      ;;
+    -s|--space)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --space option"
+      [[ -n "$1" ]] || die "No arg for --space option"
+      json_args+=(--space "$1")
+      output_scope="$1"
+      ;;
+    --space=*)
+      json_args+=(--space="${1#*=}")
+      [[ -n "${1#*=}" ]] || die "No arg for --space option"
+      output_scope="${1#*=}"
+      ;;
+    --json-only)
+      json_only=true
+      ;;
+    --to-file)
+      write_to_file=true
+      ;;
+    --output-json)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --output-json option"
+      [[ -n "$1" ]] || die "No arg for --output-json option"
+      output_json="$1"
+      ;;
+    --output-json=*)
+      output_json="${1#*=}"
+      [[ -n "$output_json" ]] || die "No arg for --output-json option"
+      ;;
+    --docx)
+      translate_docx=true
+      ;;
+    --csv)
+      translate_csv=true
+      ;;
+    --csv-diff)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --csv-diff option"
+      [[ -n "$1" ]] || die "No arg for --csv-diff option"
+      translate_csv_diff=true
+      csv_diff_old_json="$1"
+      ;;
+    --csv-diff=*)
+      translate_csv_diff=true
+      csv_diff_old_json="${1#*=}"
+      [[ -n "$csv_diff_old_json" ]] || die "No arg for --csv-diff option"
+      ;;
+    --out-dir)
+      shift
+      [[ $# -gt 0 ]] || die "No arg for --out-dir option"
+      [[ -n "$1" ]] || die "No arg for --out-dir option"
+      out_dir="$1"
+      ;;
+    --out-dir=*)
+      out_dir="${1#*=}"
+      [[ -n "$out_dir" ]] || die "No arg for --out-dir option"
+      ;;
+    --all-formats|--af)
+      all_formats=true
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "Illegal option $1"
+      ;;
+  esac
+  shift
 done
 
-# Misc info
-# Users temporarily removed as there is no way to filter users by organization.
-#
-# if [ $all == true ]; then
-#   echo "Showing all orgs.  For security reasons, the display of users is suppressed.  Remove -a argument to see users for gsa-tts-usagov org."
-# else
-#   USERIDS=$(getPaginationCount "users")
-#   if [ "$USERIDS" != "[]" ]; then
-#     echo "${underline}Users:${nounderline}"
-#     echo "$USERIDS" | jq -r '.[]' | while read -r USERID; do
-#       USER=$(cf curl "/v3/users/$USERID")
-#       USERNAME=$(echo "$USER" | jq -r '.username')
-#       USERPCREATED=$(echo "$USER" | jq -r '.created_at')
-#       USERPUPDATE=$(echo "$USER" | jq -r '.updated_at')
-#       USERPRESENTATION=$(echo "$USER" | jq -r '.presentation_name')
-#       USERORIGIN=$(echo "$USER" | jq -r '.origin')
-#       echo "$level2 $USERNAME (Last updated: $USERPUPDATE | Created: $USERPCREATED | Presentation Name: $USERPRESENTATION | Origin: $USERORIGIN)"
-#     done
-#   fi
-# fi
+if [[ "$all_formats" == true ]]; then
+  translate_docx=true
+  translate_csv=true
+fi
 
-GROUPIDS=$(getPaginationCount "security_groups")
-if [ "$GROUPIDS" != "[]" ]; then
-  echo "${underline}Security Groups:${nounderline}"
-  echo "$GROUPIDS" | jq -r '.[]' | while read -r GROUPID; do
-    GROUP=$(cf curl "/v3/security_groups/$GROUPID")
-    GROUPNAME=$(echo "$GROUP" | jq -r '.name')
-    GROUPUPDATED=$(echo "$GROUP" | jq -r '.created_at')
-    GROUPUPDATED=$(echo "$GROUP" | jq -r '.updated_at')
-    GROUPRULES=$(echo "$GROUP" | jq -r '.rules')
-    echo "$level2 $GROUPNAME (Last updated: $GROUPUPDATED | Created: $GROUPUPDATED)"
-    echo "$level3 Rules:"
-    echo "$level4 $GROUPRULES"
-  done
+if [[ "$translate_csv_diff" == true && -z "$csv_diff_old_json" ]]; then
+  die "--csv-diff requires an existing OLD_JSON argument"
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+json_script="$script_dir/cf-components-json"
+docx_script="$script_dir/cf-components-translate-docx"
+csv_script="$script_dir/cf-components-translate-csv"
+diff_script="$script_dir/cf-components-translate-csv-diff"
+run_output_dir="$script_dir/outputs/$(sanitize_scope "$output_scope")-$(date +'%Y%m%dT%H%M%S')"
+
+run_json_script() {
+  if [[ "${#json_args[@]}" -gt 0 ]]; then
+    "$json_script" "${json_args[@]}" "$@"
+  else
+    "$json_script" "$@"
+  fi
+}
+
+if [[ "$translate_docx" == false && "$translate_csv" == false && "$translate_csv_diff" == false && "$json_only" == false && "$write_to_file" == false && -z "$output_json" ]]; then
+  status "Generating JSON to stdout..."
+  if [[ "${#json_args[@]}" -gt 0 ]]; then
+    exec "$json_script" "${json_args[@]}"
+  else
+    exec "$json_script"
+  fi
+fi
+
+if [[ -z "$output_json" ]]; then
+  output_json="$run_output_dir/$(date +'%Y-%m')-component-audit.json"
+fi
+mkdir -p "$(dirname "$output_json")"
+
+if [[ -z "$out_dir" ]]; then
+  out_dir="$(dirname "$output_json")"
+fi
+
+csv_output_dir="$out_dir/$(basename "${output_json%.json}-csv")"
+
+status "Generating JSON report to $output_json"
+run_json_script --output-file "$output_json"
+
+if [[ "$translate_csv" == true ]]; then
+  mkdir -p "$csv_output_dir"
+  status "Translating JSON to CSV files: $csv_output_dir"
+  "$csv_script" --input "$output_json" --out-dir "$csv_output_dir"
+fi
+
+if [[ "$translate_csv_diff" == true ]]; then
+  mkdir -p "$csv_output_dir"
+  status "Generating changes.csv from $csv_diff_old_json to $output_json: $csv_output_dir/changes.csv"
+  "$diff_script" "$csv_diff_old_json" "$output_json" --out-dir "$csv_output_dir"
+fi
+
+if [[ "$translate_docx" == true ]]; then
+  mkdir -p "$out_dir"
+  docx_output="$out_dir/$(basename "${output_json%.json}.docx")"
+  status "Translating JSON to DOCX report: $docx_output"
+  "$docx_script" --input "$output_json" --output "$docx_output"
+fi
+
+if [[ "$json_only" == true || "$write_to_file" == true || "$translate_docx" == true || "$translate_csv" == true || "$translate_csv_diff" == true ]]; then
+  status "Component audit workflow complete. JSON: $output_json"
 fi
