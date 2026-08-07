@@ -35,8 +35,8 @@ paths.forEach(path => {
             .eq(0)
             .find('a')
             .click()
-            .url().should('include', '/financial-hardship')
-            .go('back')
+        cy.url().should('include', '/financial-hardship')
+        cy.go('back')
 
         // test second card
         cy.get('ul.usa-card-group')
@@ -44,8 +44,8 @@ paths.forEach(path => {
             .eq(1)
             .find('a')
             .click()
-            .url().should('include', '/early-childhood')
-            .go('back')
+        cy.url().should('include', '/early-childhood')
+        cy.go('back')
 
         // test third card
         cy.get('ul.usa-card-group')
@@ -53,8 +53,8 @@ paths.forEach(path => {
             .eq(2)
             .find('a')
             .click()
-            .url().should('include', '/adulthood')
-            .go('back')
+        cy.url().should('include', '/adulthood')
+        cy.go('back')
 
         // test fourth card
         cy.get('ul.usa-card-group')
@@ -62,8 +62,8 @@ paths.forEach(path => {
             .eq(3)
             .find('a')
             .click()
-            .url().should('include', '/approaching-retirement')
-            .go('back')
+        cy.url().should('include', '/approaching-retirement')
+        cy.go('back')
 
         // test fifth card
         cy.get('ul.usa-card-group')
@@ -71,8 +71,8 @@ paths.forEach(path => {
             .eq(4)
             .find('a')
             .click()
-            .url().should('include', '/disaster')
-            .go('back')
+        cy.url().should('include', '/disaster')
+        cy.go('back')
 
         // test sixth card
         cy.get('ul.usa-card-group')
@@ -80,8 +80,8 @@ paths.forEach(path => {
             .eq(5)
             .find('a')
             .click()
-            .url().should('include', '/death-loved-one')
-            .go('back')
+        cy.url().should('include', '/death-loved-one')
+        cy.go('back')
 
          // test number of cards
          cy.get('ul.usa-card-group')
@@ -96,8 +96,8 @@ paths.forEach(path => {
             .eq(0)
             .find('a')
             .click()
-            .url().should('include', '/es/enfrentar-dificultades-economicas')
-            .go('back')
+        cy.url().should('include', '/es/enfrentar-dificultades-economicas')
+        cy.go('back')
 
         // test second card
         cy.get('ul.usa-card-group')
@@ -105,8 +105,8 @@ paths.forEach(path => {
             .eq(1)
             .find('a')
             .click()
-            .url().should('include', '/es/embarazo-primera-infancia')
-            .go('back')
+        cy.url().should('include', '/es/embarazo-primera-infancia')
+        cy.go('back')
 
         // test third card
         cy.get('ul.usa-card-group')
@@ -114,8 +114,8 @@ paths.forEach(path => {
             .eq(2)
             .find('a')
             .click()
-            .url().should('include', '/es/prepararse-para-la-jubilacion')
-            .go('back')
+        cy.url().should('include', '/es/prepararse-para-la-jubilacion')
+        cy.go('back')
 
         // test fourth card
         cy.get('ul.usa-card-group')
@@ -123,8 +123,8 @@ paths.forEach(path => {
             .eq(3)
             .find('a')
             .click()
-            .url().should('include', '/es/transicion-edad-adulta')
-            .go('back')
+        cy.url().should('include', '/es/transicion-edad-adulta')
+        cy.go('back')
 
         // test fifth card
         cy.get('ul.usa-card-group')
@@ -132,8 +132,8 @@ paths.forEach(path => {
             .eq(4)
             .find('a')
             .click()
-            .url().should('include', '/es/recuperarse-desastre-natural')
-            .go('back')
+        cy.url().should('include', '/es/recuperarse-desastre-natural')
+        cy.go('back')
 
         // test sixth card
         cy.get('ul.usa-card-group')
@@ -141,8 +141,8 @@ paths.forEach(path => {
             .eq(5)
             .find('a')
             .click()
-            .url().should('include', '/es/muerte-de-un-ser-querido')
-            .go('back')
+        cy.url().should('include', '/es/muerte-de-un-ser-querido')
+        cy.go('back')
         }
         })
     })

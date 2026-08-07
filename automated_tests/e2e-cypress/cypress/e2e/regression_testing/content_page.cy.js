@@ -231,11 +231,9 @@ paths.forEach((path, idx) => {
     });
     it(`${testName} 36: Back to top button`, () => {
       //test back to top button
-      cy.scrollTo("bottom")
-        .get("#back-to-top")
-        .click()
-        .url()
-        .should("include", "#main-content");
+      cy.scrollTo("bottom");
+      cy.get("#back-to-top").click();
+      cy.url().should("include", "#main-content");
     });
   });
 });
