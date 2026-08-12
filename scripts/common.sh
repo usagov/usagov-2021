@@ -1968,7 +1968,17 @@ diagnose_cf_ssh_failure() {
 
     if ! cf target >/dev/null 2>&1; then
         {
-            print_status $RED "❌ Not logged in to Cloud Foundry (or the session expired)"
+            print_status $RED "❌ Not logged in to Cloud Foundry"
+            print_status $YELLOW "   Run: bin/cloudgov/login --sso"
+        } >&2
+        return 1
+    fi
+
+    # `cf target` only reads the local config, so it keeps succeeding after the
+    # session dies. Refreshing the token is what proves the session is live.
+    if ! cf oauth-token >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ Cloud Foundry session expired (token expired or revoked)"
             print_status $YELLOW "   Run: bin/cloudgov/login --sso"
         } >&2
         return 1
@@ -1997,6 +2007,29 @@ diagnose_cf_ssh_failure() {
         print_status $RED "❌ SSH to '$app' in space '${space:-unknown}' works, but the remote command failed or returned no data"
         print_status $YELLOW "   Debug interactively with: cf ssh $app"
     } >&2
+    return 1
+}
+
+# Check that the local CF session is usable *before* starting an operation
+# that writes files or takes a long time, so it fails with an actionable
+# message instead of half-finishing. diagnose_cf_ssh_failure reports the
+# specific cause.
+# `cf oauth-token` is the probe that matters: `cf target` reads the cached
+# config, so it still exits 0 once the token has expired or been revoked.
+# Args:
+#   $1: app name used in the diagnostic message (default: cms)
+# Returns: 0 when the CLI is present and the session is live, 1 otherwise
+# (printing the cause and fix to stderr)
+require_cf_session() {
+    local app="${1:-cms}"
+
+    if command -v cf >/dev/null 2>&1 &&
+       cf target >/dev/null 2>&1 &&
+       cf oauth-token >/dev/null 2>&1; then
+        return 0
+    fi
+
+    diagnose_cf_ssh_failure "$app"
     return 1
 }
 

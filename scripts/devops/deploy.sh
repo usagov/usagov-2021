@@ -84,8 +84,9 @@ show_usage() {
     echo "                                        Automatically creates annotated git tag for deployment tracking"
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
-    echo "  download-backups [tag]                 Download latest backups locally (db/static/public)"
+    echo "  download-backups [tag] [output-dir]   Download latest backups locally (db/static/public)"
     echo "                                        Default tag: newest backup in current CF space"
+    echo "                                        Default output dir: current directory"
     echo ""
     echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
@@ -512,11 +513,17 @@ show_command_help() {
         "download-backups")
             echo "Download Backups Locally"
             echo ""
-            echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
+            echo "Usage: deploy.sh download-backups [tag] [output-dir] [--json] [--output-dir=<path>]"
             echo ""
             echo "Description:"
             echo "  Downloads db/static/public backups to the current directory."
             echo "  If no tag is provided, the newest backup for the current CF space is used."
+            echo "  Requires an active CF session (bin/cloudgov/login --sso)."
+            echo ""
+            echo "Arguments:"
+            echo "  tag         - Backup tag (optional - uses latest if omitted)"
+            echo "  output-dir  - Output directory (optional - same as --output-dir=<path>)"
+            echo "                Created if it does not exist"
             echo ""
             echo "Options:"
             echo "  --json              - Output as JSON"
@@ -525,6 +532,7 @@ show_command_help() {
             echo "Example:"
             echo "  deploy.sh download-backups"
             echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0"
+            echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0 ./backups"
             echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0 --output-dir=./backups"
             echo "  deploy.sh download-backups --json"
             echo ""
@@ -2352,11 +2360,53 @@ rollback_db() {
     rollback_single_type "db" "$1" "$2" "$3"
 }
 
+# Stream one backup artifact out of the cms container to a local file.
+# Writes to a .part file and only moves it into place once the payload really
+# is a gzip archive, so a failed run (expired session, missing tag) leaves no
+# stub file behind for someone to mistake for a backup.
+# Args:
+#   $1: backup tag
+#   $2: type - db|static|public
+#   $3: destination path
+# Returns: 0 on success (echoing the human-readable size), 1 on failure
+download_backup_artifact() {
+    local tag="$1"
+    local type="$2"
+    local dest="$3"
+    local partial="${dest}.part"
+    local cmd
+
+    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$tag" "$type")
+    if ! cf ssh cms -c "$cmd" > "$partial" 2>/dev/null; then
+        rm -f "$partial"
+        return 1
+    fi
+
+    # Every artifact is gzipped, so the stream must start with the gzip magic
+    # bytes (1f 8b). An empty stream or a cf error banner written to stdout
+    # ("FAILED") is not a backup.
+    if [ "$(head -c 2 "$partial" 2>/dev/null | od -An -tx1 | tr -d ' \n')" != "1f8b" ]; then
+        rm -f "$partial"
+        return 1
+    fi
+
+    if ! mv -f "$partial" "$dest"; then
+        rm -f "$partial"
+        return 1
+    fi
+
+    # awk, not `cut -f1`: BSD du pads the size field, which prints as "( 33M)"
+    du -h "$dest" | awk '{print $1}'
+    return 0
+}
+
 # Download backups locally - defaults to latest backup for current space
 download_backups() {
     local tag=""
     local output_dir="$(pwd)"
+    local output_dir_set=false
     local use_json=false
+    local usage="Usage: deploy.sh download-backups [tag] [output-dir] [--json] [--output-dir=<path>]"
 
     # Parse arguments
     while [ $# -gt 0 ]; do
@@ -2367,27 +2417,77 @@ download_backups() {
                 ;;
             --output-dir=*)
                 output_dir="${1#*=}"
+                output_dir_set=true
                 shift
                 ;;
             -*)
                 print_status $RED "❌ Unknown option: $1"
-                echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
+                echo "$usage"
                 return 2
                 ;;
             *)
-                # First non-flag arg is tag; there is no second positional -
-                # output dir must be passed as --output-dir=<path>
+                # First non-flag arg is the tag, second is the output directory
+                # (same as --output-dir=<path>)
                 if [ -z "$tag" ]; then
                     tag="$1"
+                elif [ "$output_dir_set" = false ]; then
+                    output_dir="$1"
+                    output_dir_set=true
                 else
                     print_status $RED "❌ Unexpected argument: $1"
-                    echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
+                    echo "$usage"
                     return 2
                 fi
                 shift
                 ;;
         esac
     done
+
+    # list-backups prints static/public backups as S3 prefixes with a trailing
+    # slash ("PRE AUTO-dr-...-0/"), so trim it off a pasted tag instead of
+    # building a path like "<dir>/<tag>/-database.sql.gz"
+    while [ -n "$tag" ] && [ "$tag" != "${tag%/}" ]; do
+        tag="${tag%/}"
+    done
+
+    # Reject a tag the backup system would not accept before building local
+    # paths out of it. A pasted S3 key is the common mistake, so name it.
+    case "$tag" in
+        */*)
+            print_status $RED "❌ Invalid backup tag: $tag"
+            print_status $YELLOW "   Use the tag name only, without a path (see: deploy.sh list-backups)"
+            return 2
+            ;;
+    esac
+
+    if [ -n "$tag" ] && ! validate_backup_tag "$tag"; then
+        return 2
+    fi
+
+    # Trim trailing slashes so output paths do not come out as "<dir>//<tag>-..."
+    while [ "$output_dir" != "/" ] && [ "$output_dir" != "${output_dir%/}" ]; do
+        output_dir="${output_dir%/}"
+    done
+    [ -z "$output_dir" ] && output_dir="$(pwd)"
+
+    # Confirm the CF session before touching the filesystem - otherwise the
+    # shell redirects below create the output files whether or not cf can run
+    if ! require_cf_session cms; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Not logged in to Cloud Foundry (or the session expired)"}' | jq .
+        fi
+        return 3
+    fi
+
+    if [ ! -d "$output_dir" ] && ! mkdir -p "$output_dir" 2>/dev/null; then
+        print_status $RED "❌ Output directory does not exist and could not be created: $output_dir"
+        return 2
+    fi
+
+    if [ ! -w "$output_dir" ]; then
+        print_status $RED "❌ Output directory is not writable: $output_dir"
+        return 2
+    fi
 
     # If no tag provided, find the most recent backup
     if [ -z "$tag" ]; then
@@ -2450,16 +2550,13 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading database..."
     fi
-    local cmd
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q db - --stream' "$tag")
-    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
-    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-database.sql.gz" ]; then
+    if db_size=$(download_backup_artifact "$tag" db "${output_dir}/${tag}-database.sql.gz"); then
         db_success=true
-        db_size=$(du -h "${output_dir}/${tag}-database.sql.gz" | cut -f1)
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Database downloaded ($db_size)"
         fi
     else
+        db_size="0"
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Database download failed"
         fi
@@ -2471,15 +2568,13 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading static site..."
     fi
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q static - --stream' "$tag")
-    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
-    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-static.tar.gz" ]; then
+    if static_size=$(download_backup_artifact "$tag" static "${output_dir}/${tag}-static.tar.gz"); then
         static_success=true
-        static_size=$(du -h "${output_dir}/${tag}-static.tar.gz" | cut -f1)
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Static site downloaded ($static_size)"
         fi
     else
+        static_size="0"
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Static site download failed"
         fi
@@ -2491,15 +2586,13 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading public files..."
     fi
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q public - --stream' "$tag")
-    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
-    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-public.tar.gz" ]; then
+    if public_size=$(download_backup_artifact "$tag" public "${output_dir}/${tag}-public.tar.gz"); then
         public_success=true
-        public_size=$(du -h "${output_dir}/${tag}-public.tar.gz" | cut -f1)
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Public files downloaded ($public_size)"
         fi
     else
+        public_size="0"
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Public files download failed"
         fi
@@ -2540,14 +2633,20 @@ EOF
         echo ""
         if [ $failed -eq 0 ]; then
             print_status $GREEN "✅ Download complete!"
-            echo ""
-            echo "Downloaded files:"
-            ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        elif [ $failed -eq 3 ]; then
+            print_status $RED "❌ Download failed - no backups were saved"
         else
             print_status $YELLOW "⚠️  Download completed with $failed error(s)"
+        fi
+
+        # List only what actually landed on disk, so a partial run cannot look
+        # like a complete set of backups
+        if [ $failed -lt 3 ]; then
             echo ""
             echo "Downloaded files:"
-            ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+            [ "$db_success" = true ] && ls -lh "${output_dir}/${tag}-database.sql.gz"
+            [ "$static_success" = true ] && ls -lh "${output_dir}/${tag}-static.tar.gz"
+            [ "$public_success" = true ] && ls -lh "${output_dir}/${tag}-public.tar.gz"
         fi
     fi
 
