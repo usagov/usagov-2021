@@ -10,7 +10,6 @@
  * @property {string} lastPageAria Aria property for lat page link
  * @property {string} emptyCategoryError Error message when no category is selected
  * @property {string} appliedCategories Heading for applied categories column
- * @property {string} lifeEventsCategory Life events category name
  * @property {string} benefitFinderCategory Benefit finder category name
  * @property {string} showingResults Template for count and range of results shown
  * @property {string} selectionsCleared Template for count and range of results shown
@@ -20,7 +19,6 @@
  * the paginated results
  *
  * @param {string} benefitsPath
- * @param {string} lifeEventsPath
  * @param {string} assetBase
  * @param {string} docLang
  * @param {TranslationLabels} labels
@@ -29,11 +27,10 @@
  * @param {int} perPage
  * @constructor
  */
-function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels, form, resultsContainer, perPage) {
+function BenefitSearch(benefitsPath, assetBase, docLang, labels, form, resultsContainer, perPage) {
   "use strict";
 
   this.benefitsSrc = benefitsPath;
-  this.life = lifeEventsPath;
   this.assetBase = assetBase;
   this.docLang = docLang;
   this.labels = labels;
@@ -81,51 +78,6 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     return await response.json();
   };
   /**
-   * @typedef LifeEvent
-   * @type Object
-   * @property {int} nid
-   * @property {int|int[]} tid
-   * @property {string} name Term name
-   * @property {string} field_b_search_title Title to display
-   * @property {string} field_short_description Short Description
-   * @property {string} title Life event title
-   * @property {string} type
-   * @property {string[]} terms
-   */
-  /**
-   * @returns {Promise<Map<int, LifeEvent>>}
-   */
-  this.fetchLifeEvents = async function() {
-    const response = await fetch(myself.life);
-    if (!response.ok) {
-      throw new Error('Error fetching benefits ' + response.status);
-    }
-    /**
-     * @var {LifeEvent[]} raw
-     */
-    const raw = await response.json();
-    // We need to consolidate life events that may reference more
-    // than one category into a single entry per life event.
-    /**
-     * @var {Map<int, LifeEvent>} lifeEvents
-     */
-    let lifeEvents = new Map();
-    for (const lifeEvent of raw) {
-      if (lifeEvents.has(lifeEvent.nid)) {
-        let existing = lifeEvents.get(lifeEvent.nid);
-        existing.tid.push(lifeEvent.tid);
-        existing.terms.push(lifeEvent.name);
-        lifeEvents.set(lifeEvent.nid, existing);
-      }
-      else {
-        lifeEvent.tid = [lifeEvent.tid];
-        lifeEvent.terms = [lifeEvent.name];
-        lifeEvents.set(lifeEvent.nid, lifeEvent);
-      }
-    }
-    return lifeEvents;
-  };
-  /**
    * @returns {array}
    */
   this.findMatches = function() {
@@ -137,14 +89,6 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
     matches = matches.map(myself.getItemWeight);
     matches = matches.sort(myself.compareResults);
 
-    if (!myself.areAllChecked()) {
-      // prepend any life events that match
-      for (const [, lifeEvent] of myself.lifeEvents) {
-        if (myself.lifeEventHasTopic(lifeEvent.tid, myself.terms)) {
-          matches.unshift(lifeEvent);
-        }
-      }
-    }
     return matches;
   };
   /**
@@ -173,19 +117,6 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
       return +1;
     }
     return 0;
-  };
-  /**
-   * @param {int[]} tids
-   * @param {int[]} terms
-   * @return boolean
-   */
-  this.lifeEventHasTopic = function(tids, terms) {
-    for (const tid of tids) {
-      if (terms.includes(tid)) {
-        return true;
-      }
-    }
-    return false;
   };
   /**
    * Clears the results container
@@ -379,26 +310,7 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
       description = benefit.field_page_intro;
     }
 
-    switch (benefit.type) {
-      case 'Life Event':
-        let termMarkup = '';
-
-        benefit.terms.forEach(term => termMarkup += `<li>${term}</li>`);
-
-        elt.innerHTML += `<div class="grid-row benefits-result">
-<div class="desktop:grid-col-8 benefits-result-text">
-  <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.field_b_search_title}</a></h3>
-  <p>${description}</p></div>
-<div class="desktop:grid-col-4 benefits-result-categories"><h4>${myself.labels.appliedCategories}</h4>
-  <ul>
-  <li>${myself.labels.benefitFinderCategory}</li><li>${myself.labels.lifeEventsCategory}</li>${termMarkup}</div>
-  </ul>
-</div>`;
-        break;
-
-      case 'Basic Page':
-      default:
-        elt.innerHTML += `<div class="grid-row benefits-result">
+    elt.innerHTML += `<div class="grid-row benefits-result">
 <div class="desktop:grid-col-8 benefits-result-text">
   <h3><a href="${benefit.view_node}" data-analytics="category-results-links" hreflang="${myself.docLang}">${benefit.title}</a></h3>
   <p>${description}</p></div>
@@ -406,7 +318,6 @@ function BenefitSearch(benefitsPath, lifeEventsPath, assetBase, docLang, labels,
 ${benefit.term_node_tid}
 </div>
 </div>`;
-    }
 
     return elt;
   };
@@ -593,7 +504,6 @@ ${benefit.term_node_tid}
   this.init = async function() {
     // load data and initial URL state
     this.benefits = await myself.fetchBenefits();
-    this.lifeEvents = await myself.fetchLifeEvents();
     this.parseUrlState();
     // checkbox events
     this.toggleAll.addEventListener('click', myself.handleToggleAll);
@@ -617,12 +527,11 @@ ${benefit.term_node_tid}
 jQuery(document).ready(async function () {
   "use strict";
   let docLang = [document.documentElement.lang];
-  let benefitsPath, lifeEventsPath, labels;
+  let benefitsPath, labels;
   // using relative URL so that this works on static pages
   // Setup language specific inputs
   if (docLang[0] === 'en') {
     benefitsPath = "../_data/benefits-search/en/pages.json";
-    lifeEventsPath = "../_data/benefits-search/en/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ of @totalItems@ results',
       'page': "page",
@@ -634,14 +543,12 @@ jQuery(document).ready(async function () {
       'lastPageAria': 'Last page',
       'emptyCategoryError': 'Error: Please select at least one or more categories',
       'appliedCategories': 'Applied categories',
-      'lifeEventsCategory': 'Life events',
       'benefitFinderCategory': 'Benefit finder tool',
       'selectionsCleared': 'Your selections were cleared.',
     };
   }
   else if (docLang[0] === 'es') {
     benefitsPath = "../../_data/benefits-search/es/pages.json";
-    lifeEventsPath = "../../_data/benefits-search/es/life-events.json";
     labels = {
       'showingResults': '@first@&ndash;@last@ de @totalItems@ resultados',
       'page': "página",
@@ -653,7 +560,6 @@ jQuery(document).ready(async function () {
       'lastPageAria': 'Ultima página',
       'emptyCategoryError': 'Error: Por favor seleccione una o más categorías.',
       'appliedCategories': 'Categorías seleccionadas',
-      'lifeEventsCategory': 'Etapas de la vida',
       'benefitFinderCategory': 'Buscador de beneficios',
       'selectionsCleared': 'Sus selecciones de categorías fueron reiniciadas.',
     };
@@ -661,7 +567,6 @@ jQuery(document).ready(async function () {
   // creat and initialize the search tool
   const ben = new BenefitSearch(
     benefitsPath,
-    lifeEventsPath,
     '/themes/custom/usagov',
     docLang[0],
     labels,
