@@ -5,3 +5,4 @@ applications:
     instances: 1
     buildpacks:
       - python_buildpack
+    stack: cflinuxfs4

@@ -1,0 +1,616 @@
+#!/usr/bin/env python3
+"""Generate a human-readable DOCX component audit report from cf-components JSON.
+
+This intentionally uses only the Python standard library so the audit workflow does
+not depend on pandoc, python-docx, or Google APIs being installed locally.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterable
+from xml.sax.saxutils import escape
+
+NS_W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+NS_REL = "http://schemas.openxmlformats.org/package/2006/relationships"
+MAX_DETAIL_ITEMS = 8
+MAX_CELL_CHARS = 450
+PAGE_TEXT_WIDTH_DXA = 10800
+MIN_COLUMN_WIDTH_DXA = 850
+MAX_COLUMN_WEIGHT_CHARS = 36
+WRAP_AFTER_CHARS = "/.-_:@?&=#"
+
+
+def text_value(value: Any) -> str:
+    """Return a compact human-readable value for table cells."""
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, list):
+        return ", ".join(text_value(item) for item in value if text_value(item))
+    if isinstance(value, dict):
+        return json.dumps(value, sort_keys=True)
+    return str(value)
+
+
+def clean_text(value: Any, max_chars: int | None = None) -> str:
+    value = re.sub(r"\s+", " ", text_value(value)).strip()
+    if max_chars is not None and len(value) > max_chars:
+        return value[: max_chars - 1].rstrip() + "…"
+    return value
+
+
+def clean_cell(value: Any) -> str:
+    return clean_text(value, MAX_CELL_CHARS)
+
+
+def wrap_friendly_text(value: Any, max_chars: int | None = None) -> str:
+    """Insert zero-width break opportunities into long identifiers and URLs."""
+    text = clean_text(value, max_chars)
+    if len(text) < 24:
+        return text
+
+    pieces = []
+    run_length = 0
+    for char in text:
+        pieces.append(char)
+        if char.isspace():
+            run_length = 0
+            continue
+        run_length += 1
+        if char in WRAP_AFTER_CHARS or run_length >= 18:
+            pieces.append("\u200b")
+            run_length = 0
+    return "".join(pieces)
+
+
+def xml_text(value: Any, max_chars: int | None = None) -> str:
+    return escape(wrap_friendly_text(value, max_chars), {'"': "&quot;"})
+
+
+def column_widths(headers: list[str], rows: list[list[Any]]) -> list[int]:
+    """Return fixed table column widths that fit within the printable page width."""
+    column_count = max(1, len(headers))
+    weights = [max(4, min(len(clean_cell(header)), MAX_COLUMN_WEIGHT_CHARS)) for header in headers]
+
+    sample_rows = rows[:80]
+    for row in sample_rows:
+        padded = row + [""] * max(0, column_count - len(row))
+        for index, value in enumerate(padded[:column_count]):
+            weights[index] = max(weights[index], min(len(clean_cell(value)), MAX_COLUMN_WEIGHT_CHARS))
+
+    min_total = MIN_COLUMN_WIDTH_DXA * column_count
+    if min_total >= PAGE_TEXT_WIDTH_DXA:
+        base = PAGE_TEXT_WIDTH_DXA // column_count
+        widths = [base] * column_count
+        widths[-1] += PAGE_TEXT_WIDTH_DXA - sum(widths)
+        return widths
+
+    remaining_width = PAGE_TEXT_WIDTH_DXA - min_total
+    total_weight = sum(weights) or column_count
+    widths = [MIN_COLUMN_WIDTH_DXA + int(remaining_width * weight / total_weight) for weight in weights]
+    widths[-1] += PAGE_TEXT_WIDTH_DXA - sum(widths)
+    return widths
+
+
+def count(value: Any) -> int:
+    return len(value) if isinstance(value, list) else 0
+
+
+def metric_number(value: int) -> str:
+    return f"{value:,}"
+
+
+def summarize(items: Iterable[str], max_items: int = MAX_DETAIL_ITEMS) -> str:
+    unique_items = []
+    seen = set()
+    for item in items:
+        item = clean_cell(item)
+        if item and item not in seen:
+            seen.add(item)
+            unique_items.append(item)
+    if not unique_items:
+        return "None"
+    if len(unique_items) <= max_items:
+        return ", ".join(unique_items)
+    remaining = len(unique_items) - max_items
+    return ", ".join(unique_items[:max_items]) + f", +{remaining} more"
+
+
+def get_nested(obj: dict[str, Any], path: Iterable[str], default: Any = "") -> Any:
+    current: Any = obj
+    for part in path:
+        if not isinstance(current, dict) or part not in current:
+            return default
+        current = current[part]
+    return current
+
+
+class DocxBuilder:
+    def __init__(self) -> None:
+        self.parts: list[str] = []
+
+    def heading(self, text: str, level: int = 1) -> None:
+        level = max(1, min(level, 4))
+        self.parts.append(
+            f'<w:p><w:pPr><w:pStyle w:val="Heading{level}"/></w:pPr>'
+            f'<w:r><w:t xml:space="preserve">{xml_text(text)}</w:t></w:r></w:p>'
+        )
+
+    def paragraph(self, text: str) -> None:
+        self.parts.append(
+            f'<w:p><w:pPr><w:spacing w:after="80"/></w:pPr><w:r><w:t xml:space="preserve">{xml_text(text)}</w:t></w:r></w:p>'
+        )
+
+    def table(self, headers: list[str], rows: list[list[Any]]) -> None:
+        if not rows:
+            self.paragraph("None")
+            return
+
+        widths = column_widths(headers, rows)
+        table_parts = [
+            '<w:tbl>',
+            '<w:tblPr>',
+            f'<w:tblW w:w="{PAGE_TEXT_WIDTH_DXA}" w:type="dxa"/>',
+            '<w:tblLayout w:type="fixed"/>',
+            '<w:jc w:val="left"/>',
+            '<w:tblCellMar><w:top w:w="35" w:type="dxa"/><w:left w:w="45" w:type="dxa"/>'
+            '<w:bottom w:w="35" w:type="dxa"/><w:right w:w="45" w:type="dxa"/></w:tblCellMar>',
+            '<w:tblBorders>'
+            '<w:top w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'
+            '<w:left w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'
+            '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'
+            '<w:right w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'
+            '<w:insideH w:val="single" w:sz="4" w:space="0" w:color="D9D9D9"/>'
+            '<w:insideV w:val="single" w:sz="4" w:space="0" w:color="D9D9D9"/>'
+            '</w:tblBorders>',
+            '</w:tblPr>',
+        ]
+        table_parts.append('<w:tblGrid>')
+        for width in widths:
+            table_parts.append(f'<w:gridCol w:w="{width}"/>')
+        table_parts.append('</w:tblGrid>')
+        table_parts.append(self._row(headers, widths, header=True, shaded=False))
+        for index, row in enumerate(rows):
+            padded = row + [""] * max(0, len(headers) - len(row))
+            table_parts.append(self._row(padded[: len(headers)], widths, header=False, shaded=(index % 2 == 1)))
+        table_parts.append('</w:tbl>')
+        self.parts.append("".join(table_parts))
+        self.paragraph("")
+
+    def _row(self, cells: list[Any], widths: list[int], header: bool, shaded: bool) -> str:
+        row_parts = ['<w:tr>']
+        for index, cell in enumerate(cells):
+            if header:
+                shading = '<w:shd w:fill="D9EAF7"/>'
+            elif shaded:
+                shading = '<w:shd w:fill="F4F4F4"/>'
+            else:
+                shading = ""
+            bold_start = '<w:b/>' if header else ""
+            width = widths[index] if index < len(widths) else widths[-1]
+            row_parts.append(
+                f'<w:tc><w:tcPr><w:tcW w:w="{width}" w:type="dxa"/>'
+                f'{shading}</w:tcPr><w:p><w:pPr><w:spacing w:after="0"/></w:pPr>'
+                f'<w:r><w:rPr>{bold_start}<w:sz w:val="16"/><w:szCs w:val="16"/></w:rPr>'
+                f'<w:t xml:space="preserve">{xml_text(cell, MAX_CELL_CHARS)}</w:t></w:r></w:p></w:tc>'
+            )
+        row_parts.append('</w:tr>')
+        return "".join(row_parts)
+
+    def document_xml(self) -> str:
+        body = "".join(self.parts)
+        return f'''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="{NS_W}" xmlns:r="{NS_R}">
+  <w:body>
+    {body}
+    <w:sectPr>
+      <w:pgSz w:w="12240" w:h="15840"/>
+      <w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" w:header="720" w:footer="720" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>
+'''
+
+
+def flatten_spaces(report: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    spaces: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for org in report.get("organizations", []) or []:
+        for space in org.get("spaces", []) or []:
+            spaces.append((org, space))
+    return spaces
+
+
+def flatten_apps(report: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    apps = []
+    for org, space in flatten_spaces(report):
+        for app in space.get("apps", []) or []:
+            apps.append((org, space, app))
+    return apps
+
+
+def flatten_services(report: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    services = []
+    for org, space in flatten_spaces(report):
+        for service in space.get("services", []) or []:
+            services.append((org, space, service))
+    return services
+
+
+def flatten_routes(report: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    routes = []
+    for org, space in flatten_spaces(report):
+        for route in space.get("routes", []) or []:
+            routes.append((org, space, route))
+    return routes
+
+
+def app_route_lookup(report: dict[str, Any]) -> dict[str, list[str]]:
+    lookup: dict[str, list[str]] = {}
+    for _org, _space, route in flatten_routes(report):
+        url = route.get("url") or ""
+        for destination in route.get("destinations", []) or []:
+            guid = get_nested(destination, ["app", "guid"], "")
+            if guid and url:
+                lookup.setdefault(guid, []).append(url)
+    return lookup
+
+
+def route_destination_apps(route: dict[str, Any]) -> list[str]:
+    names = []
+    for destination in route.get("destinations", []) or []:
+        app = destination.get("app") or {}
+        process = destination.get("process") or {}
+        label = app.get("name") or app.get("guid") or "unknown app"
+        process_type = process.get("type")
+        if process_type:
+            label = f"{label}/{process_type}"
+        names.append(label)
+    return names
+
+
+def service_binding_apps(service: dict[str, Any]) -> list[str]:
+    names = []
+    for binding in service.get("credential_bindings", []) or []:
+        app = binding.get("app") or {}
+        if app.get("name") or app.get("guid"):
+            names.append(app.get("name") or app.get("guid"))
+    return names
+
+
+def service_offering_name(service: dict[str, Any]) -> str:
+    """Return a readable offering label for brokered and user-created services."""
+    offering = clean_cell(get_nested(service, ["service_plan", "service_offering", "name"], ""))
+    return offering if offering else "User Created"
+
+
+def build_report(report: dict[str, Any], input_path: Path, output_path: Path) -> DocxBuilder:
+    doc = DocxBuilder()
+    meta = report.get("meta", {}) or {}
+    org_filter = get_nested(meta, ["filters", "organization"], {}) or {}
+    space_filter = get_nested(meta, ["filters", "space"], {}) or {}
+    spaces = flatten_spaces(report)
+    apps = flatten_apps(report)
+    services = flatten_services(report)
+    routes = flatten_routes(report)
+    security_groups = report.get("security_groups", []) or []
+    route_lookup = app_route_lookup(report)
+
+    total_processes = sum(count(app.get("processes")) for _org, _space, app in apps)
+    total_sidecars = sum(count(app.get("sidecars")) for _org, _space, app in apps)
+    total_tasks = sum(int(app.get("task_count") or 0) for _org, _space, app in apps)
+    total_destinations = sum(count(route.get("destinations")) for _org, _space, route in routes)
+    total_credential_bindings = sum(count(service.get("credential_bindings")) for _org, _space, service in services)
+    total_route_bindings = sum(count(service.get("route_bindings")) for _org, _space, service in services)
+    total_attached_security_groups = sum(count(space.get("attached_security_groups")) for _org, space in spaces)
+    started_apps = sum(1 for _org, _space, app in apps if app.get("state") == "STARTED")
+    stopped_apps = [f"{space.get('name')}/{app.get('name')}" for _org, space, app in apps if app.get("state") != "STARTED"]
+    routes_without_destinations = [f"{space.get('name')}/{route.get('url')}" for _org, space, route in routes if count(route.get("destinations")) == 0]
+    services_without_bindings = [f"{space.get('name')}/{service.get('name')}" for _org, space, service in services if count(service.get("credential_bindings")) == 0]
+    apps_with_tasks = [f"{space.get('name')}/{app.get('name')}" for _org, space, app in apps if int(app.get("task_count") or 0) > 0]
+    apps_without_current_droplet = [f"{space.get('name')}/{app.get('name')}" for _org, space, app in apps if app.get("current_droplet") is None]
+
+    org_value = org_filter.get("name") if org_filter.get("mode") == "selected" else "all"
+    if space_filter.get("mode") == "selected":
+        space_value = ", ".join(space_filter.get("names", []) or [])
+    else:
+        space_value = "all"
+
+    csv_dir = output_path.parent / f"{input_path.stem}-csv"
+
+    doc.heading("Cloud.gov Component Audit", 1)
+    doc.paragraph("Human-readable inventory report generated from the component audit JSON.")
+    doc.paragraph(
+        "This document provides a detailed, review-friendly summary of the environment, but it is not an exhaustive "
+        "record of every captured field. For the complete source data and spreadsheet-friendly detail, refer to the "
+        f"JSON file at {input_path.as_posix()} and the CSV output folder at {csv_dir.as_posix()}."
+    )
+
+    doc.heading("How to Read This Report", 2)
+    doc.paragraph(
+        "This DOCX is intended for review and sharing in Google Drive. Use the Executive Summary "
+        "section for a quick read. Use the Relationship Maps section to "
+        "understand how apps connect to routes and services. Use the Detailed Inventory appendix "
+        "for reference-level detail; the JSON remains the raw source data and the CSV files are "
+        "best for sorting, filtering, and spreadsheet analysis."
+    )
+
+    doc.heading("Report Metadata", 2)
+    doc.table(
+        ["Field", "Value"],
+        [
+            ["Generated at", meta.get("generated_at", "")],
+            ["Organization scope", org_value],
+            ["Space scope", space_value],
+            ["JSON source", input_path.name],
+            ["CSV folder", f"{input_path.stem}-csv/"],
+            ["Generated document", output_path.name],
+        ],
+    )
+
+    related_files = [
+        [input_path.name, "Full raw audit source data for this run"],
+        [output_path.name, "Human-readable report for review and sharing"],
+    ]
+    for csv_name, purpose in [
+        ("apps.csv", "Application inventory"),
+        ("apps-processes.csv", "Application process details"),
+        ("apps-sidecars.csv", "Application sidecar details"),
+        ("services.csv", "Service inventory"),
+        ("routes.csv", "Route inventory"),
+        ("routes-destinations.csv", "Route destination details"),
+        ("security-groups.csv", "Global security group inventory"),
+        ("security-groups-rules.csv", "Global security group rule details"),
+        ("service-credential-bindings.csv", "App service credential binding details"),
+        ("service-route-bindings.csv", "Route service binding details"),
+    ]:
+        if (csv_dir / csv_name).exists():
+            related_files.append([f"{input_path.stem}-csv/{csv_name}", purpose])
+    changes_csv_path = csv_dir / "changes.csv"
+    if changes_csv_path.exists():
+        related_files.append([f"{input_path.stem}-csv/changes.csv", "Field-level changes from the provided previous JSON baseline"])
+
+    doc.heading("Related Files", 2)
+    doc.table(["File", "Purpose"], related_files)
+
+    doc.heading("Executive Summary", 1)
+    doc.heading("Metrics Summary", 2)
+    doc.table(
+        ["Metric", "Total"],
+        [
+            ["Organizations", metric_number(count(report.get("organizations")))],
+            ["Spaces", metric_number(len(spaces))],
+            ["Applications", metric_number(len(apps))],
+            ["Started applications", metric_number(started_apps)],
+            ["Non-started applications", metric_number(len(stopped_apps))],
+            ["Service instances", metric_number(len(services))],
+            ["Routes", metric_number(len(routes))],
+            ["Route destinations", metric_number(total_destinations)],
+            ["Service credential bindings", metric_number(total_credential_bindings)],
+            ["Service route bindings", metric_number(total_route_bindings)],
+            ["Processes", metric_number(total_processes)],
+            ["Sidecars", metric_number(total_sidecars)],
+            ["Tasks", metric_number(total_tasks)],
+            ["Running security group attachments", metric_number(total_attached_security_groups)],
+            ["Global security groups", metric_number(len(security_groups))],
+        ],
+    )
+
+    doc.heading("Notable Findings", 2)
+    notable_findings = [
+        ["Non-started apps", len(stopped_apps), summarize(stopped_apps)],
+        ["Routes with no destinations", len(routes_without_destinations), summarize(routes_without_destinations)],
+        ["Services with no app credential bindings", len(services_without_bindings), summarize(services_without_bindings)],
+        ["Apps with running tasks", len(apps_with_tasks), summarize(apps_with_tasks)],
+        ["Apps without a current droplet", len(apps_without_current_droplet), summarize(apps_without_current_droplet)],
+    ]
+    notable_findings = [row for row in notable_findings if row[1] > 0]
+    if notable_findings:
+        doc.table(
+            ["Finding", "Count", "Details"],
+            notable_findings,
+        )
+    else:
+        doc.paragraph("No notable findings were detected in this run.")
+
+    doc.heading("Space Overview", 2)
+    doc.table(
+        ["Organization", "Space", "Apps", "Services", "Routes", "Running security groups"],
+        [
+            [
+                org.get("name"),
+                space.get("name"),
+                count(space.get("apps")),
+                count(space.get("services")),
+                count(space.get("routes")),
+                count(space.get("attached_security_groups")),
+            ]
+            for org, space in spaces
+        ],
+    )
+
+    doc.heading("Relationship Maps", 1)
+    doc.heading("App Route Map", 2)
+    app_route_rows = []
+    for _org, space, route in routes:
+        destination_apps = route_destination_apps(route)
+        if destination_apps:
+            for app_name in destination_apps:
+                app_route_rows.append([space.get("name"), app_name, route.get("url")])
+        else:
+            app_route_rows.append([space.get("name"), "No destination", route.get("url")])
+    doc.table(["Space", "App / Process", "Route"], app_route_rows)
+
+    doc.heading("App Service Binding Map", 2)
+    binding_rows = []
+    for _org, space, service in services:
+        bound_apps = service_binding_apps(service)
+        for app_name in bound_apps:
+            binding_rows.append([space.get("name"), app_name, service.get("name"), service_offering_name(service)])
+    doc.table(["Space", "App", "Service", "Offering"], binding_rows)
+
+    doc.heading("Detailed Inventory", 1)
+    doc.heading("Global Security Groups", 2)
+    doc.table(
+        ["Name", "Rules", "Created", "Updated"],
+        [[group.get("name"), count(group.get("rules")), group.get("created_at", ""), group.get("updated_at", "")] for group in security_groups],
+    )
+
+    for org in report.get("organizations", []) or []:
+        doc.heading(f"Organization: {org.get('name', 'unknown')}", 2)
+        doc.heading("Domains", 3)
+        doc.table(
+            ["Domain", "Internal", "Supported protocols"],
+            [[domain.get("name"), domain.get("internal", ""), domain.get("supported_protocols", [])] for domain in org.get("domains", []) or []],
+        )
+
+        for space in org.get("spaces", []) or []:
+            space_name = space.get("name", "unknown")
+            doc.heading(f"Space: {space_name}", 3)
+            doc.table(
+                ["Metric", "Count"],
+                [
+                    ["Apps", count(space.get("apps"))],
+                    ["Services", count(space.get("services"))],
+                    ["Routes", count(space.get("routes"))],
+                    ["Running security groups", count(space.get("attached_security_groups"))],
+                ],
+            )
+
+            doc.heading("Apps", 4)
+            doc.table(
+                ["App", "State", "Runtime", "Processes", "Sidecars", "Tasks", "Routes"],
+                [
+                    [
+                        app.get("name"),
+                        app.get("state"),
+                        get_nested(app, ["lifecycle", "type"], ""),
+                        count(app.get("processes")),
+                        count(app.get("sidecars")),
+                        int(app.get("task_count") or 0),
+                        summarize(route_lookup.get(app.get("guid", ""), []), max_items=4),
+                    ]
+                    for app in space.get("apps", []) or []
+                ],
+            )
+
+            doc.heading("Services", 4)
+            doc.table(
+                ["Service", "Plan", "Offering", "Credentials", "Routes", "Bound apps"],
+                [
+                    [
+                        service.get("name"),
+                        clean_cell(get_nested(service, ["service_plan", "name"], "")),
+                        service_offering_name(service),
+                        count(service.get("credential_bindings")),
+                        count(service.get("route_bindings")),
+                        summarize(service_binding_apps(service), max_items=4),
+                    ]
+                    for service in space.get("services", []) or []
+                ],
+            )
+
+            doc.heading("Routes", 4)
+            doc.table(
+                ["Route", "Destinations", "Destination apps"],
+                [[route.get("url"), count(route.get("destinations")), summarize(route_destination_apps(route), max_items=4)] for route in space.get("routes", []) or []],
+            )
+
+            doc.heading("Running Security Groups", 4)
+            doc.table(
+                ["Security group", "Created", "Updated"],
+                [[group.get("name"), group.get("created_at", ""), group.get("updated_at", "")] for group in space.get("attached_security_groups", []) or []],
+            )
+
+    doc.paragraph(f"Report document generated at {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}.")
+    return doc
+
+
+def content_types_xml() -> str:
+    return '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>
+'''
+
+
+def root_rels_xml() -> str:
+    return f'''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="{NS_REL}">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>
+'''
+
+
+def document_rels_xml() -> str:
+    return f'''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="{NS_REL}">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>
+'''
+
+
+def styles_xml() -> str:
+    return f'''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="{NS_W}">
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:before="360" w:after="160"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:before="280" w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="26"/></w:rPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:before="220" w:after="100"/></w:pPr><w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>
+  <w:style w:type="paragraph" w:styleId="Heading4"><w:name w:val="heading 4"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:before="180" w:after="80"/></w:pPr><w:rPr><w:b/><w:sz w:val="20"/></w:rPr></w:style>
+</w:styles>
+'''
+
+
+def write_docx(report: dict[str, Any], input_path: Path, output_path: Path) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    doc = build_report(report, input_path, output_path)
+    with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("[Content_Types].xml", content_types_xml())
+        archive.writestr("_rels/.rels", root_rels_xml())
+        archive.writestr("word/_rels/document.xml.rels", document_rels_xml())
+        archive.writestr("word/styles.xml", styles_xml())
+        archive.writestr("word/document.xml", doc.document_xml())
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate a DOCX component audit report.")
+    parser.add_argument("--input", default="-", help="Read component audit JSON from FILE. Defaults to stdin.")
+    parser.add_argument("--output", help="Write DOCX output to FILE. Defaults to input base name + .docx.")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str]) -> int:
+    args = parse_args(argv)
+    if args.input == "-":
+        report = json.load(sys.stdin)
+        input_path = Path("component-audit.json")
+    else:
+        input_path = Path(args.input)
+        if not input_path.is_file():
+            print(f"Input file not found: {input_path}", file=sys.stderr)
+            return 2
+        with input_path.open("r", encoding="utf-8") as handle:
+            report = json.load(handle)
+
+    output_path = Path(args.output) if args.output else input_path.with_suffix(".docx")
+    write_docx(report, input_path, output_path)
+    print(f"[cf-components-translate-docx] DOCX written to {output_path}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
