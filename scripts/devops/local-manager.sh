@@ -12,6 +12,9 @@ umask 077
 # Requires: CF CLI installed and authenticated
 # ===================================================================
 
+SCRIPT_DIR=$(dirname "$0")
+. "$SCRIPT_DIR/../common.sh"
+
 COMMAND="${1:-}"
 
 # ===================================================================
@@ -39,7 +42,7 @@ show_usage() {
     echo "  test                                   Run backup system test suite on CF"
     echo "  current-digests                        Show container digests captured by cron (what backup would capture)"
     echo "  cron <subcommand>                      Manage automated database backup cron jobs"
-    echo "  state <action> <type> [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both)"
+    echo "  state <action> [type] [max_wait_mins]   Manage Drupal state (action: enable|disable, type: tome|sm|both, default: both)"
     echo ""
     echo "Cron Subcommands:"
     echo "  setup                    Configure automated database backups (uses DB_BACKUP_TIME env var)"
@@ -279,17 +282,18 @@ show_command_help() {
         "state")
             echo "Manage Drupal State"
             echo ""
-            echo "Usage: local-manager.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: local-manager.sh state <action> [type] [max_wait_mins]"
             echo ""
             echo "Description:"
             echo "  Enable or disable Drupal state management for backups/maintenance."
             echo ""
             echo "Arguments:"
             echo "  action         - 'enable' or 'disable'"
-            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default: both)"
             echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
             echo "Examples:"
+            echo "  local-manager.sh state disable            # both, defaults to 25 min wait"
             echo "  local-manager.sh state disable tome 30"
             echo "  local-manager.sh state enable tome"
             echo "  local-manager.sh state disable sm"
@@ -354,6 +358,11 @@ remote_command() {
     local _cmd
     _cmd=$(printf ' %q' "$@")
     cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/manager.sh${_cmd}"
+    local _rc=$?
+    if [ $_rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $_rc
 }
 
 # Download backups from CF to local machine with streaming support
@@ -556,6 +565,7 @@ download_command() {
             fi
         else
             echo "❌ $label backup failed or not found"
+            diagnose_cf_ssh_failure cms
             rm -f "$output_file"
             return 1
         fi
@@ -680,10 +690,15 @@ case "$COMMAND" in
         # test - run test suite on CF
         echo "🧪 Running backup system test suite on Cloud Foundry..."
         echo ""
-        cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/test.sh"
+        cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/test.sh" || diagnose_cf_ssh_failure cms
         ;;
     "current-digests")
         # current-digests - show current live container digests via CF CLI
+        if ! cf app cms >/dev/null 2>&1; then
+            echo "❌ Could not query apps in the current space"
+            diagnose_cf_ssh_failure cms
+            exit 1
+        fi
         _space=$(cf target | grep 'space:' | awk '{print $2}')
         _cms=$(cf app cms 2>/dev/null | grep 'docker image' | awk '{print $NF}')
         _www=$(cf app www 2>/dev/null | grep 'docker image' | awk '{print $NF}')
@@ -713,7 +728,7 @@ case "$COMMAND" in
                 else
                     cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh %q' "$CRON_SUBCOMMAND")
                 fi
-                cf ssh cms -c "$cmd"
+                cf ssh cms -c "$cmd" || diagnose_cf_ssh_failure cms
                 ;;
             *)
                 echo "❌ Unknown cron subcommand: $CRON_SUBCOMMAND"
@@ -724,8 +739,13 @@ case "$COMMAND" in
         esac
         ;;
     "state")
-        # state <action> <type> [max_wait_mins] - Manage Drupal state
-        remote_command state "$2" "$3" "$4"
+        # state <action> [type] [max_wait_mins] - Manage Drupal state
+        if [ -z "$2" ]; then
+            echo "❌ Error: action required (enable|disable)"
+            echo "Usage: local-manager.sh state <action> [type] [max_wait_mins]"
+            exit 1
+        fi
+        remote_state_command "$2" "$3" "$4"
         ;;
     *)
         echo "❌ Unknown command: $COMMAND"
