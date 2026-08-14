@@ -1140,7 +1140,7 @@ exec_backup_command() {
 
     # Run backup command
     local cmd
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
+    cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup $(shell_quote "$types") $(shell_quote "$ticket") $(shell_quote "$suffix")"
     cf ssh cms -c "$cmd"
     local rc=$?
     if [ $rc -ne 0 ]; then
@@ -1159,12 +1159,12 @@ exec_restore_command() {
     local tag="$1"
     local only_flag="${2:-}"
 
-    # Use printf %q for safe shell escaping to prevent command injection
+    # Use shell_quote for safe shell escaping to prevent command injection
     local cmd
     if [ -n "$only_flag" ]; then
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q %q --skip-confirmation' "$tag" "$only_flag")
+        cmd="cd /var/www && scripts/snapshot/manager.sh restore $(shell_quote "$tag") $(shell_quote "$only_flag") --skip-confirmation"
     else
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q --skip-confirmation' "$tag")
+        cmd="cd /var/www && scripts/snapshot/manager.sh restore $(shell_quote "$tag") --skip-confirmation"
     fi
     cf ssh cms -c "$cmd"
     local rc=$?
@@ -1648,9 +1648,9 @@ downsync() {
 
     # Upload and restore database
     print_status $BLUE "📤 Uploading and restoring database..."
-    # Use printf %q for safe shell escaping
+    # Use shell_quote for safe shell escaping
     local upload_cmd
-    upload_cmd=$(printf 'cat > /tmp/%q.sql.gz' "$backup_tag")
+    upload_cmd="cat > /tmp/$(shell_quote "$backup_tag").sql.gz"
     print_status $BLUE "  Uploading database backup to $to_space..."
     cf ssh cms -c "$upload_cmd" < "$db_file"
     local db_upload_exit=$?
@@ -1665,7 +1665,7 @@ downsync() {
 
     print_status $BLUE "  Restoring database in $to_space (this may take several minutes)..."
     local restore_cmd
-    restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql; rm -f %q.sql' "$backup_tag" "$backup_tag" "$backup_tag")
+    restore_cmd=". /etc/profile; cd /tmp; gunzip -f $(shell_quote "$backup_tag").sql.gz; drush sql-cli < $(shell_quote "$backup_tag").sql; rm -f $(shell_quote "$backup_tag").sql"
     cf ssh cms -c "$restore_cmd" >/dev/null 2>&1
     local db_restore_exit=$?
 
@@ -1800,9 +1800,9 @@ list_backups() {
     done
 
     if [ "$use_json" = true ]; then
-        # Use printf %q for safe shell escaping, add --json flag for manager.sh
+        # Use shell_quote for safe shell escaping, add --json flag for manager.sh
         local cmd
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q --json' "$days")
+        cmd="cd /var/www && scripts/snapshot/manager.sh list all $(shell_quote "$days") --json"
         local raw_json
         raw_json=$(cf ssh cms -c "$cmd" 2>/dev/null)
         if [ $? -ne 0 ] || [ -z "$raw_json" ]; then
@@ -1824,9 +1824,9 @@ list_backups() {
         fi
         echo ""
 
-        # Use printf %q for safe shell escaping
+        # Use shell_quote for safe shell escaping
         local cmd
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
+        cmd="cd /var/www && scripts/snapshot/manager.sh list all $(shell_quote "$days")"
         if [ -n "$ticket" ]; then
             local list_output
             list_output=$(cf ssh cms -c "$cmd" 2>/dev/null)
@@ -2376,7 +2376,7 @@ download_backup_artifact() {
     local partial="${dest}.part"
     local cmd
 
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$tag" "$type")
+    cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $(shell_quote "$tag") $(shell_quote "$type") - --stream"
     if ! cf ssh cms -c "$cmd" > "$partial" 2>/dev/null; then
         rm -f "$partial"
         return 1

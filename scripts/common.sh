@@ -104,6 +104,21 @@ init_backup_system() {
 }
 
 # ===================================================================
+# SHELL UTILITIES
+# ===================================================================
+
+# Quote a string so it is safe to embed in a shell command string
+# (e.g. commands passed to cf ssh -c). POSIX-safe replacement for
+# bash's printf %q, which /bin/sh implementations like dash reject
+# with "printf: %q: invalid directive".
+# Wraps the value in single quotes, escaping any embedded single quotes.
+# Args:
+#   $1: value - String to quote
+shell_quote() {
+    printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+# ===================================================================
 # OUTPUT AND LOGGING FUNCTIONS
 # ===================================================================
 
@@ -2078,7 +2093,7 @@ remote_state_command() {
     fi
 
     local _cmd
-    _cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh state %q %q %q' "$action" "$state_type" "$max_wait")
+    _cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh state $(shell_quote "$action") $(shell_quote "$state_type") $(shell_quote "$max_wait")"
     cf ssh cms -c "$_cmd"
     local _rc=$?
     if [ $_rc -ne 0 ]; then
