@@ -45,14 +45,12 @@ show_usage() {
     echo "Usage: $0 <command> [options]"
     echo ""
     echo "Setup Commands:"
-    echo "  set-context <env> <ticket> [pre] [post]  Set deployment context (creates env vars)"
-    echo "                                        Example: deploy.sh set-context prod USAGOV-1234"
-    echo "                                        Optional: deploy.sh set-context prod USAGOV-1234 pre-deploy post-deploy"
-    echo "                                        From tag: deploy.sh set-context --from-tag=USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
-    echo "                                        Sets: DEPLOY_ENV, DEPLOY_TICKET, DEPLOY_PRE_SUFFIX, DEPLOY_POST_SUFFIX"
+    echo "  NOTE: Setting context is done in a separate script to allow sourcing!"
+    echo "  . scripts/devops/context.sh set <env> <ticket> [pre] [post]  Set deployment context"
+    echo "  . scripts/devops/context.sh show                            Show deployment context"
+    echo "  . scripts/devops/context.sh clear                           Clear deployment context"
+    echo "  Sets: DEPLOY_ENV, DEPLOY_TICKET, DEPLOY_PRE_SUFFIX, DEPLOY_POST_SUFFIX"
     echo ""
-    echo "  show-context                          Show current deployment context"
-    echo "  clear-context                         Clear all deployment context variables"
     echo "  contexts list [limit]                 Show recently used contexts (default: 10)"
     echo ""
     echo "Status Commands:"
@@ -86,8 +84,9 @@ show_usage() {
     echo "                                        Automatically creates annotated git tag for deployment tracking"
     echo "                                        Requires: DEPLOY_TICKET, DEPLOY_ENV"
     echo "                                        Validates CF space matches DEPLOY_ENV (use --skip-validation to skip)"
-    echo "  download-backups [tag]                 Download latest backups locally (db/static/public)"
+    echo "  download-backups [tag] [output-dir]   Download latest backups locally (db/static/public)"
     echo "                                        Default tag: newest backup in current CF space"
+    echo "                                        Default output dir: current directory"
     echo ""
     echo "Rollback Commands (DESTRUCTIVE):"
     echo "  list-backups [days]                   List recent backups for rollback (default: 7 days)"
@@ -119,7 +118,7 @@ show_usage() {
     echo ""
     echo "Tome Utilities:"
     echo "  tome-log [--recent]                   Tail the latest running Tome log (--recent shows last 50 lines of most recent log)"
-    echo "  state <action> <type> [max_wait_mins] Manage Drupal state (action: enable|disable, type: tome|sm|both)"
+    echo "  state <action> [type] [max_wait_mins]  Manage Drupal state (action: enable|disable, type: tome|sm|both, default: both)"
     echo ""
     echo "Quick Backup Commands:"
     echo "  snapshot [suffix]                     Quick backup with auto-generated tag"
@@ -139,7 +138,7 @@ show_usage() {
     echo ""
     echo "Example Workflow:"
     echo "  # Set up deployment context"
-    echo "  \$0 set-context prod USAGOV-1234"
+    echo "  . scripts/devops/context.sh set prod USAGOV-1234"
     echo "  "
     echo "  # Before deployment"
     echo "  \$0 pre-deploy"
@@ -161,47 +160,15 @@ show_command_help() {
     local command="$1"
 
     case "$command" in
-        "set-context")
-            echo "Set Deployment Context"
+        "set-context"|"show-context"|"clear-context")
+            echo "Deployment Context"
             echo ""
-            echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--from-tag=TAG]"
+            echo "Usage:"
+            echo "  . scripts/devops/context.sh set <env> <ticket> [pre-suffix] [post-suffix] [--from-tag=TAG]"
+            echo "  . scripts/devops/context.sh show"
+            echo "  . scripts/devops/context.sh clear"
             echo ""
-            echo "Description:"
-            echo "  Creates environment variables for a deployment session. This sets up"
-            echo "  the context that other commands will use automatically."
-            echo "  Automatically saves context to history for 'contexts list' command."
-            echo ""
-            echo "Arguments:"
-            echo "  env          - Environment name (dev, stage, prod, dr)"
-            echo "  ticket       - JIRA ticket number (e.g., USAGOV-1234)"
-            echo "  pre-suffix   - Optional pre-deployment backup suffix (default: 'pre-deploy')"
-            echo "  post-suffix  - Optional post-deployment backup suffix (default: 'post-deploy')"
-            echo ""
-            echo "Options:"
-            echo "  --from-tag=TAG  - Extract env/ticket from backup tag"
-            echo "  --export        - Output export commands for eval"
-            echo ""
-            echo "Examples:"
-            echo "  deploy.sh set-context prod USAGOV-1234"
-            echo "  deploy.sh set-context stage USAGOV-5678 pre-deploy post-deploy"
-            echo "  deploy.sh set-context --from-tag=USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
-            echo "  eval \$(deploy.sh set-context prod USAGOV-1234 --export)"
-            echo ""
-            ;;
-        "clear-context")
-            echo "Clear Deployment Context"
-            echo ""
-            echo "Usage: deploy.sh clear-context [--export]"
-            echo ""
-            echo "Description:"
-            echo "  Clears all deployment context environment variables."
-            echo ""
-            echo "Options:"
-            echo "  --export  - Output unset commands for eval"
-            echo ""
-            echo "Examples:"
-            echo "  deploy.sh clear-context"
-            echo "  eval \$(deploy.sh clear-context --export)"
+            echo "For full details: . scripts/devops/context.sh -h"
             echo ""
             ;;
         "contexts")
@@ -224,16 +191,6 @@ show_command_help() {
             echo "  deploy.sh contexts list"
             echo "  deploy.sh contexts list 20"
             echo "  deploy.sh contexts list --json"
-            echo ""
-            ;;
-        "show-context")
-            echo "Show Deployment Context"
-            echo ""
-            echo "Usage: deploy.sh show-context"
-            echo ""
-            echo "Description:"
-            echo "  Displays current deployment context variables including environment,"
-            echo "  ticket number, and backup suffixes."
             echo ""
             ;;
         "last-backup")
@@ -556,11 +513,17 @@ show_command_help() {
         "download-backups")
             echo "Download Backups Locally"
             echo ""
-            echo "Usage: deploy.sh download-backups [tag] [--json] [--output-dir=<path>]"
+            echo "Usage: deploy.sh download-backups [tag] [output-dir] [--json] [--output-dir=<path>]"
             echo ""
             echo "Description:"
             echo "  Downloads db/static/public backups to the current directory."
             echo "  If no tag is provided, the newest backup for the current CF space is used."
+            echo "  Requires an active CF session (bin/cloudgov/login --sso)."
+            echo ""
+            echo "Arguments:"
+            echo "  tag         - Backup tag (optional - uses latest if omitted)"
+            echo "  output-dir  - Output directory (optional - same as --output-dir=<path>)"
+            echo "                Created if it does not exist"
             echo ""
             echo "Options:"
             echo "  --json              - Output as JSON"
@@ -569,6 +532,8 @@ show_command_help() {
             echo "Example:"
             echo "  deploy.sh download-backups"
             echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0"
+            echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0 ./backups"
+            echo "  deploy.sh download-backups AUTO-prod-2025-12-22-0 --output-dir=./backups"
             echo "  deploy.sh download-backups --json"
             echo ""
             ;;
@@ -592,7 +557,7 @@ show_command_help() {
         "state")
             echo "Manage Drupal State"
             echo ""
-            echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: deploy.sh state <action> [type] [max_wait_mins]"
             echo ""
             echo "Description:"
             echo "  Enable or disable Drupal state management for backups/maintenance."
@@ -600,10 +565,11 @@ show_command_help() {
             echo ""
             echo "Arguments:"
             echo "  action         - 'enable' or 'disable'"
-            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default)"
+            echo "  type           - 'tome', 'sm' (site maintenance), or 'both' (default: both)"
             echo "  max_wait_mins  - Maximum minutes to wait for Tome (default: 25, only used with disable)"
             echo ""
             echo "Examples:"
+            echo "  deploy.sh state disable               # both, defaults to 25 min wait"
             echo "  deploy.sh state disable tome 30"
             echo "  deploy.sh state enable tome"
             echo "  deploy.sh state disable both"
@@ -680,286 +646,6 @@ show_command_help() {
     esac
 }
 
-# Set deployment context (stores in shell variables for session)
-set_context() {
-    local export_only=false
-    local env=""
-    local ticket=""
-    local pre_suffix="pre-deploy"
-    local post_suffix="post-deploy"
-    local from_tag=""
-
-    # Parse arguments with while loop for proper flag and positional handling
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --export)
-                export_only=true
-                shift
-                ;;
-            --from-tag=*)
-                from_tag="${1#*=}"
-                shift
-                ;;
-            --)
-                shift
-                break
-                ;;
-            -*)
-                print_status $RED "❌ Unknown option: $1"
-                echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export] [--from-tag=TAG]"
-                exit 2
-                ;;
-            *)
-                # First positional is env, second is ticket, third is pre_suffix, fourth is post_suffix
-                if [ -z "$env" ]; then
-                    env="$1"
-                elif [ -z "$ticket" ]; then
-                    ticket="$1"
-                elif [ "$pre_suffix" = "pre-deploy" ]; then
-                    pre_suffix="$1"
-                elif [ "$post_suffix" = "post-deploy" ]; then
-                    post_suffix="$1"
-                else
-                    print_status $RED "❌ Too many arguments"
-                    echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export] [--from-tag=TAG]"
-                    exit 2
-                fi
-                shift
-                ;;
-        esac
-    done
-
-    # If --from-tag provided, parse it to extract env and ticket
-    if [ -n "$from_tag" ]; then
-        if [ "$export_only" = "false" ]; then
-            print_status $BLUE "🔍 Parsing backup tag: $from_tag"
-        fi
-
-        local parsed
-        parsed=$(parse_backup_tag "$from_tag")
-
-        if [ $? -ne 0 ] || [ -z "$parsed" ]; then
-            handle_error "Could not parse backup tag: $from_tag" "validation" "exit"
-        fi
-
-        ticket=$(echo "$parsed" | cut -d'|' -f1)
-        env=$(echo "$parsed" | cut -d'|' -f2)
-
-        if [ "$export_only" = "false" ]; then
-            print_status $GREEN "✅ Extracted: ticket=$ticket, env=$env"
-            echo ""
-        fi
-    fi
-
-    if [ -z "$env" ] || [ -z "$ticket" ]; then
-        print_status $RED "❌ Error: Environment and ticket required"
-        echo "Usage: deploy.sh set-context <env> <ticket> [pre-suffix] [post-suffix] [--export] [--from-tag=TAG]"
-        echo ""
-        echo "Examples:"
-        echo "  deploy.sh set-context prod USAGOV-1234"
-        echo "  deploy.sh set-context --from-tag=USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0"
-        exit 2
-    fi
-
-    # Validate ticket format (basic check)
-    if ! validate_backup_tag "$ticket"; then
-        handle_error "Invalid ticket format" "validation" "exit"
-    fi
-
-    # Validate suffix formats
-    if ! validate_backup_tag "$pre_suffix"; then
-        handle_error "Invalid pre-suffix format" "validation" "exit"
-    fi
-
-    if ! validate_backup_tag "$post_suffix"; then
-        handle_error "Invalid post-suffix format" "validation" "exit"
-    fi
-
-    if [ "$export_only" = "false" ]; then
-        print_status $BLUE "🔍 Capturing most recent backup tags for rollback..."
-    fi
-
-    # Query S3 to get the most recent valid backup tag for each type
-    local backup_tags=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && \
-        echo 'STATIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
-        echo 'PUBLIC:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep 'PRE' | sort -r | head -1 | awk '{print \$2}' | tr -d '/' && \
-        echo 'DB:' && aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS | grep '\.sql\.gz$' | sort -r | head -1 | awk '{print \$4}' | sed 's/\.sql\.gz$//'")
-
-    local static_tag=$(echo "$backup_tags" | grep -A1 "^STATIC:" | tail -1)
-    local public_tag=$(echo "$backup_tags" | grep -A1 "^PUBLIC:" | tail -1)
-    local db_tag=$(echo "$backup_tags" | grep -A1 "^DB:" | tail -1)
-
-    # If --export flag, output only export commands for eval
-    if [ "$export_only" = "true" ]; then
-        echo "export DEPLOY_ENV='$env'"
-        echo "export DEPLOY_TICKET='$ticket'"
-        echo "export DEPLOY_PRE_SUFFIX='$pre_suffix'"
-        echo "export DEPLOY_POST_SUFFIX='$post_suffix'"
-        echo "export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
-        echo "export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
-        echo "export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
-        return
-    fi
-
-    # Export variables for this session (only affects this script execution)
-    export DEPLOY_ENV="$env"
-    export DEPLOY_TICKET="$ticket"
-    export DEPLOY_PRE_SUFFIX="$pre_suffix"
-    export DEPLOY_POST_SUFFIX="$post_suffix"
-    export DEPLOY_ROLLBACK_STATIC_TAG="$static_tag"
-    export DEPLOY_ROLLBACK_PUBLIC_TAG="$public_tag"
-    export DEPLOY_ROLLBACK_DB_TAG="$db_tag"
-
-    # Save context to history for 'contexts list' command
-    save_context_to_history "$env" "$ticket" "$pre_suffix" "$post_suffix"
-
-    print_status $GREEN "✅ Deployment context set"
-    echo ""
-    echo "Environment variables:"
-    echo "  DEPLOY_ENV=$DEPLOY_ENV"
-    echo "  DEPLOY_TICKET=$DEPLOY_TICKET"
-    echo "  DEPLOY_PRE_SUFFIX=$DEPLOY_PRE_SUFFIX"
-    echo "  DEPLOY_POST_SUFFIX=$DEPLOY_POST_SUFFIX"
-    echo ""
-    echo "Captured backup tags for rollback:"
-    echo "  DEPLOY_ROLLBACK_STATIC_TAG=$DEPLOY_ROLLBACK_STATIC_TAG"
-    echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=$DEPLOY_ROLLBACK_PUBLIC_TAG"
-    echo "  DEPLOY_ROLLBACK_DB_TAG=$DEPLOY_ROLLBACK_DB_TAG"
-    echo ""
-    print_status $RED "⚠️  IMPORTANT: These variables are NOT set in your current shell!"
-    echo ""
-    print_status $YELLOW "To use these variables, you MUST run ONE of the following:"
-    echo ""
-    echo "Option 1 - Use eval (recommended):"
-    echo "  eval \$(scripts/devops/deploy.sh set-context $env $ticket --export)"
-    echo ""
-    echo "Option 2 - Manually export each variable:"
-    echo "  export DEPLOY_ENV='$env'"
-    echo "  export DEPLOY_TICKET='$ticket'"
-    echo "  export DEPLOY_PRE_SUFFIX='$pre_suffix'"
-    echo "  export DEPLOY_POST_SUFFIX='$post_suffix'"
-    echo "  export DEPLOY_ROLLBACK_STATIC_TAG='$static_tag'"
-    echo "  export DEPLOY_ROLLBACK_PUBLIC_TAG='$public_tag'"
-    echo "  export DEPLOY_ROLLBACK_DB_TAG='$db_tag'"
-}
-
-# Show current deployment context
-# Safe Operation: Read-only query, no resources modified
-show_context() {
-    # Check for --json flag
-    if has_json_flag "$@"; then
-        local deploy_env="${DEPLOY_ENV:-(not set)}"
-        local deploy_ticket="${DEPLOY_TICKET:-(not set)}"
-        local deploy_pre="${DEPLOY_PRE_SUFFIX:-(not set)}"
-        local deploy_post="${DEPLOY_POST_SUFFIX:-(not set)}"
-        local rollback_static="${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-        local rollback_public="${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-        local rollback_db="${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-
-        local has_context=false
-        if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-            has_context=true
-        fi
-
-        local json_data=$(cat <<EOF
-{
-  "deployment_context": {
-    "environment": "$deploy_env",
-    "ticket": "$deploy_ticket",
-    "pre_suffix": "$deploy_pre",
-    "post_suffix": "$deploy_post"
-  },
-  "rollback_tags": {
-    "static": "$rollback_static",
-    "public": "$rollback_public",
-    "database": "$rollback_db"
-  },
-  "has_context": $has_context
-}
-EOF
-)
-        format_json "$json_data"
-        return
-    fi
-
-    # Default table output
-    print_status $BLUE "📋 Current Deployment Context"
-    echo ""
-    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ] || [ -n "$DEPLOY_PRE_SUFFIX" ] || [ -n "$DEPLOY_POST_SUFFIX" ]; then
-        echo "  DEPLOY_ENV=${DEPLOY_ENV:-(not set)}"
-        echo "  DEPLOY_TICKET=${DEPLOY_TICKET:-(not set)}"
-        echo "  DEPLOY_PRE_SUFFIX=${DEPLOY_PRE_SUFFIX:-(not set)}"
-        echo "  DEPLOY_POST_SUFFIX=${DEPLOY_POST_SUFFIX:-(not set)}"
-        echo ""
-        echo "Rollback tags:"
-        echo "  DEPLOY_ROLLBACK_STATIC_TAG=${DEPLOY_ROLLBACK_STATIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_PUBLIC_TAG=${DEPLOY_ROLLBACK_PUBLIC_TAG:-(not set)}"
-        echo "  DEPLOY_ROLLBACK_DB_TAG=${DEPLOY_ROLLBACK_DB_TAG:-(not set)}"
-    else
-        print_status $YELLOW "⚠️  No deployment context set"
-        echo ""
-        echo "Run: deploy.sh set-context <env> <ticket>"
-    fi
-    echo ""
-}
-
-# Clear deployment context
-clear_context() {
-    local export_only=false
-
-    # Parse arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --export)
-                export_only=true
-                shift
-                ;;
-            *)
-                print_status $RED "❌ Unknown option: $1"
-                echo "Usage: deploy.sh clear-context [--export]"
-                exit 2
-                ;;
-        esac
-    done
-
-    # If --export flag, output only unset commands for eval
-    if [ "$export_only" = "true" ]; then
-        echo "unset DEPLOY_ENV"
-        echo "unset DEPLOY_TICKET"
-        echo "unset DEPLOY_PRE_SUFFIX"
-        echo "unset DEPLOY_POST_SUFFIX"
-        echo "unset DEPLOY_ROLLBACK_STATIC_TAG"
-        echo "unset DEPLOY_ROLLBACK_PUBLIC_TAG"
-        echo "unset DEPLOY_ROLLBACK_DB_TAG"
-        return
-    fi
-
-    # Show current context before clearing
-    if [ -n "$DEPLOY_ENV" ] || [ -n "$DEPLOY_TICKET" ]; then
-        print_status $YELLOW "🗑️  Clearing deployment context:"
-        echo "  Current ENV: ${DEPLOY_ENV:-(not set)}"
-        echo "  Current TICKET: ${DEPLOY_TICKET:-(not set)}"
-        echo ""
-    fi
-
-    # Unset variables for this session
-    unset DEPLOY_ENV
-    unset DEPLOY_TICKET
-    unset DEPLOY_PRE_SUFFIX
-    unset DEPLOY_POST_SUFFIX
-    unset DEPLOY_ROLLBACK_STATIC_TAG
-    unset DEPLOY_ROLLBACK_PUBLIC_TAG
-    unset DEPLOY_ROLLBACK_DB_TAG
-
-    print_status $GREEN "✅ Deployment context cleared"
-    echo ""
-    print_status $RED "⚠️  IMPORTANT: These variables are NOT unset in your current shell!"
-    echo ""
-    print_status $YELLOW "To clear these variables in your shell, run:"
-    echo "  eval \$(scripts/devops/deploy.sh clear-context --export)"
-    echo ""
-}
-
 # List recently used deployment contexts
 list_contexts() {
     local use_json=false
@@ -1000,7 +686,7 @@ list_contexts() {
         else
             print_status $YELLOW "📋 No deployment contexts saved yet"
             echo ""
-            echo "Contexts are automatically saved when you use 'set-context'"
+            echo "Contexts are automatically saved when you use 'context.sh set'"
             return 0
         fi
     fi
@@ -1056,72 +742,6 @@ EOF
     fi
 }
 
-# Helper: Save context to history file
-save_context_to_history() {
-    local env="$1"
-    local ticket="$2"
-    local pre_suffix="${3:-pre-deploy}"
-    local post_suffix="${4:-post-deploy}"
-
-    local contexts_file="${HOME}/.deploy-contexts"
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-
-    # Create file if it doesn't exist
-    touch "$contexts_file"
-
-    # Add new context (keep last 100 entries)
-    echo "${timestamp}|${env}|${ticket}|${pre_suffix}|${post_suffix}" >> "$contexts_file"
-
-    # Keep only last 100 entries
-    if [ -f "$contexts_file" ]; then
-        local temp_file="${contexts_file}.tmp"
-        tail -n 100 "$contexts_file" > "$temp_file"
-        mv "$temp_file" "$contexts_file"
-    fi
-}
-
-# Helper: Parse backup tag to extract environment and ticket
-parse_backup_tag() {
-    local tag="$1"
-
-    # Tag format: {ticket}-{env}-{container}-{date}--{suffix}-{sequence}
-    # Example: USAGOV-1234-prod-12345-2025-12-22--pre-deploy-0
-
-    # Extract ticket (everything before the second-to-last dash before double dash)
-    # This is complex because ticket can contain dashes (e.g., USAGOV-1234)
-
-    # Split on double dash first to isolate the base part
-    local base_part=$(echo "$tag" | sed 's/--.*$//')
-
-    # Now we have: USAGOV-1234-prod-12345-2025-12-22
-    # We need to extract ticket and env
-
-    # A simpler approach: env is one of known values (dev, stage, prod, dr)
-    # Find env in the tag
-    local env=""
-    local ticket=""
-
-    if echo "$base_part" | grep -q -- "-prod-"; then
-        env="prod"
-        ticket=$(echo "$base_part" | sed 's/-prod-.*$//')
-    elif echo "$base_part" | grep -q -- "-stage-"; then
-        env="stage"
-        ticket=$(echo "$base_part" | sed 's/-stage-.*$//')
-    elif echo "$base_part" | grep -q -- "-dev-"; then
-        env="dev"
-        ticket=$(echo "$base_part" | sed 's/-dev-.*$//')
-    elif echo "$base_part" | grep -q -- "-dr-"; then
-        env="dr"
-        ticket=$(echo "$base_part" | sed 's/-dr-.*$//')
-    else
-        # Could not parse
-        return 1
-    fi
-
-    echo "${ticket}|${env}"
-    return 0
-}
-
 # Show when last backup of each type was taken
 # Safe Operation: Read-only query, no resources modified
 last_backup() {
@@ -1169,13 +789,16 @@ last_backup() {
     echo "PUBLIC_DATE=${public_date:-(none)}"
     echo "DB_TAG=${db_tag:-(none)}"
     echo "DB_DATE=${db_date:-(none)}"' 2>/dev/null)
+    local ssh_rc=$?
 
-    if [ -z "$backup_data" ]; then
+    if [ $ssh_rc -ne 0 ] || [ -z "$backup_data" ]; then
         if [ "$use_json" = true ]; then
-            echo '{"error":"Could not fetch backup data"}' | jq .
+            diagnose_cf_ssh_failure cms
+            echo '{"error":"Could not fetch backup data from the cms container"}' | jq .
             return 3
         else
-            print_status $RED "❌ System Error: Could not fetch backup data"
+            print_status $RED "❌ System Error: Could not fetch backup data from the cms container"
+            diagnose_cf_ssh_failure cms
             return 3
         fi
     fi
@@ -1347,7 +970,7 @@ EOF
         fi
     else
         print_status $YELLOW "  ⚠️  No deployment context set"
-        echo "  Run: deploy.sh set-context <env> <ticket>"
+        echo "  Run: . scripts/devops/context.sh set <env> <ticket>"
     fi
     echo ""
 
@@ -1429,7 +1052,7 @@ EOF
     echo "  View digests:        deploy.sh digests current"
     echo "  Check changes:       deploy.sh ccb prod stage"
     echo "  Validate deployment: deploy.sh validate"
-    echo "  Set context:         deploy.sh set-context <env> <ticket>"
+    echo "  Set context:         . scripts/devops/context.sh set <env> <ticket>"
     echo ""
 
     print_status $BLUE "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -1438,7 +1061,7 @@ EOF
 # Show message of the day from CMS container
 # Safe Operation: Read-only query, displays /etc/motd from container
 show_motd() {
-    cf ssh cms -c "cat /etc/motd"
+    cf ssh cms -c "cat /etc/motd" || diagnose_cf_ssh_failure cms
 }
 
 # ===================================================================
@@ -1478,7 +1101,7 @@ validate_target_space() {
         print_status $YELLOW "This is a safety check to ensure you have deployment context set."
         echo ""
         echo "To proceed, either:"
-        echo "  1. Set context: deploy.sh set-context $current_space <ticket>"
+        echo "  1. Set context: . scripts/devops/context.sh set $current_space <ticket>"
         echo "  2. Use --skip-validation flag to skip validation (NOT RECOMMENDED)"
         echo ""
         exit 1
@@ -1495,7 +1118,7 @@ validate_target_space() {
         echo ""
         echo "To proceed anyway, either:"
         echo "  1. Switch spaces: deploy.sh switch $DEPLOY_ENV"
-        echo "  2. Update context: deploy.sh set-context $current_space <ticket>"
+        echo "  2. Update context: . scripts/devops/context.sh set $current_space <ticket>"
         echo "  3. Use --skip-validation flag (NOT RECOMMENDED)"
         echo ""
         exit 1
@@ -1519,6 +1142,11 @@ exec_backup_command() {
     local cmd
     cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
     cf ssh cms -c "$cmd"
+    local rc=$?
+    if [ $rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $rc
 }
 
 # Execute a restore command via cf ssh to cms container
@@ -1539,40 +1167,11 @@ exec_restore_command() {
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q --skip-confirmation' "$tag")
     fi
     cf ssh cms -c "$cmd"
-}
-
-# Execute a Drupal state command via cf ssh to cms container
-# Args:
-#   $1: action - enable or disable
-#   $2: state_type - tome, maintenance, sm, or both
-#   $3: max_wait - maximum minutes to wait for disable actions
-exec_state_command() {
-    local action="$1"
-    local state_type="${2:-both}"
-    local max_wait="${3:-25}"
-
-    case "$action" in
-        enable|disable) ;;
-        *)
-            print_status $RED "❌ Error: invalid state action: $action"
-            return 2
-            ;;
-    esac
-
-    case "$state_type" in
-        tome|maintenance|sm|both) ;;
-        *)
-            print_status $RED "❌ Error: invalid state type: $state_type"
-            return 2
-            ;;
-    esac
-
-    if ! echo "$max_wait" | grep -qE '^[0-9]+$'; then
-        print_status $RED "❌ Error: max_wait must be a number"
-        return 2
+    local rc=$?
+    if [ $rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
     fi
-
-    cf ssh cms -c "cd /var/www && . scripts/common.sh && state_command '$action' '$state_type' '$max_wait'"
+    return $rc
 }
 
 # Prompt for rollback confirmation
@@ -1629,7 +1228,7 @@ create_deployment_backup() {
     eval "suffix=\${${suffix_var}:-$default_suffix}"
 
     if [ -z "$ticket" ]; then
-        handle_error "DEPLOY_TICKET not set. Run: deploy.sh set-context <env> <ticket>" "validation" "exit"
+        handle_error "DEPLOY_TICKET not set. Run: . scripts/devops/context.sh set <env> <ticket>" "validation" "exit"
     fi
 
     print_status $BLUE "📦 Creating ${backup_type}-deployment backup"
@@ -1876,7 +1475,8 @@ downsync() {
         fi
 
         # Get latest DB backup tag
-        backup_tag=$(cf ssh cms -c "
+        local tag_output
+        tag_output=$(cf ssh cms -c "
             export AWS_DEFAULT_REGION='us-gov-west-1'
             cd /var/www
             . scripts/common.sh
@@ -1888,7 +1488,14 @@ downsync() {
             head -1 | \
             awk '{print \$4}' | \
             xargs basename | \
-            sed 's/\.sql\.gz\$/'" 2>/dev/null | tail -1)
+            sed 's/\.sql\.gz\$/'" 2>/dev/null)
+        if [ $? -ne 0 ]; then
+            print_status $RED "❌ Could not query backups in $from_space"
+            diagnose_cf_ssh_failure cms
+            [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+            exit 3
+        fi
+        backup_tag=$(echo "$tag_output" | tail -1)
 
         if [ -z "$backup_tag" ]; then
             print_status $RED "❌ Error: No backups found in $from_space"
@@ -1976,6 +1583,7 @@ downsync() {
 
     if [ ! -s "$db_file" ]; then
         print_status $RED "❌ System Error: Failed to download database backup"
+        diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 3
@@ -1998,6 +1606,7 @@ downsync() {
 
     if [ ! -s "$temp_dir/public.tar.gz" ]; then
         print_status $RED "❌ System Error: Failed to download public files backup"
+        diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 3
@@ -2023,11 +1632,19 @@ downsync() {
 
     # Get tome state before restore
     print_status $BLUE "📋 Checking tome state..."
-    local tome_disabled=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null | tail -1)
+    local tome_state_output
+    tome_state_output=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        print_status $YELLOW "⚠️  Warning: Could not read Tome state from $to_space - assuming Tome is enabled"
+        diagnose_cf_ssh_failure cms
+    fi
+    local tome_disabled=$(echo "$tome_state_output" | tail -1)
 
     # Enable maintenance mode and disable tome using unified state command
     print_status $BLUE "🔒 Preparing for restore (maintenance mode + disable tome)..."
-    cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state disable both" >/dev/null 2>&1
+    if ! remote_state_command disable both >/dev/null 2>&1; then
+        print_status $YELLOW "⚠️  Warning: Failed to prepare Drupal state (maintenance mode may not be enabled)"
+    fi
 
     # Upload and restore database
     print_status $BLUE "📤 Uploading and restoring database..."
@@ -2118,10 +1735,13 @@ downsync() {
     print_status $BLUE "🔓 Restoring site state..."
     if [ "$tome_disabled" != "1" ]; then
         # Tome was enabled before, restore both to enabled state
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable both" >/dev/null 2>&1
+        remote_state_command enable both >/dev/null 2>&1
     else
         # Tome was disabled before, only disable maintenance mode
-        cf ssh cms -c "cd /var/www && scripts/snapshot/manager.sh state enable sm" >/dev/null 2>&1
+        remote_state_command enable sm >/dev/null 2>&1
+    fi
+    if [ $? -ne 0 ]; then
+        print_status $YELLOW "⚠️  Warning: Failed to fully restore Drupal state — check maintenance mode/Tome manually"
     fi
 
     # Fix MFA configuration
@@ -2184,7 +1804,12 @@ list_backups() {
         local cmd
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q --json' "$days")
         local raw_json
-        raw_json=$(cf ssh cms -c "$cmd")
+        raw_json=$(cf ssh cms -c "$cmd" 2>/dev/null)
+        if [ $? -ne 0 ] || [ -z "$raw_json" ]; then
+            diagnose_cf_ssh_failure cms
+            echo '{"error":"Could not list backups from the cms container"}' | jq .
+            return 3
+        fi
         if [ -n "$ticket" ]; then
             echo "$raw_json" | jq --arg t "$ticket" \
                 '{backups: [.backups[] | select(.tag | contains($t))], count: ([.backups[] | select(.tag | contains($t))] | length), bucket: .bucket}'
@@ -2203,9 +1828,21 @@ list_backups() {
         local cmd
         cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
         if [ -n "$ticket" ]; then
-            cf ssh cms -c "$cmd" | grep -i "$ticket" || echo "  No backups found matching '$ticket'"
+            local list_output
+            list_output=$(cf ssh cms -c "$cmd" 2>/dev/null)
+            if [ $? -ne 0 ]; then
+                print_status $RED "❌ Could not list backups from the cms container"
+                diagnose_cf_ssh_failure cms
+                return 3
+            fi
+            echo "$list_output" | grep -i "$ticket" || echo "  No backups found matching '$ticket'"
         else
             cf ssh cms -c "$cmd"
+            if [ $? -ne 0 ]; then
+                print_status $RED "❌ Could not list backups from the cms container"
+                diagnose_cf_ssh_failure cms
+                return 3
+            fi
         fi
     fi
 }
@@ -2700,7 +2337,7 @@ rollback_single_type() {
     if [ -z "$tag" ]; then
         print_status $RED "❌ Error: Backup tag required"
         echo "Usage: deploy.sh rollback-$type <tag> [--skip-validation] [--skip-confirmation]"
-        echo "Or set deployment context first: deploy.sh set-context <env> <ticket>"
+        echo "Or set deployment context first: . scripts/devops/context.sh set <env> <ticket>"
         exit 2
     fi
 
@@ -2723,11 +2360,53 @@ rollback_db() {
     rollback_single_type "db" "$1" "$2" "$3"
 }
 
+# Stream one backup artifact out of the cms container to a local file.
+# Writes to a .part file and only moves it into place once the payload really
+# is a gzip archive, so a failed run (expired session, missing tag) leaves no
+# stub file behind for someone to mistake for a backup.
+# Args:
+#   $1: backup tag
+#   $2: type - db|static|public
+#   $3: destination path
+# Returns: 0 on success (echoing the human-readable size), 1 on failure
+download_backup_artifact() {
+    local tag="$1"
+    local type="$2"
+    local dest="$3"
+    local partial="${dest}.part"
+    local cmd
+
+    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$tag" "$type")
+    if ! cf ssh cms -c "$cmd" > "$partial" 2>/dev/null; then
+        rm -f "$partial"
+        return 1
+    fi
+
+    # Every artifact is gzipped, so the stream must start with the gzip magic
+    # bytes (1f 8b). An empty stream or a cf error banner written to stdout
+    # ("FAILED") is not a backup.
+    if [ "$(head -c 2 "$partial" 2>/dev/null | od -An -tx1 | tr -d ' \n')" != "1f8b" ]; then
+        rm -f "$partial"
+        return 1
+    fi
+
+    if ! mv -f "$partial" "$dest"; then
+        rm -f "$partial"
+        return 1
+    fi
+
+    # awk, not `cut -f1`: BSD du pads the size field, which prints as "( 33M)"
+    du -h "$dest" | awk '{print $1}'
+    return 0
+}
+
 # Download backups locally - defaults to latest backup for current space
 download_backups() {
     local tag=""
     local output_dir="$(pwd)"
+    local output_dir_set=false
     local use_json=false
+    local usage="Usage: deploy.sh download-backups [tag] [output-dir] [--json] [--output-dir=<path>]"
 
     # Parse arguments
     while [ $# -gt 0 ]; do
@@ -2738,17 +2417,77 @@ download_backups() {
                 ;;
             --output-dir=*)
                 output_dir="${1#*=}"
+                output_dir_set=true
                 shift
                 ;;
+            -*)
+                print_status $RED "❌ Unknown option: $1"
+                echo "$usage"
+                return 2
+                ;;
             *)
-                # First non-flag arg is tag
+                # First non-flag arg is the tag, second is the output directory
+                # (same as --output-dir=<path>)
                 if [ -z "$tag" ]; then
                     tag="$1"
+                elif [ "$output_dir_set" = false ]; then
+                    output_dir="$1"
+                    output_dir_set=true
+                else
+                    print_status $RED "❌ Unexpected argument: $1"
+                    echo "$usage"
+                    return 2
                 fi
                 shift
                 ;;
         esac
     done
+
+    # list-backups prints static/public backups as S3 prefixes with a trailing
+    # slash ("PRE AUTO-dr-...-0/"), so trim it off a pasted tag instead of
+    # building a path like "<dir>/<tag>/-database.sql.gz"
+    while [ -n "$tag" ] && [ "$tag" != "${tag%/}" ]; do
+        tag="${tag%/}"
+    done
+
+    # Reject a tag the backup system would not accept before building local
+    # paths out of it. A pasted S3 key is the common mistake, so name it.
+    case "$tag" in
+        */*)
+            print_status $RED "❌ Invalid backup tag: $tag"
+            print_status $YELLOW "   Use the tag name only, without a path (see: deploy.sh list-backups)"
+            return 2
+            ;;
+    esac
+
+    if [ -n "$tag" ] && ! validate_backup_tag "$tag"; then
+        return 2
+    fi
+
+    # Trim trailing slashes so output paths do not come out as "<dir>//<tag>-..."
+    while [ "$output_dir" != "/" ] && [ "$output_dir" != "${output_dir%/}" ]; do
+        output_dir="${output_dir%/}"
+    done
+    [ -z "$output_dir" ] && output_dir="$(pwd)"
+
+    # Confirm the CF session before touching the filesystem - otherwise the
+    # shell redirects below create the output files whether or not cf can run
+    if ! require_cf_session cms; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Not logged in to Cloud Foundry (or the session expired)"}' | jq .
+        fi
+        return 3
+    fi
+
+    if [ ! -d "$output_dir" ] && ! mkdir -p "$output_dir" 2>/dev/null; then
+        print_status $RED "❌ Output directory does not exist and could not be created: $output_dir"
+        return 2
+    fi
+
+    if [ ! -w "$output_dir" ]; then
+        print_status $RED "❌ Output directory is not writable: $output_dir"
+        return 2
+    fi
 
     # If no tag provided, find the most recent backup
     if [ -z "$tag" ]; then
@@ -2757,13 +2496,26 @@ download_backups() {
         fi
 
         # Query S3 to get the most recent backup tag
-        tag=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
+        local tag_output
+        tag_output=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars &&
             aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/ \$S3_EXTRA_PARAMS |
             grep '\.sql\.gz$' |
             sort -r |
             head -1 |
             awk '{print \$4}' |
-            sed 's/\.sql\.gz$//'" 2>/dev/null | tail -1 | tr -d '\r')
+            sed 's/\.sql\.gz$//'" 2>/dev/null)
+        if [ $? -ne 0 ]; then
+            if [ "$use_json" = true ]; then
+                diagnose_cf_ssh_failure cms
+                echo '{"error":"Could not query backups from the cms container"}' | jq .
+                return 3
+            else
+                print_status $RED "❌ Could not query backups from the cms container"
+                diagnose_cf_ssh_failure cms
+                return 3
+            fi
+        fi
+        tag=$(echo "$tag_output" | tail -1 | tr -d '\r')
 
         if [ -z "$tag" ]; then
             if [ "$use_json" = true ]; then
@@ -2798,19 +2550,17 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading database..."
     fi
-    local cmd
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q db - --stream' "$tag")
-    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-database.sql.gz" 2>/dev/null
-    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-database.sql.gz" ]; then
+    if db_size=$(download_backup_artifact "$tag" db "${output_dir}/${tag}-database.sql.gz"); then
         db_success=true
-        db_size=$(du -h "${output_dir}/${tag}-database.sql.gz" | cut -f1)
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Database downloaded ($db_size)"
         fi
     else
+        db_size="0"
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Database download failed"
         fi
+        diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2818,18 +2568,17 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading static site..."
     fi
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q static - --stream' "$tag")
-    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-static.tar.gz" 2>/dev/null
-    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-static.tar.gz" ]; then
+    if static_size=$(download_backup_artifact "$tag" static "${output_dir}/${tag}-static.tar.gz"); then
         static_success=true
-        static_size=$(du -h "${output_dir}/${tag}-static.tar.gz" | cut -f1)
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Static site downloaded ($static_size)"
         fi
     else
+        static_size="0"
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Static site download failed"
         fi
+        diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2837,18 +2586,17 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading public files..."
     fi
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q public - --stream' "$tag")
-    cf ssh cms -c "$cmd" > "${output_dir}/${tag}-public.tar.gz" 2>/dev/null
-    if [ $? -eq 0 ] && [ -s "${output_dir}/${tag}-public.tar.gz" ]; then
+    if public_size=$(download_backup_artifact "$tag" public "${output_dir}/${tag}-public.tar.gz"); then
         public_success=true
-        public_size=$(du -h "${output_dir}/${tag}-public.tar.gz" | cut -f1)
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Public files downloaded ($public_size)"
         fi
     else
+        public_size="0"
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Public files download failed"
         fi
+        diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2885,14 +2633,20 @@ EOF
         echo ""
         if [ $failed -eq 0 ]; then
             print_status $GREEN "✅ Download complete!"
-            echo ""
-            echo "Downloaded files:"
-            ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+        elif [ $failed -eq 3 ]; then
+            print_status $RED "❌ Download failed - no backups were saved"
         else
             print_status $YELLOW "⚠️  Download completed with $failed error(s)"
+        fi
+
+        # List only what actually landed on disk, so a partial run cannot look
+        # like a complete set of backups
+        if [ $failed -lt 3 ]; then
             echo ""
             echo "Downloaded files:"
-            ls -lh "${output_dir}/${tag}"-* 2>/dev/null
+            [ "$db_success" = true ] && ls -lh "${output_dir}/${tag}-database.sql.gz"
+            [ "$static_success" = true ] && ls -lh "${output_dir}/${tag}-static.tar.gz"
+            [ "$public_success" = true ] && ls -lh "${output_dir}/${tag}-public.tar.gz"
         fi
     fi
 
@@ -2916,10 +2670,13 @@ tome_log() {
     fi
 
     # Do all the filtering in a single SSH session for efficiency
-    # This script finds logs, checks their content, and returns the appropriate one
+    # This script finds logs, checks their content, and returns the appropriate
+    # one. The __TOME_LOG_QUERY_OK__ marker proves the remote script actually
+    # ran, so an unreachable container is not mistaken for "no logs found".
+    local log_query
     if [ "$recent_mode" = "yes" ]; then
         # Recent mode: skip only "already running" logs
-        local target_log=$(cf ssh cms -c '
+        log_query=$(cf ssh cms -c '
             for log_file in $(find /tmp/tome-log/20* -type f -name "*.log" 2>/dev/null | sort -r); do
                 if grep -q "Another Tome is already running. Exiting." "$log_file" 2>/dev/null; then
                     continue
@@ -2927,10 +2684,11 @@ tome_log() {
                 echo "$log_file"
                 break
             done
-        ' 2>/dev/null | tail -1 | tr -d '\r')
+            echo "__TOME_LOG_QUERY_OK__"
+        ' 2>/dev/null | tr -d '\r')
     else
         # Active mode: skip both "already running" AND completed logs
-        local target_log=$(cf ssh cms -c '
+        log_query=$(cf ssh cms -c '
             for log_file in $(find /tmp/tome-log/20* -type f -name "*.log" 2>/dev/null | sort -r); do
                 if grep -q "Another Tome is already running. Exiting." "$log_file" 2>/dev/null; then
                     continue
@@ -2941,8 +2699,17 @@ tome_log() {
                 echo "$log_file"
                 break
             done
-        ' 2>/dev/null | tail -1 | tr -d '\r')
+            echo "__TOME_LOG_QUERY_OK__"
+        ' 2>/dev/null | tr -d '\r')
     fi
+
+    if ! echo "$log_query" | grep -q "__TOME_LOG_QUERY_OK__"; then
+        print_status $RED "❌ Could not search Tome logs on the cms container"
+        diagnose_cf_ssh_failure cms
+        return 3
+    fi
+
+    local target_log=$(echo "$log_query" | grep -v "__TOME_LOG_QUERY_OK__" | tail -1)
 
     if [ -z "$target_log" ]; then
         if [ "$recent_mode" = "yes" ]; then
@@ -3037,14 +2804,17 @@ show_changes() {
             return 0
         fi
 
-        # Show commits in 'to' that are not in 'from'
+        # Show commits in 'from' that are not yet in 'to' - i.e. what would
+        # move if you deployed/merged 'from' into 'to' (git's A..B range
+        # shows commits unique to B, so that's "$to..$from" here, not
+        # "$from..$to")
         local commits_ahead
-        commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+        commits_ahead=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
 
         if [ -z "$commits_ahead" ]; then
-            # Check if 'from' is ahead instead
+            # Nothing pending from -> to. Check if 'to' is actually ahead instead.
             local commits_behind
-            commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+            commits_behind=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
             local behind_count=0
             if [ -n "$commits_behind" ]; then
                 behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
@@ -3057,7 +2827,7 @@ show_changes() {
 
         # Extract tickets from commit messages
         local tickets
-        tickets=$(git log --first-parent "$from..$to" | \
+        tickets=$(git log --first-parent "$to..$from" | \
             grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
             sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
             grep -iv usagov-2021 | \
@@ -3122,23 +2892,25 @@ EOF
         return 0
     fi
 
-    # Show commits in 'to' that are not in 'from'
+    # Show commits in 'from' that are not yet in 'to' - i.e. what would move
+    # if you deployed/merged 'from' into 'to'. Git's A..B range shows commits
+    # unique to B, so that's "$to..$from" here, not "$from..$to".
     # Using --first-parent to follow main branch history and avoid seeing every merged commit
     local commits_ahead
-    commits_ahead=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+    commits_ahead=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
 
     if [ -z "$commits_ahead" ]; then
-        # Check if 'from' is ahead instead
+        # Nothing pending from -> to. Check if 'to' is actually ahead instead.
         local commits_behind
-        commits_behind=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+        commits_behind=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
         local behind_count=0
         if [ -n "$commits_behind" ]; then
             behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
         fi
 
-        print_status $YELLOW "ℹ️  No new commits in $to (may be behind $from)"
+        print_status $YELLOW "ℹ️  No new commits in $from that aren't already in $to"
         if [ -n "$commits_behind" ]; then
-            print_status $YELLOW "⚠️  Warning: $to is behind $from by $behind_count commits"
+            print_status $YELLOW "⚠️  Warning: $from is behind $to by $behind_count commits"
         fi
         return 0
     fi
@@ -3147,7 +2919,7 @@ EOF
     # Accept: "Usa 123", "usa_123", "USAGOV-123", etc.
     # Pattern matches: hyphen, underscore, space, or tab
     local tickets
-    tickets=$(git log --first-parent "$from..$to" | \
+    tickets=$(git log --first-parent "$to..$from" | \
         grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
         sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
         grep -iv usagov-2021 | \
@@ -3680,12 +3452,24 @@ fetch_deployment_metadata_remote() {
     fi
 
     # Fetch metadata from CMS container (needs S3 access)
-    cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null
+    local metadata
+    metadata=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+        return 1
+    fi
+    echo "$metadata"
 }
 
 # Helper function to fetch the latest backup tag from S3 via CMS container
 fetch_latest_backup_tag() {
-    cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null | tail -1
+    local tag_output
+    tag_output=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+        return 1
+    fi
+    echo "$tag_output" | tail -1
 }
 
 # Show current container digests - wrapper that handles space switching
@@ -4173,13 +3957,19 @@ check_backup_exists() {
     # Check via cf ssh to cms container (has S3 access)
     validate_backup_tag "$backup_tag" >/dev/null 2>&1 || return 1
 
-    local check_result=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars && \
+    local check_output
+    check_output=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars && \
         static_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_STATIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
         public_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
         db_exists=\$(aws s3 ls s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/$backup_tag.sql.gz \$S3_EXTRA_PARAMS 2>/dev/null | wc -l) && \
-        echo \"\$static_exists|\$public_exists|\$db_exists\"" 2>/dev/null | tail -1)
+        echo \"\$static_exists|\$public_exists|\$db_exists\"" 2>/dev/null)
+    local ssh_rc=$?
+    local check_result=$(echo "$check_output" | tail -1)
 
-    if [ -z "$check_result" ]; then
+    if [ $ssh_rc -ne 0 ] || [ -z "$check_result" ]; then
+        # Distinguish "could not check" from "backup missing" for the user;
+        # callers still treat both as a failed existence check.
+        diagnose_cf_ssh_failure cms
         return 1
     fi
 
@@ -4220,7 +4010,20 @@ remote_backup_component_exists() {
             ;;
     esac
 
-    cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars >/dev/null 2>&1 && $remote_check" >/dev/null 2>&1
+    # Markers distinguish "component missing" from "could not reach the
+    # container to check" - the exit code alone cannot tell them apart.
+    local result
+    result=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system >/dev/null 2>&1 && setup_s3_vars >/dev/null 2>&1 && \
+        if $remote_check >/dev/null 2>&1; then echo __FOUND__; else echo __MISSING__; fi" 2>/dev/null)
+
+    case "$result" in
+        *__FOUND__*) return 0 ;;
+        *__MISSING__*) return 1 ;;
+        *)
+            diagnose_cf_ssh_failure cms
+            return 1
+            ;;
+    esac
 }
 
 # Validate that a backup tag exists before attempting operations
@@ -4819,12 +4622,23 @@ validate_deployment() {
                 ;;
         esac
 
-        local health_check
-        health_check=$(cf ssh "$app" -c "$health_cmd" 2>/dev/null | grep -c "^up")
+        # The marker proves the SSH session ran, so an unreachable container
+        # is not reported as "services not responding"
+        local health_output
+        health_output=$(cf ssh "$app" -c "$health_cmd; echo __HC_REACHED__" 2>/dev/null)
+        local health_check=$(echo "$health_output" | grep -c "^up")
 
         local expected_count=$(echo "$expected_health_services" | tr ',' '\n' | wc -l | tr -d ' ')
 
-        if [ "$health_check" -ge "$expected_count" ]; then
+        if ! echo "$health_output" | grep -q "__HC_REACHED__"; then
+            health_ok=false
+            health_status="unreachable"
+            overall_success=false
+            if [ "$use_json" = false ]; then
+                print_status $RED "  ❌ Container health: could not reach $app over SSH to check"
+            fi
+            diagnose_cf_ssh_failure "$app"
+        elif [ "$health_check" -ge "$expected_count" ]; then
             health_ok=true
             health_status="ok"
             if [ "$use_json" = false ]; then
@@ -5031,14 +4845,11 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 fi
 
 case "$COMMAND" in
-    "set-context")
-        set_context "$@"
-        ;;
-    "show-context")
-        show_context "$@"
-        ;;
-    "clear-context")
-        clear_context "$@"
+    "set-context"|"show-context"|"clear-context")
+        print_status $RED "❌ Use scripts/devops/context.sh for deployment context:"
+        echo ""
+        echo "  . scripts/devops/context.sh ${COMMAND%-context} $*"
+        exit 1
         ;;
     "contexts")
         # Handle contexts subcommands
@@ -5322,24 +5133,22 @@ case "$COMMAND" in
         tome_log "$@"
         ;;
     "state")
-        # state <action> <type> [max_wait_mins] - Manage Drupal state
+        # state <action> [type] [max_wait_mins] - Manage Drupal state
         action="$1"
-        state_type="${2:-both}"
-        max_wait="${3:-25}"
 
         if [ -z "$action" ]; then
             print_status $RED "❌ Error: action required (enable|disable)"
-            echo "Usage: deploy.sh state <action> <type> [max_wait_mins]"
+            echo "Usage: deploy.sh state <action> [type] [max_wait_mins]"
             exit 1
         fi
 
-        exec_state_command "$action" "$state_type" "$max_wait"
+        remote_state_command "$action" "$2" "$3"
         ;;
     "tome-disable")
-        exec_state_command disable both
+        remote_state_command disable both
         ;;
     "tome-enable")
-        exec_state_command enable both
+        remote_state_command enable both
         ;;
     "switch")
         switch_env "$@"
