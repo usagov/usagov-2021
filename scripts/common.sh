@@ -1654,6 +1654,14 @@ prepare_drupal_state() {
         return 1
     fi
 
+    # Every step below runs drush with stderr suppressed; fail loudly up
+    # front instead of cascading generic errors when it is not on PATH
+    if ! command -v drush >/dev/null 2>&1; then
+        print_status $RED "❌ drush not found on PATH - cannot manage Drupal state"
+        print_status $YELLOW "   This must run on the cms container via manager.sh (which sets up PATH)"
+        return 1
+    fi
+
     capture_drupal_state
 
     case "$state_type" in
@@ -1783,6 +1791,14 @@ restore_drupal_state() {
         return 1
     fi
 
+    # Every step below runs drush with stderr suppressed; fail loudly up
+    # front instead of cascading generic errors when it is not on PATH
+    if ! command -v drush >/dev/null 2>&1; then
+        print_status $RED "❌ drush not found on PATH - cannot manage Drupal state"
+        print_status $YELLOW "   This must run on the cms container via manager.sh (which sets up PATH)"
+        return 1
+    fi
+
     if [ "$DRUPAL_STATE_CAPTURED" = "true" ]; then
         target_maintenance_mode="$SAVED_MAINTENANCE_MODE"
         target_tome_disabled="$SAVED_TOME_DISABLED"
@@ -1813,6 +1829,7 @@ restore_drupal_state() {
             ;;
 
         "both")
+            local maintenance_failed=false
             print_status $YELLOW "🚧 Restoring maintenance mode to: $target_maintenance_mode..."
             if drush sset system.maintenance_mode "$target_maintenance_mode" 2>/dev/null && drush cr 2>/dev/null; then
                 local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
@@ -1820,6 +1837,8 @@ restore_drupal_state() {
                 audit_log "maintenance_mode_restore" "success" "Maintenance mode restored" "maint_mode_state=\"${maint_mode}\""
             else
                 print_status $RED "❌ Failed to restore maintenance mode"
+                audit_log "maintenance_mode_restore" "failure" "Failed to restore maintenance mode"
+                maintenance_failed=true
             fi
 
             if [ "$target_tome_disabled" = "1" ]; then
@@ -1830,6 +1849,10 @@ restore_drupal_state() {
                 drush sdel usagov.tome_run_disabled 2>/dev/null || return 1
             fi
             audit_log "tome_state_restore" "success" "Tome state restored" "tome_disabled_state=\"$target_tome_disabled\""
+
+            # Tome succeeded, but "both" is only a success if maintenance
+            # mode was restored too
+            [ "$maintenance_failed" = "true" ] && return 1
             ;;
     esac
 
