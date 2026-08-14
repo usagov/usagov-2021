@@ -1051,36 +1051,42 @@ get_latest_s3_backup() {
 }
 
 # Validate output path to prevent path traversal attacks
+# On success echoes the normalized absolute path to stdout; validation
+# errors go to stderr so callers capturing stdout still surface them.
 validate_output_path() {
     local path="$1"
 
     if [ -z "$path" ]; then
-        print_status $RED "❌ Output path cannot be empty"
+        print_status $RED "❌ Output path cannot be empty" >&2
         return 1
     fi
 
     # Reject paths with suspicious patterns
     if echo "$path" | grep -qE '(\.\./|^/etc/|^/var/|^/usr/|^/bin/|^/sbin/)'; then
-        print_status $RED "❌ Invalid output path: $path"
-        print_status $YELLOW "   Path traversal or system directory access not allowed"
+        print_status $RED "❌ Invalid output path: $path" >&2
+        print_status $YELLOW "   Path traversal or system directory access not allowed" >&2
         return 1
     fi
 
-    # Convert to absolute path if relative
-    if [ "${path:0:1}" != "/" ]; then
-        path="$(pwd)/$path"
-    fi
+    # Convert to absolute path if relative (${path:0:1} is a bashism
+    # that /bin/sh implementations like dash reject with "Bad substitution")
+    case "$path" in
+        /*) ;;
+        *) path="$(pwd)/$path" ;;
+    esac
 
-    # Ensure path is under /tmp or current working directory
+    # Ensure path is under /tmp or the current working directory.
+    # Quoted case patterns match literally, so a pwd containing regex
+    # metacharacters can't loosen the check the way the old grep could.
     local allowed=false
-    if echo "$path" | grep -q "^/tmp/"; then
-        allowed=true
-    elif echo "$path" | grep -q "^$(pwd)"; then
-        allowed=true
-    fi
+    case "$path" in
+        /tmp/*) allowed=true ;;
+        "$(pwd)"|"$(pwd)"/*) allowed=true ;;
+    esac
 
     if [ "$allowed" = "false" ]; then
-        handle_error "Output path must be under /tmp or current directory" "validation" "return"
+        handle_error "Output path must be under /tmp or current directory" "validation" "return" >&2
+        return 1
     fi
 
     echo "$path"
