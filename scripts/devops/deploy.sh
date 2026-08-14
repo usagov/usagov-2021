@@ -1140,7 +1140,7 @@ exec_backup_command() {
 
     # Run backup command
     local cmd
-    cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup $(shell_quote "$types") $(shell_quote "$ticket") $(shell_quote "$suffix")"
+    cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh backup $(shell_quote "$types") $(shell_quote "$ticket") $(shell_quote "$suffix")"
     cf ssh cms -c "$cmd"
     local rc=$?
     if [ $rc -ne 0 ]; then
@@ -1162,9 +1162,9 @@ exec_restore_command() {
     # Use shell_quote for safe shell escaping to prevent command injection
     local cmd
     if [ -n "$only_flag" ]; then
-        cmd="cd /var/www && scripts/snapshot/manager.sh restore $(shell_quote "$tag") $(shell_quote "$only_flag") --skip-confirmation"
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh restore $(shell_quote "$tag") $(shell_quote "$only_flag") --skip-confirmation"
     else
-        cmd="cd /var/www && scripts/snapshot/manager.sh restore $(shell_quote "$tag") --skip-confirmation"
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh restore $(shell_quote "$tag") --skip-confirmation"
     fi
     cf ssh cms -c "$cmd"
     local rc=$?
@@ -1633,7 +1633,7 @@ downsync() {
     # Get tome state before restore
     print_status $BLUE "📋 Checking tome state..."
     local tome_state_output
-    tome_state_output=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null)
+    tome_state_output=$(cf ssh cms -c "$CMS_REMOTE_PREFIX && drush sget usagov.tome_run_disabled" 2>/dev/null)
     if [ $? -ne 0 ]; then
         print_status $YELLOW "⚠️  Warning: Could not read Tome state from $to_space - assuming Tome is enabled"
         diagnose_cf_ssh_failure cms
@@ -1802,7 +1802,7 @@ list_backups() {
     if [ "$use_json" = true ]; then
         # Use shell_quote for safe shell escaping, add --json flag for manager.sh
         local cmd
-        cmd="cd /var/www && scripts/snapshot/manager.sh list all $(shell_quote "$days") --json"
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh list all $(shell_quote "$days") --json"
         local raw_json
         raw_json=$(cf ssh cms -c "$cmd" 2>/dev/null)
         if [ $? -ne 0 ] || [ -z "$raw_json" ]; then
@@ -1826,7 +1826,7 @@ list_backups() {
 
         # Use shell_quote for safe shell escaping
         local cmd
-        cmd="cd /var/www && scripts/snapshot/manager.sh list all $(shell_quote "$days")"
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh list all $(shell_quote "$days")"
         if [ -n "$ticket" ]; then
             local list_output
             list_output=$(cf ssh cms -c "$cmd" 2>/dev/null)
@@ -2376,7 +2376,7 @@ download_backup_artifact() {
     local partial="${dest}.part"
     local cmd
 
-    cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $(shell_quote "$tag") $(shell_quote "$type") - --stream"
+    cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh download $(shell_quote "$tag") $(shell_quote "$type") - --stream"
     if ! cf ssh cms -c "$cmd" > "$partial" 2>/dev/null; then
         rm -f "$partial"
         return 1
@@ -3453,7 +3453,7 @@ fetch_deployment_metadata_remote() {
 
     # Fetch metadata from CMS container (needs S3 access)
     local metadata
-    metadata=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
+    metadata=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
     if [ $? -ne 0 ]; then
         diagnose_cf_ssh_failure cms
         return 1
@@ -3464,7 +3464,7 @@ fetch_deployment_metadata_remote() {
 # Helper function to fetch the latest backup tag from S3 via CMS container
 fetch_latest_backup_tag() {
     local tag_output
-    tag_output=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null)
+    tag_output=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null)
     if [ $? -ne 0 ]; then
         diagnose_cf_ssh_failure cms
         return 1

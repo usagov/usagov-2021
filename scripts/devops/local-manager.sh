@@ -360,7 +360,7 @@ remote_command() {
     for _arg in "$@"; do
         _cmd="$_cmd $(shell_quote "$_arg")"
     done
-    cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/manager.sh${_cmd}"
+    cf ssh cms -c "$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh${_cmd}"
     local _rc=$?
     if [ $_rc -ne 0 ]; then
         diagnose_cf_ssh_failure cms
@@ -467,7 +467,7 @@ download_command() {
 
         # Start download in background and show progress
         local cmd
-        cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh download $(shell_quote "$backup_tag") $(shell_quote "$type") - --stream"
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh download $(shell_quote "$backup_tag") $(shell_quote "$type") - --stream"
         cf ssh cms -c "$cmd" > "$output_file" 2>/dev/null &
         local download_pid=$!
 
@@ -693,7 +693,7 @@ case "$COMMAND" in
         # test - run test suite on CF
         echo "🧪 Running backup system test suite on Cloud Foundry..."
         echo ""
-        cf ssh cms -c ". /etc/profile && cd /var/www && scripts/snapshot/test.sh" || diagnose_cf_ssh_failure cms
+        cf ssh cms -c "$CMS_REMOTE_PREFIX && scripts/snapshot/test.sh" || diagnose_cf_ssh_failure cms
         ;;
     "current-digests")
         # current-digests - show current live container digests via CF CLI
@@ -727,9 +727,9 @@ case "$COMMAND" in
                 # Use shell_quote for safe shell escaping
                 cmd=
                 if [ -n "$CRON_TYPES" ]; then
-                    cmd=". /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh $(shell_quote "$CRON_SUBCOMMAND") $(shell_quote "$CRON_TYPES")"
+                    cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/setup-cron.sh $(shell_quote "$CRON_SUBCOMMAND") $(shell_quote "$CRON_TYPES")"
                 else
-                    cmd=". /etc/profile && cd /var/www && scripts/snapshot/setup-cron.sh $(shell_quote "$CRON_SUBCOMMAND")"
+                    cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/setup-cron.sh $(shell_quote "$CRON_SUBCOMMAND")"
                 fi
                 cf ssh cms -c "$cmd" || diagnose_cf_ssh_failure cms
                 ;;

@@ -118,6 +118,12 @@ shell_quote() {
     printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
 }
 
+# Environment prep that must prefix every command run on the cms container
+# via `cf ssh -c`: /etc/profile exports the buildpack environment (PHP for
+# drush, aws cli paths) and /var/www is the app root the snapshot scripts
+# expect. Usage: cf ssh cms -c "$CMS_REMOTE_PREFIX && <command>"
+CMS_REMOTE_PREFIX=". /etc/profile && cd /var/www"
+
 # ===================================================================
 # OUTPUT AND LOGGING FUNCTIONS
 # ===================================================================
@@ -2122,7 +2128,7 @@ remote_state_command() {
     fi
 
     local _cmd
-    _cmd=". /etc/profile && cd /var/www && scripts/snapshot/manager.sh state $(shell_quote "$action") $(shell_quote "$state_type") $(shell_quote "$max_wait")"
+    _cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh state $(shell_quote "$action") $(shell_quote "$state_type") $(shell_quote "$max_wait")"
     cf ssh cms -c "$_cmd"
     local _rc=$?
     if [ $_rc -ne 0 ]; then
