@@ -1463,6 +1463,12 @@ downsync() {
     # Save current space to restore later
     local original_space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
 
+    # A dead CF session would otherwise fail partway through with the errors
+    # hidden by output redirection; prove the session is live before starting
+    if ! require_cf_session cms; then
+        exit 3
+    fi
+
     # If no backup tag specified, get latest from FROM space
     if [ -z "$backup_tag" ]; then
         print_status $BLUE "🔍 Finding latest backup from $from_space..."
@@ -1538,7 +1544,11 @@ downsync() {
     # This gives us a recovery point if the downsync fails partway through.
     print_status $BLUE "🛡️  Taking safety backup of $to_space before any destructive operations..."
     print_status $YELLOW "   This protects the current state of $to_space in case something goes wrong"
-    cf target -s "$to_space" >/dev/null 2>&1
+    if ! cf target -s "$to_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target $to_space for safety backup"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 3
+    fi
 
     local saved_deploy_env="${DEPLOY_ENV:-}"
     export DEPLOY_ENV="$to_space"
@@ -1568,7 +1578,13 @@ downsync() {
 
     # Switch to FROM space and download backups
     print_status $BLUE "📥 Downloading backups from $from_space..."
-    cf target -s "$from_space" >/dev/null 2>&1
+    if ! cf target -s "$from_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target FROM space: $from_space"
+        print_status $YELLOW "   Refusing to download while targeted at the wrong space"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 3
+    fi
 
     # Download via CMS container
     print_status $BLUE "  Downloading database..."
@@ -1581,7 +1597,9 @@ downsync() {
         aws s3 cp s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz - \$S3_EXTRA_PARAMS
     " > "$db_file" 2>/dev/null
 
-    if [ ! -s "$db_file" ]; then
+    # Non-empty is not enough: a cf error banner or truncated stream is not a
+    # backup, so require the gzip magic bytes like download_backup_artifact does
+    if [ "$(head -c 2 "$db_file" 2>/dev/null | od -An -tx1 | tr -d ' \n')" != "1f8b" ]; then
         print_status $RED "❌ System Error: Failed to download database backup"
         diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
@@ -1604,7 +1622,7 @@ downsync() {
         tar czf - .
     " > "$temp_dir/public.tar.gz" 2>/dev/null
 
-    if [ ! -s "$temp_dir/public.tar.gz" ]; then
+    if [ "$(head -c 2 "$temp_dir/public.tar.gz" 2>/dev/null | od -An -tx1 | tr -d ' \n')" != "1f8b" ]; then
         print_status $RED "❌ System Error: Failed to download public files backup"
         diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
