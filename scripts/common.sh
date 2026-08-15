@@ -1950,6 +1950,143 @@ state_command() {
     fi
 }
 
+# Explain why a `cf ssh` (or `cf app`) call failed or returned no output.
+# Call this from a failure path only - it probes the CF session to find the
+# first broken link in the chain (CLI missing, not logged in, app
+# unreachable, SSH disabled) and prints the cause and fix to stderr.
+# Probes run once per process; later calls are silent no-ops so multi-step
+# commands do not repeat the same diagnosis.
+# Args:
+#   $1: app name (default: cms)
+# Returns: 1 always, so callers can chain with `|| diagnose_cf_ssh_failure`
+diagnose_cf_ssh_failure() {
+    local app="${1:-cms}"
+
+    if [ "$CF_SSH_FAILURE_DIAGNOSED" = "true" ]; then
+        return 1
+    fi
+    CF_SSH_FAILURE_DIAGNOSED=true
+
+    if ! command -v cf >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ Cloud Foundry CLI (cf) not found on PATH"
+            print_status $YELLOW "   Install: https://docs.cloudfoundry.org/cf-cli/install-go-cli.html"
+        } >&2
+        return 1
+    fi
+
+    if ! cf target >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ Not logged in to Cloud Foundry"
+            print_status $YELLOW "   Run: bin/cloudgov/login --sso"
+        } >&2
+        return 1
+    fi
+
+    # `cf target` only reads the local config, so it keeps succeeding after the
+    # session dies. Refreshing the token is what proves the session is live.
+    if ! cf oauth-token >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ Cloud Foundry session expired (token expired or revoked)"
+            print_status $YELLOW "   Run: bin/cloudgov/login --sso"
+        } >&2
+        return 1
+    fi
+
+    local space
+    space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
+
+    if ! cf app "$app" >/dev/null 2>&1; then
+        {
+            print_status $RED "❌ App '$app' is not reachable in space '${space:-unknown}'"
+            print_status $YELLOW "   Check the target space with 'cf target' and the app with 'cf app $app'"
+        } >&2
+        return 1
+    fi
+
+    if ! cf ssh-enabled "$app" 2>/dev/null | grep -qi 'enabled'; then
+        {
+            print_status $RED "❌ SSH access to '$app' is disabled in space '${space:-unknown}'"
+            print_status $YELLOW "   Enable it with: cf enable-ssh $app (then restart the app)"
+        } >&2
+        return 1
+    fi
+
+    {
+        print_status $RED "❌ SSH to '$app' in space '${space:-unknown}' works, but the remote command failed or returned no data"
+        print_status $YELLOW "   Debug interactively with: cf ssh $app"
+    } >&2
+    return 1
+}
+
+# Check that the local CF session is usable *before* starting an operation
+# that writes files or takes a long time, so it fails with an actionable
+# message instead of half-finishing. diagnose_cf_ssh_failure reports the
+# specific cause.
+# `cf oauth-token` is the probe that matters: `cf target` reads the cached
+# config, so it still exits 0 once the token has expired or been revoked.
+# Args:
+#   $1: app name used in the diagnostic message (default: cms)
+# Returns: 0 when the CLI is present and the session is live, 1 otherwise
+# (printing the cause and fix to stderr)
+require_cf_session() {
+    local app="${1:-cms}"
+
+    if command -v cf >/dev/null 2>&1 &&
+       cf target >/dev/null 2>&1 &&
+       cf oauth-token >/dev/null 2>&1; then
+        return 0
+    fi
+
+    diagnose_cf_ssh_failure "$app"
+    return 1
+}
+
+# Single entry point for toggling Drupal state (Tome/maintenance mode) from a
+# local machine. All callers (local-manager.sh, deploy.sh) route through
+# this function to invoke `cf ssh`.
+# Sources /etc/profile and routes through manager.sh, which sets up PATH
+# via init_backup_system before calling state_command.
+# Args:
+#   $1: action - "enable" or "disable"
+#   $2: state_type - "tome", "sm" (site maintenance), or "both" (default: "both")
+#   $3: max_wait_minutes - For disable actions only (default: 25)
+# Returns: exit code of the remote state command (2 on local validation failure)
+remote_state_command() {
+    local action="$1"
+    local state_type="${2:-both}"
+    local max_wait="${3:-25}"
+
+    if [ "$action" != "enable" ] && [ "$action" != "disable" ]; then
+        print_status $RED "❌ Error: invalid state action: $action"
+        print_status $YELLOW "   Must be 'enable' or 'disable'"
+        return 2
+    fi
+
+    case "$state_type" in
+        tome|sm|maintenance|both) ;;
+        *)
+            print_status $RED "❌ Error: invalid state type: $state_type"
+            print_status $YELLOW "   Must be 'tome', 'sm', or 'both'"
+            return 2
+            ;;
+    esac
+
+    if ! echo "$max_wait" | grep -qE '^[0-9]+$'; then
+        print_status $RED "❌ Error: max_wait_mins must be a positive integer"
+        return 2
+    fi
+
+    local _cmd
+    _cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh state %q %q %q' "$action" "$state_type" "$max_wait")
+    cf ssh cms -c "$_cmd"
+    local _rc=$?
+    if [ $_rc -ne 0 ]; then
+        diagnose_cf_ssh_failure cms
+    fi
+    return $_rc
+}
+
 # ===================================================================
 # AWS S3 CONFIGURATION
 # ===================================================================
