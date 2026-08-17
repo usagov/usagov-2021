@@ -142,6 +142,7 @@ paths.forEach(path => {
             .find('a')
             .click();
         cy.location('pathname').should('eq', '/es/muerte-de-un-ser-querido');
+        cy.visit(path);
         }
         })
     })
