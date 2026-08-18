@@ -1949,6 +1949,209 @@ INVENTORY
 # Function to test that restore completes every check before the first mutation,
 # captures a verified recovery point, and rolls back when a later phase fails.
 # Hermetic: a directory-backed fake S3 and fake drush, so no real store is touched.
+# H-06: a named backup retried on the same day must not overwrite the earlier one,
+# and every component of a set must share one number.
+#
+# The old discovery searched for "<base>-<number>" and required the remainder to be
+# purely numeric, so an existing "<base>--post-deploy-0" never counted and each
+# retry recomputed 0. Observed live: three downsyncs into dr on 2026-08-05 all
+# produced DOWNSYNC-dr-16277-2026-08-05--pre-downsync-0 and only the last survived.
+test_backup_set_numbering() {
+    echo "🔢 Testing backup sequence numbering and set tagging..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/bin" \
+        "$sandbox/s3/auto-backups/database" "$sandbox/s3/auto-backups/web-backup" \
+        "$sandbox/s3/auto-backups/public_backup"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$BACKUP_DIR/manager.sh" "$BACKUP_DIR/backup-system.conf" "$sandbox/tree/scripts/snapshot/"
+
+    # Lists a directory-backed bucket: files for db, "PRE name/" for static/public.
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+R="$FS3"
+svc="$1"; shift; act="$1"; shift
+[ "$svc $act" = "s3 ls" ] || exit 0
+t=""
+for a in "$@"; do case "$a" in s3://*) [ -z "$t" ] && t="$a" ;; esac; done
+p="$R/$(echo "$t" | sed 's|^s3://[^/]*/||; s|/$||')"
+[ -d "$p" ] || exit 1
+for f in "$p"/*; do
+    [ -e "$f" ] || continue
+    b=$(basename "$f")
+    if [ -d "$f" ]; then echo "                           PRE $b/"; else echo "2026-01-01 00:00:00 10 $b"; fi
+done
+exit 0
+FAKEAWS
+    chmod +x "$sandbox/bin/aws"
+
+    # Separate processes: this suite has already sourced common.sh, and re-sourcing
+    # re-runs `readonly` on constants that already hold values, which is fatal in a
+    # non-interactive shell.
+    cat > "$sandbox/tag-driver.sh" <<'DRIVER'
+#!/bin/sh
+# $1 = base tag, $2 = suffix (may be empty), $3 = preallocated set suffix (optional)
+. ./scripts/common.sh
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+eval "$(sed -n '/^prepare_backup_tag()/,/^}/p' ./scripts/snapshot/manager.sh)"
+BACKUP_SET_SUFFIX="$3"
+if prepare_backup_tag db "$1" "$2" maintenance false >/dev/null 2>&1; then
+    echo "$NEXT_BACKUP_TAG"
+else
+    echo "REFUSED"
+fi
+DRIVER
+
+    cat > "$sandbox/set-driver.sh" <<'DRIVER'
+#!/bin/sh
+# $1 = stem, $2 = legacy stem, $3 = types
+. ./scripts/common.sh
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+if allocate_backup_set_suffix "$1" "$2" "$3" >/dev/null 2>&1; then
+    echo "$NEXT_BACKUP_SUFFIX"
+else
+    echo "REFUSED"
+fi
+DRIVER
+
+    tag_for() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            FS3="$sandbox/s3"; export FS3
+            sh "$sandbox/tag-driver.sh" "$1" "$2" "$3"
+        )
+    }
+    set_suffix_for() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            FS3="$sandbox/s3"; export FS3
+            sh "$sandbox/set-driver.sh" "$1" "$2" "$3"
+        )
+    }
+
+    local db_dir="$sandbox/s3/auto-backups/database"
+    local base="DOWNSYNC-dr-1-2026-01-01"
+
+    # --- The suffix carries no extra delimiter ------------------------------
+    local got=$(tag_for "$base" "pre-downsync" "")
+    if [ "$got" = "$base-pre-downsync-0" ]; then
+        echo "✅ A named backup starts at 0 with a single delimiter"
+    else
+        echo "❌ Unexpected first tag: $got"
+        failures=$((failures + 1))
+    fi
+
+    # --- The overwrite this finding is about -------------------------------
+    : > "$db_dir/$base-pre-downsync-0.sql.gz"
+    got=$(tag_for "$base" "pre-downsync" "")
+    if [ "$got" = "$base-pre-downsync-1" ]; then
+        echo "✅ A same-day retry increments instead of reusing 0"
+    else
+        echo "❌ Retry did not increment (got: $got)"
+        failures=$((failures + 1))
+    fi
+
+    # --- Names written before normalization still count --------------------
+    : > "$db_dir/$base--pre-downsync-3.sql.gz"
+    got=$(tag_for "$base" "pre-downsync" "")
+    if [ "$got" = "$base-pre-downsync-4" ]; then
+        echo "✅ Legacy double-delimiter names are counted, so numbering stays monotonic"
+    else
+        echo "❌ Legacy names were ignored (got: $got)"
+        failures=$((failures + 1))
+    fi
+
+    # --- Unsuffixed backups behave as before ------------------------------
+    local autobase="AUTO-dr-1-2026-01-01"
+    : > "$db_dir/$autobase-4.sql.gz"
+    got=$(tag_for "$autobase" "" "")
+    if [ "$got" = "$autobase-5" ]; then
+        echo "✅ Unsuffixed numbering is unaffected"
+    else
+        echo "❌ Unsuffixed numbering changed (got: $got)"
+        failures=$((failures + 1))
+    fi
+
+    # --- A suffix that is a prefix of another must not be counted ---------
+    # "post-deploy" and "post-deploy-extra" share a leading string; anchoring the
+    # match on the full stem is what keeps them apart.
+    : > "$db_dir/$base-post-deploy-extra-9.sql.gz"
+    got=$(tag_for "$base" "post-deploy" "")
+    if [ "$got" = "$base-post-deploy-0" ]; then
+        echo "✅ A longer suffix sharing a prefix does not inflate the sequence"
+    else
+        echo "❌ Neighbouring suffix leaked into the sequence (got: $got)"
+        failures=$((failures + 1))
+    fi
+
+    # --- One number for the whole set -------------------------------------
+    mkdir -p "$sandbox/s3/auto-backups/web-backup/$autobase-7"
+    got=$(set_suffix_for "$autobase" "" "static,public,db")
+    if [ "$got" = "8" ]; then
+        echo "✅ A set takes one number, above the highest in any component"
+    else
+        echo "❌ Set numbering wrong (db max 4, static max 7, expected 8, got: $got)"
+        failures=$((failures + 1))
+    fi
+
+    # --- Components share the reserved number -----------------------------
+    got=$(tag_for "$autobase" "" "8")
+    if [ "$got" = "$autobase-8" ]; then
+        echo "✅ Components use the reserved number rather than allocating their own"
+    else
+        echo "❌ Reserved number was ignored (got: $got)"
+        failures=$((failures + 1))
+    fi
+
+    # --- At the cap, refuse rather than reset to 0 -------------------------
+    # Resetting overwrote the first backup of the day, which is the one failure this
+    # function must never produce.
+    sed -i.bak 's/^MAX_RETRY_ATTEMPTS=.*/MAX_RETRY_ATTEMPTS=3/' \
+        "$sandbox/tree/scripts/snapshot/backup-system.conf"
+    local capbase="CAP-dr-1-2026-01-01"
+    : > "$db_dir/$capbase-0.sql.gz"
+    : > "$db_dir/$capbase-1.sql.gz"
+    got=$(tag_for "$capbase" "" "")
+    if [ "$got" = "$capbase-2" ]; then
+        echo "✅ Below the cap a number is still issued"
+    else
+        echo "❌ Expected $capbase-2, got: $got"
+        failures=$((failures + 1))
+    fi
+    : > "$db_dir/$capbase-2.sql.gz"
+    got=$(tag_for "$capbase" "" "")
+    if [ "$got" = "REFUSED" ]; then
+        echo "✅ At the cap it refuses instead of resetting to 0 and overwriting"
+    else
+        echo "❌ At the cap it issued: $got"
+        failures=$((failures + 1))
+    fi
+
+    # --- The caller must not pre-attach a delimiter -------------------------
+    # run_backup_command used to pass "-$custom_suffix", which is what produced the
+    # "<base>--post-deploy-0" names that discovery could never match. Checked
+    # structurally because the joining happens before any S3 call.
+    if command grep -q 'backup_suffix="-\${custom_suffix}"' "$BACKUP_DIR/manager.sh"; then
+        echo "❌ run_backup_command still prefixes a delimiter onto the suffix"
+        failures=$((failures + 1))
+    else
+        echo "✅ The suffix reaches prepare_backup_tag without a leading delimiter"
+    fi
+
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
 # H-05: only one instance may schedule the daily backup, and no two backups may run
 # against the same bucket at once.
 #
@@ -3659,6 +3862,7 @@ main() {
     run_test "Drupal State Management" "test_state_management"
     run_test "State Restoration Guarantees" "test_state_restoration_guarantees"
     run_test "Backup Lock and Scheduling" "test_backup_lock_and_scheduling"
+    run_test "Backup Set Numbering" "test_backup_set_numbering"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"

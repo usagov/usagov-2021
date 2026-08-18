@@ -1712,15 +1712,18 @@ create_public_backup() {
 }
 
 # Create all backups
+#
+# Unreferenced: run_backup_command superseded this and is what the cron entry and
+# every wrapper call. It is kept only because another finding tracks the dead
+# automatic-cleanup path that runs from here; the suffix handling below is corrected
+# so wiring it up again cannot reintroduce the double-delimiter names. It does not
+# share one sequence number across components the way run_backup_command does.
 backup_all() {
     local custom_prefix="${1:-$BACKUP_PREFIX}"
     local custom_suffix="${2:-}"
 
-    # Prepare backup suffix with proper formatting
-    local backup_suffix=""
-    if [ -n "$custom_suffix" ]; then
-        backup_suffix="-${custom_suffix}"
-    fi
+    # No leading delimiter: prepare_backup_tag joins the suffix.
+    local backup_suffix="$custom_suffix"
 
     # Generate single timestamp for this backup event (format: 2025-10-24)
     local backup_timestamp=$(date +"%Y-%m-%d")
