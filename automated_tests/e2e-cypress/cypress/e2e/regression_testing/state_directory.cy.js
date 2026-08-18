@@ -17,11 +17,8 @@ paths.forEach((path, idx) => {
       });
       it("BTE 50A: Landing page: state drop-down", () => {
         // testing dropdown menu on click
-        cy.get("[data-test='stateInput']")
-          .click()
-          .then(($p) => {
-            cy.get("[data-test='stateDropDown']").should("be.visible");
-          });
+        cy.get("[data-test='stateInput']").click();
+        cy.get("[data-test='stateDropDown']").should("be.visible");
       });
 
       it("BTE 50B: Landing page: state drop-down", () => {
@@ -77,11 +74,8 @@ context("50 State Pages", () => {
 
   it("BTE 52A: 50-state pages: state drop-down", () => {
     // testing dropdown menu on click
-    cy.get("[data-test='stateInput']")
-      .click()
-      .then(($p) => {
-        cy.get("[data-test='stateDropDown']").should("be.visible");
-      });
+    cy.get("[data-test='stateInput']").click();
+    cy.get("[data-test='stateDropDown']").should("be.visible");
   });
 
   it("BTE 52B: 50-state pages: state drop-down", () => {
