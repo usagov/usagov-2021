@@ -362,6 +362,11 @@ get_days_arg() {
 # Idempotent, so it is harmless when the operation already restored state — the
 # active flags are false by then and only temp-file removal runs.
 # NIST 800-53: CP-10, AU-3
+# Sequence number shared by every component of the current backup set. Empty means
+# "allocate per component", which is what direct callers such as the restore's
+# recovery point rely on.
+BACKUP_SET_SUFFIX=""
+
 BACKUP_CLEANUP_DONE=false
 backup_cleanup() {
     local exit_code=$?
@@ -378,6 +383,10 @@ backup_cleanup() {
 
     # Released last of all, so it is still held through the metadata commit.
     backup_lock_release
+
+    # Cleared so a later component created directly in this process — a restore's
+    # recovery point, say — allocates its own number instead of reusing this set's.
+    BACKUP_SET_SUFFIX=""
 
     if [ "$DRUPAL_STATE_ACTIVE_MAINT" = "true" ] || [ "$DRUPAL_STATE_ACTIVE_TOME" = "true" ]; then
         print_status $YELLOW "⚠️  Backup ended with Drupal state still held — restoring it..."
@@ -457,12 +466,11 @@ run_backup_command() {
 
     local backup_types=$(parse_backup_types "$types_arg")
 
-    # Determine backup prefix and suffix
+    # Determine backup prefix and suffix. The suffix carries no leading delimiter:
+    # prepare_backup_tag joins it. Passing "-$custom_suffix" here is what produced
+    # the double delimiter that sequence discovery could never match.
     local backup_prefix="${custom_prefix:-$BACKUP_PREFIX}"
-    local backup_suffix=""
-    if [ -n "$custom_suffix" ]; then
-        backup_suffix="-${custom_suffix}"
-    fi
+    local backup_suffix="$custom_suffix"
 
     # Validate prefix and suffix don't contain spaces
     if echo "$backup_prefix" | grep -q ' '; then
@@ -549,6 +557,30 @@ run_backup_command() {
             format_json '{"operation":"backup","status":"error","reason":"lock_unavailable"}'
         fi
         return 1
+    fi
+    # One sequence number for the whole set, chosen before any component is written.
+    # Allocating per component allowed a set to come out as static-3/public-1/db-1,
+    # which no longer shares a tag. The backup lock above is what makes this
+    # allocation safe against another instance.
+    setup_s3_vars >/dev/null 2>&1
+    local set_base="${backup_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
+    local set_stem="$set_base"
+    local set_legacy_stem=""
+    if [ -n "$backup_suffix" ]; then
+        set_stem="${set_base}-${backup_suffix}"
+        set_legacy_stem="${set_base}--${backup_suffix}"
+    fi
+    if ! allocate_backup_set_suffix "$set_stem" "$set_legacy_stem" "$backup_types"; then
+        if [ "$use_json" = true ]; then
+            format_json '{"operation":"backup","status":"error","reason":"suffix_unavailable"}'
+        else
+            print_status $RED "❌ Could not reserve a backup sequence number"
+        fi
+        return 1
+    fi
+    BACKUP_SET_SUFFIX="$NEXT_BACKUP_SUFFIX"
+    if [ "$use_json" = false ]; then
+        print_status $YELLOW "Sequence: $BACKUP_SET_SUFFIX"
     fi
 
     local result_count=0
@@ -1234,6 +1266,15 @@ run_info_command_json() {
 # DATABASE BACKUP FUNCTIONS
 # ===================================================================
 
+# Set NEXT_BACKUP_TAG for one component.
+#
+# The suffix arrives without a leading delimiter; this function owns the joining.
+# Callers used to pass "-post-deploy", which produced the double delimiter in
+# "<base>--post-deploy-0" and was the reason sequence discovery never matched.
+#
+# When BACKUP_SET_SUFFIX is set, that number is used instead of allocating one, so
+# every component of a set shares a tag. It is empty for callers that create a
+# single component directly, such as the restore's recovery point.
 prepare_backup_tag() {
     local backup_type="$1"
     local base_tag="$2"
@@ -1241,17 +1282,22 @@ prepare_backup_tag() {
     local state_type="$4"
     local state_prepared="$5"
 
-    if ! get_next_backup_suffix "$backup_type" "$base_tag"; then
+    local stem="$base_tag"
+    local legacy_stem=""
+    if [ -n "$backup_suffix" ]; then
+        stem="${base_tag}-${backup_suffix}"
+        legacy_stem="${base_tag}--${backup_suffix}"
+    fi
+
+    if [ -n "$BACKUP_SET_SUFFIX" ]; then
+        NEXT_BACKUP_SUFFIX="$BACKUP_SET_SUFFIX"
+    elif ! get_next_backup_suffix "$backup_type" "$stem" "$legacy_stem"; then
         print_status $RED "❌ Failed to determine ${backup_type} backup suffix"
         [ "$state_prepared" = "true" ] && restore_drupal_state "$state_type"
         return 1
     fi
 
-    if [ -n "$backup_suffix" ]; then
-        NEXT_BACKUP_TAG="${base_tag}-${backup_suffix}-${NEXT_BACKUP_SUFFIX}"
-    else
-        NEXT_BACKUP_TAG="${base_tag}-${NEXT_BACKUP_SUFFIX}"
-    fi
+    NEXT_BACKUP_TAG="${stem}-${NEXT_BACKUP_SUFFIX}"
 }
 
 # Create a database backup with optional custom prefix, suffix, and timestamp

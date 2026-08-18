@@ -1256,9 +1256,20 @@ date_to_epoch() {
     echo "$epoch"
 }
 
+# Find the next unused sequence number for a backup stem.
+#
+# Args:
+#   $1: backup_type - static, public, or db
+#   $2: stem - the full name the number is appended to, suffix included
+#             (e.g. "AUTO-dr-16277-2026-08-05-post-deploy"), NOT just the base
+#   $3: legacy_stem - optional pre-normalization stem carrying an extra delimiter,
+#             counted so numbering does not restart across the change
+# Sets: NEXT_BACKUP_SUFFIX
+# Returns: 0 on success, 1 if no number is available
 get_next_backup_suffix() {
     local backup_type="$1"
-    local base_tag="$2"
+    local stem="$2"
+    local legacy_stem="${3:-}"
 
     setup_s3_vars || return 1
 
@@ -1284,81 +1295,106 @@ get_next_backup_suffix() {
     fi
 
     local s3_path=""
-    local search_pattern=""
 
     case "$backup_type" in
-        "static")
-            s3_path="$AUTO_STATIC_BACKUP_PATH"
-            search_pattern="${base_tag}-"
-            ;;
-        "public")
-            s3_path="$AUTO_PUBLIC_BACKUP_PATH"
-            search_pattern="${base_tag}-"
-            ;;
-        "db")
-            s3_path="$AUTO_DB_BACKUP_PATH"
-            search_pattern="${base_tag}-"
-            ;;
+        "static") s3_path="$AUTO_STATIC_BACKUP_PATH" ;;
+        "public") s3_path="$AUTO_PUBLIC_BACKUP_PATH" ;;
+        "db")     s3_path="$AUTO_DB_BACKUP_PATH" ;;
         *)
             eval "exec $lockfd>&-"
             return 1
             ;;
     esac
 
-    local max_attempts=$MAX_RETRY_ATTEMPTS
-    local attempt=0
+    # Names are compared against the full stem, suffix included. The previous
+    # version searched for "<base>-<number>" and required the remainder to be
+    # purely numeric, so an existing "<base>--post-deploy-0" never counted: every
+    # retry of a named backup recomputed 0 and overwrote the earlier one. Confirmed
+    # live — three downsyncs into dr on 2026-08-05 each produced
+    # "DOWNSYNC-dr-16277-2026-08-05--pre-downsync-0" and only the last survived.
+    local names=""
+    if [ "$backup_type" = "db" ]; then
+        names=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null \
+            | awk '{print $4}' | sed 's/\.sql\.gz$//')
+    else
+        names=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null \
+            | grep 'PRE ' | awk '{print $2}' | tr -d '/')
+    fi
+
+    # Dots would otherwise act as wildcards and over-match neighbouring stems.
+    local stem_re=$(printf '%s' "$stem" | sed 's/\./\\./g')
     local existing_numbers=""
+    existing_numbers=$(printf '%s\n' "$names" | sed -n "s|^${stem_re}-\([0-9][0-9]*\)$|\1|p")
 
-    while [ $attempt -lt $max_attempts ]; do
-        if [ "$backup_type" = "db" ]; then
-            # For database, search for .sql.gz files
-            existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
-                grep "${search_pattern}" | \
-                grep ".sql.gz" | \
-                awk '{print $4}' | \
-                sed "s/^${base_tag}-//" | \
-                sed 's/.sql.gz$//' | \
-                grep '^[0-9]\+$')
-        else
-            # For static/public, search for directories
-            existing_numbers=$(aws s3 ls "s3://$BUCKET_NAME/$s3_path/" $S3_EXTRA_PARAMS 2>/dev/null | \
-                grep "PRE ${search_pattern}" | \
-                awk '{print $2}' | \
-                tr -d '/' | \
-                sed "s/^${base_tag}-//" | \
-                grep '^[0-9]\+$')
+    # Objects written before suffixes were normalized carry an extra delimiter
+    # ("<base>--post-deploy-0"). They are counted so numbering stays monotonic
+    # across the change rather than restarting and sitting beside the old names.
+    if [ -n "$legacy_stem" ]; then
+        local legacy_re=$(printf '%s' "$legacy_stem" | sed 's/\./\\./g')
+        local legacy_numbers=""
+        legacy_numbers=$(printf '%s\n' "$names" | sed -n "s|^${legacy_re}-\([0-9][0-9]*\)$|\1|p")
+        existing_numbers=$(printf '%s\n%s\n' "$existing_numbers" "$legacy_numbers")
+    fi
+
+    local max_num=-1
+    local num=""
+    for num in $existing_numbers; do
+        if [ "$num" -gt "$max_num" ]; then
+            max_num=$num
         fi
-
-        # Find the highest number and add 1
-        local max_num=-1
-        if [ -n "$existing_numbers" ]; then
-            for num in $existing_numbers; do
-                if [ "$num" -gt "$max_num" ]; then
-                    max_num=$num
-                fi
-            done
-        fi
-
-        local result=$((max_num + 1))
-
-        if [ $result -lt $MAX_RETRY_ATTEMPTS ]; then
-            break
-        fi
-
-        attempt=$((attempt + 1))
-        if [ $attempt -ge $max_attempts ]; then
-            print_status $RED "❌ Error: Exceeded maximum suffix attempts ($max_attempts)" >&2
-            print_status $YELLOW "   Current max suffix found: $max_num" >&2
-            result=0
-            break
-        fi
-
-        sleep 1
     done
+
+    local result=$((max_num + 1))
+
+    # Previously this reset to 0 at the cap, which overwrote the very first backup
+    # of the day. Refusing is the only safe answer: the caller must not be handed a
+    # number that already has objects under it.
+    if [ "$result" -ge "$MAX_RETRY_ATTEMPTS" ]; then
+        print_status $RED "❌ Error: backup sequence for $stem reached the limit ($MAX_RETRY_ATTEMPTS)" >&2
+        print_status $YELLOW "   Highest existing suffix: $max_num. Remove old backups or raise MAX_RETRY_ATTEMPTS." >&2
+        eval "exec $lockfd>&-"
+        return 1
+    fi
 
     # The descriptor remains locked until this process exits or allocates another type.
     # That keeps the selected suffix reserved while its backup uploads to S3.
     NEXT_BACKUP_SUFFIX="$result"
+}
+
+# Choose one sequence number for every component of a backup set.
+#
+# Each component used to allocate its own number, so a set could come out as
+# static-3, public-1, db-1 and no longer be addressable by a single tag — leaving
+# the restore's same-day pairing to guess which pieces belong together. Taking the
+# highest free number across the requested types keeps one tag for the set.
+#
+# Cross-instance atomicity comes from the backup lock (H-05), which is held for the
+# whole backup command: no second run can allocate between this call and the last
+# component upload.
+# Args:
+#   $1: stem - normalized stem, suffix included
+#   $2: legacy_stem - pre-normalization stem, or empty
+#   $3: types - requested backup types
+# Sets: NEXT_BACKUP_SUFFIX
+# Returns: 0 on success, 1 if any type could not be allocated
+allocate_backup_set_suffix() {
+    local stem="$1"
+    local legacy_stem="$2"
+    local types="$3"
+
+    local best=0
+    local type=""
+    for type in static public db; do
+        has_backup_type "$types" "$type" || continue
+        if ! get_next_backup_suffix "$type" "$stem" "$legacy_stem"; then
+            return 1
+        fi
+        if [ "$NEXT_BACKUP_SUFFIX" -gt "$best" ]; then
+            best="$NEXT_BACKUP_SUFFIX"
+        fi
+    done
+
+    NEXT_BACKUP_SUFFIX="$best"
 }
 
 # Check if a backup date falls within a date range
