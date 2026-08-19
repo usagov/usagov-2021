@@ -3786,6 +3786,313 @@ test_state_commands() {
 }
 
 # Main execution
+# H-07: the deployment metadata contract — one schema, one producer, one reader,
+# one validator.
+#
+# The defect this guards against was mutual: the producer wrote
+# `deployed_containers` while the validator required `containers`, so the system
+# rejected its own metadata; and the cron capture was assembled by string
+# concatenation with `\n` escapes, which is valid JSON only if the running
+# shell's `echo` expands them. Every reader scraped that with its own sed
+# expression, and those expressions only match the single-line malformed form —
+# given properly formatted JSON they return nothing, and nothing is recorded as
+# a backup with no digests at all.
+test_deployment_metadata_contract() {
+    echo "🧾 Testing deployment metadata schema contract..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+    local d64="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/bin"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$BACKUP_DIR/backup-system.conf" "$sandbox/tree/scripts/snapshot/"
+    cp "$BACKUP_DIR/manager.sh" "$sandbox/tree/scripts/snapshot/"
+
+    # Serves the digest capture from $CAPTURE_FILE and records uploads to $UPLOADED
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+case "$*" in
+  *".current_digests_"*)
+     [ -f "$CAPTURE_FILE" ] && cat "$CAPTURE_FILE"
+     exit 0 ;;
+esac
+src=""
+for a in "$@"; do case "$a" in /tmp/*) src="$a" ;; esac; done
+if [ -n "$src" ] && [ -n "$UPLOADED" ]; then cp "$src" "$UPLOADED" 2>/dev/null; fi
+exit 0
+FAKEAWS
+    # Unreachable, so the producer cannot quietly fall back to live CF state
+    printf '#!/bin/sh\nexit 1\n' > "$sandbox/bin/cf"
+    chmod +x "$sandbox/bin/aws" "$sandbox/bin/cf"
+
+    # Separate processes: this suite has already sourced common.sh, and
+    # re-sourcing re-runs `readonly` on constants that already hold values,
+    # which is fatal in a non-interactive shell.
+    cat > "$sandbox/produce.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+capture_deployment_metadata "$1" "$2"
+DRIVER
+
+    cat > "$sandbox/validate.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+# A missing validator also exits non-zero, which would make every "refused"
+# assertion below pass without validating anything
+command -v validate_deployment_metadata >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+if validate_deployment_metadata "$(cat "$1")" "$2" "$3" > "$1.findings" 2>&1; then
+    echo VALID
+else
+    echo INVALID
+fi
+DRIVER
+
+    cat > "$sandbox/extract.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+if extract_digests_from_metadata "$(cat "$1")" "$2"; then
+    echo RC=0
+else
+    echo RC=1
+fi
+DRIVER
+
+    cat > "$sandbox/commit.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+command -v commit_deployment_metadata >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+# Stand in for a capture that produced nothing usable
+capture_deployment_metadata() { echo ""; }
+if commit_deployment_metadata TAG-dr-1-2026-01-01-0 dr; then echo COMMITTED; else echo REFUSED; fi
+DRIVER
+
+    run_in_tree() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            CAPTURE_FILE="$sandbox/capture.json"; export CAPTURE_FILE
+            UPLOADED="$sandbox/uploaded.json"; export UPLOADED
+            sh "$sandbox/$1" "$2" "$3" "$4"
+        )
+    }
+
+    # --- The capture the producer has to read is the legacy escaped form -----
+    # This is what is in the buckets: one line, literal \n, string-valued digests.
+    printf '{\\n  "timestamp": "%s",\\n  "environment": "dr",\\n  "containers": {\\n    "cms": "r/usagov_cms:16302@sha256:%s",\\n    "www": "r/usagov_www:16302@sha256:%s",\\n    "waf": "r/usagov_waf:16302@sha256:%s"\\n  }\\n}' \
+        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$d64" "$d64" "$d64" > "$sandbox/capture.json"
+
+    if jq -e . "$sandbox/capture.json" >/dev/null 2>&1; then
+        echo "❌ Test fixture is wrong: the legacy capture should not be valid JSON as stored"
+        failures=$((failures + 1))
+    fi
+
+    run_in_tree produce.sh AUTO-dr-16302-2026-01-01-0 dr > "$sandbox/produced.json"
+
+    # --- The producer emits valid JSON --------------------------------------
+    if jq -e . "$sandbox/produced.json" >/dev/null 2>&1; then
+        echo "✅ Metadata is emitted as valid JSON"
+    else
+        echo "❌ Producer output does not parse as JSON"
+        failures=$((failures + 1))
+    fi
+
+    # --- ...and it read the legacy capture rather than losing the digests ----
+    local got_cms=$(jq -r '.containers.cms.digest // "none"' "$sandbox/produced.json" 2>/dev/null)
+    if [ "$got_cms" = "r/usagov_cms:16302@sha256:$d64" ]; then
+        echo "✅ The legacy escaped capture is still readable"
+    else
+        echo "❌ Digest not carried through from the legacy capture: $got_cms"
+        failures=$((failures + 1))
+    fi
+
+    # --- One release ID across the set --------------------------------------
+    if [ "$(jq -r '.release.id' "$sandbox/produced.json" 2>/dev/null)" = "16302" ] &&
+       [ "$(jq -r '.release.mixed' "$sandbox/produced.json" 2>/dev/null)" = "false" ]; then
+        echo "✅ A single release ID is derived for the whole set"
+    else
+        echo "❌ Release identity not established: $(jq -c '.release' "$sandbox/produced.json" 2>/dev/null)"
+        failures=$((failures + 1))
+    fi
+
+    # --- The producer and the validator agree -------------------------------
+    # This is the finding: metadata generation wrote `deployed_containers` and
+    # validation required `containers`, so the validator rejected documents the
+    # system had just written.
+    if [ "$(run_in_tree validate.sh "$sandbox/produced.json" AUTO-dr-16302-2026-01-01-0 dr)" = "VALID" ]; then
+        echo "✅ The validator accepts the producer's own output"
+    else
+        echo "❌ The validator rejects metadata this system produced:"
+        sed 's/^/     /' "$sandbox/produced.json.findings" 2>/dev/null
+        failures=$((failures + 1))
+    fi
+
+    # --- Documents are parsed, not grepped for field names ------------------
+    # The previous validator counted `grep '"containers"'` hits, so any text
+    # mentioning the field names passed.
+    printf 'not json, but it mentions "backup_tag" "timestamp" "environment" "containers" "cms" "www" "waf" "digest"\n' > "$sandbox/garbage.json"
+    if [ "$(run_in_tree validate.sh "$sandbox/garbage.json" "" "")" = "INVALID" ] &&
+       command grep -q "not valid JSON" "$sandbox/garbage.json.findings" 2>/dev/null; then
+        echo "✅ Text that merely mentions the field names is refused"
+    else
+        echo "❌ Non-JSON text passed validation"
+        failures=$((failures + 1))
+    fi
+
+    # --- Each fail-closed condition -----------------------------------------
+    local case_name="" filter="" expect_msg=""
+    for case_name in env stale mixed missing grammar nocapture; do
+        case "$case_name" in
+            env)       filter='.environment = "stage"' ;             expect_msg="environment mismatch" ;;
+            stale)     filter='.capture.stale = true | .capture.age_seconds = 259200' ; expect_msg="old at backup time" ;;
+            mixed)     filter='.release.mixed = true | .release.id = null' ; expect_msg="more than one release" ;;
+            missing)   filter='.containers.waf.digest = null | .complete = false | .missing = ["waf"]' ; expect_msg="waf digest missing" ;;
+            grammar)   filter='.containers.www.digest = "usagov_www:16302"' ; expect_msg="not a pinned sha256 digest" ;;
+            nocapture) filter='.capture.source = "none"' ;           expect_msg="no container digest capture" ;;
+        esac
+        jq "$filter" "$sandbox/produced.json" > "$sandbox/case-$case_name.json" 2>/dev/null
+        local verdict=$(run_in_tree validate.sh "$sandbox/case-$case_name.json" "" dr)
+        if [ "$verdict" = "INVALID" ] && command grep -q "$expect_msg" "$sandbox/case-$case_name.json.findings" 2>/dev/null; then
+            echo "✅ Refused: $case_name"
+        else
+            echo "❌ $case_name was not refused as expected ($verdict)"
+            sed 's/^/     /' "$sandbox/case-$case_name.json.findings" 2>/dev/null
+            failures=$((failures + 1))
+        fi
+    done
+
+    # --- Metadata written before the schema existed still reads -------------
+    jq -n --arg d "r/usagov_cms:1@sha256:$d64" '{
+        backup_tag: "OLD-dr-1-2026-01-01-0", timestamp: "2026-01-01T00:00:00Z",
+        environment: "dr", ticket: "USAGOV-1",
+        deployed_containers: {cms: {digest: $d}, www: {digest: $d}, waf: {digest: $d}}
+    }' > "$sandbox/legacy-meta.json"
+    if [ "$(run_in_tree validate.sh "$sandbox/legacy-meta.json" OLD-dr-1-2026-01-01-0 dr)" = "VALID" ] &&
+       command grep -q "predates the schema" "$sandbox/legacy-meta.json.findings" 2>/dev/null; then
+        echo "✅ Pre-schema metadata still validates, with a warning"
+    else
+        echo "❌ Pre-schema metadata handling regressed"
+        sed 's/^/     /' "$sandbox/legacy-meta.json.findings" 2>/dev/null
+        failures=$((failures + 1))
+    fi
+
+    # --- The reader fails closed and keeps positional alignment -------------
+    # Callers address the output with `sed -n '2p'`, so a missing digest must
+    # still occupy its line or the next app's digest slides into its place.
+    local extract_out=$(run_in_tree extract.sh "$sandbox/case-missing.json" "cms,waf,www")
+    local line_count=$(printf '%s\n' "$extract_out" | command grep -vc '^RC=')
+    if [ "$(printf '%s\n' "$extract_out" | command grep -c '^RC=1')" = "1" ] && [ "$line_count" = "3" ] &&
+       [ -z "$(printf '%s\n' "$extract_out" | sed -n '2p')" ]; then
+        echo "✅ The reader fails closed on a missing digest without shifting the others"
+    else
+        echo "❌ Reader alignment or status wrong: [$extract_out]"
+        failures=$((failures + 1))
+    fi
+
+    # --- Nothing unreadable is ever stored ----------------------------------
+    rm -f "$sandbox/uploaded.json"
+    if [ "$(run_in_tree commit.sh)" = "REFUSED" ] && [ ! -f "$sandbox/uploaded.json" ]; then
+        echo "✅ An empty metadata document is never uploaded"
+    else
+        echo "❌ An unusable metadata document was uploaded"
+        failures=$((failures + 1))
+    fi
+
+    # --- Freshness arithmetic ------------------------------------------------
+    # date -d, date -j and BusyBox date accept different formats, so the
+    # conversion is arithmetic; these are the values BSD date agrees on.
+    cat > "$sandbox/epoch.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+iso8601_to_epoch "$1"
+DRIVER
+    if [ "$(run_in_tree epoch.sh 1970-01-01T00:00:00Z)" = "0" ] &&
+       [ "$(run_in_tree epoch.sh 2026-08-10T23:03:07Z)" = "1786402987" ] &&
+       [ -z "$(run_in_tree epoch.sh 'not-a-timestamp')" ]; then
+        echo "✅ Capture timestamps convert correctly without date(1) extensions"
+    else
+        echo "❌ Capture timestamp conversion mismatch"
+        failures=$((failures + 1))
+    fi
+
+    # --- The cron capture is machine-written, not concatenated --------------
+    local cron_script="$PROJECT_ROOT/scripts/cron/update-container-digests.sh"
+    # Compact on purpose: `jq -nc`. cron and cms deploy separately, so the
+    # capture has to stay matchable by the single-line sed scrapers in readers
+    # that are already deployed, while being valid JSON for the new ones.
+    if command grep -q 'jq -nc' "$cron_script" && ! command grep -q 'JSON="{\\n' "$cron_script"; then
+        echo "✅ The cron capture is built with jq, compactly"
+    else
+        echo "❌ The cron capture is not built as compact JSON by jq"
+        failures=$((failures + 1))
+    fi
+
+    if command grep -q 'REQUIRED_APPS=' "$cron_script" &&
+       command grep -q 'WARNING: no digest for required app' "$cron_script"; then
+        echo "✅ The cron capture requires every release component"
+    else
+        echo "❌ The cron capture does not require the release components"
+        failures=$((failures + 1))
+    fi
+
+    # An empty result used to `exit 0`, leaving the previous capture in place to
+    # be read as current by the next backup.
+    if command grep -q 'WARNING: No running apps found' "$cron_script"; then
+        echo "❌ The cron capture still exits successfully when it finds nothing"
+        failures=$((failures + 1))
+    else
+        echo "✅ An incomplete capture is reported rather than silently skipped"
+    fi
+
+    # --- Rollback has to go through the validator, with a working override --
+    # Rollback used to read digests out of the document without validating it at
+    # all. The override has to use the value rollback actually stores for the
+    # flag ("--skip-validation"); comparing it to "true" silently ignores it, so
+    # an operator who passed the flag would still be refused.
+    local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
+    if command grep -q 'validate_deployment_metadata "$metadata_json" "$backup_tag" "$env"' "$deploy_script"; then
+        echo "✅ Rollback validates metadata against the space it is deploying into"
+    else
+        echo "❌ Rollback does not validate the metadata it deploys from"
+        failures=$((failures + 1))
+    fi
+
+    if command grep -q 'skip_validation" = "true"' "$deploy_script" ||
+       command grep -q 'skip_validation" != "true"' "$deploy_script"; then
+        echo "❌ A metadata gate compares skip_validation to \"true\", which never matches the stored flag"
+        failures=$((failures + 1))
+    else
+        echo "✅ The validation override uses the flag value rollback stores"
+    fi
+
+    # --- Readers deployed before this change must keep working --------------
+    # cron and cms deploy separately, so a new capture has to stay readable by
+    # the old sed scraper: hence compact JSON with string-valued digests.
+    printf '{"metadata_version":1,"timestamp":"2026-01-01T00:00:00Z","captured_at":"2026-01-01T00:00:00Z","environment":"dr","containers":{"cms":"r/c:1@sha256:%s","www":"r/w:1@sha256:%s","waf":"r/f:1@sha256:%s"},"complete":true,"missing":[]}' \
+        "$d64" "$d64" "$d64" > "$sandbox/new-capture.json"
+    local old_scrape=$(sed -n 's/.*"containers":[[:space:]]*{\([^}]*\)}.*/\1/p' "$sandbox/new-capture.json" |
+        sed 's/"//g' | sed 's/:[^,]*//g' | tr ',' '\n' | sed 's/^[[:space:]]*//' | sort | tr '\n' ' ')
+    if [ "$old_scrape" = "cms waf www " ]; then
+        echo "✅ The new capture is still readable by pre-change readers"
+    else
+        echo "❌ The new capture breaks readers deployed before this change: [$old_scrape]"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
 main() {
     # Parse command line arguments
     while [ $# -gt 0 ]; do
@@ -3863,6 +4170,7 @@ main() {
     run_test "State Restoration Guarantees" "test_state_restoration_guarantees"
     run_test "Backup Lock and Scheduling" "test_backup_lock_and_scheduling"
     run_test "Backup Set Numbering" "test_backup_set_numbering"
+    run_test "Deployment Metadata Contract" "test_deployment_metadata_contract"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"

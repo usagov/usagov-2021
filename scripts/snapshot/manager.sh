@@ -1498,8 +1498,7 @@ create_db_backup() {
 
         # Capture and upload deployment metadata (REQUIRED for all backups)
         if command -v capture_deployment_metadata >/dev/null 2>&1; then
-            local metadata=$(capture_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE")
-            if ! upload_deployment_metadata "$DB_BACKUP_TAG" "$metadata"; then
+            if ! commit_deployment_metadata "$DB_BACKUP_TAG" "$APP_SPACE"; then
                 log_message "❌ ERROR: Failed to upload metadata" | tee -a "$LOGFILE"
                 print_status $RED "❌ Backup metadata upload failed"
                 return 1
@@ -1573,8 +1572,7 @@ create_static_backup() {
 
             # Capture and upload deployment metadata (REQUIRED for all backups)
             if command -v capture_deployment_metadata >/dev/null 2>&1; then
-                local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
-                if ! upload_deployment_metadata "$BACKUP_TAG" "$metadata"; then
+                if ! commit_deployment_metadata "$BACKUP_TAG" "$APP_SPACE"; then
                     print_status $RED "❌ Static backup metadata upload failed"
                     return 1
                 fi
@@ -1680,8 +1678,7 @@ create_public_backup() {
 
                 # Capture and upload deployment metadata
                 if command -v capture_deployment_metadata >/dev/null 2>&1; then
-                    local metadata=$(capture_deployment_metadata "$BACKUP_TAG" "$APP_SPACE")
-                    upload_deployment_metadata "$BACKUP_TAG" "$metadata" || log_message "⚠️ Failed to upload metadata (non-critical)"
+                    commit_deployment_metadata "$BACKUP_TAG" "$APP_SPACE" || log_message "⚠️ Failed to record deployment metadata (non-critical)"
                 fi
 
                 return 0

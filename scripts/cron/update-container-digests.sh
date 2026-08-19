@@ -71,39 +71,91 @@ cf target -o "$ORG" -s "$ENVIRONMENT" >/dev/null 2>&1
 
 echo "Discovering running apps..."
 
-# Get list of all running apps in this space
-APPS=$(cf apps | grep "started" | awk '{print $1}' | grep -v "^name$")
-
-if [ -z "$APPS" ]; then
-    echo "WARNING: No running apps found"
-    exit 0
+# Every component of a release must be accounted for. Discovery used to be
+# "whatever `cf apps` currently shows as started", which silently omitted an app
+# that was mid-restart and, if nothing at all came back, exited 0 and left the
+# previous capture in place — so a backup taken minutes later recorded stale
+# digests as though they were current.
+# Read the release contract from the same config the backup system uses, so
+# RELEASE_COMPONENTS has one definition rather than a copy per producer
+CONF="$(dirname "$0")/../snapshot/backup-system.conf"
+if [ -f "$CONF" ]; then
+    . "$CONF"
 fi
+REQUIRED_APPS="${RELEASE_COMPONENTS:-cms www waf}"
 
-# Start building JSON
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-JSON="{\n  \"timestamp\": \"$TIMESTAMP\",\n  \"environment\": \"$ENVIRONMENT\",\n  \"containers\": {"
+# Any other started app is recorded too, but never counts towards completeness
+OTHER_APPS=$(cf apps 2>/dev/null | awk 'NR>1 && $2 == "started" { print $1 }')
 
-FIRST=true
-for APP in $APPS; do
-    echo "  Querying $APP..."
-    DIGEST=$(cf app "$APP" 2>/dev/null | grep "docker image" | awk '{print $NF}')
+CAPTURED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-    if [ -n "$DIGEST" ]; then
-        # Add comma if not first entry
-        if [ "$FIRST" = true ]; then
-            FIRST=false
-        else
-            JSON="$JSON,"
-        fi
-        JSON="$JSON\n    \"$APP\": \"$DIGEST\""
+# Built with jq, not string concatenation: the old form embedded literal "\n"
+# sequences and was only valid JSON if the running shell's `echo` expanded them.
+# Compact on purpose — readers deployed before this change scrape the single-line
+# form with sed, and they keep working while new readers parse it as JSON.
+CONTAINERS="{}"
+MISSING=""
+
+record_digest() {
+    app="$1"
+    digest=$(cf app "$app" 2>/dev/null | grep "docker image" | awk '{print $NF}')
+    if [ -z "$digest" ]; then
+        return 1
+    fi
+    CONTAINERS=$(printf '%s' "$CONTAINERS" | jq -c --arg a "$app" --arg d "$digest" '.[$a] = $d')
+    return 0
+}
+
+for APP in $REQUIRED_APPS; do
+    echo "  Querying $APP (required)..."
+    if ! record_digest "$APP"; then
+        echo "  WARNING: no digest for required app $APP"
+        MISSING="$MISSING $APP"
     fi
 done
 
-JSON="$JSON\n  }\n}"
+for APP in $OTHER_APPS; do
+    case " $REQUIRED_APPS " in
+        *" $APP "*) continue ;;
+    esac
+    echo "  Querying $APP..."
+    record_digest "$APP" || echo "  (no digest for $APP)"
+done
 
-# Write to temp file
+COMPLETE=true
+if [ -n "$MISSING" ]; then
+    COMPLETE=false
+fi
+
+MISSING_JSON=$(printf '%s' "$MISSING" | tr ' ' '\n' | grep -v '^$' | jq -R . | jq -sc .)
+
+# `timestamp` is kept alongside `captured_at` for readers that only know the old
+# field name. Key order matters to those readers as well: nothing nested may
+# appear before `containers`.
 TEMP_FILE="/tmp/container-digests-${ENVIRONMENT}.json"
-echo "$JSON" > "$TEMP_FILE"
+jq -nc \
+    --argjson metadata_version 1 \
+    --arg captured_at "$CAPTURED_AT" \
+    --arg environment "$ENVIRONMENT" \
+    --argjson containers "$CONTAINERS" \
+    --argjson complete "$COMPLETE" \
+    --argjson missing "$MISSING_JSON" \
+    '{
+        metadata_version: $metadata_version,
+        timestamp: $captured_at,
+        captured_at: $captured_at,
+        environment: $environment,
+        containers: $containers,
+        complete: $complete,
+        missing: $missing
+    }' > "$TEMP_FILE"
+
+# An incomplete capture is still written. A fresh capture that admits what it is
+# missing is safer than a stale one that looks complete: the backup metadata
+# records `complete: false` and the validator refuses to roll back to it.
+if [ "$COMPLETE" != true ]; then
+    echo "WARNING: capture is incomplete, missing:$MISSING"
+fi
 
 echo "Container digests captured:"
 cat "$TEMP_FILE"
@@ -169,5 +221,13 @@ fi
 
 # Clean up
 rm -f "$TEMP_FILE"
+
+# Exit non-zero on an incomplete capture so the cron log shows it. The capture
+# itself was still written and uploaded: consumers need the truth about what was
+# running, not the previous capture left in place to be read as current.
+if [ "$COMPLETE" != true ]; then
+    echo "❌ Container digest update finished with an incomplete capture, missing:$MISSING"
+    exit 1
+fi
 
 echo "Container digest update complete"

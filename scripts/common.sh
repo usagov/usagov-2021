@@ -535,6 +535,156 @@ parse_backup_tag_metadata() {
     echo "backup_type=$backup_type"
 }
 
+# ===================================================================
+# DEPLOYMENT METADATA CONTRACT
+# ===================================================================
+#
+# One schema, one producer, one reader, one validator. Before this, the
+# producer wrote `deployed_containers` while the validator required
+# `containers`, the cron capture was assembled by string concatenation with
+# `\n` escapes (valid JSON only when the running shell's `echo` expands them),
+# and every reader scraped that with its own `sed` expression. Those readers
+# only worked on the single-line malformed form: given properly formatted
+# JSON the container list came back empty, and an empty list is recorded as a
+# backup with no digests at all.
+#
+# Everything below goes through jq, so a document either parses or is refused.
+#
+# NIST 800-53: AU-3 (content of audit records), CM-3 (configuration change
+# control), SI-7 (software and information integrity)
+
+# Schema version stamped into every metadata document this code writes.
+# Plain assignment, not readonly: the test suite re-sources this file.
+DEPLOYMENT_METADATA_VERSION=1
+
+# A digest is either a bare manifest digest or an image reference pinned to one.
+# Anything else is not something we can redeploy from.
+DEPLOYMENT_DIGEST_PATTERN='^([A-Za-z0-9][A-Za-z0-9._/:-]*@)?sha256:[0-9a-f]{64}$'
+
+# Require jq before building or reading a metadata document
+# Returns: 0 if jq is present, 1 otherwise (message on stderr)
+require_jq() {
+    if command -v jq >/dev/null 2>&1; then
+        return 0
+    fi
+    print_status $RED "❌ jq is required to read or write deployment metadata" >&2
+    return 1
+}
+
+# Convert an ISO-8601 UTC timestamp ("2026-08-19T12:00:00Z") to epoch seconds.
+# Done arithmetically rather than with `date -d`, whose accepted formats differ
+# between GNU date, BSD date and BusyBox — this runs in all three.
+# Args:
+#   $1: timestamp
+# Returns: 0 and echoes epoch seconds, or 1 if the input is not that shape
+iso8601_to_epoch() {
+    local ts="$1"
+    local y m d hh mm ss era yoe doy doe days
+
+    case "$ts" in
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z) ;;
+        *) return 1 ;;
+    esac
+
+    # Strip leading zeros so arithmetic does not read them as octal
+    y=$(printf '%s' "$ts" | cut -c1-4)
+    m=$(printf '%s' "$ts" | cut -c6-7 | sed 's/^0//')
+    d=$(printf '%s' "$ts" | cut -c9-10 | sed 's/^0//')
+    hh=$(printf '%s' "$ts" | cut -c12-13 | sed 's/^0//')
+    mm=$(printf '%s' "$ts" | cut -c15-16 | sed 's/^0//')
+    ss=$(printf '%s' "$ts" | cut -c18-19 | sed 's/^0//')
+    : "${m:=0}" "${d:=0}" "${hh:=0}" "${mm:=0}" "${ss:=0}"
+
+    # days_from_civil, per Howard Hinnant's algorithm
+    [ "$m" -le 2 ] && y=$((y - 1))
+    era=$((y / 400))
+    yoe=$((y - era * 400))
+    if [ "$m" -gt 2 ]; then
+        doy=$(((153 * (m - 3) + 2) / 5 + d - 1))
+    else
+        doy=$(((153 * (m + 9) + 2) / 5 + d - 1))
+    fi
+    doe=$((yoe * 365 + yoe / 4 - yoe / 100 + doy))
+    days=$((era * 146097 + doe - 719468))
+
+    echo $((days * 86400 + hh * 3600 + mm * 60 + ss))
+}
+
+# Parse a JSON document, tolerating the legacy escaped form.
+# The cron capture was written as one string containing literal "\n" sequences,
+# so whether the object on S3 is valid JSON depends on which shell's `echo`
+# wrote it. Objects already in the buckets are in that form, so expand and
+# retry rather than declaring years of captures unreadable.
+# Args:
+#   $1: raw document text
+# Returns: 0 and echoes compact canonical JSON, 1 if it cannot be parsed
+normalize_json_document() {
+    local raw="$1"
+    local expanded
+
+    [ -n "$raw" ] || return 1
+    require_jq || return 1
+
+    if printf '%s' "$raw" | jq -e . >/dev/null 2>&1; then
+        printf '%s' "$raw" | jq -c .
+        return 0
+    fi
+
+    expanded=$(printf '%b' "$raw")
+    if printf '%s' "$expanded" | jq -e . >/dev/null 2>&1; then
+        printf '%s' "$expanded" | jq -c .
+        return 0
+    fi
+
+    return 1
+}
+
+# Report how a document parsed: json, legacy-escaped, or unparsable
+# Args:
+#   $1: raw document text
+deployment_metadata_parse_mode() {
+    local raw="$1"
+
+    [ -n "$raw" ] || { echo "absent"; return 0; }
+    if printf '%s' "$raw" | jq -e . >/dev/null 2>&1; then
+        echo "json"
+    elif printf '%b' "$raw" | jq -e . >/dev/null 2>&1; then
+        echo "legacy-escaped"
+    else
+        echo "unparsable"
+    fi
+}
+
+# Read the container map out of any metadata or capture document, normalizing
+# the three shapes in circulation: `containers` (current), `deployed_containers`
+# (backup metadata written before this change), and a plain
+# "app": "digest" string map (the cron capture).
+# Args:
+#   $1: canonical JSON document
+# Returns: 0 and echoes {"app": {"digest": ..., ...}, ...}
+metadata_containers_json() {
+    printf '%s' "$1" | jq -c '
+        (.containers // .deployed_containers // {})
+        | with_entries(.value |= (if type == "string" then {digest: .} else . end))
+    ' 2>/dev/null
+}
+
+# Extract the release tag from an image reference pinned to a digest.
+# "…/usagov_cms:16302@sha256:<64 hex>" -> "16302". Empty for a bare digest.
+# Args:
+#   $1: digest or image reference
+digest_release_tag() {
+    printf '%s' "$1" | sed -n 's/^.*:\([^:@/]*\)@sha256:[0-9a-f]\{64\}$/\1/p'
+}
+
+# Check a digest against the grammar
+# Args:
+#   $1: digest
+# Returns: 0 if it is a usable digest, 1 otherwise
+is_valid_deployment_digest() {
+    printf '%s' "$1" | grep -qE "$DEPLOYMENT_DIGEST_PATTERN"
+}
+
 # Capture current deployment state and create metadata JSON
 # NIST 800-53: AU-3 - Content of Audit Records
 # NIST 800-53: AU-9 - Protection of Audit Information
@@ -545,6 +695,8 @@ parse_backup_tag_metadata() {
 capture_deployment_metadata() {
     local backup_tag="$1"
     local environment="$2"
+
+    require_jq || return 1
 
     # Parse backup tag to get ticket and type
     local tag_info=$(parse_backup_tag_metadata "$backup_tag")
@@ -572,8 +724,13 @@ capture_deployment_metadata() {
     # Get currently deployed containers from S3 digest file
     setup_s3_vars >/dev/null 2>&1
 
-    # Try cron bucket first (where cron writes digests), fall back to CMS bucket
-    local digests_json=""
+    # Try cron bucket first (where cron writes digests), fall back to CMS bucket.
+    # Record which object answered: the digests are only as trustworthy as their
+    # provenance, and a rollback needs to be able to see that provenance.
+    local capture_raw=""
+    local capture_source="none"
+    local capture_object="deployment-metadata/.current_digests_${environment}.json"
+
     if [ -n "$VCAP_SERVICES" ]; then
         local cron_bucket=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "cron-state-storage") | .credentials.bucket' 2>/dev/null)
         if [ -n "$cron_bucket" ] && [ "$cron_bucket" != "null" ]; then
@@ -586,43 +743,64 @@ capture_deployment_metadata() {
             export AWS_ACCESS_KEY_ID="$cron_access_key"
             export AWS_SECRET_ACCESS_KEY="$cron_secret_key"
             export AWS_DEFAULT_REGION="$cron_region"
-            digests_json=$(aws s3 cp "s3://${cron_bucket}/deployment-metadata/.current_digests_${environment}.json" - 2>/dev/null)
+            capture_raw=$(aws s3 cp "s3://${cron_bucket}/${capture_object}" - 2>/dev/null)
             unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION
+            [ -n "$capture_raw" ] && capture_source="cron-bucket"
         fi
     fi
 
     # Fall back to CMS bucket if not found in cron bucket
-    if [ -z "$digests_json" ]; then
-        digests_json=$(aws s3 cp "s3://${BUCKET_NAME}/deployment-metadata/.current_digests_${environment}.json" - $S3_EXTRA_PARAMS 2>/dev/null)
+    if [ -z "$capture_raw" ]; then
+        capture_raw=$(aws s3 cp "s3://${BUCKET_NAME}/${capture_object}" - $S3_EXTRA_PARAMS 2>/dev/null)
+        [ -n "$capture_raw" ] && capture_source="cms-bucket"
     fi
 
-    # Get build number from local container's MOTD (if we're inside a container)
-    local local_build="unknown"
-    local local_app_name=""
+    # Parse the capture once, here, instead of scraping it at each use site
+    local capture_parse=$(deployment_metadata_parse_mode "$capture_raw")
+    local capture_json=""
+    if [ "$capture_parse" = "json" ] || [ "$capture_parse" = "legacy-escaped" ]; then
+        capture_json=$(normalize_json_document "$capture_raw")
+    fi
 
-    if [ -f "/etc/motd" ]; then
-        local_build=$(grep "containertag:" /etc/motd 2>/dev/null | awk '{print $NF}')
-        [ -z "$local_build" ] || [ "$local_build" = "none" ] && local_build="unknown"
+    local capture_containers="{}"
+    local captured_at=""
+    local capture_env=""
+    if [ -n "$capture_json" ]; then
+        capture_containers=$(metadata_containers_json "$capture_json")
+        captured_at=$(printf '%s' "$capture_json" | jq -r '.captured_at // .timestamp // empty' 2>/dev/null)
+        capture_env=$(printf '%s' "$capture_json" | jq -r '.environment // empty' 2>/dev/null)
+    fi
 
-        # Determine which app we're running in
-        if [ -n "$VCAP_APPLICATION" ]; then
-            local_app_name=$(echo "$VCAP_APPLICATION" | jq -r .application_name 2>/dev/null)
+    # How old is the state we are about to record as this backup's release?
+    local now_epoch=$(date -u +%s)
+    local capture_epoch=""
+    local capture_age="null"
+    local capture_stale=false
+    if [ -n "$captured_at" ]; then
+        capture_epoch=$(iso8601_to_epoch "$captured_at" 2>/dev/null)
+        if [ -n "$capture_epoch" ]; then
+            capture_age=$((now_epoch - capture_epoch))
+            if [ "$capture_age" -gt "${METADATA_CAPTURE_MAX_AGE_SECONDS:-1800}" ] || [ "$capture_age" -lt 0 ]; then
+                capture_stale=true
+            fi
         fi
     fi
 
-    # Extract all containers from digest JSON
-    # Format: {"timestamp": "...", "environment": "dev", "containers": {"app": "digest", ...}}
-    local containers_list=""
-    if [ -n "$digests_json" ]; then
-        # Extract container names (all keys in the "containers" object)
-        containers_list=$(echo "$digests_json" | sed -n 's/.*"containers":[[:space:]]*{\([^}]*\)}.*/\1/p' | sed 's/"//g' | sed 's/:[^,]*//g' | tr ',' '\n' | sed 's/^[[:space:]]*//' | sort)
+    # A capture from another space is not this space's release
+    local capture_env_match=true
+    if [ -n "$capture_env" ] && [ -n "$environment" ] && [ "$capture_env" != "$environment" ]; then
+        capture_env_match=false
     fi
 
-    # If no containers found in S3, fall back to CF CLI for known apps
-    if [ -z "$containers_list" ] && command -v cf >/dev/null 2>&1; then
-        containers_list="cms
-www
-waf"
+    # Get build number from local container's MOTD (if we're inside a container)
+    local local_build=""
+    local local_app_name=""
+    if [ -f "/etc/motd" ]; then
+        local_build=$(grep "containertag:" /etc/motd 2>/dev/null | awk '{print $NF}')
+        [ "$local_build" = "none" ] && local_build=""
+        if [ -n "$VCAP_APPLICATION" ]; then
+            local_app_name=$(echo "$VCAP_APPLICATION" | jq -r .application_name 2>/dev/null)
+        fi
     fi
 
     # Get username (circleci or actual user)
@@ -631,67 +809,140 @@ waf"
         created_by="circleci"
     fi
 
-    # Determine primary build number (use cms if available, otherwise local)
-    local cms_build="unknown"
-    if [ "$local_app_name" = "cms" ]; then
-        cms_build="$local_build"
-    fi
-
-    # Build JSON with dynamic container list
-    echo "{"
-    echo "  \"backup_tag\": \"$backup_tag\","
-    echo "  \"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\","
-    echo "  \"environment\": \"$environment\","
-    echo "  \"ticket\": \"$ticket\","
-    echo "  \"backup_type\": \"$backup_type\","
-    echo "  \"git_commit\": \"$git_commit\","
-    echo "  \"git_branch\": \"$git_branch\","
-    echo "  \"deployed_containers\": {"
-
-    # Build containers object dynamically
-    local first_container=true
-    for container_name in $containers_list; do
-        # Skip empty names
-        [ -z "$container_name" ] && continue
-
-        # Get digest for this container
-        local container_digest=""
-        if [ -n "$digests_json" ]; then
-            container_digest=$(echo "$digests_json" | sed -n "s/.*\"$container_name\":[[:space:]]*\"\([^\"]*\)\".*/\1/p")
-        fi
-
-        # If still no digest, try CF CLI (only works outside container)
-        if [ -z "$container_digest" ] && command -v cf >/dev/null 2>&1; then
-            container_digest=$(get_app_digest "$container_name" 2>/dev/null || echo "")
-        fi
-
-        # Get build number for this container
-        local container_build="unknown"
-        if [ "$local_app_name" = "$container_name" ]; then
-            # We're running in this container - use local build
-            container_build="$local_build"
-        elif [ "$cms_build" != "unknown" ]; then
-            # Use cms build as fallback (likely same deployment)
-            container_build="$cms_build"
-        fi
-
-        # Add comma before all entries except the first
-        if [ "$first_container" = "false" ]; then
-            echo ","
-        fi
-        first_container=false
-
-        # Output container entry (no trailing comma on last line of this entry)
-        echo -n "    \"$container_name\": {"
-        echo -n "\"cci_build\": \"$container_build\", "
-        echo -n "\"digest\": \"$container_digest\""
-        echo -n "}"
+    # Every release component is required. Anything else the capture happened to
+    # hold is carried through marked as not required, so no information is lost,
+    # but it never counts towards release identity.
+    local components="${RELEASE_COMPONENTS:-cms www waf}"
+    local all_apps="$components"
+    local app=""
+    for app in $(printf '%s' "$capture_containers" | jq -r 'keys[]' 2>/dev/null); do
+        case " $all_apps " in
+            *" $app "*) ;;
+            *) all_apps="$all_apps $app" ;;
+        esac
     done
 
-    echo ""
-    echo "  },"
-    echo "  \"created_by\": \"$created_by\""
-    echo "}"
+    local containers_json="{}"
+    local missing=""
+    local release_tags=""
+    for app in $all_apps; do
+        [ -n "$app" ] || continue
+
+        local required=false
+        case " $components " in
+            *" $app "*) required=true ;;
+        esac
+
+        local digest=$(printf '%s' "$capture_containers" | jq -r --arg a "$app" '.[$a].digest // empty' 2>/dev/null)
+
+        # Outside a container the live target is authoritative and reachable
+        if [ -z "$digest" ] && command -v cf >/dev/null 2>&1; then
+            digest=$(get_app_digest "$app" 2>/dev/null || echo "")
+        fi
+
+        local valid=false
+        if is_valid_deployment_digest "$digest"; then
+            valid=true
+        fi
+
+        local build=$(digest_release_tag "$digest")
+        if [ -z "$build" ] && [ "$local_app_name" = "$app" ]; then
+            # We are inside this container, so its own tag is first-hand
+            build="$local_build"
+        fi
+
+        if [ "$required" = true ]; then
+            if [ "$valid" = true ]; then
+                [ -n "$build" ] && release_tags="$release_tags $build"
+            else
+                missing="$missing $app"
+            fi
+        fi
+
+        containers_json=$(printf '%s' "$containers_json" | jq -c \
+            --arg a "$app" \
+            --arg d "$digest" \
+            --arg b "$build" \
+            --argjson v "$valid" \
+            --argjson r "$required" \
+            '.[$a] = {
+                digest: (if $d == "" then null else $d end),
+                cci_build: (if $b == "" then null else $b end),
+                valid: $v,
+                required: $r
+            }')
+    done
+
+    # One release ID for the whole set: every component must agree on it
+    local unique_tags=$(printf '%s' "$release_tags" | tr ' ' '\n' | grep -v '^$' | sort -u)
+    local tag_count=$(printf '%s\n' "$unique_tags" | grep -c '[^[:space:]]')
+    local release_id=""
+    local release_mixed=false
+    if [ "$tag_count" -eq 1 ]; then
+        release_id="$unique_tags"
+    elif [ "$tag_count" -gt 1 ]; then
+        release_mixed=true
+    fi
+
+    local complete=true
+    [ -n "$missing" ] && complete=false
+
+    local missing_json=$(printf '%s' "$missing" | tr ' ' '\n' | grep -v '^$' | jq -R . | jq -sc .)
+    local components_json=$(printf '%s' "$components" | tr ' ' '\n' | grep -v '^$' | jq -R . | jq -sc .)
+
+    jq -n \
+        --argjson metadata_version "$DEPLOYMENT_METADATA_VERSION" \
+        --arg backup_tag "$backup_tag" \
+        --arg timestamp "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+        --arg environment "$environment" \
+        --arg ticket "$ticket" \
+        --arg backup_type "$backup_type" \
+        --arg git_commit "$git_commit" \
+        --arg git_branch "$git_branch" \
+        --arg created_by "$created_by" \
+        --arg release_id "$release_id" \
+        --argjson release_mixed "$release_mixed" \
+        --argjson components "$components_json" \
+        --argjson containers "$containers_json" \
+        --argjson complete "$complete" \
+        --argjson missing "$missing_json" \
+        --arg capture_source "$capture_source" \
+        --arg capture_object "$capture_object" \
+        --arg capture_parse "$capture_parse" \
+        --arg captured_at "$captured_at" \
+        --argjson capture_age "$capture_age" \
+        --argjson capture_stale "$capture_stale" \
+        --arg capture_env "$capture_env" \
+        --argjson capture_env_match "$capture_env_match" \
+        '{
+            metadata_version: $metadata_version,
+            backup_tag: $backup_tag,
+            timestamp: $timestamp,
+            environment: $environment,
+            ticket: $ticket,
+            backup_type: $backup_type,
+            git_commit: $git_commit,
+            git_branch: $git_branch,
+            release: {
+                id: (if $release_id == "" then null else $release_id end),
+                mixed: $release_mixed,
+                components: $components
+            },
+            containers: $containers,
+            complete: $complete,
+            missing: $missing,
+            capture: {
+                source: $capture_source,
+                object: $capture_object,
+                parse: $capture_parse,
+                captured_at: (if $captured_at == "" then null else $captured_at end),
+                age_seconds: $capture_age,
+                stale: $capture_stale,
+                environment: (if $capture_env == "" then null else $capture_env end),
+                environment_match: $capture_env_match
+            },
+            created_by: $created_by
+        }'
 }
 
 # Upload deployment metadata to S3
@@ -720,6 +971,29 @@ upload_deployment_metadata() {
         rm -f "$temp_file"
         return 1
     fi
+}
+
+# Capture the current deployment state and store it against a backup tag.
+# The single entry point for backups: it refuses to upload a document that is
+# empty or that does not parse, because a metadata object that cannot be read is
+# worse than none at all — rollback trusts whatever it finds under the tag.
+# Args:
+#   $1: backup_tag
+#   $2: environment
+# Returns: 0 when a valid document was uploaded, 1 otherwise
+commit_deployment_metadata() {
+    local backup_tag="$1"
+    local environment="$2"
+    local metadata=""
+
+    if ! metadata=$(capture_deployment_metadata "$backup_tag" "$environment"); then
+        return 1
+    fi
+    if [ -z "$metadata" ] || ! printf '%s' "$metadata" | jq -e . >/dev/null 2>&1; then
+        return 1
+    fi
+
+    upload_deployment_metadata "$backup_tag" "$metadata"
 }
 
 # Fetch deployment metadata from S3
@@ -772,14 +1046,181 @@ extract_digests_from_metadata() {
     if [ -z "$metadata_json" ]; then
         return 1
     fi
+    require_jq || return 1
 
-    # Parse comma-separated app list
-    local IFS=','
-    for app in $apps; do
-        # Extract digest for this app from JSON using grep and sed pipeline
-        # Look for the app section, then extract the digest value
-        echo "$metadata_json" | grep -A 2 "\"$app\":" | grep '"digest"' | sed 's/.*"digest":[[:space:]]*"\([^"]*\)".*/\1/' | head -1
+    local canonical
+    canonical=$(normalize_json_document "$metadata_json") || return 1
+
+    local containers
+    containers=$(metadata_containers_json "$canonical")
+
+    # One line per requested app, in the order requested, even when a digest is
+    # missing: callers address the output positionally with `sed -n '2p'`, so
+    # skipping a line would silently hand them another app's digest.
+    local app=""
+    local incomplete=false
+    for app in $(printf '%s' "$apps" | tr ',' ' '); do
+        [ -n "$app" ] || continue
+
+        local digest
+        digest=$(printf '%s' "$containers" | jq -r --arg a "$app" '.[$a].digest // empty' 2>/dev/null)
+
+        if is_valid_deployment_digest "$digest"; then
+            echo "$digest"
+        else
+            # Refuse to pass on something that cannot be deployed
+            echo ""
+            incomplete=true
+        fi
     done
+
+    [ "$incomplete" = false ]
+}
+
+# Validate a deployment metadata document against the schema contract.
+# The single validator: `digests validate` and `rollback` both call this, so
+# what the audit command approves is exactly what rollback will accept.
+# Args:
+#   $1: metadata document (raw text, escaped legacy form tolerated)
+#   $2: expected backup tag (optional)
+#   $3: expected environment (optional)
+# Output: one finding per line, "error <message>" or "warn <message>"
+# Returns: 0 when there are no errors, 1 when there are
+validate_deployment_metadata() {
+    local raw="$1"
+    local expect_tag="$2"
+    local expect_env="$3"
+    local errors=0
+
+    if [ -z "$raw" ]; then
+        echo "error metadata document is empty"
+        return 1
+    fi
+    if ! require_jq; then
+        echo "error jq is required to validate metadata"
+        return 1
+    fi
+
+    local canonical
+    if ! canonical=$(normalize_json_document "$raw"); then
+        echo "error metadata is not valid JSON"
+        return 1
+    fi
+
+    # A document written by string concatenation only parses because its escapes
+    # happened to be expanded; say so, since the next reader may not expand them.
+    local parse_mode=$(deployment_metadata_parse_mode "$raw")
+    if [ "$parse_mode" = "legacy-escaped" ]; then
+        echo "warn metadata is stored in the legacy escaped form, not valid JSON as written"
+    fi
+
+    local version=$(printf '%s' "$canonical" | jq -r '.metadata_version // empty')
+    local legacy=false
+    if [ -z "$version" ]; then
+        legacy=true
+        echo "warn metadata predates the schema (no metadata_version): release provenance cannot be checked"
+    elif [ "$version" -gt "$DEPLOYMENT_METADATA_VERSION" ] 2>/dev/null; then
+        echo "warn metadata schema version $version is newer than this tooling understands ($DEPLOYMENT_METADATA_VERSION)"
+    fi
+
+    # --- Identity ---------------------------------------------------------
+    local doc_tag=$(printf '%s' "$canonical" | jq -r '.backup_tag // empty')
+    if [ -z "$doc_tag" ]; then
+        echo "error backup_tag is missing"
+        errors=$((errors + 1))
+    elif [ -n "$expect_tag" ] && [ "$doc_tag" != "$expect_tag" ]; then
+        echo "error backup_tag mismatch: metadata says '$doc_tag', expected '$expect_tag'"
+        errors=$((errors + 1))
+    fi
+
+    local doc_timestamp=$(printf '%s' "$canonical" | jq -r '.timestamp // empty')
+    if [ -z "$doc_timestamp" ]; then
+        echo "error timestamp is missing"
+        errors=$((errors + 1))
+    elif ! iso8601_to_epoch "$doc_timestamp" >/dev/null 2>&1; then
+        echo "error timestamp is not an ISO-8601 UTC instant: '$doc_timestamp'"
+        errors=$((errors + 1))
+    fi
+
+    local doc_env=$(printf '%s' "$canonical" | jq -r '.environment // empty')
+    if [ -z "$doc_env" ]; then
+        echo "error environment is missing"
+        errors=$((errors + 1))
+    elif [ -n "$expect_env" ] && [ "$doc_env" != "$expect_env" ]; then
+        echo "error environment mismatch: metadata is from '$doc_env', target is '$expect_env'"
+        errors=$((errors + 1))
+    fi
+
+    if [ -z "$(printf '%s' "$canonical" | jq -r '.ticket // empty')" ]; then
+        echo "warn ticket is missing (non-critical)"
+    fi
+
+    # --- Release components -----------------------------------------------
+    local containers=$(metadata_containers_json "$canonical")
+    if [ "$(printf '%s' "$containers" | jq -r 'length')" = "0" ]; then
+        echo "error containers object is missing or empty"
+        errors=$((errors + 1))
+    fi
+
+    local components=$(printf '%s' "$canonical" | jq -r '(.release.components // [])[]' 2>/dev/null)
+    [ -n "$components" ] || components=$(printf '%s' "${RELEASE_COMPONENTS:-cms www waf}" | tr ' ' '\n')
+
+    local app=""
+    for app in $components; do
+        [ -n "$app" ] || continue
+        local digest=$(printf '%s' "$containers" | jq -r --arg a "$app" '.[$a].digest // empty')
+        if [ -z "$digest" ]; then
+            echo "error $app digest missing"
+            errors=$((errors + 1))
+        elif ! is_valid_deployment_digest "$digest"; then
+            echo "error $app digest is not a pinned sha256 digest: '$digest'"
+            errors=$((errors + 1))
+        fi
+    done
+
+    # --- Provenance, only recorded from schema v1 onwards -------------------
+    if [ "$legacy" = false ]; then
+        if [ "$(printf '%s' "$canonical" | jq -r '.complete')" = "false" ]; then
+            local missing=$(printf '%s' "$canonical" | jq -r '(.missing // []) | join(", ")')
+            echo "error metadata was recorded incomplete, missing: ${missing:-unknown}"
+            errors=$((errors + 1))
+        fi
+
+        if [ "$(printf '%s' "$canonical" | jq -r '.release.mixed')" = "true" ]; then
+            echo "error components come from more than one release, so there is no single release to roll back to"
+            errors=$((errors + 1))
+        elif [ "$(printf '%s' "$canonical" | jq -r '.release.id // empty')" = "" ]; then
+            echo "warn release id could not be established from the digests"
+        fi
+
+        local capture_source=$(printf '%s' "$canonical" | jq -r '.capture.source // empty')
+        case "$capture_source" in
+            none|"")
+                echo "error no container digest capture was available when this backup was taken"
+                errors=$((errors + 1))
+                ;;
+        esac
+
+        if [ "$(printf '%s' "$canonical" | jq -r '.capture.parse // empty')" = "unparsable" ]; then
+            echo "error the digest capture could not be parsed when this backup was taken"
+            errors=$((errors + 1))
+        fi
+
+        if [ "$(printf '%s' "$canonical" | jq -r '.capture.environment_match')" = "false" ]; then
+            echo "error the digest capture came from environment '$(printf '%s' "$canonical" | jq -r '.capture.environment')', not '$doc_env'"
+            errors=$((errors + 1))
+        fi
+
+        if [ "$(printf '%s' "$canonical" | jq -r '.capture.stale')" = "true" ]; then
+            local age=$(printf '%s' "$canonical" | jq -r '.capture.age_seconds // "unknown"')
+            echo "error the digest capture was already ${age}s old at backup time (limit ${METADATA_CAPTURE_MAX_AGE_SECONDS:-1800}s), so these digests may not be what was running"
+            errors=$((errors + 1))
+        elif [ "$(printf '%s' "$canonical" | jq -r '.capture.age_seconds')" = "null" ]; then
+            echo "warn digest capture age is unknown"
+        fi
+    fi
+
+    [ "$errors" -eq 0 ]
 }
 
 # Get container digest for a specific app from Cloud Foundry
@@ -889,21 +1330,43 @@ show_current_digests() {
         return 1
     fi
 
-    # Parse and display the JSON
-    local timestamp=$(echo "$digest_json" | jq -r '.timestamp' 2>/dev/null)
-    local captured_env=$(echo "$digest_json" | jq -r '.environment' 2>/dev/null)
+    # Parse once through the shared normalizer. The previous version read
+    # .timestamp straight out of the raw text with jq while separately expanding
+    # escapes for the container list — so for a legacy capture, the one shape
+    # this display exists to handle, the timestamp silently came back empty.
+    local canonical
+    if ! canonical=$(normalize_json_document "$digest_json"); then
+        print_status $RED "❌ The capture at $digest_file is not valid JSON and cannot be read"
+        return 1
+    fi
 
-    if [ -n "$timestamp" ] && [ "$timestamp" != "null" ]; then
+    local timestamp=$(printf '%s' "$canonical" | jq -r '.captured_at // .timestamp // empty')
+    local captured_env=$(printf '%s' "$canonical" | jq -r '.environment // empty')
+
+    if [ -n "$timestamp" ]; then
         echo "Last Updated: $timestamp"
+        local capture_epoch=$(iso8601_to_epoch "$timestamp" 2>/dev/null)
+        if [ -n "$capture_epoch" ]; then
+            local age=$(( $(date -u +%s) - capture_epoch ))
+            if [ "$age" -gt "${METADATA_CAPTURE_MAX_AGE_SECONDS:-1800}" ]; then
+                print_status $YELLOW "⚠️  Capture is ${age}s old (limit ${METADATA_CAPTURE_MAX_AGE_SECONDS:-1800}s) — a backup taken now would record stale digests"
+            else
+                echo "Age:          ${age}s"
+            fi
+        fi
+    fi
+    if [ -n "$captured_env" ] && [ "$captured_env" != "$env" ]; then
+        print_status $YELLOW "⚠️  Capture records environment '$captured_env', not '$env'"
+    fi
+    if [ "$(printf '%s' "$canonical" | jq -r '.complete // empty')" = "false" ]; then
+        print_status $YELLOW "⚠️  Capture is incomplete, missing: $(printf '%s' "$canonical" | jq -r '(.missing // []) | join(", ")')"
     fi
     echo ""
 
     print_status $GREEN "Container Digests:"
     echo ""
 
-    # Extract all container names and their digests
-    # The JSON from cron has literal \n characters, so we need to interpret them
-    printf '%b' "$digest_json" | jq -r '.containers | to_entries[] | "  \(.key): \(.value)"' 2>/dev/null
+    metadata_containers_json "$canonical" | jq -r 'to_entries[] | "  \(.key): \(.value.digest)"' 2>/dev/null
 
     echo ""
     print_status $BLUE "💡 This shows what would be captured in backup metadata"

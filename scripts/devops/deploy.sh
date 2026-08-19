@@ -4182,6 +4182,7 @@ EOF
 validate_digest_metadata() {
     local backup_tag=""
     local use_json=false
+    local expect_env=""
 
     # Parse arguments
     while [ $# -gt 0 ]; do
@@ -4190,12 +4191,16 @@ validate_digest_metadata() {
                 use_json=true
                 shift
                 ;;
+            --env=*)
+                expect_env="${1#*=}"
+                shift
+                ;;
             -*)
                 if [ "$use_json" = true ]; then
                     echo '{"error":"Unknown option: '"$1"'"}' | jq .
                 else
                     print_status $RED "❌ Unknown option: $1"
-                    echo "Usage: deploy.sh digests validate <tag> [--json]"
+                    echo "Usage: deploy.sh digests validate <tag> [--env=<space>] [--json]"
                 fi
                 return 2
                 ;;
@@ -4211,7 +4216,7 @@ validate_digest_metadata() {
             echo '{"error":"Backup tag required"}' | jq .
         else
             print_status $RED "❌ Error: Backup tag required"
-            echo "Usage: deploy.sh digests validate <tag> [--json]"
+            echo "Usage: deploy.sh digests validate <tag> [--env=<space>] [--json]"
         fi
         return 1
     fi
@@ -4233,98 +4238,57 @@ validate_digest_metadata() {
         return 1
     fi
 
-    # Validate required fields
-    local errors=""
-    local warnings=""
-    local has_backup_tag=$(echo "$metadata_json" | grep -c '"backup_tag"')
-    local has_timestamp=$(echo "$metadata_json" | grep -c '"timestamp"')
-    local has_ticket=$(echo "$metadata_json" | grep -c '"ticket"')
-    local has_environment=$(echo "$metadata_json" | grep -c '"environment"')
-    local has_containers=$(echo "$metadata_json" | grep -c '"containers"')
-
-    # Check required fields
-    if [ "$has_backup_tag" -eq 0 ]; then
-        errors="${errors}backup_tag field missing,"
-    fi
-    if [ "$has_timestamp" -eq 0 ]; then
-        errors="${errors}timestamp field missing,"
-    fi
-    if [ "$has_environment" -eq 0 ]; then
-        errors="${errors}environment field missing,"
-    fi
-    if [ "$has_containers" -eq 0 ]; then
-        errors="${errors}containers object missing,"
-    fi
-
-    # Check optional but recommended fields
-    if [ "$has_ticket" -eq 0 ]; then
-        warnings="${warnings}ticket field missing (non-critical),"
-    fi
-
-    # Extract and validate container data
-    local cms_digest=$(echo "$metadata_json" | sed -n '/"cms":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-    local www_digest=$(echo "$metadata_json" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-    local waf_digest=$(echo "$metadata_json" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-
-    # Validate digest format. Metadata may store a bare sha256 digest or a full image ref.
-    if [ -n "$cms_digest" ] && ! echo "$cms_digest" | grep -qE '(^sha256:|@sha256:)'; then
-        errors="${errors}cms digest format invalid,"
-    fi
-    if [ -n "$www_digest" ] && ! echo "$www_digest" | grep -qE '(^sha256:|@sha256:)'; then
-        errors="${errors}www digest format invalid,"
-    fi
-    if [ -n "$waf_digest" ] && ! echo "$waf_digest" | grep -qE '(^sha256:|@sha256:)'; then
-        errors="${errors}waf digest format invalid,"
-    fi
-
-    # Check for missing critical containers
-    if [ -z "$cms_digest" ]; then
-        errors="${errors}cms digest missing,"
-    fi
-    if [ -z "$www_digest" ]; then
-        errors="${errors}www digest missing,"
-    fi
-    if [ -z "$waf_digest" ]; then
-        errors="${errors}waf digest missing,"
-    fi
-
-    # Remove trailing commas
-    errors=$(echo "$errors" | sed 's/,$//')
-    warnings=$(echo "$warnings" | sed 's/,$//')
-
-    # Determine validity
+    # One validator, shared with rollback, so what passes here is what rollback
+    # will accept. It parses the document rather than grepping for field names —
+    # the previous checks counted `grep '"containers"'` hits, which any text
+    # mentioning the field satisfied, and which the system's own metadata failed
+    # because the producer wrote `deployed_containers`.
+    local findings=""
     local is_valid=true
-    if [ -n "$errors" ]; then
+    if ! findings=$(validate_deployment_metadata "$metadata_json" "$backup_tag" "$expect_env"); then
         is_valid=false
     fi
 
-    # Output results
+    local errors=$(printf '%s\n' "$findings" | sed -n 's/^error //p')
+    local warnings=$(printf '%s\n' "$findings" | sed -n 's/^warn //p')
+
+    # Digests for display, from the same reader every consumer uses
+    local canonical=$(normalize_json_document "$metadata_json" 2>/dev/null)
+    local containers="{}"
+    [ -n "$canonical" ] && containers=$(metadata_containers_json "$canonical")
+    local cms_digest=$(printf '%s' "$containers" | jq -r '.cms.digest // empty' 2>/dev/null)
+    local www_digest=$(printf '%s' "$containers" | jq -r '.www.digest // empty' 2>/dev/null)
+    local waf_digest=$(printf '%s' "$containers" | jq -r '.waf.digest // empty' 2>/dev/null)
+
     if [ "$use_json" = true ]; then
         local error_array="[]"
         local warning_array="[]"
+        [ -n "$errors" ] && error_array=$(printf '%s\n' "$errors" | grep -v '^$' | jq -R . | jq -sc .)
+        [ -n "$warnings" ] && warning_array=$(printf '%s\n' "$warnings" | grep -v '^$' | jq -R . | jq -sc .)
 
-        if [ -n "$errors" ]; then
-            error_array=$(echo "$errors" | tr ',' '\n' | jq -R . | jq -s .)
-        fi
-        if [ -n "$warnings" ]; then
-            warning_array=$(echo "$warnings" | tr ',' '\n' | jq -R . | jq -s .)
-        fi
-
-        local json_output=$(cat <<EOF
-{
-  "valid": $is_valid,
-  "backup_tag": "$backup_tag",
-  "errors": $error_array,
-  "warnings": $warning_array,
-  "containers": {
-    "cms": {"present": $([ -n "$cms_digest" ] && echo "true" || echo "false"), "digest": "$cms_digest"},
-    "www": {"present": $([ -n "$www_digest" ] && echo "true" || echo "false"), "digest": "$www_digest"},
-    "waf": {"present": $([ -n "$waf_digest" ] && echo "true" || echo "false"), "digest": "$waf_digest"}
-  }
-}
-EOF
-)
-        format_json "$json_output"
+        jq -n \
+            --argjson valid "$is_valid" \
+            --arg backup_tag "$backup_tag" \
+            --argjson errors "$error_array" \
+            --argjson warnings "$warning_array" \
+            --arg cms "$cms_digest" \
+            --arg www "$www_digest" \
+            --arg waf "$waf_digest" \
+            --argjson meta "${canonical:-null}" \
+            '{
+                valid: $valid,
+                backup_tag: $backup_tag,
+                errors: $errors,
+                warnings: $warnings,
+                metadata_version: ($meta.metadata_version // null),
+                release: ($meta.release // null),
+                capture: ($meta.capture // null),
+                containers: {
+                    cms: {present: ($cms != ""), digest: $cms},
+                    www: {present: ($www != ""), digest: $www},
+                    waf: {present: ($waf != ""), digest: $waf}
+                }
+            }'
     else
         # Table output
         if [ "$is_valid" = true ]; then
@@ -4336,7 +4300,7 @@ EOF
 
         if [ -n "$errors" ]; then
             echo "Errors:"
-            echo "$errors" | tr ',' '\n' | while read -r error; do
+            printf '%s\n' "$errors" | while read -r error; do
                 [ -n "$error" ] && echo "  • $error"
             done
             echo ""
@@ -4344,9 +4308,19 @@ EOF
 
         if [ -n "$warnings" ]; then
             echo "Warnings:"
-            echo "$warnings" | tr ',' '\n' | while read -r warning; do
+            printf '%s\n' "$warnings" | while read -r warning; do
                 [ -n "$warning" ] && echo "  ⚠️  $warning"
             done
+            echo ""
+        fi
+
+        if [ -n "$canonical" ]; then
+            local release_id=$(printf '%s' "$canonical" | jq -r '.release.id // "unknown"')
+            local capture_age=$(printf '%s' "$canonical" | jq -r '.capture.age_seconds // "unknown"')
+            local capture_source=$(printf '%s' "$canonical" | jq -r '.capture.source // "unknown"')
+            echo "Release:"
+            echo "  ID:            $release_id"
+            echo "  Digest source: $capture_source (${capture_age}s old at backup time)"
             echo ""
         fi
 
@@ -4436,22 +4410,35 @@ compare_digest_metadata() {
         return 1
     fi
 
-    # Extract container digests from both
-    local cms1=$(echo "$metadata1" | sed -n '/"cms":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-    local www1=$(echo "$metadata1" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-    local waf1=$(echo "$metadata1" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    # Read both documents through the shared reader, which handles the current
+    # schema, the older `deployed_containers` shape and the legacy escaped form
+    local canonical1=$(normalize_json_document "$metadata1")
+    local canonical2=$(normalize_json_document "$metadata2")
+    if [ -z "$canonical1" ] || [ -z "$canonical2" ]; then
+        if [ "$use_json" = true ]; then
+            echo '{"error":"Metadata is not valid JSON"}' | jq .
+        else
+            print_status $RED "❌ Metadata is not valid JSON for one of the tags"
+        fi
+        return 1
+    fi
 
-    local cms2=$(echo "$metadata2" | sed -n '/"cms":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-    local www2=$(echo "$metadata2" | sed -n '/"www":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
-    local waf2=$(echo "$metadata2" | sed -n '/"waf":/,/"digest":/p' | grep '"digest"' | head -1 | sed 's/.*"digest": *"\([^"]*\)".*/\1/')
+    local containers1=$(metadata_containers_json "$canonical1")
+    local containers2=$(metadata_containers_json "$canonical2")
 
-    # Extract timestamps
-    local timestamp1=$(echo "$metadata1" | grep '"timestamp"' | sed 's/.*"timestamp": *"\([^"]*\)".*/\1/')
-    local timestamp2=$(echo "$metadata2" | grep '"timestamp"' | sed 's/.*"timestamp": *"\([^"]*\)".*/\1/')
+    local cms1=$(printf '%s' "$containers1" | jq -r '.cms.digest // empty')
+    local www1=$(printf '%s' "$containers1" | jq -r '.www.digest // empty')
+    local waf1=$(printf '%s' "$containers1" | jq -r '.waf.digest // empty')
 
-    # Extract tickets
-    local ticket1=$(echo "$metadata1" | grep '"ticket"' | sed 's/.*"ticket": *"\([^"]*\)".*/\1/')
-    local ticket2=$(echo "$metadata2" | grep '"ticket"' | sed 's/.*"ticket": *"\([^"]*\)".*/\1/')
+    local cms2=$(printf '%s' "$containers2" | jq -r '.cms.digest // empty')
+    local www2=$(printf '%s' "$containers2" | jq -r '.www.digest // empty')
+    local waf2=$(printf '%s' "$containers2" | jq -r '.waf.digest // empty')
+
+    local timestamp1=$(printf '%s' "$canonical1" | jq -r '.timestamp // empty')
+    local timestamp2=$(printf '%s' "$canonical2" | jq -r '.timestamp // empty')
+
+    local ticket1=$(printf '%s' "$canonical1" | jq -r '.ticket // empty')
+    local ticket2=$(printf '%s' "$canonical2" | jq -r '.ticket // empty')
 
     # Compare containers
     local cms_changed=false
@@ -4767,15 +4754,64 @@ rollback() {
         return 3
     fi
 
+    # Determine environment before validating, so the metadata can be checked
+    # against the space it is about to be pushed into
+    local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
+    if [ -z "$env" ]; then
+        print_status $RED "❌ Error: Could not determine environment"
+        echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
+        return 3
+    fi
+
     # Extract backup tag from metadata if it was auto-detected
     if [ -z "$backup_tag" ]; then
-        backup_tag=$(echo "$metadata_json" | sed -n 's/.*"backup_tag":[[:space:]]*"\([^"]*\)".*/\1/p')
+        backup_tag=$(normalize_json_document "$metadata_json" | jq -r '.backup_tag // empty')
+        if [ -z "$backup_tag" ]; then
+            print_status $RED "❌ Error: Metadata carries no backup_tag"
+            return 3
+        fi
         print_status $GREEN "✅ Using latest backup: $backup_tag"
+    fi
+
+    # Validate the metadata before deploying from it. Rollback used to read
+    # digests straight out of the document without ever calling the validator,
+    # so a document from another space, from a half-finished release, or built
+    # from a stale digest capture was pushed without comment.
+    local metadata_findings=""
+    local metadata_valid=true
+    if ! metadata_findings=$(validate_deployment_metadata "$metadata_json" "$backup_tag" "$env"); then
+        metadata_valid=false
+    fi
+
+    local finding=""
+    printf '%s\n' "$metadata_findings" | sed -n 's/^warn //p' | while read -r finding; do
+        [ -n "$finding" ] && print_status $YELLOW "⚠️  $finding"
+    done
+
+    if [ "$metadata_valid" = false ]; then
+        printf '%s\n' "$metadata_findings" | sed -n 's/^error //p' | while read -r finding; do
+            [ -n "$finding" ] && print_status $RED "   • $finding"
+        done
+        if [ "$skip_validation" = "--skip-validation" ]; then
+            print_status $YELLOW "⚠️  Metadata validation failed — continuing because --skip-validation was given"
+        else
+            print_status $RED "❌ Error: Backup metadata failed validation"
+            echo "Inspect it with: deploy.sh digests validate $backup_tag --env=$env"
+            echo "To roll back anyway, re-run with --skip-validation."
+            return 3
+        fi
     fi
 
     # Extract digests from metadata — always fetch all three regardless of --apps,
     # because all three are needed for the pre-rollback safety-net capture.
-    local digests=$(extract_digests_from_metadata "$metadata_json" "cms,www,waf")
+    local digests
+    if ! digests=$(extract_digests_from_metadata "$metadata_json" "cms,www,waf"); then
+        if [ "$skip_validation" != "--skip-validation" ]; then
+            print_status $RED "❌ Error: Metadata does not carry a usable digest for every container"
+            echo "Metadata may be incomplete or corrupted."
+            return 3
+        fi
+    fi
 
     cms_digest=$(echo "$digests" | sed -n '1p')
     www_digest=$(echo "$digests" | sed -n '2p')
@@ -4784,14 +4820,6 @@ rollback() {
     if [ -z "$cms_digest" ] || [ -z "$www_digest" ] || [ -z "$waf_digest" ]; then
         print_status $RED "❌ Error: Could not extract container digests from metadata"
         echo "Metadata may be incomplete or corrupted."
-        return 3
-    fi
-
-    # Determine environment
-    local env="${DEPLOY_ENV:-$(cf target | grep 'space:' | awk '{print $2}')}"
-    if [ -z "$env" ]; then
-        print_status $RED "❌ Error: Could not determine environment"
-        echo "Set DEPLOY_ENV or use 'cf target -s <space>'"
         return 3
     fi
 
