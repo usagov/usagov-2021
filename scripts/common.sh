@@ -845,7 +845,14 @@ capture_deployment_metadata() {
             valid=true
         fi
 
+        # Image tags are per component — `cms-16302`, `www-16302` — so the
+        # component prefix is stripped before comparing. Without that, one
+        # release reads as three different ones.
         local build=$(digest_release_tag "$digest")
+        case "$build" in
+            "$app") build="" ;;
+            "$app"-*) build="${build#"$app"-}" ;;
+        esac
         if [ -z "$build" ] && [ "$local_app_name" = "$app" ]; then
             # We are inside this container, so its own tag is first-hand
             build="$local_build"
@@ -961,16 +968,65 @@ upload_deployment_metadata() {
     local temp_file="/tmp/${backup_tag}-metadata.json"
 
     # Write JSON to temp file
-    echo "$metadata_json" > "$temp_file"
+    printf '%s\n' "$metadata_json" > "$temp_file"
 
-    # Upload to S3
-    if aws s3 cp "$temp_file" "s3://${BUCKET_NAME}/${metadata_path}" $S3_EXTRA_PARAMS 2>/dev/null; then
-        rm -f "$temp_file"
+    # Create the object with a precondition, so an existing record for this tag
+    # is never silently replaced. Rollback deploys what it finds here, which
+    # makes a later overwrite a way to choose someone else's deployment.
+    #
+    # Every component of a backup set shares one tag, so `backup all` legitimately
+    # reaches this three times with the same content: an identical repeat is a
+    # no-op, and only a write that would *change* the record is refused.
+    local put_error="/tmp/${backup_tag}-metadata-err.$$"
+    if aws s3api put-object --bucket "$BUCKET_NAME" --key "$metadata_path" \
+            --if-none-match '*' --body "$temp_file" $S3_EXTRA_PARAMS >/dev/null 2>"$put_error"; then
+        rm -f "$temp_file" "$put_error"
         return 0
-    else
+    fi
+
+    # An aws CLI too old to express the precondition must not stop backups from
+    # recording metadata at all; note it and fall back to an unconditional write.
+    if grep -qiE 'unknown options|invalid choice|unrecognized arguments|argument --if-none-match' "$put_error" 2>/dev/null; then
+        print_status $YELLOW "⚠️  This aws CLI cannot express --if-none-match; metadata is written without overwrite protection"
+        rm -f "$put_error"
+        if aws s3 cp "$temp_file" "s3://${BUCKET_NAME}/${metadata_path}" $S3_EXTRA_PARAMS 2>/dev/null; then
+            rm -f "$temp_file"
+            return 0
+        fi
         rm -f "$temp_file"
         return 1
     fi
+    rm -f "$put_error"
+
+    # Something is already stored under this tag. Compare it with what we were
+    # about to write, ignoring the fields that legitimately differ between
+    # components of one backup set — when each component ran, and how old the
+    # digest capture was at that moment. The digests themselves must agree.
+    local existing=""
+    existing=$(aws s3 cp "s3://${BUCKET_NAME}/${metadata_path}" - $S3_EXTRA_PARAMS 2>/dev/null)
+    if [ -z "$existing" ]; then
+        print_status $RED "❌ Could not store deployment metadata for $backup_tag and no existing record is readable"
+        rm -f "$temp_file"
+        return 1
+    fi
+
+    local comparable='del(.timestamp) | del(.capture.captured_at) | del(.capture.age_seconds)'
+    local existing_core=$(normalize_json_document "$existing" 2>/dev/null | jq -S -c "$comparable" 2>/dev/null)
+    local new_core=$(normalize_json_document "$metadata_json" 2>/dev/null | jq -S -c "$comparable" 2>/dev/null)
+
+    rm -f "$temp_file"
+
+    if [ -n "$existing_core" ] && [ "$existing_core" = "$new_core" ]; then
+        # Another component of the same backup set already recorded this
+        return 0
+    fi
+
+    print_status $RED "❌ Refusing to change the deployment metadata already recorded for $backup_tag"
+    print_status $YELLOW "   A record for this tag exists and differs from what this run would write."
+    print_status $YELLOW "   Inspect it with: deploy.sh digests validate $backup_tag"
+    audit_log "metadata_overwrite_refused" "error" "Existing deployment metadata differs from the new record" \
+        "backup_tag=\"$backup_tag\" object=\"$metadata_path\""
+    return 1
 }
 
 # Capture the current deployment state and store it against a backup tag.
@@ -1175,6 +1231,14 @@ validate_deployment_metadata() {
         elif ! is_valid_deployment_digest "$digest"; then
             echo "error $app digest is not a pinned sha256 digest: '$digest'"
             errors=$((errors + 1))
+        else
+            # Deployable, not merely well-formed: the same allowlist the push
+            # gate applies, so what validates here is what rollback can deploy
+            local image_problem=""
+            if ! image_problem=$(validate_deployment_image "$digest" "$app"); then
+                echo "error $app image is not deployable: $image_problem"
+                errors=$((errors + 1))
+            fi
         fi
     done
 
@@ -1372,6 +1436,226 @@ show_current_digests() {
     print_status $BLUE "💡 This shows what would be captured in backup metadata"
     echo "   Cron updates this file every 5 minutes automatically"
     echo ""
+}
+
+# ===================================================================
+# DEPLOYMENT IMAGE TRUST
+# ===================================================================
+#
+# What reaches `cf push --docker-image` decides what code runs. The value used
+# to be accepted as an arbitrary string, so anything that could write the S3
+# object a rollback reads could choose the image an operator deploys. Two
+# defences here, both applied before any push:
+#
+#   1. A grammar and allowlist: the reference must be digest-pinned, its
+#      repository must be one of ours, and a tag must belong to the app it is
+#      being deployed as.
+#   2. A cross-check against the release record in git, which lives in a
+#      different trust domain than the bucket. Tampering with the S3 metadata
+#      alone no longer agrees with the record.
+#
+# NIST 800-53: SI-7 (software and information integrity), CM-5 (access
+# restrictions for change), SC-28 (protection of information at rest)
+
+# Registries and repositories a deployment may name. Kept in
+# backup-system.conf; the defaults here are the fallback if it is not loaded.
+DEPLOYMENT_IMAGE_DIGEST_PATTERN='^sha256:[0-9a-f]\{64\}$'
+
+# Validate an image reference before it is deployed.
+# Accepts:  [registry/]org/repo[:tag]@sha256:<64 hex>
+# Args:
+#   $1: image reference
+#   $2: app name the image will be deployed as (optional; enables tag binding)
+# Returns: 0 and prints nothing when acceptable; 1 and prints the reason
+validate_deployment_image() {
+    local image="$1"
+    local app="$2"
+    local allowed_repos="${ALLOWED_IMAGE_REPOS:-gsatts/usagov-2021}"
+    local allowed_registries="${ALLOWED_IMAGE_REGISTRIES:-docker.io}"
+
+    if [ -z "$image" ]; then
+        echo "reference is empty"
+        return 1
+    fi
+
+    # The value ends up on a command line; anything outside the character set a
+    # real reference uses is refused rather than escaped.
+    if ! printf '%s' "$image" | grep -qE '^[A-Za-z0-9][A-Za-z0-9._:/@-]*$'; then
+        echo "reference contains characters no image reference uses: '$image'"
+        return 1
+    fi
+
+    case "$image" in
+        *@*) ;;
+        *)
+            echo "reference is not pinned to a digest: '$image'"
+            return 1
+            ;;
+    esac
+
+    local digest_part="${image##*@}"
+    local ref_part="${image%@*}"
+
+    if ! printf '%s' "$digest_part" | grep -q "$DEPLOYMENT_IMAGE_DIGEST_PATTERN"; then
+        echo "digest is not a sha256 manifest digest: '$digest_part'"
+        return 1
+    fi
+
+    if [ -z "$ref_part" ]; then
+        echo "reference names no repository: '$image'"
+        return 1
+    fi
+
+    # Split off a tag, but only from the final path segment: a colon earlier in
+    # the reference is a registry port, not a tag.
+    local last_segment="${ref_part##*/}"
+    local tag=""
+    local name_part="$ref_part"
+    case "$last_segment" in
+        *:*)
+            tag="${last_segment##*:}"
+            name_part="${ref_part%:$tag}"
+            ;;
+    esac
+
+    # A leading component containing a dot or a colon, or exactly "localhost",
+    # is a registry host — the same rule the docker reference grammar uses.
+    local registry=""
+    local repo="$name_part"
+    local first_component="${name_part%%/*}"
+    if [ "$first_component" != "$name_part" ]; then
+        case "$first_component" in
+            *.*|*:*|localhost)
+                registry="$first_component"
+                repo="${name_part#*/}"
+                ;;
+        esac
+    fi
+
+    if [ -n "$registry" ]; then
+        local registry_ok=false
+        local candidate=""
+        for candidate in $allowed_registries; do
+            [ "$registry" = "$candidate" ] && registry_ok=true
+        done
+        if [ "$registry_ok" = false ]; then
+            echo "registry '$registry' is not allowed (allowed: $allowed_registries)"
+            return 1
+        fi
+    fi
+
+    local repo_ok=false
+    local candidate=""
+    for candidate in $allowed_repos; do
+        [ "$repo" = "$candidate" ] && repo_ok=true
+    done
+    if [ "$repo_ok" = false ]; then
+        echo "repository '$repo' is not allowed (allowed: $allowed_repos)"
+        return 1
+    fi
+
+    # One repository holds every component, distinguished by tag, so a tag that
+    # names a different component than the app being deployed is a mismatch
+    # worth refusing: cms must not be pushed from the waf tag.
+    if [ -n "$tag" ] && [ -n "$app" ]; then
+        case "$tag" in
+            "$app"|"$app"-*) ;;
+            *)
+                echo "tag '$tag' does not belong to app '$app'"
+                return 1
+                ;;
+        esac
+    fi
+
+    return 0
+}
+
+# Extract the CircleCI build number from a backup tag.
+# Tags are `<prefix>-<space>-<container tag>-<YYYY-MM-DD>[-<suffix>]-<n>`, and the
+# container tag is the pipeline number read from the CMS container's motd when
+# the backup was taken — the same number the release record is keyed by. The
+# prefix itself may contain hyphens (`USAGOV-2813-dr-16265-…`), so the field is
+# located relative to the date rather than by counting from the left.
+# Only a purely numeric value is returned: the container tag falls back to
+# `git-<sha>` or `unknown` outside Cloud Foundry, and neither identifies a build.
+# Args:
+#   $1: backup tag
+# Returns: 0 and echoes the build number, or 1 if the tag carries none
+backup_tag_build_number() {
+    local tag="$1"
+    local candidate
+
+    candidate=$(printf '%s' "$tag" | sed -n 's/.*-\([^-]*\)-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}.*/\1/p')
+    case "$candidate" in
+        ''|*[!0-9]*) return 1 ;;
+    esac
+    echo "$candidate"
+}
+
+# Cross-check a digest against the release record in git.
+# The record is the annotated tag `usagov-cci-build-<build>-<env>`, whose
+# message carries `<APP>_DIGEST=@sha256:...` for each component. It is written
+# through GitHub, so an actor who can only write the S3 bucket cannot make the
+# two agree. It is not a signature: the tag is force-pushed by the deploy that
+# creates it, so this is independence, not authenticity — see the finding.
+# Args:
+#   $1: app name
+#   $2: build number
+#   $3: environment
+#   $4: digest or full image reference to check
+# Returns: 0 record agrees, 1 record disagrees, 2 no record to check against
+#          (a reason is printed in the 1 and 2 cases)
+verify_release_record() {
+    local app="$1"
+    local build="$2"
+    local env="$3"
+    local digest="$4"
+
+    if [ -z "$app" ] || [ -z "$build" ] || [ -z "$env" ] || [ -z "$digest" ]; then
+        echo "not enough information to look up a release record"
+        return 2
+    fi
+
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        echo "not in a git checkout, so the release record cannot be read"
+        return 2
+    fi
+
+    local tag_name="usagov-cci-build-${build}-${env}"
+    if ! git rev-parse "$tag_name" >/dev/null 2>&1; then
+        # The record may exist upstream but not be fetched yet. Fetch exactly the
+        # one tag being verified rather than `--tags`, so a verification step
+        # does not quietly rewrite every tag ref in the operator's checkout.
+        git fetch --quiet origin "refs/tags/${tag_name}:refs/tags/${tag_name}" 2>/dev/null || true
+        if ! git rev-parse "$tag_name" >/dev/null 2>&1; then
+            echo "no release record found for build $build in $env (tag $tag_name); try: git fetch --tags"
+            return 2
+        fi
+    fi
+
+    local app_upper=$(printf '%s' "$app" | tr '[:lower:]' '[:upper:]')
+    local recorded=$(git tag -l --format='%(contents)' "$tag_name" 2>/dev/null |
+        grep -o "${app_upper}_DIGEST=[^|']*" | head -1 | cut -d= -f2)
+
+    if [ -z "$recorded" ]; then
+        echo "release record $tag_name carries no digest for $app"
+        return 2
+    fi
+
+    local want=$(printf '%s' "$digest" | sed -n 's/.*\(sha256:[0-9a-f]\{64\}\).*/\1/p')
+    local got=$(printf '%s' "$recorded" | sed -n 's/.*\(sha256:[0-9a-f]\{64\}\).*/\1/p')
+
+    if [ -z "$want" ] || [ -z "$got" ]; then
+        echo "could not compare digests for $app (metadata: '$digest', record: '$recorded')"
+        return 2
+    fi
+
+    if [ "$want" != "$got" ]; then
+        echo "$app digest does not match the release record for build $build: metadata says $want, $tag_name says $got"
+        return 1
+    fi
+
+    return 0
 }
 
 # ===================================================================

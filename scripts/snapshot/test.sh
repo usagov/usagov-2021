@@ -3889,7 +3889,7 @@ DRIVER
 
     # --- The capture the producer has to read is the legacy escaped form -----
     # This is what is in the buckets: one line, literal \n, string-valued digests.
-    printf '{\\n  "timestamp": "%s",\\n  "environment": "dr",\\n  "containers": {\\n    "cms": "r/usagov_cms:16302@sha256:%s",\\n    "www": "r/usagov_www:16302@sha256:%s",\\n    "waf": "r/usagov_waf:16302@sha256:%s"\\n  }\\n}' \
+    printf '{\\n  "timestamp": "%s",\\n  "environment": "dr",\\n  "containers": {\\n    "cms": "gsatts/usagov-2021:cms-16302@sha256:%s",\\n    "www": "gsatts/usagov-2021:www-16302@sha256:%s",\\n    "waf": "gsatts/usagov-2021:waf-16302@sha256:%s"\\n  }\\n}' \
         "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$d64" "$d64" "$d64" > "$sandbox/capture.json"
 
     if jq -e . "$sandbox/capture.json" >/dev/null 2>&1; then
@@ -3909,7 +3909,7 @@ DRIVER
 
     # --- ...and it read the legacy capture rather than losing the digests ----
     local got_cms=$(jq -r '.containers.cms.digest // "none"' "$sandbox/produced.json" 2>/dev/null)
-    if [ "$got_cms" = "r/usagov_cms:16302@sha256:$d64" ]; then
+    if [ "$got_cms" = "gsatts/usagov-2021:cms-16302@sha256:$d64" ]; then
         echo "✅ The legacy escaped capture is still readable"
     else
         echo "❌ Digest not carried through from the legacy capture: $got_cms"
@@ -3972,10 +3972,12 @@ DRIVER
     done
 
     # --- Metadata written before the schema existed still reads -------------
-    jq -n --arg d "r/usagov_cms:1@sha256:$d64" '{
+    jq -n --arg c "gsatts/usagov-2021:cms-1@sha256:$d64" \
+          --arg w "gsatts/usagov-2021:www-1@sha256:$d64" \
+          --arg f "gsatts/usagov-2021:waf-1@sha256:$d64" '{
         backup_tag: "OLD-dr-1-2026-01-01-0", timestamp: "2026-01-01T00:00:00Z",
         environment: "dr", ticket: "USAGOV-1",
-        deployed_containers: {cms: {digest: $d}, www: {digest: $d}, waf: {digest: $d}}
+        deployed_containers: {cms: {digest: $c}, www: {digest: $w}, waf: {digest: $f}}
     }' > "$sandbox/legacy-meta.json"
     if [ "$(run_in_tree validate.sh "$sandbox/legacy-meta.json" OLD-dr-1-2026-01-01-0 dr)" = "VALID" ] &&
        command grep -q "predates the schema" "$sandbox/legacy-meta.json.findings" 2>/dev/null; then
@@ -4078,7 +4080,7 @@ DRIVER
     # --- Readers deployed before this change must keep working --------------
     # cron and cms deploy separately, so a new capture has to stay readable by
     # the old sed scraper: hence compact JSON with string-valued digests.
-    printf '{"metadata_version":1,"timestamp":"2026-01-01T00:00:00Z","captured_at":"2026-01-01T00:00:00Z","environment":"dr","containers":{"cms":"r/c:1@sha256:%s","www":"r/w:1@sha256:%s","waf":"r/f:1@sha256:%s"},"complete":true,"missing":[]}' \
+    printf '{"metadata_version":1,"timestamp":"2026-01-01T00:00:00Z","captured_at":"2026-01-01T00:00:00Z","environment":"dr","containers":{"cms":"gsatts/usagov-2021:cms-1@sha256:%s","www":"gsatts/usagov-2021:www-1@sha256:%s","waf":"gsatts/usagov-2021:waf-1@sha256:%s"},"complete":true,"missing":[]}' \
         "$d64" "$d64" "$d64" > "$sandbox/new-capture.json"
     local old_scrape=$(sed -n 's/.*"containers":[[:space:]]*{\([^}]*\)}.*/\1/p' "$sandbox/new-capture.json" |
         sed 's/"//g' | sed 's/:[^,]*//g' | tr ',' '\n' | sed 's/^[[:space:]]*//' | sort | tr '\n' ' ')
@@ -4086,6 +4088,364 @@ DRIVER
         echo "✅ The new capture is still readable by pre-change readers"
     else
         echo "❌ The new capture breaks readers deployed before this change: [$old_scrape]"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
+# H-08: mutable S3 metadata is an unauthenticated code-deployment trust root.
+#
+# What lands in `cf push --docker-image` decides what code runs, and it used to
+# be accepted as an arbitrary string: anything able to write the metadata object
+# a rollback reads could choose the image an operator deployed. Two defences,
+# both checked here — an allowlist applied at the single push chokepoint, and a
+# cross-check against the release record in git, which is reached through GitHub
+# rather than the bucket, so tampering with the bucket alone no longer agrees.
+test_deployment_image_trust() {
+    echo "🔐 Testing deployment image trust boundary..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+    local d64="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    local e64="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+
+    # A tree deploy.sh can run out of, plus a git repo holding a release record,
+    # so nothing here depends on the real repository's tags or on the network.
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/tree/scripts/devops" "$sandbox/bin"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$PROJECT_ROOT/scripts/devops/deploy.sh" "$sandbox/tree/scripts/devops/"
+    cp "$BACKUP_DIR/manager.sh" "$BACKUP_DIR/backup-system.conf" "$sandbox/tree/scripts/snapshot/"
+
+    (
+        cd "$sandbox/tree" || exit 1
+        git init --quiet . 2>/dev/null
+        git config user.email test@example.com
+        git config user.name test
+        git add -A >/dev/null 2>&1
+        git commit --quiet -m "fixture" >/dev/null 2>&1
+        git tag -a usagov-cci-build-777-dr \
+            -m "CCI_BUILD=777|CMS_DIGEST=@sha256:${d64}|WWW_DIGEST=@sha256:${d64}|WAF_DIGEST=@sha256:${d64}" >/dev/null 2>&1
+    )
+
+    # Records every push so the test can tell "refused" from "pushed anyway",
+    # and serves metadata for the rollback path.
+    cat > "$sandbox/bin/cf" <<'FAKECF'
+#!/bin/sh
+case "$1" in
+    target) echo "org:            gsa-tts-usagov"; echo "space:          dr"; exit 0 ;;
+    oauth-token) echo token; exit 0 ;;
+    push) printf '%s\n' "$*" >> "$PUSH_LOG"; exit 0 ;;
+    ssh)
+        last=""; for a in "$@"; do last="$a"; done
+        case "$last" in
+            *fetch_deployment_metadata*) [ -f "$META_FILE" ] && cat "$META_FILE" ;;
+        esac
+        exit 0 ;;
+    app) exit 0 ;;
+esac
+exit 0
+FAKECF
+    chmod +x "$sandbox/bin/cf"
+
+    cat > "$sandbox/image.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+command -v validate_deployment_image >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+if validate_deployment_image "$1" "$2" >/dev/null 2>&1; then echo ACCEPT; else echo REFUSE; fi
+DRIVER
+
+    cat > "$sandbox/record.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+command -v verify_release_record >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+verify_release_record "$1" "$2" "$3" "$4" >/dev/null 2>&1
+case $? in
+    0) echo MATCH ;;
+    1) echo MISMATCH ;;
+    2) echo NORECORD ;;
+esac
+DRIVER
+
+    cat > "$sandbox/deployone.sh" <<'DRIVER'
+#!/bin/sh
+# Reaches _deploy_app the way every deployment path does, without the
+# confirmation prompt in front of it.
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+eval "$(sed -n '/^validate_app_name()/,/^}/p' ./scripts/devops/deploy.sh)"
+eval "$(sed -n '/^_deploy_app()/,/^}/p' ./scripts/devops/deploy.sh)"
+# Proves the gate is what refuses, not a missing helper
+command -v validate_app_name >/dev/null 2>&1 || { echo NOAPPCHECK; exit 0; }
+command -v validate_deployment_image >/dev/null 2>&1 || { echo NOGATE; exit 0; }
+if _deploy_app "$1" dr 777 "$2" >/dev/null 2>&1; then echo DEPLOYED; else echo REFUSED; fi
+DRIVER
+
+    in_tree() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            PUSH_LOG="$sandbox/pushes.log"; export PUSH_LOG
+            META_FILE="$sandbox/meta.json"; export META_FILE
+            sh "$sandbox/$1" "$2" "$3" "$4" "$5"
+        )
+    }
+
+    # --- The grammar and allowlist ------------------------------------------
+    local case_line="" image="" app="" want="" got=""
+    # Every form CI and operators actually produce must be accepted; the digest
+    # in the first is what `load-image-digest` composes, with no tag at all.
+    for case_line in \
+        "ACCEPT|gsatts/usagov-2021@sha256:$d64|cms" \
+        "ACCEPT|gsatts/usagov-2021:cms-16302@sha256:$d64|cms" \
+        "ACCEPT|gsatts/usagov-2021:cms-latest@sha256:$d64|cms" \
+        "ACCEPT|docker.io/gsatts/usagov-2021:cron@sha256:$d64|cron" \
+        "REFUSE|gsatts/usagov-2021:waf-16302@sha256:$d64|cms" \
+        "REFUSE|attacker/backdoor@sha256:$d64|cms" \
+        "REFUSE|ghcr.io/gsatts/usagov-2021@sha256:$d64|cms" \
+        "REFUSE|gsatts/usagov-2021:cms-latest|cms" \
+        "REFUSE|gsatts/usagov-2021@sha256:abc|cms" \
+        "REFUSE|gsatts/usagov-2021@sha256:$(printf '%s' "$d64" | tr 'a' 'A')|cms" \
+        "REFUSE|gsatts/usagov-2021@sha256:$d64 --docker-username evil|cms" \
+        "REFUSE||cms"
+    do
+        want="${case_line%%|*}"
+        image="${case_line#*|}"; image="${image%|*}"
+        app="${case_line##*|}"
+        got=$(in_tree image.sh "$image" "$app")
+        if [ "$got" = "$want" ]; then
+            echo "✅ ${want}: ${image:-<empty>}"
+        else
+            echo "❌ Expected $want for '${image:-<empty>}' as $app, got $got"
+            failures=$((failures + 1))
+        fi
+    done
+
+    # --- The push chokepoint ------------------------------------------------
+    # Refusing in the validator is only worth anything if no push happens.
+    : > "$sandbox/pushes.log"
+    if [ "$(in_tree deployone.sh cms "attacker/backdoor@sha256:$d64")" = "REFUSED" ] &&
+       [ ! -s "$sandbox/pushes.log" ]; then
+        echo "✅ A disallowed image is refused with no cf push attempted"
+    else
+        echo "❌ A disallowed image reached cf push: $(cat "$sandbox/pushes.log" 2>/dev/null)"
+        failures=$((failures + 1))
+    fi
+
+    : > "$sandbox/pushes.log"
+    if [ "$(in_tree deployone.sh cms "gsatts/usagov-2021:cms-777@sha256:$d64")" = "DEPLOYED" ] &&
+       command grep -q "docker-image gsatts/usagov-2021:cms-777@sha256:$d64" "$sandbox/pushes.log" 2>/dev/null; then
+        echo "✅ An allowed image still deploys"
+    else
+        echo "❌ The gate blocks a legitimate image: $(cat "$sandbox/pushes.log" 2>/dev/null)"
+        failures=$((failures + 1))
+    fi
+
+    # --- The release record -------------------------------------------------
+    if [ "$(in_tree record.sh cms 777 dr "gsatts/usagov-2021:cms-777@sha256:$d64")" = "MATCH" ]; then
+        echo "✅ A digest matching the release record is confirmed"
+    else
+        echo "❌ A digest matching the release record was not confirmed"
+        failures=$((failures + 1))
+    fi
+
+    # A substituted digest is what tampering with the bucket looks like
+    if [ "$(in_tree record.sh cms 777 dr "gsatts/usagov-2021:cms-777@sha256:$e64")" = "MISMATCH" ]; then
+        echo "✅ A digest the release record contradicts is reported as a mismatch"
+    else
+        echo "❌ A substituted digest was not caught by the release record"
+        failures=$((failures + 1))
+    fi
+
+    if [ "$(in_tree record.sh cms 999 dr "gsatts/usagov-2021:cms-999@sha256:$d64")" = "NORECORD" ] &&
+       [ "$(in_tree record.sh cron 777 dr "gsatts/usagov-2021:cron@sha256:$d64")" = "NORECORD" ]; then
+        echo "✅ An absent record is distinguished from a contradicted one"
+    else
+        echo "❌ A missing release record is not reported distinctly"
+        failures=$((failures + 1))
+    fi
+
+    # --- The build number the lookup depends on -----------------------------
+    # It comes out of the backup tag, written by the container at backup time.
+    cat > "$sandbox/tagnum.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+command -v backup_tag_build_number >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+backup_tag_build_number "$1" || echo NONE
+DRIVER
+    if [ "$(in_tree tagnum.sh AUTO-dr-16302-2026-08-10-0)" = "16302" ] &&
+       [ "$(in_tree tagnum.sh USAGOV-2813-dr-16265-2026-08-11--pre-deploy-0)" = "16265" ] &&
+       [ "$(in_tree tagnum.sh AUTO-dr-git-abc1234-2026-08-10-0)" = "NONE" ]; then
+        echo "✅ The build number is read from the backup tag, including hyphenated prefixes"
+    else
+        echo "❌ Build number extraction is wrong"
+        failures=$((failures + 1))
+    fi
+
+    # --- Rollback refuses a digest the record contradicts -------------------
+    # End to end through the real command, with cf faked.
+    write_meta() {
+        jq -n --arg cms "$1" --arg other "gsatts/usagov-2021:REPL@sha256:$d64" '{
+            metadata_version: 1, backup_tag: "AUTO-dr-777-2026-01-01-0",
+            timestamp: "2026-01-01T00:00:00Z", environment: "dr", ticket: "none",
+            backup_type: "auto", git_commit: "x", git_branch: "y",
+            release: {id: "777", mixed: false, components: ["cms","www","waf"]},
+            containers: {
+                cms: {digest: $cms, cci_build: "777", valid: true, required: true},
+                www: {digest: ($other | sub("REPL"; "www-777")), cci_build: "777", valid: true, required: true},
+                waf: {digest: ($other | sub("REPL"; "waf-777")), cci_build: "777", valid: true, required: true}
+            },
+            complete: true, missing: [],
+            capture: {source: "cron-bucket", object: "o", parse: "json",
+                      captured_at: "2026-01-01T00:00:00Z", age_seconds: 5, stale: false,
+                      environment: "dr", environment_match: true},
+            created_by: "test"
+        }' > "$sandbox/meta.json"
+    }
+
+    rollback_verdict() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            PUSH_LOG="$sandbox/pushes.log"; export PUSH_LOG
+            META_FILE="$sandbox/meta.json"; export META_FILE
+            DEPLOY_ENV=dr; export DEPLOY_ENV
+            sh scripts/devops/deploy.sh rollback AUTO-dr-777-2026-01-01-0 --apps=cms,www,waf $1 </dev/null 2>&1
+        )
+    }
+
+    write_meta "gsatts/usagov-2021:cms-777@sha256:$e64"
+    : > "$sandbox/pushes.log"
+    local out=$(rollback_verdict "")
+    if printf '%s' "$out" | command grep -q "does not match the release record" &&
+       printf '%s' "$out" | command grep -q "Refusing to roll back" &&
+       [ ! -s "$sandbox/pushes.log" ]; then
+        echo "✅ Rollback refuses a digest the release record contradicts, without pushing"
+    else
+        echo "❌ Rollback did not refuse a contradicted digest"
+        printf '%s\n' "$out" | sed 's/^/     /' | head -12
+        failures=$((failures + 1))
+    fi
+
+    # The override must still exist: an emergency rollback cannot be blocked by a
+    # metadata rule, so it proceeds as far as the confirmation prompt.
+    out=$(rollback_verdict "--skip-validation")
+    if printf '%s' "$out" | command grep -q "Continuing because --skip-validation was given"; then
+        echo "✅ --skip-validation overrides the record check"
+    else
+        echo "❌ --skip-validation does not override the record check"
+        printf '%s\n' "$out" | sed 's/^/     /' | head -12
+        failures=$((failures + 1))
+    fi
+
+    # A digest the record confirms must pass the check
+    write_meta "gsatts/usagov-2021:cms-777@sha256:$d64"
+    out=$(rollback_verdict "")
+    if printf '%s' "$out" | command grep -q "Digests confirmed against release record usagov-cci-build-777-dr" &&
+       ! printf '%s' "$out" | command grep -q "does not match the release record"; then
+        echo "✅ A confirmed digest passes the record check, and says so"
+    else
+        echo "❌ A confirmed digest was reported as a mismatch"
+        printf '%s\n' "$out" | sed 's/^/     /' | head -12
+        failures=$((failures + 1))
+    fi
+
+    # --- Metadata records are create-once -----------------------------------
+    # Rollback deploys what it finds under a tag, so a later write that would
+    # change the record is refused. Every component of a backup set shares one
+    # tag, so an identical repeat has to stay a no-op.
+    mkdir -p "$sandbox/s3/deployment-metadata"
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+# Directory-backed S3 with a real If-None-Match precondition on put-object.
+svc="$1"; shift; act="$1"; shift
+key=""; body=""; cond=""; bucket=""; src=""; dst=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --key) key="$2"; shift 2 ;;
+        --body) body="$2"; shift 2 ;;
+        --bucket) bucket="$2"; shift 2 ;;
+        --if-none-match) cond=1; shift 2 ;;
+        --*) shift ;;
+        *) if [ -z "$src" ]; then src="$1"; elif [ -z "$dst" ]; then dst="$1"; fi; shift ;;
+    esac
+done
+if [ "$svc $act" = "s3 cp" ]; then
+    case "$src" in
+        s3://*)
+            path="$FS3/$(printf '%s' "$src" | sed 's|^s3://[^/]*/||')"
+            [ -f "$path" ] || exit 1
+            if [ "$dst" = "-" ]; then cat "$path"; else cat "$path" > "$dst"; fi
+            exit 0 ;;
+        *)
+            path="$FS3/$(printf '%s' "$dst" | sed 's|^s3://[^/]*/||')"
+            mkdir -p "$(dirname "$path")"; cat "$src" > "$path"; exit 0 ;;
+    esac
+fi
+if [ "$svc $act" = "s3api put-object" ]; then
+    target="$FS3/$key"
+    if [ -n "$cond" ] && [ -f "$target" ]; then
+        echo "An error occurred (PreconditionFailed) when calling the PutObject operation" >&2
+        exit 1
+    fi
+    mkdir -p "$(dirname "$target")"
+    cat "$body" > "$target"
+    exit 0
+fi
+exit 0
+FAKEAWS
+    chmod +x "$sandbox/bin/aws"
+
+    cat > "$sandbox/upload.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+setup_s3_vars() { return 0; }
+if upload_deployment_metadata "$1" "$(cat "$2")" >/dev/null 2>&1; then echo STORED; else echo REFUSED; fi
+DRIVER
+
+    upload_in_tree() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            FS3="$sandbox/s3"; export FS3
+            sh "$sandbox/upload.sh" "$1" "$2"
+        )
+    }
+
+    write_meta "gsatts/usagov-2021:cms-777@sha256:$d64"
+    cp "$sandbox/meta.json" "$sandbox/first.json"
+    if [ "$(upload_in_tree AUTO-dr-777-2026-01-01-0 "$sandbox/first.json")" = "STORED" ]; then
+        echo "✅ The first metadata record for a tag is stored"
+    else
+        echo "❌ The first metadata record was refused"
+        failures=$((failures + 1))
+    fi
+
+    # Same content, a later component of the same backup set: only the moment
+    # differs, so this must be accepted as a no-op.
+    jq '.timestamp = "2026-01-01T00:04:00Z" | .capture.age_seconds = 245' "$sandbox/first.json" > "$sandbox/second.json"
+    if [ "$(upload_in_tree AUTO-dr-777-2026-01-01-0 "$sandbox/second.json")" = "STORED" ]; then
+        echo "✅ Another component of the same backup set is a no-op"
+    else
+        echo "❌ A second component of the same backup set was refused"
+        failures=$((failures + 1))
+    fi
+
+    # A write that would change which image a rollback deploys is refused
+    jq --arg d "gsatts/usagov-2021:cms-777@sha256:$e64" '.containers.cms.digest = $d' "$sandbox/first.json" > "$sandbox/tampered.json"
+    if [ "$(upload_in_tree AUTO-dr-777-2026-01-01-0 "$sandbox/tampered.json")" = "REFUSED" ] &&
+       command grep -q "$d64" "$sandbox/s3/deployment-metadata/AUTO-dr-777-2026-01-01-0.json" 2>/dev/null; then
+        echo "✅ A write that would change the stored digests is refused and the record stands"
+    else
+        echo "❌ The stored metadata record was replaced"
         failures=$((failures + 1))
     fi
 
@@ -4171,6 +4531,7 @@ main() {
     run_test "Backup Lock and Scheduling" "test_backup_lock_and_scheduling"
     run_test "Backup Set Numbering" "test_backup_set_numbering"
     run_test "Deployment Metadata Contract" "test_deployment_metadata_contract"
+    run_test "Deployment Image Trust" "test_deployment_image_trust"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"

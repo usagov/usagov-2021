@@ -3883,6 +3883,19 @@ _deploy_app() {
         return 1
     fi
 
+    # The single gate every deployment passes through: `push`, `rollback` and
+    # the rollback auto-revert all arrive here. What lands in --docker-image
+    # decides what code runs, and it used to be taken as an arbitrary string, so
+    # whatever could write the object a rollback reads could choose the image.
+    local image_problem=""
+    if ! image_problem=$(validate_deployment_image "$digest" "$app_name"); then
+        print_status $RED "❌ Refusing to deploy $app_name: $image_problem"
+        print_status $YELLOW "   Expected [registry/]org/repo[:tag]@sha256:<64 hex> from an allowed repository"
+        audit_log "deploy_image_refused" "error" "Image reference refused before push" \
+            "app=\"$app_name\" env=\"$env\" image=\"$digest\" reason=\"$image_problem\""
+        return 1
+    fi
+
     print_status $BLUE "🚀 Deploying $app_name to $env"
     echo "  Build: $cci_build"
     echo "  Digest: $digest"
@@ -4823,8 +4836,63 @@ rollback() {
         return 3
     fi
 
-    # Extract CCI build from digest using common function with motd fallback
-    local cci_build=$(extract_build_from_digest "$cms_digest")
+    # Which build this backup belongs to, most trustworthy source first: the
+    # release ID the metadata recorded, then the build number carried in the
+    # backup tag itself (written by the container at backup time), then reading
+    # it back out of the digest — which is last because it may fall back to an
+    # `cf ssh` round trip.
+    local cci_build=$(normalize_json_document "$metadata_json" 2>/dev/null | jq -r '.release.id // empty' 2>/dev/null)
+    if [ -z "$cci_build" ]; then
+        cci_build=$(backup_tag_build_number "$backup_tag" 2>/dev/null)
+    fi
+    if [ -z "$cci_build" ]; then
+        cci_build=$(extract_build_from_digest "$cms_digest")
+    fi
+
+    # Cross-check the digests against the release record in git before deploying
+    # them. The metadata lives in a bucket; the record is reached through GitHub.
+    # An actor able to write only the bucket cannot make the two agree, so a
+    # disagreement is the signal that matters and is refused outright. A record
+    # that is simply absent — an old build, or tags never fetched — is reported
+    # and allowed, because refusing would strand rollbacks to older backups.
+    local record_problem=""
+    local record_rc=0
+    local unverified=""
+    local app_to_check=""
+    for app_to_check in cms www waf; do
+        local app_digest=""
+        case "$app_to_check" in
+            cms) app_digest="$cms_digest" ;;
+            www) app_digest="$www_digest" ;;
+            waf) app_digest="$waf_digest" ;;
+        esac
+
+        record_problem=$(verify_release_record "$app_to_check" "$cci_build" "$env" "$app_digest")
+        record_rc=$?
+
+        if [ "$record_rc" -eq 1 ]; then
+            print_status $RED "❌ $record_problem"
+            audit_log "rollback_record_mismatch" "error" "Digest disagrees with the release record" \
+                "app=\"$app_to_check\" env=\"$env\" build=\"$cci_build\" backup_tag=\"$backup_tag\""
+            if [ "$skip_validation" = "--skip-validation" ]; then
+                print_status $YELLOW "⚠️  Continuing because --skip-validation was given"
+            else
+                print_status $RED "❌ Error: Refusing to roll back to a digest the release record does not confirm"
+                echo "This is what a tampered backup metadata object looks like. Confirm the digest against"
+                echo "the CircleCI build before overriding with --skip-validation."
+                return 3
+            fi
+        elif [ "$record_rc" -eq 2 ]; then
+            unverified="$unverified $app_to_check"
+        fi
+    done
+
+    if [ -n "$unverified" ]; then
+        print_status $YELLOW "⚠️  Digests not confirmed against a release record:$unverified"
+        print_status $YELLOW "   $record_problem"
+    else
+        print_status $GREEN "✅ Digests confirmed against release record usagov-cci-build-${cci_build}-${env}"
+    fi
 
     # Show what will be rolled back
     print_status $YELLOW "⚠️  CODE ROLLBACK"
