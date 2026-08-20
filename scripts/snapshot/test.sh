@@ -91,25 +91,47 @@ test_config_loading() {
 
 # Function to test script files existence and permissions
 test_script_files() {
-    # Check tome-sync.sh
-    check_file "$PROJECT_ROOT/scripts/tome-sync.sh" "script file" || return 1
-    if [ -x "$PROJECT_ROOT/scripts/tome-sync.sh" ]; then
-        echo "✅ Script is executable: $PROJECT_ROOT/scripts/tome-sync.sh"
-    else
-        echo "❌ Script is not executable: $PROJECT_ROOT/scripts/tome-sync.sh"
-        return 1
-    fi
+    local failures=0
 
-    # Check manager.sh
-    check_file "$BACKUP_DIR/manager.sh" "script file" || return 1
-    if [ -x "$BACKUP_DIR/manager.sh" ]; then
-        echo "✅ Script is executable: $BACKUP_DIR/manager.sh"
-    else
-        echo "❌ Script is not executable: $BACKUP_DIR/manager.sh"
-        return 1
-    fi
+    # Every script something invokes directly: CircleCI, cron, or an operator.
+    # A missing executable bit here is a deployment failure, not a lint issue —
+    # CI runs `scripts/devops/deploy.sh push cms ...` and exits 126 without it.
+    # This test previously covered only two of them, and a deploy step broke
+    # while it passed.
+    local script=""
+    for script in \
+        scripts/tome-sync.sh \
+        scripts/snapshot/manager.sh \
+        scripts/snapshot/setup-cron.sh \
+        scripts/snapshot/test.sh \
+        scripts/devops/deploy.sh \
+        scripts/devops/local-manager.sh \
+        scripts/cron/update-container-digests.sh
+    do
+        if [ ! -f "$PROJECT_ROOT/$script" ]; then
+            echo "❌ Script missing: $script"
+            failures=$((failures + 1))
+            continue
+        fi
 
-    return 0
+        if [ -x "$PROJECT_ROOT/$script" ]; then
+            echo "✅ Script is executable: $script"
+        else
+            echo "❌ Script is not executable: $script"
+            failures=$((failures + 1))
+        fi
+
+        # The committed mode is what CI checks out. A local chmod that was never
+        # committed leaves the pipeline broken while this machine looks fine.
+        local committed_mode=""
+        committed_mode=$(cd "$PROJECT_ROOT" 2>/dev/null && git ls-files -s "$script" 2>/dev/null | awk '{print $1}')
+        if [ -n "$committed_mode" ] && [ "$committed_mode" != "100755" ]; then
+            echo "❌ Committed mode is $committed_mode, not 100755: $script"
+            failures=$((failures + 1))
+        fi
+    done
+
+    [ "$failures" -eq 0 ]
 }
 
 # Function to test required commands
