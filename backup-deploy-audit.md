@@ -22,7 +22,7 @@ The first work should be to stop unsafe cleanup and downsync behavior, guarantee
 
 ## Remediation status
 
-Last updated: 2026-08-04. Branch: `USAGOV-2827-backup-deployment-audit-results`.
+Last updated: 2026-08-19. Branch: `USAGOV-2827-backup-deployment-audit-results`.
 
 The findings below are preserved as written on 2026-07-20. Work completed since is
 recorded here and as a **Status** line on each affected finding; the original
@@ -33,10 +33,24 @@ record.
 | --- | --- |
 | Resolved | Recommendation implemented and verified |
 | Resolved (with deviations) | Implemented except for specific elements, each with a stated reason |
-| Partial | Some elements implemented as a side effect of other work; the finding remains open |
+| Partial | Some elements implemented, as direct work or as a side effect of other work; the finding remains open |
 | Open | Not started |
 
-### High findings status
+A status may carry **(pending live verification)** — the change is implemented and
+covered by tests, but part of it runs inside a container or against S3 and has
+not yet been exercised there. Each such finding names the cheapest live check at
+the end of its status note.
+
+### Findings status
+
+Every finding in this document is listed here, so a change to a medium or low
+finding is tracked in the same place as a high one. `Open` means the remediation
+work has not addressed the finding — not that it was re-tested on the date of
+this note. Statuses below the high table were set by reading the current code
+for the findings the work touched; the rest carry their original subject as the
+note and have not been revisited.
+
+#### High findings
 
 | ID | Status | Commit | Notes |
 | --- | --- | --- | --- |
@@ -47,9 +61,9 @@ record.
 | H-05 | Resolved (pending live verification) | `<pending>` | Only instance 0 schedules the backup, and others clear an inherited entry; concurrent runs are excluded by an atomic S3 `If-None-Match` lock with ownership, expiry and takeover, released after the metadata commit. Confirmed live that `prod` runs 2 CMS instances and `dev`/`stage`/`dr` run 1 |
 | H-06 | Resolved (pending live verification) | `<pending>` | Sequence discovery matches the full stem including the suffix, so a same-day retry increments instead of overwriting; suffixes carry no leading delimiter; one number is reserved for the whole set; at the cap it refuses rather than resetting to 0. This is the defect observed live as N-12 |
 | H-07 | Resolved (pending live verification) | `a4db2e6c6`, `<pending>` | One schema (`metadata_version: 1`), one producer, one reader, one validator, all through `jq`. The producer now writes the `containers` key the validator requires; the cron capture is machine-written valid JSON instead of `\n`-concatenated text; rollback validates before deploying, with `--skip-validation` as the override. Readers still accept `deployed_containers`, string-valued digest maps and the legacy escaped form. See the correction in the finding: `a4db2e6c6` alone reads per-component image tags as a mixed release, which is fixed with the H-08 change |
-| H-08 | Partially resolved (pending live verification) | `<pending>` | Registry/repository/app-tag allowlist and exact `@sha256:[0-9a-f]{64}` form enforced at the single push chokepoint and in the validator; rollback cross-checks every digest against the release record in git, which is reached through GitHub rather than the bucket; metadata records are create-once. Cryptographic signing and S3 Object Lock are **not** implemented — see the finding for why and what they would take |
+| H-08 | Partial (pending live verification) | `<pending>` | Registry/repository/app-tag allowlist and exact `@sha256:[0-9a-f]{64}` form enforced at the single push chokepoint and in the validator; rollback cross-checks every digest against the release record in git, which is reached through GitHub rather than the bucket; metadata records are create-once. Cryptographic signing and S3 Object Lock are **not** implemented — see the finding for why and what they would take |
 | H-09 | Resolved (pending live verification) | `cadf16df0`, `<pending>` | Date-based pairing is gone. A backup set records a manifest of the exact objects it is made of — including the earlier public backup a smart skip relies on — and restore resolves components from that record or fails closed, with `--public-from=`/`--db-from=` as the explicit override |
-| H-10 | Open | | |
+| H-10 | Resolved (pending live verification) | `<pending>` | Object counting is structural instead of a `\d` regex that matched nothing under GNU grep or BusyBox; an unknown, empty or ungenerated state now refuses instead of falling through to publish; the sync, image sync, backup, cleanup and log upload report their own status rather than `tee`'s; and the success indicator is published only after a post-sync count and sentinel check |
 | H-11 | Open | | |
 | H-12 | Open | | |
 | H-13 | Open | | Confirmed live: see "Observed during remediation" below |
@@ -67,6 +81,44 @@ Medium/Low items touched incidentally: **M-07** partial (exact type helpers exis
 are wired into `clean` and `restore`; backup, delete, and info still use unanchored
 matching), **L-02** partial (the `clean all all` and `restore <tag> db` discrepancies
 are fixed).
+
+#### Medium findings
+
+| ID | Status | Commit | Notes |
+| --- | --- | --- | --- |
+| M-01 | Partial | `cadf16df0` | Restore verifies the checksum sidecar when one exists and aborts before any mutation (H-02). The sidecar is still optional, and it sits in the same writable bucket as the backup it attests to, so it is not an authenticity control — that half belongs to H-08 |
+| M-02 | Open |  | S3 setup validates only the bucket string |
+| M-03 | Open |  | Retention age is still taken from the filename date at midnight. Date-at-midnight is no longer used to *pair* components, which H-09 removed, but the retention path is unchanged |
+| M-04 | Open |  | Configured automatic retention is not fully implemented |
+| M-05 | Open |  | Static/public stream download can return a valid empty archive after S3 failure |
+| M-06 | Open |  | Cron setup can install no usable schedule and still report success |
+| M-07 | Partial | `cadf16df0` | Restore resolves `--only` to an exact type set, so an unknown value fails at the boundary instead of restoring nothing and reporting success. `has_backup_type`, used by the backup and cleanup paths, still matches by substring |
+| M-08 | Partial | `a4db2e6c6` | Deployment metadata and the cron digest capture are now built and read with jq, so both are escaped by construction (H-07). `audit_log`'s structured line and the remaining `--json` assembly in `manager.sh` and `deploy.sh` are still string concatenation |
+| M-09 | Open |  | Predictable temp files and local locks permit races and symlink abuse |
+| M-10 | Open |  | SQL denylist validation is incomplete and gives false assurance |
+| M-11 | Partial | `cadf16df0`, `a4db2e6c6`, `c405ae6df` | Every test added by this remediation is hermetic — a sandbox with a fake `aws`, drivers run in separate processes — and each is checked against the pre-change commit so it cannot pass vacuously; N-14 fixed an assertion that had been failing permanently. The pre-existing suite still contains non-hermetic checks, including live AWS connectivity |
+| M-12 | Open |  | Deployment security scans are not deployment gates |
+| M-13 | Open |  | Downloaded CF tooling and container additions are not integrity verified |
+| M-14 | Open |  | S3 service-key helper creates persistent credentials and changes the default AWS profile |
+| M-15 | Open |  | Digest storage binding is imperative and can drift from the manifest |
+| M-16 | Open |  | Project-root discovery can source configuration from the caller's current directory |
+| M-17 | Partial | `11f11b99b`, `1f98a6c07` | The downsync cleanup trap restores the CF target, and N-13 fixed a destructive helper that took its destination from the ambient target. The other paths this finding names are unchanged |
+| M-18 | Open |  | API proxy deployment has a single-instance availability gap |
+
+#### Low findings
+
+| ID | Status | Commit | Notes |
+| --- | --- | --- | --- |
+| L-01 | Resolved | `<pending>` | `run_backup_command` interpolated `$STATIC_BACKUP_TAG` and `$PUBLIC_BACKUP_TAG` into its JSON result and neither was ever assigned anywhere, so `backup all --json` reported an empty tag for two of the three components. Both are now assigned, the public one carrying the linked tag when the smart optimization skipped the upload. Found again from the code during H-09 rather than from this document, which is what prompted tracking every finding here |
+| L-02 | Open |  | Documentation gives commands with different runtime behavior |
+| L-03 | Open |  | The published documentation index still directs recovery to the legacy system |
+| L-04 | Open |  | The DR script is not an executable recovery runbook |
+| L-05 | Open |  | Several configuration settings and functions are dead or misleading |
+| L-06 | Open |  | Legacy and new storage/naming contracts are incompatible |
+| L-07 | Open |  | A legacy deployment entry point references absent helpers |
+| L-08 | Open |  | PR continuation config references a nonexistent file |
+| L-09 | Open |  | Confirmed still open: a failed metadata record fails the backup for the database and static components and is logged as non-critical for public. H-07 routed all three through one function but deliberately left each caller's policy as it was |
+| L-10 | Open |  | Duplication and file size obscure control flow |
 
 ### Defects found during remediation
 
@@ -92,7 +144,6 @@ than reading it.
 | N-16 | Fixed (H-07 work) | `show_current_digests` read `.timestamp` and `.environment` by piping the **raw** capture text into `jq`, while separately expanding the escapes with `printf '%b'` for the container list only. For the legacy escaped capture — the one shape the expansion exists to handle, and the shape actually in the buckets — the two `jq` calls therefore parsed nothing and returned empty, so "Last Updated" never appeared and a stale capture looked no different from a fresh one. Fixed by normalizing once and reading every field from the parsed document; the display now also prints the capture's age and refuses a capture it cannot parse |
 | N-17 | Fixed (H-07 work) | The producer and its readers were coupled to the **malformed** form of the capture, so fixing either half alone would have silently emptied the metadata. `capture_deployment_metadata` extracted the container list with `sed -n 's/.*"containers":[[:space:]]*{\([^}]*\)}.*/\1/p'`, which requires the whole object on one line — exactly what `\n`-concatenation produces when the shell's `echo` does not expand the escapes. Reproduced locally: against that one-line form the expression returns `cms waf www`, and against properly formatted multi-line JSON it returns **nothing**. An empty list is not caught downstream either, because the `cms www waf` fallback is guarded by `command -v cf`, and `cf` is not on `PATH` inside the CMS container — so the backup would have recorded `deployed_containers: {}` and reported success. This is why the new cron capture is emitted **compact** (`jq -nc`): it is valid JSON for the new readers and still matches the single-line `sed` expressions in any reader deployed before this change, which matters because `cron` and `cms` are separate apps that deploy independently |
 | N-18 | Open | The CircleCI deploy path does not pass through `deploy.sh`, so H-08's push gate does not cover it, and it is **fail-open**. `.circleci/config.yml` loads each digest with `if aws s3 cp s3://${S3_BUCKET}/${DOCKERUSER}/${DOCKERREPO}/cms-<pipeline> ./cms-image-digest; then export CMS_DIGEST="@"$(cat …); fi` — on any failure the variable is simply left empty, no error is raised, and `bin/cloudgov/deploy-cms` then takes its `[ -z "$CDIGEST" ]` branch and pushes `${DOCKERUSER}/${DOCKERREPO}:${app}-${CTAG}`, an unpinned **mutable tag**. A failed digest lookup therefore silently downgrades a pinned deployment to whatever that tag points at, which is the weakness H-08 is about, reached without any tampering. `deploy-cron`, `deploy-reporter` and `deploy-waf` push from the same CI-written bucket. Not fixed here because making the lookup fail closed changes when the pipeline refuses to deploy, which is the team's call rather than an audit fix; the change itself is small — treat an empty digest as an error in `load-image-digest` |
-| N-19 | Fixed (H-09 work) | `run_backup_command` interpolated `$STATIC_BACKUP_TAG` and `$PUBLIC_BACKUP_TAG` into its `--json` result, and neither variable was ever assigned anywhere in the codebase — only `DB_BACKUP_TAG` was. `backup all --json` therefore reported `"static":{"status":"success","tag":""}` for two of the three components, so anything consuming that output to learn what was just created got an empty string for the static and public tags. Fixed by assigning both from the set tag, with the public one carrying the linked tag when the smart optimization skipped the upload, so the reported value names the objects that actually hold that component |
 | N-11 | Open | `printf '%q'` is a Bash extension, not POSIX, and appears at five sites in `#!/bin/sh` scripts (`deploy.sh` ×2, `local-manager.sh` ×3). Under `dash` it emits `printf: %q: invalid directive` and the arguments are lost: `exec_backup_command` then runs `manager.sh backup` with no types, ticket or suffix, producing a wrongly-tagged backup. Verified by running the downsync suite under `dash` — 26 assertions fail, identically before and after the H-03 work, so this is pre-existing and not a regression. macOS and the containers are unaffected because their `/bin/sh` is Bash and BusyBox respectively. Folds into H-22, which already tracks the declared-shell mismatch. `scripts/tests/downsync-tests.sh` detects this case and prints a notice, so the resulting mass failure under `dash` is not mistaken for a regression in the downsync logic. Note the `USAGOV-2835-deply.sh-bugs` branch replaces `printf %q` with a POSIX `shell_quote` helper, which would close this; that branch is not merged into this one |
 
 ### Verification performed
@@ -428,7 +479,7 @@ Timestamp arithmetic for the freshness check is done in shell rather than with `
 
 **Confidence:** High.
 
-**Status (2026-08-19): Partially resolved, pending live verification** — the allowlist and an independent cross-check are implemented; signing and object immutability are not, and the reasons are below rather than deferred silently.
+**Status (2026-08-19): Partial, pending live verification** — the allowlist and an independent cross-check are implemented; signing and object immutability are not, and the reasons are below rather than deferred silently.
 
 **The allowlist.** `validate_deployment_image` requires `[registry/]org/repo[:tag]@sha256:<64 hex>`, checks the registry and repository against `ALLOWED_IMAGE_REGISTRIES` and `ALLOWED_IMAGE_REPOS`, refuses any character outside the set a real reference uses, and — because every component ships from one repository distinguished by tag — refuses a tag that names a different component than the app being deployed, so `cms` cannot be pushed from the `waf` tag. It is called in two places: `_deploy_app`, which is the single point every deployment reaches (`push`, `rollback`, and the rollback auto-revert), and the metadata validator, so what `digests validate` approves is what can actually be deployed. The old check accepted anything *containing* `sha256:`; H-07 tightened that to the exact 64-hex form, and this adds the rest of the recommendation's grammar.
 
@@ -489,6 +540,24 @@ While wiring the per-component outcomes for the manifest, this work briefly intr
 **Relevant controls:** NIST 800-53 SI-7, CP-10.
 
 **Confidence:** High.
+
+**Status (2026-08-19): Resolved, pending live verification** — the guard fails closed, and the pipelines report their own status.
+
+**Why the count was always zero.** `grep "^\d\{4\}\-"` is not a portable digit class. GNU grep and BusyBox treat `\d` as a stray escape and match a literal `d`, so no AWS listing line matched and `S3_COUNT` came back 0. This is worth stating precisely because it cannot be reproduced on a Mac: both the `grep` on the audit machine (ugrep) and `/usr/bin/grep` (BSD) accept `\d` as a digit class and the pattern appears to work. Counting is now done on field shape — date, time, size, key — which behaves the same under every implementation.
+
+**Why a zero count published anyway.** With `S3_COUNT=0`, `bc` was asked for `900 / 0`, printed a divide-by-zero error to stderr and nothing to stdout, so `DIFF_S3_TOME_PCT` was empty; the next `bc` then failed to parse `> 0.10` and `DIFF_S3_TOME_IS_BAD` was empty too. Both direction flags compared empty against `1` and were false, so control reached the final `else`, which logs "Tome static build looks fine" and sets `TOME_PUSH_NEW_CONTENT=1`. Reproduced against the pre-change code: with a lost baseline it prints `Tome static build looks fine. Currently Have (0) and Tome Generated (900)` and proceeds to `aws s3 sync --delete`. The guard against deleting the site could not fire, and the log line that says so was the only trace.
+
+**What replaces it.** One function decides the verdict from integer arithmetic, so no input produces an empty result: `publish` within tolerance, `publish-more` when the build grows past the threshold (allowed, as before — growth does not delete the live site), `refuse-fewer` when it shrinks past it, and three refusals that did not exist: `refuse-no-baseline` when the live count is unknown or zero, `refuse-nothing-generated` when the render directory is empty or missing, and `refuse-incomplete-input` when the site's own public files could not be copied into the render directory. A failed AWS listing is now reported rather than folded into the count through `2>&1`, where an error message counted as an object.
+
+**Statuses.** `cmd | tee -a "$log"` returns `tee`'s status, so `if [ $? -eq 0 ]` after the destructive sync tested the wrong thing; the same pattern hid failures in the Drush image sync, the backup, the cleanup and the log upload. The script declares `/bin/sh`, where `pipefail` is unavailable, so each runs through a helper that captures output, appends it to the log, and returns the command's own status. The success indicator was also published unconditionally — on the line immediately after the branch that prints "Error: Sync operation failed" — and now reports sync failure, verification failure, or success.
+
+**Post-sync verification gates the backup.** The recount and sentinel check happen before `manager.sh backup` runs, so a sync that reported success while leaving the site short is not captured as a recovery point; the sentinels are the English and Spanish home pages.
+
+**A deliberate narrowing of `--force`.** It still overrides the size judgement, which is what an operator forcing a large legitimate change needs. It no longer overrides the three missing-precondition refusals: forcing past "nothing was generated" would sync an empty directory with `--delete` and take the live site down, which is not what anyone means by forcing a publish. The refusal says which case it is.
+
+Verified by `test_tome_sync_guard` in `scripts/snapshot/test.sh` — 21 assertions covering the counter against a real listing shape, a failed listing, a missing render directory, all eight verdict cases, that a logged command returns its own status, and structurally that no `\d` class remains in code, that the critical commands are no longer piped to `tee`, and that success is announced only after the outcome is tested. All 21 fail against the pre-change commit. Suite total 43/43 under `/bin/sh`, downsync 74/74.
+
+**Not verified live:** this script runs only in the CMS container under Tome, so it needs a deploy. The behaviour to watch for in the next run's log is a real number on the `S3 dir storage files : count total` line — it has been `0` — followed by `Post-sync verification passed`. A `0` there after this change means the listing itself failed, which is now reported instead of ignored. The BusyBox half of the `\d` claim is the one thing that could not be reproduced on this machine; the replacement avoids the construct entirely rather than depending on which implementation is present.
 
 ### H-11: Smart public backup does not reliably detect content changes or errors
 
@@ -654,6 +723,8 @@ The practical shape of the problem: the CMS container's `/bin/sh` is BusyBox `as
 
 **Relevant controls:** NIST 800-53 SI-7, SC-28.
 
+**Status (2026-08-19): Partial** — H-02 made the restore verify the checksum sidecar when one exists, aborting before any mutation. The sidecar is still optional, and it is stored in the same writable bucket as the backup it attests to, so it remains an integrity check rather than an authenticity one; that half is H-08's.
+
 ### M-02: S3 setup validates only the bucket string
 
 **Evidence:** `setup_s3_vars` suppresses JSON parse errors and validates only whether `BUCKET_NAME` is empty at [scripts/common.sh](scripts/common.sh#L1948-L1988). `jq -r` can produce the nonempty literal `null`; access key, secret, region, and endpoint are not validated as a set.
@@ -702,6 +773,8 @@ The practical shape of the problem: the CMS container's `/bin/sh` is BusyBox `as
 
 **Recommendation:** Parse once into a normalized exact set from `static`, `public`, and `db`; reject duplicates and unknown tokens before state changes.
 
+**Status (2026-08-19): Partial** — the restore side resolves `--only` to an exact type set. `has_backup_type`, used by the backup and cleanup paths, still matches by substring.
+
 ### M-08: Metadata, JSON output, and audit records are assembled without escaping
 
 **Evidence:** Deployment metadata directly interpolates branch, tag, ticket, and digest strings at [scripts/common.sh](scripts/common.sh#L638-L689). Audit fields concatenate quotes/newlines at [scripts/common.sh](scripts/common.sh#L148-L184). Several JSON command outputs are built by string concatenation in [scripts/snapshot/manager.sh](scripts/snapshot/manager.sh#L455-L574).
@@ -709,6 +782,8 @@ The practical shape of the problem: the CMS container's `/bin/sh` is BusyBox `as
 **Impact:** Quotes/newlines can invalidate metadata, forge structured log fields, or break machine-readable output. The risk becomes command execution where these records are later sourced or interpolated.
 
 **Recommendation:** Generate all JSON with `jq -n --arg/--argjson`. Encode structured log values through one escaping function. Never parse generated JSON with grep/sed.
+
+**Status (2026-08-19): Partial** — H-07 moved deployment metadata and the cron digest capture to jq for both generation and parsing, so those two are escaped by construction. `audit_log`'s structured line and the remaining `--json` assembly in `manager.sh` and `deploy.sh` are still built by string concatenation.
 
 ### M-09: Predictable temp files and local locks permit races and symlink abuse
 
@@ -733,6 +808,8 @@ The practical shape of the problem: the CMS container's `/bin/sh` is BusyBox `as
 **Impact:** Running the documented test command against production can create backups, alter Drupal state, and write/delete bucket objects while still missing the defects in this report.
 
 **Recommendation:** Split deterministic unit/contract tests from explicitly gated integration tests. Mock `aws`, `cf`, `drush`, `mysql`, and `tar`; use a dedicated disposable bucket/database for integration; require cleanup traps and a non-production assertion.
+
+**Status (2026-08-19): Partial** — tests added by this remediation run in a sandbox against a fake `aws`, with drivers in separate processes, and each is run against the pre-change commit to confirm it fails there rather than passing vacuously. N-14 fixed an assertion that had been failing permanently, which had made every run report a failure. The pre-existing suite still contains non-hermetic checks, including live AWS connectivity.
 
 ### M-12: Deployment security scans are not deployment gates
 
@@ -790,6 +867,8 @@ The practical shape of the problem: the CMS container's `/bin/sh` is BusyBox `as
 
 **Recommendation:** Wrap all target changes in one helper that records org/space and restores them in an exit trap. Include actual org/space in every result and reject mismatch.
 
+**Status (2026-08-19): Partial** — the downsync cleanup trap restores the CF target, and N-13 fixed a destructive helper whose destination came from the ambient target. The other paths named here are unchanged.
+
 ### M-18: API proxy deployment has a single-instance availability gap
 
 **Evidence:** The API proxy deployment is a separate step between WWW and WAF in [.circleci/config.yml](.circleci/config.yml#L40-L46). Its specialized manifest fixes one instance, and the helper restarts after binding rather than treating the proxy as part of the release transaction.
@@ -803,6 +882,8 @@ The practical shape of the problem: the CMS container's `/bin/sh` is BusyBox `as
 ### L-01: Successful JSON backup output reports empty static/public tags
 
 `run_backup_command` emits `STATIC_BACKUP_TAG` and `PUBLIC_BACKUP_TAG` at [scripts/snapshot/manager.sh](scripts/snapshot/manager.sh#L480-L545), but creation assigns the shared `BACKUP_TAG` at [scripts/snapshot/manager.sh](scripts/snapshot/manager.sh#L1226-L1242) and [scripts/snapshot/manager.sh](scripts/snapshot/manager.sh#L1315-L1331).
+
+**Status (2026-08-19): Resolved** — both variables are now assigned, the public one carrying the linked tag when the smart public optimization skipped the upload, so the reported value names the objects that actually hold that component. Fixed with the H-09 change.
 
 ### L-02: Documentation gives commands with different runtime behavior
 

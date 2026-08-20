@@ -4726,6 +4726,210 @@ DRIVER
     [ "$failures" -eq 0 ]
 }
 
+# H-10: the guard that decides whether a destructive `aws s3 sync --delete` may
+# replace the live static site, and the pipelines around it.
+#
+# The guard counted S3 objects with `grep "^\d\{4\}\-"`. `\d` is not a portable
+# digit class — GNU grep and BusyBox treat it as a stray escape and match a
+# literal `d` — so no listing line matched, the count was 0, and dividing by it
+# in `bc` produced an empty string. Both direction flags were then false and
+# control fell through to the branch that publishes: the guard against deleting
+# the site could not fire. Separately, the sync, the Drush image sync, the
+# backup, the cleanup and the log upload were each piped through `tee`, so the
+# status checked afterwards belonged to `tee` and a failure read as success.
+test_tome_sync_guard() {
+    echo "🛡️  Testing Tome destructive-sync guard..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+    local script="$PROJECT_ROOT/scripts/tome-sync.sh"
+
+    mkdir -p "$sandbox/bin" "$sandbox/render/a/b"
+    : > "$sandbox/render/one.html"
+    : > "$sandbox/render/a/two.html"
+    : > "$sandbox/render/a/b/three.html"
+
+    # A listing in the real format, including one key under the excluded prefix
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+[ -n "$FAKE_AWS_FAIL" ] && { echo "An error occurred (AccessDenied)" >&2; exit 1; }
+printf '2026-08-19 12:00:00       1234 web/index.html\n'
+printf '2026-08-19 12:00:01        567 web/es/index.html\n'
+printf '2026-08-19 12:00:02        890 web/s3/files/logo.png\n'
+exit 0
+FAKEAWS
+    chmod +x "$sandbox/bin/aws"
+
+    # The real functions, taken out of the real script
+    cat > "$sandbox/driver.sh" <<'DRIVER'
+#!/bin/sh
+for fn in tome_count_s3_objects tome_count_render_files tome_change_guard tome_run_logged; do
+    eval "$(sed -n "/^${fn}()/,/^}/p" "$SCRIPT_UNDER_TEST")"
+    command -v "$fn" >/dev/null 2>&1 || { echo "NOFUNC:$fn"; exit 0; }
+done
+S3_EXTRA_PARAMS=""
+case "$1" in
+    count-s3)      tome_count_s3_objects "s3://b/web/" "$2" || echo FAILED ;;
+    count-render)  tome_count_render_files "$2" || echo FAILED ;;
+    guard)         tome_change_guard "$2" "$3" 0.10 ;;
+    run-status)    tome_run_logged "$4" sh -c "$2" >/dev/null 2>&1; echo "$?" ;;
+esac
+DRIVER
+
+    drive() {
+        (
+            cd "$PROJECT_ROOT" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            SCRIPT_UNDER_TEST="$script"; export SCRIPT_UNDER_TEST
+            sh "$sandbox/driver.sh" "$@"
+        )
+    }
+
+    # --- Counting is structural, not a regex with a non-portable digit class --
+    local got=$(drive count-s3 "")
+    if [ "$got" = "3" ]; then
+        echo "✅ A real AWS listing is counted"
+    else
+        echo "❌ Counted '$got' objects in a three-object listing"
+        failures=$((failures + 1))
+    fi
+
+    got=$(drive count-s3 "web/s3/files/")
+    if [ "$got" = "2" ]; then
+        echo "✅ The excluded prefix is left out of the count"
+    else
+        echo "❌ Exclusion produced '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # A failed listing must not become a count. It used to be folded in through
+    # `2>&1`, where an error message counted as an object.
+    got=$(cd "$PROJECT_ROOT" && PATH="$sandbox/bin:$PATH" SCRIPT_UNDER_TEST="$script" FAKE_AWS_FAIL=1 sh "$sandbox/driver.sh" count-s3 "")
+    if [ "$got" = "FAILED" ]; then
+        echo "✅ A failed listing is reported, not counted"
+    else
+        echo "❌ A failed listing produced '$got'"
+        failures=$((failures + 1))
+    fi
+
+    got=$(drive count-render "$sandbox/render")
+    if [ "$got" = "3" ]; then
+        echo "✅ Generated files are counted"
+    else
+        echo "❌ Counted '$got' generated files"
+        failures=$((failures + 1))
+    fi
+
+    got=$(drive count-render "$sandbox/does-not-exist")
+    if [ "$got" = "FAILED" ]; then
+        echo "✅ A missing render directory is reported, not counted as zero"
+    else
+        echo "❌ A missing render directory produced '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # --- The verdicts -------------------------------------------------------
+    local case_line="" want="" s3="" tome=""
+    for case_line in \
+        "publish|1000|1000" \
+        "publish|1000|950" \
+        "refuse-fewer|1000|800" \
+        "publish-more|1000|1300" \
+        "refuse-no-baseline|0|900" \
+        "refuse-no-baseline||900" \
+        "refuse-nothing-generated|1000|0" \
+        "refuse-nothing-generated|1000|"
+    do
+        want="${case_line%%|*}"
+        s3="${case_line#*|}"; s3="${s3%|*}"
+        tome="${case_line##*|}"
+        got=$(drive guard "$s3" "$tome")
+        if [ "$got" = "$want" ]; then
+            echo "✅ ${s3:-<empty>} live / ${tome:-<empty>} generated → $got"
+        else
+            echo "❌ ${s3:-<empty>} live / ${tome:-<empty>} generated → '$got', expected '$want'"
+            failures=$((failures + 1))
+        fi
+    done
+
+    # --- A status must be the command's, not the tee's ----------------------
+    got=$(drive run-status 'echo output; exit 7' "" "$sandbox/run.log")
+    if [ "$got" = "7" ] && command grep -q '^output$' "$sandbox/run.log" 2>/dev/null; then
+        echo "✅ A logged command reports its own status and still writes the log"
+    else
+        echo "❌ A logged command returned '$got' (log: $(head -1 "$sandbox/run.log" 2>/dev/null))"
+        failures=$((failures + 1))
+    fi
+
+    # --- The non-portable pattern is gone -----------------------------------
+    # It cannot be caught behaviorally on macOS: ugrep and BSD grep both accept
+    # \d as a digit class, so the bug only shows up under GNU grep or BusyBox.
+    # Comments are stripped first: the explanation of this defect necessarily
+    # contains the pattern it describes.
+    if sed 's/#.*//' "$script" | command grep -q '\\d'; then
+        echo "❌ tome-sync.sh still matches dates with a non-portable \\d class"
+        failures=$((failures + 1))
+    else
+        echo "✅ No non-portable \\d digit class remains in code"
+    fi
+
+    # --- The critical commands are not piped through tee -------------------
+    local masked=0
+    local pattern=""
+    for pattern in 'aws s3 sync' 'drush usagov:ssg-sync-images' 'BACKUP_MANAGER" backup' 'BACKUP_MANAGER" clean'; do
+        if command grep -n "$pattern" "$script" | command grep -q '| *tee'; then
+            echo "❌ Still piped through tee, so its status is tee's: $pattern"
+            masked=$((masked + 1))
+        fi
+    done
+    if [ "$masked" -eq 0 ]; then
+        echo "✅ The sync, image sync, backup and cleanup report their own status"
+    else
+        failures=$((failures + masked))
+    fi
+
+    # --force is for the size judgement, not for missing preconditions: forcing
+    # past "nothing was generated" would sync an empty directory with --delete.
+    if command grep -q 'Not honouring --force' "$script" &&
+       command grep -B 3 'Not honouring --force' "$script" | command grep -q 'refuse-nothing-generated'; then
+        echo "✅ --force does not override a missing precondition"
+    else
+        echo "❌ --force still overrides every refusal"
+        failures=$((failures + 1))
+    fi
+
+    # --- Verification gates the backup and the success status ---------------
+    if command grep -q 'Skipping automatic backups: the sync did not verify' "$script"; then
+        echo "✅ An unverified sync is not backed up as a recovery point"
+    else
+        echo "❌ The backup does not depend on post-sync verification"
+        failures=$((failures + 1))
+    fi
+
+    if command grep -q 'post-sync verification failed' "$script" &&
+       command grep -q 'Static Site Sync FAILED' "$script"; then
+        echo "✅ The status indicator reports sync failure instead of success"
+    else
+        echo "❌ The success status is still published unconditionally"
+        failures=$((failures + 1))
+    fi
+
+    # The success status used to be published immediately after the branch that
+    # prints "Sync operation failed", with nothing testing either outcome.
+    if command grep -B 4 'Static Site Generation and Sync Completed Successfully' "$script" |
+        command grep -q 'SYNC_VERIFIED'; then
+        echo "✅ Success is announced only after the outcome is tested"
+    else
+        echo "❌ Success is still announced without testing the outcome"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
 main() {
     # Parse command line arguments
     while [ $# -gt 0 ]; do
@@ -4806,6 +5010,7 @@ main() {
     run_test "Deployment Metadata Contract" "test_deployment_metadata_contract"
     run_test "Deployment Image Trust" "test_deployment_image_trust"
     run_test "Backup Set Manifest" "test_backup_set_manifest"
+    run_test "Tome Sync Guard" "test_tome_sync_guard"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"
