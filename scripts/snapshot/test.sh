@@ -2922,11 +2922,13 @@ FAKEDRUSH
         failures=$((failures + 1))
     fi
 
-    # A requested component that does not exist must fail closed
+    # A requested component that does not exist must fail closed. Since H-09 the
+    # message names resolution rather than a missing object, because the set's
+    # manifest is what is consulted first.
     seed_restore_fixture 3
     rm -rf "$sandbox/s3/auto-backups/public_backup/$tag"
     if [ "$(run_fake_restore "$tag" -y --ssm)" != "0" ] \
-        && grep -q 'Public files backup not found' "$sandbox/out" \
+        && grep -q 'Public files backup not resolved' "$sandbox/out" \
         && ! grep -q 'Restore complete' "$sandbox/out" \
         && [ -f "$sandbox/s3/web/rlive1.html" ]; then
         echo "✅ Missing requested component fails closed instead of reporting success"
@@ -4453,6 +4455,277 @@ DRIVER
     [ "$failures" -eq 0 ]
 }
 
+# H-09: a restore must not combine components from unrelated backup events.
+#
+# Pairing used to be inferred: when a component was not found under the requested
+# tag, the restore took the first `YYYY-MM-DD` out of the name, treated every
+# backup that day as equally close, and kept the first candidate it encountered —
+# ignoring ticket, environment, container, suffix and sequence, and accepting an
+# older date when no same-day candidate existed. The set now carries a manifest
+# recording the exact objects that belong to it, written when the backup is made,
+# and resolution reads that record instead of searching.
+test_backup_set_manifest() {
+    echo "🧾 Testing backup set manifest and component pairing..."
+
+    local sandbox=""
+    sandbox=$(mktemp -d) || { echo "❌ Could not create test sandbox"; return 1; }
+
+    local failures=0
+
+    mkdir -p "$sandbox/tree/scripts/snapshot" "$sandbox/bin" \
+        "$sandbox/s3/auto-backups/database" "$sandbox/s3/auto-backups/web-backup" \
+        "$sandbox/s3/auto-backups/public_backup" "$sandbox/s3/backup-manifests"
+    cp "$PROJECT_ROOT/scripts/common.sh" "$sandbox/tree/scripts/"
+    cp "$BACKUP_DIR/manager.sh" "$BACKUP_DIR/backup-system.conf" "$sandbox/tree/scripts/snapshot/"
+
+    # Directory-backed S3: prefix listing, object read/write, and a real
+    # If-None-Match precondition on put-object.
+    cat > "$sandbox/bin/aws" <<'FAKEAWS'
+#!/bin/sh
+R="$FS3"
+svc="$1"; shift; act="$1"; shift
+key=""; body=""; cond=""; src=""; dst=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --key) key="$2"; shift 2 ;;
+        --body) body="$2"; shift 2 ;;
+        --bucket) shift 2 ;;
+        --if-none-match) cond=1; shift 2 ;;
+        --recursive|--only-show-errors|--summarize) shift ;;
+        --*) shift ;;
+        *) if [ -z "$src" ]; then src="$1"; elif [ -z "$dst" ]; then dst="$1"; fi; shift ;;
+    esac
+done
+strip() { printf '%s' "$1" | sed 's|^s3://[^/]*/||'; }
+case "$svc $act" in
+    "s3api put-object")
+        t="$R/$key"
+        if [ -n "$cond" ] && [ -f "$t" ]; then
+            echo "An error occurred (PreconditionFailed) when calling the PutObject operation" >&2
+            exit 1
+        fi
+        mkdir -p "$(dirname "$t")"; cat "$body" > "$t"; exit 0 ;;
+    "s3 cp")
+        case "$src" in
+            s3://*)
+                p="$R/$(strip "$src")"
+                [ -f "$p" ] || exit 1
+                if [ "$dst" = "-" ]; then cat "$p"; else cat "$p" > "$dst"; fi
+                exit 0 ;;
+            *)
+                p="$R/$(strip "$dst")"
+                mkdir -p "$(dirname "$p")"; cat "$src" > "$p"; exit 0 ;;
+        esac ;;
+    "s3 ls")
+        p="$R/$(strip "$src")"
+        case "$src" in
+            */) [ -d "${p%/}" ] || exit 1
+                for f in "${p%/}"/*; do [ -e "$f" ] || continue; echo "2026-01-01 00:00:00 10 $(basename "$f")"; done
+                exit 0 ;;
+            *)  if [ -f "$p" ]; then echo "2026-01-01 00:00:00 10 $(basename "$p")"; exit 0; fi
+                if [ -d "$p" ]; then echo "                           PRE $(basename "$p")/"; exit 0; fi
+                exit 1 ;;
+        esac ;;
+esac
+exit 0
+FAKEAWS
+    chmod +x "$sandbox/bin/aws"
+
+    cat > "$sandbox/write.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+command -v write_backup_set_manifest >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+if write_backup_set_manifest "$@" >/dev/null 2>&1; then echo WROTE; else echo REFUSED; fi
+DRIVER
+
+    cat > "$sandbox/resolve.sh" <<'DRIVER'
+#!/bin/sh
+. ./scripts/common.sh >/dev/null 2>&1
+init_backup_system >/dev/null 2>&1
+BUCKET_NAME=test-bucket
+S3_EXTRA_PARAMS=""
+command -v resolve_backup_component >/dev/null 2>&1 || { echo NOFUNC; exit 0; }
+# Deliberately through the entry point the restore uses
+if out=$(find_corresponding_backup "$1" "$2"); then echo "$out"; else echo UNRESOLVED; fi
+DRIVER
+
+    in_tree() {
+        (
+            cd "$sandbox/tree" 2>/dev/null || exit 9
+            PATH="$sandbox/bin:$PATH"; export PATH
+            FS3="$sandbox/s3"; export FS3
+            sh "$sandbox/$1" "$2" "$3" "$4" "$5" "$6"
+        )
+    }
+
+    local S3="$sandbox/s3/auto-backups"
+    local set_tag="USAGOV-2813-dr-16265-2026-08-11--pre-deploy-0"
+    local older_public="AUTO-dr-16200-2026-08-04-0"
+    # Same day, different ticket, different container: what the date-based search
+    # used to be free to pick.
+    local decoy="AUTO-dr-16302-2026-08-11-0"
+
+    mkdir -p "$S3/web-backup/$set_tag" "$S3/public_backup/$older_public" \
+             "$S3/public_backup/$decoy" "$S3/web-backup/$decoy"
+    : > "$S3/web-backup/$set_tag/index.html"
+    : > "$S3/public_backup/$older_public/logo.png"
+    : > "$S3/public_backup/$decoy/other.png"
+    : > "$S3/database/$set_tag.sql.gz"
+    : > "$S3/database/$decoy.sql.gz"
+
+    # --- A set that recorded every component -------------------------------
+    if [ "$(in_tree write.sh "$set_tag" dr "static:captured:$set_tag" "public:unchanged:$older_public" "db:captured:$set_tag")" = "WROTE" ]; then
+        echo "✅ A backup set records a manifest"
+    else
+        echo "❌ The manifest was not written"
+        failures=$((failures + 1))
+    fi
+
+    # The whole point: public was skipped as unchanged, and the set says which
+    # backup holds those files. The decoy is the same day and would have won.
+    local got=$(in_tree resolve.sh "$set_tag" public)
+    if [ "$got" = "$older_public" ]; then
+        echo "✅ The recorded public backup is used, not a same-day candidate"
+    else
+        echo "❌ Public resolved to '$got', expected '$older_public'"
+        failures=$((failures + 1))
+    fi
+
+    got=$(in_tree resolve.sh "$set_tag" db)
+    if [ "$got" = "${set_tag}.sql.gz" ]; then
+        echo "✅ The database resolves to the set's own object"
+    else
+        echo "❌ Database resolved to '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # --- A component the set does not have ---------------------------------
+    # A same-day database from another ticket exists; it must not be adopted.
+    local partial_tag="USAGOV-2900-dr-16265-2026-08-11--pre-deploy-1"
+    mkdir -p "$S3/web-backup/$partial_tag"
+    : > "$S3/web-backup/$partial_tag/index.html"
+    in_tree write.sh "$partial_tag" dr "static:captured:$partial_tag" >/dev/null
+    got=$(in_tree resolve.sh "$partial_tag" db)
+    if [ "$got" = "UNRESOLVED" ]; then
+        echo "✅ A component the set never had stays unresolved, with a same-day one present"
+    else
+        echo "❌ A same-day database was adopted into another set: '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # --- Sets created before manifests existed -----------------------------
+    local legacy_tag="AUTO-dr-16100-2026-07-01-0"
+    mkdir -p "$S3/web-backup/$legacy_tag" "$S3/public_backup/$legacy_tag"
+    : > "$S3/public_backup/$legacy_tag/logo.png"
+    : > "$S3/database/$legacy_tag.sql.gz"
+    got=$(in_tree resolve.sh "$legacy_tag" public)
+    if [ "$got" = "$legacy_tag" ]; then
+        echo "✅ Without a manifest an exact component still resolves"
+    else
+        echo "❌ Legacy exact match failed: '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # Same day as the decoy, no manifest, and its own public objects are absent:
+    # this is precisely the case the old code answered with a guess.
+    local legacy_missing="AUTO-dr-16301-2026-08-11-0"
+    mkdir -p "$S3/web-backup/$legacy_missing"
+    : > "$S3/database/$legacy_missing.sql.gz"
+    got=$(in_tree resolve.sh "$legacy_missing" public)
+    if [ "$got" = "UNRESOLVED" ]; then
+        echo "✅ Without a manifest a missing component is not guessed from the same day"
+    else
+        echo "❌ A same-day public backup was guessed: '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # --- A record whose objects are gone ------------------------------------
+    rm -rf "$S3/public_backup/$older_public"
+    got=$(in_tree resolve.sh "$set_tag" public)
+    if [ "$got" = "UNRESOLVED" ]; then
+        echo "✅ A recorded component whose objects were deleted fails closed"
+    else
+        echo "❌ A deleted component resolved anyway: '$got'"
+        failures=$((failures + 1))
+    fi
+
+    # --- The manifest is written once --------------------------------------
+    if [ "$(in_tree write.sh "$set_tag" dr "static:captured:$set_tag" "public:unchanged:$older_public" "db:captured:$set_tag")" = "WROTE" ]; then
+        echo "✅ Rewriting the same manifest is a no-op"
+    else
+        echo "❌ An identical manifest rewrite was refused"
+        failures=$((failures + 1))
+    fi
+    if [ "$(in_tree write.sh "$set_tag" dr "static:captured:$set_tag" "db:captured:$decoy")" = "REFUSED" ]; then
+        echo "✅ A manifest that would repoint a set is refused"
+    else
+        echo "❌ A conflicting manifest replaced the recorded set"
+        failures=$((failures + 1))
+    fi
+
+    # --- The search itself is gone ------------------------------------------
+    local common="$PROJECT_ROOT/scripts/common.sh"
+    if sed -n '/^find_corresponding_backup()/,/^}/p' "$common" | command grep -q 'extract_date_from_backup_name'; then
+        echo "❌ Component pairing still extracts a date from the backup name"
+        failures=$((failures + 1))
+    else
+        echo "✅ Component pairing no longer reads a date out of the tag"
+    fi
+
+    # --- The backup side records what restore reads -------------------------
+    local mgr="$BACKUP_DIR/manager.sh"
+    if command grep -q 'PUBLIC_BACKUP_LINK_TAG="$LATEST_PUBLIC_BACKUP"' "$mgr"; then
+        echo "✅ The smart public skip records the backup it compared against"
+    else
+        echo "❌ The smart public skip still discards its comparison target"
+        failures=$((failures + 1))
+    fi
+    if command grep -q 'write_backup_set_manifest "$set_tag"' "$mgr"; then
+        echo "✅ A backup run records the set manifest"
+    else
+        echo "❌ The backup command does not write a manifest"
+        failures=$((failures + 1))
+    fi
+
+    # Each component's status is captured before anything else reads `$?`.
+    # Reading it a second time returns the status of the capture, which would
+    # mark every component successful and hide real failures.
+    if sed -n '/^run_backup_command()/,/^}/p' "$mgr" | command grep -q 'local backup_result=\$?'; then
+        echo "❌ A component's status is re-read from \$? after another assignment"
+        failures=$((failures + 1))
+    else
+        echo "✅ Component status is captured once, not re-read from \$?"
+    fi
+
+    # `backup all --json` reported an empty tag for static and public: the
+    # variables it interpolates were never assigned anywhere.
+    if command grep -q 'STATIC_BACKUP_TAG="$set_tag"' "$mgr" && command grep -q 'PUBLIC_BACKUP_TAG="$PUBLIC_BACKUP_LINK_TAG"' "$mgr"; then
+        echo "✅ The JSON result reports the tags it interpolates"
+    else
+        echo "❌ static/public tags are still never assigned"
+        failures=$((failures + 1))
+    fi
+
+    # --- Naming a component explicitly is accepted --------------------------
+    # The escape hatch for sets that cannot be resolved: it must not be rejected
+    # as an unknown option, nor mistaken for the backup tag.
+    local out=$(cd "$sandbox/tree" 2>/dev/null && PATH="$sandbox/bin:$PATH" FS3="$sandbox/s3" \
+        sh scripts/snapshot/manager.sh restore "$set_tag" --only=public --public-from="$decoy" -y --ssm 2>&1)
+    if ! printf '%s' "$out" | command grep -q 'Unrecognized option' &&
+       ! printf '%s' "$out" | command grep -q 'Backup tag is required'; then
+        echo "✅ --public-from is accepted and not mistaken for the tag"
+    else
+        echo "❌ --public-from is not handled: $(printf '%s' "$out" | head -2)"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "$sandbox"
+    [ "$failures" -eq 0 ]
+}
+
 main() {
     # Parse command line arguments
     while [ $# -gt 0 ]; do
@@ -4532,6 +4805,7 @@ main() {
     run_test "Backup Set Numbering" "test_backup_set_numbering"
     run_test "Deployment Metadata Contract" "test_deployment_metadata_contract"
     run_test "Deployment Image Trust" "test_deployment_image_trust"
+    run_test "Backup Set Manifest" "test_backup_set_manifest"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
     run_test "Local Manager Wrapper" "test_local_manager"

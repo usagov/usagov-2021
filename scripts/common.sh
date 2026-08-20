@@ -2986,88 +2986,230 @@ _restore_tome_half() {
     audit_log "tome_state_restore" "failure" "Failed to restore Tome state" "tome_disabled_target=\"$target\""
     return 1
 }
+# ===================================================================
+# BACKUP SET MANIFEST
+# ===================================================================
+#
+# A backup set is static, public and database captured together. Restoring one
+# means restoring that set, which requires knowing exactly which objects belong
+# to it. That used to be inferred: when a component was not found under the
+# requested tag, the restore extracted the first `YYYY-MM-DD` from the name,
+# treated every backup that day as equally close, and took the first candidate
+# it happened to encounter — ignoring ticket, environment, container, suffix and
+# sequence, and accepting an older date when no same-day candidate existed. A
+# restore for one deployment could therefore combine data from another.
+#
+# The manifest replaces that inference with a record written when the set is
+# created. It matters most for the smart public backup: when public files are
+# unchanged the component is deliberately not re-uploaded, and the set stays
+# complete only because some earlier public backup still holds that content. The
+# skip already knows which one — it compared checksums against it — so that tag
+# is recorded here instead of being rediscovered later by a different rule.
+#
+# NIST 800-53: CP-10 (system recovery), SI-7 (software and information integrity)
 
-# Find corresponding backup of specific type for smart restore
-# Args: $1=static backup tag, $2=backup type (public|db)
-# Returns: matching backup name or empty on error
+BACKUP_MANIFEST_VERSION=1
+
+# S3 key of the manifest for a backup set.
+# Kept out of `deployment-metadata/`, whose objects are enumerated to find the
+# newest backup tag: a `<tag>.manifest` would be returned there as if it were one.
+# Args: $1 backup tag
+backup_manifest_key() {
+    echo "${BACKUP_MANIFEST_PATH:-backup-manifests}/${1}.json"
+}
+
+# Record which objects make up a backup set.
+# Args:
+#   $1: backup tag for the set
+#   $2: environment
+#   $3..: one entry per component, "type:state:tag" where state is
+#         `captured` (written by this run) or `unchanged` (the smart public
+#         optimization: this set uses the named earlier backup's objects)
+# Returns: 0 on success, 1 on failure
+write_backup_set_manifest() {
+    local set_tag="$1"
+    local environment="$2"
+    shift 2
+
+    require_jq || return 1
+    [ -n "$set_tag" ] || return 1
+
+    local components="{}"
+    local entry=""
+    for entry in "$@"; do
+        [ -n "$entry" ] || continue
+
+        local type="${entry%%:*}"
+        local rest="${entry#*:}"
+        local state="${rest%%:*}"
+        local tag="${rest#*:}"
+
+        [ -n "$type" ] && [ -n "$state" ] && [ -n "$tag" ] || continue
+
+        local key=""
+        case "$type" in
+            static) key="${AUTO_STATIC_BACKUP_PATH}/${tag}/" ;;
+            public) key="${AUTO_PUBLIC_BACKUP_PATH}/${tag}/" ;;
+            db)     key="${AUTO_DB_BACKUP_PATH}/${tag}.sql.gz" ;;
+            *) continue ;;
+        esac
+
+        components=$(printf '%s' "$components" | jq -c \
+            --arg t "$type" --arg s "$state" --arg tag "$tag" --arg k "$key" \
+            '.[$t] = {tag: $tag, key: $k, state: $s}')
+    done
+
+    local manifest
+    manifest=$(jq -n \
+        --argjson manifest_version "$BACKUP_MANIFEST_VERSION" \
+        --arg backup_tag "$set_tag" \
+        --arg environment "$environment" \
+        --arg created_at "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+        --argjson components "$components" \
+        '{
+            manifest_version: $manifest_version,
+            backup_tag: $backup_tag,
+            environment: $environment,
+            created_at: $created_at,
+            components: $components
+        }')
+
+    local manifest_key=$(backup_manifest_key "$set_tag")
+    local temp_file="/tmp/${set_tag}-manifest.$$"
+    printf '%s\n' "$manifest" > "$temp_file"
+
+    # Same reasoning as the deployment metadata record: a restore trusts what it
+    # finds under the tag, so the set is described once and not rewritten.
+    if aws s3api put-object --bucket "$BUCKET_NAME" --key "$manifest_key" \
+            --if-none-match '*' --body "$temp_file" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        rm -f "$temp_file"
+        return 0
+    fi
+
+    # Either the CLI cannot express the precondition or a manifest already
+    # exists. An identical one is the normal case for a retried command.
+    local existing=""
+    existing=$(aws s3 cp "s3://${BUCKET_NAME}/${manifest_key}" - $S3_EXTRA_PARAMS 2>/dev/null)
+    if [ -n "$existing" ]; then
+        local existing_core=$(normalize_json_document "$existing" 2>/dev/null | jq -S -c 'del(.created_at)' 2>/dev/null)
+        local new_core=$(printf '%s' "$manifest" | jq -S -c 'del(.created_at)' 2>/dev/null)
+        if [ -n "$existing_core" ] && [ "$existing_core" = "$new_core" ]; then
+            rm -f "$temp_file"
+            return 0
+        fi
+        rm -f "$temp_file"
+        print_status $RED "❌ A different manifest is already recorded for $set_tag"
+        audit_log "manifest_overwrite_refused" "error" "Existing backup set manifest differs" \
+            "backup_tag=\"$set_tag\" object=\"$manifest_key\""
+        return 1
+    fi
+
+    if aws s3 cp "$temp_file" "s3://${BUCKET_NAME}/${manifest_key}" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        rm -f "$temp_file"
+        return 0
+    fi
+    rm -f "$temp_file"
+    return 1
+}
+
+# Read the manifest for a backup set.
+# Args: $1 backup tag
+# Returns: 0 and echoes canonical JSON, 1 when there is no readable manifest
+read_backup_set_manifest() {
+    local set_tag="$1"
+    local raw=""
+
+    [ -n "$set_tag" ] || return 1
+    raw=$(aws s3 cp "s3://${BUCKET_NAME}/$(backup_manifest_key "$set_tag")" - $S3_EXTRA_PARAMS 2>/dev/null)
+    [ -n "$raw" ] || return 1
+    normalize_json_document "$raw"
+}
+
+# Resolve which backup holds a component of a set, without guessing.
+# The manifest is authoritative. Without one — sets created before manifests
+# existed — only an exact match under the requested tag is accepted; the date
+# scan that used to run here is gone, because "same day" is not a relationship
+# between backups.
+# Args:
+#   $1: backup tag
+#   $2: component type (static|public|db)
+# A resolved tag that differs from the requested one means the set recorded a
+# link — the smart public optimization — which is the only case the two differ.
+# Returns: 0 and echoes the resolved tag (db echoes `<tag>.sql.gz`, matching the
+#          object name callers compare against), 1 when nothing resolves
+resolve_backup_component() {
+    local set_tag="$1"
+    local type="$2"
+
+    local exact_path=""
+    local suffix=""
+    case "$type" in
+        static) exact_path="$AUTO_STATIC_BACKUP_PATH/$set_tag/" ;;
+        public) exact_path="$AUTO_PUBLIC_BACKUP_PATH/$set_tag/" ;;
+        db)     suffix=".sql.gz"; exact_path="$AUTO_DB_BACKUP_PATH/${set_tag}${suffix}" ;;
+        *) return 1 ;;
+    esac
+
+    local manifest=""
+    if manifest=$(read_backup_set_manifest "$set_tag"); then
+        local recorded_tag=$(printf '%s' "$manifest" | jq -r --arg t "$type" '.components[$t].tag // empty' 2>/dev/null)
+        if [ -z "$recorded_tag" ]; then
+            # The set was recorded and this component is not part of it
+            return 1
+        fi
+
+        local recorded_key=$(printf '%s' "$manifest" | jq -r --arg t "$type" '.components[$t].key // empty' 2>/dev/null)
+        if [ -n "$recorded_key" ] && ! aws s3 ls "s3://$BUCKET_NAME/$recorded_key" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+            # Recorded, but the objects are no longer there
+            return 1
+        fi
+
+        echo "${recorded_tag}${suffix}"
+        return 0
+    fi
+
+    if aws s3 ls "s3://$BUCKET_NAME/$exact_path" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+        echo "${set_tag}${suffix}"
+        return 0
+    fi
+
+    return 1
+}
+
+# Backups that could hold a component, newest first, for an operator to choose
+# from when a set has no manifest. Advisory only: nothing here selects one.
+# Args: $1 component type, $2 how many to list (default 5)
+suggest_backup_candidates() {
+    local type="$1"
+    local limit="${2:-5}"
+
+    case "$type" in
+        public) aws s3 ls "s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/" $S3_EXTRA_PARAMS 2>/dev/null |
+                    grep 'PRE ' | awk '{print $2}' | tr -d '/' | sort -r | head -n "$limit" ;;
+        static) aws s3 ls "s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/" $S3_EXTRA_PARAMS 2>/dev/null |
+                    grep 'PRE ' | awk '{print $2}' | tr -d '/' | sort -r | head -n "$limit" ;;
+        db)     aws s3 ls "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/" $S3_EXTRA_PARAMS 2>/dev/null |
+                    grep '\.sql\.gz$' | awk '{print $4}' | sed 's/\.sql\.gz$//' | sort -r | head -n "$limit" ;;
+    esac
+}
+
+# Find which backup holds a component that pairs with a set.
+# Retained as the entry point its callers already use; the date-based search it
+# used to perform is gone — see resolve_backup_component.
+# Args:
+#   $1: backup tag
+#   $2: component type (public|db)
+# Returns: 0 and echoes the resolved name, 1 when nothing resolves
 find_corresponding_backup() {
     local static_backup_tag="$1"
     local backup_type="$2"
 
-    local exact_match_path=""
-    local search_path=""
-    local file_suffix=""
-
     case "$backup_type" in
-        public)
-            exact_match_path="$AUTO_PUBLIC_BACKUP_PATH/$static_backup_tag/"
-            search_path="$AUTO_PUBLIC_BACKUP_PATH/"
-            ;;
-        db)
-            file_suffix=".sql.gz"
-            exact_match_path="$AUTO_DB_BACKUP_PATH/${static_backup_tag}${file_suffix}"
-            search_path="$AUTO_DB_BACKUP_PATH/"
-            ;;
-        *)
-            return 1
-            ;;
+        public|db) ;;
+        *) return 1 ;;
     esac
 
-    # Check for exact match first
-    if aws s3 ls "s3://$BUCKET_NAME/$exact_match_path" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
-        if [ "$backup_type" = "public" ]; then
-            echo "$static_backup_tag"
-        else
-            echo "${static_backup_tag}${file_suffix}"
-        fi
-        return 0
-    fi
-
-    # No exact match - find most recent backup at or before static backup time
-    local static_date=$(extract_date_from_backup_name "$static_backup_tag")
-    [ -z "$static_date" ] && return 1
-
-    local static_epoch=$(date -u -d "$static_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$static_date" '+%s' 2>/dev/null)
-    [ -z "$static_epoch" ] && return 1
-
-    local temp_list="/tmp/${backup_type}_backup_search_$$"
-    if [ "$backup_type" = "public" ]; then
-        aws s3 ls "s3://$BUCKET_NAME/$search_path" $S3_EXTRA_PARAMS | grep "PRE " > "$temp_list" 2>/dev/null
-    else
-        aws s3 ls "s3://$BUCKET_NAME/$search_path" --recursive $S3_EXTRA_PARAMS | grep "\.sql\.gz$" | awk '{print $4}' | xargs -I {} basename {} > "$temp_list" 2>/dev/null
-    fi
-
-    local best_backup=""
-    local best_epoch=0
-
-    while read -r line; do
-        [ -z "$line" ] && continue
-
-        local backup_name
-        if [ "$backup_type" = "public" ]; then
-            backup_name=$(echo "$line" | awk '{print $2}' | tr -d '/')
-        else
-            backup_name="$line"
-        fi
-
-        local backup_date=$(extract_date_from_backup_name "$backup_name")
-        [ -z "$backup_date" ] && continue
-
-        local backup_epoch=$(date -u -d "$backup_date" '+%s' 2>/dev/null || date -u -j -f '%Y-%m-%d' "$backup_date" '+%s' 2>/dev/null)
-
-        if [ -n "$backup_epoch" ] && [ "$backup_epoch" -le "$static_epoch" ] && [ "$backup_epoch" -gt "$best_epoch" ]; then
-            best_backup="$backup_name"
-            best_epoch="$backup_epoch"
-        fi
-    done < "$temp_list"
-
-    rm -f "$temp_list" 2>/dev/null
-
-    if [ -n "$best_backup" ]; then
-        echo "$best_backup"
-        return 0
-    fi
-    return 1
+    resolve_backup_component "$static_backup_tag" "$backup_type"
 }
 
 # Unified state management command

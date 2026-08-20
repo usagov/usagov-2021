@@ -42,6 +42,7 @@ show_usage() {
     echo "  delete <tag> [tag2 tag3...] [types] [-y]    Delete specific backup(s) by tag name (default: all types)"
     echo "  restore <tag> [--only=type,type] [--skip-state-management|--ssm]  Restore backups from tag"
     echo "                [--no-recovery-point] [--force-destructive-sync]"
+    echo "                [--public-from=<tag>] [--db-from=<tag>]    Take one component from another backup"
     echo "  info [types] [tag] [--verify] [--json]   Show backup system info or specific backup details"
   echo "                                             Use --verify to validate integrity (DB: streams from S3)"
     echo "  download <tag> [type] [path] [--stream]  Download backups (default: all types, current dir)"
@@ -248,6 +249,11 @@ show_command_help() {
             echo "                                  (a failed restore cannot be rolled back)"
             echo "  --force-destructive-sync      - Allow a backup holding far fewer objects"
             echo "                                  than live content to overwrite it"
+            echo "  --public-from=<tag>           - Take public files from a different backup"
+            echo "  --db-from=<tag>               - Take the database from a different backup"
+            echo "                                  (both are only for sets whose own component"
+            echo "                                   cannot be resolved; components are otherwise"
+            echo "                                   paired from the set manifest, never guessed)"
             echo ""
             echo "How a restore proceeds:"
             echo "  1. Every requested component is verified first - including downloading,"
@@ -583,6 +589,18 @@ run_backup_command() {
         print_status $YELLOW "Sequence: $BACKUP_SET_SUFFIX"
     fi
 
+    # What this run ends up recording as the set, for the manifest below
+    local set_tag="${set_stem}-${BACKUP_SET_SUFFIX}"
+    STATIC_BACKUP_TAG=""
+    PUBLIC_BACKUP_TAG=""
+    PUBLIC_BACKUP_STATE=""
+    PUBLIC_BACKUP_LINK_TAG=""
+    DB_BACKUP_TAG=""
+    local static_result=1
+    local public_result=1
+    local db_result=1
+    local manifest_components=""
+
     local result_count=0
     local failure_count=0
 
@@ -604,7 +622,8 @@ run_backup_command() {
                     print_status $GREEN "🌐 Backing up static site (last backup: $age_hours hours ago)..."
                 fi
                 create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
-                local backup_result=$?
+                static_result=$?
+                local backup_result=$static_result
                 [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
                 if [ "$use_json" = true ]; then
                     [ $result_count -gt 0 ] && json_output="${json_output},"
@@ -621,7 +640,8 @@ run_backup_command() {
                 print_status $GREEN "🌐 Backing up static site..."
             fi
             create_static_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
-            local backup_result=$?
+            static_result=$?
+            local backup_result=$static_result
             [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
             if [ "$use_json" = true ]; then
                 [ $result_count -gt 0 ] && json_output="${json_output},"
@@ -653,7 +673,8 @@ run_backup_command() {
                     print_status $GREEN "📁 Backing up public files (last backup: $age_hours hours ago)..."
                 fi
                 create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
-                local backup_result=$?
+                public_result=$?
+                local backup_result=$public_result
                 [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
                 if [ "$use_json" = true ]; then
                     [ $result_count -gt 0 ] && json_output="${json_output},"
@@ -670,7 +691,8 @@ run_backup_command() {
                 print_status $GREEN "📁 Backing up public files..."
             fi
             create_public_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
-            local backup_result=$?
+            public_result=$?
+            local backup_result=$public_result
             [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
             if [ "$use_json" = true ]; then
                 [ $result_count -gt 0 ] && json_output="${json_output},"
@@ -690,7 +712,8 @@ run_backup_command() {
             print_status $GREEN "💾 Backing up database..."
         fi
         create_db_backup "$backup_prefix" "$backup_suffix" "$backup_timestamp" "$skip_state_management"
-        local backup_result=$?
+        db_result=$?
+        local backup_result=$db_result
         [ $backup_result -ne 0 ] && failure_count=$((failure_count + 1))
         if [ "$use_json" = true ]; then
             [ $result_count -gt 0 ] && json_output="${json_output},"
@@ -699,6 +722,37 @@ run_backup_command() {
                 json_output="${json_output}\"database\":{\"status\":\"success\",\"tag\":\"$DB_BACKUP_TAG\"}"
             else
                 json_output="${json_output}\"database\":{\"status\":\"failed\"}"
+            fi
+        fi
+    fi
+
+    # One entry per component that actually landed. `unchanged` carries the tag
+    # whose objects this set uses, which is the whole point of recording it.
+    if has_backup_type "$backup_types" "static" && [ "$static_result" -eq 0 ]; then
+        manifest_components="$manifest_components static:captured:$set_tag"
+        STATIC_BACKUP_TAG="$set_tag"
+    fi
+    if has_backup_type "$backup_types" "public" && [ "$public_result" -eq 0 ]; then
+        if [ "$PUBLIC_BACKUP_STATE" = "unchanged" ] && [ -n "$PUBLIC_BACKUP_LINK_TAG" ]; then
+            manifest_components="$manifest_components public:unchanged:$PUBLIC_BACKUP_LINK_TAG"
+            PUBLIC_BACKUP_TAG="$PUBLIC_BACKUP_LINK_TAG"
+        elif [ "$PUBLIC_BACKUP_STATE" = "captured" ]; then
+            manifest_components="$manifest_components public:captured:$set_tag"
+            PUBLIC_BACKUP_TAG="$set_tag"
+        fi
+    fi
+    if has_backup_type "$backup_types" "db" && [ "$db_result" -eq 0 ]; then
+        manifest_components="$manifest_components db:captured:$set_tag"
+    fi
+
+    # Record the set. This is what a restore reads to know which objects belong
+    # together, instead of inferring it from the date in the tag.
+    if [ "$failure_count" -eq 0 ] && [ -n "$manifest_components" ]; then
+        if ! write_backup_set_manifest "$set_tag" "$APP_SPACE" $manifest_components; then
+            failure_count=$((failure_count + 1))
+            if [ "$use_json" = false ]; then
+                print_status $RED "❌ Could not record the backup set manifest for $set_tag"
+                print_status $YELLOW "   The objects were written, but a restore cannot pair them without it."
             fi
         fi
     fi
@@ -1659,6 +1713,11 @@ create_public_backup() {
             if [ -n "$CURRENT_PUBLIC_CHECKSUM" ] && [ -n "$BACKUP_PUBLIC_CHECKSUM" ] && [ "$CURRENT_PUBLIC_CHECKSUM" = "$BACKUP_PUBLIC_CHECKSUM" ]; then
                 log_message "⏭️ Public files unchanged, skipping backup"
                 PUBLIC_BACKUP_NEEDED=false
+                # The set is still complete, but only because this earlier backup
+                # holds the same content. Which one that is has to be recorded
+                # here: the restore used to rediscover it by date, with a
+                # different rule, and could land on a different backup entirely.
+                PUBLIC_BACKUP_LINK_TAG="$LATEST_PUBLIC_BACKUP"
             fi
         fi
     fi
@@ -1674,6 +1733,8 @@ create_public_backup() {
                 [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
 
                 audit_log "backup_public_success" "success" "Public files backup completed" "backup_tag=$BACKUP_TAG"
+                PUBLIC_BACKUP_STATE="captured"
+                PUBLIC_BACKUP_LINK_TAG="$BACKUP_TAG"
                 print_status $GREEN "✅ Public files backed up: $BACKUP_TAG"
 
                 # Capture and upload deployment metadata
@@ -1702,8 +1763,10 @@ create_public_backup() {
         # Restore Drupal state even if backup was skipped
         [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "tome"
 
-        audit_log "backup_public_skipped" "info" "Public files unchanged, backup skipped" "backup_tag=$BACKUP_TAG"
-        print_status $YELLOW "⚠️ Public files unchanged - skipped"
+        audit_log "backup_public_skipped" "info" "Public files unchanged, backup skipped" \
+            "backup_tag=$BACKUP_TAG linked_public_backup=${PUBLIC_BACKUP_LINK_TAG:-none}"
+        PUBLIC_BACKUP_STATE="unchanged"
+        print_status $YELLOW "⚠️ Public files unchanged - skipped (set uses: ${PUBLIC_BACKUP_LINK_TAG:-unknown})"
         return 0
     fi
 }
@@ -2798,7 +2861,7 @@ parse_restore_options() {
                 # Skip this flag, handled elsewhere
                 shift
                 ;;
-            --no-recovery-point|--force-destructive-sync)
+            --no-recovery-point|--force-destructive-sync|--public-from=*|--db-from=*)
                 # Skip these flags, handled elsewhere. They must be listed here or
                 # the catch-all below would treat them as the backup tag.
                 shift
@@ -3211,6 +3274,7 @@ restore_backup() {
         print_status $RED "❌ Error: Backup tag is required"
         print_status $YELLOW "⚠️ Usage: restore <backup_tag> [--only=static,public,db] [--skip-state-management|--ssm]"
         print_status $YELLOW "                             [--no-recovery-point] [--force-destructive-sync] [-y]"
+        print_status $YELLOW "                             [--public-from=<tag>] [--db-from=<tag>]"
         exit 1
     fi
 
@@ -3241,6 +3305,10 @@ restore_backup() {
                 skip_next=true
                 ;;
             --only=*)
+                ;;
+            --public-from=*|--db-from=*)
+                # Naming a component's backup explicitly is how an operator
+                # changes the requested set when it cannot be resolved
                 ;;
             -*)
                 # An unrecognized flag must not be silently ignored or mistaken
@@ -3274,6 +3342,15 @@ restore_backup() {
     # Parse options and get backup tag
     restore_types=$(parse_restore_options "$@" 2>&1 >/dev/null | tail -n1)
     backup_tag=$(parse_restore_options "$@" 2>/dev/null | head -n1)
+
+    local public_from=""
+    local db_from=""
+    for arg in "$@"; do
+        case "$arg" in
+            --public-from=*) public_from="${arg#--public-from=}" ;;
+            --db-from=*) db_from="${arg#--db-from=}" ;;
+        esac
+    done
 
     if [ -z "$backup_tag" ]; then
         print_status $RED "❌ Error: Backup tag is required"
@@ -3326,40 +3403,82 @@ restore_backup() {
 
     # Public files backup analysis
     if [ "$restore_public" = "yes" ]; then
-        public_backup_tag=$(find_corresponding_backup "$backup_tag" "public")
-
-        if [ -n "$public_backup_tag" ]; then
-            if [ "$public_backup_tag" = "$backup_tag" ]; then
-                print_status $GREEN "✅ Public backup found: $public_backup_tag"
-            else
-                print_status $YELLOW "⚠️ Using closest public backup: $public_backup_tag"
+        if [ -n "$public_from" ]; then
+            # The operator named the set explicitly, which is the only way a
+            # component from another backup is combined with this one
+            if ! validate_backup_tag "$public_from"; then
+                exit 1
             fi
+            if ! aws s3 ls "s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_from/" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                print_status $RED "❌ No public files backup named: $public_from"
+                exit 1
+            fi
+            public_backup_tag="$public_from"
+            print_status $YELLOW "⚠️ Public files will come from a different backup, as requested: $public_backup_tag"
         else
-            # Fail closed: silently skipping a requested component reports a
-            # successful restore while leaving public files on their current
-            # generation, mixed with restored static content and database.
-            print_status $RED "❌ Public files backup not found for: $backup_tag"
-            print_status $YELLOW "   Restore only the components that exist, e.g. --only=static,db"
-            exit 1
+            public_backup_tag=$(find_corresponding_backup "$backup_tag" "public")
+
+            if [ -n "$public_backup_tag" ]; then
+                if [ "$public_backup_tag" = "$backup_tag" ]; then
+                    print_status $GREEN "✅ Public backup found: $public_backup_tag"
+                else
+                    # Recorded by the set itself: public files were unchanged at
+                    # backup time, so the set uses this earlier backup's objects.
+                    print_status $GREEN "✅ Public backup recorded by this set: $public_backup_tag"
+                    echo "   (public files were unchanged when the backup was taken)"
+                fi
+            else
+                # Fail closed. Silently skipping a requested component reports a
+                # successful restore while leaving public files on their current
+                # generation; guessing one by date combines this restore with an
+                # unrelated backup event. Neither is this command's decision.
+                print_status $RED "❌ Public files backup not resolved for: $backup_tag"
+                print_status $YELLOW "   This set records no public component, and none is stored under its own tag."
+                print_status $YELLOW "   Either restore what exists (--only=static,db), or name one explicitly:"
+                print_status $YELLOW "     --public-from=<tag>"
+                local candidate=""
+                for candidate in $(suggest_backup_candidates public 5); do
+                    echo "       $candidate"
+                done
+                exit 1
+            fi
         fi
     fi
 
     # Database backup analysis
     if [ "$restore_database" = "yes" ]; then
-        db_backup_tag=$(find_corresponding_backup "$backup_tag" "db")
-
-        if [ -n "$db_backup_tag" ]; then
-            # Convert to expected database tag format for comparison
-            expected_db_tag="${backup_tag}.sql.gz"
-            if [ "$db_backup_tag" = "$expected_db_tag" ]; then
-                print_status $GREEN "✅ Database backup found: $db_backup_tag"
-            else
-                print_status $YELLOW "⚠️ Using closest database backup: $db_backup_tag"
+        if [ -n "$db_from" ]; then
+            if ! validate_backup_tag "$db_from"; then
+                exit 1
             fi
+            if ! aws s3 ls "s3://$BUCKET_NAME/$AUTO_DB_BACKUP_PATH/${db_from}.sql.gz" $S3_EXTRA_PARAMS >/dev/null 2>&1; then
+                print_status $RED "❌ No database backup named: $db_from"
+                exit 1
+            fi
+            db_backup_tag="${db_from}.sql.gz"
+            print_status $YELLOW "⚠️ Database will come from a different backup, as requested: $db_backup_tag"
         else
-            print_status $RED "❌ Database backup not found for: $backup_tag"
-            print_status $YELLOW "   Restore only the components that exist, e.g. --only=static,public"
-            exit 1
+            db_backup_tag=$(find_corresponding_backup "$backup_tag" "db")
+
+            if [ -n "$db_backup_tag" ]; then
+                # Convert to expected database tag format for comparison
+                expected_db_tag="${backup_tag}.sql.gz"
+                if [ "$db_backup_tag" = "$expected_db_tag" ]; then
+                    print_status $GREEN "✅ Database backup found: $db_backup_tag"
+                else
+                    print_status $GREEN "✅ Database backup recorded by this set: $db_backup_tag"
+                fi
+            else
+                print_status $RED "❌ Database backup not resolved for: $backup_tag"
+                print_status $YELLOW "   This set records no database component, and none is stored under its own tag."
+                print_status $YELLOW "   Either restore what exists (--only=static,public), or name one explicitly:"
+                print_status $YELLOW "     --db-from=<tag>"
+                local candidate=""
+                for candidate in $(suggest_backup_candidates db 5); do
+                    echo "       $candidate"
+                done
+                exit 1
+            fi
         fi
     fi
 
