@@ -544,6 +544,13 @@ run_backup_command() {
         fi
     fi
 
+    # The bucket has to be resolved before the lock, which is an object in it.
+    # BUCKET_NAME comes only from setup_s3_vars - it is not in the container
+    # environment and init_backup_system does not set it - so taking the lock
+    # first meant every backup refused with "bucket is not configured",
+    # including the nightly scheduled one.
+    setup_s3_vars >/dev/null 2>&1
+
     # Armed before any state is touched, and covers every backup type below.
     arm_cleanup_traps backup_cleanup
 
@@ -568,7 +575,14 @@ run_backup_command() {
     # Allocating per component allowed a set to come out as static-3/public-1/db-1,
     # which no longer shares a tag. The backup lock above is what makes this
     # allocation safe against another instance.
-    setup_s3_vars >/dev/null 2>&1
+    #
+    # The container tag has to be resolved here. Each component function assigns
+    # it before building its own tag, which is far later than this: with it empty
+    # the set stem came out as "PREFIX-dr--DATE", matching no object in the
+    # bucket, so discovery found nothing and every set was numbered 0 - a
+    # same-day retry then reused 0 and overwrote the previous set, which is the
+    # defect this numbering exists to prevent.
+    CONTAINER_TAG=$(get_container_tag)
     local set_base="${backup_prefix}-${APP_SPACE}-${CONTAINER_TAG}-${backup_timestamp}"
     local set_stem="$set_base"
     local set_legacy_stem=""
