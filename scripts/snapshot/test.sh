@@ -4922,6 +4922,17 @@ DRIVER
         failures=$((failures + 1))
     fi
 
+    # Both sides of the pre-sync comparison must measure the same set. Filtering
+    # one side made the guard blind to shrinkage: a build that had lost half the
+    # site still exceeded the filtered baseline and was published.
+    if sed -n '/^# get a count of current AWS files/,/^GUARD_VERDICT=/p' "$script" |
+        command grep -q 'tome_count_s3_objects "s3://$BUCKET_NAME/web/" "'; then
+        echo "❌ The live count is filtered while the generated count is not"
+        failures=$((failures + 1))
+    else
+        echo "✅ Both sides of the change comparison measure the same set"
+    fi
+
     # --- Verification gates the backup and the success status ---------------
     if command grep -q 'Skipping automatic backups: the sync did not verify' "$script"; then
         echo "✅ An unverified sync is not backed up as a recovery point"

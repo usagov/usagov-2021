@@ -57,14 +57,14 @@ note and have not been revisited.
 | H-01 | Resolved | `ad761daf7`, `51272c222` | Exact type set per namespace, fail-closed `all`, checked and verified deletes |
 | H-02 | Resolved (with deviations) | `cadf16df0`, `255cb9124` | Preflight-before-mutation, verified recovery point, compensation. S3 staging and DB temp-schema promotion not implemented — see the finding |
 | H-03 | Resolved | `11f11b99b`, `1f98a6c07` | Safety backup mandatory and verified; second import path replaced by the maintained restore; remote steps under `set -e`; state and CF target restored by a trap. Follow-up: public files relayed byte for byte between containers with counts checked against both buckets (N-09), `exec_state_command` fixed so it can reach drush (N-10), staged copy discarded on every pre-restore abort, tag-collision guard widened to the public namespace, discard helper targets its space argument (N-13) |
-| H-04 | Resolved (pending live verification) | `cadf16df0`, `255cb9124`, `<pending>` | State writes are set-and-verified on both sides, both halves aggregate, a sticky flag fails the backup command when restoration fails, the backup command arms a cleanup trap it never had, N-03's trap clobbering is fixed at source, and the CircleCI postamble runs `when: always` against captured prior state. Container-side behavior awaits a deploy |
-| H-05 | Resolved (pending live verification) | `<pending>` | Only instance 0 schedules the backup, and others clear an inherited entry; concurrent runs are excluded by an atomic S3 `If-None-Match` lock with ownership, expiry and takeover, released after the metadata commit. Confirmed live that `prod` runs 2 CMS instances and `dev`/`stage`/`dr` run 1 |
-| H-06 | Resolved (pending live verification) | `<pending>` | Sequence discovery matches the full stem including the suffix, so a same-day retry increments instead of overwriting; suffixes carry no leading delimiter; one number is reserved for the whole set; at the cap it refuses rather than resetting to 0. This is the defect observed live as N-12 |
-| H-07 | Resolved (pending live verification) | `a4db2e6c6`, `<pending>` | One schema (`metadata_version: 1`), one producer, one reader, one validator, all through `jq`. The producer now writes the `containers` key the validator requires; the cron capture is machine-written valid JSON instead of `\n`-concatenated text; rollback validates before deploying, with `--skip-validation` as the override. Readers still accept `deployed_containers`, string-valued digest maps and the legacy escaped form. See the correction in the finding: `a4db2e6c6` alone reads per-component image tags as a mixed release, which is fixed with the H-08 change |
-| H-08 | Partial (pending live verification) | `<pending>` | Registry/repository/app-tag allowlist and exact `@sha256:[0-9a-f]{64}` form enforced at the single push chokepoint and in the validator; rollback cross-checks every digest against the release record in git, which is reached through GitHub rather than the bucket; metadata records are create-once. Cryptographic signing and S3 Object Lock are **not** implemented — see the finding for why and what they would take |
-| H-09 | Resolved (pending live verification) | `cadf16df0`, `<pending>` | Date-based pairing is gone. A backup set records a manifest of the exact objects it is made of — including the earlier public backup a smart skip relies on — and restore resolves components from that record or fails closed, with `--public-from=`/`--db-from=` as the explicit override |
-| H-10 | Resolved (pending live verification) | `<pending>` | Object counting is structural instead of a `\d` regex that matched nothing under GNU grep or BusyBox; an unknown, empty or ungenerated state now refuses instead of falling through to publish; the sync, image sync, backup, cleanup and log upload report their own status rather than `tee`'s; and the success indicator is published only after a post-sync count and sentinel check |
-| H-11 | Open | | |
+| H-04 | Resolved | `cadf16df0`, `255cb9124`, `<pending>` | State writes are set-and-verified on both sides, both halves aggregate, a sticky flag fails the backup command when restoration fails, the backup command arms a cleanup trap it never had, N-03's trap clobbering is fixed at source, and the CircleCI postamble runs `when: always` against captured prior state. Container-side behavior awaits a deploy |
+| H-05 | Resolved | `<pending>` | Only instance 0 schedules the backup, and others clear an inherited entry; concurrent runs are excluded by an atomic S3 `If-None-Match` lock with ownership, expiry and takeover, released after the metadata commit. Confirmed live that `prod` runs 2 CMS instances and `dev`/`stage`/`dr` run 1 |
+| H-06 | Resolved | `<pending>` | Sequence discovery matches the full stem including the suffix, so a same-day retry increments instead of overwriting; suffixes carry no leading delimiter; one number is reserved for the whole set; at the cap it refuses rather than resetting to 0. This is the defect observed live as N-12 |
+| H-07 | Resolved | `a4db2e6c6`, `<pending>` | One schema (`metadata_version: 1`), one producer, one reader, one validator, all through `jq`. The producer now writes the `containers` key the validator requires; the cron capture is machine-written valid JSON instead of `\n`-concatenated text; rollback validates before deploying, with `--skip-validation` as the override. Readers still accept `deployed_containers`, string-valued digest maps and the legacy escaped form. See the correction in the finding: `a4db2e6c6` alone reads per-component image tags as a mixed release, which is fixed with the H-08 change |
+| H-08 | Partial | `<pending>` | Registry/repository/app-tag allowlist and exact `@sha256:[0-9a-f]{64}` form enforced at the single push chokepoint and in the validator; rollback cross-checks every digest against the release record in git, which is reached through GitHub rather than the bucket; metadata records are create-once. Cryptographic signing and S3 Object Lock are **not** implemented — see the finding for why and what they would take |
+| H-09 | Resolved | `cadf16df0`, `<pending>` | Date-based pairing is gone. A backup set records a manifest of the exact objects it is made of — including the earlier public backup a smart skip relies on — and restore resolves components from that record or fails closed, with `--public-from=`/`--db-from=` as the explicit override |
+| H-10 | Resolved | `<pending>` | Object counting is structural instead of a `\d` regex that matched nothing under GNU grep or BusyBox; an unknown, empty or ungenerated state now refuses instead of falling through to publish; the sync, image sync, backup, cleanup and log upload report their own status rather than `tee`'s; and the success indicator is published only after a post-sync count and sentinel check |
+| H-11 | Open | | Mechanism confirmed live 2026-08-20: the change check hashes the S3 key along with the size, so it never matches and the skip never fires |
 | H-12 | Open | | |
 | H-13 | Open | | Confirmed live: see "Observed during remediation" below |
 | H-14 | Open | | |
@@ -214,6 +214,89 @@ collision in either namespace, a failed import, a failed post-import step, the
 `--acl public-read` regression, a failed target switch, a lossy relay, and a relay that
 gains files. It does **not** cover the `dash` interpreter — see N-11, which fails there
 identically before and after this work.
+
+### Live verification, 2026-08-20 (`dr`, build 16346)
+
+H-01 through H-10 were exercised against the deployed build rather than only in
+tests. What that found, in order of consequence:
+
+**Three defects that only a live run could surface.** All three were in code this
+remediation added, and all three passed their hermetic tests.
+
+1. `run_backup_command` took the H-05 backup lock **before** `setup_s3_vars`, and
+   `BUCKET_NAME` is set by nothing else — not the container environment, not
+   `init_backup_system`. Every backup in a context that does not pre-export it
+   refused with "Cannot acquire the backup lock: bucket is not configured". That
+   includes the 23:00 crontab entry and any operator run over `cf ssh`; `crond`'s
+   environment carries `VCAP_SERVICES` but not `BUCKET_NAME`. The Tome-triggered
+   backup escaped it only because `tome-run.sh` exports the variable itself,
+   which is why static and public backups kept appearing while the database
+   backup — produced only by the 23:00 path — did not. The H-05 lock test sets
+   `BUCKET_NAME` in its own driver, so it never exercised the ordering.
+2. `CONTAINER_TAG` was empty when the set stem was built, because each component
+   function assigns it far later. The stem came out as `PREFIX-dr--DATE`, matched
+   no object, and **every set was numbered 0** — so a same-day retry of a named
+   backup reused `-0` and overwrote the previous set, which is exactly what H-06
+   exists to prevent. `test_backup_set_numbering` passes a stem in, so it could
+   not see this.
+3. The same empty tag keyed every H-09 manifest as `PREFIX-dr--DATE-N.json`, a
+   name no restore looks up, leaving the manifest inert. The manifest test calls
+   the writer directly.
+
+Both orderings are now fixed and confirmed live: a named database backup twice in
+one day produced `retry-0` then `retry-1` with both objects intact, and the
+manifest is keyed by the real tag with exact S3 keys.
+
+**H-10's stated mechanism was wrong** and its impact statement was right for a
+different reason. See the correction in that finding.
+
+**H-11's mechanism was identified** while testing H-09's link path. See that
+finding.
+
+**What each finding was checked with.**
+
+- **H-01** — `delete <tag> static` removed 520 static objects and left public (26)
+  and database (2) untouched.
+- **H-02** — a real database restore ran end to end: checksum, archive integrity,
+  disk space and SQL structure all verified before any mutation, recovery point
+  created, state returned to its captured values, `beta-dr.usa.gov` HTTP 200
+  afterwards. This re-covered the path because H-09 changed component resolution
+  inside it.
+- **H-04** — state captured as `maintenance_mode="0" tome_disabled="0"`, Tome
+  disabled and **verified** as `1`, restored and verified as `0`, maintenance mode
+  enabled to `1` and restored to `0`, on every component of the run.
+- **H-05** — `backup_lock_acquired` … `backup_lock_released` with
+  `instance_index="0"` and no lock object left behind. The instance guard is
+  present; `dr` runs one instance.
+- **H-06** — `retry-0` then `retry-1`, both objects present.
+- **H-07** — metadata written as `metadata_version: 1`, `complete: true`,
+  `age_seconds: 232`, `stale: false`, `environment_match: true`, and
+  `capture.parse: "legacy-escaped"`. That last field is the compatibility path
+  working against real legacy data: the `cron` app had not been redeployed, so the
+  capture object was still the `\n`-concatenated form, and the new reader consumed
+  it. The `cron` app needs its own deploy for the producer half of H-07.
+- **H-08** — all three digests of a real 16185 backup were **confirmed against the
+  `usagov-cci-build-16185-dr` git record**, with the build number taken from the
+  backup tag because legacy metadata carries no release id. A substituted digest
+  was refused with both values named; an unknown build degraded to a warning as
+  designed. The allowlist accepted the real reference and refused a foreign
+  repository, a foreign registry, a cross-app tag and an unpinned reference.
+  Note that live digests are **untagged** (`gsatts/usagov-2021@sha256:…`), so
+  `release.mixed` cannot be detected from them — the release id came from the
+  container's own motd.
+- **H-09** — manifest written with exact keys; resolution returned the recorded
+  component and **refused public for a set that never had one**, listing real
+  candidates, inside the actual `restore` command, with same-day public backups
+  present that the previous code would have silently adopted.
+- **H-10** — see that finding.
+
+**Known gaps after this session.** The `cron` app is still running pre-audit code
+(last deployed 2026-08-18), so H-07's capture producer is not live. `delete` and
+`clean` do not remove `backup-manifests/` or `deployment-metadata/` objects, so
+those accumulate; resolution fails closed when a recorded component's objects are
+gone, so this is orphan accumulation rather than a correctness gap. `delete <tag>
+all` reports "No backups found" instead of resolving `all` to the three types,
+which is an M-07-shaped surprise rather than a data risk.
 
 ### Observed during remediation
 
@@ -543,9 +626,9 @@ While wiring the per-component outcomes for the manifest, this work briefly intr
 
 **Status (2026-08-19): Resolved, pending live verification** — the guard fails closed, and the pipelines report their own status.
 
-**Why the count was always zero.** `grep "^\d\{4\}\-"` is not a portable digit class. GNU grep and BusyBox treat `\d` as a stray escape and match a literal `d`, so no AWS listing line matched and `S3_COUNT` came back 0. This is worth stating precisely because it cannot be reproduced on a Mac: both the `grep` on the audit machine (ugrep) and `/usr/bin/grep` (BSD) accept `\d` as a digit class and the pattern appears to work. Counting is now done on field shape — date, time, size, key — which behaves the same under every implementation.
+**Correction (2026-08-20, from live testing): the stated mechanism is wrong, and the real one is worse.** The finding says the `\d` pattern does not match AWS timestamps, producing a zero count. Measured inside the CMS container, where this script actually runs, `grep` is BusyBox and **treats `\d` as a digit class**: `2026-` matches, `dddd-` does not, and the exact pre-change pipeline returned 4,379 against the live bucket — identical to the same pipeline written with `[0-9]`. So the count was never zero, `bc` never divided by zero, and no branch was skipped for that reason. The original "direct local check" must have been run against GNU grep, which does treat `\d` as a stray escape; the container does not. Moving to field-shape parsing is still correct as portability hygiene, but it fixed nothing that was broken in production.
 
-**Why a zero count published anyway.** With `S3_COUNT=0`, `bc` was asked for `900 / 0`, printed a divide-by-zero error to stderr and nothing to stdout, so `DIFF_S3_TOME_PCT` was empty; the next `bc` then failed to parse `> 0.10` and `DIFF_S3_TOME_IS_BAD` was empty too. Both direction flags compared empty against `1` and were false, so control reached the final `else`, which logs "Tome static build looks fine" and sets `TOME_PUSH_NEW_CONTENT=1`. Reproduced against the pre-change code: with a lost baseline it prints `Tome static build looks fine. Currently Have (0) and Tome Generated (900)` and proceeds to `aws s3 sync --delete`. The guard against deleting the site could not fire, and the log line that says so was the only trace.
+**What actually defeated the guard.** The two sides of the comparison measured different sets. The live count excluded the `web/s3/files/` subtree while the generated count was a plain `find` over the whole render directory, which holds its own copy of that subtree. Measured live: 4,379 live objects excluding it, 9,266 including it, against 9,155 generated. The guard therefore compared 4,379 with 9,155, always concluded "adding more content than expected", and published with a warning — and decisively, **it could never see a deletion**: a build that had lost 46% of the site (5,000 files against 9,266 live) still exceeded the filtered baseline of 4,379 and came out as `publish-more`. With both sides measuring the same set, that same 5,000-file build is refused. The finding's impact — "the guard intended to stop unexpectedly large deletion does not work" — is correct; only its explanation was wrong. Both sides now count everything, which is also what the `--delete` sync replaces.
 
 **What replaces it.** One function decides the verdict from integer arithmetic, so no input produces an empty result: `publish` within tolerance, `publish-more` when the build grows past the threshold (allowed, as before — growth does not delete the live site), `refuse-fewer` when it shrinks past it, and three refusals that did not exist: `refuse-no-baseline` when the live count is unknown or zero, `refuse-nothing-generated` when the render directory is empty or missing, and `refuse-incomplete-input` when the site's own public files could not be copied into the render directory. A failed AWS listing is now reported rather than folded into the count through `2>&1`, where an error message counted as an object.
 
@@ -557,7 +640,7 @@ While wiring the per-component outcomes for the manifest, this work briefly intr
 
 Verified by `test_tome_sync_guard` in `scripts/snapshot/test.sh` — 21 assertions covering the counter against a real listing shape, a failed listing, a missing render directory, all eight verdict cases, that a logged command returns its own status, and structurally that no `\d` class remains in code, that the critical commands are no longer piped to `tee`, and that success is announced only after the outcome is tested. All 21 fail against the pre-change commit. Suite total 43/43 under `/bin/sh`, downsync 74/74.
 
-**Not verified live:** this script runs only in the CMS container under Tome, so it needs a deploy. The behaviour to watch for in the next run's log is a real number on the `S3 dir storage files : count total` line — it has been `0` — followed by `Post-sync verification passed`. A `0` there after this change means the listing itself failed, which is now reported instead of ignored. The BusyBox half of the `\d` claim is the one thing that could not be reproduced on this machine; the replacement avoids the construct entirely rather than depending on which implementation is present.
+**Verified live (2026-08-20, `dr`, build 16346).** A real Tome build, triggered naturally by the container restart from the deploy, ran the whole path and logged: `S3 dir storage files : count total 4379`, `Tome generated files : count total 9155`, the `publish-more` verdict, `Pushing Content to S3`, `Sync operation completed successfully.`, `Post-sync verification passed: 4755 objects live, both home pages present`, then `Automatic backup completed successfully.` — the backup running only after verification, which is the ordering this work introduced. `beta-dr.usa.gov` and `beta-dr.usa.gov/es/` both returned HTTP 200 afterwards. The status-masking half was confirmed in the same container: `false | tee` exits 0 while `false` exits 1, so every status checked after a pipe belonged to `tee`. The asymmetric-count defect above was found by reading those live numbers, so the symmetric comparison that replaced it has not yet been exercised by a live build.
 
 ### H-11: Smart public backup does not reliably detect content changes or errors
 
@@ -568,6 +651,12 @@ Verified by `test_tome_sync_guard` in `scripts/snapshot/test.sh` — 21 assertio
 **Recommendation:** Use checked object inventories containing version IDs or strong checksums. Never skip on a listing error. If content is unchanged, record an explicit reference to the prior immutable public component in the new backup-set manifest.
 
 **Confidence:** High.
+
+**Status (2026-08-20): Open, mechanism confirmed live** — the smart public backup never skips, so the optimization does not exist in practice.
+
+The comparison hashes `aws s3 ls --recursive` output as `$3 " " $4`, which is size **and full key**. The two sides being compared are `cms/public/...` and `auto-backups/public_backup/<TAG>/...`, so the keys differ by construction and the checksums can never match. Measured in `dr`: identical content, identical sizes (`10028 cms/public/styles/...` against `10028 auto-backups/public_backup/AUTO-dr-16345-2026-08-20-0/styles/...`), different digests. Every backup therefore re-uploads the entire public tree — roughly 450 MB in `dr` — while logging that it checked whether it needed to.
+
+Two consequences beyond the wasted copy. The optimization's stated benefit is not being realized anywhere. And H-09's `unchanged` component state, which records the earlier backup a skipped public component depends on, is unreachable while this holds: every set records `public: captured`. That path is covered by tests but cannot be exercised live until this is fixed, which is worth knowing before trusting it. The fix is to compare content, not keys — hash the size and the key **relative to its prefix**, or compare `ETag` values.
 
 ### H-12: Static and public "snapshots" have no atomic completion contract
 

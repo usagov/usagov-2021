@@ -344,7 +344,14 @@ echo "    $LCF"
 
 # get a count of current AWS files, total and by extension
 echo "S3 dir storage files : count total" | tee -a $TOMELOG
-if ! S3_COUNT=$(tome_count_s3_objects "s3://$BUCKET_NAME/web/" "web/s3/files/"); then
+# Both sides of this comparison have to measure the same set. The live count
+# used to exclude the web/s3/files/ subtree while the generated count included
+# its own copy of it, so the guard compared 4,379 live objects against 9,155
+# generated ones: it always read as "adding more content", and a build that had
+# lost half the site still came out larger than the filtered baseline and was
+# published. Neither side filters now, which is also what the --delete sync
+# actually replaces.
+if ! S3_COUNT=$(tome_count_s3_objects "s3://$BUCKET_NAME/web/"); then
   S3_COUNT=""
   echo "ERROR: could not list s3://$BUCKET_NAME/web/ - the current object count is unknown" | tee -a $TOMELOG
 fi
