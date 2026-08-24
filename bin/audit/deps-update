@@ -1,0 +1,618 @@
+#!/usr/bin/env bash
+#
+# bin/audit/deps-update — interactive, human-supervised dependency updater.
+#
+# Two phases, in this order, always:
+#   1. INTERVIEW — collects current state (via bin/audit/deps-check), shows the
+#      plan, and asks for a y/N decision on every update that is minor-level or
+#      above, and on every pin move. Nothing is touched during the interview.
+#   2. EXECUTE  — after one final confirmation, applies exactly what was
+#      approved. No further questions are asked mid-run.
+#
+# Update levels:
+#   (default)   Patch-level only. Constraint-allowed patch updates are applied
+#               WITHOUT individual confirmation (composer update --patch-only,
+#               plus per-package npm update). Exact-pinned Composer packages
+#               (e.g. Drupal core) are offered their latest patch release
+#               within the pinned minor — each pin move is confirmed.
+#   --minor     Also offer constraint-allowed minor updates, npm pin moves that
+#               are minor jumps, and "try an in-range update" for Composer
+#               packages whose newest release is blocked. Each is confirmed.
+#   --major     Also offer major updates, including raising composer.json /
+#               package.json constraints (^old → ^new). Each is confirmed.
+#
+# Other flags:
+#   --dry-run          Interview + plan, then PRINT the commands instead of
+#                      running them. Safe to run any time.
+#   --composer-only    Skip all npm targets.
+#   --npm-only         Skip Composer.
+#   --raw-in DIR       Reuse a raw-data dir from `deps-check --raw-out DIR`
+#                      instead of collecting fresh data (data must be fresh!).
+#
+# Safety rails:
+#   * Requires a clean git state for every file it may touch; aborts otherwise.
+#   * Never commits or pushes. Review with `git diff`, roll back with
+#     `git checkout -- <files>`.
+#   * On a failed composer/npm step it stops and prints recovery commands.
+#   * Composer >= 2.7 required in the composer container (for --patch-only).
+#
+# After npm updates it rebuilds affected front-end artifacts:
+#   * sources/benefit-finder  -> `npm run build` (regenerates the committed JS
+#     in web/modules/custom/usagov_benefit_finder)
+#   * web/themes/custom/usagov -> `npm run build` (recompiles theme assets)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$ROOT_DIR"
+
+NPM_TARGETS=(
+  "drupal-theme|Drupal theme|web/themes/custom/usagov"
+  "benefit-finder|Benefit Finder|sources/benefit-finder"
+  "analytics-reporter|Analytics Reporter|.docker/src-reporter/analytics-reporter"
+)
+
+CORE_TRIO="drupal/core-recommended drupal/core-composer-scaffold drupal/core-project-message"
+
+# Paths whose git state must be clean before we run (we may modify them).
+GUARDED_PATHS=(
+  composer.json composer.lock
+  web/themes/custom/usagov
+  sources/benefit-finder
+  .docker/src-reporter/analytics-reporter
+  web/modules/custom/usagov_benefit_finder
+)
+
+MODE="patch"      # patch | minor | major
+DRY_RUN=0
+DO_COMPOSER=1
+DO_NPM=1
+RAW_IN=""
+
+usage() { awk 'NR==1 {next} /^#/ {sub(/^# ?/, ""); print; next} {exit}' "${BASH_SOURCE[0]}"; }
+info()  { printf '»» %s\n' "$*" >&2; }
+die()   { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --minor)         MODE="minor" ;;
+    --major)         MODE="major" ;;
+    --dry-run)       DRY_RUN=1 ;;
+    --composer-only) DO_NPM=0 ;;
+    --npm-only)      DO_COMPOSER=0 ;;
+    --raw-in)        RAW_IN="${2:-}"; shift ;;
+    -h|--help)       usage; exit 0 ;;
+    *)               die "unknown option: $1 (see --help)" ;;
+  esac
+  shift
+done
+[ "$DO_COMPOSER" = 1 ] || [ "$DO_NPM" = 1 ] || die "--composer-only and --npm-only are mutually exclusive"
+command -v jq >/dev/null 2>&1 || die "jq is required on the host (brew install jq)"
+
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+PLAN="$TMP/plan"; mkdir -p "$PLAN"
+
+# ---------------------------------------------------------------------------
+# Preconditions
+# ---------------------------------------------------------------------------
+
+if [ "$DRY_RUN" = 0 ]; then
+  docker info >/dev/null 2>&1 || die "Docker must be running"
+  DIRTY="$(git status --porcelain -- "${GUARDED_PATHS[@]}" || true)"
+  if [ -n "$DIRTY" ]; then
+    printf '%s\n' "$DIRTY" >&2
+    die "the files above must be committed or stashed first — this script needs a clean starting point so its changes are reviewable and revertible"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 0: collect current state
+# ---------------------------------------------------------------------------
+
+if [ -n "$RAW_IN" ]; then
+  [ -d "$RAW_IN" ] || die "--raw-in dir not found: $RAW_IN"
+  RAW="$RAW_IN"
+  info "using existing audit data from $RAW_IN (make sure it is fresh)"
+else
+  RAW="$TMP/raw"; mkdir -p "$RAW"
+  info "collecting current dependency state (bin/audit/deps-check)..."
+  "$SCRIPT_DIR/deps-check" --raw-out "$RAW" >"$TMP/audit-report.md"
+fi
+
+# ---------------------------------------------------------------------------
+# jq: plan generation (same version helpers as deps-check)
+# ---------------------------------------------------------------------------
+
+cat >"$TMP/lib.jq" <<'EOF'
+def vparts:
+  tostring | sub("^v"; "") | split("+")[0] | split("-")[0]
+  | split(".") | map(tonumber? // -1);
+def jump($c; $l):
+  ($c | vparts) as $cv
+  | ($l | vparts) as $lv
+  | if ([$cv[], $lv[]] | map(select(. < 0)) | length) > 0 then "other"
+    elif ($cv[0] // 0) != ($lv[0] // 0) then "major"
+    elif ($cv[1] // 0) != ($lv[1] // 0) then "minor"
+    elif ($cv[2] // 0) != ($lv[2] // 0) then "patch"
+    else "other"
+    end;
+def exactpin: test("^v?[0-9]+(\\.[0-9]+)*(-[0-9A-Za-z.-]+)?$");
+EOF
+
+# Plan line format (TSV): kind  name  current  target  jump  constraint
+#   kind: auto    — patch-level, constraint allows; applied without prompting
+#         ask     — constraint allows, but jump is minor/major/other; prompt
+#         pin     — exact pin; target is latest patch in the pinned series
+#         blocked — newer release exists outside the constraint
+cat >"$TMP/plan-composer.jq" <<'EOF'
+(($cj[0].require // {}) + ($cj[0]["require-dev"] // {})) as $req
+| (($pins[0] // []) | map({key: .name, value: .versions}) | from_entries) as $pv
+| (.installed // [])[]
+| select(.name != null)
+| .name as $n
+| (.version // "?") as $cur
+| (.latest // "?") as $lat
+| ($req[$n] // "") as $c
+| (if ($c | exactpin) then "pin"
+   elif (.["latest-status"] // "") == "semver-safe-update" then "allow"
+   else "blocked" end) as $g
+| (if $g == "pin" then
+     (($c | split("."))[0:2] | join(".")) as $minor
+     | ([ ($pv[$n] // [])[]
+          | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))
+          | select(startswith($minor + ".")) ]
+        | sort_by(vparts) | last) as $t
+     | if $t == null or $t == $c then empty
+       else ["pin", $n, $cur, $t, "patch", $c] end
+   elif $g == "allow" then
+     jump($cur; $lat) as $j
+     | [(if $j == "patch" then "auto" else "ask" end), $n, $cur, $lat, $j, $c]
+   else
+     ["blocked", $n, $cur, $lat, (jump($cur; $lat)), $c]
+   end)
+| @tsv
+EOF
+
+cat >"$TMP/plan-npm.jq" <<'EOF'
+if has("__error__") then empty else
+  (($pj[0].dependencies // {}) + ($pj[0].devDependencies // {})
+   + ($pj[0].optionalDependencies // {}) + ($pj[0].peerDependencies // {})) as $req
+  | to_entries[]
+  | .key as $n
+  | (.value | if type == "array" then .[0] else . end)
+  | (.current // "") as $cur
+  | select($cur != "")
+  | (.wanted // "?") as $w
+  | (.latest // "?") as $lat
+  | ($req[$n] // "") as $c
+  | (if ($c | exactpin) then
+       if $lat == $cur then empty
+       else ["pin", $n, $cur, $lat, (jump($cur; $lat)), $c] end
+     elif $w != $cur then
+       jump($cur; $w) as $j
+       | [(if $j == "patch" then "auto" else "ask" end), $n, $cur, $w, $j, $c]
+     elif $lat != $cur then
+       ["blocked", $n, $cur, $lat, (jump($cur; $lat)), $c]
+     else empty end)
+  | @tsv
+end
+EOF
+
+jq -r "$(cat "$TMP/lib.jq" "$TMP/plan-composer.jq")" \
+  --slurpfile cj composer.json \
+  --slurpfile pins "$RAW/composer-pins.json" \
+  "$RAW/composer-outdated.json" | sort -t"$(printf '\t')" -k1,1 -k2,2 >"$PLAN/composer.tsv" \
+  || die "failed to build composer plan"
+
+for t in "${NPM_TARGETS[@]}"; do
+  IFS='|' read -r slug label dir <<<"$t"
+  jq -r "$(cat "$TMP/lib.jq" "$TMP/plan-npm.jq")" \
+    --slurpfile pj "$dir/package.json" \
+    "$RAW/npm-outdated--$slug.json" | sort -t"$(printf '\t')" -k1,1 -k2,2 >"$PLAN/$slug.tsv" \
+    || die "failed to build npm plan for $label"
+done
+
+# ---------------------------------------------------------------------------
+# Phase 1: interview
+# ---------------------------------------------------------------------------
+
+ask() {
+  local ans tag=""
+  [ "$DRY_RUN" = 1 ] && tag=" (dry run — your answer only shapes the printed plan; nothing will be changed)"
+  printf '    %s%s [y/N] ' "$1" "$tag" >&2
+  read -r ans || ans=""
+  case "$ans" in y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
+}
+
+# Should this (kind, jump, area) be prompted at the current MODE?
+offered() {
+  local kind="$1" j="$2" area="$3"
+  case "$kind" in
+    auto) return 1 ;;                    # applied, not prompted
+    pin|ask|blocked)
+      case "$j" in
+        patch) [ "$kind" != "blocked" ] && return 0 || return 1 ;;
+        other) [ "$kind" = "ask" ] && return 0 || return 1 ;;
+        minor) [ "$MODE" != "patch" ] && return 0 || return 1 ;;
+        major)
+          if [ "$MODE" = "major" ]; then return 0
+          elif [ "$MODE" = "minor" ] && [ "$kind" = "blocked" ] && [ "$area" = "composer" ]; then
+            # composer only: a blocked-major package may still have in-range
+            # (minor/patch) updates composer can take without touching the
+            # constraint. npm has no equivalent safe action, so majors there
+            # stay behind --major.
+            return 0
+          else return 1; fi ;;
+        *) return 1 ;;
+      esac ;;
+  esac
+  return 1
+}
+
+# Decision stores (populated during the interview, consumed during execution)
+COMPOSER_REQUIRE_ARGS=()   # composer.json edits: "pkg:1.2.3" or "pkg:^2.0"
+COMPOSER_PIN_PKGS=()       # approved pin moves, updated via their own targeted pass
+COMPOSER_TARGETED=()       # packages for a targeted `composer update pkg -W`
+COMPOSER_AUTO=0            # count of constraint-allowed patch updates
+: >"$PLAN/skipped.txt"
+
+echo >&2
+echo "================  DEPENDENCY UPDATE PLAN  ================" >&2
+echo "Mode: $MODE $([ "$DRY_RUN" = 1 ] && echo '(DRY RUN — nothing will be changed)')" >&2
+
+if [ "$DO_COMPOSER" = 1 ]; then
+  echo >&2
+  echo "--- Composer ---" >&2
+
+  # Patch bucket (applied without individual confirmation)
+  AUTOLIST="$(awk -F'\t' '$1=="auto"{printf "      %s %s -> %s\n",$2,$3,$4}' "$PLAN/composer.tsv")"
+  COMPOSER_AUTO="$(awk -F'\t' '$1=="auto"' "$PLAN/composer.tsv" | wc -l | tr -d ' ')"
+  if [ "$COMPOSER_AUTO" -gt 0 ]; then
+    echo "  Patch updates (applied automatically, plus any transitive patch updates):" >&2
+    printf '%s\n' "$AUTOLIST" >&2
+  else
+    echo "  No constraint-allowed patch updates." >&2
+  fi
+
+  # Drupal core pin trio: one grouped decision
+  CORE_TARGET=""
+  CORE_PIN=""
+  for pkg in $CORE_TRIO; do
+    line="$(awk -F'\t' -v p="$pkg" '$1=="pin" && $2==p' "$PLAN/composer.tsv" | head -1)"
+    [ -n "$line" ] || continue
+    t="$(printf '%s' "$line" | cut -f4)"
+    c="$(printf '%s' "$line" | cut -f6)"
+    if [ -z "$CORE_TARGET" ]; then CORE_TARGET="$t"; CORE_PIN="$c"; fi
+    [ "$t" = "$CORE_TARGET" ] || CORE_TARGET="CONFLICT"
+  done
+  if [ -n "$CORE_TARGET" ] && [ "$CORE_TARGET" != "CONFLICT" ]; then
+    echo >&2
+    echo "  Drupal core is pinned to $CORE_PIN; patch release $CORE_TARGET is available." >&2
+    if ask "Move the Drupal core pin to $CORE_TARGET (all three core packages)?"; then
+      for pkg in $CORE_TRIO; do
+        COMPOSER_REQUIRE_ARGS+=("$pkg:$CORE_TARGET")
+        COMPOSER_PIN_PKGS+=("$pkg")
+      done
+    else
+      echo "composer: Drupal core pin stays at $CORE_PIN ($CORE_TARGET available)" >>"$PLAN/skipped.txt"
+    fi
+  elif [ "$CORE_TARGET" = "CONFLICT" ]; then
+    echo "  WARNING: core packages disagree on available patch versions — resolve manually." >&2
+  fi
+
+  # Everything else that needs a decision.
+  # The plan is read on fd 3 so stdin stays available for the y/N prompts.
+  while IFS="$(printf '\t')" read -r kind name cur target j constraint <&3; do
+    [ -n "$kind" ] || continue
+    [ "$kind" = "auto" ] && continue
+    case " $CORE_TRIO " in *" $name "*) continue ;; esac   # handled above
+    if offered "$kind" "$j" composer; then
+      echo >&2
+      case "$kind" in
+        pin)
+          echo "  $name is pinned to $constraint (installed: $cur); patch release $target is available." >&2
+          if ask "Move the pin to $target?"; then
+            COMPOSER_REQUIRE_ARGS+=("$name:$target")
+            COMPOSER_PIN_PKGS+=("$name")
+          else
+            echo "composer: $name pin stays at $constraint ($target available)" >>"$PLAN/skipped.txt"
+          fi ;;
+        ask)
+          echo "  $name $cur -> $target ($j update; constraint \`$constraint\` allows it)." >&2
+          if ask "Update $name to $target?"; then
+            COMPOSER_TARGETED+=("$name")
+          else
+            echo "composer: $name stays at $cur ($target available)" >>"$PLAN/skipped.txt"
+          fi ;;
+        blocked)
+          if [ "$MODE" = "major" ]; then
+            echo "  $name $cur; latest is $target ($j), outside constraint \`$constraint\`." >&2
+            if ask "Raise the constraint to ^$target and update?"; then
+              COMPOSER_REQUIRE_ARGS+=("$name:^$target")
+              COMPOSER_TARGETED+=("$name")
+            else
+              echo "composer: $name constraint stays \`$constraint\` ($target available)" >>"$PLAN/skipped.txt"
+            fi
+          else
+            echo "  $name $cur; latest $target is outside \`$constraint\`, but in-range updates may exist." >&2
+            if ask "Attempt an in-range update of $name (composer picks the newest \`$constraint\` allows)?"; then
+              COMPOSER_TARGETED+=("$name")
+            else
+              echo "composer: $name not attempted in-range ($target exists beyond \`$constraint\`)" >>"$PLAN/skipped.txt"
+            fi
+          fi ;;
+      esac
+    else
+      echo "composer: $name $cur -> $target ($j, $kind) — rerun with $([ "$j" = "major" ] && echo "--major" || echo "--minor") to consider" >>"$PLAN/skipped.txt"
+    fi
+  done 3<"$PLAN/composer.tsv"
+fi
+
+if [ "$DO_NPM" = 1 ]; then
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    : >"$PLAN/npm-update--$slug.list"    # names for `npm update`
+    : >"$PLAN/npm-exact--$slug.list"     # pkg@ver for `npm install --save-exact`
+    : >"$PLAN/npm-range--$slug.list"     # pkg@^ver for `npm install`
+    echo >&2
+    echo "--- npm: $label ($dir) ---" >&2
+
+    if jq -e 'has("__error__")' "$RAW/npm-outdated--$slug.json" >/dev/null 2>&1; then
+      echo "  WARNING: could not assess $label — data collection failed (see the audit report); skipping this target." >&2
+      echo "$label: NOT ASSESSED — npm outdated failed during collection" >>"$PLAN/skipped.txt"
+      continue
+    fi
+
+    AUTOLIST="$(awk -F'\t' '$1=="auto"{printf "      %s %s -> %s\n",$2,$3,$4}' "$PLAN/$slug.tsv")"
+    NAUTO="$(awk -F'\t' '$1=="auto"' "$PLAN/$slug.tsv" | wc -l | tr -d ' ')"
+    if [ "$NAUTO" -gt 0 ]; then
+      echo "  Patch updates (applied automatically):" >&2
+      printf '%s\n' "$AUTOLIST" >&2
+      awk -F'\t' '$1=="auto"{print $2}' "$PLAN/$slug.tsv" >>"$PLAN/npm-update--$slug.list"
+    else
+      echo "  No range-allowed patch updates." >&2
+    fi
+
+    while IFS="$(printf '\t')" read -r kind name cur target j constraint <&3; do
+      [ -n "$kind" ] || continue
+      [ "$kind" = "auto" ] && continue
+      if offered "$kind" "$j" npm; then
+        echo >&2
+        case "$kind" in
+          pin)
+            echo "  $name is pinned to $constraint; latest is $target ($j jump)." >&2
+            if ask "Move the pin to $target (stays exact)?"; then
+              echo "$name@$target" >>"$PLAN/npm-exact--$slug.list"
+            else
+              echo "$label: $name pin stays at $constraint ($target available)" >>"$PLAN/skipped.txt"
+            fi ;;
+          ask)
+            echo "  $name $cur -> $target ($j update; range \`$constraint\` allows it)." >&2
+            if ask "Update $name to $target?"; then
+              echo "$name" >>"$PLAN/npm-update--$slug.list"
+            else
+              echo "$label: $name stays at $cur ($target available)" >>"$PLAN/skipped.txt"
+            fi ;;
+          blocked)
+            echo "  $name $cur; latest $target ($j) is outside range \`$constraint\`." >&2
+            if ask "Raise the range to ^$target and update?"; then
+              echo "$name@^$target" >>"$PLAN/npm-range--$slug.list"
+            else
+              echo "$label: $name range stays \`$constraint\` ($target available)" >>"$PLAN/skipped.txt"
+            fi ;;
+        esac
+      else
+        echo "$label: $name $cur -> $target ($j, $kind) — rerun with $([ "$j" = "major" ] && echo "--major" || echo "--minor") to consider" >>"$PLAN/skipped.txt"
+      fi
+    done 3<"$PLAN/$slug.tsv"
+  done
+fi
+
+# ---------------------------------------------------------------------------
+# Final confirmation
+# ---------------------------------------------------------------------------
+
+echo >&2
+echo "================  EXECUTION PLAN  ================" >&2
+if [ "$DO_COMPOSER" = 1 ]; then
+  echo "Composer:" >&2
+  [ "${#COMPOSER_REQUIRE_ARGS[@]}" -gt 0 ] && echo "  * constraint edits: ${COMPOSER_REQUIRE_ARGS[*]}" >&2
+  [ "${#COMPOSER_PIN_PKGS[@]}" -gt 0 ] && echo "  * pin updates (targeted; transitive deps may move as the pinned release requires): ${COMPOSER_PIN_PKGS[*]}" >&2
+  [ "$COMPOSER_AUTO" -gt 0 ] && echo "  * patch-level pass over the whole lock file (composer update --patch-only)" >&2
+  [ "${#COMPOSER_TARGETED[@]}" -gt 0 ] && echo "  * targeted update: ${COMPOSER_TARGETED[*]}" >&2
+  if [ "$COMPOSER_AUTO" -eq 0 ] && [ "${#COMPOSER_REQUIRE_ARGS[@]}" -eq 0 ] && [ "${#COMPOSER_TARGETED[@]}" -eq 0 ]; then
+    echo "  * nothing to do" >&2
+  fi
+fi
+if [ "$DO_NPM" = 1 ]; then
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    echo "npm — $label:" >&2
+    if [ -s "$PLAN/npm-update--$slug.list" ]; then
+      echo "  * npm update: $(tr '\n' ' ' <"$PLAN/npm-update--$slug.list")" >&2
+    fi
+    if [ -s "$PLAN/npm-exact--$slug.list" ]; then
+      echo "  * pin moves (npm install --save-exact): $(tr '\n' ' ' <"$PLAN/npm-exact--$slug.list")" >&2
+    fi
+    if [ -s "$PLAN/npm-range--$slug.list" ]; then
+      echo "  * range bumps (npm install): $(tr '\n' ' ' <"$PLAN/npm-range--$slug.list")" >&2
+    fi
+    if [ ! -s "$PLAN/npm-update--$slug.list" ] && [ ! -s "$PLAN/npm-exact--$slug.list" ] && [ ! -s "$PLAN/npm-range--$slug.list" ]; then
+      echo "  * nothing to do" >&2
+    fi
+  done
+fi
+if [ -s "$PLAN/skipped.txt" ]; then
+  echo >&2
+  echo "Not being updated this run:" >&2
+  sed 's/^/  - /' "$PLAN/skipped.txt" >&2
+fi
+echo >&2
+
+if [ "$DRY_RUN" = 1 ]; then
+  info "dry run — printing commands instead of executing"
+else
+  ask "Proceed with the plan above?" || { info "aborted — nothing was changed"; exit 0; }
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 2: execute
+# ---------------------------------------------------------------------------
+
+composer_run() {
+  docker compose run --rm --no-deps -T --workdir /var/www composer composer "$@"
+}
+npm_run() {
+  local dir="$1"; shift
+  docker compose run --rm --no-deps -T --workdir "/var/www/$dir" node npm "$@"
+}
+
+runx() {
+  info "\$ $*"
+  [ "$DRY_RUN" = 1 ] && return 0
+  "$@"
+}
+
+composer_recovery() {
+  echo >&2
+  echo "COMPOSER STEP FAILED. The working tree may be mid-update. To roll back:" >&2
+  echo "    git checkout -- composer.json composer.lock && bin/composer install" >&2
+  echo "A patch failing to re-apply (cweagans/composer-patches) is the most common" >&2
+  echo "cause — the composer output above names the package and patch." >&2
+  exit 1
+}
+
+CHANGED_DIRS=""
+
+if [ "$DO_COMPOSER" = 1 ]; then
+  cp composer.lock "$TMP/composer.lock.before"
+  if [ "${#COMPOSER_REQUIRE_ARGS[@]}" -gt 0 ]; then
+    runx composer_run require --no-update --no-interaction \
+      ${COMPOSER_REQUIRE_ARGS[@]+"${COMPOSER_REQUIRE_ARGS[@]}"} || composer_recovery
+  fi
+  # Pins move via their own targeted update rather than the --patch-only pass:
+  # a pinned release (e.g. Drupal core) may legitimately require minor-level
+  # transitive bumps that the patch-only solver would refuse. The pin itself
+  # is exact, so this cannot over-update the pinned package.
+  if [ "${#COMPOSER_PIN_PKGS[@]}" -gt 0 ]; then
+    runx composer_run update ${COMPOSER_PIN_PKGS[@]+"${COMPOSER_PIN_PKGS[@]}"} \
+      --with-all-dependencies --no-interaction --ignore-platform-reqs \
+      || composer_recovery
+  fi
+  if [ "$COMPOSER_AUTO" -gt 0 ]; then
+    runx composer_run update --patch-only --no-interaction --ignore-platform-reqs \
+      || composer_recovery
+  fi
+  if [ "${#COMPOSER_TARGETED[@]}" -gt 0 ]; then
+    runx composer_run update ${COMPOSER_TARGETED[@]+"${COMPOSER_TARGETED[@]}"} \
+      --with-all-dependencies --no-interaction --ignore-platform-reqs \
+      || composer_recovery
+  fi
+fi
+
+if [ "$DO_NPM" = 1 ]; then
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    did_anything=0
+    [ -f "$dir/package-lock.json" ] && cp "$dir/package-lock.json" "$TMP/$slug.lock.before"
+
+    npm_fail() {
+      echo >&2
+      echo "NPM STEP FAILED in $dir. To roll back this directory:" >&2
+      echo "    git checkout -- $dir/package.json $dir/package-lock.json" >&2
+      exit 1
+    }
+
+    if [ -s "$PLAN/npm-update--$slug.list" ]; then
+      # shellcheck disable=SC2046
+      runx npm_run "$dir" update $(tr '\n' ' ' <"$PLAN/npm-update--$slug.list") || npm_fail
+      did_anything=1
+    fi
+    if [ -s "$PLAN/npm-exact--$slug.list" ]; then
+      # shellcheck disable=SC2046
+      runx npm_run "$dir" install --save-exact $(tr '\n' ' ' <"$PLAN/npm-exact--$slug.list") || npm_fail
+      did_anything=1
+    fi
+    if [ -s "$PLAN/npm-range--$slug.list" ]; then
+      # shellcheck disable=SC2046
+      runx npm_run "$dir" install $(tr '\n' ' ' <"$PLAN/npm-range--$slug.list") || npm_fail
+      did_anything=1
+    fi
+    [ "$did_anything" = 1 ] && CHANGED_DIRS="$CHANGED_DIRS $slug"
+  done
+
+  # Rebuild committed/derived front-end artifacts for what changed.
+  case "$CHANGED_DIRS" in *benefit-finder*)
+    info "rebuilding Benefit Finder (regenerates JS in web/modules/custom/usagov_benefit_finder)"
+    runx npm_run sources/benefit-finder run build \
+      || die "Benefit Finder build failed — fix before committing (module JS may be stale)"
+  ;; esac
+  case "$CHANGED_DIRS" in *drupal-theme*)
+    info "rebuilding Drupal theme assets"
+    runx npm_run web/themes/custom/usagov run build \
+      || die "theme build failed — fix before committing"
+  ;; esac
+fi
+
+# ---------------------------------------------------------------------------
+# Summary
+# ---------------------------------------------------------------------------
+
+if [ "$DRY_RUN" = 1 ]; then
+  info "dry run complete — nothing was changed"
+  exit 0
+fi
+
+echo
+echo "================  RESULT  ================"
+
+if [ "$DO_COMPOSER" = 1 ] && [ -f "$TMP/composer.lock.before" ]; then
+  echo
+  echo "composer.lock changes:"
+  LOCKDIFF="$(jq -r --slurpfile old "$TMP/composer.lock.before" '
+    def m: ((.packages // []) + (.["packages-dev"] // [])) | map({key: .name, value: .version}) | from_entries;
+    ($old[0] | m) as $o | m as $n
+    | ([($o | keys[]), ($n | keys[])] | unique)[]
+    | select(($o[.] // "∅") != ($n[.] // "∅"))
+    | "  \(.): \($o[.] // "added") -> \($n[.] // "removed")"
+  ' composer.lock)"
+  if [ -n "$LOCKDIFF" ]; then printf '%s\n' "$LOCKDIFF"; else echo "  (none)"; fi
+fi
+
+if [ "$DO_NPM" = 1 ]; then
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    [ -f "$TMP/$slug.lock.before" ] && [ -f "$dir/package-lock.json" ] || continue
+    case "$CHANGED_DIRS" in *"$slug"*) : ;; *) continue ;; esac
+    echo
+    echo "$label package-lock changes (top-level):"
+    LOCKDIFF="$(jq -r --slurpfile old "$TMP/$slug.lock.before" '
+      def m: (.packages // {}) | to_entries
+        | map(select(.key | test("^node_modules/(@[^/]+/)?[^/]+$")))
+        | map({key: (.key | sub("^node_modules/"; "")), value: (.value.version // "?")})
+        | from_entries;
+      ($old[0] | m) as $o | m as $n
+      | ([($o | keys[]), ($n | keys[])] | unique)[]
+      | select(($o[.] // "∅") != ($n[.] // "∅"))
+      | "  \(.): \($o[.] // "added") -> \($n[.] // "removed")"
+    ' "$dir/package-lock.json")"
+    if [ -n "$LOCKDIFF" ]; then printf '%s\n' "$LOCKDIFF"; else echo "  (none)"; fi
+  done
+fi
+
+echo
+git status --short -- "${GUARDED_PATHS[@]}" || true
+echo
+echo "Nothing has been committed. Suggested next steps:"
+echo "  1. Review:            git diff composer.json && git diff --stat"
+echo "  2. Update database:   bin/drush updb -y && bin/drush cr"
+echo "  3. Sanity checks:     bin/composer phpstan   /   bin/composer php-lint"
+echo "  4. Test locally:      cypress suites in automated_tests/, benefit-finder vitest"
+echo "  5. Commit in logical chunks (composer vs each npm dir vs rebuilt assets)."
+if [ -s "$PLAN/skipped.txt" ]; then
+  echo
+  echo "Reminder — skipped this run:"
+  sed 's/^/  - /' "$PLAN/skipped.txt"
+fi
