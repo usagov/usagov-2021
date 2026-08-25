@@ -1331,16 +1331,15 @@ EOF
 echo
 echo "================  REMAINING HIGH/CRITICAL VULNERABILITIES  ================"
 echo '(includes Drupal severities "Moderately critical" and up; re-audited just now)'
-REMED=0
+: >"$TMP/remediation.txt"
 if [ "$DO_COMPOSER" = 1 ]; then
   info "re-auditing composer..."
   composer_run audit --format=json --no-interaction >"$TMP/post-ca.json" 2>/dev/null || true
   jq -e . "$TMP/post-ca.json" >/dev/null 2>&1 || echo '{}' >"$TMP/post-ca.json"
-  T="$(jq -r "$(cat "$TMP/tickets-composer.jq")" \
+  jq -r "$(cat "$TMP/tickets-composer.jq")" \
         --rawfile plan "$PLAN/composer.tsv" \
         --slurpfile lock composer.lock \
-        "$TMP/post-ca.json" 2>/dev/null || true)"
-  if [ -n "$T" ]; then echo; printf '%s\n' "$T"; REMED=1; fi
+        "$TMP/post-ca.json" >>"$TMP/remediation.txt" 2>/dev/null || true
 fi
 if [ "$DO_NPM" = 1 ]; then
   for t in "${NPM_TARGETS[@]}"; do
@@ -1348,13 +1347,19 @@ if [ "$DO_NPM" = 1 ]; then
     info "re-auditing $label..."
     npm_run "$dir" audit --json >"$TMP/post-na-$slug.json" 2>/dev/null || true
     jq -e . "$TMP/post-na-$slug.json" >/dev/null 2>&1 || echo '{}' >"$TMP/post-na-$slug.json"
-    T="$(jq -r "$(cat "$TMP/tickets-npm.jq")" \
+    jq -r "$(cat "$TMP/tickets-npm.jq")" \
           --arg label "$label" --arg dir "$dir" \
-          "$TMP/post-na-$slug.json" 2>/dev/null || true)"
-    if [ -n "$T" ]; then echo; printf '%s\n' "$T"; REMED=1; fi
+          "$TMP/post-na-$slug.json" >>"$TMP/remediation.txt" 2>/dev/null || true
   done
 fi
-if [ "$REMED" = 0 ]; then
+TICKETS=0
+ACTIONS=0
+if [ -s "$TMP/remediation.txt" ]; then
+  echo
+  cat "$TMP/remediation.txt"
+  TICKETS="$(grep -c '^--- TICKET' "$TMP/remediation.txt" || true)"
+  ACTIONS="$(grep -c '^ACTION (no ticket needed)' "$TMP/remediation.txt" || true)"
+else
   echo
   echo "None — no high/critical vulnerabilities remain in these dependencies."
   echo "(Lower-severity items may exist; see bin/audit/deps-check.)"
@@ -1362,8 +1367,16 @@ fi
 
 echo
 echo "Nothing has been committed. Suggested next steps:"
-echo "  1. Review:            git diff composer.json && git diff --stat"
-echo "  2. Update database:   bin/drush updb -y && bin/drush cr"
-echo "  3. Sanity checks:     bin/composer phpstan   /   bin/composer php-lint"
-echo "  4. Test locally:      cypress suites in automated_tests/, benefit-finder vitest"
-echo "  5. Commit in logical chunks (composer vs each npm dir vs rebuilt assets)."
+STEP=0
+step() { STEP=$((STEP+1)); printf '  %d. %s\n' "$STEP" "$1"; }
+step "Review:            git diff composer.json && git diff --stat"
+step "Update database:   bin/drush updb -y && bin/drush cr"
+step "Sanity checks:     bin/composer phpstan   /   bin/composer php-lint"
+step "Test locally:      cypress suites in automated_tests/, benefit-finder vitest"
+step "Commit in logical chunks (composer vs each npm dir vs rebuilt assets)."
+if [ "${ACTIONS:-0}" -gt 0 ]; then
+  step "Act on the $ACTIONS ACTION item(s) above — each names the command that fixes it (no ticket needed)."
+fi
+if [ "${TICKETS:-0}" -gt 0 ]; then
+  step "File the $TICKETS ticket(s) above: copy each Title/Description block into a new ticket so the remaining vulnerabilities stay tracked. Check for an existing ticket first — these recur each week until the update lands."
+fi
