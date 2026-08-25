@@ -7,33 +7,62 @@
 #      plan, and asks for a y/N decision on every update that is minor-level or
 #      above, and on every pin move. Nothing is touched during the interview.
 #   2. EXECUTE  — after one final confirmation, applies exactly what was
-#      approved. No further questions are asked mid-run.
+#      approved. No further questions are asked unless something goes wrong —
+#      failures become plain-language prompts with options (see below), never
+#      silent walls of composer/npm output.
 #
 # Update levels:
 #   (default)   Patch-level only. Constraint-allowed patch updates are applied
 #               WITHOUT individual confirmation (composer update --patch-only,
-#               plus per-package npm update). Exact-pinned Composer packages
-#               (e.g. Drupal core) are offered their latest patch release
-#               within the pinned minor — each pin move is confirmed.
+#               per-package npm update, plus `npm audit fix` for in-range
+#               security fixes — reaches transitive deps the per-package pass
+#               cannot). Exact-pinned Composer packages (e.g. Drupal core) are
+#               offered their latest patch release within the pinned minor —
+#               each pin move is confirmed.
 #   --minor     Also offer constraint-allowed minor updates, npm pin moves that
 #               are minor jumps, and "try an in-range update" for Composer
 #               packages whose newest release is blocked. Each is confirmed.
 #   --major     Also offer major updates, including raising composer.json /
 #               package.json constraints (^old → ^new). Each is confirmed.
 #
+# Failure handling (execution phase):
+#   * PRE-FLIGHT: before changing anything, the approved plan is test-solved
+#     with composer/npm --dry-run. Resolution problems surface as prompts
+#     BEFORE any file is modified.
+#   * Failures are classified (security-advisory blocking, patch that will not
+#     re-apply, resolver conflict, npm peer-dependency conflict, network) and
+#     each offers options: fix-and-retry, hold the offending package back and
+#     retry, skip the directory, or abort.
+#   * Aborting offers an automatic rollback of everything this run changed.
+#   * Anything held back or skipped lands on a needs-attention list in the
+#     final summary.
+#   * The final summary re-audits and, for each remaining high/critical
+#     vulnerability (Drupal scale: "Moderately critical" and up), prints either
+#     the command that fixes it (e.g. a --minor run) or ready-to-file ticket
+#     text with the advisory details and remediation steps.
+#
 # Other flags:
 #   --dry-run          Interview + plan, then PRINT the commands instead of
-#                      running them. Safe to run any time.
+#                      running them. Skips pre-flight (no docker needed with
+#                      --raw-in). Safe to run any time.
+#   --preflight-only   Interview + pre-flight resolution check, then exit
+#                      without changing anything. Needs docker; tolerates a
+#                      dirty tree (it only reads).
 #   --composer-only    Skip all npm targets.
 #   --npm-only         Skip Composer.
 #   --raw-in DIR       Reuse a raw-data dir from `deps-check --raw-out DIR`
 #                      instead of collecting fresh data (data must be fresh!).
+#   --classify FILE    Maintenance helper: print which failure class the given
+#                      command output would be classified as, then exit.
 #
 # Safety rails:
-#   * Requires a clean git state for every file it may touch; aborts otherwise.
-#   * Never commits or pushes. Review with `git diff`, roll back with
-#     `git checkout -- <files>`.
-#   * On a failed composer/npm step it stops and prints recovery commands.
+#   * Rollback is snapshot-based: composer.json/composer.lock and every npm
+#     directory (plus the benefit-finder module) are backed up at run start,
+#     so uncommitted work survives a rollback intact. Git is not used for
+#     rollback. If anything this run may touch has uncommitted changes it
+#     warns and asks before continuing — the only cost of running dirty is
+#     that the post-run `git diff` mixes your changes with the run's.
+#   * Never commits or pushes. Review with `git diff`.
 #   * Composer >= 2.7 required in the composer container (for --patch-only).
 #
 # After npm updates it rebuilds affected front-end artifacts:
@@ -54,8 +83,9 @@ NPM_TARGETS=(
 )
 
 CORE_TRIO="drupal/core-recommended drupal/core-composer-scaffold drupal/core-project-message"
+BF_MODULE_DIR="web/modules/custom/usagov_benefit_finder"
 
-# Paths whose git state must be clean before we run (we may modify them).
+# Paths this run may modify (dirty-check warning + final git-status display).
 GUARDED_PATHS=(
   composer.json composer.lock
   web/themes/custom/usagov
@@ -66,9 +96,11 @@ GUARDED_PATHS=(
 
 MODE="patch"      # patch | minor | major
 DRY_RUN=0
+PREFLIGHT_ONLY=0
 DO_COMPOSER=1
 DO_NPM=1
 RAW_IN=""
+CLASSIFY_FILE=""
 
 usage() { awk 'NR==1 {next} /^#/ {sub(/^# ?/, ""); print; next} {exit}' "${BASH_SOURCE[0]}"; }
 info()  { printf '»» %s\n' "$*" >&2; }
@@ -76,23 +108,51 @@ die()   { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --minor)         MODE="minor" ;;
-    --major)         MODE="major" ;;
-    --dry-run)       DRY_RUN=1 ;;
-    --composer-only) DO_NPM=0 ;;
-    --npm-only)      DO_COMPOSER=0 ;;
-    --raw-in)        RAW_IN="${2:-}"; shift ;;
-    -h|--help)       usage; exit 0 ;;
-    *)               die "unknown option: $1 (see --help)" ;;
+    --minor)          MODE="minor" ;;
+    --major)          MODE="major" ;;
+    --dry-run)        DRY_RUN=1 ;;
+    --preflight-only) PREFLIGHT_ONLY=1 ;;
+    --composer-only)  DO_NPM=0 ;;
+    --npm-only)       DO_COMPOSER=0 ;;
+    --raw-in)         RAW_IN="${2:-}"; shift ;;
+    --classify)       CLASSIFY_FILE="${2:-}"; shift ;;
+    -h|--help)        usage; exit 0 ;;
+    *)                die "unknown option: $1 (see --help)" ;;
   esac
   shift
 done
+
+# ---------------------------------------------------------------------------
+# Failure classification (also exposed via --classify for maintenance)
+# ---------------------------------------------------------------------------
+
+LAST_OUT=""   # set to a file holding the last failed command's output
+
+classify_failure() {
+  if grep -q "affected by security advisories" "$LAST_OUT"; then echo advisory
+  elif grep -qi "Could not apply patch\|Cannot apply patch\|patch.*failed to apply" "$LAST_OUT"; then echo patch
+  elif grep -q "could not be resolved to an installable set" "$LAST_OUT"; then echo conflict
+  elif grep -q "ERESOLVE" "$LAST_OUT"; then echo eresolve
+  elif grep -qi "Could not resolve host\|getaddrinfo\|Connection refused\|Connection timed out\|network is unreachable\|ETIMEDOUT\|ENOTFOUND\|EAI_AGAIN" "$LAST_OUT"; then echo network
+  else echo unknown; fi
+}
+
+if [ -n "$CLASSIFY_FILE" ]; then
+  [ -f "$CLASSIFY_FILE" ] || die "--classify file not found: $CLASSIFY_FILE"
+  LAST_OUT="$CLASSIFY_FILE"
+  classify_failure
+  exit 0
+fi
+
 [ "$DO_COMPOSER" = 1 ] || [ "$DO_NPM" = 1 ] || die "--composer-only and --npm-only are mutually exclusive"
+[ "$DRY_RUN" = 1 ] && [ "$PREFLIGHT_ONLY" = 1 ] && die "--dry-run and --preflight-only are mutually exclusive"
 command -v jq >/dev/null 2>&1 || die "jq is required on the host (brew install jq)"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 PLAN="$TMP/plan"; mkdir -p "$PLAN"
+LAST_OUT="$TMP/last-cmd.out"
+: >"$LAST_OUT"
 
 # ---------------------------------------------------------------------------
 # Preconditions
@@ -100,10 +160,19 @@ PLAN="$TMP/plan"; mkdir -p "$PLAN"
 
 if [ "$DRY_RUN" = 0 ]; then
   docker info >/dev/null 2>&1 || die "Docker must be running"
+fi
+if [ "$DRY_RUN" = 0 ] && [ "$PREFLIGHT_ONLY" = 0 ]; then
   DIRTY="$(git status --porcelain -- "${GUARDED_PATHS[@]}" || true)"
   if [ -n "$DIRTY" ]; then
     printf '%s\n' "$DIRTY" >&2
-    die "the files above must be committed or stashed first — this script needs a clean starting point so its changes are reviewable and revertible"
+    echo "  NOTE: the files above have uncommitted changes. Continuing is safe —" >&2
+    echo "  rollback restores from snapshots taken at run start, so uncommitted" >&2
+    echo "  work survives — but the post-run 'git diff' will mix your changes with" >&2
+    echo "  this run's. Committing first keeps each run's changes reviewable on" >&2
+    echo "  their own." >&2
+    printf '  Continue anyway? [y/N] ' >&2
+    read -r CANS || CANS=""
+    case "$CANS" in y|Y|yes|YES) : ;; *) die "aborted — commit or stash first, or rerun and answer y" ;; esac
   fi
 fi
 
@@ -168,7 +237,12 @@ cat >"$TMP/plan-composer.jq" <<'EOF'
        else ["pin", $n, $cur, $t, "patch", $c] end
    elif $g == "allow" then
      jump($cur; $lat) as $j
-     | [(if $j == "patch" then "auto" else "ask" end), $n, $cur, $lat, $j, $c]
+     # composer's --patch-only treats a prerelease-only difference (same
+     # numeric version) as patch-level and takes it in the bulk pass, so
+     # prompting for it would promise a veto we cannot honor.
+     | ((($cur | vparts) == ($lat | vparts)) and (($cur | vparts) | length > 0)
+        and (($cur | vparts) | all(. >= 0))) as $preonly
+     | [(if $j == "patch" or $preonly then "auto" else "ask" end), $n, $cur, $lat, $j, $c]
    else
      ["blocked", $n, $cur, $lat, (jump($cur; $lat)), $c]
    end)
@@ -226,6 +300,25 @@ ask() {
   case "$ans" in y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
 }
 
+# Numbered-menu prompt; sets CHOICE (1..n). On EOF picks the LAST option,
+# which by convention is always the safe abort/skip choice.
+CHOICE=""
+choose() {
+  local prompt="$1"; shift
+  local n=$# i opt
+  while :; do
+    i=1
+    for opt in "$@"; do printf '      %d) %s\n' "$i" "$opt" >&2; i=$((i+1)); done
+    printf '    %s [1-%d]: ' "$prompt" "$n" >&2
+    read -r CHOICE || { CHOICE="$n"; echo >&2; }
+    case "$CHOICE" in
+      ''|*[!0-9]*) ;;
+      *) [ "$CHOICE" -ge 1 ] && [ "$CHOICE" -le "$n" ] && return 0 ;;
+    esac
+    echo "    Please enter a number between 1 and $n." >&2
+  done
+}
+
 # Should this (kind, jump, area) be prompted at the current MODE?
 offered() {
   local kind="$1" j="$2" area="$3"
@@ -256,11 +349,14 @@ COMPOSER_REQUIRE_ARGS=()   # composer.json edits: "pkg:1.2.3" or "pkg:^2.0"
 COMPOSER_PIN_PKGS=()       # approved pin moves, updated via their own targeted pass
 COMPOSER_TARGETED=()       # packages for a targeted `composer update pkg -W`
 COMPOSER_AUTO=0            # count of constraint-allowed patch updates
-: >"$PLAN/skipped.txt"
+: >"$PLAN/skipped.txt"     # declined / not offered at this level
+: >"$PLAN/attention.txt"   # held back or skipped due to failures — needs action
+
+note_attention() { echo "$*" >>"$PLAN/attention.txt"; }
 
 echo >&2
 echo "================  DEPENDENCY UPDATE PLAN  ================" >&2
-echo "Mode: $MODE $([ "$DRY_RUN" = 1 ] && echo '(DRY RUN — nothing will be changed)')" >&2
+echo "Mode: $MODE $([ "$DRY_RUN" = 1 ] && echo '(DRY RUN — nothing will be changed)')$([ "$PREFLIGHT_ONLY" = 1 ] && echo '(PRE-FLIGHT ONLY — nothing will be changed)')" >&2
 
 if [ "$DO_COMPOSER" = 1 ]; then
   echo >&2
@@ -375,6 +471,12 @@ if [ "$DO_NPM" = 1 ]; then
       echo "  No range-allowed patch updates." >&2
     fi
 
+    NFIX="$(jq '[.vulnerabilities[]? | select(.fixAvailable == true)] | length' "$RAW/npm-audit--$slug.json" 2>/dev/null || echo 0)"
+    if [ "${NFIX:-0}" -gt 0 ] 2>/dev/null; then
+      echo "  Security fixes: npm audit fix will apply in-range fixes for $NFIX vulnerable package(s) (patch-level policy — applied automatically)." >&2
+      touch "$PLAN/npm-audit-fix--$slug"
+    fi
+
     while IFS="$(printf '\t')" read -r kind name cur target j constraint <&3; do
       [ -n "$kind" ] || continue
       [ "$kind" = "auto" ] && continue
@@ -410,6 +512,14 @@ if [ "$DO_NPM" = 1 ]; then
   done
 fi
 
+# Mutable execution lists (failure handlers may drop entries from these)
+awk -F'\t' '$1=="auto"{print $2}' "$PLAN/composer.tsv" >"$PLAN/composer-auto.list"
+: >"$PLAN/composer-targeted.list"
+if [ "${#COMPOSER_TARGETED[@]}" -gt 0 ]; then
+  printf '%s\n' ${COMPOSER_TARGETED[@]+"${COMPOSER_TARGETED[@]}"} >"$PLAN/composer-targeted.list"
+fi
+: >"$PLAN/composer-holdback.list"
+
 # ---------------------------------------------------------------------------
 # Final confirmation
 # ---------------------------------------------------------------------------
@@ -439,7 +549,11 @@ if [ "$DO_NPM" = 1 ]; then
     if [ -s "$PLAN/npm-range--$slug.list" ]; then
       echo "  * range bumps (npm install): $(tr '\n' ' ' <"$PLAN/npm-range--$slug.list")" >&2
     fi
-    if [ ! -s "$PLAN/npm-update--$slug.list" ] && [ ! -s "$PLAN/npm-exact--$slug.list" ] && [ ! -s "$PLAN/npm-range--$slug.list" ]; then
+    if [ -f "$PLAN/npm-audit-fix--$slug" ]; then
+      echo "  * npm audit fix (in-range security fixes, transitive deps included)" >&2
+    fi
+    if [ ! -s "$PLAN/npm-update--$slug.list" ] && [ ! -s "$PLAN/npm-exact--$slug.list" ] \
+       && [ ! -s "$PLAN/npm-range--$slug.list" ] && [ ! -f "$PLAN/npm-audit-fix--$slug" ]; then
       echo "  * nothing to do" >&2
     fi
   done
@@ -453,12 +567,14 @@ echo >&2
 
 if [ "$DRY_RUN" = 1 ]; then
   info "dry run — printing commands instead of executing"
+elif [ "$PREFLIGHT_ONLY" = 1 ]; then
+  info "pre-flight only — running the resolution check, changing nothing"
 else
   ask "Proceed with the plan above?" || { info "aborted — nothing was changed"; exit 0; }
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 2: execute
+# Execution helpers: runners, rollback, failure handlers
 # ---------------------------------------------------------------------------
 
 composer_run() {
@@ -469,91 +585,581 @@ npm_run() {
   docker compose run --rm --no-deps -T --workdir "/var/www/$dir" node npm "$@"
 }
 
-runx() {
+# Run a command, echo it, mirror its output to the terminal AND capture it
+# for classification. In dry-run mode just print it.
+runcap() {
   info "\$ $*"
   [ "$DRY_RUN" = 1 ] && return 0
-  "$@"
+  local rc=0
+  "$@" 2>&1 | tee "$LAST_OUT" >&2 || rc=$?
+  return "$rc"
 }
 
-composer_recovery() {
+ANY_MUTATION=0        # anything on disk changed by this run
+COMPOSER_VENDOR_TOUCHED=0
+BUILT_DIRS=""
+
+# Restore a run-start snapshot (extract-over; leaves stray new files behind,
+# same as a `git checkout` would, but preserves uncommitted pre-run work).
+restore_snapshot() {
+  if [ -s "$TMP/snap-$1.tar" ]; then
+    tar -C "$ROOT_DIR" -xf "$TMP/snap-$1.tar" 2>/dev/null || true
+  fi
+}
+
+do_rollback() {
+  info "rolling back this run's changes..."
+  if [ -f "$TMP/composer.json.before" ]; then cp "$TMP/composer.json.before" composer.json; fi
+  if [ -f "$TMP/composer.lock.before" ]; then cp "$TMP/composer.lock.before" composer.lock; fi
+  local t slug label dir
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    if [ -s "$PLAN/ops--$slug" ]; then
+      restore_snapshot "$slug"
+    fi
+  done
+  case "$BUILT_DIRS" in *benefit-finder*) restore_snapshot bf-module ;; esac
+  if [ "$COMPOSER_VENDOR_TOUCHED" = 1 ]; then
+    info "restoring vendor/ to match the rolled-back lock file..."
+    runcap composer_run install --no-interaction --ignore-platform-reqs \
+      || info "WARNING: composer install failed — run 'bin/composer install' manually"
+  fi
+  if [ -n "$BUILT_DIRS$(cat "$PLAN"/ops--* 2>/dev/null)" ]; then
+    info "note: node_modules in updated npm dirs may be out of sync until the next npm install"
+  fi
+  info "rollback complete — verify with: git status"
+}
+
+abort_run() {
   echo >&2
-  echo "COMPOSER STEP FAILED. The working tree may be mid-update. To roll back:" >&2
-  echo "    git checkout -- composer.json composer.lock && bin/composer install" >&2
-  echo "A patch failing to re-apply (cweagans/composer-patches) is the most common" >&2
-  echo "cause — the composer output above names the package and patch." >&2
+  if [ "$ANY_MUTATION" = 0 ]; then
+    info "aborted — nothing was changed"
+    exit 1
+  fi
+  local a
+  printf '  Roll back all changes made by this run? [Y/n] ' >&2
+  read -r a || a=""
+  case "$a" in n|N|no|NO) info "aborted — changes left in place; review with git status/git diff" ;; *) do_rollback ;; esac
   exit 1
 }
 
-CHANGED_DIRS=""
+# ---- extractors ----
+adv_packages()      { grep -oE "found [A-Za-z0-9_./-]+\[" "$LAST_OUT" | sed 's/^found //; s/\[$//' | sort -u | tr '\n' ' '; }
+adv_ids()           { grep -oE '"(SA|PKSA|CVE|GHSA)-[^"]*"' "$LAST_OUT" | tr -d '"' | sort -u | tr '\n' ' '; }
+patch_package()     { grep "Applying patches for" "$LAST_OUT" | tail -1 | awk '{print $NF}'; }
+patch_file()        { grep -oE "(Cannot apply patch|Could not apply patch.*error was:) .*" "$LAST_OUT" | head -1 | cut -c1-160; }
+conflict_packages() { grep -oE "Root composer.json requires [A-Za-z0-9_./-]+" "$LAST_OUT" | awk '{print $NF}' | sort -u | tr '\n' ' '; }
+
+# ---- handlers: return 0 = retry, 2 = skip this step/dir; abort exits ----
+
+handle_advisory() {
+  local pkgs ids json
+  pkgs="$(adv_packages)"; ids="$(adv_ids)"
+  echo >&2
+  echo "  PROBLEM: composer refused to load some package versions because they carry" >&2
+  echo "  security advisories, which makes the update unresolvable." >&2
+  echo "    Packages:   ${pkgs:-unknown}" >&2
+  echo "    Advisories: ${ids:-unknown}" >&2
+  echo "  The real fix is usually a major-version update of those packages (see the" >&2
+  echo "  audit report); the options below unblock this run in the meantime." >&2
+  choose "How do you want to proceed?" \
+    "Disable resolve-time blocking project-wide (composer.json config change; advisories stay visible in reports) and retry" \
+    "Ignore only these advisories (composer.json audit.ignore; HIDES them from reports — not recommended) and retry" \
+    "Abort"
+  case "$CHOICE" in
+    1)
+      runcap composer_run config audit.block-insecure false \
+        || { info "could not write composer config"; abort_run; }
+      ANY_MUTATION=1
+      note_attention "composer: audit.block-insecure set to false to unblock updates (advisories: ${ids:-?}) — the durable fix is updating: ${pkgs:-?}"
+      return 0 ;;
+    2)
+      json="$(printf '%s\n' $ids | jq -R . | jq -sc .)"
+      runcap composer_run config audit.ignore --json "$json" \
+        || { info "could not write composer config"; abort_run; }
+      ANY_MUTATION=1
+      note_attention "composer: advisories ${ids:-?} added to audit.ignore — they will NO LONGER appear in reports; the durable fix is updating: ${pkgs:-?}"
+      return 0 ;;
+    3) abort_run ;;
+  esac
+}
+
+handle_patch() {
+  local step="$1" pkg pfile
+  pkg="$(patch_package)"; pfile="$(patch_file)"
+  echo >&2
+  echo "  PROBLEM: a patch failed to re-apply after updating${pkg:+ }$pkg." >&2
+  [ -n "$pfile" ] && echo "    Detail: $pfile" >&2
+  echo "  The patch likely needs re-rolling against the new version (composer.json" >&2
+  echo "  'patches' section names the file). Holding the package back keeps the rest" >&2
+  echo "  of this run moving." >&2
+  if [ -n "$pkg" ] && [ "$step" = "bulk" ]; then
+    choose "How do you want to proceed?" \
+      "Hold $pkg back this run and retry the rest" \
+      "Abort"
+    case "$CHOICE" in
+      1) echo "$pkg" >>"$PLAN/composer-holdback.list"
+         note_attention "composer: $pkg held back — its patch failed to re-apply and needs re-rolling"
+         return 0 ;;
+      2) abort_run ;;
+    esac
+  elif [ -n "$pkg" ] && [ "$step" = "targeted" ] && grep -qx "$pkg" "$PLAN/composer-targeted.list"; then
+    choose "How do you want to proceed?" \
+      "Drop $pkg from this run's targeted updates and retry the rest" \
+      "Abort"
+    case "$CHOICE" in
+      1) grep -vx "$pkg" "$PLAN/composer-targeted.list" >"$TMP/t.list" || true
+         mv "$TMP/t.list" "$PLAN/composer-targeted.list"
+         note_attention "composer: $pkg update dropped — its patch failed to re-apply and needs re-rolling"
+         return 0 ;;
+      2) abort_run ;;
+    esac
+  else
+    choose "How do you want to proceed?" \
+      "Retry (after fixing manually in another terminal)" \
+      "Abort"
+    case "$CHOICE" in 1) return 0 ;; 2) abort_run ;; esac
+  fi
+}
+
+handle_conflict() {
+  local step="$1" offenders
+  offenders="$(conflict_packages)"
+  echo >&2
+  echo "  PROBLEM: composer could not find a compatible set of versions." >&2
+  [ -n "$offenders" ] && echo "    Packages named in the conflict: $offenders" >&2
+  while :; do
+    if [ -n "$offenders" ] && { [ "$step" = "bulk" ] || [ "$step" = "targeted" ]; }; then
+      choose "How do you want to proceed?" \
+        "Hold the conflicting package(s) back this run and retry the rest" \
+        "Show composer's full explanation" \
+        "Abort"
+      case "$CHOICE" in
+        1)
+          local p
+          for p in $offenders; do
+            if [ "$step" = "bulk" ]; then echo "$p" >>"$PLAN/composer-holdback.list"
+            else grep -vx "$p" "$PLAN/composer-targeted.list" >"$TMP/t.list" || true
+                 mv "$TMP/t.list" "$PLAN/composer-targeted.list"; fi
+            note_attention "composer: $p held back — version conflict (see run output); resolve manually or with --major"
+          done
+          return 0 ;;
+        2) sed -n '/Problem/,$p' "$LAST_OUT" | head -60 >&2 ;;
+        3) abort_run ;;
+      esac
+    else
+      choose "How do you want to proceed?" \
+        "Show composer's full explanation" \
+        "Retry (after fixing manually in another terminal)" \
+        "Abort"
+      case "$CHOICE" in
+        1) sed -n '/Problem/,$p' "$LAST_OUT" | head -60 >&2 ;;
+        2) return 0 ;;
+        3) abort_run ;;
+      esac
+    fi
+  done
+}
+
+handle_network() {
+  echo >&2
+  echo "  PROBLEM: this looks like a network failure (registry unreachable)." >&2
+  choose "How do you want to proceed?" "Retry" "Abort"
+  case "$CHOICE" in 1) return 0 ;; 2) abort_run ;; esac
+}
+
+handle_unknown() {
+  local label="$1"
+  echo >&2
+  echo "  PROBLEM: $label failed for an unrecognized reason (full output above)." >&2
+  choose "How do you want to proceed?" \
+    "Retry" \
+    "Skip this step and continue" \
+    "Abort"
+  case "$CHOICE" in 1) return 0 ;; 2) return 2 ;; 3) abort_run ;; esac
+}
+
+# npm failure handler. Args: slug label dir. Returns 0 retry, 2 skip dir.
+handle_npm_failure() {
+  local slug="$1" label="$2" dir="$3" names n removed
+  case "$(classify_failure)" in
+    eresolve)
+      echo >&2
+      echo "  PROBLEM: npm hit a peer-dependency conflict in $label." >&2
+      grep -B1 -A3 "Could not resolve dependency\|Conflicting peer dependency" "$LAST_OUT" | head -12 | sed 's/^/    /' >&2 || true
+      choose "How do you want to proceed?" \
+        "Retry this directory with --legacy-peer-deps (npm ignores peer conflicts — usually safe, occasionally hides real incompatibilities)" \
+        "Drop specific package(s) from this directory's plan and retry" \
+        "Skip this directory entirely this run" \
+        "Abort"
+      case "$CHOICE" in
+        1) touch "$PLAN/legacy--$slug"
+           note_attention "$label: updated with --legacy-peer-deps due to a peer conflict — sanity-check the app"
+           return 0 ;;
+        2) echo "    Planned for this directory:" >&2
+           cat "$PLAN/npm-update--$slug.list" "$PLAN/npm-exact--$slug.list" "$PLAN/npm-range--$slug.list" 2>/dev/null | sed 's/^/      /' >&2
+           printf '    Package name(s) to drop (space-separated): ' >&2
+           read -r names || names=""
+           removed=0
+           for n in $names; do
+             for f in "$PLAN/npm-update--$slug.list" "$PLAN/npm-exact--$slug.list" "$PLAN/npm-range--$slug.list"; do
+               if grep -qE "^${n}(@|\$)" "$f" 2>/dev/null; then
+                 grep -vE "^${n}(@|\$)" "$f" >"$TMP/n.list" || true
+                 mv "$TMP/n.list" "$f"
+                 removed=1
+               fi
+             done
+             note_attention "$label: $n dropped from this run — peer-dependency conflict"
+           done
+           [ "$removed" = 1 ] || info "warning: no planned entries matched '$names'"
+           return 0 ;;
+        3) note_attention "$label: SKIPPED this run — peer-dependency conflict (see run output)"
+           return 2 ;;
+        4) abort_run ;;
+      esac ;;
+    network) handle_network; return $? ;;
+    *)
+      echo >&2
+      echo "  PROBLEM: npm failed in $label for an unrecognized reason (output above)." >&2
+      choose "How do you want to proceed?" \
+        "Retry" \
+        "Skip this directory this run" \
+        "Abort"
+      case "$CHOICE" in
+        1) return 0 ;;
+        2) note_attention "$label: SKIPPED this run — npm failure (see run output)"
+           return 2 ;;
+        3) abort_run ;;
+      esac ;;
+  esac
+}
+
+# Build the CARGS array for the bulk patch pass. Returns 1 if everything is
+# held back (nothing to do). $1 = extra flag ("--dry-run" or "").
+CARGS=()
+build_bulk_cmd() {
+  CARGS=(update)
+  if [ -s "$PLAN/composer-holdback.list" ]; then
+    grep -vx -F -f "$PLAN/composer-holdback.list" "$PLAN/composer-auto.list" >"$TMP/bulk.list" || true
+    [ -s "$TMP/bulk.list" ] || return 1
+    while read -r p; do [ -n "$p" ] && CARGS+=("$p"); done <"$TMP/bulk.list"
+    CARGS+=(--patch-only --with-all-dependencies)
+  else
+    CARGS+=(--patch-only)
+  fi
+  CARGS+=(--no-interaction --ignore-platform-reqs)
+  [ -n "$1" ] && CARGS+=("$1")
+  return 0
+}
+
+# Run one composer step with the failure-handling loop.
+# $1 = step id (require|pins|bulk|targeted), $2 = human label, $3 = "--dry-run" or ""
+composer_step() {
+  local step="$1" label="$2" dry="${3:-}" rc hrc
+  while :; do
+    cp composer.lock "$TMP/step.lock.before" 2>/dev/null || true
+    rc=0
+    case "$step" in
+      require)
+        runcap composer_run require --dry-run --with-all-dependencies --no-interaction --ignore-platform-reqs \
+          ${COMPOSER_REQUIRE_ARGS[@]+"${COMPOSER_REQUIRE_ARGS[@]}"} || rc=$? ;;
+      pins)
+        runcap composer_run update ${COMPOSER_PIN_PKGS[@]+"${COMPOSER_PIN_PKGS[@]}"} \
+          --with-all-dependencies --no-interaction --ignore-platform-reqs || rc=$? ;;
+      bulk)
+        if ! build_bulk_cmd "$dry"; then
+          info "all patch-pass packages are held back — skipping the patch pass"
+          return 0
+        fi
+        runcap composer_run "${CARGS[@]}" || rc=$? ;;
+      targeted)
+        [ -s "$PLAN/composer-targeted.list" ] || return 0
+        local targs=()
+        while read -r p; do [ -n "$p" ] && targs+=("$p"); done <"$PLAN/composer-targeted.list"
+        runcap composer_run update ${targs[@]+"${targs[@]}"} \
+          --with-all-dependencies --no-interaction --ignore-platform-reqs \
+          ${dry:+"$dry"} || rc=$? ;;
+    esac
+    [ "$rc" = 0 ] && return 0
+    [ "$DRY_RUN" = 1 ] && return 0
+    hrc=0
+    case "$(classify_failure)" in
+      advisory) handle_advisory || hrc=$? ;;
+      patch)    handle_patch "$step" || hrc=$?
+                # patch failures happen after the lock is written — restore it
+                # to this step's starting point before retrying
+                [ "$hrc" = 0 ] && [ -f "$TMP/step.lock.before" ] && cp "$TMP/step.lock.before" composer.lock ;;
+      conflict) handle_conflict "$step" || hrc=$? ;;
+      network)  handle_network || hrc=$? ;;
+      *)        handle_unknown "$label" || hrc=$? ;;
+    esac
+    [ "$hrc" = 2 ] && return 0
+  done
+}
+
+# Run one npm command with the failure-handling loop.
+# $1=slug $2=label $3=dir $4=kind(update|exact|range) $5="--dry-run" or ""
+# Returns 0 done/skipped-empty, 2 = skip this whole directory.
+npm_step() {
+  local slug="$1" label="$2" dir="$3" kind="$4" dry="$5" listfile="" legacy rc hrc args
+  case "$kind" in
+    update) listfile="$PLAN/npm-update--$slug.list" ;;
+    exact)  listfile="$PLAN/npm-exact--$slug.list" ;;
+    range)  listfile="$PLAN/npm-range--$slug.list" ;;
+    audit)  : ;;
+  esac
+  while :; do
+    if [ "$kind" = "audit" ]; then
+      [ -f "$PLAN/npm-audit-fix--$slug" ] || return 0
+    else
+      [ -s "$listfile" ] || return 0  # handlers may have emptied the list
+    fi
+    legacy=""
+    [ -f "$PLAN/legacy--$slug" ] && legacy="--legacy-peer-deps"
+    args=()
+    if [ "$kind" != "audit" ]; then
+      while read -r p; do [ -n "$p" ] && args+=("$p"); done <"$listfile"
+    fi
+    rc=0
+    case "$kind" in
+      update) runcap npm_run "$dir" update $legacy ${dry:+"$dry"} ${args[@]+"${args[@]}"} || rc=$? ;;
+      exact)  runcap npm_run "$dir" install --save-exact $legacy ${dry:+"$dry"} ${args[@]+"${args[@]}"} || rc=$? ;;
+      range)  runcap npm_run "$dir" install $legacy ${dry:+"$dry"} ${args[@]+"${args[@]}"} || rc=$? ;;
+      audit)  runcap npm_run "$dir" audit fix $legacy ${dry:+"$dry"} || rc=$? ;;
+    esac
+    [ "$rc" = 0 ] && return 0
+    [ "$DRY_RUN" = 1 ] && return 0
+    if [ "$kind" = "audit" ]; then
+      # `npm audit fix` exits non-zero when vulnerabilities REMAIN after the
+      # fix — expected whenever only major-version fixes are left. Only real
+      # resolution/network failures go to the handler.
+      case "$(classify_failure)" in
+        eresolve|network) : ;;
+        *) info "npm audit fix finished with vulnerabilities remaining (expected — see the summary)"
+           return 0 ;;
+      esac
+    fi
+    hrc=0
+    handle_npm_failure "$slug" "$label" "$dir" || hrc=$?
+    [ "$hrc" = 2 ] && return 2
+  done
+}
+
+# ---------------------------------------------------------------------------
+# Pre-flight: test-solve the approved plan before changing anything
+# ---------------------------------------------------------------------------
+
+# Backups are taken before pre-flight because the advisory handler may edit
+# composer.json config even at this stage.
+cp composer.json "$TMP/composer.json.before" 2>/dev/null || true
+cp composer.lock "$TMP/composer.lock.before" 2>/dev/null || true
+
+# Snapshot the npm directories (sans node_modules) and the benefit-finder
+# module for git-independent rollback. Only needed when we will really mutate.
+if [ "$DRY_RUN" = 0 ] && [ "$PREFLIGHT_ONLY" = 0 ]; then
+  info "snapshotting npm directories for rollback..."
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    tar -C "$ROOT_DIR" -cf "$TMP/snap-$slug.tar" --exclude='*node_modules*' "$dir" 2>/dev/null || true
+  done
+  tar -C "$ROOT_DIR" -cf "$TMP/snap-bf-module.tar" "$BF_MODULE_DIR" 2>/dev/null || true
+fi
+
+if [ "$DRY_RUN" = 1 ]; then
+  info "dry run — skipping the pre-flight resolution check"
+else
+  info "PRE-FLIGHT: test-solving the approved plan (read-only; nothing is changed)..."
+  if [ "$DO_COMPOSER" = 1 ]; then
+    if [ "${#COMPOSER_REQUIRE_ARGS[@]}" -gt 0 ]; then
+      composer_step require "pre-flight of constraint edits and pin moves" "--dry-run"
+    fi
+    if [ "$COMPOSER_AUTO" -gt 0 ]; then
+      composer_step bulk "pre-flight of the composer patch pass" "--dry-run"
+    fi
+  fi
+  if [ "$DO_NPM" = 1 ]; then
+    for t in "${NPM_TARGETS[@]}"; do
+      IFS='|' read -r slug label dir <<<"$t"
+      for kind in update exact range audit; do
+        hrc=0
+        npm_step "$slug" "$label" "$dir" "$kind" "--dry-run" || hrc=$?
+        if [ "$hrc" = 2 ]; then
+          touch "$PLAN/skip--$slug"
+          break
+        fi
+      done
+    done
+  fi
+  info "pre-flight passed"
+fi
+
+if [ "$PREFLIGHT_ONLY" = 1 ]; then
+  info "exiting without changes (--preflight-only)"
+  if [ -s "$PLAN/attention.txt" ]; then
+    echo >&2
+    echo "Needs attention:" >&2
+    sed 's/^/  - /' "$PLAN/attention.txt" >&2
+  fi
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 2: execute
+# ---------------------------------------------------------------------------
 
 if [ "$DO_COMPOSER" = 1 ]; then
-  cp composer.lock "$TMP/composer.lock.before"
   if [ "${#COMPOSER_REQUIRE_ARGS[@]}" -gt 0 ]; then
-    runx composer_run require --no-update --no-interaction \
-      ${COMPOSER_REQUIRE_ARGS[@]+"${COMPOSER_REQUIRE_ARGS[@]}"} || composer_recovery
+    if ! runcap composer_run require --no-update --no-interaction \
+        ${COMPOSER_REQUIRE_ARGS[@]+"${COMPOSER_REQUIRE_ARGS[@]}"}; then
+      [ "$DRY_RUN" = 1 ] || { info "constraint edits failed (output above)"; abort_run; }
+    fi
+    ANY_MUTATION=1
   fi
-  # Pins move via their own targeted update rather than the --patch-only pass:
-  # a pinned release (e.g. Drupal core) may legitimately require minor-level
-  # transitive bumps that the patch-only solver would refuse. The pin itself
-  # is exact, so this cannot over-update the pinned package.
   if [ "${#COMPOSER_PIN_PKGS[@]}" -gt 0 ]; then
-    runx composer_run update ${COMPOSER_PIN_PKGS[@]+"${COMPOSER_PIN_PKGS[@]}"} \
-      --with-all-dependencies --no-interaction --ignore-platform-reqs \
-      || composer_recovery
+    # Pins move via their own targeted update rather than the --patch-only
+    # pass: a pinned release (e.g. Drupal core) may legitimately require
+    # minor-level transitive bumps that the patch-only solver would refuse.
+    # The pin itself is exact, so this cannot over-update the pinned package.
+    composer_step pins "pin update" ""
+    ANY_MUTATION=1; COMPOSER_VENDOR_TOUCHED=1
   fi
   if [ "$COMPOSER_AUTO" -gt 0 ]; then
-    runx composer_run update --patch-only --no-interaction --ignore-platform-reqs \
-      || composer_recovery
+    composer_step bulk "composer patch pass" ""
+    ANY_MUTATION=1; COMPOSER_VENDOR_TOUCHED=1
   fi
-  if [ "${#COMPOSER_TARGETED[@]}" -gt 0 ]; then
-    runx composer_run update ${COMPOSER_TARGETED[@]+"${COMPOSER_TARGETED[@]}"} \
-      --with-all-dependencies --no-interaction --ignore-platform-reqs \
-      || composer_recovery
+  composer_step targeted "targeted composer update" ""
+  if [ -s "$PLAN/composer-targeted.list" ]; then
+    ANY_MUTATION=1; COMPOSER_VENDOR_TOUCHED=1
   fi
 fi
 
 if [ "$DO_NPM" = 1 ]; then
   for t in "${NPM_TARGETS[@]}"; do
     IFS='|' read -r slug label dir <<<"$t"
-    did_anything=0
-    [ -f "$dir/package-lock.json" ] && cp "$dir/package-lock.json" "$TMP/$slug.lock.before"
-
-    npm_fail() {
-      echo >&2
-      echo "NPM STEP FAILED in $dir. To roll back this directory:" >&2
-      echo "    git checkout -- $dir/package.json $dir/package-lock.json" >&2
-      exit 1
-    }
-
-    if [ -s "$PLAN/npm-update--$slug.list" ]; then
-      # shellcheck disable=SC2046
-      runx npm_run "$dir" update $(tr '\n' ' ' <"$PLAN/npm-update--$slug.list") || npm_fail
-      did_anything=1
+    : >"$PLAN/ops--$slug"
+    if [ -f "$PLAN/skip--$slug" ]; then
+      info "skipping $label (skipped during pre-flight)"
+      continue
     fi
-    if [ -s "$PLAN/npm-exact--$slug.list" ]; then
-      # shellcheck disable=SC2046
-      runx npm_run "$dir" install --save-exact $(tr '\n' ' ' <"$PLAN/npm-exact--$slug.list") || npm_fail
-      did_anything=1
-    fi
-    if [ -s "$PLAN/npm-range--$slug.list" ]; then
-      # shellcheck disable=SC2046
-      runx npm_run "$dir" install $(tr '\n' ' ' <"$PLAN/npm-range--$slug.list") || npm_fail
-      did_anything=1
-    fi
-    [ "$did_anything" = 1 ] && CHANGED_DIRS="$CHANGED_DIRS $slug"
+    skip_dir=0
+    for kind in update exact range audit; do
+      hrc=0
+      npm_step "$slug" "$label" "$dir" "$kind" "" || hrc=$?
+      if [ "$hrc" = 2 ]; then
+        restore_snapshot "$slug"
+        : >"$PLAN/ops--$slug"
+        skip_dir=1
+        break
+      fi
+      # record what was applied, for the build-failure bisect and rollback
+      if [ "$DRY_RUN" = 0 ]; then
+        case "$kind" in
+          update) sed 's/^/u /' "$PLAN/npm-update--$slug.list" >>"$PLAN/ops--$slug" ;;
+          exact)  sed 's/^/e /' "$PLAN/npm-exact--$slug.list" >>"$PLAN/ops--$slug" ;;
+          range)  sed 's/^/r /' "$PLAN/npm-range--$slug.list" >>"$PLAN/ops--$slug" ;;
+          audit)  [ -f "$PLAN/npm-audit-fix--$slug" ] && echo "a auditfix" >>"$PLAN/ops--$slug" ;;
+        esac
+      fi
+    done
+    [ "$skip_dir" = 1 ] && continue
+    [ -s "$PLAN/ops--$slug" ] && ANY_MUTATION=1
   done
+fi
 
-  # Rebuild committed/derived front-end artifacts for what changed.
-  case "$CHANGED_DIRS" in *benefit-finder*)
-    info "rebuilding Benefit Finder (regenerates JS in web/modules/custom/usagov_benefit_finder)"
-    runx npm_run sources/benefit-finder run build \
-      || die "Benefit Finder build failed — fix before committing (module JS may be stale)"
-  ;; esac
-  case "$CHANGED_DIRS" in *drupal-theme*)
+# ---------------------------------------------------------------------------
+# Rebuild committed/derived front-end artifacts for what changed
+# ---------------------------------------------------------------------------
+
+# Replay one recorded op line ("u name" / "e pkg@ver" / "r pkg@ver")
+apply_op() {
+  local dir="$1" op="$2" arg="$3" legacy="" slug="$4"
+  [ -f "$PLAN/legacy--$slug" ] && legacy="--legacy-peer-deps"
+  case "$op" in
+    u) runcap npm_run "$dir" update $legacy "$arg" ;;
+    e) runcap npm_run "$dir" install --save-exact $legacy "$arg" ;;
+    r) runcap npm_run "$dir" install $legacy "$arg" ;;
+    a) runcap npm_run "$dir" audit fix $legacy || true ;;
+  esac
+}
+
+# Restore a dir (and an extra snapshot) to pre-run state, reinstall from lock.
+restore_dir() {
+  local slug="$1" dir="$2" extra="$3"
+  restore_snapshot "$slug"
+  [ -n "$extra" ] && restore_snapshot "$extra"
+  runcap npm_run "$dir" ci || info "WARNING: npm ci failed in $dir — node_modules may be stale"
+}
+
+# Linear culprit search: restore baseline, re-apply ops one at a time,
+# building after each, until the build breaks.
+bisect_dir() {
+  local slug="$1" label="$2" dir="$3" extra="$4" op arg culprit=""
+  info "bisecting $label: restoring baseline, then applying updates one at a time (slow)..."
+  restore_dir "$slug" "$dir" "$extra"
+  while read -r op arg; do
+    [ -n "$op" ] || continue
+    apply_op "$dir" "$op" "$arg" "$slug" || true
+    if ! runcap npm_run "$dir" run build; then
+      culprit="$op $arg"
+      break
+    fi
+  done <"$PLAN/ops--$slug"
+  if [ -z "$culprit" ]; then
+    info "bisect: all updates re-applied and the build now passes (flaky build?)"
+    return 0
+  fi
+  info "bisect: culprit appears to be: $culprit — re-applying everything else"
+  restore_dir "$slug" "$dir" "$extra"
+  while read -r op arg; do
+    [ -n "$op" ] || continue
+    [ "$op $arg" = "$culprit" ] && continue
+    apply_op "$dir" "$op" "$arg" "$slug" || true
+  done <"$PLAN/ops--$slug"
+  if runcap npm_run "$dir" run build; then
+    note_attention "$label: '$culprit' held back — it breaks the build; investigate before updating it"
+    return 0
+  fi
+  info "bisect: build still fails without '$culprit' — there may be multiple culprits"
+  return 1
+}
+
+build_with_handlers() {
+  local slug="$1" label="$2" dir="$3" extra="$4" hrc
+  BUILT_DIRS="$BUILT_DIRS $slug"
+  while :; do
+    if runcap npm_run "$dir" run build; then return 0; fi
+    [ "$DRY_RUN" = 1 ] && return 0
+    echo >&2
+    echo "  PROBLEM: the $label build failed after this run's updates." >&2
+    choose "How do you want to proceed?" \
+      "Roll back this directory's updates and rebuild without them" \
+      "Try to identify the culprit package (re-applies updates one at a time; slow)" \
+      "Keep the updates and leave the build broken for manual fixing" \
+      "Abort the whole run"
+    case "$CHOICE" in
+      1) restore_dir "$slug" "$dir" "$extra"
+         note_attention "$label: ALL of this directory's updates rolled back — the build failed with them applied"
+         : >"$PLAN/ops--$slug"
+         # rebuild to confirm the rollback restored a working state
+         ;;
+      2) hrc=0; bisect_dir "$slug" "$label" "$dir" "$extra" || hrc=$?
+         [ "$hrc" = 0 ] && return 0 ;;
+      3) note_attention "$label: BUILD IS BROKEN — updates kept at user request; fix before committing"
+         return 0 ;;
+      4) abort_run ;;
+    esac
+  done
+}
+
+if [ "$DO_NPM" = 1 ]; then
+  if [ -s "$PLAN/ops--benefit-finder" ] || { [ "$DRY_RUN" = 1 ] && [ -s "$PLAN/npm-update--benefit-finder.list" ]; }; then
+    info "rebuilding Benefit Finder (regenerates JS in $BF_MODULE_DIR)"
+    build_with_handlers benefit-finder "Benefit Finder" sources/benefit-finder "bf-module"
+  fi
+  if [ -s "$PLAN/ops--drupal-theme" ] || { [ "$DRY_RUN" = 1 ] && [ -s "$PLAN/npm-update--drupal-theme.list" ]; }; then
     info "rebuilding Drupal theme assets"
-    runx npm_run web/themes/custom/usagov run build \
-      || die "theme build failed — fix before committing"
-  ;; esac
+    build_with_handlers drupal-theme "Drupal theme" web/themes/custom/usagov ""
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -584,11 +1190,11 @@ fi
 if [ "$DO_NPM" = 1 ]; then
   for t in "${NPM_TARGETS[@]}"; do
     IFS='|' read -r slug label dir <<<"$t"
-    [ -f "$TMP/$slug.lock.before" ] && [ -f "$dir/package-lock.json" ] || continue
-    case "$CHANGED_DIRS" in *"$slug"*) : ;; *) continue ;; esac
+    [ -s "$PLAN/ops--$slug" ] || continue
+    [ -f "$dir/package-lock.json" ] || continue
     echo
     echo "$label package-lock changes (top-level):"
-    LOCKDIFF="$(jq -r --slurpfile old "$TMP/$slug.lock.before" '
+    LOCKDIFF="$(jq -r --slurpfile old <(git show "HEAD:$dir/package-lock.json" 2>/dev/null || echo '{}') '
       def m: (.packages // {}) | to_entries
         | map(select(.key | test("^node_modules/(@[^/]+/)?[^/]+$")))
         | map({key: (.key | sub("^node_modules/"; "")), value: (.value.version // "?")})
@@ -604,6 +1210,156 @@ fi
 
 echo
 git status --short -- "${GUARDED_PATHS[@]}" || true
+if [ -s "$PLAN/attention.txt" ]; then
+  echo
+  echo "NEEDS ATTENTION (held back or changed during failure handling):"
+  sed 's/^/  - /' "$PLAN/attention.txt"
+fi
+if [ -s "$PLAN/skipped.txt" ]; then
+  echo
+  echo "Reminder — skipped this run:"
+  sed 's/^/  - /' "$PLAN/skipped.txt"
+fi
+
+# ---------------------------------------------------------------------------
+# Remaining high/critical vulnerabilities: instructions or ticket text
+# ---------------------------------------------------------------------------
+
+cat >"$TMP/tickets-composer.jq" <<'EOF'
+def sevof($t):
+  . as $s
+  | if $s != "" then $s
+    else (($t // "") | ([scan("Highly critical|Moderately critical|Less critical|Not critical|Critical")] | first) // "unknown")
+    end;
+def actionable:
+  (ascii_downcase) as $d
+  | (["critical", "high", "highly critical", "moderately critical"] | index($d)) != null;
+(($plan // "") | split("\n") | map(select(. != "") | split("\t")) | map(select(length >= 6))
+ | map({key: .[1], value: {kind: .[0], cur: .[2], target: .[3], jump: .[4], constraint: .[5]}})
+ | from_entries) as $rows
+| ((($lock[0].packages // []) + ($lock[0]["packages-dev"] // []))
+   | map({key: .name, value: .version}) | from_entries) as $inst
+| ((.advisories // {}) | if type == "object" then . else {} end)
+| to_entries[]
+| .key as $p
+| (.value | if type == "array" then .[] else . end)
+| (.title // "advisory") as $title
+| ((.severity // "") | sevof($title)) as $sev
+| select($sev | actionable)
+| (.cve // "n/a") as $cve
+| (.link // "") as $link
+| (.affectedVersions // "?") as $aff
+| ($inst[$p] // "?") as $cur
+| ($rows[$p] // null) as $r
+| if $r != null and ($r.kind == "pin" or (($r.kind == "ask" or $r.kind == "auto")
+      and ($r.jump == "patch" or $r.jump == "minor"))) then
+    "ACTION (no ticket needed): \($p) — \($sev), \($cve)\n"
+    + "  An update within reach likely fixes this: \($r.cur) -> \($r.target) (\($r.jump)).\n"
+    + "  Run: bin/audit/deps-update\(if $r.jump == "minor" then " --minor" else "" end)  and approve \($p).\n"
+    + "  Verify the fixed version in the advisory: \($link)\n"
+  else
+    "--- TICKET ---------------------------------------------------------\n"
+    + "Title: \($title)\n"
+    + "Description:\n"
+    + "  \($p) (installed \($cur)) is affected by \($cve) — severity: \($sev).\n"
+    + "  Advisory: \($link)\n"
+    + "  Affected versions: \($aff)\n"
+    + "  Suggested remediation:\n"
+    + (if $r != null then
+        "    - A \($r.jump) update exists (\($r.cur) -> \($r.target)) but the constraint `\($r.constraint)` blocks it.\n"
+        + "    - Run `bin/audit/deps-update --major` and approve \($p), then regression-test; or\n"
+        + "      schedule this as its own task using the advisory's fixed release.\n"
+      else
+        "    - \($p) is not a direct dependency (or has no published update). Run\n"
+        + "      `composer why \($p)` to find which package requires it.\n"
+        + "    - If the advisory's fixed release is within the parents' constraints\n"
+        + "      (compare \"Affected versions\" above), a targeted\n"
+        + "      `composer update \($p) --with-all-dependencies` takes it directly;\n"
+        + "      otherwise update the parent package(s) or monitor upstream.\n"
+      end)
+    + "--------------------------------------------------------------------\n"
+  end
+EOF
+
+cat >"$TMP/tickets-npm.jq" <<'EOF'
+def actionable:
+  (ascii_downcase) as $d
+  | (["critical", "high"] | index($d)) != null;
+(.vulnerabilities // {})
+| to_entries[]
+| .value
+| select((.severity // "") | actionable)
+| ([.via[]? | select(type == "object")]) as $advs
+| select(($advs | length) > 0)
+| .name as $p
+| ($advs[0].title // "vulnerability in \($p)") as $title
+| ($advs[0].url // "") as $link
+| (.severity) as $sev
+| (.fixAvailable) as $fix
+| ([.effects[]?] | join(", ")) as $eff
+| if $fix == true then
+    "ACTION (no ticket needed): \($p) — \($sev) in \($label)\n"
+    + "  An in-range fix exists; the default bin/audit/deps-update run applies it\n"
+    + "  via npm audit fix. Seeing this after a full run usually means the fix\n"
+    + "  landed only partially — run `npm audit fix` in \($dir) directly.\n"
+    + "  Advisory: \($link)\n"
+  elif ($fix | type) == "object" and (($fix.isSemVerMajor // false) | not) then
+    "ACTION (no ticket needed): \($p) — \($sev) in \($label)\n"
+    + "  Fixed by updating \($fix.name) to \($fix.version) (non-major).\n"
+    + "  Run: bin/audit/deps-update --minor  and approve \($fix.name) for \($label).\n"
+    + "  Advisory: \($link)\n"
+  else
+    "--- TICKET ---------------------------------------------------------\n"
+    + "Title: \($title)\n"
+    + "Description:\n"
+    + "  \($p) (severity: \($sev)) in \($label) (\($dir)).\n"
+    + (if $eff != "" then "  Pulled in via: \($eff).\n" else "" end)
+    + "  Advisory: \($link)\n"
+    + "  Suggested remediation:\n"
+    + (if ($fix | type) == "object" then
+        "    - The fix requires \($fix.name)@\($fix.version) (a MAJOR update).\n"
+        + "    - Run `bin/audit/deps-update --major` and approve \($fix.name), then test\n"
+        + "      \($label); or schedule this as its own task.\n"
+      else
+        "    - No complete fix is available yet (npm reports fixAvailable: false).\n"
+        + "    - Monitor upstream; `npm ls \($p)` in \($dir) shows the dependency path.\n"
+      end)
+    + "--------------------------------------------------------------------\n"
+  end
+EOF
+
+echo
+echo "================  REMAINING HIGH/CRITICAL VULNERABILITIES  ================"
+echo '(includes Drupal severities "Moderately critical" and up; re-audited just now)'
+REMED=0
+if [ "$DO_COMPOSER" = 1 ]; then
+  info "re-auditing composer..."
+  composer_run audit --format=json --no-interaction >"$TMP/post-ca.json" 2>/dev/null || true
+  jq -e . "$TMP/post-ca.json" >/dev/null 2>&1 || echo '{}' >"$TMP/post-ca.json"
+  T="$(jq -r "$(cat "$TMP/tickets-composer.jq")" \
+        --rawfile plan "$PLAN/composer.tsv" \
+        --slurpfile lock composer.lock \
+        "$TMP/post-ca.json" 2>/dev/null || true)"
+  if [ -n "$T" ]; then echo; printf '%s\n' "$T"; REMED=1; fi
+fi
+if [ "$DO_NPM" = 1 ]; then
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    info "re-auditing $label..."
+    npm_run "$dir" audit --json >"$TMP/post-na-$slug.json" 2>/dev/null || true
+    jq -e . "$TMP/post-na-$slug.json" >/dev/null 2>&1 || echo '{}' >"$TMP/post-na-$slug.json"
+    T="$(jq -r "$(cat "$TMP/tickets-npm.jq")" \
+          --arg label "$label" --arg dir "$dir" \
+          "$TMP/post-na-$slug.json" 2>/dev/null || true)"
+    if [ -n "$T" ]; then echo; printf '%s\n' "$T"; REMED=1; fi
+  done
+fi
+if [ "$REMED" = 0 ]; then
+  echo
+  echo "None — no high/critical vulnerabilities remain in these dependencies."
+  echo "(Lower-severity items may exist; see bin/audit/deps-check.)"
+fi
+
 echo
 echo "Nothing has been committed. Suggested next steps:"
 echo "  1. Review:            git diff composer.json && git diff --stat"
@@ -611,8 +1367,3 @@ echo "  2. Update database:   bin/drush updb -y && bin/drush cr"
 echo "  3. Sanity checks:     bin/composer phpstan   /   bin/composer php-lint"
 echo "  4. Test locally:      cypress suites in automated_tests/, benefit-finder vitest"
 echo "  5. Commit in logical chunks (composer vs each npm dir vs rebuilt assets)."
-if [ -s "$PLAN/skipped.txt" ]; then
-  echo
-  echo "Reminder — skipped this run:"
-  sed 's/^/  - /' "$PLAN/skipped.txt"
-fi
