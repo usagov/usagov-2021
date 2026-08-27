@@ -110,6 +110,10 @@ if [ -n "$MODSEC_DEFAULT_PHASE2_ACTION" ]; then
 fi
 
 # Substitute MODSEC_TAG
+# The /g is required: with -z the whole file is a single record, so without it
+# only the FIRST ${MODSEC_TAG} is replaced. Both the phase:1 and phase:2
+# SecDefaultAction lines carry one, and phase:2 is where the CRS detection rules
+# live -- so omitting /g left every CRS alert tagged with the literal string.
 if [ -n "$MODSEC_TAG" ]; then
-  sed -z -E -i "s/\\$\{MODSEC_TAG\}/$MODSEC_TAG/" /etc/modsecurity.d/modsecurity-crs/crs-setup.conf
+  sed -z -E -i "s/\\$\{MODSEC_TAG\}/$MODSEC_TAG/g" /etc/modsecurity.d/modsecurity-crs/crs-setup.conf
 fi
