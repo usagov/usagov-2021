@@ -16,16 +16,31 @@ provoke an incident response.
 
 ## Why this is safe to run
 
-The probe that exercises the WAF omits its `User-Agent` header. That trips CRS
-rule **920330 "Empty User Agent Header"** — a real detection that travels the
-identical path an attack would: rule match → anomaly score → nginx error
-log → New Relic.
+The probe that exercises the WAF is a `GET` carrying a request body. That trips
+CRS rule **920170 "GET or HEAD Request with Body Content"** — a real detection
+that travels the identical path an attack would: rule match → anomaly score →
+nginx error log → New Relic.
 
-No attack signature is ever put on the wire. A missing header appears in no
-threat feed and matches no IDS rule, so it will not page anyone. Rule 920330
-scores **2**, below the inbound threshold of **5**, so it never trips 949110 —
-meaning the canary stays safe to run even after this environment moves to
-blocking.
+No attack signature is ever put on the wire. A GET with a body is malformed, not
+malicious; it appears in no threat feed and matches no IDS rule, so it will not
+page anyone. Production already sees this exact request shape constantly from
+internet background noise — it made up most of the July log volume.
+
+> **Scoring, and what changes at go-live.** 920170 is severity 2 (CRITICAL) = 5
+> anomaly points, which *equals* the inbound threshold, so 949110 fires
+> alongside it. During detection-only the request is logged and **not** blocked,
+> which is what step 02 asserts. Once this environment is switched to blocking,
+> the same probe is expected to return **403** — invert that check rather than
+> deleting it. The probe usefully verifies both stages; it is not one that stays
+> non-blocking forever.
+
+> **Why not the empty `User-Agent` probe (920330)?** It was tried first and does
+> not work through the real request path. `curl -H 'User-Agent;'` sends the
+> header present-but-empty, which is what 920330 matches, but an intermediary
+> (GoRouter) strips the empty header before it reaches the WAF, so the rule
+> never fires. Verified on dev: the probe produced no detection while 920170
+> produced one immediately. 920170 depends on the method and body rather than on
+> a header something upstream may rewrite.
 
 Attack-payload testing already happened locally, in a container that never
 touched the network. SQLi, XSS, path traversal and RCE detection were all
@@ -52,8 +67,9 @@ environment and will run a short verification against beta-dev.usa.gov.
   Marker:      every request carries the header
                X-USAGov-WAF-Test: USAGOV-2834
   Payloads:    none. No attack strings are sent. The only non-standard
-               request omits the User-Agent header, which is what the
-               WAF is expected to notice.
+               request is a GET carrying a small request body, which is
+               malformed but harmless and is what the WAF is expected
+               to notice.
   Contact:     <name / email / phone>
 
 Ticket: USAGOV-2834   PR: #2838
@@ -138,18 +154,23 @@ blocking rather than detecting — that is a stop condition.
 
 - [ ] Pass
 
-The one request that deliberately trips a CRS rule. `-H 'User-Agent;'` is
-curl's syntax for sending the header *empty* rather than omitting it.
+The one request that deliberately trips a CRS rule. `-X GET --data` sends a body
+on a GET, which is malformed but harmless.
 
 ```sh
 curl -s -o /dev/null -w "canary -> %{http_code}\n" \
+  -X GET --data 'x=1' \
   -H "X-USAGov-WAF-Test: USAGOV-2834" \
-  -H "User-Agent;" \
+  -H "User-Agent: USAGov-WAF-Verification/1.0" \
   https://beta-dev.usa.gov/
 ```
 
 **Expect:** a **normal** response code — `200`/`301`/`302`. In detection-only
 the request is logged but not blocked. A `403` means CRS is already blocking.
+
+Once this environment is switched to blocking, `403` becomes the expected
+result — 920170 scores 5, which meets the threshold. Invert this check at that
+point rather than removing it.
 
 ### 03 — Malformed body still rejected (unchanged behaviour)
 
@@ -214,18 +235,27 @@ what lands in the log — that part has to be checked in New Relic.
 
 ```sh
 # raw stream - authoritative
-cf logs $ROUTE_SERVICE_APP_NAME --recent | grep '\[id "920330"\]'
+cf logs $ROUTE_SERVICE_APP_NAME --recent | grep '\[id "920170"\]'
+
+# 920170 scores 5, so the anomaly threshold rule should fire too
+cf logs $ROUTE_SERVICE_APP_NAME --recent | grep '\[id "949110"\]'
 ```
 
 ```sql
 -- New Relic (NRQL)
-SELECT * FROM Log WHERE `Modsecurity.id` = '920330' SINCE 15 minutes ago
+SELECT * FROM Log WHERE `Modsecurity.id` = '920170' SINCE 15 minutes ago
 ```
 
 **Expect:** one line reading
-`ModSecurity: Warning. Matched … [id "920330"] [msg "Empty User Agent Header"] …`,
-at `[info]` level, parsing into `Modsecurity.id = 920330` and
-`Modsecurity.msg = "Empty User Agent Header"`.
+`ModSecurity: Warning. Matched … [id "920170"] [msg "GET or HEAD Request with Body Content"] …`,
+at `[info]` level, parsing into `Modsecurity.id = 920170` and
+`Modsecurity.msg = "GET or HEAD Request with Body Content"`. A matching 949110
+line (`Inbound Anomaly Score Exceeded (Total Score: 5)`) confirms the scoring
+chain as well.
+
+If this returns nothing, note that `cf logs --recent` shows only a bounded
+buffer and nginx is chattier at `info` — stream `cf logs $ROUTE_SERVICE_APP_NAME`
+in a second terminal and re-run the probe before concluding anything is broken.
 
 ### 2.2 — Normal traffic produced no detection lines
 
@@ -309,7 +339,7 @@ rather than take it on trust.
 | 02 | Canary not blocked | 200/301/302 | | |
 | 03 | Malformed body rejected | 400 | | |
 | 04 | testparam retired | not 403 | | |
-| 2.1 | Canary logged | 1 record, 920330 | | |
+| 2.1 | Canary logged | 1 line, 920170 (+949110) | | |
 | 2.2 | Normal traffic silent | 0 records | | |
 | 2.3 | Error-log volume acceptable | judgement | | |
 | 2.4 | False positives found | list them | | |
@@ -322,7 +352,8 @@ Run by ______________________  Date ______________  Source IP ________________
 
 | ID | Name | Role in this plan |
 |---|---|---|
-| `920330` | Empty User Agent Header | The canary. Score 2, below the threshold of 5 — detected, never blocked, safe post-go-live. |
+| `920170` | GET or HEAD Request with Body Content | The canary. Score 5, which meets the threshold of 5 — detected but not blocked during detection-only; expected to return 403 once blocking is on. |
+| `920330` | Empty User Agent Header | Not usable as a canary: GoRouter strips the empty header before the WAF sees it, so the rule never fires. |
 | `200002` | Failed to parse request body | Pre-existing. Returns 400. Must be **unchanged** — the control in this experiment. |
 | `200003` | Multipart strict validation | Pre-existing. The bulk of the July log noise; benign LF line endings. |
 | `949110` | Inbound Anomaly Score Exceeded | Forced to `pass`. Still logs, never blocks. Commenting this out is the switch to blocking. |

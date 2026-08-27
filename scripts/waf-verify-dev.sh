@@ -5,20 +5,31 @@
 # DELIBERATELY SENDS NO ATTACK PAYLOADS.
 #
 # Everything here is either an ordinary request or a merely non-conforming one.
-# The canary probe omits the User-Agent header, which trips CRS rule 920330
-# ("Empty User Agent Header"). That exercises the identical code path an attack
-# would -- rule match -> anomaly score -> audit log -> stdout -> New Relic --
-# without putting a single attack signature on the wire, so it will not show up
-# in anyone's threat feed and will not page the network security team.
+# The canary probe sends a GET with a request body, which trips CRS rule 920170
+# ("GET or HEAD Request with Body Content"). That exercises the identical code
+# path an attack would -- rule match -> anomaly score -> nginx error log ->
+# New Relic -- without putting a single attack signature on the wire, so it will
+# not show up in anyone's threat feed and will not page the network security
+# team. (Production already sees this request shape constantly from internet
+# background noise; it is unremarkable traffic.)
 #
 # Attack-payload testing belongs in the local container instead, where it never
 # touches the network at all:
 #   docker build -f .docker/Dockerfile-waf .docker -t usagov-waf:test
 #   docker run -d --name waf-test usagov-waf:test
 #
-# Rule 920330 scores 2 (NOTICE), below the inbound threshold of 5, so it does
-# not trip 949110 and will NOT be blocked even after this environment is moved
-# from detection-only to blocking. The canary stays safe to run post-go-live.
+# Why not the empty User-Agent probe (920330)? It was tried first and does not
+# work through the real request path: curl sends User-Agent present-but-empty,
+# which is what 920330 matches, but an intermediary (GoRouter) strips the empty
+# header before it reaches the WAF, so the rule never fires. 920170 depends on
+# the method and body rather than on a header something upstream may rewrite.
+#
+# NOTE ON SCORING: 920170 is severity 2 (CRITICAL) = 5 anomaly points, which
+# equals the inbound threshold. During the detection-only stage it is logged and
+# NOT blocked, which is what step 2 asserts. Once this environment is switched to
+# blocking, the same probe is expected to return 403 -- so the check below must
+# be inverted at that point rather than deleted. That makes it a useful test of
+# both stages; it is not a probe that stays non-blocking forever.
 #
 # Usage:  ./scripts/waf-verify-dev.sh [host]
 #         ./scripts/waf-verify-dev.sh beta-dev.usa.gov
@@ -32,7 +43,7 @@ BASE="https://${HOST}"
 # User-Agent, so anyone reading the logs can immediately tell what this was
 # and who to ask. Change the contact before running.
 TICKET="USAGOV-2834"
-CONTACT="webops@gsa.gov"
+CONTACT="mark.vitek@gsa.gov"
 MARK="X-USAGov-WAF-Test: ${TICKET} verification, contact ${CONTACT}"
 UA="User-Agent: USAGov-WAF-Verification/1.0 (+${TICKET}; ${CONTACT})"
 
@@ -59,18 +70,21 @@ done
 say ""
 
 # ---------------------------------------------------------------------------
-say "2. Benign canary -- omits User-Agent, trips CRS 920330."
+say "2. Benign canary -- GET with a request body, trips CRS 920170."
 say "   Expect a NORMAL response code: in detection-only the request is"
-say "   logged but NOT blocked. A 403 here means CRS is already blocking."
+say "   logged but NOT blocked. A 403 here means CRS is already blocking"
+say "   (once this env is switched to blocking, 403 becomes the PASS case)."
 codeout=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
-     -H 'User-Agent;' -H "$MARK" -H 'Accept: text/html' "${BASE}/")
+     -X GET --data 'x=1' -H "$MARK" -H "$UA" "${BASE}/")
 chk "canary not blocked" '^(200|301|302|304)$' "$codeout"
 say ""
-say "   -> Now confirm in New Relic that this produced an audit record:"
-say "      look for ruleId 920330 / \"Empty User Agent Header\" in the last"
-say "      few minutes from the WAF app for this space."
-say "      If normal traffic above logged NOTHING and this logged ONE record,"
+say "   -> Now confirm the detection reached the log:"
+say "        cf logs \$ROUTE_SERVICE_APP_NAME --recent | grep '\\[id \"920170\"\\]'"
+say "      and in New Relic, Modsecurity.id = 920170"
+say "      (\"GET or HEAD Request with Body Content\") in the last few minutes."
+say "      If normal traffic above logged NOTHING and this logged a line,"
 say "      the detection pipeline is working end to end."
+say "      920170 scores 5, so 949110 should fire alongside it."
 say ""
 
 # ---------------------------------------------------------------------------
