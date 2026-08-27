@@ -18,8 +18,8 @@ provoke an incident response.
 
 The probe that exercises the WAF omits its `User-Agent` header. That trips CRS
 rule **920330 "Empty User Agent Header"** — a real detection that travels the
-identical path an attack would: rule match → anomaly score → audit log →
-stdout → New Relic.
+identical path an attack would: rule match → anomaly score → nginx error
+log → New Relic.
 
 No attack signature is ever put on the wire. A missing header appears in no
 threat feed and matches no IDS rule, so it will not page anyone. Rule 920330
@@ -192,56 +192,66 @@ curl -s -o /dev/null -w "testparam -> %{http_code}\n" \
 The script can only see HTTP status codes. The whole point of the rollout is
 what lands in the log — that part has to be checked in New Relic.
 
-> ### Expect to have to fix log parsing before this works
+> ### How detections reach New Relic
 >
-> The audit records are a **new log shape**: single-line JSON on stdout.
-> Existing New Relic parsing was built around ModSecurity's *error-log* format —
-> the `Modsecurity.id` / `Modsecurity.msg` attributes seen in the July export.
-> Those attributes may not be extracted from the audit JSON.
+> Detections arrive as ordinary ModSecurity **nginx error-log** lines, the same
+> bracketed format the logshipper's `parse_modsecurity_keys.lua` already parses
+> into `Modsecurity.id` / `Modsecurity.msg` / `Modsecurity.level`. No new log
+> shape is involved and no parser change is needed.
 >
-> If step 2.1 finds nothing, check the raw log stream before concluding the WAF
-> is broken. It is more likely a parsing gap than a detection failure.
+> This works only because `nginx.conf.tmpl` sets `error_log /dev/stderr info`.
+> ModSecurity-nginx emits matched rule messages at `NGX_LOG_INFO` and logs
+> blocks at `NGX_LOG_ERR`, so at `warn` every CRS detection is silently
+> discarded. If step 2.1 finds nothing, check the log level first.
+>
+> **`Modsecurity.level` now carries meaning:** detections are `info`, blocks are
+> `error`. Any existing dashboard or alert filtering on `level = error` will
+> exclude every CRS detection — check those before relying on them.
 
-### 2.1 — The canary produced exactly one audit record
+### 2.1 — The canary produced exactly one detection line
 
 - [ ] Pass
 
 ```sh
 # raw stream - authoritative
-cf logs $ROUTE_SERVICE_APP_NAME --recent | grep 920330
+cf logs $ROUTE_SERVICE_APP_NAME --recent | grep '\[id "920330"\]'
 ```
 
 ```sql
 -- New Relic (NRQL)
-SELECT * FROM Log WHERE message LIKE '%920330%' SINCE 15 minutes ago
+SELECT * FROM Log WHERE `Modsecurity.id` = '920330' SINCE 15 minutes ago
 ```
 
-**Expect:** one record containing `"ruleId":"920330"` and
-`"message":"Empty User Agent Header"`.
+**Expect:** one line reading
+`ModSecurity: Warning. Matched … [id "920330"] [msg "Empty User Agent Header"] …`,
+at `[info]` level, parsing into `Modsecurity.id = 920330` and
+`Modsecurity.msg = "Empty User Agent Header"`.
 
-### 2.2 — Normal traffic produced no audit records
+### 2.2 — Normal traffic produced no detection lines
 
 - [ ] Pass
 
-Confirmed locally: a clean `200` emits nothing. This is what keeps ingest volume
-sane, and it is what makes the canary attributable — if normal traffic logged
-too, you couldn't tell them apart.
+A request that matches no rule emits no ModSecurity line at all. That is what
+makes the canary attributable — if normal traffic logged too, you could not tell
+them apart.
 
-**Expect:** zero audit records for the step 01 requests. Only errors and rule
-matches are recorded.
+**Expect:** zero `ModSecurity:` lines for the step 01 requests. Note that nginx
+itself now emits some unrelated `[info]` chatter; only `ModSecurity:` lines
+matter here.
 
-### 2.3 — Measure audit-log volume
+### 2.3 — Measure error-log volume
 
 - [ ] Pass
 
 The genuinely open question, and the main reason to run this on dev before prod.
-`SecAuditLogRelevantStatus` is currently commented out, so it is not established
-whether 404s get audited — and USAGov serves a lot of 404s.
+ModSecurity logs **one line per matched rule**, not one per request — a single
+SQLi probe produced roughly six lines in local testing. Raising the level from
+`warn` to `info` also lets through nginx's own info-level messages.
 
-**Judge:** compare audit records/min for a few hours before and after the deploy.
-If 404s are flooding the log, uncomment
-`SecAuditLogRelevantStatus "^(?:5|4(?!04))"` in `modsecurity-override.conf` to
-exclude them, and note it on the PR.
+**Judge:** compare error-log lines/min for a few hours before and after the
+deploy. If the volume is unacceptable, the lever is CRS tuning — adding
+exclusions so fewer rules match — not lowering the log level, which would make
+detection-only silent again. Record the numbers on the PR.
 
 ### 2.4 — False-positive sweep (the real work)
 
@@ -275,8 +285,8 @@ Any of these means stop and roll back rather than push forward.
 | Normal pages return `403` | CRS is blocking, not detecting. The `SecRuleUpdateActionById` lines aren't taking effect. | **Roll back** |
 | Malformed body no longer returns `400` | Engine mode is wrong; rule 200002 has stopped blocking. Production behaviour has changed. | **Roll back** |
 | Startup line still reads `0/7/0` | Old image. Nothing was actually tested. | Redeploy |
-| No canary record after 5 min | Audit logging or log parsing is broken. Check the raw `cf logs` stream before blaming the WAF. | Investigate |
-| Audit volume rises sharply | Likely 404s being audited. | Tune, don't roll back |
+| No canary record after 5 min | Most likely `error_log` is back at `warn`, which discards the INFO-level detections. Check the raw `cf logs` stream before blaming the WAF. | Investigate |
+| Error-log volume rises sharply | One line per matched rule; tune CRS exclusions rather than lowering the log level. | Tune, don't roll back |
 | CMS or benefit-finder flags CRS rules | Expected — this is the finding, not a failure. Record and build exclusions. | Continue |
 
 ### Rollback
@@ -301,7 +311,7 @@ rather than take it on trust.
 | 04 | testparam retired | not 403 | | |
 | 2.1 | Canary logged | 1 record, 920330 | | |
 | 2.2 | Normal traffic silent | 0 records | | |
-| 2.3 | Audit volume acceptable | judgement | | |
+| 2.3 | Error-log volume acceptable | judgement | | |
 | 2.4 | False positives found | list them | | |
 
 Run by ______________________  Date ______________  Source IP ________________
