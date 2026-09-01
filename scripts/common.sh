@@ -2000,6 +2000,22 @@ state_command() {
     fi
 }
 
+# Classify what `cf ssh-enabled APP` / `cf space-ssh-allowed SPACE` report.
+# Both print "ssh support is enabled|disabled ..."; stderr is folded in so a
+# failed lookup (no permission, unknown space) falls through to "unknown"
+# rather than being misreported as disabled.
+# Args: the cf command to run and its arguments
+# Echoes: "enabled", "disabled", or "unknown"
+_cf_ssh_state() {
+    local out
+    out=$("$@" 2>&1)
+    case "$out" in
+        *disabled*) echo "disabled" ;;
+        *enabled*)  echo "enabled" ;;
+        *)          echo "unknown" ;;
+    esac
+}
+
 # Explain why a `cf ssh` (or `cf app`) call failed or returned no output.
 # Call this from a failure path only - it probes the CF session to find the
 # first broken link in the chain (CLI missing, not logged in, app
@@ -2054,10 +2070,40 @@ diagnose_cf_ssh_failure() {
         return 1
     fi
 
-    if ! cf ssh-enabled "$app" 2>/dev/null | grep -qi 'enabled'; then
+    # SSH can be blocked in two independent places - on the space
+    # (cf disallow-space-ssh) and on the app (cf disable-ssh) - and both must
+    # be on for `cf ssh` to work. A failed `cf ssh` looks identical either
+    # way, so report the state of both layers before naming a fix.
+    local space_ssh="unknown" app_ssh
+    if [ -n "$space" ]; then
+        space_ssh=$(_cf_ssh_state cf space-ssh-allowed "$space")
+    fi
+    app_ssh=$(_cf_ssh_state cf ssh-enabled "$app")
+
+    if [ "$space_ssh" = "disabled" ] || [ "$app_ssh" = "disabled" ]; then
+        # Name the fix only for the layer that is actually blocking, so the
+        # message never tells anyone to re-enable something already on.
+        # `cf ssh-enabled` folds the space setting into its answer, so while
+        # the space is disallowed the app line cannot be trusted on its own -
+        # say that rather than pointing at cf enable-ssh for no reason.
+        local space_line app_line
+        if [ "$space_ssh" = "disabled" ]; then
+            space_line="disabled  → fix: cf allow-space-ssh ${space:-<space>}"
+            app_line="$app_ssh"
+            [ "$app_ssh" = "disabled" ] && app_line="disabled (a disallowed space reports this too)"
+        else
+            space_line="$space_ssh"
+            app_line="$app_ssh"
+            [ "$app_ssh" = "disabled" ] && app_line="disabled  → fix: cf enable-ssh $app"
+        fi
         {
-            print_status $RED "❌ SSH access to '$app' is disabled in space '${space:-unknown}'"
-            print_status $YELLOW "   Enable it with: cf enable-ssh $app (then restart the app)"
+            print_status $RED "❌ SSH to '$app' is blocked in space '${space:-unknown}'"
+            print_status $YELLOW "   'cf ssh' needs SSH allowed on the space AND enabled on the app:"
+            print_status $YELLOW "     space '${space:-unknown}': $space_line"
+            print_status $YELLOW "     app '$app': $app_line"
+            if [ "$space_ssh" = "disabled" ]; then
+                print_status $YELLOW "   Allowing the space takes effect immediately - no app restart needed."
+            fi
         } >&2
         return 1
     fi

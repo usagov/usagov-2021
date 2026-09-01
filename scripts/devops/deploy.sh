@@ -1493,8 +1493,7 @@ downsync() {
             sort -r | \
             head -1 | \
             awk '{print \$4}' | \
-            xargs basename | \
-            sed 's/\.sql\.gz\$/'" 2>/dev/null)
+            sed -e 's|.*/||' -e 's/\.sql\.gz$//'" 2>/dev/null)
         if [ $? -ne 0 ]; then
             print_status $RED "❌ Could not query backups in $from_space"
             diagnose_cf_ssh_failure cms
