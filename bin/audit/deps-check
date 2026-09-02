@@ -1,0 +1,527 @@
+#!/usr/bin/env bash
+#
+# bin/audit/deps-check — read-only dependency audit for USAGov.
+#
+# Reports, in one Markdown document:
+#   * available updates classified as patch / minor / major
+#   * security advisories (composer audit / npm audit — no token needed)
+#   * abandoned Composer packages
+#   * exact-pinned packages that are holding back newer releases,
+#     including the latest patch release within the pinned minor
+#
+# Covers:
+#   * Composer  — Drupal core, contrib modules, PHP libraries
+#   * npm       — web/themes/custom/usagov            (Drupal theme)
+#   * npm       — sources/benefit-finder              (Benefit Finder app)
+#   * npm       — .docker/src-reporter/analytics-reporter
+#
+# Makes NO changes. Composer and npm execute inside the project's docker
+# containers (same approach as bin/composer and bin/npm), so Docker must be
+# running. The first invocation may take a while if the composer/node images
+# have not been built yet. Requires jq (1.6 or newer) on the host.
+#
+# Usage:
+#   bin/audit/deps-check                      # full report to stdout
+#   bin/audit/deps-check > deps-report.md
+#   bin/audit/deps-check --composer-only
+#   bin/audit/deps-check --npm-only
+#   bin/audit/deps-check --raw-out DIR        # also save raw tool output (JSON)
+#   bin/audit/deps-check --raw-in DIR         # re-render a report from saved raw output
+#
+# Progress goes to stderr; the report itself is the only thing on stdout.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$ROOT_DIR"
+
+# slug | human label | path relative to repo root
+NPM_TARGETS=(
+  "drupal-theme|Drupal theme|web/themes/custom/usagov"
+  "benefit-finder|Benefit Finder|sources/benefit-finder"
+  "analytics-reporter|Analytics Reporter|.docker/src-reporter/analytics-reporter"
+)
+
+DO_COMPOSER=1
+DO_NPM=1
+RAW_IN=""
+RAW_OUT=""
+
+usage() {
+  awk 'NR==1 {next} /^#/ {sub(/^# ?/, ""); print; next} {exit}' "${BASH_SOURCE[0]}"
+}
+
+info() { printf '»» %s\n' "$*" >&2; }
+die()  { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --composer-only) DO_NPM=0 ;;
+    --npm-only)      DO_COMPOSER=0 ;;
+    --raw-in)        RAW_IN="${2:-}"; shift ;;
+    --raw-out)       RAW_OUT="${2:-}"; shift ;;
+    -h|--help)       usage; exit 0 ;;
+    *)               die "unknown option: $1 (see --help)" ;;
+  esac
+  shift
+done
+
+[ "$DO_COMPOSER" = 1 ] || [ "$DO_NPM" = 1 ] || die "--composer-only and --npm-only are mutually exclusive"
+command -v jq >/dev/null 2>&1 || die "jq is required on the host (brew install jq)"
+
+JQDIR="$(mktemp -d)"
+if [ -n "$RAW_IN" ]; then
+  [ -d "$RAW_IN" ] || die "--raw-in directory not found: $RAW_IN"
+  RAW="$RAW_IN"
+else
+  docker info >/dev/null 2>&1 \
+    || die "Docker must be running — composer/npm execute inside the project containers"
+  RAW="$(mktemp -d)"
+fi
+
+cleanup() {
+  if [ -n "$RAW_OUT" ] && [ -z "$RAW_IN" ]; then
+    mkdir -p "$RAW_OUT"
+    cp "$RAW"/*.json "$RAW_OUT"/ 2>/dev/null || true
+  fi
+  if [ -z "$RAW_IN" ]; then rm -rf "$RAW"; fi
+  rm -rf "$JQDIR"
+}
+trap cleanup EXIT
+
+composer_run() {
+  docker compose run --rm --no-deps -T --workdir /var/www composer composer "$@"
+}
+
+npm_run() {
+  local dir="$1"; shift
+  docker compose run --rm --no-deps -T --workdir "/var/www/$dir" node npm "$@"
+}
+
+# capture <outfile> <ok-exit-codes|any> <fatal|warn> <cmd...>
+# Runs cmd, stores stdout as JSON in $RAW/<outfile>. Non-JSON or unexpected
+# exit codes are fatal or downgraded to an inline __error__ marker.
+capture() {
+  local outfile="$1" okexits="$2" mode="$3"; shift 3
+  local err rc=0
+  err="$(mktemp)"
+  "$@" >"$RAW/$outfile" 2>"$err" || rc=$?
+
+  if [ "$okexits" != "any" ] && [[ " $okexits " != *" $rc "* ]]; then
+    if [ "$mode" = "fatal" ]; then
+      cat "$err" >&2
+      rm -f "$err"
+      die "command failed (exit $rc): $*"
+    fi
+    info "warning: command failed (exit $rc): $* — noted in report"
+    jq -n --arg msg "exit $rc: $(tail -c 400 "$err" | tr -d '\r')" '{__error__: $msg}' >"$RAW/$outfile"
+    rm -f "$err"
+    return 0
+  fi
+
+  [ -s "$RAW/$outfile" ] || echo '{}' >"$RAW/$outfile"
+  if ! jq -e . "$RAW/$outfile" >/dev/null 2>&1; then
+    if [ "$mode" = "fatal" ]; then
+      cat "$err" >&2
+      rm -f "$err"
+      die "expected JSON output from: $*"
+    fi
+    info "warning: non-JSON output from: $* — noted in report"
+    jq -n --arg msg "command produced non-JSON output" '{__error__: $msg}' >"$RAW/$outfile"
+  fi
+  rm -f "$err"
+}
+
+# ---------------------------------------------------------------------------
+# Collection
+# ---------------------------------------------------------------------------
+
+collect_composer() {
+  # --ignore-platform-reqs matches bin/composer's convention; without it,
+  # "latest" is filtered by the composer container's PHP platform and can
+  # come back as "[none matched]".
+  info "composer outdated (direct dependencies)..."
+  capture composer-outdated.json "0" fatal \
+    composer_run outdated --direct --format=json --no-interaction --ignore-platform-reqs
+
+  info "composer audit..."
+  capture composer-audit.json any warn \
+    composer_run audit --format=json --no-interaction
+
+  # For exact-pinned packages that are outdated, look up all available
+  # versions so the report can show the latest patch within the pinned minor.
+  local pins pkg
+  pins="$(jq -r --slurpfile cj composer.json '
+      (($cj[0].require // {}) + ($cj[0]["require-dev"] // {})) as $req
+      | (.installed // [])[]
+      | select(($req[.name] // "") | test("^[0-9]+(\\.[0-9]+)*$"))
+      | .name
+    ' "$RAW/composer-outdated.json")"
+
+  : >"$JQDIR/pins.ndjson"
+  for pkg in $pins; do
+    info "composer show --all $pkg (pin lookup)..."
+    if composer_run show --all "$pkg" --format=json --ignore-platform-reqs >"$JQDIR/show.json" 2>/dev/null; then
+      jq --arg name "$pkg" '{name: $name, versions: (.versions // [])}' \
+        "$JQDIR/show.json" >>"$JQDIR/pins.ndjson" || true
+    else
+      info "warning: version lookup failed for $pkg"
+    fi
+  done
+  jq -s '.' "$JQDIR/pins.ndjson" >"$RAW/composer-pins.json" 2>/dev/null \
+    || echo '[]' >"$RAW/composer-pins.json"
+}
+
+collect_npm() {
+  local t slug label dir
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    info "npm outdated — ${label}..."
+    capture "npm-outdated--${slug}.json" "0 1" warn \
+      npm_run "$dir" outdated --json --long
+    info "npm audit — ${label}..."
+    capture "npm-audit--${slug}.json" any warn \
+      npm_run "$dir" audit --json
+  done
+}
+
+# ---------------------------------------------------------------------------
+# jq programs (rendering)
+# ---------------------------------------------------------------------------
+
+write_jq_programs() {
+  # Shared helpers: semver split + jump classification.
+  cat >"$JQDIR/lib.jq" <<'EOF'
+def vparts:
+  tostring | sub("^v"; "") | split("+")[0] | split("-")[0]
+  | split(".") | map(tonumber? // -1);
+def jump($c; $l):
+  ($c | vparts) as $cv
+  | ($l | vparts) as $lv
+  | if ([$cv[], $lv[]] | map(select(. < 0)) | length) > 0 then "other"
+    elif ($cv[0] // 0) != ($lv[0] // 0) then "major"
+    elif ($cv[1] // 0) != ($lv[1] // 0) then "minor"
+    elif ($cv[2] // 0) != ($lv[2] // 0) then "patch"
+    else "other"
+    end;
+def jumprank: if . == "patch" then 0 elif . == "minor" then 1 elif . == "major" then 2 else 3 end;
+def exactpin: test("^v?[0-9]+(\\.[0-9]+)*(-[0-9A-Za-z.-]+)?$");
+def sevfix($title):
+  if . != null and . != "" and . != "?" then .
+  else (($title // "") | ([scan("Highly critical|Moderately critical|Less critical|Not critical|Critical")] | first) // "?")
+  end;
+EOF
+
+  cat >"$JQDIR/composer-updates.jq" <<'EOF'
+(($cj[0].require // {}) + ($cj[0]["require-dev"] // {})) as $req
+| (.installed // [])
+| map(select(.name != null)
+  | { name,
+      version: (.version // "?"),
+      latest: (.latest // "?"),
+      status: (.["latest-status"] // ""),
+      constraint: ($req[.name] // "(transitive)"),
+      abandoned: ((.abandoned // false) != false) })
+| map(. + { jump: jump(.version; .latest), pinned: (.constraint | exactpin) })
+| map(. + { gate: (if .pinned then "pinned exact"
+                   elif .status == "semver-safe-update" then "constraint allows"
+                   else "blocked by constraint" end) })
+| sort_by((.jump | jumprank), .name)
+| if length == 0 then "_All direct Composer dependencies are up to date._"
+  else
+    ( [ "| Package | Installed | Latest | Jump | Constraint | Gate |",
+        "|---|---|---|---|---|---|" ]
+      + map("| \(.name)\(if .abandoned then " ⚠️ abandoned" else "" end) | \(.version) | \(.latest) | \(.jump) | `\(.constraint)` | \(.gate) |")
+    ) | join("\n")
+  end
+EOF
+
+  cat >"$JQDIR/composer-audit.jq" <<'EOF'
+if has("__error__") then "> ⚠️ `composer audit` could not run: \(.__error__)"
+else
+  ((.advisories // {}) | if type == "object" then . else {} end) as $adv
+  | ((.abandoned // {}) | if type == "object" then . else {} end) as $ab
+  | ([ $adv | to_entries[] | .key as $p
+       | (.value | if type == "array" then .[] else . end)
+       | { p: $p,
+           sev: (.title as $t | (.severity // "?") | sevfix($t)),
+           cve: (.cve // "n/a"),
+           title: (.title // "advisory"),
+           link: (.link // "") } ]) as $rows
+  | ( if ($rows | length) == 0 then "No known security advisories."
+      else
+        ( [ "| Package | Severity | CVE | Advisory |", "|---|---|---|---|" ]
+          + ($rows | sort_by(.sev) | map("| \(.p) | \(.sev) | \(.cve) | [\(.title)](\(.link)) |"))
+        ) | join("\n")
+      end )
+    + ( if ($ab | length) > 0 then
+          "\n\n**Abandoned packages:** "
+          + ($ab | to_entries
+              | map(.key + (if (.value | type) == "string" then " (suggested: \(.value))" else "" end))
+              | join(", "))
+        else "" end )
+end
+EOF
+
+  cat >"$JQDIR/composer-pins.jq" <<'EOF'
+(($out[0].installed // []) | map({key: .name, value: .}) | from_entries) as $inst
+| (($cj[0].require // {}) + ($cj[0]["require-dev"] // {})) as $req
+| if length == 0 then "_No exact-pinned Composer packages are holding back newer releases._"
+  else
+    map(
+      . as $p
+      | ($inst[$p.name] // {}) as $e
+      | ($e.version // "?") as $cur
+      | ($e.latest // "?") as $lat
+      | ($req[$p.name] // "?") as $pin
+      | ((if ($pin | exactpin) then $pin else $cur end | split("."))[0:2] | join(".")) as $minor
+      | ([ $p.versions[]?
+           | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))
+           | select(startswith($minor + ".")) ]
+         | sort_by(vparts) | last) as $sm
+      | "- **\($p.name)** pinned to `\($pin)`"
+        + (if $cur != $pin then " (installed: `\($cur)` — out of sync with the pin)" else "" end)
+        + " — "
+        + (if $sm != null and $sm != $pin
+           then "latest \($minor).x patch: **\($sm)**"
+           else "no newer patch release in the \($minor).x series" end)
+        + " (latest overall: \($lat))"
+    ) | join("\n")
+  end
+EOF
+
+  cat >"$JQDIR/npm-updates.jq" <<'EOF'
+if has("__error__") then "> ⚠️ `npm outdated` could not run: \(.__error__)"
+else
+  (($pj[0].dependencies // {}) + ($pj[0].devDependencies // {})
+   + ($pj[0].optionalDependencies // {}) + ($pj[0].peerDependencies // {})) as $req
+  | to_entries
+  | map(.key as $k
+    | (.value | if type == "array" then .[0] else . end)
+    | { name: $k,
+        current: (.current // "MISSING"),
+        wanted: (.wanted // "?"),
+        latest: (.latest // "?"),
+        type: (if .type == "devDependencies" then "dev"
+               elif .type == "optionalDependencies" then "optional"
+               elif .type == "peerDependencies" then "peer"
+               else "prod" end),
+        constraint: ($req[$k] // "?") })
+  | map(. + { base: (if .current == "MISSING" then .wanted else .current end) })
+  | map(. + { jump: jump(.base; .latest), pinned: (.constraint | exactpin) })
+  | map(. + { gate: (if .pinned then "pinned exact"
+                     elif .wanted != .base then "range allows \(.wanted)"
+                     else "blocked by range" end) })
+  | sort_by((.jump | jumprank), .name)
+  | if length == 0 then "_All dependencies are up to date._"
+    else
+      ( [ "| Package | Current | Latest | Jump | Type | Range | Gate |",
+          "|---|---|---|---|---|---|---|" ]
+        + map("| \(.name) | \(.current) | \(.latest) | \(.jump) | \(.type) | `\(.constraint)` | \(.gate) |")
+      ) | join("\n")
+    end
+end
+EOF
+
+  cat >"$JQDIR/npm-audit.jq" <<'EOF'
+if has("__error__") then "> ⚠️ `npm audit` could not run: \(.__error__)"
+else
+  (.metadata.vulnerabilities // {}) as $m
+  | ($m.total // 0) as $tot
+  | if $tot == 0 then "No known vulnerabilities."
+    else
+      "**\($tot) known vulnerabilities** — critical: \($m.critical // 0), high: \($m.high // 0), moderate: \($m.moderate // 0), low: \($m.low // 0), info: \($m.info // 0)."
+      + ( [ (.vulnerabilities // {}) | to_entries[] | .value
+            | select(.isDirect == true) | "\(.name) (\(.severity))" ]
+          | if length > 0 then "\n\nDirect dependencies affected: " + join(", ") + "."
+            else "\n\nNo *direct* dependencies affected (transitive only)." end )
+    end
+end
+EOF
+
+  cat >"$JQDIR/summary-composer.jq" <<'EOF'
+(($cj[0].require // {}) + ($cj[0]["require-dev"] // {})) as $req
+| (.installed // []) as $rows
+| ($rows | map({ jump: jump((.version // "?"); (.latest // "?")),
+                 ok: ((.["latest-status"] // "") == "semver-safe-update") })) as $c
+| (if ($audit[0] | has("__error__")) then "?"
+   else ([ ($audit[0].advisories // {})
+           | if type == "object" then to_entries[] | (.value | if type == "array" then .[] else . end)
+             else empty end ] | length)
+   end) as $adv
+| "| Composer (Drupal) | \($adv) | \([$c[] | select(.jump == "patch")] | length) | \([$c[] | select(.jump == "minor")] | length) | \([$c[] | select(.jump == "major")] | length) | \([$c[] | select(.ok | not)] | length) |"
+EOF
+
+  cat >"$JQDIR/summary-npm.jq" <<'EOF'
+if has("__error__") then "| npm — \($area) | ? | ? | ? | ? | ? |"
+else
+  ( to_entries
+    | map((.value | if type == "array" then .[0] else . end)
+      | { base: (.current // .wanted // "?"),
+          wanted: (.wanted // "?"),
+          latest: (.latest // "?") })
+    | map(. + { jump: jump(.base; .latest), ok: (.wanted != .base) }) ) as $c
+  | (if ($audit[0] | has("__error__")) then "?"
+     else ($audit[0].metadata.vulnerabilities.total // 0) end) as $adv
+  | "| npm — \($area) | \($adv) | \([$c[] | select(.jump == "patch")] | length) | \([$c[] | select(.jump == "minor")] | length) | \([$c[] | select(.jump == "major")] | length) | \([$c[] | select(.ok | not)] | length) |"
+end
+EOF
+}
+
+# render <program> <input-file> [extra jq args…]
+render() {
+  local prog="$1" input="$2"; shift 2
+  if [ ! -s "$input" ]; then
+    echo "_Not collected._"
+    return 0
+  fi
+  jq -r "$(cat "$JQDIR/lib.jq" "$JQDIR/$prog")" "$@" "$input"
+}
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+if [ -z "$RAW_IN" ]; then
+  [ "$DO_COMPOSER" = 1 ] && collect_composer
+  [ "$DO_NPM" = 1 ] && collect_npm
+fi
+
+write_jq_programs
+
+GEN_DATE="$(date '+%Y-%m-%d %H:%M %Z')"
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+SHA="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
+
+{
+  echo "# USAGov Dependency Audit"
+  echo
+  echo "_Generated $GEN_DATE on branch \`$BRANCH\` (\`$SHA\`) by \`bin/audit/deps-check\`._"
+  echo
+  echo 'This is a **read-only report** — nothing has been updated. It answers two questions'
+  echo 'for the weekly dependency-update process: *what security fixes are we missing?* and'
+  echo '*what updates are available, and which of them need a human decision?* Data comes'
+  echo 'from `composer outdated`/`composer audit` (PHP/Drupal) and `npm outdated`/`npm audit`'
+  echo '(JavaScript), run inside the project'"'"'s docker containers.'
+  echo
+  echo "## How to read this report"
+  echo
+  echo '- **Version numbers** read `major.minor.patch` (e.g. `10.6.14`). A **patch** jump'
+  echo '  (10.6.14 → 10.6.15) is bug/security fixes only — the safest update. A **minor**'
+  echo '  jump (10.6 → 10.7) adds features but should stay compatible. A **major** jump'
+  echo '  (10 → 11) can break things and needs planning.'
+  echo '- **Constraint / Range** is the version rule declared in `composer.json` /'
+  echo '  `package.json`. `^3.5` means "any 3.x, from 3.5 up"; a bare number like `10.6.14`'
+  echo '  means "exactly this version" (a pin).'
+  echo '- **Gate** says what stands between us and the update:'
+  echo '  - *constraint/range allows* — a plain `composer update` / `npm update` would take'
+  echo '    this today. These are the routine weekly candidates.'
+  echo '  - *blocked by constraint/range* — a newer version exists, but the declared rule'
+  echo '    excludes it (usually a major jump). Taking it means editing the rule deliberately.'
+  echo '  - *pinned exact* — locked to one version on purpose. Moving it is a decision,'
+  echo '    not routine maintenance.'
+  echo '- **Type** (npm tables): *prod* code ships to the site; *dev* is build/test tooling'
+  echo '  only — lower risk, but still worth keeping current.'
+  echo '- **Security advisories**: *direct* means a package we chose is vulnerable (update'
+  echo '  it); *transitive* means a dependency-of-a-dependency is (often fixed by updating'
+  echo '  the direct parent, or waiting for upstream to update).'
+  echo '- A Current value of `MISSING` (npm tables) just means the package is not installed'
+  echo '  on this machine (`node_modules` absent); the version columns are still accurate.'
+  echo
+  echo "## Summary"
+  echo
+  echo 'One row per dependency area. *Security advisories* counts known vulnerabilities;'
+  echo '*Patch/Minor/Major* count available updates by jump size; *Blocked/pinned* counts'
+  echo 'updates that a plain `composer update` / `npm update` would **not** take — each of'
+  echo 'those needs a human decision.'
+  echo
+  echo "| Area | Security advisories | Patch | Minor | Major | Blocked/pinned |"
+  echo "|---|---|---|---|---|---|"
+  if [ "$DO_COMPOSER" = 1 ]; then
+    render summary-composer.jq "$RAW/composer-outdated.json" \
+      --slurpfile cj composer.json \
+      --slurpfile audit "$RAW/composer-audit.json"
+  fi
+  if [ "$DO_NPM" = 1 ]; then
+    for t in "${NPM_TARGETS[@]}"; do
+      IFS='|' read -r slug label dir <<<"$t"
+      # $area, not $label: "label" is a reserved word in jq 1.6, where the
+      # variable $label is a compile error (jq 1.7+ accepts it).
+      render summary-npm.jq "$RAW/npm-outdated--$slug.json" \
+        --arg area "$label" \
+        --slurpfile audit "$RAW/npm-audit--$slug.json"
+    done
+  fi
+  echo
+
+  if [ "$DO_COMPOSER" = 1 ]; then
+    echo "## Composer — Drupal core, modules, PHP dependencies"
+    echo
+    echo "### Security advisories (\`composer audit\`)"
+    echo
+    echo 'Known vulnerabilities in PHP packages this site installs, from the Drupal and'
+    echo 'GitHub security advisory databases. **These are the highest-priority items.**'
+    echo 'The fix is normally "update the package to the version the advisory names" —'
+    echo 'follow the link for details and the fixed version.'
+    echo
+    render composer-audit.jq "$RAW/composer-audit.json"
+    echo
+    echo "### Available updates (direct dependencies)"
+    echo
+    echo 'Every Composer package we depend on directly that has a newer release, sorted'
+    echo 'smallest jump first. The *patch* rows whose Gate says *constraint allows* are'
+    echo 'the routine weekly update set; everything else needs a person to decide.'
+    echo
+    render composer-updates.jq "$RAW/composer-outdated.json" --slurpfile cj composer.json
+    echo
+    echo "### Exact-pinned packages"
+    echo
+    echo 'These are locked to one exact version on purpose (e.g. Drupal core), so no'
+    echo 'update command will ever move them. This list shows what staying pinned is'
+    echo 'costing: the newest patch release in the pinned series (usually the safe move)'
+    echo 'and the newest release overall.'
+    echo
+    render composer-pins.jq "$RAW/composer-pins.json" \
+      --slurpfile out "$RAW/composer-outdated.json" \
+      --slurpfile cj composer.json
+    echo
+  fi
+
+  if [ "$DO_NPM" = 1 ]; then
+    for t in "${NPM_TARGETS[@]}"; do
+      IFS='|' read -r slug label dir <<<"$t"
+      echo "## npm — ${label} (\`${dir}\`)"
+      echo
+      echo "### Security (\`npm audit\`)"
+      echo
+      echo 'Known vulnerabilities among this package.json'"'"'s dependencies. "Direct" ones'
+      echo 'are packages this project lists itself — fix by updating them; the rest are'
+      echo 'pulled in indirectly.'
+      echo
+      render npm-audit.jq "$RAW/npm-audit--$slug.json"
+      echo
+      echo "### Available updates"
+      echo
+      echo 'Direct npm dependencies with newer releases, smallest jump first. *prod* rows'
+      echo 'affect code shipped to the site; *dev* rows affect build/test tooling only.'
+      echo 'Column meanings are under "How to read this report" at the top.'
+      echo
+      render npm-updates.jq "$RAW/npm-outdated--$slug.json" \
+        --slurpfile pj "$dir/package.json"
+      echo
+    done
+  fi
+
+  echo "## Notes"
+  echo
+  echo '- `composer update` and `npm update` honor declared ranges: a caret range accepts'
+  echo '  **minor and patch** updates, not just patches.'
+  echo '- `sources/benefit-finder/themes/custom/usagov` is a generated copy of the Drupal theme'
+  echo '  (`scripts/benefit-finder/sync-usagov-theme.sh`) and is covered by the Drupal theme'
+  echo '  section; it is not audited separately.'
+  echo '- Snyk-based CVE scanning lives in `bin/scan-dependencies` (requires SNYK_TOKEN); this'
+  echo '  report uses `composer audit` / `npm audit`, which need no token.'
+} | sed 's/[[:space:]]*$//'
+
+info "done"
