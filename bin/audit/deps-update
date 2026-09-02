@@ -184,10 +184,28 @@ if [ -n "$RAW_IN" ]; then
   [ -d "$RAW_IN" ] || die "--raw-in dir not found: $RAW_IN"
   RAW="$RAW_IN"
   info "using existing audit data from $RAW_IN (make sure it is fresh)"
+  # A dir collected with deps-check --composer-only/--npm-only only covers half
+  # the work. Say so here rather than failing later inside jq.
+  if [ "$DO_COMPOSER" = 1 ]; then
+    [ -f "$RAW/composer-outdated.json" ] && [ -f "$RAW/composer-pins.json" ] \
+      || die "$RAW_IN holds no composer data (collected with --npm-only?) — recollect it, or add --npm-only"
+  fi
+  if [ "$DO_NPM" = 1 ]; then
+    for t in "${NPM_TARGETS[@]}"; do
+      IFS='|' read -r slug _ _ <<<"$t"
+      [ -f "$RAW/npm-outdated--$slug.json" ] \
+        || die "$RAW_IN holds no npm data for $slug (collected with --composer-only?) — recollect it, or add --composer-only"
+    done
+  fi
 else
   RAW="$TMP/raw"; mkdir -p "$RAW"
   info "collecting current dependency state (bin/audit/deps-check)..."
-  "$SCRIPT_DIR/deps-check" --raw-out "$RAW" >"$TMP/audit-report.md"
+  # Pass our scope on: without this, --composer-only/--npm-only would still pay
+  # for (and could still fail on) the half of the collection we are skipping.
+  CHECK_ARGS=(--raw-out "$RAW")
+  [ "$DO_NPM" = 1 ]      || CHECK_ARGS+=(--composer-only)
+  [ "$DO_COMPOSER" = 1 ] || CHECK_ARGS+=(--npm-only)
+  "$SCRIPT_DIR/deps-check" "${CHECK_ARGS[@]}" >"$TMP/audit-report.md"
 fi
 
 # ---------------------------------------------------------------------------
@@ -274,19 +292,33 @@ if has("__error__") then empty else
 end
 EOF
 
-jq -r "$(cat "$TMP/lib.jq" "$TMP/plan-composer.jq")" \
-  --slurpfile cj composer.json \
-  --slurpfile pins "$RAW/composer-pins.json" \
-  "$RAW/composer-outdated.json" | sort -t"$(printf '\t')" -k1,1 -k2,2 >"$PLAN/composer.tsv" \
-  || die "failed to build composer plan"
-
+# Build a plan only for the halves we are working on: the raw data for a
+# skipped half may legitimately be absent (--composer-only/--npm-only, or a
+# --raw-in dir collected with one of those flags). A skipped half is left with
+# an empty plan so downstream readers need no scope guards of their own.
+: >"$PLAN/composer.tsv"
 for t in "${NPM_TARGETS[@]}"; do
-  IFS='|' read -r slug label dir <<<"$t"
-  jq -r "$(cat "$TMP/lib.jq" "$TMP/plan-npm.jq")" \
-    --slurpfile pj "$dir/package.json" \
-    "$RAW/npm-outdated--$slug.json" | sort -t"$(printf '\t')" -k1,1 -k2,2 >"$PLAN/$slug.tsv" \
-    || die "failed to build npm plan for $label"
+  IFS='|' read -r slug _ _ <<<"$t"
+  : >"$PLAN/$slug.tsv"
 done
+
+if [ "$DO_COMPOSER" = 1 ]; then
+  jq -r "$(cat "$TMP/lib.jq" "$TMP/plan-composer.jq")" \
+    --slurpfile cj composer.json \
+    --slurpfile pins "$RAW/composer-pins.json" \
+    "$RAW/composer-outdated.json" | sort -t"$(printf '\t')" -k1,1 -k2,2 >"$PLAN/composer.tsv" \
+    || die "failed to build composer plan"
+fi
+
+if [ "$DO_NPM" = 1 ]; then
+  for t in "${NPM_TARGETS[@]}"; do
+    IFS='|' read -r slug label dir <<<"$t"
+    jq -r "$(cat "$TMP/lib.jq" "$TMP/plan-npm.jq")" \
+      --slurpfile pj "$dir/package.json" \
+      "$RAW/npm-outdated--$slug.json" | sort -t"$(printf '\t')" -k1,1 -k2,2 >"$PLAN/$slug.tsv" \
+      || die "failed to build npm plan for $label"
+  done
+fi
 
 # ---------------------------------------------------------------------------
 # Phase 1: interview
@@ -1298,28 +1330,28 @@ def actionable:
 | (.fixAvailable) as $fix
 | ([.effects[]?] | join(", ")) as $eff
 | if $fix == true then
-    "ACTION (no ticket needed): \($p) — \($sev) in \($label)\n"
+    "ACTION (no ticket needed): \($p) — \($sev) in \($scope)\n"
     + "  An in-range fix exists; the default bin/audit/deps-update run applies it\n"
     + "  via npm audit fix. Seeing this after a full run usually means the fix\n"
     + "  landed only partially — run `npm audit fix` in \($dir) directly.\n"
     + "  Advisory: \($link)\n"
   elif ($fix | type) == "object" and (($fix.isSemVerMajor // false) | not) then
-    "ACTION (no ticket needed): \($p) — \($sev) in \($label)\n"
+    "ACTION (no ticket needed): \($p) — \($sev) in \($scope)\n"
     + "  Fixed by updating \($fix.name) to \($fix.version) (non-major).\n"
-    + "  Run: bin/audit/deps-update --minor  and approve \($fix.name) for \($label).\n"
+    + "  Run: bin/audit/deps-update --minor  and approve \($fix.name) for \($scope).\n"
     + "  Advisory: \($link)\n"
   else
     "--- TICKET ---------------------------------------------------------\n"
     + "Title: \($title)\n"
     + "Description:\n"
-    + "  \($p) (severity: \($sev)) in \($label) (\($dir)).\n"
+    + "  \($p) (severity: \($sev)) in \($scope) (\($dir)).\n"
     + (if $eff != "" then "  Pulled in via: \($eff).\n" else "" end)
     + "  Advisory: \($link)\n"
     + "  Suggested remediation:\n"
     + (if ($fix | type) == "object" then
         "    - The fix requires \($fix.name)@\($fix.version) (a MAJOR update).\n"
         + "    - Run `bin/audit/deps-update --major` and approve \($fix.name), then test\n"
-        + "      \($label); or schedule this as its own task.\n"
+        + "      \($scope); or schedule this as its own task.\n"
       else
         "    - No complete fix is available yet (npm reports fixAvailable: false).\n"
         + "    - Monitor upstream; `npm ls \($p)` in \($dir) shows the dependency path.\n"
@@ -1347,8 +1379,10 @@ if [ "$DO_NPM" = 1 ]; then
     info "re-auditing $label..."
     npm_run "$dir" audit --json >"$TMP/post-na-$slug.json" 2>/dev/null || true
     jq -e . "$TMP/post-na-$slug.json" >/dev/null 2>&1 || echo '{}' >"$TMP/post-na-$slug.json"
+    # $scope, not $label: "label" is a reserved word in jq 1.6, where the
+    # variable $label is a compile error (jq 1.7+ accepts it).
     jq -r "$(cat "$TMP/tickets-npm.jq")" \
-          --arg label "$label" --arg dir "$dir" \
+          --arg scope "$label" --arg dir "$dir" \
           "$TMP/post-na-$slug.json" >>"$TMP/remediation.txt" 2>/dev/null || true
   done
 fi

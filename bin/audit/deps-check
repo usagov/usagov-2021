@@ -18,7 +18,7 @@
 # Makes NO changes. Composer and npm execute inside the project's docker
 # containers (same approach as bin/composer and bin/npm), so Docker must be
 # running. The first invocation may take a while if the composer/node images
-# have not been built yet. Requires jq on the host.
+# have not been built yet. Requires jq (1.6 or newer) on the host.
 #
 # Usage:
 #   bin/audit/deps-check                      # full report to stdout
@@ -354,7 +354,7 @@ EOF
 EOF
 
   cat >"$JQDIR/summary-npm.jq" <<'EOF'
-if has("__error__") then "| npm — \($label) | ? | ? | ? | ? | ? |"
+if has("__error__") then "| npm — \($area) | ? | ? | ? | ? | ? |"
 else
   ( to_entries
     | map((.value | if type == "array" then .[0] else . end)
@@ -364,7 +364,7 @@ else
     | map(. + { jump: jump(.base; .latest), ok: (.wanted != .base) }) ) as $c
   | (if ($audit[0] | has("__error__")) then "?"
      else ($audit[0].metadata.vulnerabilities.total // 0) end) as $adv
-  | "| npm — \($label) | \($adv) | \([$c[] | select(.jump == "patch")] | length) | \([$c[] | select(.jump == "minor")] | length) | \([$c[] | select(.jump == "major")] | length) | \([$c[] | select(.ok | not)] | length) |"
+  | "| npm — \($area) | \($adv) | \([$c[] | select(.jump == "patch")] | length) | \([$c[] | select(.jump == "minor")] | length) | \([$c[] | select(.jump == "major")] | length) | \([$c[] | select(.ok | not)] | length) |"
 end
 EOF
 }
@@ -446,8 +446,10 @@ SHA="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
   if [ "$DO_NPM" = 1 ]; then
     for t in "${NPM_TARGETS[@]}"; do
       IFS='|' read -r slug label dir <<<"$t"
+      # $area, not $label: "label" is a reserved word in jq 1.6, where the
+      # variable $label is a compile error (jq 1.7+ accepts it).
       render summary-npm.jq "$RAW/npm-outdated--$slug.json" \
-        --arg label "$label" \
+        --arg area "$label" \
         --slurpfile audit "$RAW/npm-audit--$slug.json"
     done
   fi
