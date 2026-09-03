@@ -40,6 +40,7 @@ const postcssConfig = {
       id: 'benefit-finder',
       ignoreID: '#benefit-finder-modal',
     }),
+    autoprefixer(),
   ],
 }
 
@@ -108,9 +109,6 @@ export default defineConfig({
         implementation: sassEmbedded,
       },
     },
-  },
-  postcss: {
-    plugins: [autoprefixer()],
   },
   server: { ...server },
   test: testConfig,
