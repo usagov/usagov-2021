@@ -235,7 +235,6 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$v
   $shared = &drupal_static($our_unique_name);
   $shared = [];
 
-
   $shared['current'] = $current_letter;
 
   // Figure out next and previous letters.
