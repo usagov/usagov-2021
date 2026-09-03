@@ -215,10 +215,6 @@ function usa_twig_vars_preprocess_page_title(array &$variables, string $hook): v
  * @param array<string, mixed> $info
  */
 function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$variables, string $hook, array $info): void {
-  $our_unique_name = 'usa_twig_vars_preprocess_view_federal_agencies';
-  drupal_static_reset($our_unique_name);
-  $shared = &drupal_static($our_unique_name);
-  $shared = [];
 
   // Letters are the title_truncated in the rows of the view's "result."
   // At this point the current letter is available only via the Request object.
@@ -231,6 +227,15 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$v
   }
   $current_letter = $view->getRequest()->query->get('letter') ?: 'a';
   $current_letter = mb_strtoupper($current_letter);
+
+  // We use $current_letter as part of the static key to avoid contention with
+  // other overlapping requests; see USAGOV-2786.
+  $our_unique_name = implode("--", ['usa_twig_vars_preprocess_view_federal_agencies', $current_letter]);
+  drupal_static_reset($our_unique_name);
+  $shared = &drupal_static($our_unique_name);
+  $shared = [];
+
+
   $shared['current'] = $current_letter;
 
   // Figure out next and previous letters.
@@ -259,7 +264,12 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$v
  * @param array<string, mixed> $info
  */
 function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$variables, string $hook, array $info): void {
-  $alpha_context = &drupal_static('usa_twig_vars_preprocess_view_federal_agencies');
+  // We use the requested "current_letter" as part of the static key to avoid contention with
+  // other overlapping requests; see USAGOV-2786.
+  $current_letter = $variables['view']->getRequest()->query->get('letter') ?: 'a';
+  $current_letter = mb_strtoupper($current_letter);
+  $our_unique_name = implode("--", ['usa_twig_vars_preprocess_view_federal_agencies', $current_letter]);
+  $alpha_context = &drupal_static($our_unique_name);
   $variables['alpha_context'] = $alpha_context;
 }
 
