@@ -86,13 +86,13 @@
         var domain = split_urls[split_urls.length-1];
         return domain.replace(new RegExp("%20", "g"), " ");
       },
-      formatURLWithPath = function(url) {
-        if ((url.startsWith('https://www')) || (url.startsWith('http://www'))){
-          return url.slice(url.indexOf('://')+7,url.length);
-        }
-        else{
-          return url.slice(url.indexOf('://')+3,url.length);
-        }
+      escapeHtml = function(unsafe) {
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
       },
       TRANSITION_DURATION = 500;
 
@@ -370,13 +370,13 @@
            //Downloads have their full URL in event_label, while link URLs have to be concatenated with a hardcoded protocol + ga:eventAction + event_label
            if ((d.linkUrl.startsWith('https://')) || (d.linkUrl.startsWith('http://'))) {
              return [
-                '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', formatURLWithPath(d.linkUrl), '</a></span> ',
+                '<span class="name"><a class="top-download-page" target="_blank" href="', d.linkUrl, '">', escapeHtml(d.page_title), '</a></span> ',
                 '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
                 d.page_title, '</a></span>'
               ].join('');
            }
            return [
-              '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], d.linkUrl, '</a></span> ',
+              '<span class="name"><a class="top-download-page" target="_blank" href="http://', d['ga:eventAction'], d.linkUrl, '">', d['ga:eventAction'], escapeHtml(d.page_title), '</a></span> ',
               '<span class="domain">Accessed via <a class="top-download-file" target="_blank" href="https://www.usa.gov', d.pagePath, '">',
               d.page_title, '</a></span>'
             ].join('');
