@@ -14,7 +14,8 @@ RUN apk upgrade --update \
 RUN chmod +x /createreport.sh
 
 WORKDIR /analytics-reporter
-RUN npm install minimist
-RUN npm install
+# npm ci installs exactly what package-lock.json pins, so the image is
+# reproducible and Dependabot's lockfile updates actually take effect.
+RUN npm ci
 WORKDIR /
 CMD ["./createreport.sh"]
