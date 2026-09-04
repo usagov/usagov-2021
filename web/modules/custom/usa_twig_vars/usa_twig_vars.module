@@ -230,9 +230,9 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$v
 
   // We use $current_letter as part of the static key to avoid contention with
   // other overlapping requests; see USAGOV-2786.
-  $our_unique_name = implode("--", ['usa_twig_vars_preprocess_view_federal_agencies', $current_letter]);
-  drupal_static_reset($our_unique_name);
-  $shared = &drupal_static($our_unique_name);
+  $static_stash_name = usa_twig_vars_get_federal_agencies_static_name($current_letter);
+  drupal_static_reset($static_stash_name);
+  $shared = &drupal_static($static_stash_name);
   $shared = [];
 
   $shared['current'] = $current_letter;
@@ -267,9 +267,27 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$vari
   // other overlapping requests; see USAGOV-2786.
   $current_letter = $variables['view']->getRequest()->query->get('letter') ?: 'a';
   $current_letter = mb_strtoupper($current_letter);
-  $our_unique_name = implode("--", ['usa_twig_vars_preprocess_view_federal_agencies', $current_letter]);
-  $alpha_context = &drupal_static($our_unique_name);
+  $static_stash_name = usa_twig_vars_get_federal_agencies_static_name($current_letter);
+  $alpha_context = &drupal_static($static_stash_name);
   $variables['alpha_context'] = $alpha_context;
+}
+
+/**
+ * Get a consistent name for the static variable we use to share
+ * letter context between two preprocess hooks for the federal
+ * agencies view. To avoid collisions between page renders,
+ * we include current displayed letter and the site language,
+ * in addition to a unique string based on the function that
+ * populates this variable.
+ *
+ * @param string $letter
+ * @return string
+ */
+function usa_twig_vars_get_federal_agencies_static_name(string $letter): string {
+  $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $name = implode("--",
+    ['usa_twig_vars_preprocess_view_federal_agencies', $language, $letter]);
+  return $name;
 }
 
 /**
