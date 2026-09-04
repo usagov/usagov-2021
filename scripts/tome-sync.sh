@@ -412,7 +412,27 @@ fi
 # End of blog page checks (USAGOV-2667)
 ##############################################################
 
+##############################################################
+# Empty headings in agency index (implies also empty nav links), USAGOV-2786
+# Detect and warn only.
+#
 
+EMPTY_HEADING_LIST=$(find /var/www/html -name index.html -print0 | xargs -0 grep -HF '<h2 class="usagov-directory-letter-heading" tabindex="-1" id=""></h2>')
+
+OLD_IFS=$IFS
+IFS=
+EMPTY_HEADING_COUNT=$(echo $EMPTY_HEADING_LIST | wc -l)
+IFS=$OLD_IFS
+
+if [ $EMPTY_HEADING_COUNT -gt 0 ]; then
+  echo "WARNING: *** Empty headings found in agency index, total $EMPTY_HEADING_COUNT. List follows ***" | tee -a $TOMELOG
+  # This will be one long line; that's okay.
+  echo "$EMPTY_HEADING_LIST" | tee -a $TOMELOG
+fi
+
+#
+# End of Empty headings checks
+##############################################################
 
 if [ "$TOME_PUSH_NEW_CONTENT" == "1" ]; then
   echo "Pushing Content to S3: $RENDER_DIR -> $BUCKET_NAME/web/" | tee -a $TOMELOG
