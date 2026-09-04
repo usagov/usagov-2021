@@ -6,6 +6,24 @@ worker_processes auto;
 pid /var/run/nginx.pid;
 
 # Configure default error logger. access_log directive is in server block for port :80.
+#
+# Must stay at "info", not "warn". ModSecurity-nginx emits every matched rule
+# message through its msc_set_log_cb callback at NGX_LOG_INFO
+# (ngx_http_modsecurity_log.c); only interventions -- i.e. actual blocks -- are
+# logged at NGX_LOG_ERR. Since CRS runs detection-only here, "warn" silently
+# discards every CRS detection and the WAF appears to find nothing.
+#
+# This is also the log line the logshipper's parse_modsecurity_keys.lua parses,
+# so keeping detections in the error log is what keeps New Relic attributes
+# (Modsecurity.id, Modsecurity.msg, ...) populated. Do not route detections to
+# a JSON audit log instead: that Lua filter is written for this bracketed
+# error-log format and produces malformed JSON from audit records.
+#
+# Main context stays at "warn". The internal server blocks (8881/8882/...) that
+# this WAF proxies to itself inherit it, which keeps their keepalive churn out
+# of the log -- measured on dev, "client ... closed keepalive connection" was
+# ~96% of all info-level output. "info" is raised only on the port :80 block in
+# conf.d/default.conf, which is the one running ModSecurity.
 error_log /dev/stderr warn;
 
 events {
