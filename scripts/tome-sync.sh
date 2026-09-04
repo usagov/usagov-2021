@@ -417,14 +417,16 @@ fi
 # Detect and warn only.
 #
 
-EMPTY_HEADING_LIST=""
-EMPTY_HEADING_PROBLEM=0
+EMPTY_HEADING_LIST=$(find /var/www/html -name index.html -print0 | xargs -0 grep -HF '<h2 class="usagov-directory-letter-heading" tabindex="-1" id=""></h2>')
 
-EMPTY_HEADING_COUNT=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading" tabindex="-1" id></h2>' | wc -l)
+OLD_IFS=$IFS
+IFS=
+EMPTY_HEADING_COUNT=$(echo $EMPTY_HEADING_LIST | wc -l)
+IFS=$OLD_IFS
 
 if [ $EMPTY_HEADING_COUNT -gt 0 ]; then
   echo "WARNING: *** Empty headings found in agency index, total $EMPTY_HEADING_COUNT. List follows ***" | tee -a $TOMELOG
-  EMPTY_HEADING_LIST=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading" tabindex="-1" id></h2>')
+  # This will be one long line; that's okay.
   echo "$EMPTY_HEADING_LIST" | tee -a $TOMELOG
 fi
 
