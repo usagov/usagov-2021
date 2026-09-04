@@ -11,6 +11,8 @@ main[data-pagetype="Benefits Category Search"]{
 
 .benefits-category-list {
   // Separates the band from the page intro, which it now directly follows.
+  // Drop this if the benefit finder tools section above it is ever restored --
+  // the tools grid's own bottom margin used to provide this gap.
   margin-top: 2.5rem;
   margin-left: calc(-0.5 * (100vw - 100%));
   margin-right: calc(-0.5 * (100vw - 100%));
@@ -216,9 +218,27 @@ main[data-pagetype="Benefits Category Search"]{
   @include u-padding-right('205');
 }
 
+// USAGOV-2841: styles the benefit finder tools heading, whose markup is now
+// commented out in templates/includes/benefits-search.html.twig. Kept in case
+// that section comes back.
+// .benefit-finder__title {
+//   @include u-font-family('serif');
+//   margin: 2.5rem 0 0;
+// }
+
 // .benefit-finder__main / .life-events-grid markup is also rendered by the
 // Benefit Finder React app (RelativeBenefitList), which inherits these styles.
 .benefit-finder__main {
+  // USAGOV-2841: belongs to the commented-out benefit finder tools section.
+  // p.benefit-finder__desc {
+  //   margin-top: 0.5rem;
+  //   @include u-margin-bottom(5);
+  // }
+  // h2#categories-label {
+  //   margin-top: 0;
+  //   @include u-font-family('serif');
+  // }
+
   .life-events-grid {
     @include u-display('block');
 

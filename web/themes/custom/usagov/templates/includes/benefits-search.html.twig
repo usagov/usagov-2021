@@ -5,4 +5,31 @@
  #}
 {% set lang = node.langcode.value %}
 
+{#
+  USAGOV-2841: the benefit finder tools section was removed from the front end.
+  The original markup is kept below in case it comes back -- to restore it,
+  uncomment this block, drop the standalone benefit_search_form call that
+  follows it, and see the matching commented-out styles in
+  sass/_benefit-search.scss.
+
+{% if node.field_benefits_life_events_id.value is empty %}
+  {% set finder_id = '' %}
+{% else %}
+  {% set finder_id = node.field_benefits_life_events_id.value | trim %}
+{% endif %}
+
+{% if node.field_benefits_life_events_title.value | render  %}
+  <h2 class="benefit-finder__title font-serif-lg" id="{{ finder_id }}">{{ node.field_benefits_life_events_title.value | render }}</h2>
+{% endif %}
+{% if node.field_benefits_life_events_descr.value | render %}
+  <p class="benefit-finder__desc">{{ node.field_benefits_life_events_descr.value | render}}</p>
+{% endif %}
+
+<div class="benefit-finder__main">
+  {{ drupal_view('life_events_grid', 'summary_block', lang) }}
+
+  {{ drupal_view('benefit_search_form', 'benefits_facets_block', lang) }}
+</div>
+#}
+
 {{ drupal_view('benefit_search_form', 'benefits_facets_block', lang) }}
