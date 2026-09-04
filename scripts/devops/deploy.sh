@@ -1140,7 +1140,7 @@ exec_backup_command() {
 
     # Run backup command
     local cmd
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh backup %q %q %q' "$types" "$ticket" "$suffix")
+    cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh backup $(shell_quote "$types") $(shell_quote "$ticket") $(shell_quote "$suffix")"
     cf ssh cms -c "$cmd"
     local rc=$?
     if [ $rc -ne 0 ]; then
@@ -1159,12 +1159,12 @@ exec_restore_command() {
     local tag="$1"
     local only_flag="${2:-}"
 
-    # Use printf %q for safe shell escaping to prevent command injection
+    # Use shell_quote for safe shell escaping to prevent command injection
     local cmd
     if [ -n "$only_flag" ]; then
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q %q --skip-confirmation' "$tag" "$only_flag")
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh restore $(shell_quote "$tag") $(shell_quote "$only_flag") --skip-confirmation"
     else
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh restore %q --skip-confirmation' "$tag")
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh restore $(shell_quote "$tag") --skip-confirmation"
     fi
     cf ssh cms -c "$cmd"
     local rc=$?
@@ -1429,6 +1429,28 @@ _print_downsync_recovery_hint() {
     print_status $RED "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
+# Helper for downsync() - aborts after the public files restore fails.
+# By this point the database has already been restored, so the destination is
+# half-updated; say so plainly and point at the safety backup.
+# Args:
+#   $1: to_space, $2: temp_dir, $3: original_space, $4: safety_backup_taken,
+#   $5: reason - what specifically failed
+_fail_downsync_public() {
+    local to_space="$1"
+    local temp_dir="$2"
+    local original_space="$3"
+    local safety_backup_taken="$4"
+    local reason="$5"
+
+    print_status $RED "❌ System Error: Failed to restore public files to $to_space"
+    print_status $YELLOW "   Cause: $reason"
+    print_status $YELLOW "⚠️  The database was already restored — $to_space is in a partial state (db updated, public files unchanged)"
+    [ -n "$temp_dir" ] && rm -rf "$temp_dir"
+    [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+    _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
+    exit 1
+}
+
 # Downsync data from one space to another
 # Args:
 #   $1: from_space - Source environment (e.g., prod)
@@ -1463,6 +1485,12 @@ downsync() {
     # Save current space to restore later
     local original_space=$(cf target 2>/dev/null | grep 'space:' | awk '{print $2}')
 
+    # A dead CF session would otherwise fail partway through with the errors
+    # hidden by output redirection; prove the session is live before starting
+    if ! require_cf_session cms; then
+        exit 3
+    fi
+
     # If no backup tag specified, get latest from FROM space
     if [ -z "$backup_tag" ]; then
         print_status $BLUE "🔍 Finding latest backup from $from_space..."
@@ -1487,8 +1515,7 @@ downsync() {
             sort -r | \
             head -1 | \
             awk '{print \$4}' | \
-            xargs basename | \
-            sed 's/\.sql\.gz\$/'" 2>/dev/null)
+            sed -e 's|.*/||' -e 's/\.sql\.gz$//'" </dev/null 2>/dev/null)
         if [ $? -ne 0 ]; then
             print_status $RED "❌ Could not query backups in $from_space"
             diagnose_cf_ssh_failure cms
@@ -1506,21 +1533,59 @@ downsync() {
         print_status $GREEN "✅ Found latest backup: $backup_tag"
     fi
 
+    # Resolve which public files backup goes with this database backup.
+    # ENABLE_SMART_PUBLIC_BACKUP skips the public files backup whenever the
+    # files have not changed, so the newest *database* tag routinely has no
+    # public backup of its own. find_corresponding_backup falls back to the
+    # newest public backup taken at or before this tag, which is the same
+    # pairing manager.sh's restore uses. Resolve it now, before the
+    # confirmation prompt, so the operator approves what will actually be
+    # copied instead of discovering the mismatch mid-downsync.
+    if ! cf target -s "$from_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target FROM space: $from_space"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 3
+    fi
+
+    local public_tag
+    public_tag=$(cf ssh cms -c "$CMS_REMOTE_PREFIX \
+        && . scripts/common.sh \
+        && init_backup_system >/dev/null 2>&1 \
+        && setup_s3_vars >/dev/null 2>&1 \
+        && find_corresponding_backup $(shell_quote "$backup_tag") public" </dev/null 2>/dev/null \
+        | tr -d '\r' | tail -1)
+
     # Show confirmation
     print_status $YELLOW "⚠️  DOWNSYNC CONFIRMATION"
     echo ""
     echo "  FROM:   $from_space"
     echo "  TO:     $to_space"
     echo "  BACKUP: $backup_tag"
+    if [ "$public_tag" = "$backup_tag" ]; then
+        echo "  FILES:  $public_tag"
+    elif [ -n "$public_tag" ]; then
+        echo "  FILES:  $public_tag"
+        print_status $YELLOW "          (no public files backup was taken at $backup_tag — using the newest one before it)"
+    else
+        print_status $YELLOW "  FILES:  none found in $from_space — public files will NOT be copied"
+    fi
     echo ""
     print_status $YELLOW "This will:"
     echo "  1. Copy database from $from_space to $to_space"
-    echo "  2. Copy public files from $from_space to $to_space"
+    if [ -n "$public_tag" ]; then
+        echo "  2. Copy public files from $from_space to $to_space"
+    else
+        echo "  2. Leave public files in $to_space untouched (nothing to copy)"
+    fi
     echo "  3. Run database updates and config imports"
     echo "  4. Fix MFA configuration for $to_space"
     echo ""
     print_status $RED "⚠️  WARNING: This will OVERWRITE all data in $to_space!"
     echo ""
+    # Every cf ssh above this point reads from /dev/null. cf ssh forwards its
+    # own stdin to the remote command, so without that the backup-tag query
+    # swallowed the caller's stdin and this read saw EOF - downsync could only
+    # ever be driven by hand, and piping "yes" cancelled it instead.
     printf "Type 'yes' to proceed: "
     read -r confirm
 
@@ -1538,7 +1603,11 @@ downsync() {
     # This gives us a recovery point if the downsync fails partway through.
     print_status $BLUE "🛡️  Taking safety backup of $to_space before any destructive operations..."
     print_status $YELLOW "   This protects the current state of $to_space in case something goes wrong"
-    cf target -s "$to_space" >/dev/null 2>&1
+    if ! cf target -s "$to_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target $to_space for safety backup"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 3
+    fi
 
     local saved_deploy_env="${DEPLOY_ENV:-}"
     export DEPLOY_ENV="$to_space"
@@ -1568,53 +1637,67 @@ downsync() {
 
     # Switch to FROM space and download backups
     print_status $BLUE "📥 Downloading backups from $from_space..."
-    cf target -s "$from_space" >/dev/null 2>&1
+    if ! cf target -s "$from_space" >/dev/null 2>&1; then
+        print_status $RED "❌ System Error: Failed to target FROM space: $from_space"
+        print_status $YELLOW "   Refusing to download while targeted at the wrong space"
+        rm -rf "$temp_dir"
+        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+        exit 3
+    fi
 
-    # Download via CMS container
+    # Download via the same helper download-backups uses. The hand-rolled
+    # `aws s3 sync ... .; tar czf - .` this replaced had two fatal flaws:
+    # `aws s3 sync` writes its "download: ..." progress lines to *stdout*, so
+    # they landed in the tarball ahead of the gzip header and every public
+    # files download failed the magic-byte check; and syncing into /tmp itself
+    # meant `tar czf - .` swept up everything else in the container's /tmp and
+    # carried it into the destination's public files.
     print_status $BLUE "  Downloading database..."
-    cf ssh cms -c "
-        export AWS_DEFAULT_REGION='us-gov-west-1'
-        cd /var/www
-        . scripts/common.sh
-        init_backup_system >/dev/null 2>&1
-        setup_s3_vars >/dev/null 2>&1
-        aws s3 cp s3://\$BUCKET_NAME/\$AUTO_DB_BACKUP_PATH/${backup_tag}.sql.gz - \$S3_EXTRA_PARAMS
-    " > "$db_file" 2>/dev/null
-
-    if [ ! -s "$db_file" ]; then
+    local db_size
+    local db_dl_exit
+    db_size=$(download_backup_artifact "$backup_tag" db "$db_file")
+    db_dl_exit=$?
+    if [ $db_dl_exit -ne 0 ]; then
         print_status $RED "❌ System Error: Failed to download database backup"
-        diagnose_cf_ssh_failure cms
+        # Exit 2 means the remote end already said why, so the SSH diagnostics
+        # would only add a red herring on top of the real reason
+        [ $db_dl_exit -ne 2 ] && diagnose_cf_ssh_failure cms
         rm -rf "$temp_dir"
         [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
         exit 3
     fi
 
-    print_status $GREEN "  ✅ Database downloaded ($(du -h "$db_file" | cut -f1))"
+    print_status $GREEN "  ✅ Database downloaded ($db_size)"
 
-    print_status $BLUE "  Downloading public files..."
     mkdir -p "$public_dir"
-    cf ssh cms -c "
-        export AWS_DEFAULT_REGION='us-gov-west-1'
-        cd /var/www
-        . scripts/common.sh
-        init_backup_system >/dev/null 2>&1
-        setup_s3_vars >/dev/null 2>&1
-        cd /tmp
-        aws s3 sync s3://\$BUCKET_NAME/\$AUTO_PUBLIC_BACKUP_PATH/${backup_tag}/ . \$S3_EXTRA_PARAMS
-        tar czf - .
-    " > "$temp_dir/public.tar.gz" 2>/dev/null
+    if [ -n "$public_tag" ]; then
+        print_status $BLUE "  Downloading public files..."
+        local public_archive="$temp_dir/public.tar.gz"
+        local public_dl_exit
+        download_backup_artifact "$public_tag" public "$public_archive" >/dev/null
+        public_dl_exit=$?
+        if [ $public_dl_exit -ne 0 ]; then
+            print_status $RED "❌ System Error: Failed to download public files backup"
+            [ $public_dl_exit -ne 2 ] && diagnose_cf_ssh_failure cms
+            rm -rf "$temp_dir"
+            [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+            exit 3
+        fi
 
-    if [ ! -s "$temp_dir/public.tar.gz" ]; then
-        print_status $RED "❌ System Error: Failed to download public files backup"
-        diagnose_cf_ssh_failure cms
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        exit 3
+        # An archive that will not extract cannot be trusted to overwrite the
+        # destination's files, and `--delete` on the restore sync makes a
+        # partial extraction destructive
+        if ! tar xzf "$public_archive" -C "$public_dir" 2>/dev/null; then
+            print_status $RED "❌ System Error: Public files archive from $from_space could not be extracted"
+            rm -rf "$temp_dir"
+            [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
+            exit 3
+        fi
+        rm -f "$public_archive"
+        print_status $GREEN "  ✅ Public files downloaded ($(du -sh "$public_dir" | awk '{print $1}'))"
+    else
+        print_status $YELLOW "  ⏭️  Skipping public files (no public files backup found in $from_space)"
     fi
-
-    tar xzf "$temp_dir/public.tar.gz" -C "$public_dir" 2>/dev/null
-    rm "$temp_dir/public.tar.gz"
-    print_status $GREEN "  ✅ Public files downloaded ($(du -sh "$public_dir" | cut -f1))"
 
     # Switch to TO space for restore operations
     print_status $BLUE "🎯 Targeting $to_space for restore operations..."
@@ -1633,7 +1716,7 @@ downsync() {
     # Get tome state before restore
     print_status $BLUE "📋 Checking tome state..."
     local tome_state_output
-    tome_state_output=$(cf ssh cms -c ". /etc/profile; drush sget usagov.tome_run_disabled" 2>/dev/null)
+    tome_state_output=$(cf ssh cms -c "$CMS_REMOTE_PREFIX && drush sget usagov.tome_run_disabled" </dev/null 2>/dev/null)
     if [ $? -ne 0 ]; then
         print_status $YELLOW "⚠️  Warning: Could not read Tome state from $to_space - assuming Tome is enabled"
         diagnose_cf_ssh_failure cms
@@ -1648,9 +1731,9 @@ downsync() {
 
     # Upload and restore database
     print_status $BLUE "📤 Uploading and restoring database..."
-    # Use printf %q for safe shell escaping
+    # Use shell_quote for safe shell escaping
     local upload_cmd
-    upload_cmd=$(printf 'cat > /tmp/%q.sql.gz' "$backup_tag")
+    upload_cmd="cat > /tmp/$(shell_quote "$backup_tag").sql.gz"
     print_status $BLUE "  Uploading database backup to $to_space..."
     cf ssh cms -c "$upload_cmd" < "$db_file"
     local db_upload_exit=$?
@@ -1664,9 +1747,17 @@ downsync() {
     fi
 
     print_status $BLUE "  Restoring database in $to_space (this may take several minutes)..."
+    # `;` between every step meant $? came from the trailing `rm`, which
+    # practically always succeeds - a failed gunzip or a failed `drush sql-cli`
+    # reported "Database restored" and the downsync carried on over a database
+    # that had not been replaced. Stop at the first real failure, then clean up
+    # without letting the cleanup overwrite the status we care about.
     local restore_cmd
-    restore_cmd=$(printf '. /etc/profile; cd /tmp; gunzip -f %q.sql.gz; drush sql-cli < %q.sql; rm -f %q.sql' "$backup_tag" "$backup_tag" "$backup_tag")
-    cf ssh cms -c "$restore_cmd" >/dev/null 2>&1
+    restore_cmd=". /etc/profile && cd /tmp \
+        && gunzip -f $(shell_quote "$backup_tag").sql.gz \
+        && drush sql-cli < $(shell_quote "$backup_tag").sql; \
+        rc=\$?; rm -f $(shell_quote "$backup_tag").sql $(shell_quote "$backup_tag").sql.gz; exit \$rc"
+    cf ssh cms -c "$restore_cmd" </dev/null >/dev/null 2>&1
     local db_restore_exit=$?
 
     if [ $db_restore_exit -ne 0 ]; then
@@ -1679,40 +1770,76 @@ downsync() {
     print_status $GREEN "  ✅ Database restored in $to_space"
 
     # Upload and restore public files
-    print_status $BLUE "📤 Uploading public files to S3..."
-    cf ssh cms -c "
-        export AWS_DEFAULT_REGION='us-gov-west-1'
-        cd /var/www
-        . scripts/common.sh
-        init_backup_system >/dev/null 2>&1
-        setup_s3_vars >/dev/null 2>&1
-        cd /tmp
-        rm -rf public_restore
-        mkdir public_restore
-    " >/dev/null 2>&1
+    if [ -n "$public_tag" ]; then
+        print_status $BLUE "📤 Uploading public files to S3..."
+        if ! cf ssh cms -c "rm -rf /tmp/public_restore && mkdir -p /tmp/public_restore" </dev/null >/dev/null 2>&1; then
+            _fail_downsync_public "$to_space" "$temp_dir" "$original_space" "$safety_backup_taken" \
+                "could not create the staging directory in $to_space"
+        fi
 
-    # Upload files in chunks via tar
-    (cd "$public_dir" && tar czf - .) | cf ssh cms -c "cd /tmp/public_restore && tar xzf -" 2>/dev/null
+        # The upload used to run unchecked, and the sync below used to read $?
+        # from the trailing `rm` rather than from `aws s3 sync` - so a failed
+        # upload or a failed sync still printed "Public files restored". Both
+        # legs are checked now, which also makes --delete safe to use.
+        #
+        # /bin/sh has no pipefail, and `$?` on a pipeline is only the last
+        # command's status, so stash the local tar's status in a file to catch
+        # a read error on this side too - not just a failed remote extract.
+        #
+        # COPYFILE_DISABLE and the ._ excludes matter on macOS: extracting the
+        # downloaded archive stamps com.apple.provenance on every file, and
+        # BSD tar then encodes those xattrs as AppleDouble "._name" members.
+        # BSD tar hides them again when *it* reads the archive, but GNU tar in
+        # the container materialises them as real files, so every downsync run
+        # from a Mac published one ._ file per entry into the destination's
+        # public files (5135 of them in a stage->dev run). Harmless on Linux
+        # and WSL, where GNU tar ignores COPYFILE_DISABLE and matches nothing.
+        local tar_status_file="$temp_dir/upload-tar.status"
+        { COPYFILE_DISABLE=1 tar czf - --exclude '._*' --exclude '*/._*' \
+            -C "$public_dir" .; echo $? >"$tar_status_file"; } \
+            | cf ssh cms -c "cd /tmp/public_restore && tar xzf -" 2>/dev/null
+        local remote_untar_exit=$?
+        local local_tar_exit
+        local_tar_exit=$(cat "$tar_status_file" 2>/dev/null)
+        rm -f "$tar_status_file"
 
-    cf ssh cms -c "
-        export AWS_DEFAULT_REGION='us-gov-west-1'
-        cd /var/www
-        . scripts/common.sh
-        init_backup_system >/dev/null 2>&1
-        setup_s3_vars >/dev/null 2>&1
-        aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --acl public-read \$S3_EXTRA_PARAMS
-        rm -rf /tmp/public_restore
-    " >/dev/null 2>&1
+        if [ "$remote_untar_exit" -ne 0 ] || [ "${local_tar_exit:-1}" -ne 0 ]; then
+            cf ssh cms -c "rm -rf /tmp/public_restore" </dev/null >/dev/null 2>&1
+            _fail_downsync_public "$to_space" "$temp_dir" "$original_space" "$safety_backup_taken" \
+                "the public files upload to $to_space did not complete"
+        fi
 
-    if [ $? -ne 0 ]; then
-        print_status $RED "❌ System Error: Failed to restore public files to $to_space"
-        print_status $YELLOW "⚠️  The database was already restored — $to_space is in a partial state (db updated, public files unchanged)"
-        rm -rf "$temp_dir"
-        [ -n "$original_space" ] && cf target -s "$original_space" >/dev/null 2>&1
-        _print_downsync_recovery_hint "$to_space" "$safety_backup_taken"
-        exit 1
+        # --delete and no public-read ACL, matching manager.sh's public files
+        # restore: the destination should end up with exactly the backup's
+        # files, and cms/public is served through Drupal, not read straight
+        # out of the bucket the way the static site is.
+        cf ssh cms -c "$CMS_REMOTE_PREFIX \
+            && . scripts/common.sh \
+            && init_backup_system >/dev/null 2>&1 \
+            && setup_s3_vars >/dev/null 2>&1 \
+            && aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --only-show-errors --delete \$S3_EXTRA_PARAMS" </dev/null >/dev/null 2>&1
+        local public_sync_exit=$?
+        cf ssh cms -c "rm -rf /tmp/public_restore" </dev/null >/dev/null 2>&1
+
+        if [ $public_sync_exit -ne 0 ]; then
+            _fail_downsync_public "$to_space" "$temp_dir" "$original_space" "$safety_backup_taken" \
+                "the S3 sync into $to_space's public files failed"
+        fi
+        print_status $GREEN "  ✅ Public files restored to $to_space"
+
+        # Drupal reads cms/public through the s3fs metadata cache, which still
+        # describes the pre-downsync files until it is refreshed - without
+        # this, media and file fields resolve to files that are no longer
+        # there. manager.sh's restore does the same after a public files sync.
+        print_status $BLUE "🔄 Refreshing file metadata cache..."
+        if cf ssh cms -c "$CMS_REMOTE_PREFIX && drush s3fs:refresh-cache" </dev/null >/dev/null 2>&1; then
+            print_status $GREEN "  ✅ File metadata cache refreshed"
+        else
+            print_status $YELLOW "⚠️  Warning: Could not refresh the s3fs file cache — run 'drush s3fs:refresh-cache' in $to_space"
+        fi
+    else
+        print_status $YELLOW "⏭️  Skipping public files restore (nothing was downloaded from $from_space)"
     fi
-    print_status $GREEN "  ✅ Public files restored to $to_space"
 
     # Run database updates
     print_status $BLUE "🔄 Running database updates..."
@@ -1723,7 +1850,7 @@ downsync() {
         drush cim -y || drush cim -y
         drush cim -y
         drush php-eval 'node_access_rebuild();' -y
-    " >/dev/null 2>&1
+    " </dev/null >/dev/null 2>&1
 
     if [ $? -ne 0 ]; then
         print_status $YELLOW "⚠️  Warning: Some database updates may have failed"
@@ -1749,7 +1876,7 @@ downsync() {
     cf ssh cms -c "
         . /etc/profile
         /var/www/scripts/gsaauth/configset.sh $to_space
-    " >/dev/null 2>&1
+    " </dev/null >/dev/null 2>&1
 
     if [ $? -ne 0 ]; then
         print_status $YELLOW "⚠️  Warning: MFA configuration may have failed"
@@ -1800,9 +1927,9 @@ list_backups() {
     done
 
     if [ "$use_json" = true ]; then
-        # Use printf %q for safe shell escaping, add --json flag for manager.sh
+        # Use shell_quote for safe shell escaping, add --json flag for manager.sh
         local cmd
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q --json' "$days")
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh list all $(shell_quote "$days") --json"
         local raw_json
         raw_json=$(cf ssh cms -c "$cmd" 2>/dev/null)
         if [ $? -ne 0 ] || [ -z "$raw_json" ]; then
@@ -1824,9 +1951,9 @@ list_backups() {
         fi
         echo ""
 
-        # Use printf %q for safe shell escaping
+        # Use shell_quote for safe shell escaping
         local cmd
-        cmd=$(printf 'cd /var/www && scripts/snapshot/manager.sh list all %q' "$days")
+        cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh list all $(shell_quote "$days")"
         if [ -n "$ticket" ]; then
             local list_output
             list_output=$(cf ssh cms -c "$cmd" 2>/dev/null)
@@ -2360,6 +2487,38 @@ rollback_db() {
     rollback_single_type "db" "$1" "$2" "$3"
 }
 
+# Print whatever the remote end said about a failed artifact download.
+# manager.sh reports the real reason on stderr ("Public backup not found for
+# tag: ..."), so discarding it left callers with nothing but a generic failure
+# plus diagnose_cf_ssh_failure's SSH guess - which reads as an SSH problem even
+# when SSH is fine.
+# Returns: 0 when the remote *script* named the problem, so the caller can skip
+#          the SSH diagnostics; 1 otherwise - including when cf itself failed
+#          (dead session, blocked SSH), where those diagnostics are the point
+_report_artifact_download_error() {
+    local errlog="$1"
+    local detail
+
+    [ -f "$errlog" ] || return 1
+    # cf ssh prefixes its own connection noise; keep the tail, which is where
+    # the remote script's own complaint lands.
+    detail=$(grep -v '^[[:space:]]*$' "$errlog" 2>/dev/null \
+        | grep -v 'Permanently added' \
+        | tail -3)
+    [ -z "$detail" ] && return 1
+
+    print_status $YELLOW "   Remote reported:" >&2
+    echo "$detail" | sed 's/^/     /' >&2
+
+    # Every message the backup scripts print themselves carries the ❌ marker.
+    # cf's own failures ("FAILED", "Error: ...") do not, and those are exactly
+    # the ones worth following with the session/SSH probes.
+    case "$detail" in
+        *❌*) return 0 ;;
+        *)    return 1 ;;
+    esac
+}
+
 # Stream one backup artifact out of the cms container to a local file.
 # Writes to a .part file and only moves it into place once the payload really
 # is a gzip archive, so a failed run (expired session, missing tag) leaves no
@@ -2368,17 +2527,24 @@ rollback_db() {
 #   $1: backup tag
 #   $2: type - db|static|public
 #   $3: destination path
-# Returns: 0 on success (echoing the human-readable size), 1 on failure
+# Returns: 0 on success (echoing the human-readable size); 2 on a failure the
+#          remote end already explained on stderr; 1 on an unexplained failure,
+#          which is the only case worth running the SSH diagnostics for
 download_backup_artifact() {
     local tag="$1"
     local type="$2"
     local dest="$3"
     local partial="${dest}.part"
+    local errlog="${dest}.err"
     local cmd
+    local explained
 
-    cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh download %q %q - --stream' "$tag" "$type")
-    if ! cf ssh cms -c "$cmd" > "$partial" 2>/dev/null; then
-        rm -f "$partial"
+    cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh download $(shell_quote "$tag") $(shell_quote "$type") - --stream"
+    if ! cf ssh cms -c "$cmd" </dev/null > "$partial" 2>"$errlog"; then
+        _report_artifact_download_error "$errlog"
+        explained=$?
+        rm -f "$partial" "$errlog"
+        [ $explained -eq 0 ] && return 2
         return 1
     fi
 
@@ -2386,10 +2552,14 @@ download_backup_artifact() {
     # bytes (1f 8b). An empty stream or a cf error banner written to stdout
     # ("FAILED") is not a backup.
     if [ "$(head -c 2 "$partial" 2>/dev/null | od -An -tx1 | tr -d ' \n')" != "1f8b" ]; then
-        rm -f "$partial"
+        _report_artifact_download_error "$errlog"
+        explained=$?
+        rm -f "$partial" "$errlog"
+        [ $explained -eq 0 ] && return 2
         return 1
     fi
 
+    rm -f "$errlog"
     if ! mv -f "$partial" "$dest"; then
         rm -f "$partial"
         return 1
@@ -2545,12 +2715,15 @@ download_backups() {
     local static_size="0"
     local public_success=false
     local public_size="0"
+    local db_exit static_exit public_exit
 
     # Download database backup
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading database..."
     fi
-    if db_size=$(download_backup_artifact "$tag" db "${output_dir}/${tag}-database.sql.gz"); then
+    db_size=$(download_backup_artifact "$tag" db "${output_dir}/${tag}-database.sql.gz")
+    db_exit=$?
+    if [ $db_exit -eq 0 ]; then
         db_success=true
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Database downloaded ($db_size)"
@@ -2560,7 +2733,9 @@ download_backups() {
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Database download failed"
         fi
-        diagnose_cf_ssh_failure cms
+        # Exit 2 means the remote end already printed the real reason; adding
+        # the SSH diagnostics on top reads as an SSH problem when SSH is fine
+        [ $db_exit -ne 2 ] && diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2568,7 +2743,9 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading static site..."
     fi
-    if static_size=$(download_backup_artifact "$tag" static "${output_dir}/${tag}-static.tar.gz"); then
+    static_size=$(download_backup_artifact "$tag" static "${output_dir}/${tag}-static.tar.gz")
+    static_exit=$?
+    if [ $static_exit -eq 0 ]; then
         static_success=true
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Static site downloaded ($static_size)"
@@ -2578,7 +2755,9 @@ download_backups() {
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Static site download failed"
         fi
-        diagnose_cf_ssh_failure cms
+        # Exit 2 means the remote end already printed the real reason; adding
+        # the SSH diagnostics on top reads as an SSH problem when SSH is fine
+        [ $static_exit -ne 2 ] && diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -2586,7 +2765,9 @@ download_backups() {
     if [ "$use_json" = false ]; then
         print_status $YELLOW "📦 Downloading public files..."
     fi
-    if public_size=$(download_backup_artifact "$tag" public "${output_dir}/${tag}-public.tar.gz"); then
+    public_size=$(download_backup_artifact "$tag" public "${output_dir}/${tag}-public.tar.gz")
+    public_exit=$?
+    if [ $public_exit -eq 0 ]; then
         public_success=true
         if [ "$use_json" = false ]; then
             print_status $GREEN "  ✅ Public files downloaded ($public_size)"
@@ -2596,7 +2777,9 @@ download_backups() {
         if [ "$use_json" = false ]; then
             print_status $RED "  ❌ Public files download failed"
         fi
-        diagnose_cf_ssh_failure cms
+        # Exit 2 means the remote end already printed the real reason; adding
+        # the SSH diagnostics on top reads as an SSH problem when SSH is fine
+        [ $public_exit -ne 2 ] && diagnose_cf_ssh_failure cms
         failed=$((failed + 1))
     fi
 
@@ -3453,7 +3636,7 @@ fetch_deployment_metadata_remote() {
 
     # Fetch metadata from CMS container (needs S3 access)
     local metadata
-    metadata=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
+    metadata=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
     if [ $? -ne 0 ]; then
         diagnose_cf_ssh_failure cms
         return 1
@@ -3464,7 +3647,7 @@ fetch_deployment_metadata_remote() {
 # Helper function to fetch the latest backup tag from S3 via CMS container
 fetch_latest_backup_tag() {
     local tag_output
-    tag_output=$(cf ssh cms -c "cd /var/www && source scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null)
+    tag_output=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && init_backup_system && setup_s3_vars && fetch_latest_backup_tag" 2>/dev/null)
     if [ $? -ne 0 ]; then
         diagnose_cf_ssh_failure cms
         return 1

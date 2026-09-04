@@ -104,6 +104,27 @@ init_backup_system() {
 }
 
 # ===================================================================
+# SHELL UTILITIES
+# ===================================================================
+
+# Quote a string so it is safe to embed in a shell command string
+# (e.g. commands passed to cf ssh -c). POSIX-safe replacement for
+# bash's printf %q, which /bin/sh implementations like dash reject
+# with "printf: %q: invalid directive".
+# Wraps the value in single quotes, escaping any embedded single quotes.
+# Args:
+#   $1: value - String to quote
+shell_quote() {
+    printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+# Environment prep that must prefix every command run on the cms container
+# via `cf ssh -c`: /etc/profile exports the buildpack environment (PHP for
+# drush, aws cli paths) and /var/www is the app root the snapshot scripts
+# expect. Usage: cf ssh cms -c "$CMS_REMOTE_PREFIX && <command>"
+CMS_REMOTE_PREFIX=". /etc/profile && cd /var/www"
+
+# ===================================================================
 # OUTPUT AND LOGGING FUNCTIONS
 # ===================================================================
 
@@ -1036,36 +1057,42 @@ get_latest_s3_backup() {
 }
 
 # Validate output path to prevent path traversal attacks
+# On success echoes the normalized absolute path to stdout; validation
+# errors go to stderr so callers capturing stdout still surface them.
 validate_output_path() {
     local path="$1"
 
     if [ -z "$path" ]; then
-        print_status $RED "❌ Output path cannot be empty"
+        print_status $RED "❌ Output path cannot be empty" >&2
         return 1
     fi
 
     # Reject paths with suspicious patterns
     if echo "$path" | grep -qE '(\.\./|^/etc/|^/var/|^/usr/|^/bin/|^/sbin/)'; then
-        print_status $RED "❌ Invalid output path: $path"
-        print_status $YELLOW "   Path traversal or system directory access not allowed"
+        print_status $RED "❌ Invalid output path: $path" >&2
+        print_status $YELLOW "   Path traversal or system directory access not allowed" >&2
         return 1
     fi
 
-    # Convert to absolute path if relative
-    if [ "${path:0:1}" != "/" ]; then
-        path="$(pwd)/$path"
-    fi
+    # Convert to absolute path if relative (${path:0:1} is a bashism
+    # that /bin/sh implementations like dash reject with "Bad substitution")
+    case "$path" in
+        /*) ;;
+        *) path="$(pwd)/$path" ;;
+    esac
 
-    # Ensure path is under /tmp or current working directory
+    # Ensure path is under /tmp or the current working directory.
+    # Quoted case patterns match literally, so a pwd containing regex
+    # metacharacters can't loosen the check the way the old grep could.
     local allowed=false
-    if echo "$path" | grep -q "^/tmp/"; then
-        allowed=true
-    elif echo "$path" | grep -q "^$(pwd)"; then
-        allowed=true
-    fi
+    case "$path" in
+        /tmp/*) allowed=true ;;
+        "$(pwd)"|"$(pwd)"/*) allowed=true ;;
+    esac
 
     if [ "$allowed" = "false" ]; then
-        handle_error "Output path must be under /tmp or current directory" "validation" "return"
+        handle_error "Output path must be under /tmp or current directory" "validation" "return" >&2
+        return 1
     fi
 
     echo "$path"
@@ -1633,6 +1660,14 @@ prepare_drupal_state() {
         return 1
     fi
 
+    # Every step below runs drush with stderr suppressed; fail loudly up
+    # front instead of cascading generic errors when it is not on PATH
+    if ! command -v drush >/dev/null 2>&1; then
+        print_status $RED "❌ drush not found on PATH - cannot manage Drupal state"
+        print_status $YELLOW "   This must run on the cms container via manager.sh (which sets up PATH)"
+        return 1
+    fi
+
     capture_drupal_state
 
     case "$state_type" in
@@ -1762,6 +1797,14 @@ restore_drupal_state() {
         return 1
     fi
 
+    # Every step below runs drush with stderr suppressed; fail loudly up
+    # front instead of cascading generic errors when it is not on PATH
+    if ! command -v drush >/dev/null 2>&1; then
+        print_status $RED "❌ drush not found on PATH - cannot manage Drupal state"
+        print_status $YELLOW "   This must run on the cms container via manager.sh (which sets up PATH)"
+        return 1
+    fi
+
     if [ "$DRUPAL_STATE_CAPTURED" = "true" ]; then
         target_maintenance_mode="$SAVED_MAINTENANCE_MODE"
         target_tome_disabled="$SAVED_TOME_DISABLED"
@@ -1792,6 +1835,7 @@ restore_drupal_state() {
             ;;
 
         "both")
+            local maintenance_failed=false
             print_status $YELLOW "🚧 Restoring maintenance mode to: $target_maintenance_mode..."
             if drush sset system.maintenance_mode "$target_maintenance_mode" 2>/dev/null && drush cr 2>/dev/null; then
                 local maint_mode=$(drush sget system.maintenance_mode 2>/dev/null)
@@ -1799,6 +1843,8 @@ restore_drupal_state() {
                 audit_log "maintenance_mode_restore" "success" "Maintenance mode restored" "maint_mode_state=\"${maint_mode}\""
             else
                 print_status $RED "❌ Failed to restore maintenance mode"
+                audit_log "maintenance_mode_restore" "failure" "Failed to restore maintenance mode"
+                maintenance_failed=true
             fi
 
             if [ "$target_tome_disabled" = "1" ]; then
@@ -1809,6 +1855,10 @@ restore_drupal_state() {
                 drush sdel usagov.tome_run_disabled 2>/dev/null || return 1
             fi
             audit_log "tome_state_restore" "success" "Tome state restored" "tome_disabled_state=\"$target_tome_disabled\""
+
+            # Tome succeeded, but "both" is only a success if maintenance
+            # mode was restored too
+            [ "$maintenance_failed" = "true" ] && return 1
             ;;
     esac
 
@@ -1950,6 +2000,22 @@ state_command() {
     fi
 }
 
+# Classify what `cf ssh-enabled APP` / `cf space-ssh-allowed SPACE` report.
+# Both print "ssh support is enabled|disabled ..."; stderr is folded in so a
+# failed lookup (no permission, unknown space) falls through to "unknown"
+# rather than being misreported as disabled.
+# Args: the cf command to run and its arguments
+# Echoes: "enabled", "disabled", or "unknown"
+_cf_ssh_state() {
+    local out
+    out=$("$@" 2>&1)
+    case "$out" in
+        *disabled*) echo "disabled" ;;
+        *enabled*)  echo "enabled" ;;
+        *)          echo "unknown" ;;
+    esac
+}
+
 # Explain why a `cf ssh` (or `cf app`) call failed or returned no output.
 # Call this from a failure path only - it probes the CF session to find the
 # first broken link in the chain (CLI missing, not logged in, app
@@ -2004,10 +2070,40 @@ diagnose_cf_ssh_failure() {
         return 1
     fi
 
-    if ! cf ssh-enabled "$app" 2>/dev/null | grep -qi 'enabled'; then
+    # SSH can be blocked in two independent places - on the space
+    # (cf disallow-space-ssh) and on the app (cf disable-ssh) - and both must
+    # be on for `cf ssh` to work. A failed `cf ssh` looks identical either
+    # way, so report the state of both layers before naming a fix.
+    local space_ssh="unknown" app_ssh
+    if [ -n "$space" ]; then
+        space_ssh=$(_cf_ssh_state cf space-ssh-allowed "$space")
+    fi
+    app_ssh=$(_cf_ssh_state cf ssh-enabled "$app")
+
+    if [ "$space_ssh" = "disabled" ] || [ "$app_ssh" = "disabled" ]; then
+        # Name the fix only for the layer that is actually blocking, so the
+        # message never tells anyone to re-enable something already on.
+        # `cf ssh-enabled` folds the space setting into its answer, so while
+        # the space is disallowed the app line cannot be trusted on its own -
+        # say that rather than pointing at cf enable-ssh for no reason.
+        local space_line app_line
+        if [ "$space_ssh" = "disabled" ]; then
+            space_line="disabled  → fix: cf allow-space-ssh ${space:-<space>}"
+            app_line="$app_ssh"
+            [ "$app_ssh" = "disabled" ] && app_line="disabled (a disallowed space reports this too)"
+        else
+            space_line="$space_ssh"
+            app_line="$app_ssh"
+            [ "$app_ssh" = "disabled" ] && app_line="disabled  → fix: cf enable-ssh $app"
+        fi
         {
-            print_status $RED "❌ SSH access to '$app' is disabled in space '${space:-unknown}'"
-            print_status $YELLOW "   Enable it with: cf enable-ssh $app (then restart the app)"
+            print_status $RED "❌ SSH to '$app' is blocked in space '${space:-unknown}'"
+            print_status $YELLOW "   'cf ssh' needs SSH allowed on the space AND enabled on the app:"
+            print_status $YELLOW "     space '${space:-unknown}': $space_line"
+            print_status $YELLOW "     app '$app': $app_line"
+            if [ "$space_ssh" = "disabled" ]; then
+                print_status $YELLOW "   Allowing the space takes effect immediately - no app restart needed."
+            fi
         } >&2
         return 1
     fi
@@ -2078,7 +2174,7 @@ remote_state_command() {
     fi
 
     local _cmd
-    _cmd=$(printf '. /etc/profile && cd /var/www && scripts/snapshot/manager.sh state %q %q %q' "$action" "$state_type" "$max_wait")
+    _cmd="$CMS_REMOTE_PREFIX && scripts/snapshot/manager.sh state $(shell_quote "$action") $(shell_quote "$state_type") $(shell_quote "$max_wait")"
     cf ssh cms -c "$_cmd"
     local _rc=$?
     if [ $_rc -ne 0 ]; then
