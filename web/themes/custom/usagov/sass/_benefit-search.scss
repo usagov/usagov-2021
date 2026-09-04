@@ -10,6 +10,8 @@ main[data-pagetype="Benefits Category Search"]{
 }
 
 .benefits-category-list {
+  // Separates the band from the page intro, which it now directly follows.
+  margin-top: 2.5rem;
   margin-left: calc(-0.5 * (100vw - 100%));
   margin-right: calc(-0.5 * (100vw - 100%));
   padding: 1.75rem calc(0.5 * (100vw - 100%)) 75px;
@@ -214,23 +216,9 @@ main[data-pagetype="Benefits Category Search"]{
   @include u-padding-right('205');
 }
 
-.benefit-finder__title {
-  @include u-font-family('serif');
-
-  margin: 2.5rem 0 0;
-}
-
+// .benefit-finder__main / .life-events-grid markup is also rendered by the
+// Benefit Finder React app (RelativeBenefitList), which inherits these styles.
 .benefit-finder__main {
-  p.benefit-finder__desc {
-    margin-top: 0.5rem;
-    @include u-margin-bottom(5);
-  }
-
-  h2#categories-label {
-    margin-top: 0;
-    @include u-font-family('serif');
-  }
-
   .life-events-grid {
     @include u-display('block');
 
