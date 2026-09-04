@@ -413,20 +413,18 @@ fi
 ##############################################################
 
 ##############################################################
-# Empty headings in agency indes (implies also empty nav links), USAGOV-2786
-# Detect and warn only, at present!
+# Empty headings in agency index (implies also empty nav links), USAGOV-2786
+# Detect and warn only.
 #
 
 EMPTY_HEADING_LIST=""
 EMPTY_HEADING_PROBLEM=0
 
-# EMPTY_HEADING_COUNT=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading" tabindex="-1" id></h2>' | wc -l)
-EMPTY_HEADING_COUNT=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading"' | wc -l)
+EMPTY_HEADING_COUNT=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading" tabindex="-1" id></h2>' | wc -l)
 
 if [ $EMPTY_HEADING_COUNT -gt 0 ]; then
   echo "WARNING: *** Empty headings found in agency index, total $EMPTY_HEADING_COUNT. List follows ***" | tee -a $TOMELOG
-  #  EMPTY_HEADING_LIST=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading" tabindex="-1" id></h2>')
-  EMPTY_HEADING_LIST=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading"')
+  EMPTY_HEADING_LIST=$(find /var/www/html -name index.html -print0 | xargs -0 grep '<h2 class="usagov-directory-letter-heading" tabindex="-1" id></h2>')
   echo "$EMPTY_HEADING_LIST" | tee -a $TOMELOG
 fi
 

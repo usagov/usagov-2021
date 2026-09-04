@@ -228,13 +228,10 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$v
   $current_letter = $view->getRequest()->query->get('letter') ?: 'a';
   $current_letter = mb_strtoupper($current_letter);
 
-  // We use $current_letter as part of the static key to avoid contention with
-  // other overlapping requests; see USAGOV-2786.
   $static_stash_name = usa_twig_vars_get_federal_agencies_static_name($current_letter);
   drupal_static_reset($static_stash_name);
   $shared = &drupal_static($static_stash_name);
   $shared = [];
-
   $shared['current'] = $current_letter;
 
   // Figure out next and previous letters.
@@ -256,15 +253,13 @@ function usa_twig_vars_preprocess_views_view_summary__federal_agencies(array &$v
 /**
  * Add context to the federal_agencies view.
  *
- * Allow us to show the current letter, and add links to the "next" and
+ * Enables us to show the current letter, and add links to the "next" and
  * "previous" letters.
  *
  * @param array<string, mixed> $variables
  * @param array<string, mixed> $info
  */
 function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$variables, string $hook, array $info): void {
-  // We use the requested "current_letter" as part of the static key to avoid contention with
-  // other overlapping requests; see USAGOV-2786.
   $current_letter = $variables['view']->getRequest()->query->get('letter') ?: 'a';
   $current_letter = mb_strtoupper($current_letter);
   $static_stash_name = usa_twig_vars_get_federal_agencies_static_name($current_letter);
@@ -275,9 +270,9 @@ function usa_twig_vars_preprocess_views_view_list__federal_agencies(array &$vari
 /**
  * Get a consistent name for the static variable we use to share
  * letter context between two preprocess hooks for the federal
- * agencies view. To avoid collisions between page renders,
- * we include current displayed letter and the site language,
- * in addition to a unique string based on the function that
+ * agencies view. To avoid collisions between page renders (see
+ * USAGOV-2786), we include current displayed letter and the site
+ * language, in addition to a unique string based on the function that
  * populates this variable.
  *
  * @param string $letter
