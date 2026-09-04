@@ -1,12 +1,10 @@
 <?php
 
-/*
-    The purpose of this script is to compare, and show, what files exist in S3 versus
-    file built in Tome, and visa-versa.
-
-    This scripts expects a list of all files in both locations to already exist.
-    Those files should have been built by tome-sync.sh before running this script.
-*/
+/**
+ * Compares files in S3 with files built by Tome and reports differences.
+ *
+ * Expects tome-sync.sh to create inventories for both locations first.
+ */
 
 // Settings
 $filePathTome = '/var/www/web/modules/custom/usagov_ssg_postprocessing/files/tome-files.txt';
@@ -14,34 +12,32 @@ $filePathS3 = '/var/www/web/modules/custom/usagov_ssg_postprocessing/files/s3-fi
 
 // Validate expectations
 if (!file_exists($filePathTome)) {
-    exit("Error - Could not find the report of all files that exist in Tome.\n");
+  exit("Error - Could not find the report of all files that exist in Tome.\n");
 }
 if (!file_exists($filePathS3)) {
-    exit("Error - Could not find the report of all files that exist in S3.\n");
+  exit("Error - Could not find the report of all files that exist in S3.\n");
 }
 
 // Load all existing files into arrays - Tome files
 $filesInTome = [];
 $logLines = explode("\n", file_get_contents($filePathTome));
 foreach ($logLines as $line) {
-    $newItem = substr($line, 30);
-    $newItem = trim($newItem);
-    // Do not compare files in the ~/files/styles/webp directory as those are all generated images/thumbnails
-    if (!empty($newItem) && strpos($newItem, 'files/styles') === FALSE) {
-        $filesInTome[] = $newItem;
-    }
+  $newItem = trim(preg_replace('#^.*/tome/[^/]+/#', '', $line));
+  // Do not compare generated image style derivatives.
+  if (!empty($newItem) && strpos($newItem, 'files/styles') === FALSE) {
+    $filesInTome[] = $newItem;
+  }
 }
 
 // Load all existing files into arrays - S3 files
 $filesInS3 = [];
 $logLines = explode("\n", file_get_contents($filePathS3));
 foreach ($logLines as $line) {
-    $newItem = substr($line, 35);
-    $newItem = trim($newItem);
-    // Do not compare files in the ~/files/styles/webp directory as those are all generated images/thumbnails
-    if (!empty($newItem) && strpos($newItem, 'files/styles') === FALSE) {
-        $filesInS3[] = $newItem;
-    }
+  $newItem = trim($line);
+  // Do not compare generated image style derivatives.
+  if (!empty($newItem) && strpos($newItem, 'files/styles') === FALSE) {
+    $filesInS3[] = $newItem;
+  }
 }
 
 // Find files that are in S3 but not in Tome
