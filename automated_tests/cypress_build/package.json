@@ -16,7 +16,7 @@
     "cypress": "^15.18.1",
     "cypress-axe": "^1.7.0",
     "cypress-image-diff-js": "^2.8.0",
-    "cypress-mochawesome-reporter": "^4.0.2",
+    "cypress-mochawesome-reporter": "^5.0.0",
     "cypress-real-events": "^1.15.0",
     "js-yaml": "^4.3.0"
   },
