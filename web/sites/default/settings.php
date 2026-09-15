@@ -801,7 +801,8 @@ $settings['tome_static_path_exclude'] = [];
  */
 $settings['usagov_tome_static_path_exclude_directories'] = [
   '/node', '/es/node', '/saml', '/jsonapi', '/es/saml', '/es/jsonapi', '/paragraphs_entity_embed/autocomplete',
-  '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
+  '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy',
+  '/search',  // CMS-only search page; not part of the static site
 ];
 
 
@@ -825,6 +826,8 @@ if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
   $IS_CLOUDGOV = TRUE;
   $config['config_split.config_split.cloud_split']['status'] = TRUE;
   $config['config_split.config_split.local_split']['status'] = FALSE;
+  // Enable dev/stage-only features (search module) in dev and stage only.
+  $config['config_split.config_split.dev_stage_split']['status'] = in_array($space_name, ['dev', 'stage'], true);
 
   switch (strtolower($cf_application_data['space_name'])) {
     // "local" values found in settings.local.php
@@ -856,6 +859,7 @@ if (in_array($space_name, ['dev', 'dr', 'stage', 'prod'], true)) {
 else {
   $config['config_split.config_split.cloud_split']['status'] = FALSE;
   $config['config_split.config_split.local_split']['status'] = TRUE;
+  $config['config_split.config_split.dev_stage_split']['status'] = FALSE;
 }
 
 $cf_service_data = json_decode($_ENV['VCAP_SERVICES'] ?? '{}', TRUE);

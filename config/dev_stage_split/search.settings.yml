@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies: {  }
+logging: false
+index_wordscore: true
+index_stemming: false
+index_prefixes: false
+minimum_word_size: 3
+overlap_cjk: true
+cron_limit: 100
