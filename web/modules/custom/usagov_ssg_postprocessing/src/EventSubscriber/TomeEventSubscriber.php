@@ -10,6 +10,7 @@ use Drupal\tome_static\Event\CollectPathsEvent;
 use Drupal\tome_static\Event\ModifyHtmlEvent;
 use Drupal\tome_static\Event\PathPlaceholderEvent;
 use Drupal\tome_static\Event\TomeStaticEvents;
+use Drupal\usagov_ssg_postprocessing\SsgMetricTrait;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
 use Masterminds\HTML5;
@@ -24,6 +25,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @internal
  */
 class TomeEventSubscriber implements EventSubscriberInterface {
+
+  use SsgMetricTrait;
 
   /**
    * The entity type manager.
@@ -64,8 +67,12 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    *   The collect paths event.
    */
   public function excludeDirectories(CollectPathsEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $excluded_directories = self::getExcludedDirectories();
     $paths = $event->getPaths(TRUE);
+    $initial_count = count($paths);
+    $placeholder_count = 0;
+    $excluded_count = 0;
     foreach ($paths as $path => $metadata) {
       /**
        * We are going to spend the time here to get the "real" paths for any
@@ -74,6 +81,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
        */
       $path_parts = explode(':', $path);
       if ($path_parts[0] == '_entity') {
+        $placeholder_count++;
         $entity_type = $path_parts[1];
         $langcode = $path_parts[2];
         $entity_id = $path_parts[3];
@@ -102,16 +110,29 @@ class TomeEventSubscriber implements EventSubscriberInterface {
         if (($path == $excluded_directory_path) ||
             ($path == $base_path . $excluded_directory_path) ||
             (isset($metadata['original_path']) && ($metadata['original_path'] == $excluded_directory_path))) {
-          unset($paths[$path]);
+          if (isset($paths[$path])) {
+            unset($paths[$path]);
+            $excluded_count++;
+          }
         }
         elseif (str_starts_with($path, $excluded_directory) ||
             (str_starts_with($path, $base_path . $excluded_directory)) ||
             (isset($metadata['original_path']) && str_starts_with($metadata['original_path'], $excluded_directory))) {
-          unset($paths[$path]);
+          if (isset($paths[$path])) {
+            unset($paths[$path]);
+            $excluded_count++;
+          }
         }
       }
     }
     $event->replacePaths($paths);
+    $this->ssgMetricEnd('tome_exclude_directories', $metric_start, 'end', [
+      'initial_count' => $initial_count,
+      'final_count' => count($paths),
+      'excluded_count' => $excluded_count,
+      'placeholder_count' => $placeholder_count,
+      'excluded_directory_count' => count($excluded_directories),
+    ]);
   }
 
   /**
@@ -139,6 +160,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function modifyHtml(ModifyHtmlEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $html = $event->getHtml();
     $html5 = new HTML5();
 
@@ -157,6 +179,9 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     // --- USAGOV-2515: Replace spaces with '+' in image/media src and srcset attributes ---
     // img[src], source[src], and any srcset attributes
     $img_nodes = $xpath->query('//*[@src]');
+    $image_node_count = $img_nodes ? $img_nodes->length : 0;
+    $image_src_rewrite_count = 0;
+    $debug_image_paths = $this->debugImagePathsEnabled();
     foreach ($img_nodes as $node) {
       if ($node instanceof \DOMElement) {
         $src = $node->getAttribute('src');
@@ -164,9 +189,12 @@ class TomeEventSubscriber implements EventSubscriberInterface {
           $new_src = str_replace([' ', '%20'], '+', $src);
           $node->setAttribute('src', $new_src);
           $changes = TRUE;
-          file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] Replaced src: ' . $src . ' -> ' . $new_src . "\n", FILE_APPEND);
+          $image_src_rewrite_count++;
+          if ($debug_image_paths) {
+            file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] Replaced src: ' . $src . ' -> ' . $new_src . "\n", FILE_APPEND);
+          }
         }
-        else {
+        elseif ($debug_image_paths) {
           file_put_contents('/tmp/tome-img-path-debug.log', '[IMG] No change src: ' . $src . "\n", FILE_APPEND);
         }
       }
@@ -174,6 +202,8 @@ class TomeEventSubscriber implements EventSubscriberInterface {
 
     // Existing logic: fix /es links
     $nodes = $xpath->query('//a[starts-with(@href,"/es")]');
+    $es_link_count = $nodes ? $nodes->length : 0;
+    $es_link_rewrite_count = 0;
 
     /** @var \DOMElement $node */
     foreach ($nodes as $node) {
@@ -191,6 +221,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       }
       if ($new_href) {
         $changes = TRUE;
+        $es_link_rewrite_count++;
         $node->setAttribute('href', $new_href);
         $event->addExcludePath($new_href);
       }
@@ -211,6 +242,20 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       );
       $event->setHtml($modifiedHtml);
     }
+    $this->ssgMetricEnd('tome_modify_html', $metric_start, 'end', [
+      'path' => $event->getPath(),
+      'changed' => $changes,
+      'html_bytes' => strlen($html),
+      'image_node_count' => $image_node_count,
+      'image_src_rewrite_count' => $image_src_rewrite_count,
+      'debug_image_paths' => $debug_image_paths,
+      'es_link_count' => $es_link_count,
+      'es_link_rewrite_count' => $es_link_rewrite_count,
+    ]);
+  }
+
+  protected function debugImagePathsEnabled(): bool {
+    return filter_var(getenv('SSG_DEBUG_IMAGE_PATHS') ?: FALSE, FILTER_VALIDATE_BOOLEAN);
   }
 
   /**
@@ -220,6 +265,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @return void
    */
   public function excludeInvalidPaths(PathPlaceholderEvent $event) {
+    $metric_start = $this->ssgMetricStart();
     $path = $event->getPath();
 
     if ($path !== '/' && str_ends_with($path, '/')) {
@@ -230,25 +276,40 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       // redirect the request for `/es/` to `/es`. The response causes Tome to
       // save it in  the contents of `es/index.html` with an refresh redirect.
       $event->setInvalid();
+      $this->ssgMetricEnd('tome_path_placeholder_filter', $metric_start, 'invalid', [
+        'path' => $path,
+        'reason' => 'trailing_slash',
+      ]);
       return;
     }
 
     if (preg_match('/(es\/)?node\/\d+$/', $path)) {
       $event->setInvalid();
+      $this->ssgMetricEnd('tome_path_placeholder_filter', $metric_start, 'invalid', [
+        'path' => $path,
+        'reason' => 'node_path',
+      ]);
+      return;
     }
+
+    $this->ssgMetricEnd('tome_path_placeholder_filter', $metric_start, 'valid', [
+      'path' => $path,
+    ]);
   }
 
   /**
    * Add agency index paths to be exported instead of relying on Tome discovering the path
    */
   public function addAgencyIndexes(CollectPathsEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $metadata = ['language_processed' => TRUE];
     // Get the English letters to output from the pager view
     $view = Views::getView('federal_agencies');
     $view->setDisplay('attachment_1');
 
     $metadata['langcode'] = 'en';
-    foreach ($this->getLetters($view) as $letter) {
+    $english_letters = $this->getLetters($view);
+    foreach ($english_letters as $letter) {
       $event->addPath('/agency-index?letter=' . $letter, $metadata);
     }
 
@@ -258,9 +319,15 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $view->setDisplay('attachment_2');
 
     $metadata['langcode'] = 'es';
-    foreach ($this->getLetters($view) as $letter) {
+    $spanish_letters = $this->getLetters($view);
+    foreach ($spanish_letters as $letter) {
       $event->addPath('/es/indice-agencias?letter=' . $letter, $metadata);
     }
+
+    $this->ssgMetricEnd('tome_add_agency_indexes', $metric_start, 'end', [
+      'english_count' => count($english_letters),
+      'spanish_count' => count($spanish_letters),
+    ]);
 
   }
 
@@ -273,8 +340,10 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * @return void
    */
   public function clearBlogViewCache(CollectPathsEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $view = Views::getView('blog_menu');
     $view->storage->invalidateCaches();
+    $this->ssgMetricEnd('tome_clear_blog_view_cache', $metric_start);
   }
 
   /**
@@ -292,10 +361,13 @@ class TomeEventSubscriber implements EventSubscriberInterface {
    * published content — and register them explicitly.
    */
   public function addBlogPaths(CollectPathsEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
     $metadata = ['language_processed' => TRUE, 'langcode' => 'en'];
+    $added_count = 0;
 
     // Add the base /blog path.
     $event->addPath('/blog', $metadata);
+    $added_count++;
 
     $links = $this->entityTypeManager
       ->getStorage('menu_link_content')
@@ -313,8 +385,61 @@ class TomeEventSubscriber implements EventSubscriberInterface {
       // Only register year (/blog/YYYY) and month (/blog/YYYY/MM) paths.
       if (preg_match('#^/blog/\d{4}(/\d{2})?$#', $path)) {
         $event->addPath($path, $metadata);
+        $added_count++;
       }
     }
+    $this->ssgMetricEnd('tome_add_blog_paths', $metric_start, 'end', [
+      'added_count' => $added_count,
+      'menu_link_count' => count($links),
+    ]);
+  }
+
+  /**
+   * Logs aggregate path counts after custom and contrib path collection.
+   */
+  public function logCollectedPathCounts(CollectPathsEvent $event): void {
+    $metric_start = $this->ssgMetricStart();
+    $paths = $event->getPaths(TRUE);
+    $counts = [
+      'total_count' => count($paths),
+      'entity_placeholder_count' => 0,
+      'benefit_search_count' => 0,
+      'agency_index_count' => 0,
+      'blog_count' => 0,
+      'json_count' => 0,
+      'english_count' => 0,
+      'spanish_count' => 0,
+      'language_processed_count' => 0,
+    ];
+
+    foreach ($paths as $path => $metadata) {
+      if (str_starts_with($path, '_entity:')) {
+        $counts['entity_placeholder_count']++;
+      }
+      if (str_contains($path, '/_data/benefits-search/')) {
+        $counts['benefit_search_count']++;
+      }
+      if (str_starts_with($path, '/agency-index') || str_starts_with($path, '/es/indice-agencias')) {
+        $counts['agency_index_count']++;
+      }
+      if ($path === '/blog' || str_starts_with($path, '/blog/')) {
+        $counts['blog_count']++;
+      }
+      if (str_ends_with(parse_url($path, PHP_URL_PATH) ?? $path, '.json')) {
+        $counts['json_count']++;
+      }
+      if (($metadata['langcode'] ?? NULL) === 'en') {
+        $counts['english_count']++;
+      }
+      if (($metadata['langcode'] ?? NULL) === 'es') {
+        $counts['spanish_count']++;
+      }
+      if (!empty($metadata['language_processed'])) {
+        $counts['language_processed_count']++;
+      }
+    }
+
+    $this->ssgMetricEnd('tome_collected_path_counts', $metric_start, 'end', $counts);
   }
 
   /**
@@ -344,6 +469,7 @@ class TomeEventSubscriber implements EventSubscriberInterface {
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['addAgencyIndexes'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['clearBlogViewCache'];
     $events[TomeStaticEvents::COLLECT_PATHS][] = ['addBlogPaths'];
+    $events[TomeStaticEvents::COLLECT_PATHS][] = ['logCollectedPathCounts', -1000];
     $events[TomeStaticEvents::PATH_PLACEHOLDER][] = ['excludeInvalidPaths'];
     return $events;
   }
