@@ -31,7 +31,6 @@
 - [Importing federal records](web/modules/custom/usagov_directories/docs/Importing_Federal_Agency_Records.md)
 
 ### Benefit finder
-- [Overview](web/modules/custom/usagov_benefit_finder/README.md)
 
 ### Smaller stuff
 - [USAgov USWDS paragraph component mod(s)](web/modules/custom/usagov_uswds_paragraph_components_mods/README.md)
