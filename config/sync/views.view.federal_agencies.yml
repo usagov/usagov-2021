@@ -512,7 +512,6 @@ display:
       displays:
         default: default
         block_1: block_1
-        page_1: page_1
       inherit_arguments: false
     cache_metadata:
       max-age: -1
@@ -932,7 +931,6 @@ display:
       displays:
         default: default
         block_2: block_2
-        page_1: page_1
       inherit_arguments: false
     cache_metadata:
       max-age: -1
