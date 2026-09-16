@@ -34,7 +34,7 @@
         "drupal/core-recommended": "10.6.15",
         "drupal/ctools": "^4.1",
         "drupal/devel": "^5.3",
-        "drupal/diff": "^1.0",
+        "drupal/diff": "^2.1.1",
         "drupal/embedded_content": "^2.0",
         "drupal/entity_embed": "^1.5",
         "drupal/entity_reference_revisions": "^1.9",
