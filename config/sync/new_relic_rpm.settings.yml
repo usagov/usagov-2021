@@ -14,3 +14,4 @@ watchdog_severities: {  }
 views_log_slow: false
 views_log_threshold: 100
 disable_autorum: false
+region: us
