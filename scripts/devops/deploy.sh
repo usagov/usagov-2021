@@ -2991,13 +2991,18 @@ show_changes() {
         # move if you deployed/merged 'from' into 'to' (git's A..B range
         # shows commits unique to B, so that's "$to..$from" here, not
         # "$from..$to")
+        #
+        # Deliberately NOT --first-parent: releases reach stage/prod as a
+        # single merge commit, so first-parent sees only that merge and
+        # reports "1 commit, 1 ticket" for a release that actually carried
+        # several. The full range matches what the deploy PR lists.
         local commits_ahead
-        commits_ahead=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+        commits_ahead=$(git log --oneline "$to..$from" 2>/dev/null)
 
         if [ -z "$commits_ahead" ]; then
             # Nothing pending from -> to. Check if 'to' is actually ahead instead.
             local commits_behind
-            commits_behind=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+            commits_behind=$(git log --oneline "$from..$to" 2>/dev/null)
             local behind_count=0
             if [ -n "$commits_behind" ]; then
                 behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
@@ -3010,7 +3015,7 @@ show_changes() {
 
         # Extract tickets from commit messages
         local tickets
-        tickets=$(git log --first-parent "$to..$from" | \
+        tickets=$(git log "$to..$from" | \
             grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
             sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
             grep -iv usagov-2021 | \
@@ -3078,14 +3083,19 @@ EOF
     # Show commits in 'from' that are not yet in 'to' - i.e. what would move
     # if you deployed/merged 'from' into 'to'. Git's A..B range shows commits
     # unique to B, so that's "$to..$from" here, not "$from..$to".
-    # Using --first-parent to follow main branch history and avoid seeing every merged commit
+    #
+    # Deliberately NOT --first-parent: releases reach stage/prod as a single
+    # merge commit, so first-parent sees only that merge and reports
+    # "1 commit, 1 ticket" for a release that actually carried several - the
+    # tickets inside the merge never show up in the CCB list. The full range
+    # matches what the deploy PR lists.
     local commits_ahead
-    commits_ahead=$(git log --first-parent --oneline "$to..$from" 2>/dev/null)
+    commits_ahead=$(git log --oneline "$to..$from" 2>/dev/null)
 
     if [ -z "$commits_ahead" ]; then
         # Nothing pending from -> to. Check if 'to' is actually ahead instead.
         local commits_behind
-        commits_behind=$(git log --first-parent --oneline "$from..$to" 2>/dev/null)
+        commits_behind=$(git log --oneline "$from..$to" 2>/dev/null)
         local behind_count=0
         if [ -n "$commits_behind" ]; then
             behind_count=$(echo "$commits_behind" | wc -l | tr -d ' ')
@@ -3102,7 +3112,7 @@ EOF
     # Accept: "Usa 123", "usa_123", "USAGOV-123", etc.
     # Pattern matches: hyphen, underscore, space, or tab
     local tickets
-    tickets=$(git log --first-parent "$to..$from" | \
+    tickets=$(git log "$to..$from" | \
         grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
         sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
         grep -iv usagov-2021 | \
@@ -3636,7 +3646,7 @@ fetch_deployment_metadata_remote() {
 
     # Fetch metadata from CMS container (needs S3 access)
     local metadata
-    metadata=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && fetch_deployment_metadata '$backup_tag'" 2>/dev/null)
+    metadata=$(cf ssh cms -c "cd /var/www && . scripts/common.sh && fetch_deployment_metadata $(shell_quote "$backup_tag")" 2>/dev/null)
     if [ $? -ne 0 ]; then
         diagnose_cf_ssh_failure cms
         return 1

@@ -699,10 +699,13 @@ waf"
         first_container=false
 
         # Output container entry (no trailing comma on last line of this entry)
-        echo -n "    \"$container_name\": {"
-        echo -n "\"cci_build\": \"$container_build\", "
-        echo -n "\"digest\": \"$container_digest\""
-        echo -n "}"
+        # printf, not `echo -n`: bash in sh mode (macOS /bin/sh) prints a
+        # literal "-n" instead of suppressing the newline, which corrupts the
+        # JSON. dash accepts -n, so this only breaks off-container.
+        printf '%s' "    \"$container_name\": {"
+        printf '%s' "\"cci_build\": \"$container_build\", "
+        printf '%s' "\"digest\": \"$container_digest\""
+        printf '%s' "}"
     done
 
     echo ""
