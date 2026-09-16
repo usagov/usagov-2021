@@ -1,4 +1,8 @@
 includes:
+    # Records the 151 pre-existing errors (109 of them in usagov_benefit_finder,
+    # which was excluded from analysis until the D11 upgrade) so that phpstan
+    # passes on the current tree and only NEW errors fail. Shrink, never grow.
+    - phpstan-baseline.neon
     - vendor/mglaman/phpstan-drupal/extension.neon
     - vendor/mglaman/phpstan-drupal/rules.neon
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
@@ -8,7 +12,6 @@ parameters:
         - web/modules/custom
         - web/themes/custom
     excludePaths:
-        - web/modules/custom/usagov_benefit_finder
         - web/themes/custom/usagov/node_modules/flatted/php
         # The next two files define the same functions into global scope,
         # And confuse stan

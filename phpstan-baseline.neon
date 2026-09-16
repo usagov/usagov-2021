@@ -1,0 +1,793 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 1
+			path: web/modules/custom/usa_orphaned_entities/src/Form/OrphanedEntitiesSettings.php
+
+		-
+			message: '#^Parameter &\$page @param\-out type of function usa_translation_page_attachments_alter\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: paramOut.type
+			count: 1
+			path: web/modules/custom/usa_translation/usa_translation.module
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 2
+			path: web/modules/custom/usagov_benefit_category_search/src/Form/BenefitCategorySearchForm.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:buildBenefit\(\) has parameter \$node with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:buildBenefit\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:buildCriteriaFieldset\(\) has parameter \$criteria with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:buildCriteriaFieldset\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:buildCriteriaGroupFieldset\(\) has parameter \$criteria with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:buildCriteriaGroupFieldset\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:getData\(\) has parameter \$id with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:getJsonData\(\) has parameter \$id with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:saveJsonData\(\) has parameter \$id with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:getBenefit\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_api\\Controller\\LifeEventController\:\:getNode\(\) expects int, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/src/Controller/LifeEventController.php
+
+		-
+			message: '#^Function _usagov_benefit_finder_api_batch_finished_generate_json_data_files\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/usagov_benefit_finder_api.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_api_batch_finished_generate_json_data_files\(\) has parameter \$operations with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/usagov_benefit_finder_api.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_api_batch_finished_generate_json_data_files\(\) has parameter \$results with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/usagov_benefit_finder_api.module
+
+		-
+			message: '#^Function usagov_benefit_finder_api_node_delete\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/usagov_benefit_finder_api.module
+
+		-
+			message: '#^Function usagov_benefit_finder_api_node_insert\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/usagov_benefit_finder_api.module
+
+		-
+			message: '#^Function usagov_benefit_finder_api_node_update\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_api/usagov_benefit_finder_api.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_page_attachments_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_page_attachments_alter\(\) has parameter \$page with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_preprocess_page\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_preprocess_page\(\) has parameter \$variables with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_theme\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_theme_suggestions_page_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_theme_suggestions_page_alter\(\) has parameter \$suggestions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Function usagov_benefit_finder_page_theme_suggestions_page_alter\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_app/usagov_benefit_finder_page/usagov_benefit_finder_page.module
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:buildCriteriaFieldset\(\) has parameter \$criteria with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:buildCriteriaFieldset\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:buildCriteriaGroupFieldset\(\) has parameter \$criteria with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:buildCriteriaGroupFieldset\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:checkBenefit\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:checkCriteria\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:checkData\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:checkLifeEventForm\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<mixed\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:getAgency\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:getBenefit\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:getCriteria\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:getLifeEventForm\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Parameter \#1 \$nid of method Drupal\\usagov_benefit_finder_content\\Controller\\CheckDataController\:\:getNode\(\) expects int, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/src/Controller/CheckDataController.php
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_agency_archived\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_agency_archived\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_agency_usage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_benefit_usage\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_benefit_usage\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_benefit_usage_in_life_event_form\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_criteria_has_child\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_criteria_usage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_criteria_usage_in_benefit\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_criteria_usage_in_life_event_form\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_life_event_form_criteria_depth\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_life_event_form_criteria_depth\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_life_event_form_usage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_check_life_event_form_usage_in_life_event_form\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_criteria_archived\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_criteria_archived\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_find_life_event_form_criteria_depth\(\) has parameter \$criteria with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_find_life_event_form_criteria_depth\(\) has parameter \$depth with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_find_life_event_form_criteria_depth\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_life_event_form_archived\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_life_event_form_archived\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_node_bears_criteria_edit_form_validate\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function _usagov_benefit_finder_content_node_bears_criteria_edit_form_validate\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_alter\(\) has parameter \$form with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_alter\(\) has parameter \$form_id with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_alter\(\) has parameter \$form_state with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_agency_delete_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_agency_delete_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_agency_edit_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_agency_edit_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_benefit_delete_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_benefit_delete_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_benefit_edit_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_benefit_edit_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_benefit_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_benefit_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_criteria_delete_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_criteria_delete_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_criteria_edit_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_criteria_edit_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_life_event_form_delete_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_life_event_form_delete_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_life_event_form_edit_form_alter\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_form_node_bears_life_event_form_edit_form_alter\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Function usagov_benefit_finder_content_node_bears_benefit_edit_form_validate\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Parameter \#1 \$name of method Drupal\\Core\\Form\\FormStateInterface\:\:setErrorByName\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Parameter \#1 \$name of method Drupal\\Core\\Form\\FormStateInterface\:\:setErrorByName\(\) expects string, int\<2, max\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: web/modules/custom/usagov_benefit_finder/modules/usagov_benefit_finder_content/usagov_benefit_finder_content.module
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder\\Form\\BenefitFinderSettingsForm\:\:buildForm\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/src/Form/BenefitFinderSettingsForm.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder\\Form\\BenefitFinderSettingsForm\:\:buildForm\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/src/Form/BenefitFinderSettingsForm.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder\\Form\\BenefitFinderSettingsForm\:\:getEditableConfigNames\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/src/Form/BenefitFinderSettingsForm.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder\\Form\\BenefitFinderSettingsForm\:\:submitForm\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/src/Form/BenefitFinderSettingsForm.php
+
+		-
+			message: '#^Method Drupal\\usagov_benefit_finder\\Form\\BenefitFinderSettingsForm\:\:submitForm\(\) has parameter \$form with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/src/Form/BenefitFinderSettingsForm.php
+
+		-
+			message: '#^Call to an undefined method Drupal\\Tests\\WebAssert\:\:elementExists\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php
+
+		-
+			message: '#^Call to an undefined method Drupal\\Tests\\WebAssert\:\:statusCodeEquals\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php
+
+		-
+			message: '#^Method Drupal\\Tests\\usagov_benefit_finder\\Functional\\BenefitFinderTest\:\:testAll\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php
+
+		-
+			message: '#^Method Drupal\\Tests\\usagov_benefit_finder\\Functional\\BenefitFinderTest\:\:testApi\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php
+
+		-
+			message: '#^Method Drupal\\Tests\\usagov_benefit_finder\\Functional\\BenefitFinderTest\:\:testPage\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_benefit_finder/tests/src/Functional/BenefitFinderTest.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 1
+			path: web/modules/custom/usagov_directories/src/Form/DirectoryRecordsAddAcronymsForm.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 1
+			path: web/modules/custom/usagov_directories/src/Form/DirectoryRecordsAddSynonymsForm.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 1
+			path: web/modules/custom/usagov_directories/src/Form/DirectoryRecordsAddTogglesForm.php
+
+		-
+			message: '#^Variable \$argv might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: web/modules/custom/usagov_directories/utility/make_toggle_map.php
+
+		-
+			message: '#^Variable \$argv might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: web/modules/custom/usagov_directories/utility/make_toggle_map_states.php
+
+		-
+			message: '#^Function usagov_extra_functions_update_10001\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_extra_functions/usagov_extra_functions.install
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 1
+			path: web/modules/custom/usagov_login/src/Form/LoginSettingsForm.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 1
+			path: web/modules/custom/usagov_menus/src/Plugin/Block/MobileMenuBlock.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 2
+			path: web/modules/custom/usagov_menus/src/Plugin/Block/MobileMenuBlock.php
+
+		-
+			message: '#^Property Drupal\\usagov_ssg_postprocessing\\Data\\PublishedPagesRow\:\:\$hasBenefitCategory on left side of \?\? is not nullable nor uninitialized\.$#'
+			identifier: nullCoalesce.initializedProperty
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Data/PublishedPagesRow.php
+
+		-
+			message: '#^Property Drupal\\usagov_ssg_postprocessing\\Data\\PublishedPagesRow\:\:\$pageLanguage on left side of \?\? is not nullable nor uninitialized\.$#'
+			identifier: nullCoalesce.initializedProperty
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Data/PublishedPagesRow.php
+
+		-
+			message: '#^Property Drupal\\usagov_ssg_postprocessing\\Data\\PublishedPagesRow\:\:\$toggleURL on left side of \?\? is not nullable nor uninitialized\.$#'
+			identifier: nullCoalesce.initializedProperty
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Data/PublishedPagesRow.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''es'' and ''es'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Data/PublishedPagesRow.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''"'' \(''"'', ''"''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''\\'''' \("''", "''"\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php
+
+		-
+			message: '#^Method Drupal\\usagov_ssg_postprocessing\\Drush\\Commands\\StaticImageSyncCommands\:\:normalizeAllUrls\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php
+
+		-
+			message: '#^Method Drupal\\usagov_ssg_postprocessing\\Drush\\Commands\\StaticImageSyncCommands\:\:renameS3Files\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php
+
+		-
+			message: '#^Method Drupal\\usagov_ssg_postprocessing\\Drush\\Commands\\StaticImageSyncCommands\:\:syncImages\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php
+
+		-
+			message: '#^Offset ''filename'' on array\{dirname\?\: string, basename\: string, extension\?\: string, filename\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 2
+			path: web/modules/custom/usagov_ssg_postprocessing/src/Form/ToggleStaticSiteGenerationForm.php
+
+		-
+			message: '#^Method Drupal\\Core\\Entity\\EditorialContentEntityBase\:\:setPublished\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: web/modules/custom/usagov_unpub_es/src/Drush/Commands/UnpubCommand.php
+
+		-
+			message: '#^Method Drupal\\usagov_unpub_es\\Drush\\Commands\\UnpubCommand\:\:unpubSpanishNodes\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_unpub_es/src/Drush/Commands/UnpubCommand.php
+
+		-
+			message: '#^Method Drupal\\usagov_unpub_es\\Drush\\Commands\\UnpubCommand\:\:unpubSpanishTaxonomy\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_unpub_es/src/Drush/Commands/UnpubCommand.php
+
+		-
+			message: '#^Method Drupal\\usagov_unpub_es\\Drush\\Commands\\UnpubCommand\:\:unpubspanish\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/modules/custom/usagov_unpub_es/src/Drush/Commands/UnpubCommand.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 3
+			path: web/modules/custom/usagov_unpub_es/src/Drush/Commands/UnpubCommand.php
+
+		-
+			message: '#^Function usagov_preprocess_block__mobile_navigation\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: web/themes/custom/usagov/usagov.theme
+
+		-
+			message: '#^Function usagov_preprocess_block__mobile_navigation\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/themes/custom/usagov/usagov.theme
+
+		-
+			message: '#^Function usagov_preprocess_page\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/themes/custom/usagov/usagov.theme
+
+		-
+			message: '#^Function usagov_preprocess_page_title\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/themes/custom/usagov/usagov.theme
+
+		-
+			message: '#^Function usagov_preprocess_pager\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: web/themes/custom/usagov/usagov.theme
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: web/themes/custom/usagov/usagov.theme

@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+  Intentionally version-agnostic: this config must parse under both PHPUnit 9.6
+  (pinned by drupal/core-dev on Drupal 10) and PHPUnit 11.5 (pinned on Drupal 11),
+  so it avoids `verbose` (removed in 10) as well as `cacheDirectory`, `<source>`
+  and the 10+ `<coverage>` form.
+
+  Tests are DTT ExistingSite tests: they run against an already-installed,
+  running site rather than installing Drupal per-test. Point DTT_BASE_URL at
+  that site. Override any value below via real environment variables.
+-->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
          backupGlobals="false"
          colors="true"
-         bootstrap="vendor/autoload.php"
-         verbose="true"
-        >
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnWarning="true"
+         failOnRisky="true">
     <testsuites>
-        <testsuite name="drupal-composer-project tests">
-            <directory>./test/</directory>
+        <testsuite name="custom">
+            <directory>web/modules/custom</directory>
+            <directory>web/themes/custom</directory>
+            <exclude>web/themes/custom/usagov/node_modules</exclude>
         </testsuite>
     </testsuites>
+    <php>
+        <!-- DTT: the URL of the running site under test. -->
+        <env name="DTT_BASE_URL" value="http://localhost"/>
+        <env name="DTT_API_URL" value="http://localhost:9222"/>
+        <env name="DTT_MINK_DRIVER_ARGS" value='["chrome", null, "http://localhost:4444/wd/hub"]'/>
+        <!-- Drupal core test infrastructure. -->
+        <env name="SIMPLETEST_BASE_URL" value="http://localhost"/>
+        <env name="SIMPLETEST_DB" value="mysql://drupal:drupal@database:3306/drupal"/>
+        <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/tmp"/>
+        <!-- Surface deprecations rather than silencing them during the D11 upgrade. -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+    </php>
 </phpunit>

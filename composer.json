@@ -186,7 +186,7 @@
         "phpstan/phpstan": "*",
         "phpstan/phpstan-deprecation-rules": "*",
         "rector/rector": "^2.0",
-        "weitzman/drupal-test-traits": "^2.5"
+        "weitzman/drupal-test-traits": "^2.7"
     },
     "scripts": {
         "changed-files": [
