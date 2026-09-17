@@ -1,0 +1,26 @@
+--- a/src/Hook/FormAlter.php
++++ b/src/Hook/FormAlter.php
+@@ -50,7 +50,7 @@
+ 
+     // We act only on edit form, not for a creation of a new entity.
+     if (!is_null($entity->id())) {
+-      foreach (['submit', 'publish'] as $key) {
++      foreach (['submit', 'publish', 'preview'] as $key) {
+         if (isset($form['actions'][$key])) {
+           $form['actions'][$key]['#submit'][] = [$this, 'formSubmit'];
+         }
+@@ -65,6 +65,14 @@
+       else {
+         // ContentLock::locking() returns TRUE if the content is locked by the
+         // current user. Add an unlock button only for this user.
++        // When we successfully acquire the lock, ensure the submit, publish and
++        // preview buttons are accessible.
++        foreach (['submit', 'publish', 'preview'] as $key) {
++          if (isset($form['actions'][$key]['#access']) && $form['actions'][$key]['#access'] === FALSE) {
++            $form['actions'][$key]['#access'] = TRUE;
++          }
++        }
++
+         $form['actions']['unlock'] = $this->contentLock->unlockButton($entity, $form_op, $this->requestStack->getCurrentRequest()->query->get('destination'));
+       }
+ 

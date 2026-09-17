@@ -26,7 +26,7 @@
         "drupal/conditional_fields": "^4.0@alpha",
         "drupal/config_pages": "^2.19",
         "drupal/config_split": "^2.0.2",
-        "drupal/content_lock": "^2.2",
+        "drupal/content_lock": "^3.0",
         "drupal/content_moderation_notifications": "^3.4",
         "drupal/core-composer-scaffold": "10.6.15",
         "drupal/core-project-message": "10.6.15",
@@ -173,7 +173,7 @@
                 "Don't rely on presence of redis CONFIG command (disabled in AWS)": "https://www.drupal.org/files/issues/2024-09-25/3173988-28.patch"
             },
             "drupal/content_lock": {
-                "Fix preview button and submit button access": "./patches/drupal/content_lock-preview-button-lock-release.patch"
+                "Fix preview button and submit button access": "./patches/drupal/content_lock-preview-button-lock-release_3x.patch"
             }
         }
     },
