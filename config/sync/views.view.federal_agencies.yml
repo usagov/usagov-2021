@@ -510,7 +510,6 @@ display:
       footer: {  }
       display_extenders: {  }
       displays:
-        default: default
         block_1: block_1
       inherit_arguments: false
     cache_metadata:
@@ -929,7 +928,6 @@ display:
       footer: {  }
       display_extenders: {  }
       displays:
-        default: default
         block_2: block_2
       inherit_arguments: false
     cache_metadata:
