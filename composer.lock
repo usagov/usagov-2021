@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26837c5396ba2232b950c41b67a762eb",
+    "content-hash": "f9553b668d1ce5bbe67347114b5665cd",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3328,27 +3328,27 @@
         },
         {
             "name": "drupal/faqfield",
-            "version": "7.1.0",
+            "version": "8.0.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/faqfield.git",
-                "reference": "8.x-7.1"
+                "reference": "8.0.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/faqfield-8.x-7.1.zip",
-                "reference": "8.x-7.1",
-                "shasum": "c602e57dc07926bc5a263f56ee36ba7afa8dd574"
+                "url": "https://ftp.drupal.org/files/projects/faqfield-8.0.1.zip",
+                "reference": "8.0.1",
+                "shasum": "f022566e51a1f9db0a43da81a33819fd6924d77a"
             },
             "require": {
-                "drupal/core": "^8 || ^9 || ^10",
+                "drupal/core": "^8 || ^9 || ^10 || ^11",
                 "drupal/jquery_ui_accordion": "^2.0"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-7.1",
-                    "datestamp": "1678202291",
+                    "version": "8.0.1",
+                    "datestamp": "1767285977",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3381,7 +3381,7 @@
                 "Drupal"
             ],
             "support": {
-                "source": "http://cgit.drupalcode.org/faqfield",
+                "source": "https://git.drupalcode.org/project/faqfield",
                 "issues": "http://drupal.org/project/issues/faqfield"
             }
         },
@@ -3754,17 +3754,17 @@
         },
         {
             "name": "drupal/jquery_ui",
-            "version": "1.7.0",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/jquery_ui.git",
-                "reference": "8.x-1.7"
+                "reference": "8.x-1.8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/jquery_ui-8.x-1.7.zip",
-                "reference": "8.x-1.7",
-                "shasum": "3f893843ec30fed18fa1b0cb326e51880b0cb686"
+                "url": "https://ftp.drupal.org/files/projects/jquery_ui-8.x-1.8.zip",
+                "reference": "8.x-1.8",
+                "shasum": "a53e99216a81d1e35fa357885656a2cf420f1a6a"
             },
             "require": {
                 "drupal/core": "^9.2 || ^10 || ^11"
@@ -3772,8 +3772,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.7",
-                    "datestamp": "1717002098",
+                    "version": "8.x-1.8",
+                    "datestamp": "1758954737",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
