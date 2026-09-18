@@ -94,5 +94,8 @@
     "knex": "^3.2.6",
     "pg": "^8.20.0"
   },
-  "snyk": true
+  "snyk": true,
+  "allowScripts": {
+    "protobufjs@7.6.5": true
+  }
 }
