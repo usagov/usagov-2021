@@ -12,7 +12,6 @@
 # Covers:
 #   * Composer  — Drupal core, contrib modules, PHP libraries
 #   * npm       — web/themes/custom/usagov            (Drupal theme)
-#   * npm       — sources/benefit-finder              (Benefit Finder app)
 #   * npm       — .docker/src-reporter/analytics-reporter
 #
 # Makes NO changes. Composer and npm execute inside the project's docker
@@ -39,7 +38,6 @@ cd "$ROOT_DIR"
 # slug | human label | path relative to repo root
 NPM_TARGETS=(
   "drupal-theme|Drupal theme|web/themes/custom/usagov"
-  "benefit-finder|Benefit Finder|sources/benefit-finder"
   "analytics-reporter|Analytics Reporter|.docker/src-reporter/analytics-reporter"
 )
 
@@ -517,9 +515,6 @@ SHA="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
   echo
   echo '- `composer update` and `npm update` honor declared ranges: a caret range accepts'
   echo '  **minor and patch** updates, not just patches.'
-  echo '- `sources/benefit-finder/themes/custom/usagov` is a generated copy of the Drupal theme'
-  echo '  (`scripts/benefit-finder/sync-usagov-theme.sh`) and is covered by the Drupal theme'
-  echo '  section; it is not audited separately.'
   echo '- Snyk-based CVE scanning lives in `bin/scan-dependencies` (requires SNYK_TOKEN); this'
   echo '  report uses `composer audit` / `npm audit`, which need no token.'
 } | sed 's/[[:space:]]*$//'
