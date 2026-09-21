@@ -429,20 +429,6 @@ $settings['update_free_access'] = FALSE;
 # $settings['omit_vary_cookie'] = TRUE;
 
 /**
- * The state system in Drupal is used for storing variables and configuration that:
- * 1. Don't need to be deployed between environments
- * 2. Are specific to a site's current state
- * 3. Can change frequently
- *
- * By default, Drupal stores state information in the database. However, you can configure $settings['state_cache']
- * to use alternative storage backends for better performance.
- * The most common use case for modifying state cache settings is to improve performance on high-traffic
- * sites by moving state storage to a faster storage backend like Redis or Memcached.
- */
-// Use the default database storage
-$settings['state_cache']['storage'] = 'DatabaseStorage';
-
-/**
  * Cache TTL for client error (4xx) responses.
  *
  * Items cached per-URL tend to result in a large number of cache items, and
@@ -763,6 +749,19 @@ $settings['entity_update_batch_size'] = 50;
 $settings['entity_update_backup'] = TRUE;
 
 /**
+ * State caching.
+ *
+ * State caching uses the cache collector pattern to cache all requested and
+ * set state values in a single cache entry, which is more efficient than
+ * hitting the database on every state read.
+ *
+ * Note: this setting only has an effect on Drupal 10. Drupal 11 removed it and
+ * caches state unconditionally, so this line becomes inert after the core
+ * upgrade and can then be deleted.
+ */
+$settings['state_cache'] = TRUE;
+
+/**
  * Node migration type.
  *
  * This is used to force the migration system to use the classic node migrations
@@ -869,7 +868,8 @@ foreach ($cf_service_data as $service_list) {
         'prefix' => '',
         'host' => $service['credentials']['host'],
         'port' => $service['credentials']['port'],
-        'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+        'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
+        'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
         'driver' => 'mysql',
       ];
       if ($IS_CLOUDGOV === TRUE) {
@@ -983,7 +983,7 @@ if  ($use_redis) {
 // Add cache.backend.null:
 $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/nonlocal.services.yml';
 
-if (PHP_SAPI === 'cli' && str_starts_with($_SERVER["argv"][1], 'tome:static')) {
+if (PHP_SAPI === 'cli' && str_starts_with($_SERVER['argv'][1] ?? '', 'tome:static')) {
   // Disable the page and menu cache on tome runs
   $settings['cache']['bins']['page'] = 'cache.backend.null';
   $settings['cache']['bins']['menu'] = 'cache.backend.null';
