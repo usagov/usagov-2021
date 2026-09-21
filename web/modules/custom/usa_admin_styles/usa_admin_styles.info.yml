@@ -1,7 +1,7 @@
 name: 'USA Admin'
 type: module
 description: 'USAGov admin-area menus and styles to override admin theme.'
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^10 || ^11
 
 dependencies:
   - usagov_directories:usagov_directories

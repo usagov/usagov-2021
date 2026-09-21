@@ -2,7 +2,7 @@ name: 'USA Content Moderation Notifications'
 type: module
 description: 'Functionality related to Content Moderation.'
 package: USAgov
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^10 || ^11
 
 dependencies:
   - content_moderation_notifications:content_moderation_notifications
