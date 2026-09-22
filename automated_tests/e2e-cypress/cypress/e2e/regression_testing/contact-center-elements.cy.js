@@ -72,9 +72,6 @@ const paths_without_contact_info = [
     // Benefits Category search pages
     "/benefit-finder",
     "/es/buscador-beneficios",
-    // Benefit-finder tool pages
-    "/benefit-finder/disability",
-    "/es/buscador-beneficios/discapacidad",
 ];
 
 // Paths for pages that SHOULD HAVE the phone number but NOT the "have a question" box.

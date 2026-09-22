@@ -22,9 +22,15 @@ const config = {
     return [
       ...input,
       fileURLToPath(import.meta.resolve('@storybook/react/entry-preview')),
-      fileURLToPath(import.meta.resolve('@storybook/react/entry-preview-argtypes')),
+      fileURLToPath(
+        import.meta.resolve('@storybook/react/entry-preview-argtypes')
+      ),
       ...(docsEnabled
-        ? [fileURLToPath(import.meta.resolve('@storybook/react/entry-preview-docs'))]
+        ? [
+            fileURLToPath(
+              import.meta.resolve('@storybook/react/entry-preview-docs')
+            ),
+          ]
         : []),
     ]
   },
