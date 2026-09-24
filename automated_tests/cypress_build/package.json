@@ -18,7 +18,7 @@
     "cypress-image-diff-js": "^2.8.0",
     "cypress-mochawesome-reporter": "^5.0.0",
     "cypress-real-events": "^1.15.0",
-    "js-yaml": "^4.3.0"
+    "js-yaml": "^4.3.2"
   },
   "x-maintenanceTodo": "TODO: Remove these overrides once cypress-image-diff-js and mochawesome absorb the upstream fixes.",
   "overrides": {
