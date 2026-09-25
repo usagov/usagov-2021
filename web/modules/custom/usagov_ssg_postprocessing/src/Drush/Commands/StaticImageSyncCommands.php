@@ -3,6 +3,7 @@
 namespace Drupal\usagov_ssg_postprocessing\Drush\Commands;
 
 use Drush\Commands\DrushCommands;
+use Drupal\usagov_ssg_postprocessing\StaticFileUrlMapper;
 use Symfony\Component\Finder\Finder;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Database\Connection;
@@ -47,37 +48,51 @@ class StaticImageSyncCommands extends DrushCommands {
    *
    * @command usagov:ssg-sync-images
    * @aliases ssg-sync-images
+   * @option s3_files_dir When set (referenced-only publishing), also copy each
+   *   referenced asset to this /s3/files output directory using its literal
+   *   name, so existing /s3/files references resolve without a broad cms/public
+   *   copy.
    */
-  public function syncImages(array $options = ['html_dir' => 'html', 'output_files_dir' => 'html/files']): void {
+  public function syncImages(
+    array $options = [
+      'html_dir' => 'html',
+      'output_files_dir' => 'html/files',
+      'reference_manifest_path' => NULL,
+      's3_files_dir' => NULL,
+    ],
+  ): void {
     $html_dir = $options['html_dir'];
     $output_files_dir = $options['output_files_dir'];
+    $reference_manifest_path = $options['reference_manifest_path'];
+    $s3_files_dir = $options['s3_files_dir'];
 
     $finder = new Finder();
     $finder->files()->in($html_dir)->name('*.html');
     $all_files = [];
+    $html_file_count = 0;
+    $rewritten_html_file_count = 0;
     foreach ($finder as $file) {
       $html = file_get_contents($file->getRealPath());
-      // Match only src URLs (exclude srcset).
-      preg_match_all('/src="([^"]+)"/', $html, $matches);
-      foreach ($matches[1] as $url) {
-        // Only process /s3/files/ or /sites/default/files/ or /files/.
-        if (preg_match('#/(s3/files|sites/default/files|files)/(.+?)(["\?\s])#', $url . ' ', $m)) {
-          $relative_path = $m[1] . '/' . $m[2];
-          // Remove query/fragment.
-          $relative_path = preg_replace('/[\?"].*$/', '', $relative_path);
-          // Normalize spaces and %20 to plus signs for consistency
-          $relative_path = str_replace(['%20', ' '], '+', $relative_path);
-          $all_files[$relative_path] = TRUE;
-        }
+      $html_file_count++;
+      $this->collectReferencedFiles($html, $all_files);
+
+      $rewritten_html = $this->normalizeImageUrls($html);
+      if ($rewritten_html !== $html) {
+        file_put_contents($file->getRealPath(), $rewritten_html);
+        $rewritten_html_file_count++;
       }
     }
     $this->output()->writeln('Found ' . count($all_files) . ' unique referenced files.');
-    foreach (array_keys($all_files) as $rel_path) {
-      // Try public://files/... or public://s3/files/....
-      $public_path = 'public://' . $rel_path;
+    $reference_manifest = [];
+    foreach ($all_files as $public_path => $source_url) {
+      $source_relative_path = substr($public_path, strlen('public://'));
+      $dest_rel_path = StaticFileUrlMapper::staticOutputRelativePathFromFileUrl($source_url);
+      if ($dest_rel_path === NULL) {
+        continue;
+      }
 
       // Create destination with sanitized filename
-      $rel_path_parts = pathinfo($rel_path);
+      $rel_path_parts = pathinfo($dest_rel_path);
       $sanitized_filename = $this->sanitizeFilename($rel_path_parts['basename']);
       $dest_rel_path = $rel_path_parts['dirname'] . '/' . $sanitized_filename;
 
@@ -86,63 +101,137 @@ class StaticImageSyncCommands extends DrushCommands {
       if (!is_dir($dest_dir)) {
         mkdir($dest_dir, 0775, TRUE);
       }
+      $reference_manifest[$public_path] = [$dest_rel_path, 'unresolved'];
 
-      $real_source = $this->fileSystem->realpath($public_path);
-
-      // If not found, try alternative encodings and variations to find the actual file
-      if (!$real_source || !file_exists($real_source)) {
-        $alt_paths = [
-          str_replace('+', ' ', $rel_path),
-          str_replace('+', '%20', $rel_path),
-          urldecode($rel_path), // Try URL decoded version
-          str_replace('-', ' ', $rel_path), // In case it was already sanitized with hyphens
-        ];
-        foreach ($alt_paths as $alt_rel_path) {
-          $alt_public_path = 'public://' . $alt_rel_path;
-          $alt_real_source = $this->fileSystem->realpath($alt_public_path);
-          if ($alt_real_source && file_exists($alt_real_source)) {
-            $real_source = $alt_real_source;
-            $this->output()->writeln('Mapped ' . $rel_path . ' to ' . $alt_rel_path);
-            break;
-          }
+      // S3FS can read uncached objects through its stream wrapper, so avoid
+      // requiring a local realpath before copying the source object.
+      $source_uri = NULL;
+      $source_uri_candidates = [
+        $public_path,
+        'public://' . str_replace('+', ' ', $source_relative_path),
+        'public://' . str_replace('+', '%20', $source_relative_path),
+        'public://' . urldecode($source_relative_path),
+        // In case it was already sanitized with hyphens.
+        'public://' . str_replace('-', ' ', $source_relative_path),
+      ];
+      foreach ($source_uri_candidates as $candidate_source_uri) {
+        if (file_exists($candidate_source_uri)) {
+          $source_uri = $candidate_source_uri;
+          break;
         }
       }
 
-      if ($real_source && file_exists($real_source)) {
-        copy($real_source, $dest_path);
-        $this->output()->writeln('Copied ' . $real_source . ' to ' . $dest_path);
+      if ($source_uri === NULL) {
+        $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) could not be read');
+        continue;
+      }
+
+      // Copy to the sanitized /files/ path that rewritten <img src> references use.
+      $copied = copy($source_uri, $dest_path);
+      if ($copied) {
+        $this->output()->writeln('Copied ' . $source_uri . ' to ' . $dest_path);
+      }
+
+      // Referenced-only publishing: also materialize the asset at its /s3/files
+      // served path using the literal (decoded) name, matching what the broad
+      // cms/public copy produced, so existing /s3/files references still resolve.
+      if ($s3_files_dir !== NULL) {
+        $s3_dest_path = rtrim($s3_files_dir, '/') . '/' . self::literalRelativePath($source_relative_path);
+        $s3_dest_dir = dirname($s3_dest_path);
+        if (!is_dir($s3_dest_dir)) {
+          mkdir($s3_dest_dir, 0775, TRUE);
+        }
+        $copied = copy($source_uri, $s3_dest_path) && $copied;
+        if ($copied) {
+          $this->output()->writeln('Copied ' . $source_uri . ' to ' . $s3_dest_path);
+        }
+      }
+
+      if ($copied) {
+        $reference_manifest[$public_path][1] = 'resolved';
       }
       else {
-        $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) do not exist');
+        $this->output()->writeln('WARNING: ' . $public_path . ' (and alternatives) could not be copied');
       }
     }
-    // Now rewrite HTML references to use static paths and normalize URLs.
-    foreach ($finder as $file) {
-      $html = file_get_contents($file->getRealPath());
-
-      // Process only src attributes in img tags (exclude srcset)
-      $html = preg_replace_callback(
-        '/src="([^"]+)"/i',
-        function ($src_matches) {
-          $src_url = $src_matches[1];
-
-          // Only process image files with /files/ and spaces or %20
-          if (strpos($src_url, '/files/') !== FALSE &&
-              (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
-              preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
-
-            $normalized_url = $this->normalizeImageUrl($src_url);
-            return 'src="' . $normalized_url . '"';
-          }
-
-          return $src_matches[0];
-        },
-        $html
-      );
-
-      file_put_contents($file->getRealPath(), $html);
+    if (!empty($reference_manifest_path)) {
+      $this->writeReferenceManifest($reference_manifest_path, $reference_manifest);
     }
+    $this->output()->writeln('Scanned ' . $html_file_count . ' HTML files and rewrote ' . $rewritten_html_file_count . '.');
     $this->output()->writeln('HTML references normalized to use pluses.');
+  }
+
+  /**
+   * Collects referenced public file paths from a static HTML document.
+   *
+   * Covers src, srcset, href download links, and CSS url() references so the
+   * referenced-asset manifest reflects every public:// file the page needs,
+   * not just bare src attributes.
+   *
+   * @param array<string, string> $all_files
+   *   The unique public URIs keyed to their source URLs.
+   */
+  private function collectReferencedFiles(string $html, array &$all_files): void {
+    foreach (StaticFileUrlMapper::referencedUrlsFromHtml($html) as $url) {
+      if (StaticFileUrlMapper::isGeneratedStaticAssetUrl($url)) {
+        continue;
+      }
+      $public_uri = StaticFileUrlMapper::publicUriFromFileUrl($url);
+      if ($public_uri !== NULL) {
+        $all_files[$public_uri] = $url;
+      }
+    }
+  }
+
+  /**
+   * Returns the literal on-disk relative path for a normalized public path.
+   *
+   * Referenced-asset keys use '+' for spaces and percent-encode other
+   * characters. The /s3/files served copy must use the decoded literal name so
+   * it matches what the broad cms/public copy produced and what URL requests
+   * resolve to.
+   */
+  private static function literalRelativePath(string $relative_path): string {
+    return str_replace('+', ' ', rawurldecode($relative_path));
+  }
+
+  /**
+   * Writes the current reference-to-source mapping without changing publish behavior.
+   *
+   * @param array<string, array{string, string}> $reference_manifest
+   *   The public URI, destination path, and source resolution status for each file.
+   */
+  private function writeReferenceManifest(string $reference_manifest_path, array $reference_manifest): void {
+    ksort($reference_manifest);
+    $rows = ["public_uri\tdestination_relative_path\tsource_status"];
+    foreach ($reference_manifest as $public_uri => [$destination_path, $source_status]) {
+      $rows[] = $public_uri . "\t" . $destination_path . "\t" . $source_status;
+    }
+    file_put_contents($reference_manifest_path, implode("\n", $rows) . "\n");
+    $this->output()->writeln('Wrote referenced asset manifest to ' . $reference_manifest_path . '.');
+  }
+
+  /**
+   * Normalizes supported image src attributes without reparsing the HTML file.
+   */
+  private function normalizeImageUrls(string $html): string {
+    return preg_replace_callback(
+      '/src="([^"]+)"/i',
+      function ($src_matches) {
+        $src_url = $src_matches[1];
+
+        // Only process image files with /files/ and spaces or %20.
+        if (strpos($src_url, '/files/') !== FALSE &&
+            (strpos($src_url, ' ') !== FALSE || strpos($src_url, '%20') !== FALSE) &&
+            preg_match('/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i', $src_url)) {
+
+          return 'src="' . $this->normalizeImageUrl($src_url) . '"';
+        }
+
+        return $src_matches[0];
+      },
+      $html
+    ) ?? $html;
   }
 
   /**
@@ -542,8 +631,7 @@ class StaticImageSyncCommands extends DrushCommands {
    */
   private function normalizeImageUrl(string $url): string {
     // Replace /s3/files/ and /sites/default/files/ with /files/
-    $normalized_url = preg_replace('#/s3/files/#', '/files/', $url);
-    $normalized_url = preg_replace('#/sites/default/files/#', '/files/', $normalized_url);
+    $normalized_url = StaticFileUrlMapper::normalizeStaticFileUrlPrefix($url);
 
     // Parse URL to separate path from query/fragment
     $url_parts = parse_url($normalized_url);
