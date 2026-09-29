@@ -4,3 +4,13 @@ services:
     arguments: ['@file_system', '@database']
     tags:
       - { name: drush.command }
+  usagov_ssg_postprocessing.drush.static_status:
+    class: 'Drupal\usagov_ssg_postprocessing\Drush\Commands\StaticStatusCommands'
+    arguments: ['@state']
+    tags:
+      - { name: drush.command }
+  usagov_ssg_postprocessing.drush.static_preflight:
+    class: 'Drupal\usagov_ssg_postprocessing\Drush\Commands\StaticPreflightCommands'
+    arguments: ['@state', '@database']
+    tags:
+      - { name: drush.command }
