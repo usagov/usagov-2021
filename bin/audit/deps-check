@@ -90,13 +90,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# </dev/null: `docker compose run` forwards stdin to the container even with
+# -T, so without it each container start would swallow answers piped into
+# bin/audit/deps-update (which runs this collection before its interview).
 composer_run() {
-  docker compose run --rm --no-deps -T --workdir /var/www composer composer "$@"
+  docker compose run --rm --no-deps -T --workdir /var/www composer composer "$@" </dev/null
 }
 
 npm_run() {
   local dir="$1"; shift
-  docker compose run --rm --no-deps -T --workdir "/var/www/$dir" node npm "$@"
+  docker compose run --rm --no-deps -T --workdir "/var/www/$dir" node npm "$@" </dev/null
 }
 
 # capture <outfile> <ok-exit-codes|any> <fatal|warn> <cmd...>
@@ -138,6 +141,19 @@ capture() {
 # ---------------------------------------------------------------------------
 
 collect_composer() {
+  # An aborted composer run can leave vendor/ (bind-mounted into the composer
+  # container) so broken that composer itself cannot start (a plugin's files
+  # half-deleted) — detect that up front and name the remedy instead of dying
+  # on a raw composer error mid-collection. (Announced first: this is the first
+  # container start, so a missing composer image gets built here, silently.)
+  info "checking that composer can start (vendor/ health)..."
+  local precheck_err
+  if ! precheck_err="$(composer_run show --name-only --direct 2>&1 >/dev/null)"; then
+    if printf '%s' "$precheck_err" | grep -q "Failed to open stream"; then
+      die "vendor/ appears broken (composer plugins cannot load). Fix with: rm -rf vendor && bin/composer install"
+    fi
+  fi
+
   # --ignore-platform-reqs matches bin/composer's convention; without it,
   # "latest" is filtered by the composer container's PHP platform and can
   # come back as "[none matched]".
@@ -211,6 +227,18 @@ def sevfix($title):
   if . != null and . != "" and . != "?" then .
   else (($title // "") | ([scan("Highly critical|Moderately critical|Less critical|Not critical|Critical")] | first) // "?")
   end;
+# One package's advisories, as a list. `composer audit --format=json` usually
+# emits an array, but when its internal list has non-sequential keys PHP
+# encodes it as an object keyed by index ({"2": {...}, "3": {...}}) — treating
+# that wrapper as a single advisory loses every field and undercounts. A lone
+# advisory object (identifiable by its own keys) still comes back as a 1-list.
+# NIST 800-53: RA-5 - Vulnerability Monitoring and Scanning
+def advlist:
+  if type == "array" then .
+  elif type == "object" then
+    (if (has("advisoryId") or has("packageName") or has("title"))
+     then [.] else [.[]?] end)
+  else [] end;
 EOF
 
   cat >"$JQDIR/composer-updates.jq" <<'EOF'
@@ -243,16 +271,18 @@ else
   ((.advisories // {}) | if type == "object" then . else {} end) as $adv
   | ((.abandoned // {}) | if type == "object" then . else {} end) as $ab
   | ([ $adv | to_entries[] | .key as $p
-       | (.value | if type == "array" then .[] else . end)
+       | (.value | advlist[])
        | { p: $p,
            sev: (.title as $t | (.severity // "?") | sevfix($t)),
            cve: (.cve // "n/a"),
            title: (.title // "advisory"),
+           aff: (.affectedVersions // "?"),
            link: (.link // "") } ]) as $rows
   | ( if ($rows | length) == 0 then "No known security advisories."
       else
-        ( [ "| Package | Severity | CVE | Advisory |", "|---|---|---|---|" ]
-          + ($rows | sort_by(.sev) | map("| \(.p) | \(.sev) | \(.cve) | [\(.title)](\(.link)) |"))
+        ( [ "| Package | Severity | CVE | Affected versions | Advisory |",
+            "|---|---|---|---|---|" ]
+          + ($rows | sort_by(.sev) | map("| \(.p) | \(.sev) | \(.cve) | `\(.aff)` | [\(.title)](\(.link)) |"))
         ) | join("\n")
       end )
     + ( if ($ab | length) > 0 then
@@ -347,7 +377,7 @@ EOF
                  ok: ((.["latest-status"] // "") == "semver-safe-update") })) as $c
 | (if ($audit[0] | has("__error__")) then "?"
    else ([ ($audit[0].advisories // {})
-           | if type == "object" then to_entries[] | (.value | if type == "array" then .[] else . end)
+           | if type == "object" then to_entries[] | (.value | advlist[])
              else empty end ] | length)
    end) as $adv
 | "| Composer (Drupal) | \($adv) | \([$c[] | select(.jump == "patch")] | length) | \([$c[] | select(.jump == "minor")] | length) | \([$c[] | select(.jump == "major")] | length) | \([$c[] | select(.ok | not)] | length) |"
@@ -462,8 +492,10 @@ SHA="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
     echo
     echo 'Known vulnerabilities in PHP packages this site installs, from the Drupal and'
     echo 'GitHub security advisory databases. **These are the highest-priority items.**'
-    echo 'The fix is normally "update the package to the version the advisory names" —'
-    echo 'follow the link for details and the fixed version.'
+    echo 'The fix is normally "move to a release outside *Affected versions*" — that'
+    echo 'column carries the advisory range verbatim, so `<1.21.0` means 1.21.0 and'
+    echo 'later are clean. Drupal contrib advisories are published on drupal.org, not'
+    echo 'on packagist; the Advisory link goes to the canonical one.'
     echo
     render composer-audit.jq "$RAW/composer-audit.json"
     echo
