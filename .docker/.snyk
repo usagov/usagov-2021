@@ -19,6 +19,7 @@ ignore:
 exclude:
   code:
     - scripts/drush/publish_blog_posts.php
+    - scripts/a11y
     - web/modules/custom/usagov_directories/utility
     - node_modules/**
     - .venv/**
