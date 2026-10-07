@@ -3380,6 +3380,7 @@ download_single_backup() {
     local backup_type=$2
     local output_path=$3
     local stream_mode=$4
+    local temp_dir
 
     # Validate backup tag
     if ! validate_backup_tag "$backup_tag"; then
@@ -3449,9 +3450,24 @@ download_single_backup() {
                 # Stream mode: create tar.gz and output to stdout
                 log_message "📥 Streaming static backup: $backup_tag" >&2
 
-                # Download to temp dir, create tar, stream, cleanup
-                temp_dir=$(mktemp -d)
-                aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
+                # Download to temp dir, create tar, stream, cleanup.
+                # stdout carries the tar stream, so aws's progress lines have
+                # to be discarded - but its errors belong on stderr, where the
+                # caller can quote them, rather than in /dev/null with them.
+                if ! temp_dir=$(mktemp -d); then
+                    log_message "❌ Error: could not create a temp directory for the static stream" >&2
+                    return 1
+                fi
+                # The sync status has to be checked. tar over a partially
+                # synced tree still emits a *valid* gzip, so the caller's
+                # magic-byte check passes and a truncated backup looks like a
+                # good one - which downsync then restores with `aws s3 sync
+                # --delete`, deleting whatever the archive is missing.
+                if ! aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null; then
+                    log_message "❌ Error: static backup sync from S3 failed for tag: $backup_tag" >&2
+                    rm -rf "$temp_dir"
+                    return 1
+                fi
                 tar -czf - -C "$temp_dir" .
                 local tar_exit=$?
                 rm -rf "$temp_dir"
@@ -3464,8 +3480,13 @@ download_single_backup() {
 
                 log_message "📥 Downloading static backup: $backup_tag"
 
-                # Download to temp dir, create tar.gz, move to output
-                temp_dir=$(mktemp -d)
+                # Download to temp dir, create tar.gz, move to output.
+                # Unchecked, a failed mktemp leaves temp_dir empty and the
+                # sync destination becomes "/".
+                if ! temp_dir=$(mktemp -d); then
+                    log_message "❌ Error: could not create a temp directory for the static download" >&2
+                    return 1
+                fi
                 if aws s3 sync s3://$BUCKET_NAME/$AUTO_STATIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS; then
                     tar -czf "$output_file" -C "$temp_dir" .
                     rm -rf "$temp_dir"
@@ -3490,9 +3511,24 @@ download_single_backup() {
                 # Stream mode: create tar.gz and output to stdout
                 log_message "📥 Streaming public backup: $backup_tag" >&2
 
-                # Download to temp dir, create tar, stream, cleanup
-                temp_dir=$(mktemp -d)
-                aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null 2>&1
+                # Download to temp dir, create tar, stream, cleanup.
+                # stdout carries the tar stream, so aws's progress lines have
+                # to be discarded - but its errors belong on stderr, where the
+                # caller can quote them, rather than in /dev/null with them.
+                if ! temp_dir=$(mktemp -d); then
+                    log_message "❌ Error: could not create a temp directory for the public stream" >&2
+                    return 1
+                fi
+                # The sync status has to be checked. tar over a partially
+                # synced tree still emits a *valid* gzip, so the caller's
+                # magic-byte check passes and a truncated backup looks like a
+                # good one - which downsync then restores with `aws s3 sync
+                # --delete`, deleting whatever the archive is missing.
+                if ! aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS >/dev/null; then
+                    log_message "❌ Error: public backup sync from S3 failed for tag: $backup_tag" >&2
+                    rm -rf "$temp_dir"
+                    return 1
+                fi
                 tar -czf - -C "$temp_dir" .
                 local tar_exit=$?
                 rm -rf "$temp_dir"
@@ -3505,8 +3541,13 @@ download_single_backup() {
 
                 log_message "📥 Downloading public backup: $backup_tag"
 
-                # Download to temp dir, create tar.gz, move to output
-                temp_dir=$(mktemp -d)
+                # Download to temp dir, create tar.gz, move to output.
+                # Unchecked, a failed mktemp leaves temp_dir empty and the
+                # sync destination becomes "/".
+                if ! temp_dir=$(mktemp -d); then
+                    log_message "❌ Error: could not create a temp directory for the public download" >&2
+                    return 1
+                fi
                 if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$backup_tag/ "$temp_dir/" --only-show-errors $S3_EXTRA_PARAMS; then
                     tar -czf "$output_file" -C "$temp_dir" .
                     rm -rf "$temp_dir"
