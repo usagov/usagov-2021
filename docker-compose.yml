@@ -26,6 +26,15 @@ services:
       - ./.docker/src-cms/50_xdebug.ini:/etc/php83/conf.d/50_xdebug.ini:delegated
     env_file:
       - ./env.local
+    security_opt:
+      - apparmor:docker-default
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 64GB
+          cpus: "8.0"
+          pids: 256
     environment:
       COMPOSER_MEMORY_LIMIT: -1
       WWW_HOST: beta-local-usagov.apps.internal
