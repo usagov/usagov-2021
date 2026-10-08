@@ -43,8 +43,7 @@ fi
 if [ -n "$TR_START_TIME" -a -n "$STATUS" ]; then
 
     UNIXTIME=`date +%s`
-    drush sset ssg_stat_date $UNIXTIME
-    drush sset ssg_stat_msg "$STATUS"
+    drush usagov:ssg-status $UNIXTIME "$STATUS"
 else
    echo "To few args"
    exit 1
