@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3b74e5b0aead4e71a5218f8cfb53c7c",
+    "content-hash": "ca3d4936f51c6501406965f5256aff36",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3645,26 +3645,26 @@
         },
         {
             "name": "drupal/field_defaults",
-            "version": "2.0.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/field_defaults.git",
-                "reference": "2.0.0"
+                "reference": "2.1.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/field_defaults-2.0.0.zip",
-                "reference": "2.0.0",
-                "shasum": "692d6b760271d3b3a711e781018f3a6e3f10e60d"
+                "url": "https://ftp.drupal.org/files/projects/field_defaults-2.1.1.zip",
+                "reference": "2.1.1",
+                "shasum": "19e9080bd4312ae9d15aeb350ae5f07dd9863268"
             },
             "require": {
-                "drupal/core": "^9.3 || ^10"
+                "drupal/core": "^10.0 || ^11.0"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.0.0",
-                    "datestamp": "1709319388",
+                    "version": "2.1.1",
+                    "datestamp": "1784908398",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3672,7 +3672,7 @@
                 },
                 "drush": {
                     "services": {
-                        "drush.services.yml": "^9 || ^10 || ^11"
+                        "drush.services.yml": "^11 || ^12"
                     }
                 }
             },
@@ -3884,29 +3884,29 @@
         },
         {
             "name": "drupal/image_style_warmer",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/image_style_warmer.git",
-                "reference": "8.x-1.2"
+                "reference": "8.x-1.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/image_style_warmer-8.x-1.2.zip",
-                "reference": "8.x-1.2",
-                "shasum": "c029502973921203f6c65f446b8e0f0a4fd77089"
+                "url": "https://ftp.drupal.org/files/projects/image_style_warmer-8.x-1.3.zip",
+                "reference": "8.x-1.3",
+                "shasum": "b458a58fc89606a5ebc526333d95030ac43b4c75"
             },
             "require": {
-                "drupal/core": "^9 || ^10"
+                "drupal/core": "^9 || ^10 || ^11"
             },
             "require-dev": {
-                "drush/drush": "^10 || ^11"
+                "drush/drush": "^11 || ^12 || ^13"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.2",
-                    "datestamp": "1686119705",
+                    "version": "8.x-1.3",
+                    "datestamp": "1778749774",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3914,7 +3914,7 @@
                 },
                 "drush": {
                     "services": {
-                        "drush.services.yml": "^9 || ^10 || ^11"
+                        "drush.services.yml": "^11 || ^12 || ^13"
                     }
                 }
             },
@@ -4487,27 +4487,27 @@
         },
         {
             "name": "drupal/new_relic_rpm",
-            "version": "2.1.1",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/new_relic_rpm.git",
-                "reference": "2.1.1"
+                "reference": "2.3.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/new_relic_rpm-2.1.1.zip",
-                "reference": "2.1.1",
-                "shasum": "751f1d91793dfa6bc0da627fbb90b651a64e95aa"
+                "url": "https://ftp.drupal.org/files/projects/new_relic_rpm-2.3.0.zip",
+                "reference": "2.3.0",
+                "shasum": "ab30953b614003a46a89fbb2b0ca6816e75acd0d"
             },
             "require": {
-                "drupal/core": "^9.1 || ^10",
+                "drupal/core": "^10.1 || ^11",
                 "php": ">=8.0"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.1.1",
-                    "datestamp": "1675887846",
+                    "version": "2.3.0",
+                    "datestamp": "1787068364",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -5082,21 +5082,21 @@
         },
         {
             "name": "drupal/s3fs",
-            "version": "3.10.0",
+            "version": "3.11.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/s3fs.git",
-                "reference": "8.x-3.10"
+                "reference": "8.x-3.11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/s3fs-8.x-3.10.zip",
-                "reference": "8.x-3.10",
-                "shasum": "7728ff6428f74982a290f1888d4299077fcf0320"
+                "url": "https://ftp.drupal.org/files/projects/s3fs-8.x-3.11.zip",
+                "reference": "8.x-3.11",
+                "shasum": "4dbc77c8d396006a2bab2a77124ddd6fcef038a4"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.18",
-                "drupal/core": ">=8.8 < 10.7 || >=11.0 < 11.2 || >=11.2.3 < 11.4",
+                "drupal/core": ">=8.8 < 10.7 || >=11.0 < 11.2 || >=11.2.3 < 11.4.0 || >=11.4.3 < 11.5",
                 "php": "^7.1 || ^8.0"
             },
             "require-dev": {
@@ -5114,8 +5114,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-3.10",
-                    "datestamp": "1768115550",
+                    "version": "8.x-3.11",
+                    "datestamp": "1784613899",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
