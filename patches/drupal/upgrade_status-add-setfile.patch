@@ -1,0 +1,32 @@
+Add missing DeprecationMessage::setFile() setter.
+
+LibraryDeprecationAnalyzer::analyzeTwigLibraryDependencies() calls
+$is_deprecated->setFile($name) on a DeprecationMessage instance, but the
+class only exposes a getter. This makes `drush upgrade_status:analyze`
+fatal with "Call to undefined method
+Drupal\upgrade_status\DeprecationMessage::setFile()" for any extension
+whose Twig templates attach a deprecated library.
+
+--- a/src/DeprecationMessage.php
++++ b/src/DeprecationMessage.php
+@@ -76,6 +76,19 @@
+   public function getFile(): string {
+     return $this->file;
+   }
+
++  /**
++   * Sets the file related to the deprecation message.
++   *
++   * @param string $file
++   *   The file related to the deprecation message.
++   *
++   * @return $this
++   */
++  public function setFile(string $file): static {
++    $this->file = $file;
++    return $this;
++  }
++
+   /**
+    * Gets the line.
+    *
