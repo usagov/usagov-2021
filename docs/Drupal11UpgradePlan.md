@@ -49,7 +49,7 @@ Remaining custom-code items, none of which block the upgrade:
 
 | Item | Count | Notes |
 | --- | --- | --- |
-| `core_version_requirement` capped at `^10` | 26 `.info.yml` files | Mechanical. Blocks install, not code. |
+| ~~`core_version_requirement` capped at `^10`~~ | 22 `.info.yml` files | **Done** — all set to `^10 \|\| ^11` in USAGOV-2903 (#2901). Originally 26; 4 were removed with Benefit Finder (USAGOV-2833). |
 | `DependencySerializationTrait` with `private` properties | 8 files | Genuine D11 risk — private properties do not survive serialization. Change `private` to `protected`. |
 | Twig `spaceless` filter | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. |
 | `wizardstep` library missing extension name | 1 template | Needs `themename/libraryname` form. |
