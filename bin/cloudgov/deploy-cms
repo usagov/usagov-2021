@@ -156,13 +156,6 @@ function setupEgress { #appname
   fi
 }
 
-function setUSPSCreds {
-  app=$1
-  cfSetEnv $app USPS_API_ENV $USPS_API_ENV
-  cfSetEnv $app USPS_USERID $USPS_USERID
-  cfSetEnv $app USPS_PASSWORD $USPS_PASSWORD
-}
-
 function setCallCenterEWTBucket {
   app=$1
   cfSetEnv $app CALL_CENTER_EWT_BUCKET $CALL_CENTER_EWT_BUCKET
@@ -171,7 +164,6 @@ function setCallCenterEWTBucket {
 if existsCFApp $APP_NAME; then
   setupRoutes $APP_NAME
   setupEgress $APP_NAME
-  setUSPSCreds $APP_NAME
   setCallCenterEWTBucket $APP_NAME
   if existsCFService "cache-service"; then
       bindServiceToApp $APP_NAME cache-service
@@ -191,7 +183,6 @@ else
   if existsCFService "s3forAnalyticsReporter"; then
       bindServiceToApp $APP_NAME s3forAnalyticsReporter
   fi
-  setUSPSCreds $APP_NAME
   setCallCenterEWTBucket $APP_NAME
   cfSetEnv $APP_NAME SKIP_DRUPAL_BOOTSTRAP ""
   restartApp $APP_NAME
