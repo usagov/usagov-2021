@@ -17,7 +17,7 @@ class LoginSettingsForm extends ConfigFormBase {
    *
    * @var \Drupal\Core\State\StateInterface
    */
-  private StateInterface $state;
+  protected StateInterface $state;
 
   /**
    * LoginSettingsForm constructor.

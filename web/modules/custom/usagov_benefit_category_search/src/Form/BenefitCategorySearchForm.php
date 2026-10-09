@@ -16,8 +16,8 @@ class BenefitCategorySearchForm extends FormBase {
   public const TOGGLE_KEY = 'usagov_benefit_category_search.show_block';
 
   public function __construct(
-    private StateInterface $state,
-    private LoggerInterface $log_channel,
+    protected StateInterface $state,
+    protected LoggerInterface $log_channel,
   ) {}
 
   public static function create(ContainerInterface $container): self {

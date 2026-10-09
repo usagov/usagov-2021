@@ -12,7 +12,7 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
 
   public function __construct(
     ConfigFactoryInterface $config_factory,
-    private EntityTypeManagerInterface $entityTypeManager,
+    protected EntityTypeManagerInterface $entityTypeManager,
     protected $typedConfigManager = NULL,
   ) {
     parent::__construct($config_factory);
