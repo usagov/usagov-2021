@@ -174,10 +174,11 @@ time; do not assume this is clean.
    constraints. Verify each with `patch --dry-run` against fetched core and module
    sources. A failing patch aborts the entire composer run, so this must be clean
    first.
-3. **Bump `core_version_requirement`** to include `^11` across all 26 `.info.yml`
-   files.
-4. **Change the 8 `private` properties to `protected`** in classes using
-   `DependencySerializationTrait`.
+3. ~~**Bump `core_version_requirement`** to include `^11` across all 26 `.info.yml`
+   files.~~ **Done** in USAGOV-2903 (#2901): 22 files (4 removed with Benefit Finder).
+4. ~~**Change the 8 `private` properties to `protected`** in classes using
+   `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
+   the `ConfigFormBase` constructor fix.
 5. **Bump `composer.json`** — the three core packages to `11.4.7`, plus the twelve
    contrib constraints.
 6. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
