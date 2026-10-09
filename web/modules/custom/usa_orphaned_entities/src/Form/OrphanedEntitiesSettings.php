@@ -3,6 +3,7 @@
 namespace Drupal\usa_orphaned_entities\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -13,9 +14,9 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
   public function __construct(
     ConfigFactoryInterface $config_factory,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected $typedConfigManager = NULL,
+    TypedConfigManagerInterface $typed_config_manager,
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typed_config_manager);
   }
 
   public static function create(ContainerInterface $container): self {
