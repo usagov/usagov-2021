@@ -61,8 +61,8 @@ does not report it), is fixed in USAGOV-2906:
 
 ## Contrib upgrades required
 
-Twelve modules currently block `drupal/core` 11.4.7. All have D11-compatible
-releases available.
+Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-compatible
+releases available. The four low-risk ones are done (USAGOV-2900, #2896); eight remain.
 
 | Module | Current | Target | Core constraint at target | Risk |
 | --- | --- | --- | --- | --- |
@@ -74,10 +74,10 @@ releases available.
 | `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme |
 | `log_stdout` | 1.5.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 |
 | `node_menus` | 3.0.0 | `3.x-dev` | `^10 \| ^11 \|\| ^12` | no stable D11 release |
-| `field_defaults` | 2.0.0 | 2.1.1 | `^10.0 \|\| ^11.0` | low |
-| `image_style_warmer` | 1.2.0 | 1.3.0 | `^9 \|\| ^10 \|\| ^11` | low |
-| `new_relic_rpm` | 2.1.1 | 2.3.0 | `^10.1 \|\| ^11` | low |
-| `s3fs` | 3.10.0 | 3.11.0 | `>=11.4.3 < 11.5` | low |
+| ~~`field_defaults`~~ | ~~2.0.0~~ 2.1.1 | 2.1.1 | `^10.0 \|\| ^11.0` | low — **Done** (USAGOV-2900, #2896) |
+| ~~`image_style_warmer`~~ | ~~1.2.0~~ 1.3.0 | 1.3.0 | `^9 \|\| ^10 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
+| ~~`new_relic_rpm`~~ | ~~2.1.1~~ 2.3.0 | 2.3.0 | `^10.1 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
+| ~~`s3fs`~~ | ~~3.10.0~~ 3.11.0 | 3.11.0 | `>=11.4.3 < 11.5` | low — **Done** (USAGOV-2900, #2896) |
 
 ### `node_menus` has no stable D11 release
 
@@ -92,6 +92,8 @@ branch, pin to a specific commit, or fork.
 `>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.7
 falls in the final window, so it resolves. This module has historically lagged core
 point releases, and it will constrain which core patch versions can be taken.
+Already at 3.11.0 (USAGOV-2900); the constraint still applies when choosing the core
+version.
 
 ## Patch status
 
@@ -179,7 +181,7 @@ time; do not assume this is clean.
 4. ~~**Change the 8 `private` properties to `protected`** in classes using
    `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
    the `ConfigFormBase` constructor fix.
-5. **Bump `composer.json`** — the three core packages to `11.4.7`, plus the twelve
+5. **Bump `composer.json`** — the three core packages to `11.4.7`, plus the eight
    contrib constraints.
 6. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
    6.4 → 7.4 underneath core is a large jump.
