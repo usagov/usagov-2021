@@ -45,12 +45,14 @@ upgrade.
 **zero "Fix now" findings**. The full site scan (87 extensions) produced only two
 "Fix now" items, both in contrib, and both resolved by the version bumps below.
 
-Remaining custom-code items, none of which block the upgrade:
+Remaining custom-code items. Only the `ConfigFormBase` constructor item blocks the
+upgrade; it was found after the scan, because `upgrade_status` does not report it:
 
 | Item | Count | Notes |
 | --- | --- | --- |
 | ~~`core_version_requirement` capped at `^10`~~ | 22 `.info.yml` files | **Done** — all set to `^10 \|\| ^11` in USAGOV-2903 (#2901). Originally 26; 4 were removed with Benefit Finder (USAGOV-2833). |
-| `DependencySerializationTrait` with `private` properties | 8 files | Genuine D11 risk — private properties do not survive serialization. Change `private` to `protected`. |
+| ~~`DependencySerializationTrait` with `private` properties~~ | 8 files | **Done** — 10 properties changed to `protected` in USAGOV-2906 (#2904). |
+| `ConfigFormBase` subclasses call `parent::__construct($config_factory)` without `$typedConfigManager` | 2 — `LoginSettingsForm`, `OrphanedEntitiesSettings` | **Fatal on D11** (`ArgumentCountError`); `OrphanedEntitiesSettings` also redeclares `protected $typedConfigManager` untyped, which D11's typed parent property rejects. Runtime-only deprecation (10.2), so `upgrade_status` does not report it. Pass `$container->get('config.typed')` through to the parent constructor. |
 | Twig `spaceless` filter | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. |
 | `wizardstep` library missing extension name | 1 template | Needs `themename/libraryname` form. |
 | phpstan findings in `usagov_directories/utility/*.php` | ~12 | Standalone CLI scripts, not Drupal runtime. Pre-existing, unrelated to D11. |
@@ -65,7 +67,7 @@ Remaining custom-code items, none of which block the upgrade:
 - `usagov_directories/src/Form/DirectoryRecordsAddTogglesForm.php`
 - `usagov_login/src/Form/LoginSettingsForm.php`
 - `usagov_menus/src/Plugin/Block/MobileMenuBlock.php`
-- `usagov_ssg_postprocessing/src/Form/ToggleStaticSiteGeneration.php`
+- `usagov_ssg_postprocessing/src/Form/ToggleStaticSiteGenerationForm.php`
 
 ## Contrib upgrades required
 
