@@ -52,23 +52,12 @@ does not report it), is fixed in USAGOV-2906:
 | Item | Count | Notes |
 | --- | --- | --- |
 | ~~`core_version_requirement` capped at `^10`~~ | 22 `.info.yml` files | **Done** — all set to `^10 \|\| ^11` in USAGOV-2903 (#2901). Originally 26; 4 were removed with Benefit Finder (USAGOV-2833). |
-| ~~`DependencySerializationTrait` with `private` properties~~ | 8 files | **Done** in USAGOV-2906 (#2904). 8 properties changed to `protected`. `BenefitCategorySearchForm` and `ToggleStaticSiteGenerationForm` had a `$log_channel` from `logger.factory->get()` that could not be serialized; they now log through `FormBase`'s `getLogger()` instead. All 8 classes pass a serialize round-trip. |
+| ~~`DependencySerializationTrait` with `private` properties~~ | 8 files | **Done** in USAGOV-2906 (#2904; file list there). 8 properties changed to `protected`. `BenefitCategorySearchForm` and `ToggleStaticSiteGenerationForm` had a `$log_channel` from `logger.factory->get()` that could not be serialized; they now log through `FormBase`'s `getLogger()` instead. All 8 classes pass a serialize round-trip. |
 | ~~`ConfigFormBase` subclasses call `parent::__construct($config_factory)` without `$typedConfigManager`~~ | 2 — `LoginSettingsForm`, `OrphanedEntitiesSettings` | **Done** in USAGOV-2906 (#2904). Both now inject `config.typed` and pass it to the parent constructor. `OrphanedEntitiesSettings` no longer redeclares the untyped `$typedConfigManager`. The 10.2 deprecation is gone, and both forms save without errors. |
 | Twig `spaceless` filter | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. |
 | `wizardstep` library missing extension name | 1 template | Needs `themename/libraryname` form. |
 | phpstan findings in `usagov_directories/utility/*.php` | ~12 | Standalone CLI scripts, not Drupal runtime. Pre-existing, unrelated to D11. |
 | Duplicate array keys — `StaticImageSyncCommands.php:438,440` | 2 | Real bug, pre-existing, unrelated to D11. |
-
-### Files with `private` properties under `DependencySerializationTrait`
-
-- `usa_orphaned_entities/src/Form/OrphanedEntitiesSettings.php`
-- `usagov_benefit_category_search/src/Form/BenefitCategorySearchForm.php`
-- `usagov_directories/src/Form/DirectoryRecordsAddAcronymsForm.php`
-- `usagov_directories/src/Form/DirectoryRecordsAddSynonymsForm.php`
-- `usagov_directories/src/Form/DirectoryRecordsAddTogglesForm.php`
-- `usagov_login/src/Form/LoginSettingsForm.php`
-- `usagov_menus/src/Plugin/Block/MobileMenuBlock.php`
-- `usagov_ssg_postprocessing/src/Form/ToggleStaticSiteGenerationForm.php`
 
 ## Contrib upgrades required
 
