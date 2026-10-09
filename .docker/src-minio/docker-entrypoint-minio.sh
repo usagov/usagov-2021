@@ -2,4 +2,4 @@
 
 /setup-bucket.sh &
 
-/usr/bin/docker-entrypoint.sh "$@"
+exec minio "$@"
