@@ -1,0 +1,87 @@
+# CIS Benchmark Expected Results
+# Generated: January 14, 2026
+# Format: check_id|status|container_pattern|reason
+#
+# This file defines the expected/acceptable CIS scan results.
+# Any results not matching this baseline will cause the build to fail.
+#
+# Status values: WARN, INFO, NOTE, PASS, FAIL
+# Container patterns: Use regex patterns to match container names (e.g., cms, database, .* for all)
+#
+# Guidelines:
+# - Document WHY each failure is acceptable
+# - Include mitigation or compensating controls
+# - Set review dates for re-evaluation
+# - Keep this file updated as issues are resolved
+
+# Section 4: Container Images
+
+# 4.1 - Running as root
+4.1|WARN|.*|Multiple containers running as root - to be fixed Q1 2026
+
+# 4.6 - No HEALTHCHECK in images
+# Cloud Foundry uses manifest-based healthchecks - Docker HEALTHCHECK would be ignored
+4.6|WARN|.*|Cloud Foundry uses manifest-based healthchecks
+
+# 4.7 - Update instructions alone
+4.7|INFO|.*|Update instructions - acceptable patterns
+
+# 4.9 - ADD vs COPY
+4.9|INFO|.*|ADD used in some Dockerfiles - acceptable for specific use cases
+
+# Section 5: Container Runtime
+
+# 5.2 - AppArmor Profile
+5.2|WARN|.*|AppArmor not available on macOS Docker Desktop - acceptable for dev
+# Production note: Linux hosts should have AppArmor enabled
+
+# 5.3 - SELinux security options (TEST - will be removed by --update)
+
+# 5.4 - Linux kernel capabilities
+5.4|WARN|database|MariaDB uses CAP_SYS_NICE for process priority - under review
+
+# 5.26 - TEST ENTRY (should only be removed with --update=5.26)
+
+# 5.8 - Privileged ports mapped
+5.8|WARN|.*|Ports 80/443 are standard web server ports - acceptable
+
+# 5.9 - Only needed ports open (Manual check)
+5.9|WARN|.*|All ports required for services - acceptable
+
+# 5.11 - Memory usage limits
+5.11|WARN|.*|Memory limits to be added in Sprint 2 - tracked in backlog
+
+# 5.12 - CPU priority
+5.12|WARN|.*|CPU limits to be added in Sprint 2 - tracked in backlog
+
+# 5.13 - Root filesystem read-only
+5.13|WARN|.*|Read-only FS to be evaluated Q2 2026 - may not be feasible for all containers
+
+# 5.14 - Traffic bound to specific interface
+5.14|WARN|.*|Ports bound to 0.0.0.0 - CMS needs all interfaces, others to be fixed Sprint 3
+
+# 5.19 - Default ulimit override (Manual check)
+5.19|INFO|.*|Using default ulimits - acceptable unless specific issues arise
+
+# 5.27 - Container health checked at runtime
+5.27|WARN|.*|Health checks to be added in Sprint 2 - tracked in backlog
+# Note: CMS already has health check configured
+
+# 5.28 - Latest version of image (Manual check)
+5.28|INFO|.*|Informational - version pinning for production planned Q2 2026
+
+# 5.29 - PIDs cgroup limit
+5.29|WARN|.*|PIDs limit to be added in Sprint 3 - tracked in backlog
+
+# Notes:
+# - All macOS-related limitations (AppArmor) are acceptable for local development
+# - Production deployments on Linux should address these with proper security profiles
+# - ✅ COMPLETED (2026-01-16): no-new-privileges security option added (Sprint 1)
+# - ✅ COMPLETED (2026-01-16): localhost binding for database/cache (Sprint 1)
+# - Sprint 2 priorities: health checks, resource limits
+# - Sprint 3 priorities: PIDs limits
+# - Q2 2026: Read-only FS evaluation, version pinning
+#
+# Last updated: 2026-01-16
+# Next review: 2026-02-14
+# Owner: DevOps Team
