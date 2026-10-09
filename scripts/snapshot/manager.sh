@@ -2472,6 +2472,9 @@ restore_backup() {
     audit_log "restore_started" "info" "Restore operation initiated" "backup_tag=$backup_tag static=$restore_static public=$restore_public database=$restore_database"
 
     local drupal_state_prepared=false
+    # Restored types whose files nginx cannot serve. Recorded rather than
+    # fatal so the remaining types still restore; the run fails at the end.
+    local unreadable_items=""
     if [ "$skip_state_management" != "true" ]; then
         if prepare_drupal_state "both" 25; then
             drupal_state_prepared=true
@@ -2516,6 +2519,11 @@ restore_backup() {
             print_status $GREEN "✅ Static site restored"
             audit_log "restore_static_success" "success" "Static site restored successfully" "backup_tag=$static_backup_tag"
             print_status $YELLOW "ℹ️  Note: Browser caches may take up to 15 minutes to refresh"
+
+            if ! verify_s3_prefix_readable web; then
+                audit_log "restore_static_unreadable" "error" "Restored static site cannot be read publicly" "backup_tag=$static_backup_tag"
+                unreadable_items="${unreadable_items}static site, "
+            fi
         else
             audit_log "restore_static_failed" "error" "Static site restore failed" "backup_tag=$static_backup_tag"
             print_status $RED "❌ ERROR: Static site restore failed"
@@ -2527,9 +2535,16 @@ restore_backup() {
     # Restore public files
     if [ "$restore_public" = "yes" ] && [ -n "$public_backup_tag" ]; then
         print_status $YELLOW "🔄 Restoring public files..."
-        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete $S3_EXTRA_PARAMS; then
+        # public-read for the same reason as the static site: nginx serves
+        # cms/public (/s3/files) by proxying unsigned requests to the bucket
+        if aws s3 sync s3://$BUCKET_NAME/$AUTO_PUBLIC_BACKUP_PATH/$public_backup_tag/ s3://$BUCKET_NAME/cms/public/ --only-show-errors --delete --acl public-read $S3_EXTRA_PARAMS; then
             audit_log "restore_public_success" "success" "Public files restored successfully" "backup_tag=$public_backup_tag"
             print_status $GREEN "✅ Public files restored"
+
+            if ! verify_s3_prefix_readable cms/public; then
+                audit_log "restore_public_unreadable" "error" "Restored public files cannot be read publicly" "backup_tag=$public_backup_tag"
+                unreadable_items="${unreadable_items}public files, "
+            fi
             # Refresh S3FS metadata cache so Drupal sees the restored files
             if command -v drush >/dev/null 2>&1; then
                 print_status $YELLOW "🔄 Refreshing file metadata cache..."
@@ -2636,6 +2651,15 @@ restore_backup() {
     fi
 
     [ "$drupal_state_prepared" = "true" ] && restore_drupal_state "both"
+
+    if [ -n "$unreadable_items" ]; then
+        unreadable_items=$(echo "$unreadable_items" | sed 's/, $//')
+        echo ""
+        print_status $RED "❌ Restore finished, but the restored $unreadable_items failed the readability check"
+        print_status $YELLOW "   The site will serve broken files until every object in the report above can be read anonymously"
+        audit_log "restore_completed" "error" "Restore completed with unreadable files" "backup_tag=$backup_tag unreadable=$unreadable_items"
+        exit 1
+    fi
 
     echo ""
     print_status $GREEN "🎉 Restore complete!"

@@ -117,7 +117,7 @@ test_dependencies() {
     local missing_commands=""
 
     # Check each required command
-    for cmd in aws jq date grep awk sort md5sum bc; do
+    for cmd in aws jq date grep awk sort md5sum bc curl php; do
         if ! check_command "$cmd"; then
             # Try alternative commands
             case "$cmd" in
@@ -1609,6 +1609,50 @@ test_restore_functionality() {
     return 0
 }
 
+# Function to test that restored files stay servable
+test_public_read_acl() {
+    echo "🔓 Testing that writes to served S3 paths keep files publicly readable..."
+
+    # nginx proxies cms/public (/s3/files) and web/ to a private bucket
+    # unsigned, so any sync or copy *into* them must set public-read - one
+    # that does not exits 0 and leaves every file it wrote unservable. The
+    # destination is the s3:// URL that follows another path argument;
+    # backups copy *out of* these paths and are not matched.
+    local missing
+    missing=$(grep -rnE --include='*.sh' \
+        'aws s3 (sync|cp) (.* )?[^ -][^ ]* "?s3://[^/ ]*/(cms/public|web)/' \
+        "$PROJECT_ROOT/scripts" | grep -v -- '--acl public-read')
+    if [ -n "$missing" ]; then
+        echo "❌ Writes into cms/public or web/ without --acl public-read:"
+        echo "$missing" | sed 's/^/     /'
+        return 1
+    fi
+    echo "✅ Every write into cms/public and web/ sets --acl public-read"
+
+    # The ACL is the usual cause, not the only one, so restores must also
+    # prove the files can be fetched the way nginx fetches them
+    local common_script="$PROJECT_ROOT/scripts/common.sh"
+    if ! grep -q "^verify_s3_prefix_readable()" "$common_script"; then
+        echo "❌ verify_s3_prefix_readable function not found"
+        return 1
+    fi
+    echo "✅ verify_s3_prefix_readable function exists"
+
+    local manager_script="$BACKUP_DIR/manager.sh"
+    local deploy_script="$PROJECT_ROOT/scripts/devops/deploy.sh"
+    if grep -q "verify_s3_prefix_readable web" "$manager_script" && \
+       grep -q "verify_s3_prefix_readable cms/public" "$manager_script" && \
+       grep -q "verify_s3_prefix_readable cms/public" "$deploy_script"; then
+        echo "✅ Restore and downsync verify restored files are publicly readable"
+    else
+        echo "❌ Restore or downsync does not verify restored files are publicly readable"
+        return 1
+    fi
+
+    echo "✅ Public read ACL test passed"
+    return 0
+}
+
 # Function to test smart public backup feature
 test_smart_public_backup() {
     echo "🧠 Testing smart public backup feature..."
@@ -2615,6 +2659,7 @@ main() {
     print_status $BLUE "🔄 RESTORE & ADVANCED TESTS"
     print_status $BLUE "==========================="
     run_test "Restore Functionality" "test_restore_functionality"
+    run_test "Restored Files Publicly Readable" "test_public_read_acl"
     run_test "Drupal State Management" "test_state_management"
     run_test "Cron Setup" "test_cron_setup"
     run_test "Cron Script" "test_cron_script"
@@ -2648,8 +2693,8 @@ main() {
     echo "  • Date Format Tests (6 tests)"
     echo "  • Manager Functionality Tests (9 tests)"
     echo "  • Backup Operations Tests (5 tests)"
-    echo "  • Restore & Advanced Tests (8 tests)"
-    echo "  • Total: 34 comprehensive tests"
+    echo "  • Restore & Advanced Tests (9 tests)"
+    echo "  • Total: 35 comprehensive tests"
     echo ""
 
     # Final summary
@@ -2665,6 +2710,7 @@ main() {
         echo "  ✅ Static site and public files backup"
         echo "  ✅ Smart public backup (checksum-based)"
         echo "  ✅ Backup restoration with find_corresponding"
+        echo "  ✅ Restored files verified publicly readable"
         echo "  ✅ Cleanup with configurable retention"
         echo "  ✅ Download functionality (local & stream modes)"
         echo "  ✅ Multi-type backup support"
