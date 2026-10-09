@@ -1,6 +1,6 @@
 name: 'USA Wizard'
 type: module
 description: 'Hooks and a service to help manage and display the wizard taxonomy vocabulary.'
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^10 || ^11
 dependencies:
   - hierarchy_manager:hierarchy_manager
