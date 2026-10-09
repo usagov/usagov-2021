@@ -62,15 +62,16 @@ does not report it), is fixed in USAGOV-2906:
 ## Contrib upgrades required
 
 Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-compatible
-releases available. The four low-risk ones are done (USAGOV-2900, #2896); eight remain.
+releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `ctools`, `faqfield`,
+`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905); four remain.
 
 | Module | Current | Target | Core constraint at target | Risk |
 | --- | --- | --- | --- | --- |
-| `address` | 1.12.0 | 2.0.4 | `^9.5 \|\| ^10 \|\| ^11` | major |
+| ~~`address`~~ | ~~1.12.0~~ removed | ~~2.0.4~~ | — | major — **Removed** (unused; USAGOV-2907, #2905) |
 | `content_lock` | 2.4.0 | 3.0.0 | `^10.2 \|\| ^11` | major, plus patch rewrite |
-| `ctools` | 3.15.0 | 4.1.1 | `^9.5 \|\| ^10 \|\| ^11` | major |
-| `faqfield` | 7.1.0 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major |
-| `paragraphs_entity_embed` | 3.0.1 | 4.0.0 | `^10.3 \|\| ^11` | major |
+| ~~`ctools`~~ | ~~3.15.0~~ 4.1.1 | 4.1.1 | `^9.5 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
+| ~~`faqfield`~~ | ~~7.1.0~~ 8.0.1 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
+| ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme |
 | `log_stdout` | 1.5.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 |
 | `node_menus` | 3.0.0 | `3.x-dev` | `^10 \| ^11 \|\| ^12` | no stable D11 release |
@@ -181,7 +182,7 @@ time; do not assume this is clean.
 4. ~~**Change the 8 `private` properties to `protected`** in classes using
    `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
    the `ConfigFormBase` constructor fix.
-5. **Bump `composer.json`** — the three core packages to `11.4.7`, plus the eight
+5. **Bump `composer.json`** — the three core packages to `11.4.7`, plus the four remaining
    contrib constraints.
 6. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
    6.4 → 7.4 underneath core is a large jump.
