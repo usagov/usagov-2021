@@ -157,6 +157,4 @@ These tests are automatically included when running the full Cypress test suite 
 
 ## Related Documentation
 
-- [Benefit Finder Module README](../../../web/modules/custom/usagov_benefit_finder/README.md)
 - [Main Cypress Configuration](../../cypress.config.js)
-- [px-benefit-finder Repository](https://github.com/GSA/px-benefit-finder)

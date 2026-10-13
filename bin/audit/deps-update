@@ -57,7 +57,7 @@
 #
 # Safety rails:
 #   * Rollback is snapshot-based: composer.json/composer.lock and every npm
-#     directory (plus the benefit-finder module) are backed up at run start,
+#     directory is backed up at run start,
 #     so uncommitted work survives a rollback intact. Git is not used for
 #     rollback. If anything this run may touch has uncommitted changes it
 #     warns and asks before continuing — the only cost of running dirty is
@@ -66,8 +66,6 @@
 #   * Composer >= 2.7 required in the composer container (for --patch-only).
 #
 # After npm updates it rebuilds affected front-end artifacts:
-#   * sources/benefit-finder  -> `npm run build` (regenerates the committed JS
-#     in web/modules/custom/usagov_benefit_finder)
 #   * web/themes/custom/usagov -> `npm run build` (recompiles theme assets)
 
 set -euo pipefail
@@ -78,20 +76,16 @@ cd "$ROOT_DIR"
 
 NPM_TARGETS=(
   "drupal-theme|Drupal theme|web/themes/custom/usagov"
-  "benefit-finder|Benefit Finder|sources/benefit-finder"
   "analytics-reporter|Analytics Reporter|.docker/src-reporter/analytics-reporter"
 )
 
 CORE_TRIO="drupal/core-recommended drupal/core-composer-scaffold drupal/core-project-message"
-BF_MODULE_DIR="web/modules/custom/usagov_benefit_finder"
 
 # Paths this run may modify (dirty-check warning + final git-status display).
 GUARDED_PATHS=(
   composer.json composer.lock
   web/themes/custom/usagov
-  sources/benefit-finder
   .docker/src-reporter/analytics-reporter
-  web/modules/custom/usagov_benefit_finder
 )
 
 MODE="patch"      # patch | minor | major
@@ -650,7 +644,6 @@ do_rollback() {
       restore_snapshot "$slug"
     fi
   done
-  case "$BUILT_DIRS" in *benefit-finder*) restore_snapshot bf-module ;; esac
   if [ "$COMPOSER_VENDOR_TOUCHED" = 1 ]; then
     info "restoring vendor/ to match the rolled-back lock file..."
     runcap composer_run install --no-interaction --ignore-platform-reqs \
@@ -986,15 +979,14 @@ npm_step() {
 cp composer.json "$TMP/composer.json.before" 2>/dev/null || true
 cp composer.lock "$TMP/composer.lock.before" 2>/dev/null || true
 
-# Snapshot the npm directories (sans node_modules) and the benefit-finder
-# module for git-independent rollback. Only needed when we will really mutate.
+# Snapshot the npm directories (sans node_modules) for git-independent
+# rollback. Only needed when we will really mutate.
 if [ "$DRY_RUN" = 0 ] && [ "$PREFLIGHT_ONLY" = 0 ]; then
   info "snapshotting npm directories for rollback..."
   for t in "${NPM_TARGETS[@]}"; do
     IFS='|' read -r slug label dir <<<"$t"
     tar -C "$ROOT_DIR" -cf "$TMP/snap-$slug.tar" --exclude='*node_modules*' "$dir" 2>/dev/null || true
   done
-  tar -C "$ROOT_DIR" -cf "$TMP/snap-bf-module.tar" "$BF_MODULE_DIR" 2>/dev/null || true
 fi
 
 if [ "$DRY_RUN" = 1 ]; then
@@ -1184,10 +1176,6 @@ build_with_handlers() {
 }
 
 if [ "$DO_NPM" = 1 ]; then
-  if [ -s "$PLAN/ops--benefit-finder" ] || { [ "$DRY_RUN" = 1 ] && [ -s "$PLAN/npm-update--benefit-finder.list" ]; }; then
-    info "rebuilding Benefit Finder (regenerates JS in $BF_MODULE_DIR)"
-    build_with_handlers benefit-finder "Benefit Finder" sources/benefit-finder "bf-module"
-  fi
   if [ -s "$PLAN/ops--drupal-theme" ] || { [ "$DRY_RUN" = 1 ] && [ -s "$PLAN/npm-update--drupal-theme.list" ]; }; then
     info "rebuilding Drupal theme assets"
     build_with_handlers drupal-theme "Drupal theme" web/themes/custom/usagov ""
@@ -1406,7 +1394,7 @@ step() { STEP=$((STEP+1)); printf '  %d. %s\n' "$STEP" "$1"; }
 step "Review:            git diff composer.json && git diff --stat"
 step "Update database:   bin/drush updb -y && bin/drush cr"
 step "Sanity checks:     bin/composer phpstan   /   bin/composer php-lint"
-step "Test locally:      cypress suites in automated_tests/, benefit-finder vitest"
+step "Test locally:      cypress suites in automated_tests/"
 step "Commit in logical chunks (composer vs each npm dir vs rebuilt assets)."
 if [ "${ACTIONS:-0}" -gt 0 ]; then
   step "Act on the $ACTIONS ACTION item(s) above — each names the command that fixes it (no ticket needed)."
