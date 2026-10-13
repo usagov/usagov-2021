@@ -74,7 +74,7 @@
         "drupal/twig_field_value": "^2.0",
         "drupal/twig_tweak": "^3.1",
         "drupal/uswds_base": "^2.4",
-        "drupal/uswds_ckeditor_integration": "^3.1",
+        "drupal/uswds_ckeditor_integration": "^3.2",
         "drupal/uswds_paragraph_components": "^3.0",
         "drupal/views_data_export": "^1.4",
         "drupal/views_menu_children_filter": "^3.0@RC",
