@@ -331,43 +331,10 @@ a {
   }
 }
 
-// Last Updated, Share and Survey
+// Last Updated and Survey
 .additional_body_info {
   // display: inline-block;
   padding-top: 75px;
-}
-
-// Share This Page
-div #sm-share {
-  display: flex;
-  padding-bottom: 22px;
-  background-color: transparent;
-  @include u-font-size('sans', 'xs');
-}
-
-#share-page {
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-div #sm-share a {
-  text-decoration: none;
-}
-
-.share-icons {
-  margin-left: 10px;
-  height: 44px;
-  line-height: 44px;
-  display: flex;
-}
-
-.share-icon {
-  margin: 6px;
-  width: 32px;
-  height: 32px;
-  @include u-text('gray-90');
-
-  display: block;
 }
 
 // error styles for elected officials, report a problem and wizard
