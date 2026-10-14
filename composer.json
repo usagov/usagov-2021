@@ -174,11 +174,15 @@
             },
             "drupal/content_lock": {
                 "Fix preview button and submit button access": "./patches/drupal/content_lock-preview-button-lock-release.patch"
+            },
+            "drupal/upgrade_status": {
+                "Add missing DeprecationMessage::setFile() setter": "./patches/drupal/upgrade_status-add-setfile.patch"
             }
         }
     },
     "require-dev": {
         "drupal/coder": "^8.3",
+        "drupal/upgrade_status": "^4.3",
         "mglaman/phpstan-drupal": "*",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpcompatibility/php-compatibility": "^9.3",
