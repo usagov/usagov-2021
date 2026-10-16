@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bec2ec8dbe5e78be0b475ad4996c75ad",
+    "content-hash": "bf0167fb4f982bdc687d1c0674e28038",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1621,71 +1621,6 @@
                 }
             ],
             "time": "2026-10-03T14:15:35+00:00"
-        },
-        {
-            "name": "drupal/address",
-            "version": "1.12.0",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/address.git",
-                "reference": "8.x-1.12"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/address-8.x-1.12.zip",
-                "reference": "8.x-1.12",
-                "shasum": "67dd4699040aabf0cd6169e437706fa6a39b0b3a"
-            },
-            "require": {
-                "commerceguys/addressing": "^1.4.2",
-                "drupal/core": "^9.2 || ^10",
-                "php": "^7.3 || ^8.0"
-            },
-            "require-dev": {
-                "drupal/token": "^1.0"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "8.x-1.12",
-                    "datestamp": "1684710176",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "bojanz",
-                    "homepage": "https://www.drupal.org/user/86106"
-                },
-                {
-                    "name": "centarro",
-                    "homepage": "https://www.drupal.org/user/3661446"
-                },
-                {
-                    "name": "dww",
-                    "homepage": "https://www.drupal.org/user/46549"
-                },
-                {
-                    "name": "jsacksick",
-                    "homepage": "https://www.drupal.org/user/972218"
-                },
-                {
-                    "name": "rszrama",
-                    "homepage": "https://www.drupal.org/user/49344"
-                }
-            ],
-            "description": "Provides functionality for storing, validating and displaying international postal addresses.",
-            "homepage": "http://drupal.org/project/address",
-            "support": {
-                "source": "https://git.drupalcode.org/project/address"
-            }
         },
         {
             "name": "drupal/admin_toolbar",
