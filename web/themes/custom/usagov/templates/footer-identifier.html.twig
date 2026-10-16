@@ -4,7 +4,10 @@
     'official_site_1': 'Un sitio web oficial de la',
     'official_site_2': 'Administración de Servicios Generales de los Estados Unidos',
     'official_site_3': ' (GSA, sigla en inglés)',
-    'important_links': 'Enlaces importantes'
+    'important_links': 'Enlaces importantes',
+    'official_language_1': 'Este sitio web cumple con la orden ejecutiva',
+    'official_language_2': ' (en inglés). Inglés es el idioma oficial del Gobierno de los EE. UU. y la versión en inglés de este sitio web es la fuente oficial de toda la información federal aquí contenida.',
+    'official_language_link_text': '14224'
   } %}
   {% set identifier_menu = 'identifier-footer-spanish' %}
 {% else %}
@@ -13,7 +16,10 @@
     'official_site_1': 'An official website of the',
     'official_site_2': 'U.S. General Services Administration',
     'official_site_3': '',
-    'important_links': 'Important links'
+    'important_links': 'Important links',
+    'official_language_1': 'This website complies with Executive Order',
+    'official_language_2': '. English is the official language of the U.S. Government, and the English-language version of this website is the authoritative source for all federal information contained herein.',
+    'official_language_link_text': '14224'
   } %}
   {% set identifier_menu = 'identifier-footer' %}
 {% endif %}
@@ -24,7 +30,8 @@
     <div class="usa-identifier__container">
 		<section class="usa-identifier__identity" aria-label="{{ translations.official_site_1 }} {{ translations.official_site_2 }}{{ translations.official_site_3 }}">
       <p class="usa-identifier__identity-disclaimer">{{ translations.official_guide }}</p>
-    	<p class="usa-identifier__identity-disclaimer">{{ translations.official_site_1 }} <a href="https://www.gsa.gov/">{{ translations.official_site_2 }}</a>{{ translations.official_site_3 }}</p>
+      <p class="usa-identifier__identity-disclaimer">{{ translations.official_site_1 }} <a href="https://www.gsa.gov/">{{ translations.official_site_2 }}</a>{{ translations.official_site_3 }}</p>
+      <p class="usa-identifier__identity-disclaimer">{{ translations.official_language_1 }} <a href="https://www.federalregister.gov/documents/2025/03/06/2025-03694/designating-english-as-the-official-language-of-the-united-states">{{ translations.official_language_link_text }}</a>{{ translations.official_language_2 }}</p>
 		</section>
     </div>
   </section>
