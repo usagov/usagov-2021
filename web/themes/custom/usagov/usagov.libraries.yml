@@ -16,16 +16,6 @@ global-styling:
     - core/jquery
     - core/once
 
-purify:
-  js:
-    scripts/purify.min.js:
-      minified: true
-
-google-apis:
-  js:
-    "https://apis.google.com/js/api.js":
-      type: external
-
 wizard:
   js:
     scripts/wizard.js: {}
