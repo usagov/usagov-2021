@@ -37,7 +37,9 @@ http {
   sendfile on;
   tcp_nopush on;
 
-  client_max_body_size 512m;
+  # Keep in sync with post_max_size in the cms php83/php.ini.
+  # NIST 800-53: SC-5 - Denial of Service Protection
+  client_max_body_size 32m;
 
   # As per USAGOV-1927 need to make sure the following value is greather than the timeout-value in
   #     .docker/src-www/etc/nginx/nginx.conf
