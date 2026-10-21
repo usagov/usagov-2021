@@ -90,7 +90,11 @@ NPM_TARGETS=(
   "analytics-reporter|Analytics Reporter|.docker/src-reporter/analytics-reporter"
 )
 
-CORE_TRIO="drupal/core-recommended drupal/core-composer-scaffold drupal/core-project-message"
+# Drupal core packages. Whichever of these composer.json pins EXACT move
+# together as one grouped decision; any on a caret range follow the normal
+# passes. The grouping is read from the plan rather than hard-coded, so it
+# keeps up when a core update changes a constraint.
+CORE_ALL="drupal/core-recommended drupal/core-composer-scaffold drupal/core-project-message"
 
 # Paths this run may modify (dirty-check warning + final git-status display).
 GUARDED_PATHS=(
