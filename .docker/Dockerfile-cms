@@ -303,8 +303,11 @@ RUN if pgrep nginx; then pkill nginx; fi
 RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
 RUN apk del nginx nginx-mod-http-lua || true
 RUN cd /tmp/ \
-    # must match the version lua-resty-core (from apk) requires; alpine 3.24 ships 0.1.32 -> 0.10.29
-    && git clone --branch v0.10.29R2 https://github.com/openresty/lua-nginx-module.git \
+    # must exactly match the version lua-resty-core (from apk) requires, or nginx fails at startup; read it from base.lua
+    && LUA_NGX_VERSION=$(sed -n 's/.*ngx_http_lua_module \([0-9.]*\) required.*/\1/p' /usr/share/lua/common/resty/core/base.lua | head -n1) \
+    && test -n "${LUA_NGX_VERSION}" \
+    && echo "lua-resty-core requires lua-nginx-module v${LUA_NGX_VERSION}" \
+    && git clone --branch v${LUA_NGX_VERSION} https://github.com/openresty/lua-nginx-module.git \
     && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
     && tar -xzvf v0.3.1.tar.gz \
     && mv ngx_devel_kit-0.3.1 ngx_devel_kit \
