@@ -17,7 +17,7 @@ class MobileMenuBlock extends AbstractMenuBlock {
   /**
    * @var array<string, string>
    */
-  private array $translations;
+  protected array $translations;
 
   /**
    * {@inheritdoc}
