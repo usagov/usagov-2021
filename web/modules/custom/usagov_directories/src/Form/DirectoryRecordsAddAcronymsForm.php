@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DirectoryRecordsAddAcronymsForm extends FormBase {
 
   public function __construct(
-    private EntityTypeManagerInterface $entityTypeManager,
+    protected EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   public static function create(ContainerInterface $container): self {
