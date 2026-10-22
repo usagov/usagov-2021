@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+# This script will smoke test a built cms container image by rendering the
+# nginx config templates (as scripts/bootstrap.sh does at startup) and running
+# nginx and php-fpm config tests. This catches problems that only show up when
+# the services start, such as lua-nginx-module not matching lua-resty-core.
+#
+DOCKERUSER=${DOCKERUSER:-gsatts}
+DOCKERREPO=${DOCKERREPO:-usagov-2021}
+
+CONTAINERTAG=${1}
+
+if [ -z "$CONTAINERTAG" ]
+then
+      echo "Must specify a container tag to test"
+      exit 1;
+fi;
+
+IMAGE=${IMAGE:-$DOCKERUSER/$DOCKERREPO:cms-$CONTAINERTAG}
+
+echo "Smoke testing ${IMAGE}"
+
+docker run --rm --entrypoint sh \
+     -e CMS_HOST=cms.example.com \
+     -e DNS_SERVER=127.0.0.11 \
+     -e S3_HOST=s3.example.com \
+     -e S3_PROXY_CMS=s3.example.com/cms/public \
+     -e S3_PROXY_PATH_CMS=/s3/files \
+     "$IMAGE" -c '
+set -u
+VARS="\$CMS_HOST \$DNS_SERVER \$S3_HOST \$S3_PROXY_CMS \$S3_PROXY_PATH_CMS"
+for FILE in /etc/nginx/*/*.conf.tmpl; do
+    [ -f "$FILE" ] && envsubst "$VARS" < "$FILE" > "${FILE%.tmpl}"
+done
+
+RESULT=0
+
+# nginx -t is not enough: lua-nginx-module skips loading resty.core in test
+# mode, so start nginx for real (nginx.conf has daemon off) and check it stays up
+echo "--- nginx start"
+nginx > /tmp/nginx-test.log 2>&1 &
+NGINX_PID=$!
+sleep 5
+if ! kill -0 $NGINX_PID 2>/dev/null; then
+    echo "nginx exited during startup"
+    RESULT=1
+elif ! curl -s -o /dev/null -w "nginx responded with HTTP %{http_code}\n" http://127.0.0.1/; then
+    echo "nginx is running but not answering HTTP"
+    RESULT=1
+fi
+cat /tmp/nginx-test.log
+if grep -q -E "\[(alert|emerg|crit)\]" /tmp/nginx-test.log; then
+    RESULT=1
+fi
+kill $NGINX_PID 2>/dev/null
+
+echo "--- php-fpm -t"
+php-fpm -t || RESULT=1
+
+exit $RESULT
+'
+RESULT=$?
+
+if [ $RESULT -ne 0 ]
+then
+     echo "CMS container smoke test FAILED"
+else
+     echo "CMS container smoke test passed"
+fi
+
+exit $RESULT
