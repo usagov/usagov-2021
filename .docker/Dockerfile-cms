@@ -66,8 +66,11 @@ RUN composer -n config --global allow-plugins true \
     && composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint monolog/monolog\
     && COMPOSER_DIR=$(composer -n config --global home) && echo $COMPOSER_DIR \
     && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
+# Some packages ship their own development composer.lock (e.g. grasmash/yaml-cli). Composer never reads those,
+# but Snyk container scans report the stale versions pinned in them as if they were installed, so remove them.
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
-    && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
+    && chown www-data:www-data /var/www/composer.json /var/www/composer.lock \
+    && find /var/www/vendor -mindepth 3 -maxdepth 3 -name composer.lock -delete
 
 # USER www-data
 ###############################################################
