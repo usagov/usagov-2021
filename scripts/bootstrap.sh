@@ -230,16 +230,6 @@ fi
 echo "Updating SAMLAuth configuration for $SPACE:"
 /var/www/scripts/gsaauth/configset.sh $SPACE
 
-echo "Adding the USPS credentials..."
-if [[ ${USPS_USERID:-"unset"} != "unset" ]] &&
-   [[ ${USPS_PASSWORD:-"unset"} != "unset" ]]; then
-    echo "const USPS_USERID = '${USPS_USERID}';" > ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "const USPS_PASSWORD = '${USPS_PASSWORD}';" >> ./web/themes/custom/usagov/scripts/usps-credentials.js
-    echo "USPS credentials added successfully!"
-else
-    echo "No credentials found in the env."
-    echo "const error = 'No credentials found in the env.'" > ./web/themes/custom/usagov/scripts/usps-credentials.js
-fi
 
 echo "Setting lightweight cron key"
 drush ev "\Drupal::state()->set(\"scheduler_lightweight_cron_access_key\", \"$CRON_KEY\");"
