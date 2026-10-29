@@ -1,10 +1,16 @@
-ARG NGINX_VERSION="1.30.1"
+# NGINX_VERSION picks both the base image tag and the source tarball the
+# ModSecurity module is compiled against; they must match or nginx refuses to
+# load the module. An ARG declared before FROM is only visible to FROM, so it
+# is re-declared (without a value, inheriting this one) after FROM below.
+# When updating NGINX_VERSION, also update NGINX_SHA512:
+#   curl -fsSL https://nginx.org/download/nginx-<version>.tar.gz | shasum -a 512
+ARG NGINX_VERSION="1.30.6"
 FROM nginx:${NGINX_VERSION}
 
 LABEL maintainer="USA.gov Web Ops"
 
-ARG NGINX_VERSION=1.30.1
-ARG NGINX_SHA512=a081ed49692948ea61bada05a9bade88f9899f843c8d5a72c0d5362e812c14e1ea12de729bcdfe93016323fb014681ddfa472f3352b5e83455991be715293211
+ARG NGINX_VERSION
+ARG NGINX_SHA512=1b04fcb5a7ee3df573b1a0d792cf1f1cfc02d30d03592f2f04b2b2842d9f42364957f4420e53af380b9fffd5eb4a3a5c11f6d71643168db25baeea748cf94fa2
 
 ARG GITBRANCH
 ENV GITBRANCH=${GITBRANCH:-none}

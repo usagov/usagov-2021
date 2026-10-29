@@ -66,8 +66,11 @@ RUN composer -n config --global allow-plugins true \
     && composer global require --dev drupal/coder php-parallel-lint/php-parallel-lint monolog/monolog\
     && COMPOSER_DIR=$(composer -n config --global home) && echo $COMPOSER_DIR \
     && $COMPOSER_DIR/vendor/bin/phpcs --config-set installed_paths $COMPOSER_DIR/vendor/drupal/coder/coder_sniffer,$COMPOSER_DIR/vendor/sirbrillig/phpcs-variable-analysis,$COMPOSER_DIR/vendor/slevomat/coding-standard
+# Some packages ship their own development composer.lock (e.g. grasmash/yaml-cli). Composer never reads those,
+# but Snyk container scans report the stale versions pinned in them as if they were installed, so remove them.
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --ignore-platform-reqs --no-interaction --optimize-autoloader \
-    && chown www-data:www-data /var/www/composer.json /var/www/composer.lock
+    && chown www-data:www-data /var/www/composer.json /var/www/composer.lock \
+    && find /var/www/vendor -mindepth 3 -maxdepth 3 -name composer.lock -delete
 
 # USER www-data
 ###############################################################
@@ -106,7 +109,7 @@ RUN mkdir -p /tmp/build-metadata \
     && chown -R node:node /var/www/web/themes
 
 ###############################################################
-FROM alpine:3.22 AS cms
+FROM alpine:3.24 AS cms
 
 ARG S6_VERSION
 ENV S6_VERSION=${S6_VERSION:-v2.2.0.3}
@@ -241,7 +244,9 @@ RUN if [ x"${BUILD_ENV}" = x"LOCAL" ] ; then cp /tmp/zscaler.crt /usr/local/shar
     && ln -s /dev/stdout /var/log/nginx/access.log \
     && mkdir -p /run/nginx/ \
     && touch /run/nginx/nginx.pid \
-    && ln -s /usr/sbin/php-fpm83 /usr/sbin/php-fpm
+    && ln -s /usr/sbin/php-fpm83 /usr/sbin/php-fpm \
+    # alpine 3.24+ php83 no longer provides /usr/bin/php; drush, scripts and newrelic-install need it
+    && ln -sf /usr/bin/php83 /usr/bin/php
 
     # new relic setup
 COPY bin/src/newrelic.sh /local/newrelic.sh
@@ -301,7 +306,11 @@ RUN if pgrep nginx; then pkill nginx; fi
 RUN apk add --no-cache gcc libc-dev make pcre-dev zlib-dev openssl-dev curl gnupg lua5.1 lua5.1-dev luajit luajit-dev libpcrecpp cmake
 RUN apk del nginx nginx-mod-http-lua || true
 RUN cd /tmp/ \
-    && git clone --branch v0.10.28 https://github.com/openresty/lua-nginx-module.git \
+    # must exactly match the version lua-resty-core (from apk) requires, or nginx fails at startup; read it from base.lua
+    && LUA_NGX_VERSION=$(sed -n 's/.*ngx_http_lua_module \([0-9.]*\) required.*/\1/p' /usr/share/lua/common/resty/core/base.lua | head -n1) \
+    && test -n "${LUA_NGX_VERSION}" \
+    && echo "lua-resty-core requires lua-nginx-module v${LUA_NGX_VERSION}" \
+    && git clone --branch v${LUA_NGX_VERSION} https://github.com/openresty/lua-nginx-module.git \
     && wget https://github.com/simpl/ngx_devel_kit/archive/refs/tags/v0.3.1.tar.gz \
     && tar -xzvf v0.3.1.tar.gz \
     && mv ngx_devel_kit-0.3.1 ngx_devel_kit \

@@ -2,7 +2,7 @@
 
 # TODO: why the [ $(uname -m) != 'aarch64' ] clause? Was this meant to exclude local install?
 if [ "$(uname -m)" != 'aarch64' ]; then
-  export NR_VERSION_NUMBER='12.6.0.34'
+  export NR_VERSION_NUMBER='12.11.0.40'
 
   NR_VERSION="newrelic-php5-$NR_VERSION_NUMBER-linux-musl"
   export NR_VERSION
@@ -21,6 +21,8 @@ if [ "$(uname -m)" != 'aarch64' ]; then
   curl -L "https://download.newrelic.com/php_agent/archive/${NR_VERSION_NUMBER}/${NR_VERSION}.tar.gz" | tar -C "$NR_BUILD_DIR" -zx
 
   export NR_INSTALL_USE_CP_NOT_LN=1
+  # No TTY during image builds; without this a failed PHP detection loops on a y/n prompt forever.
+  export NR_INSTALL_SILENT=1
   "${NR_BUILD_DIR}/${NR_VERSION}/newrelic-install" install
 
   sed -i \

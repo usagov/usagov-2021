@@ -2231,3 +2231,117 @@ setup_s3_vars() {
         return 1
     fi
 }
+
+# Confirm every object under a bucket prefix can be fetched anonymously.
+# nginx serves cms/public (as /s3/files) and the static site (web/) by
+# proxying unsigned requests straight to the bucket, and the bucket itself is
+# private - so an object is only servable if it carries the public-read ACL.
+# A sync that leaves the ACL off still exits 0, which is how a downsync once
+# reported success while every image in the CMS was broken. This makes the
+# same request nginx makes, so a missing ACL, a bucket policy change or a bad
+# endpoint all fail here instead. HEAD requests only; nothing is downloaded.
+# NIST 800-53: CP-10 - Information System Recovery and Reconstitution
+# NIST 800-53: AC-22 - Publicly Accessible Content
+# Args:
+#   $1: prefix - Bucket prefix without slashes (cms/public or web)
+# Requires: setup_s3_vars, curl with --parallel, php (to URL-encode keys)
+# Returns: 0 when every object answered 200 (or the prefix is empty);
+#          1 otherwise, after saying what failed and why
+verify_s3_prefix_readable() {
+    local prefix="$1"
+    local work_dir
+    local endpoint
+    local host
+    local total
+    local answered
+    local readable
+
+    if [ "${APP_SPACE}" = "local" ]; then
+        print_status $YELLOW "⏭️  Skipping the public readability check for $prefix/ in local"
+        return 0
+    fi
+
+    # The same host bootstrap.sh gives nginx: S3_HOST, else <bucket>.<fips_endpoint>
+    endpoint=$(echo "$VCAP_SERVICES" | jq -r '.["s3"][]? | select(.name == "storage") | .credentials.fips_endpoint' 2>/dev/null)
+    host="${S3_HOST:-$BUCKET_NAME.$endpoint}"
+    if [ -z "$S3_HOST" ] && { [ -z "$BUCKET_NAME" ] || [ -z "$endpoint" ] || [ "$endpoint" = "null" ]; }; then
+        print_status $RED "❌ Cannot check $prefix/: no bucket or fips_endpoint in VCAP_SERVICES"
+        return 1
+    fi
+
+    if ! work_dir=$(mktemp -d); then
+        print_status $RED "❌ Cannot check $prefix/: could not create a temp directory"
+        return 1
+    fi
+
+    # `aws s3 ls` exits 1 for an empty prefix as well as for a real error, so
+    # tell them apart by whether it complained - a failed listing must not
+    # pass as "nothing to check"
+    if ! aws s3 ls "s3://$BUCKET_NAME/$prefix/" --recursive $S3_EXTRA_PARAMS \
+        > "$work_dir/listing" 2> "$work_dir/listing.err" \
+        && [ -s "$work_dir/listing.err" ]; then
+        print_status $RED "❌ Cannot check $prefix/: listing the bucket failed"
+        tail -3 "$work_dir/listing.err" | sed 's/^/     /'
+        rm -rf "$work_dir"
+        return 1
+    fi
+
+    # Lines are "date time size key" and keys contain spaces, so strip the
+    # first three fields rather than taking $4. Folder markers (trailing /)
+    # are never served.
+    sed 's/^[^ ]* [^ ]*  *[0-9][0-9]* //' "$work_dir/listing" | grep -v '/$' > "$work_dir/keys"
+    total=$(($(wc -l < "$work_dir/keys")))
+    if [ "$total" -eq 0 ]; then
+        print_status $YELLOW "⚠️  No objects under $prefix/ - nothing to check"
+        rm -rf "$work_dir"
+        return 0
+    fi
+
+    # Keys routinely carry spaces, parentheses and non-ASCII characters
+    # ("Screen Shot 2022-11-07 at 11.28.42 AM.png"), so percent-encode each
+    # path segment before it goes into a URL. php's stderr is kept aside: the
+    # New Relic agent logs its startup there on every CLI run.
+    if ! php -r 'while (($k = fgets(STDIN)) !== false) { echo implode("/", array_map("rawurlencode", explode("/", rtrim($k, "\n")))), "\n"; }' \
+        < "$work_dir/keys" > "$work_dir/paths" 2> "$work_dir/php.err"; then
+        print_status $RED "❌ Cannot check $prefix/: could not URL-encode the object keys"
+        tail -3 "$work_dir/php.err" | sed 's/^/     /'
+        rm -rf "$work_dir"
+        return 1
+    fi
+    awk -v base="https://$host/" '{ printf "url = \"%s%s\"\noutput = \"/dev/null\"\n", base, $0 }' \
+        "$work_dir/paths" > "$work_dir/curl.conf"
+
+    print_status $BLUE "🔍 Checking that $total objects under $prefix/ are publicly readable..."
+    # No credentials and no signing - the request nginx's proxy_pass makes
+    curl --parallel --parallel-max 32 --head --silent --show-error --retry 2 --max-time 30 \
+        --write-out '%{http_code} %{url_effective}\n' --config "$work_dir/curl.conf" \
+        < /dev/null > "$work_dir/results" 2> "$work_dir/curl.err"
+
+    answered=$(($(wc -l < "$work_dir/results")))
+    readable=$(($(grep -c '^200 ' "$work_dir/results")))
+    if [ "$readable" -eq "$total" ]; then
+        print_status $GREEN "✅ All $total objects under $prefix/ are publicly readable"
+        rm -rf "$work_dir"
+        return 0
+    fi
+
+    # Keys and URLs go through printf '%s', never print_status: they are full
+    # of %XX escapes that print_status would read as printf directives
+    print_status $RED "❌ $((total - readable)) of $total objects under $prefix/ cannot be read anonymously"
+    grep -v '^200 ' "$work_dir/results" | awk '{print $1}' | sort | uniq -c | while read -r count code; do
+        case "$code" in
+            403) printf '     %s x HTTP 403 - object lacks the public-read ACL (or the bucket denies anonymous reads)\n' "$count" ;;
+            404) printf '     %s x HTTP 404 - object disappeared after it was listed\n' "$count" ;;
+            000) printf '     %s x no response from https://%s\n' "$count" "$host" ;;
+            *)   printf '     %s x HTTP %s\n' "$count" "$code" ;;
+        esac
+    done
+    if [ "$answered" -lt "$total" ]; then
+        printf '     %s requests never completed:\n' "$((total - answered))"
+        tail -3 "$work_dir/curl.err" | sed 's/^/       /'
+    fi
+    printf '   First failures:\n'
+    grep -v '^200 ' "$work_dir/results" | head -5 | sed 's/^/     /'
+    rm -rf "$work_dir"
+    return 1
+}
