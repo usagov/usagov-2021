@@ -165,60 +165,8 @@ paths.forEach((path, idx) => {
       // make sure date appears
       cy.get(".additional_body_info").find("#last-updated").should("exist");
     });
-    it(`${testName} 33: Share this page function works correctly for facebook, X, and email`, () => {
-      // test links for each social
-      const facebook = [
-        "disaster-assistance",
-        "eses/requisitos-viaje-ninos-menores-de-edad",
-      ];
-      const x = [
-        "disaster-assistance",
-        "eses/requisitos-viaje-ninos-menores-de-edad",
-      ];
-      const mail = [
-        "disaster-assistance",
-        "eses/requisitos-viaje-ninos-menores-de-edad",
-      ];
-
-      var origin;
-      cy.url().then((cyURL) => {
-        if (cyURL.includes("cms-usagov.docker.local")) {
-          origin = "http://cms-usagov.docker.local";
-        } else if (cyURL.includes("beta-stage.usa")) {
-          origin = "https://beta-stage.usa.gov";
-        } else if (cyURL.includes("beta-dr.usa")) {
-          origin = "https://beta-dr.usa.gov";
-        } else if (cyURL.includes("beta-dev.usa")) {
-          origin = "https://beta-dev.usa.gov";
-        } else {
-          origin = "https://www.usa.gov";
-        }
-
-        cy.get(".additional_body_info")
-          .find("#sm-share")
-          .should("exist")
-          .get("div.share-icons>a")
-          .eq(0)
-          .should(
-            "have.attr",
-            "href",
-            `https://www.facebook.com/sharer/sharer.php?u=${origin}/${facebook[idx]}&v=3`,
-          )
-          .get("div.share-icons>a")
-          .eq(1)
-          .should(
-            "have.attr",
-            "href",
-            `https://x.com/intent/post?url=${encodeURIComponent(`${origin}/${x[idx]}`)}`,
-          )
-          .get("div.share-icons>a")
-          .eq(2)
-          .should(
-            "have.attr",
-            "href",
-            `mailto:?subject=${origin}/${mail[idx]}`,
-          );
-      });
+    it(`${testName} 33: Share this page section is not shown`, () => {
+      cy.get(".additional_body_info").find("#sm-share").should("not.exist");
     });
     it(`${testName} 34: Do you have a question block appears at bottom of content page with icons and links to phone and chat`, () => {
       // test question box
