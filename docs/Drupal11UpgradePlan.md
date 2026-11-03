@@ -1,10 +1,17 @@
-# Drupal 10.6.17 → 11.4.7 Upgrade Plan
+# Drupal 10.6.20 → 11.4.11 Upgrade Plan
 
 Ticket: USAGOV-2511
 
-Assessment performed against `dev` @ `e683781f8`, using `drupal/upgrade_status` 4.3.10
-and composer dependency resolution. All version and constraint claims below were
-verified against the package metadata, not assumed.
+Assessment performed against `dev` @ `e683781f8` (core 10.6.17), using
+`drupal/upgrade_status` 4.3.10 and composer dependency resolution. All version and
+constraint claims below were verified against the package metadata, not assumed.
+Core has since moved to 10.6.20 (USAGOV-2930).
+
+## Target version
+
+Core 11.4.11, the latest 11.4 patch release. It satisfies `s3fs`'s banded core
+constraint (`>=11.4.3 <11.5`), the 11.2 hook-ordering floor `node_menus` 3.x-dev
+needs, and includes the SA-CORE-2026-013 fix (11.4.7+). 11.5 is excluded by `s3fs`.
 
 ## Scope of this document
 
@@ -14,18 +21,13 @@ bump, or database change has been performed.
 
 ## Preparation already committed
 
-The following landed as part of upgrade prep and are the only changes so far:
-
-- `drupal/upgrade_status` added to `require-dev`.
-- `patches/drupal/upgrade_status-add-setfile.patch` — new.
-- `composer.lock` updated accordingly.
-
-The `upgrade_status` patch is required, not incidental. Version 4.3.10 calls
+`drupal/upgrade_status` is added to `require-dev`, pinned to `5.0.0-alpha3`, and
+enabled only through `local_split` (USAGOV-2905, #2902). Version 4.3.10 calls
 `DeprecationMessage::setFile()`, which does not exist on the class, so
 `drush upgrade_status:analyze` fatals on any extension whose Twig templates attach
-a deprecated library. The patch adds the missing setter. Both the module and the
-patch should be removed once the upgrade is complete; the fix is also worth
-submitting upstream.
+a deprecated library ([#3607698](https://www.drupal.org/i/3607698)). That was fixed
+on 5.x only, so 5.0.0-alpha3 replaces the original 4.3.10 + local patch. Remove the
+module once the upgrade is complete.
 
 ## Compatibility verdict
 
@@ -90,8 +92,8 @@ branch, pin to a specific commit, or fork.
 
 ### `s3fs` has a narrow, gapped constraint
 
-`>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.7
-falls in the final window, so it resolves. This module has historically lagged core
+`>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.11
+falls in the final window, so it resolves. 3.12.0 carries the same constraint. This module has historically lagged core
 point releases, and it will constrain which core patch versions can be taken.
 Already at 3.11.0 (USAGOV-2900); the constraint still applies when choosing the core
 version.
@@ -173,7 +175,7 @@ time; do not assume this is clean.
 
 1. **Prep.** Confirm branch, take a database snapshot (`bin/db-export`), verify
    `bin/` tooling.
-2. **Rebase patches** against 11.4.7 *before* changing any `composer.json`
+2. **Rebase patches** against 11.4.11 *before* changing any `composer.json`
    constraints. Verify each with `patch --dry-run` against fetched core and module
    sources. A failing patch aborts the entire composer run, so this must be clean
    first.
@@ -182,7 +184,7 @@ time; do not assume this is clean.
 4. ~~**Change the 8 `private` properties to `protected`** in classes using
    `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
    the `ConfigFormBase` constructor fix.
-5. **Bump `composer.json`** — the three core packages to `11.4.7`, plus the four remaining
+5. **Bump `composer.json`** — the three core packages to `11.4.11`, plus the four remaining
    contrib constraints.
 6. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
    6.4 → 7.4 underneath core is a large jump.
@@ -194,7 +196,7 @@ time; do not assume this is clean.
 10. **Visual QA** of the theme, concentrating on anything `usagov` does not
     override.
 11. **Re-run `upgrade_status`** against D11 to confirm a clean board, then remove
-    `upgrade_status` and its patch.
+    `upgrade_status` from `composer.json` and `local_split`.
 
 Steps 2–5 are pure code and reversible by git. Step 6 onward touches the lockfile
 and the database; the snapshot from step 1 is the undo.
@@ -205,9 +207,8 @@ and the database; the snapshot from step 1 is the undo.
   on the blocker list but carry loose Symfony constraints — `onelogin/php-saml`,
   `phpoffice/phpspreadsheet`, `predis/predis`, and the Drush command classes in
   `usagov_ssg_postprocessing`.
-- **Config schema churn** from `address` 1→2 and `ctools` 3→4; both have had config
-  schema changes across those majors. Field storage for address fields is the first
-  thing to check.
+- **Config schema churn** from `ctools` 3→4, which had config schema changes across
+  that major. (`address` was removed rather than upgraded.)
 - **`paragraphs_entity_embed` 3→4** interacts with `entity_embed`, `paragraphs`, and
   the CKEditor 5 integration. The existence of the
   `usagov_ckeditor5_source_editing_fixup` custom module suggests this area is
