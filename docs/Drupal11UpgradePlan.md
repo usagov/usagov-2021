@@ -67,6 +67,10 @@ Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-com
 releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `ctools`, `faqfield`,
 `paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905); four remain.
 
+`content_lock`, `uswds_base` and `log_stdout` all allow `^10` at their targets, so
+each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
+`3.x-dev` requires `^11.2`, so it ships with the core bump.
+
 | Module | Current | Target | Core constraint at target | Risk |
 | --- | --- | --- | --- | --- |
 | ~~`address`~~ | ~~1.12.0~~ removed | ~~2.0.4~~ | — | major — **Removed** (unused; USAGOV-2907, #2905) |
@@ -76,7 +80,7 @@ releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `c
 | ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme |
 | `log_stdout` | 1.5.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 |
-| `node_menus` | 3.0.0 | `3.x-dev` | `^10 \| ^11 \|\| ^12` | no stable D11 release |
+| `node_menus` | 3.0.0 | `3.x-dev` | `^11.2 \|\| ^12` | no stable D11 release; ships with the core bump |
 | ~~`field_defaults`~~ | ~~2.0.0~~ 2.1.1 | 2.1.1 | `^10.0 \|\| ^11.0` | low — **Done** (USAGOV-2900, #2896) |
 | ~~`image_style_warmer`~~ | ~~1.2.0~~ 1.3.0 | 1.3.0 | `^9 \|\| ^10 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
 | ~~`new_relic_rpm`~~ | ~~2.1.1~~ 2.3.0 | 2.3.0 | `^10.1 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
@@ -86,8 +90,9 @@ releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `c
 
 Only `3.x-dev` declares `^11`. The project already sets `minimum-stability: dev`,
 so this resolves, but it means shipping a dev branch of a module that is
-load-bearing for menu behaviour here — it is tied to the `correctActiveTrail` core
-patch and the `usagov_menus` custom module. **Open decision:** accept the dev
+load-bearing for menu behaviour here — it is tied to the `usagov_menus` custom
+module, including the mlid-ordered active trail that replaces the `correctActiveTrail`
+core patch. **Open decision:** accept the dev
 branch, pin to a specific commit, or fork.
 
 ### `s3fs` has a narrow, gapped constraint
@@ -104,7 +109,7 @@ Three of nine referenced patches need work.
 
 | Patch | Package | Status |
 | --- | --- | --- |
-| `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Rebase required. |
+| `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941); no rebase. |
 | `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. Rebase required. |
 | `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Rewrite required. |
 | `correctMenuChildren_d10.patch` | views_menu_children_filter | OK — package version unchanged. |
@@ -116,15 +121,24 @@ Three of nine referenced patches need work.
 
 ### `correctActiveTrail_d10.patch`
 
-Context drift only; the patch logic itself is still correct. D11 restructured
-`MenuActiveTrail::getActiveLink()` — it added `<front>` handling via
-`pathMatcher->isFrontPage()`, and "select the first matching link" became "select
-the first *enabled* matching link" using a loop rather than `reset()`.
-`MenuTreeStorage::loadByRoute()` now ends with
-`fetchAllAssoc('id', FetchAs::Associative)` in place of the old `\PDO::FETCH_ASSOC`.
+The patch makes the active trail pick the original `node_menus` link (lowest `mlid`)
+over "false children", by threading a `$sort_order` argument through
+`MenuLinkManager` and `MenuTreeStorage(Interface)`. Against 11.4.11 it fails on
+context drift: D11 restructured `MenuActiveTrail::getActiveLink()` to add `<front>`
+handling via `pathMatcher->isFrontPage()` and to select the first *enabled* link.
 
-**Open decision:** D11 now makes two `loadLinksByRoute()` calls. It must be decided
-whether the `['mlid' => 'ASC']` sort should also apply to the `<front>` call.
+Rather than rebase it, USAGOV-2941 replaces it with code in `usagov_menus` that runs
+unchanged on 10.6 and 11.4, so it ships and is tested on D10:
+
+- A service provider swaps the classes of `plugin.manager.menu.link` and
+  `menu.active_trail`, keeping core's constructor arguments.
+- The `MenuLinkManager` subclass accepts an optional 4th `$sort_order` argument and,
+  for `['mlid' => ...]`, reorders core's result by `menu_tree.mlid`. The
+  `correctMenuChildren_d10.patch` call keeps working unchanged.
+- The `MenuActiveTrail` subclass uses D11's logic (route links, then `<front>` links
+  on the front page, first enabled link wins), with both lookups sorted by `mlid`.
+
+The core patch and its `composer.json` entry are removed in the same change.
 
 ### `viewsSuggestions-10_3.patch`
 
@@ -175,31 +189,37 @@ time; do not assume this is clean.
 
 1. **Prep.** Confirm branch, take a database snapshot (`bin/db-export`), verify
    `bin/` tooling.
-2. **Rebase patches** against 11.4.11 *before* changing any `composer.json`
-   constraints. Verify each with `patch --dry-run` against fetched core and module
-   sources. A failing patch aborts the entire composer run, so this must be clean
-   first.
+2. **Rebase `viewsSuggestions-10_3.patch`** against 11.4.11 (ticket TBD) *before*
+   changing any `composer.json` constraints. Verify it with `patch --dry-run` against
+   fetched core sources. A failing patch aborts the entire composer run, so this must
+   be clean first. `correctActiveTrail` needs no rebase (step 5), and the
+   `content_lock` patch is rewritten with its 3.0 upgrade (step 5).
 3. ~~**Bump `core_version_requirement`** to include `^11` across all 26 `.info.yml`
    files.~~ **Done** in USAGOV-2903 (#2901): 22 files (4 removed with Benefit Finder).
 4. ~~**Change the 8 `private` properties to `protected`** in classes using
    `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
    the `ConfigFormBase` constructor fix.
-5. **Bump `composer.json`** — the three core packages to `11.4.11`, plus the four remaining
-   contrib constraints.
-6. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
+5. **Finish the D10-compatible work**, each as its own ticket on 10.6.20:
+   - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941).
+   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch rewritten.
+   - `log_stdout` 1.5.0 → 3.0.0.
+   - `uswds_base` 2.15.0 → 3.12.1, with visual QA.
+6. **Bump `composer.json`**: the three core packages to `11.4.11`, `node_menus` to
+   `3.x-dev`, and swap in the rebased `viewsSuggestions` patch.
+7. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
    6.4 → 7.4 underneath core is a large jump.
-7. **`drush updb`**, then **`drush cr`**.
-8. **`drush config:export`.** Expect churn from the six major contrib bumps. Review
-   the diff rather than committing wholesale.
-9. **Verify.** `composer phpstan`, `composer php-lint`, `composer phpcs-errors`,
-   then the Cypress e2e suite in `automated_tests/e2e-cypress`.
-10. **Visual QA** of the theme, concentrating on anything `usagov` does not
+8. **`drush updb`**, then **`drush cr`**.
+9. **`drush config:export`.** Review the diff rather than committing wholesale.
+10. **Verify.** `composer phpstan`, `composer php-lint`, `composer phpcs-errors`,
+    then the Cypress e2e suite in `automated_tests/e2e-cypress`, and a Tome static
+    build diff against the D10 build.
+11. **Visual QA** of the theme, concentrating on anything `usagov` does not
     override.
-11. **Re-run `upgrade_status`** against D11 to confirm a clean board, then remove
+12. **Re-run `upgrade_status`** against D11 to confirm a clean board, then remove
     `upgrade_status` from `composer.json` and `local_split`.
 
-Steps 2–5 are pure code and reversible by git. Step 6 onward touches the lockfile
-and the database; the snapshot from step 1 is the undo.
+Steps 2–5 land on `dev` ahead of the core bump. Step 6 onward is the core bump itself: it touches
+the lockfile and the database, and the snapshot from step 1 is the undo.
 
 ## Anticipated problems
 
@@ -226,5 +246,6 @@ and the local database.
 
 1. Is `node_menus` on `3.x-dev` acceptable, or should it be pinned to a commit or
    forked?
-2. In the rebased `correctActiveTrail` patch, should the `['mlid' => 'ASC']` sort
-   also apply to the new `<front>` `loadLinksByRoute()` call?
+2. ~~Should the `['mlid' => 'ASC']` sort also apply to the new `<front>`
+   `loadLinksByRoute()` call?~~ **Resolved:** yes, both lookups are sorted
+   (USAGOV-2941).
