@@ -65,7 +65,7 @@ does not report it), is fixed in USAGOV-2906:
 
 Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-compatible
 releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `ctools`, `faqfield`,
-`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905); four remain.
+`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934); three remain.
 
 `content_lock`, `uswds_base` and `log_stdout` all allow `^10` at their targets, so
 each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
@@ -79,7 +79,7 @@ each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
 | ~~`faqfield`~~ | ~~7.1.0~~ 8.0.1 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme |
-| `log_stdout` | 1.5.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 |
+| ~~`log_stdout`~~ | ~~1.5.0~~ 3.0.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 — **Done** (USAGOV-2942, #2934); config needs `severity_level: 7` |
 | `node_menus` | 3.0.0 | `3.x-dev` | `^11.2 \|\| ^12` | no stable D11 release; ships with the core bump |
 | ~~`field_defaults`~~ | ~~2.0.0~~ 2.1.1 | 2.1.1 | `^10.0 \|\| ^11.0` | low — **Done** (USAGOV-2900, #2896) |
 | ~~`image_style_warmer`~~ | ~~1.2.0~~ 1.3.0 | 1.3.0 | `^9 \|\| ^10 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
@@ -202,7 +202,7 @@ time; do not assume this is clean.
 5. **Finish the D10-compatible work**, each as its own ticket on 10.6.20:
    - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941).
    - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch rewritten.
-   - `log_stdout` 1.5.0 → 3.0.0.
+   - ~~`log_stdout` 1.5.0 → 3.0.0.~~ **Done** (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
    - `uswds_base` 2.15.0 → 3.12.1, with visual QA.
 6. **Bump `composer.json`**: the three core packages to `11.4.11`, `node_menus` to
    `3.x-dev`, and swap in the rebased `viewsSuggestions` patch.
