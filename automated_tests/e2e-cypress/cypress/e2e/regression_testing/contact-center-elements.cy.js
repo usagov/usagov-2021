@@ -49,11 +49,6 @@ const paths_without_contact_info = [
     "/es/compensacion-reembolsos-impuestos",
     "/es/reembolsos-impuestos-no-entregados",
     "/es/reembolsos-impuestos",
-    // Pages excluded by path: contact elected officials
-    "/elected-officials-email",
-    "/elected-officials-results",
-    "/es/funcionarios-electos-correo-electronico",
-    "/es/funcionarios-electos-resultados",
     // Federal directory records (agency pages)
     "/agencies/u-s-air-force",
     "/es/agencias/fuerza-aerea-de-ee-uu",

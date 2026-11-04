@@ -5,7 +5,6 @@ namespace Drupal\usagov_benefit_category_search\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,14 +15,12 @@ class BenefitCategorySearchForm extends FormBase {
   public const TOGGLE_KEY = 'usagov_benefit_category_search.show_block';
 
   public function __construct(
-    private StateInterface $state,
-    private LoggerInterface $log_channel,
+    protected StateInterface $state,
   ) {}
 
   public static function create(ContainerInterface $container): self {
     return new self(
       state: $container->get('state'),
-      log_channel: $container->get('logger.factory')->get('usagov_benefit_category_search'),
     );
   }
 
@@ -83,7 +80,7 @@ class BenefitCategorySearchForm extends FormBase {
       }
     }
     catch (\Exception $e) {
-      $this->log_channel->error(
+      $this->getLogger('usagov_benefit_category_search')->error(
         'Error while attempting toggle benefit search blocks: @error',
         ['@error' => $e->getMessage()]
       );

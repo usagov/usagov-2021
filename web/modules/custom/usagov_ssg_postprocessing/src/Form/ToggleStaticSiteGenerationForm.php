@@ -5,7 +5,6 @@ namespace Drupal\usagov_ssg_postprocessing\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,14 +15,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ToggleStaticSiteGenerationForm extends FormBase {
 
   public function __construct(
-    private StateInterface $state,
-    private LoggerInterface $log_channel,
+    protected StateInterface $state,
   ) {}
 
   public static function create(ContainerInterface $container): self {
     return new self(
       state: $container->get('state'),
-      log_channel: $container->get('logger.factory')->get('usagov_ssg_postprocessing'),
     );
   }
 
@@ -87,7 +84,7 @@ class ToggleStaticSiteGenerationForm extends FormBase {
       }
     }
     catch (\Exception $e) {
-      $this->log_channel->error('Error while attempting toggle tome: @error',
+      $this->getLogger('usagov_ssg_postprocessing')->error('Error while attempting toggle tome: @error',
         ['@error' => $e->getMessage()]);
       $errors = TRUE;
     }

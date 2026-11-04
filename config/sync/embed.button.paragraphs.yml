@@ -10,12 +10,8 @@ label: 'USWDS Components'
 id: paragraphs
 type_id: paragraphs_entity_embed
 type_settings:
-  enable_paragraph_type_filter: 1
+  enable_paragraph_type_filter: true
   paragraphs_type_filter:
-    ceo_compose_email_form: ceo_compose_email_form
-    ceo_email_contact_official: ceo_email_contact_official
-    ceo_form: ceo_form
-    ceo_results: ceo_results
     faq: faq
     site_issue_report_form: site_issue_report_form
     online_chat_button: online_chat_button

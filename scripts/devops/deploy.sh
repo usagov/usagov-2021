@@ -498,6 +498,7 @@ show_command_help() {
             echo "  ⚠️  WARNING: This will REPLACE all database and public files in TO space."
             echo "  Copies database and public files from FROM space to TO space."
             echo "  Automatically finds latest backup if tag not specified."
+            echo "  Verifies every restored public file can be served; fails if any cannot."
             echo "  Fixes MFA configuration after restore."
             echo ""
             echo "Arguments:"
@@ -1461,6 +1462,7 @@ downsync() {
     local to_space="$2"
     local backup_tag="$3"
     local safety_backup_taken=false
+    local public_unreadable=false
 
     if [ -z "$from_space" ] || [ -z "$to_space" ]; then
         print_status $RED "❌ Error: Both FROM and TO spaces required"
@@ -1809,15 +1811,16 @@ downsync() {
                 "the public files upload to $to_space did not complete"
         fi
 
-        # --delete and no public-read ACL, matching manager.sh's public files
-        # restore: the destination should end up with exactly the backup's
-        # files, and cms/public is served through Drupal, not read straight
-        # out of the bucket the way the static site is.
+        # --delete so the destination ends up with exactly the backup's files.
+        # --acl public-read because nginx serves cms/public (/s3/files) by
+        # proxying unsigned requests to the private bucket: s3fs sets the ACL
+        # on every upload (upload_as_private = FALSE), and a sync without it
+        # breaks every image in $to_space while still exiting 0.
         cf ssh cms -c "$CMS_REMOTE_PREFIX \
             && . scripts/common.sh \
             && init_backup_system >/dev/null 2>&1 \
             && setup_s3_vars >/dev/null 2>&1 \
-            && aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --only-show-errors --delete \$S3_EXTRA_PARAMS" </dev/null >/dev/null 2>&1
+            && aws s3 sync /tmp/public_restore/ s3://\$BUCKET_NAME/cms/public/ --only-show-errors --delete --acl public-read \$S3_EXTRA_PARAMS" </dev/null >/dev/null 2>&1
         local public_sync_exit=$?
         cf ssh cms -c "rm -rf /tmp/public_restore" </dev/null >/dev/null 2>&1
 
@@ -1826,6 +1829,23 @@ downsync() {
                 "the S3 sync into $to_space's public files failed"
         fi
         print_status $GREEN "  ✅ Public files restored to $to_space"
+
+        # A clean sync only proves the files are there, not that nginx can
+        # serve them, so request every one the way nginx does. The check is
+        # streamed from this checkout's common.sh rather than called from the
+        # copy deployed in $to_space, so it runs even where this code has not
+        # been deployed yet. A failure lets the remaining steps finish -
+        # leaving the site in maintenance mode fixes nothing - and then fails
+        # the downsync at the end.
+        print_status $BLUE "🔍 Verifying public files can be served..."
+        local readable_report
+        readable_report=$({
+            cat "$SCRIPT_DIR/../common.sh"
+            echo 'init_backup_system >/dev/null 2>&1 && setup_s3_vars >/dev/null 2>&1 || { echo "❌ Could not set up S3 access in the container"; exit 1; }'
+            echo 'verify_s3_prefix_readable cms/public'
+        } | cf ssh cms -c "$CMS_REMOTE_PREFIX && sh -s" 2>&1)
+        [ $? -ne 0 ] && public_unreadable=true
+        printf '%s\n' "$readable_report" | sed 's/^/  /'
 
         # Drupal reads cms/public through the s3fs metadata cache, which still
         # describes the pre-downsync files until it is refreshed - without
@@ -1890,6 +1910,16 @@ downsync() {
     # Restore original space
     if [ -n "$original_space" ] && [ "$original_space" != "$to_space" ]; then
         cf target -s "$original_space" >/dev/null 2>&1
+    fi
+
+    if [ "$public_unreadable" = "true" ]; then
+        echo ""
+        print_status $RED "❌ Downsync finished, but public files in $to_space failed the readability check"
+        echo "  The database and files were copied, but the CMS will show broken images"
+        echo "  until every object in the report above can be read anonymously."
+        echo "  Backup used: $backup_tag"
+        echo ""
+        exit 1
     fi
 
     echo ""
