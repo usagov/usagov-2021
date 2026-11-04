@@ -73,5 +73,9 @@ describe('Life Events [ES]', () => {
             .url().should('include', '/muerte-de-un-ser-querido')
             .go('back')
     })
+    it('BTS 53b: Share this page is not shown on the life events landing page', () => {
+        cy.get('#sm-share').should('not.exist')
+        cy.contains('COMPARTA ESTA PÁGINA:').should('not.exist')
+    })
 
 })

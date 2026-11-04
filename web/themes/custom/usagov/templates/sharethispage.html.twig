@@ -1,0 +1,39 @@
+{# Hide share on topic pages linked from "All topics and services".
+   Those pages are Navigation Cards pages, plus the Life Events landing page.
+   Content pages keep the share row. #}
+{% if term_name not in ["Navigation Cards Page", "Life Events Landing Page"] %}
+{% set nodeID = node.nid[0].value %}
+{% set path = drupal_url('node/'~nodeID) %}
+
+        {% set facebook = 'https://www.facebook.com/sharer/sharer.php?u=' %}
+        {% set twitter = 'https://x.com/intent/post?url=' %}
+        {% set email = 'mailto:?subject=' %}
+        {% set baseURL = url('<front>') %}
+        {% set url = baseURL|render~path|render[1:] %}
+
+        <div id="sm-share">
+                <span id="share-page">{{ lang == 'en' ? "SHARE THIS PAGE:" : "COMPARTA ESTA PÁGINA:" }}</span>
+                <div class="share-icons">
+                        <a aria-labelledby="share-page fb" href="{{ facebook }}{{ url }}&amp;v=3">
+                                <div class="share-icon-div">
+                                        <img class="share-icon" id="fb" src="/themes/custom/usagov/images/social-media-icons/Facebook_Icon.svg" alt="Facebook"/>
+                                </div>
+                        </a>
+                        <a aria-labelledby="share-page twr" href="{{ twitter }}{{ url|url_encode }}">
+                                <div class="share-icon-div">
+                                        <img class="share-icon" id="twr" src="/themes/custom/usagov/images/social-media-icons/X_Twitter_Icon.svg?version=2" alt="X Twitter USAGov"/>
+                                </div>
+                        </a>
+                        <a aria-labelledby="share-page em" href="{{ email }}{{ url }}">
+                                <div class="share-icon-div">
+                                        <img class="share-icon" id="em" src="/themes/custom/usagov/images/social-media-icons/Email_Icon.svg?version=2" alt="Email"/>
+                                </div>
+                        </a>
+                </div>
+        </div>
+
+        {% if (term_name == "Standard Page") or (term_name == "Standard Page- Nav Hidden") or (term_name == "") or (content_type == "wizard") or (content_type == "wizard_step") %}
+
+                <div class="border-top-05  border-base-lightest"></div>
+        {% endif %}
+{% endif %}

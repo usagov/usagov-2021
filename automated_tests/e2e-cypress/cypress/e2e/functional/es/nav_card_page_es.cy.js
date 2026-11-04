@@ -68,4 +68,9 @@ describe('Nav Card Page [ES]', () => {
                 .should('be.visible')
         }
     })
+    it('BTS 23b: Share this page is not shown on topic nav pages', () => {
+        cy.visit('/es/desastres-emergencias')
+        cy.get('#sm-share').should('not.exist')
+        cy.contains('COMPARTA ESTA PÁGINA:').should('not.exist')
+    })
 })

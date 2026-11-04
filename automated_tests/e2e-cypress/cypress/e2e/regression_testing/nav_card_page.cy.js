@@ -85,5 +85,8 @@ paths.forEach(path => {
             }
         }
         })
+    it('Share this page is not shown on topic nav pages', () => {
+        cy.get('#sm-share').should('not.exist')
+    })
     })
 })
