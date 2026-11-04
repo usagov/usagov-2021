@@ -13,7 +13,6 @@ use Drupal\path_alias\PathAliasInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\usa_twig_vars\Event\DatalayerAlterEvent;
 use Drupal\usa_twig_vars\Paragraphs\ChatLabels;
-use Drupal\usa_twig_vars\Paragraphs\ElectedOfficialsLabels;
 use Drupal\usa_twig_vars\Paragraphs\SiteIssueReportLabels;
 use Drupal\usa_twig_vars\TaxonomyDatalayerBuilder;
 
@@ -486,24 +485,6 @@ function usa_twig_vars_preprocess_paragraph(&$variables): void {
 
   // Get the parent bundle.
   switch ($paragraph->getParagraphType()->id()) {
-    case 'ceo_form':
-      $labelMaker = new ElectedOfficialsLabels();
-      $uspsErrors = $labelMaker->getUspsErrors($paragraph, $lang);
-      $variables['ceoUSPSErrorsJSON'] = usa_twig_vars_json_encode($uspsErrors);
-      break;
-
-    case 'ceo_results':
-      $labelMaker = new ElectedOfficialsLabels();
-      $ceoLabels = $labelMaker->getResultsLabels($paragraph, $lang);
-      $variables['ceoLabelsJSON'] = usa_twig_vars_json_encode($ceoLabels);
-      break;
-
-    case 'ceo_compose_email_form':
-      $labelMaker = new ElectedOfficialsLabels();
-      $ceoText = $labelMaker->getEmailLabels($paragraph, $lang);
-      $variables['ceoTextJSON'] = usa_twig_vars_json_encode($ceoText);
-      break;
-
     case 'site_issue_report_form':
       $labelMaker = new SiteIssueReportLabels();
       $variables['sirf'] = $labelMaker->getFormLabels($paragraph, $lang);
