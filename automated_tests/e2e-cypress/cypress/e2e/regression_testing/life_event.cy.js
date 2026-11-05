@@ -145,6 +145,9 @@ paths.forEach(path => {
         cy.visit(path);
         }
         })
+    it('Share this page is not shown on the life events landing page', () => {
+        cy.get('#sm-share').should('not.exist')
+    })
     })
 
 })

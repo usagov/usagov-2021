@@ -1,23 +1,10 @@
-{% set exclusions = [
-    '/usagov-beta',
-    '/about-the-us',
-    '/money',
-    '/money-and-credit',
-    '/laws-and-legal-issues',
-    '/scams-and-frauds',
-    '/es',
-    '/es/betausagoves',
-    '/es/betausagoves-0',
-    '/es/acerca-de-estados-unidos',
-    '/es/dinero',
-    '/es/dinero-y-credito',
-    '/es/leyes-y-asuntos-legales',
-    '/es/estafas-y-fraudes'
-] %}
+{# Hide share on topic pages linked from "All topics and services".
+   Those pages are Navigation Cards pages, plus the Life Events landing page.
+   Content pages keep the share row. #}
+{% if term_name not in ["Navigation Cards Page", "Life Events Landing Page"] %}
 {% set nodeID = node.nid[0].value %}
 {% set path = drupal_url('node/'~nodeID) %}
 
-{% if path|render not in exclusions %}
         {% set facebook = 'https://www.facebook.com/sharer/sharer.php?u=' %}
         {% set twitter = 'https://x.com/intent/post?url=' %}
         {% set email = 'mailto:?subject=' %}

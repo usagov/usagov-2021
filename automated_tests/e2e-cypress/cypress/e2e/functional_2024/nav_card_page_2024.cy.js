@@ -65,4 +65,8 @@ describe('Nav Card Page [ENG]', () => {
                 .should('be.visible')
         }
     })
+    it('BTE 23b: Share this page is not shown on topic nav pages', () => {
+        cy.get('#sm-share').should('not.exist')
+        cy.contains('SHARE THIS PAGE:').should('not.exist')
+    })
 })
