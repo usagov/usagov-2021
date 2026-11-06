@@ -24,6 +24,10 @@
 - [Redirects](docs/redirects.md)
 - [MinIO for local dev](docs/MinIO_for_Dev.md): You probably won't need this unless you're modifying the MinIO setup
 
+## AI coding agents
+- [AGENTS.md](AGENTS.md): Instructions for AI coding agents working in this repo
+- [Cloud.gov instruction files](.github/README-agents.md): Index of the task-specific `*.instructions.md` files in `.github/`
+
 ## Custom modules with useful documentation
 ### USAGov directories
 - [Overview](web/modules/custom/usagov_directories/docs/README.md)
