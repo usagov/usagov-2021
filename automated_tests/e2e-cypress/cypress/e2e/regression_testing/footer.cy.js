@@ -1,5 +1,6 @@
 const fixtures = require("../../fixtures/footer.json");
-const paths = ["/", "/es"];
+// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
+const paths = ["/"];
 
 paths.forEach((path, idx) => {
   let lang;
