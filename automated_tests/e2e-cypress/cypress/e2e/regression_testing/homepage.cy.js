@@ -1,4 +1,5 @@
-const paths = ["/", "/es"];
+// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
+const paths = ["/"];
 
 paths.forEach((path) => {
   let lang;
@@ -58,35 +59,8 @@ paths.forEach((path) => {
         });
     });
 
-    it(`${testName} 4: Español toggle appears and links to Spanish homepage`, () => {
-      let env;
-      let expectedHref;
-      cy.url().then((cyURL) => {
-        if (cyURL.includes("cms-usagov.docker.local")) {
-          env = "local";
-        } else if (cyURL.includes("beta-stage.usa")) {
-          env = "stage";
-        } else if (cyURL.includes("beta-dev.usa")) {
-          env = "dev";
-        } else if (cyURL.includes("beta-dr.usa")) {
-          env = "dr";
-        } else {
-          env = "prod";
-        }
-
-        if (path === "/") {
-          expectedHref = env == "local" ? "/es" : "/es/";
-        } else {
-          expectedHref = "/";
-        }
-
-        cy.get("header")
-          .find("a.language-link")
-          .invoke("attr", "href")
-          .then((href) => {
-            expect(href).to.equal(expectedHref);
-          });
-      });
+    it(`${testName} 4: Language toggle does not appear (USAGOV-2946)`, () => {
+      cy.get("header").find("a.language-link").should("not.exist");
     });
 
     it(`${testName} 5: Search bar appears with search icon in header region; can successfully complete search`, () => {

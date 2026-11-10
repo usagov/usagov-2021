@@ -1,4 +1,5 @@
-const paths = ["/life-events", "/es/etapas-importantes-de-la-vida"];
+// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
+const paths = ["/life-events"];
 
 paths.forEach(path => {
   let lang;

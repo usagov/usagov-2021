@@ -1,12 +1,8 @@
+// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
 const paths = [
   "/disaster-assistance",
-  "/es/requisitos-viaje-ninos-menores-de-edad",
 ];
-const breadcrumb = ["Home", "Página principal"];
-const languageTests = [
-  "/solicitar-asistencia-desastre",
-  "/travel-documents-children",
-];
+const breadcrumb = ["Home"];
 
 let env;
 if (window.location.hostname == "cms-usagov.docker.local") {
@@ -157,9 +153,8 @@ paths.forEach((path, idx) => {
           });
       }
     });
-    it(`${testName} 31: ${lang} toggle appears on page and takes you to ${lang} page`, () => {
-      cy.get(".language-link").click();
-      cy.url().should("include", languageTests[idx]);
+    it(`${testName} 31: Language toggle does not appear (USAGOV-2946)`, () => {
+      cy.get(".language-link").should("not.exist");
     });
     it(`${testName} 32: Last updated date appears at bottom of content with correct padding above it`, () => {
       // make sure date appears

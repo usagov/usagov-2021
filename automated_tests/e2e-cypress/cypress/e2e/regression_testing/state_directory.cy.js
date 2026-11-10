@@ -1,6 +1,7 @@
-const paths = ["/", "/es"];
-const state_directory_paths = ["/state-governments", "/es/gobiernos-estatales"];
-const alaska_paths = ["/states/alaska", "/es/estados/alaska"];
+// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
+const paths = ["/"];
+const state_directory_paths = ["/state-governments"];
+const alaska_paths = ["/states/alaska"];
 
 paths.forEach((path, idx) => {
   let lang;

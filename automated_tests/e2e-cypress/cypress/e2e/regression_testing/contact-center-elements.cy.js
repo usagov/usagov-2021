@@ -7,6 +7,7 @@
  * center is closed, so we're not testing for visibility here, just presence in the HTML.
  */
 
+// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
 
 // A sampling of paths for pages that SHOULD HAVE the phone number and "have a question" box'
 // This is the typical case, so we want this list to include every variation we can think of
@@ -15,13 +16,9 @@ const paths_with_all_contact_info = [
   // Ordinary "leaf" pages
   "/branches-of-government",
   "/naturalization",
-  "/es/ramas-gobierno-estados-unidos",
-  "/es/ciudadania-estados-unidos-naturalizacion",
   // Also "leaf" pages, but special in our navigation:
   "/privacy-security",
-  "/es/privacidad-seguridad",
   "/accessibility-policy",
-  "/es/politica-accesibilidad",
 ];
 
 // A sampling of paths for pages that SHOULD NOT HAVE the phone number and "have a question" box
@@ -31,11 +28,8 @@ const paths_without_contact_info = [
     // Pages excluded by path: chat and phone
     "/chat",
     "/phone",
-    "/es/chat",
-    "/es/llamenos",
     // Pages excluded by path: agency index views
     "/agency-index",
-    "/es/indice-agencias",
     // Pages excluded by path: tax related
     "/check-tax-status",
     "/contact-irs",
@@ -43,43 +37,27 @@ const paths_without_contact_info = [
     "/tax-refund-offset",
     "/tax-refunds",
     "/unclaimed-tax-refunds",
-    "/es/averiguar-estado-reembolso-impuestos",
-    "/es/contactar-irs",
-    "/es/obtener-reembolso-de-impuestos-por-deposito-directo",
-    "/es/compensacion-reembolsos-impuestos",
-    "/es/reembolsos-impuestos-no-entregados",
-    "/es/reembolsos-impuestos",
     // Federal directory records (agency pages)
     "/agencies/u-s-air-force",
-    "/es/agencias/fuerza-aerea-de-ee-uu",
     // State pages, 50-stage pages
     "/states/alaska",
-    "/es/estados/alabama",
     "/state-governments",
     "/state-governor",
-    "/es/gobiernos-estatales",
-    "/es/estatal-consumidor",
     // "Scam wizard" pages (rule is actually "exclude taxonomy terms")
     "/where-report-scams",
     "/where-report-scams/where-did-scam-take-place",
-    "/es/donde-reportar-una-estafa",
-    "/es/donde-reportar-una-estafa/donde-ocurrio-estafa",
     // Benefits Category search pages
     "/benefit-finder",
-    "/es/buscador-beneficios",
 ];
 
 // Paths for pages that SHOULD HAVE the phone number but NOT the "have a question" box.
 const paths_phone_only = [
   // Home pages
   "/",
-  "/es",
   // Navigation cards pages
   "/about-the-us",
-  "/es/acerca-de-estados-unidos",
   // Navigation pages
   "/food-help",
-  "/es/asistencia-alimentaria",
 ];
 
 // All of these tests use "exist" instead of "be.visible" because we use javascript to hide them
