@@ -1,15 +1,5 @@
 {% extends "@usagov/top_nav_es.html.twig" %}
 
 {% block translation %}
-  {% if translation %}
-    {% if lang == 'en' %}
-      {% set langcode = 'es' %}
-      {% set button_text = 'Español' %}
-    {% else %}
-      {% set langcode = 'en' %}
-      {% set button_text = 'English' %}
-    {% endif %}
-    {% set translation_url = drupal_url('taxonomy/term/'~translation,{ langcode: langcode }) %}
-    <a href="{{ translation_url }}" class="usa-button language-link" hreflang="{{ langcode }}">{{ button_text }}</a>
-  {% endif %}
-{% endblock %}
+    {# USAGOV-2946: language toggle removed per Presidential directive (2026-11-10). #}
+    {% endblock %}
