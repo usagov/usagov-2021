@@ -1,0 +1,127 @@
+#!/bin/bash
+#
+# Load a snapshot of Drupal's public files into the local S3 service.
+#
+# Usage: bin/files-update <zip file or folder>
+#
+# The files are copied to s3://local/cms/public/, which s3fs uses for public://
+# and nginx serves at /s3/files/. Files already in the bucket are overwritten
+# or kept; nothing is deleted. Each file is written with the public-read ACL,
+# the same way the cloud.gov downsync does it, so nginx can serve it.
+#
+# The zip file or folder must be inside this project folder, like the .sql file
+# for bin/db-update, because only the project folder is mounted into the
+# containers. It can hold the files directly or inside a top-level "public"
+# folder (the snapshots in Google Drive have one).
+#
+# The stack must be running (docker compose up).
+#
+# Examples:
+#   bin/files-update files-public-prod_11_05_2026.zip
+#   bin/files-update s3/local/cms/public    # files left over from MinIO
+#
+# NIST 800-53: CP-10 - System Recovery and Reconstitution (local copy only)
+# NIST 800-53: AC-22 - Publicly Accessible Content
+
+set -e
+# With CDPATH set, cd prints the directory, which would end up in the paths below.
+unset CDPATH
+
+usage() {
+  echo "Usage: $0 <zip file or folder>"
+  echo "Loads a public files snapshot into the local S3 service. See docs/Local_S3_for_Dev.md."
+}
+
+if [ $# -ne 1 ] || [ -z "$1" ]; then
+  usage >&2
+  exit 1
+fi
+
+SOURCE=$1
+if [ ! -e "$SOURCE" ]; then
+  echo "Error: $SOURCE does not exist." >&2
+  exit 1
+fi
+
+# Only the project folder is mounted (at /var/www), so turn the argument into
+# a path relative to it.
+PROJECT_ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
+SOURCE_PARENT=$(cd "$(dirname "$SOURCE")" && pwd -P)
+SOURCE_ABS="$SOURCE_PARENT/$(basename "$SOURCE")"
+case "$SOURCE_ABS" in
+  "$PROJECT_ROOT"/*)
+    SOURCE_REL=${SOURCE_ABS#"$PROJECT_ROOT"/}
+    ;;
+  *)
+    echo "Error: $SOURCE is outside the project folder ($PROJECT_ROOT)." >&2
+    echo "Move it into the project folder and try again." >&2
+    exit 1
+    ;;
+esac
+
+cd "$PROJECT_ROOT"
+
+if [ -z "$(docker compose ps --status running --quiet cms 2>/dev/null)" ]; then
+  echo "Error: the cms container isn't running. Start the stack with 'docker compose up' and try again." >&2
+  exit 1
+fi
+
+# Everything below runs inside the cms container, which has the AWS CLI and
+# the S3 settings (VCAP_SERVICES), and behaves the same on every host.
+docker compose exec -T cms sh -s -- "/var/www/$SOURCE_REL" <<'IN_CONTAINER'
+set -e
+
+# Sets BUCKET_NAME, the AWS credentials and S3_EXTRA_PARAMS (the local
+# endpoint) from VCAP_SERVICES.
+. /var/www/scripts/common.sh
+setup_s3_vars
+
+source=$1
+work_dir=""
+cleanup() {
+  if [ -n "$work_dir" ]; then
+    rm -rf "$work_dir"
+  fi
+}
+trap cleanup EXIT INT TERM
+
+if [ -d "$source" ]; then
+  files_dir=$source
+else
+  case "$source" in
+    *.zip|*.ZIP) ;;
+    *)
+      echo "Error: $source is not a folder or a .zip file." >&2
+      exit 1
+      ;;
+  esac
+  work_dir=$(mktemp -d /tmp/files-update.XXXXXX)
+  echo "Unzipping $(basename "$source")..."
+  unzip -q "$source" -d "$work_dir"
+  files_dir=$work_dir
+fi
+
+# Use the top-level "public" folder when it's the only thing in there, apart
+# from macOS clutter.
+if [ -d "$files_dir/public" ] \
+  && [ -z "$(ls -A "$files_dir" | grep -v -x -e public -e __MACOSX -e .DS_Store)" ]; then
+  files_dir="$files_dir/public"
+fi
+
+file_count=$(find "$files_dir" -type f ! -name .DS_Store ! -path '*/__MACOSX/*' | wc -l | tr -d ' ')
+if [ "$file_count" -eq 0 ]; then
+  echo "Error: no files found in $source." >&2
+  exit 1
+fi
+
+echo "Copying $file_count files to s3://$BUCKET_NAME/cms/public/ (this can take a few minutes)..."
+# The endpoint uses a self-signed certificate, so --no-verify-ssl (part of
+# S3_EXTRA_PARAMS) makes urllib3 warn on every request. Hide just that warning.
+PYTHONWARNINGS="ignore:Unverified HTTPS request" \
+  aws s3 sync "$files_dir" "s3://$BUCKET_NAME/cms/public/" \
+    --acl public-read --only-show-errors \
+    --exclude '*.DS_Store' --exclude '__MACOSX/*' \
+    $S3_EXTRA_PARAMS
+
+echo "Done. The files are served at /s3/files/."
+IN_CONTAINER

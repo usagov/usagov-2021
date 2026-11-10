@@ -2216,7 +2216,7 @@ setup_s3_vars() {
         export APP_SPACE
     fi
 
-    # endpoint and ssl specifications only necessary on local for minio support
+    # endpoint and ssl specifications only necessary for the local S3 service (SeaweedFS)
     if [ -z "$S3_EXTRA_PARAMS" ]; then
         S3_EXTRA_PARAMS=""
         if [ "${APP_SPACE}" = "local" ]; then

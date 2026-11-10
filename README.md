@@ -98,10 +98,16 @@ Once you finish the previous section, follow these steps to set up your USAgov d
 Once you finish the previous section, you may not see the images on the site. Please follow these steps to set up the media files:
 
 1. Download the latest ZIP file available from [our Google Drive](https://drive.google.com/drive/folders/1tI4k5qasEtmhxCBuznR3t0fe466milYk?usp=sharing).
-2. Go to the **root** of your USAgov project folder in your IDE or preferred file manager system in your computer.
-3. Locate the following folder: `s3/local/cms/public`.
-4. Unzip the downloaded ZIP file and place the files inside the `s3/local/cms/public` directory.
-5. Reload the `localhost` page in your browser. You should now see the images on the site.
+2. Move the ZIP file (don't unzip it) into the **root** of your USAgov project folder.
+3. With the site running (`docker compose up`), open a new terminal in your USAgov project folder and run this command, using the name of your ZIP file:
+
+    ```sh
+    bin/files-update files-public-prod_MM_DD_YYYY.zip
+    ```
+
+4. Reload the `localhost` page in your browser. You should now see the images on the site.
+
+The files are stored in a local stand-in for the S3 bucket we use on cloud.gov. See [Local S3 for dev](docs/Local_S3_for_Dev.md), which also covers moving your files over if you set up before we switched from MinIO.
 
 [back to top](#usagov-2021)
 
