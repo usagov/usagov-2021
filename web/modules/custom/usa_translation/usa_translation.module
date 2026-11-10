@@ -26,10 +26,10 @@ function usa_translation_node_translation_delete(NodeInterface $node): void {
 /**
  * Implements hook_page_attachments_alter().
  *
- * USAGOV-2946: Per the Presidential directive (2026-11-10), Spanish pages
- * redirect to English, so no alternate-language metadata is emitted. This
- * strips every hreflang rel='alternate' head link, including the ones core
- * content_translation_page_attachments() adds for each entity translation.
+ * USAGOV-2946: Spanish pages redirect to English, so no alternate-language
+ * metadata is emitted. This strips every hreflang rel='alternate' head link,
+ * including the ones core content_translation_page_attachments() adds for
+ * each entity translation.
  * The previous implementation (conlang/altlang links) is in git history.
  *
  * @param array<string, mixed> $page

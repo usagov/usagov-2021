@@ -4,9 +4,8 @@
  * @file
  * Generate the nginx map that redirects Spanish (/es) pages to English.
  *
- * USAGOV-2946: Presidential directive (2026-11-10) to redirect all
- * Spanish-language pages to their English-language equivalents, or to the
- * English home page when no equivalent exists.
+ * USAGOV-2946: Redirect all Spanish-language pages to their English-language
+ * equivalents, or to the English home page when no equivalent exists.
  *
  * Input is the published-pages.csv produced by `drush usapubcsv` at the end
  * of every Tome run (published to /ppr/published-pages.csv on the static
