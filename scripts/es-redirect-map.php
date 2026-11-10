@@ -174,9 +174,7 @@ $lines[] = '# USAGOV-2946: redirect Spanish (/es) pages to their English equival
 $lines[] = '# Regenerate with: php scripts/es-redirect-map.php <published-pages.csv> --state-abbr=<file>';
 $lines[] = '# Source: ' . basename($csvPath) . ' (' . count($esRows) . ' Spanish rows), generated ' . gmdate('Y-m-d\TH:i:s\Z');
 $lines[] = '# Anything under /es not listed here is sent to / by the catch-all in www_common.conf.';
-$lines[] = '';
-$lines[] = 'map_hash_bucket_size 256;';
-$lines[] = 'map_hash_max_size    8192;';
+$lines[] = '# map_hash_bucket_size / map_hash_max_size are set in nginx.conf (they must precede the first map).';
 $lines[] = '';
 $lines[] = 'map $request_uri_lowercase $es_redirect_target {';
 $lines[] = '  default "";';
