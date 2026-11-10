@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * @file
+ * Sitemap adjustments for USAGov.
+ */
+
+use Drupal\Core\Site\Settings;
+
+/**
  * Alter the generated link data before the sitemap is saved.
  * This hook gets invoked for every sitemap chunk generated.
  *
@@ -9,8 +16,17 @@
  * @param string|null $sitemap_variant
  */
 function usagov_sitemap_simple_sitemap_links_alter(array &$links, ?string $sitemap_variant): void {
+  // USAGOV-2946: while Spanish pages are hidden (redirected to English by the
+  // www app), leave them out of the sitemap.
+  $hide_spanish = (bool) Settings::get('usagov_hide_spanish', FALSE);
 
   foreach ($links as $key => $link) {
+    if ($hide_spanish && (($link['langcode'] ?? NULL) === 'es'
+      || preg_match('#^(https?://[^/]+)?/es(/|$)#', $link['url'] ?? ''))) {
+      unset($links[$key]);
+      continue;
+    }
+
     /**
      *    Remove the following lines from each page in the sitemap:
      *    <xhtml:link rel="alternate" hreflang="en" href="http://default/"/>

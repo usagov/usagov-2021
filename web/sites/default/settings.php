@@ -804,6 +804,17 @@ $settings['usagov_tome_static_path_exclude_directories'] = [
   '/taxonomy', '/taxonomy_term', '/es/taxonomy_term', '/es/taxonomy'
 ];
 
+/**
+ * USAGOV-2946: Spanish pages are hidden from the public site; the www app
+ * redirects /es requests to English (see
+ * .docker/src-www/etc/nginx/partials/spanish_redirect_maps.conf).
+ * Spanish content stays published. While this is TRUE, English pages don't
+ * show the Español toggle or hreflang links, and the sitemap leaves out
+ * Spanish URLs. To bring Spanish back, set this to FALSE and remove the www
+ * redirect include.
+ */
+$settings['usagov_hide_spanish'] = TRUE;
+
 
 if (getenv('NEW_RELIC_API_KEY')) {
   $settings['new_relic_rpm.api_key'] = getenv('NEW_RELIC_API_KEY');

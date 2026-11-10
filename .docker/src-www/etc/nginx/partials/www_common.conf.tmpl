@@ -6,6 +6,9 @@
     proxy_hide_header expires;
     add_header Cache-Control max-age=900;
 
+    # USAGOV-2946: Spanish pages are hidden. Before internal_redirects so /es
+    # paths get a single 302, not a 301 first.
+    include /etc/nginx/partials/spanish_redirects.conf;
     include /etc/nginx/partials/internal_redirects.conf;
     include /etc/nginx/partials/s3proxy.conf;
     include /etc/nginx/partials/404s.conf;

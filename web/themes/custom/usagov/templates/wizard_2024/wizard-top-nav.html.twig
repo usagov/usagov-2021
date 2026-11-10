@@ -2,7 +2,8 @@
 
 
 {% block translation %}
-  {% if translation %}
+  {# USAGOV-2946: no Español toggle while Spanish pages are hidden. #}
+  {% if translation and not hide_spanish %}
     {% if lang == 'en' %}
       {% set langcode = 'es' %}
       {% set button_text = 'Español' %}

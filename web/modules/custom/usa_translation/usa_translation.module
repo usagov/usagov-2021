@@ -8,6 +8,7 @@
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
@@ -35,6 +36,12 @@ function usa_translation_node_translation_delete(NodeInterface $node): void {
  * @param-out array<string, mixed> $page
  */
 function usa_translation_page_attachments_alter(array &$page): void {
+  // USAGOV-2946: while Spanish pages are hidden (redirected to English by the
+  // www app), don't point search engines at them with hreflang links.
+  if (Settings::get('usagov_hide_spanish', FALSE)) {
+    return;
+  }
+
   $cache = CacheableMetadata::createFromRenderArray($page);
   $route_match = \Drupal::routeMatch();
 

@@ -7,6 +7,7 @@
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasInterface;
@@ -37,6 +38,9 @@ function usa_twig_vars_preprocess(&$variables, $hook): void {
         'pagetype' => NULL,
         'meta_noindex' => NULL,
         'datalayer' => NULL,
+        // USAGOV-2946: TRUE while Spanish pages are hidden from the public
+        // site. Templates use it to drop the Español language toggle.
+        'hide_spanish' => (bool) Settings::get('usagov_hide_spanish', FALSE),
       ];
       $node = \Drupal::routeMatch()->getParameter('node');
       $isFront = \Drupal::service('path.matcher')->isFrontPage();
