@@ -7,7 +7,7 @@
  * center is closed, so we're not testing for visibility here, just presence in the HTML.
  */
 
-// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
+// USAGOV-2946: Spanish pages now redirect to English; /es paths removed.
 
 // A sampling of paths for pages that SHOULD HAVE the phone number and "have a question" box'
 // This is the typical case, so we want this list to include every variation we can think of

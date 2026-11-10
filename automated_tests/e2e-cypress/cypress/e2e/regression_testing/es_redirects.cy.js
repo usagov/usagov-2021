@@ -1,5 +1,5 @@
 /**
- * USAGOV-2946: Presidential directive (2026-11-10) - Spanish pages redirect to English.
+ * USAGOV-2946: Spanish pages redirect to English.
  *
  * Redirects are done by the www (static site) nginx, from
  * .docker/src-www/etc/nginx/partials/es-redirect-map.conf, with a catch-all for any

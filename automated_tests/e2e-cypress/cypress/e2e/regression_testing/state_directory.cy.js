@@ -1,4 +1,4 @@
-// USAGOV-2946: Spanish pages now redirect to English (Presidential directive 2026-11-10); /es paths removed.
+// USAGOV-2946: Spanish pages now redirect to English; /es paths removed.
 const paths = ["/"];
 const state_directory_paths = ["/state-governments"];
 const alaska_paths = ["/states/alaska"];
