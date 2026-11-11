@@ -13,6 +13,7 @@ folder: /var/www/config/local_split
 module:
   devel: 0
   devel_generate: 0
+  upgrade_status: 0
 theme: {  }
 complete_list: {  }
 partial_list: {  }
