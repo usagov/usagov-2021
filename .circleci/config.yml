@@ -449,6 +449,10 @@ jobs:
           command: |
             ./bin/cloudgov/container-build << pipeline.number >> latest
       - run:
+          name: Smoke Test CMS Container
+          command: |
+            ./bin/cloudgov/container-test-cms << pipeline.number >>
+      - run:
           name: Scan CMS Container
           command: |
             SCAN_CMS_RESULT=0
