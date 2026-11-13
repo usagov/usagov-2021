@@ -1,8 +1,9 @@
-const paths = ["/scams-and-fraud", "/es/estafas-y-fraudes"];
+// USAGOV-2946: Spanish pages now redirect to English; /es paths removed.
+const paths = ["/scams-and-fraud"];
 
 paths.forEach(path => {
   let lang;
-  if (path === "/elected-officials") {
+  if (path === "/scams-and-fraud") {
     lang = "English";
   } else {
     lang = "Español";
