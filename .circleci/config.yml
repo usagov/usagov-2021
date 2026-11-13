@@ -1,6 +1,50 @@
 version: 2.1
 
 commands:
+  setup-logshipper-services:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: CloudGov Setup Logshipper Services
+          command: |
+            export SPACE=<< parameters.envname >>
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./.buildpack/usagov-logshipper/bin/setup-services.sh
+
+  deploy-logshipper:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: CloudGov Deploy Logshipper
+          command: |
+            export SPACE=<< parameters.envname >>
+            export USAGOV_ENVIRONMENT=<< parameters.envname >>
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./.buildpack/usagov-logshipper/bin/deploy-logshipper.sh << pipeline.number >> << parameters.envname >>
+            ./bin/cloudgov/setup-egress-for-apps log-shipper-<< parameters.envname >>
+
+  setup-log-drains:
+    parameters:
+      envname:
+        default: "dev"
+        type: string
+    steps:
+      - run:
+          name: CloudGov Setup Logshipper Drains
+          command: |
+            export SPACE=<< parameters.envname >>
+            ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
+            ./bin/cloudgov/space << parameters.envname >>
+            ./.buildpack/usagov-logshipper/bin/add-log-drains-for-space.sh
+
   deploy-cloudgov:
     parameters:
       envname:
@@ -50,6 +94,12 @@ commands:
             ./bin/cloudgov/login $CF_SERVICE_USER $CF_SERVICE_PASS << parameters.envname >>
             ./bin/cloudgov/space << parameters.envname >>
             scripts/devops/deploy.sh push waf << pipeline.number >> $WAF_DIGEST --skip-confirmation
+      - setup-logshipper-services:
+          envname: << parameters.envname >>
+      - deploy-logshipper:
+          envname: << parameters.envname >>
+      - setup-log-drains:
+          envname: << parameters.envname >>
 
   save-image-digest:
     steps:
