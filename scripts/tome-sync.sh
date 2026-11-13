@@ -39,7 +39,7 @@ fi
 APP_SPACE=$(echo "$VCAP_APPLICATION" | jq -r '.space_name')
 APP_SPACE=${APP_SPACE:-local}
 
-# endpoint and ssl specifications only necessary on local for minio support
+# endpoint and ssl specifications only necessary for the local S3 service (SeaweedFS)
 S3_EXTRA_PARAMS=""
 if [ "${APP_SPACE}" = "local" ]; then
   S3_EXTRA_PARAMS="--endpoint-url https://$AWS_ENDPOINT --no-verify-ssl"
