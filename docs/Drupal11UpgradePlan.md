@@ -56,8 +56,8 @@ does not report it), is fixed in USAGOV-2906:
 | ~~`core_version_requirement` capped at `^10`~~ | 22 `.info.yml` files | **Done** — all set to `^10 \|\| ^11` in USAGOV-2903 (#2901). Originally 26; 4 were removed with Benefit Finder (USAGOV-2833). |
 | ~~`DependencySerializationTrait` with `private` properties~~ | 8 files | **Done** in USAGOV-2906 (#2904; file list there). 8 properties changed to `protected`. `BenefitCategorySearchForm` and `ToggleStaticSiteGenerationForm` had a `$log_channel` from `logger.factory->get()` that could not be serialized; they now log through `FormBase`'s `getLogger()` instead. All 8 classes pass a serialize round-trip. |
 | ~~`ConfigFormBase` subclasses call `parent::__construct($config_factory)` without `$typedConfigManager`~~ | 2 — `LoginSettingsForm`, `OrphanedEntitiesSettings` | **Done** in USAGOV-2906 (#2904). Both now inject `config.typed` and pass it to the parent constructor. `OrphanedEntitiesSettings` no longer redeclares the untyped `$typedConfigManager`. The 10.2 deprecation is gone, and both forms save without errors. |
-| Twig `spaceless` filter | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. |
-| `wizardstep` library missing extension name | 1 template | Needs `themename/libraryname` form. |
+| ~~Twig `spaceless` filter~~ | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. **In review** (USAGOV-2949, #2949): replaced with `\|render\|trim\|raw` on the city field; output byte-identical. |
+| ~~`wizardstep` library missing extension name~~ | 1 template | **In review** (USAGOV-2949, #2949): now `usagov/wizardstep`. |
 | phpstan findings in `usagov_directories/utility/*.php` | ~12 | Standalone CLI scripts, not Drupal runtime. Pre-existing, unrelated to D11. |
 | Duplicate array keys — `StaticImageSyncCommands.php:438,440` | 2 | Real bug, pre-existing, unrelated to D11. |
 
@@ -65,7 +65,7 @@ does not report it), is fixed in USAGOV-2906:
 
 Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-compatible
 releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `ctools`, `faqfield`,
-`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934); three remain.
+`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934). `content_lock` is in review (USAGOV-2950, #2950); `uswds_base` and `node_menus` remain.
 
 `content_lock`, `uswds_base` and `log_stdout` all allow `^10` at their targets, so
 each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
@@ -74,7 +74,7 @@ each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
 | Module | Current | Target | Core constraint at target | Risk |
 | --- | --- | --- | --- | --- |
 | ~~`address`~~ | ~~1.12.0~~ removed | ~~2.0.4~~ | — | major — **Removed** (unused; USAGOV-2907, #2905) |
-| `content_lock` | 2.4.0 | 3.0.0 | `^10.2 \|\| ^11` | major, plus patch rewrite |
+| `content_lock` | 2.4.0 | 3.0.0 | `^10.2 \|\| ^11` | major, plus patch rewrite — **In review** (USAGOV-2950, #2950) |
 | ~~`ctools`~~ | ~~3.15.0~~ 4.1.1 | 4.1.1 | `^9.5 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`faqfield`~~ | ~~7.1.0~~ 8.0.1 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
@@ -109,9 +109,9 @@ Three of nine referenced patches need work.
 
 | Patch | Package | Status |
 | --- | --- | --- |
-| `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941); no rebase. |
+| `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941, #2933, in review); no rebase. |
 | `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. Rebase required. |
-| `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Rewrite required. |
+| `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Ported to 3.0's `src/Hook/FormAlter.php` (USAGOV-2950, #2950, in review). |
 | `correctMenuChildren_d10.patch` | views_menu_children_filter | OK — package version unchanged. |
 | `autologout-multitab-timeout-fix.patch` | autologout | OK — version unchanged. |
 | `tomeAggregationFix.patch` | tome | OK — version unchanged. |
@@ -159,13 +159,20 @@ This is a rewrite, not a rebase. `content_lock.module` went from 491 to 208 line
 in 3.0, and the form-alter logic moved into `src/Hook/FormAlter.php` using D11 OOP
 hooks. Both changes map cleanly onto the new location: the `['submit', 'publish']`
 loop is at `FormAlter.php:53` and the `unlockButton()` call at `FormAlter.php:68`.
-Same logic, new file and class context.
+Same logic, new file and class context. Ported in USAGOV-2950 (#2950). The bug it
+originally fixed (USAGOV-2626) doesn't reproduce with its documented steps even on
+2.4 without the patch, but its Preview-releases-lock change still has an effect on
+3.0, so it was kept.
+
+3.0 also folds `content_lock_timeout` into `content_lock`: a post-update moves the
+1440-minute timeout to `content_lock.settings:timeout: 86400` and uninstalls the
+submodule. Run `drush updb` before `drush cim`.
 
 ### Orphaned patch files
 
 `removeDependencies.patch`, `samlauthForceHttps.patch`, and
 `taxonomy_revision_log.patch` exist in `patches/drupal/` but are referenced nowhere
-in `composer.json`. They should be deleted as cleanup.
+in `composer.json`. **In review**: deleted in USAGOV-2949 (#2949).
 
 ## The `uswds_base` 2.x → 3.x jump
 
@@ -200,8 +207,9 @@ time; do not assume this is clean.
    `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
    the `ConfigFormBase` constructor fix.
 5. **Finish the D10-compatible work**, each as its own ticket on 10.6.20:
-   - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941).
-   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch rewritten.
+   - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941, #2933, in review).
+   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch rewritten (USAGOV-2950, #2950, in review).
+   - Cleanup: Twig `spaceless`, `wizardstep` library name, orphaned patches (USAGOV-2949, #2949, in review).
    - ~~`log_stdout` 1.5.0 → 3.0.0.~~ **Done** (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
    - `uswds_base` 2.15.0 → 3.12.1, with visual QA.
 6. **Bump `composer.json`**: the three core packages to `11.4.11`, `node_menus` to
