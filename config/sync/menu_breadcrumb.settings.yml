@@ -12,7 +12,7 @@ add_home: true
 front_title: 0
 exclude_empty_url: false
 exclude_disabled_menu_items: false
-derived_active_trail: false
+derived_active_trail: true
 menu_breadcrumb_menus:
   main:
     enabled: 0

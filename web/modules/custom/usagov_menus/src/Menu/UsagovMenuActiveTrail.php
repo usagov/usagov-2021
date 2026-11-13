@@ -11,6 +11,11 @@ use Drupal\Core\Path\PathMatcherInterface;
  * Follows Drupal 11's getActiveLink(): links for the current route, then
  * <front> links on the front page, and the first enabled one wins. Both
  * lookups are ordered by mlid, so the original link beats "false children".
+ *
+ * Unlike core, when no link is enabled the route's first link by mlid still
+ * wins. Some pages (error and thank-you pages, for example) are kept out of
+ * the menu with a disabled link but still need their section's breadcrumb and
+ * sidebar.
  */
 class UsagovMenuActiveTrail extends MenuActiveTrail {
 
@@ -32,27 +37,30 @@ class UsagovMenuActiveTrail extends MenuActiveTrail {
    * {@inheritdoc}
    */
   public function getActiveLink($menu_name = NULL) {
-    $links = [];
+    $route_links = [];
+    $front_links = [];
 
     $route_name = $this->routeMatch->getRouteName();
     // The route name is NULL on a default (not custom) 403 page.
     if ($route_name) {
       $route_parameters = $this->routeMatch->getRawParameters()->all();
-      $links = $this->loadLinksByMlid($route_name, $route_parameters, $menu_name);
+      $route_links = $this->loadLinksByMlid($route_name, $route_parameters, $menu_name);
     }
 
     // <front> is an alias for the front page, so its links match too.
     if ($this->usagovPathMatcher->isFrontPage()) {
-      $links = array_merge($links, $this->loadLinksByMlid('<front>', [], $menu_name));
+      $front_links = $this->loadLinksByMlid('<front>', [], $menu_name);
     }
 
-    foreach ($links as $link) {
+    foreach (array_merge($route_links, $front_links) as $link) {
       if ($link->isEnabled()) {
         return $link;
       }
     }
 
-    return NULL;
+    // Only the route's own links fall back to a disabled one: a disabled
+    // <front> link (such as a menu's hidden "Home") must not become active.
+    return $route_links ? reset($route_links) : NULL;
   }
 
   /**
