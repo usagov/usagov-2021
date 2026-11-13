@@ -65,7 +65,7 @@ does not report it), is fixed in USAGOV-2906:
 
 Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-compatible
 releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `ctools`, `faqfield`,
-`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934). `content_lock` is in review (USAGOV-2950, #2950); `uswds_base` and `node_menus` remain.
+`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934). `content_lock` (USAGOV-2950, #2950) and `uswds_base` (USAGOV-2953, #2952) are in review; only `node_menus` remains, and it ships with the core bump.
 
 `content_lock`, `uswds_base` and `log_stdout` all allow `^10` at their targets, so
 each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
@@ -78,7 +78,7 @@ each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
 | ~~`ctools`~~ | ~~3.15.0~~ 4.1.1 | 4.1.1 | `^9.5 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`faqfield`~~ | ~~7.1.0~~ 8.0.1 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
-| `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme |
+| `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme — **In review** (USAGOV-2953, #2952); 2.15 markup pinned in `usagov` |
 | ~~`log_stdout`~~ | ~~1.5.0~~ 3.0.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 — **Done** (USAGOV-2942, #2934); config needs `severity_level: 7` |
 | `node_menus` | 3.0.0 | `3.x-dev` | `^11.2 \|\| ^12` | no stable D11 release; ships with the core bump |
 | ~~`field_defaults`~~ | ~~2.0.0~~ 2.1.1 | 2.1.1 | `^10.0 \|\| ^11.0` | low — **Done** (USAGOV-2900, #2896) |
@@ -187,6 +187,15 @@ already shadows. The exposure is the templates `usagov` does *not* override, plu
 any library or region naming changes between 2.x and 3.x. Budget real visual QA
 time; do not assume this is clean.
 
+**Outcome (USAGOV-2953, #2952, in review):** regions and the `framework` library are
+unchanged, and `usagov` doesn't use the CDN settings. 3.12.1 changes 14 templates
+`usagov` inherits and a handful of preprocess functions, but on a 475-page sample only
+four changed output, and each is pinned to its 2.15 form in `usagov`:
+`templates/uswds-base-2.15-pins/` (`field`, `block--page-title-block`,
+`region--sidebar_first`) and `preprocess/form_element_label.preprocess.inc` (required
+label class). Rendered output is byte-identical, so no visual QA was needed. Adopting
+the 3.x markup (deleting the pins, then visual QA) is an optional follow-up.
+
 ## Execution sequence
 
 1. **Prep.** Confirm branch, take a database snapshot (`bin/db-export`), verify
@@ -205,7 +214,7 @@ time; do not assume this is clean.
    - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch rewritten (USAGOV-2950, #2950, in review).
    - Cleanup: Twig `spaceless`, `wizardstep` library name, orphaned patches (USAGOV-2949, #2949, in review).
    - ~~`log_stdout` 1.5.0 → 3.0.0.~~ **Done** (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
-   - `uswds_base` 2.15.0 → 3.12.1, with visual QA.
+   - `uswds_base` 2.15.0 → 3.12.1 (USAGOV-2953, #2952, in review). 2.15 markup pinned in `usagov`, so output is byte-identical.
 6. **Bump `composer.json`**: the three core packages to `11.4.11`, `node_menus` to
    `3.x-dev`. No core patches to swap.
 7. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
