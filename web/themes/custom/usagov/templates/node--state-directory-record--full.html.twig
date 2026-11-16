@@ -45,11 +45,7 @@
 					{% if address.field_street_3|render %}
 						<br>{{ address.field_street_3 }}
 					{% endif %}
-					{% apply spaceless %}
-					{% if address.field_city|render %}
-						<br>{{ address.field_city }}
-					{% endif %}
-					{% endapply %},
+					{% if address.field_city|render %}{# trim drops the field's surrounding whitespace so the comma follows the city directly; raw is safe because the value is already-rendered field markup. #}<br>{{ address.field_city|render|trim|raw }}{% endif %},
 					{% if address.field_state_abbr|render or address.field_zip|render %}
 						{{ address.field_state_abbr }}
 						{{ address.field_zip }}
