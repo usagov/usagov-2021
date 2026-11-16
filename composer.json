@@ -157,9 +157,6 @@
                 "Make tome work with drush 12": "https://www.drupal.org/files/issues/2023-08-02/tome_drush12-support.patch",
                 "Make tome work with path count > 1 without re-exporting pages multiple times" : "./patches/drupal/tomePathCountFixes.patch"
             },
-            "drupal/core": {
-                "Show views theme suggestions in twig debug": "./patches/drupal/viewsSuggestions-10_3.patch"
-            },
             "drupal/autologout": {
                 "Autologout multiple tab behavior fixes (3395581-48) plus multi-tab timeout-doubling fix and console countdown": "./patches/drupal/autologout-multitab-timeout-fix.patch"
             },
