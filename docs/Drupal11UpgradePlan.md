@@ -110,7 +110,7 @@ Three of nine referenced patches need work.
 | Patch | Package | Status |
 | --- | --- | --- |
 | `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941, #2933, in review); no rebase. |
-| `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. Rebase required. |
+| `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. **Dropped** instead of rebased (USAGOV-2951, #2951, in review). |
 | `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Ported to 3.0's `src/Hook/FormAlter.php` (USAGOV-2950, #2950, in review). |
 | `correctMenuChildren_d10.patch` | views_menu_children_filter | OK — package version unchanged. |
 | `autologout-multitab-timeout-fix.patch` | autologout | OK — version unchanged. |
@@ -142,16 +142,11 @@ The core patch and its `composer.json` entry are removed in the same change.
 
 ### `viewsSuggestions-10_3.patch`
 
-Agreed approach: rebase the functional parts only — `ThemeManager.php` (5 hunks)
-and `twig.engine` (1 hunk) — and drop the roughly 24 core test files and fixtures
-the original patch carries. This keeps the developer-facing capability (views
-template suggestions in Twig debug output) with far less rebase burden on future
-core updates.
-
-One caveat: D11 added a *deprecated hint* feature to the exact block this patch
-rewrites — `theme_hook_suggestions__DEPRECATED` appends `(deprecated)` to the
-template name in debug output. The rebase must preserve it, or that D11 feature is
-silently lost.
+**Dropped** on D10 in USAGOV-2951 (#2951, in review) instead of rebased. Its only
+effect was listing per-view/per-display template suggestions in Twig debug output
+(a developer aid); rendered pages are byte-identical without it, and Views still uses
+those templates when they exist. With `correctActiveTrail` also gone (USAGOV-2941),
+core carries no custom patches, so the core bump has nothing to rebase.
 
 ### `content_lock-preview-button-lock-release.patch`
 
@@ -196,11 +191,10 @@ time; do not assume this is clean.
 
 1. **Prep.** Confirm branch, take a database snapshot (`bin/db-export`), verify
    `bin/` tooling.
-2. **Rebase `viewsSuggestions-10_3.patch`** against 11.4.11 (ticket TBD) *before*
-   changing any `composer.json` constraints. Verify it with `patch --dry-run` against
-   fetched core sources. A failing patch aborts the entire composer run, so this must
-   be clean first. `correctActiveTrail` needs no rebase (step 5), and the
-   `content_lock` patch is rewritten with its 3.0 upgrade (step 5).
+2. ~~**Rebase `viewsSuggestions-10_3.patch`**~~ **Dropped** instead (USAGOV-2951,
+   #2951, in review). No core patches remain: `correctActiveTrail` is replaced by
+   `usagov_menus` code (step 5) and the `content_lock` patch is ported with its 3.0
+   upgrade (step 5).
 3. ~~**Bump `core_version_requirement`** to include `^11` across all 26 `.info.yml`
    files.~~ **Done** in USAGOV-2903 (#2901): 22 files (4 removed with Benefit Finder).
 4. ~~**Change the 8 `private` properties to `protected`** in classes using
@@ -213,7 +207,7 @@ time; do not assume this is clean.
    - ~~`log_stdout` 1.5.0 → 3.0.0.~~ **Done** (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
    - `uswds_base` 2.15.0 → 3.12.1, with visual QA.
 6. **Bump `composer.json`**: the three core packages to `11.4.11`, `node_menus` to
-   `3.x-dev`, and swap in the rebased `viewsSuggestions` patch.
+   `3.x-dev`. No core patches to swap.
 7. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
    6.4 → 7.4 underneath core is a large jump.
 8. **`drush updb`**, then **`drush cr`**.
