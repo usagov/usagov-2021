@@ -37,12 +37,12 @@ services:
         { "s3": [{
             "name": "storage",
             "credentials": {
-              "access_key_id": "minioadmin",
-              "secret_access_key": "miniopass",
+              "access_key_id": "s3admin",
+              "secret_access_key": "s3adminsecret",
               "region": "us-west-1",
               "bucket": "local",
-              "fips_endpoint": "minio:9000",
-              "endpoint": "minio:9000"
+              "fips_endpoint": "s3:9000",
+              "endpoint": "s3:9000"
                }
              },
              {
@@ -116,7 +116,7 @@ services:
         }
     depends_on:
       - database
-      - minio
+      - s3
       - cache
 
   database:
@@ -135,29 +135,42 @@ services:
     networks:
       - gsa-gov
 
-  minio:
-    container_name: minio
-    build:
-      context: ./
-      dockerfile: .docker/Dockerfile-minio
-      args:
-        - BUILD_ENV
-    # ports:
-    #   - 9000:9000
-    #   - 9001:9001
-    volumes:
-      - ./s3:/data
-      - ./.docker/src-minio/docker-entrypoint-minio.sh:/docker-entrypoint-minio.sh
-      - ./.docker/src-minio/setup-bucket.sh:/setup-bucket.sh
+  # Local stand-in for the cloud.gov S3 bucket (SeaweedFS). It must match the
+  # "storage" entry in VCAP_SERVICES above: credentials in .docker/src-s3/s3.json,
+  # bucket "local" at s3:9000 over HTTPS. s3fs and nginx reach the bucket as
+  # local.s3:9000 (virtual-hosted style), and the AWS CLI as s3:9000/local
+  # (path style). Load public files with bin/files-update.
+  # See docs/Local_S3_for_Dev.md before changing the version.
+  s3:
+    container_name: s3
+    image: chrislusf/seaweedfs:4.53
+    init: true
+    entrypoint: ["/bin/sh", "/etc/seaweedfs/local/start.sh"]
+    command:
+      - server
+      # Master, volume and filer stay on loopback; only S3 is reachable from
+      # the other containers.
+      - -ip=127.0.0.1
+      - -s3.ip.bind=0.0.0.0
+      - -master.telemetry=false
+      - -s3
+      - -s3.iam=false
+      - -s3.port=9000
+      - -s3.domainName=s3
+      - -s3.config=/etc/seaweedfs/local/s3.json
+      - -s3.cert.file=/etc/seaweedfs/certs/public.crt
+      - -s3.key.file=/etc/seaweedfs/certs/private.key
+      - -s3.port.iceberg=0
+      - -s3.port.lance=0
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=miniopass
-      - MINIO_SERVER_URL=https://127.0.0.1:9000
-      - MINIO_DOMAIN=minio
+      - S3_BUCKET=local
+    volumes:
+      - s3_data:/data
+      - ./.docker/src-s3:/etc/seaweedfs/local:ro
     networks:
       gsa-gov:
         aliases:
-          - local.minio
+          - local.s3
 
   cypress:
     container_name: cypress
@@ -222,6 +235,7 @@ services:
 
 volumes:
   database_data:
+  s3_data:
 #   nfsmount:
 #     driver: local
 #     driver_opts:

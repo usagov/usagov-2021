@@ -22,7 +22,7 @@
 - [Federal and state directories](docs/Federal_Directory.md)
   - See also [USAGov Directories module](#usagov-directories)
 - [Redirects](docs/redirects.md)
-- [MinIO for local dev](docs/MinIO_for_Dev.md): You probably won't need this unless you're modifying the MinIO setup
+- [Local S3 for dev](docs/Local_S3_for_Dev.md): How the local stand-in for the S3 bucket (SeaweedFS) works, loading public files, and moving over from MinIO
 
 ## Custom modules with useful documentation
 ### USAGov directories
