@@ -85,6 +85,7 @@
         "onelogin/php-saml": "^4",
         "phpoffice/phpspreadsheet": "^3.10",
         "predis/predis": "^2.4",
+        "symfony/cache": "^7.4",
         "wikimedia/composer-merge-plugin": "^2.0.0"
     },
     "conflict": {

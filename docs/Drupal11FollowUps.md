@@ -13,7 +13,9 @@ the **action** (or trigger to revisit), and **refs**.
 
 ## Before or at deploy
 
-- [ ] **1. `symfony/cache` is held at 7.4 only by the lock file.**
+- [x] **1. `symfony/cache` is held at 7.4 only by the lock file.** Resolved in
+  USAGOV-2961: `"symfony/cache": "^7.4"` added to `require`. Remove it once the runtime is
+  PHP 8.4+.
   - What: `drush` 13.8's new dependency `consolidation/self-update` accepts
     `symfony/cache` `^8`, and 8.x requires PHP ≥ 8.4. The bump pinned it to 7.4.23 with a
     one-off `composer update symfony/cache --with symfony/cache:^7.4`; nothing in
