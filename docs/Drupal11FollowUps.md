@@ -74,6 +74,15 @@ the **action** (or trigger to revisit), and **refs**.
   - Action: confirm who consumes the export. If the old format matters, adjust the
     `views.view.federal_directory_export` field rewrite or template to emit the D10 format,
     and verify against the D10 file.
+  - 2026-11-17:
+    - Parsed as CSV, both files have 608 rows, 25 columns and the same header. Every cell is
+      identical once whitespace is ignored; only line breaks differ, in Website (607
+      cells), Contact (507) and Find an Office Near You (114). Reviewed in Google Sheets
+      before the PR.
+    - The same view's JSON displays power the agency-index search-as-you-type
+      (`searchbar.js`). They are **byte-identical** on D10 and D11
+      (`/sites/default/files/directory_report_federal`, `_es`), and a browser test of
+      `/agency-index` ("commerce", "homeland security") passes on D11.
 
 - [ ] **22. 41 paths are both a redirect source and an active alias, so static output is
   order-dependent.**
