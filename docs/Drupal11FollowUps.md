@@ -51,12 +51,58 @@ the **action** (or trigger to revisit), and **refs**.
   - Refs: `web/sites/default/settings.php` (redis block), `scripts/tome-static.sh`,
     `scripts/tome-sync.sh`.
 
-- [ ] **4. Local Tome static build diff not run.**
-  - What: the D10/D11 comparison used anonymous page renders (475 paths), not a full
-    `tome-static.sh` build.
-  - Risk: low (Tome captures the same HTML), but the build/sync steps themselves weren't
-    exercised on D11.
-  - Action: run a full static build on D10 and D11 and `diff -r` the output.
+- [x] **4. Local Tome static build diff.** Done 2026-11-17. A full `drush tome:static`
+  build ran on D10 and on D11, from the same database, with no errors: 2,617 files on D10,
+  2,602 on D11.
+  - File-set differences are core assets only: 15 `system` component CSS files and icons
+    are gone in D11, and `item-list.module.css` moved to `core/misc/components/`.
+  - After normalizing asset versions and cache-busters, the content differences are:
+    - the known D11 core markup changes;
+    - `core/misc/drupal.js` and `views.module.css` (core assets);
+    - item 21 (the federal directory CSV);
+    - 22 redirect-stub pages, all explained by item 22.
+  - Tome must be run as production does (`cd web && drush tome:static …`). With
+    `drush --root=…`, Tome builds a broken worker command and every worker fails (item 24).
+
+- [ ] **21. Federal directory CSV export formatting changed on D11.**
+  - What: in `/admin/directory_report_federal.csv` (EN and ES, published on the static
+    site), the multi-value "Contact" link column changes from `  URL, Title` on one
+    indented line (D10) to `URL`, a line break, then `, Title` (D11). Same data, still valid
+    CSV (the values are quoted); 2,637 vs 4,056 physical lines.
+  - Risk: anything parsing that column's text (downstream consumers of the export) sees
+    different line breaks.
+  - Action: confirm who consumes the export. If the old format matters, adjust the
+    `views.view.federal_directory_export` field rewrite or template to emit the D10 format,
+    and verify against the D10 file.
+
+- [ ] **22. 41 paths are both a redirect source and an active alias, so static output is
+  order-dependent.**
+  - What: for example, node 946 has two active English aliases. The old one,
+    `/agencies/public-diplomacy-and-public-affairs`, is also the source of a redirect to the
+    node. Tome writes that path both as a page and as a redirect stub, and the last writer
+    wins, so a page, a redirect, or a stub pointing at itself can appear in different builds.
+    All 22 unexplained page differences between the D10 and D11 builds are in this set.
+    This is not a D11 regression: outside Tome, both versions resolve alias and redirect
+    identically.
+  - Risk: a redirect loop or stale duplicate page on the static site, varying per build.
+    The Spanish paths are lower impact, since `/es` is redirected to English (USAGOV-2946).
+  - Action: clean up the data. For each conflict, delete the old alias (keeping the
+    redirect) or delete the redirect. Query: redirect sources joined to active `path_alias`
+    rows with the same alias and langcode.
+
+- [ ] **23. An in-place D11 → D10 downgrade needs `symfony/runtime` in `allow-plugins`.**
+  - What: with D11's vendor installed, `composer install` on `dev` refuses to run because
+    the installed `symfony/runtime` plugin isn't allowed in `dev`'s `composer.json`.
+  - Risk: a rollback that reuses an existing `vendor/` fails. Fresh image builds are fine.
+  - Action: if a rollback re-uses vendor, temporarily set
+    `allow-plugins.symfony/runtime: false` (or delete `vendor/`) first. Note it in the
+    production rollback plan.
+
+- [ ] **24. Tome breaks when drush is called with `--root`.**
+  - What: `drush --root=/var/www/web tome:static` makes Tome launch its workers with
+    `'drush.php --root=…'` as a single quoted command, which fails ("not found").
+    Production's `tome-static.sh` calls plain `drush` from `web/` and works.
+  - Action: none for production; documented so nobody "fixes" the scripts to use `--root`.
 
 ## Planned follow-ups
 
