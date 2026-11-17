@@ -1,0 +1,13 @@
+diff --git a/src/Cache/CacheBase.php b/src/Cache/CacheBase.php
+index 696f4cb..ebe56f8 100644
+--- a/src/Cache/CacheBase.php
++++ b/src/Cache/CacheBase.php
+@@ -180,7 +180,7 @@ abstract class CacheBase implements CacheBackendInterface {
+    * {@inheritdoc}
+    */
+   public function deleteMultiple(array $cids) {
+-    $in_transaction = \Drupal::database()->inTransaction();
++    $in_transaction = \Drupal::hasContainer() && \Drupal::database()->inTransaction();
+     if ($in_transaction) {
+       if (empty($this->delayedDeletions)) {
+         if (method_exists(\Drupal::database(), 'transactionManager')) {

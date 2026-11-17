@@ -4,6 +4,8 @@ status: true
 dependencies:
   content:
     - 'block_content:html_block:ba151291-a004-469d-9192-deb7730e19df'
+    - 'taxonomy_term:page_type:07e931fb-6ebb-42dc-bed1-b0eeb417517a'
+    - 'taxonomy_term:page_type:e81abe40-3c39-4457-a5de-265513e423be'
   module:
     - block_content
     - language
@@ -23,8 +25,6 @@ settings:
   label: 'Top Nav Mobile'
   label_display: '0'
   provider: block_content
-  status: true
-  info: ''
   view_mode: full
 visibility:
   language:
@@ -45,6 +45,7 @@ visibility:
     term_uuids:
       - 07e931fb-6ebb-42dc-bed1-b0eeb417517a
       - e81abe40-3c39-4457-a5de-265513e423be
+    require_all_terms: false
   'entity_bundle:node':
     id: 'entity_bundle:node'
     negate: false

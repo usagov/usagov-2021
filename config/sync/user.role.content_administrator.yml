@@ -3,7 +3,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - config_pages.type.blog_intro
     - block_content.type.modal
     - media.type.audio
     - media.type.file
@@ -12,12 +11,12 @@ dependencies:
     - media.type.video
     - node.type.agency_synonym
     - node.type.basic_page
-    - node.type.blog_post
     - node.type.bears_agency
     - node.type.bears_benefit
     - node.type.bears_criteria
     - node.type.bears_life_event
     - node.type.bears_life_event_form
+    - node.type.blog_post
     - node.type.directory_record
     - node.type.state_directory_record
     - node.type.wizard
@@ -184,6 +183,7 @@ permissions:
   - 'edit site_banner config page entity'
   - 'edit terms in benefits_category'
   - 'edit terms in wizard'
+  - 'rebuild node access permissions'
   - 'revert agency_synonym revisions'
   - 'revert all revisions'
   - 'revert any modal block content revisions'

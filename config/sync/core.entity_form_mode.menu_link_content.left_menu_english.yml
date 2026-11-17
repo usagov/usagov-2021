@@ -6,6 +6,6 @@ dependencies:
     - menu_link_content
 id: menu_link_content.left_menu_english
 label: left-menu-english
-description: ''
+description: null
 targetEntityType: menu_link_content
 cache: true

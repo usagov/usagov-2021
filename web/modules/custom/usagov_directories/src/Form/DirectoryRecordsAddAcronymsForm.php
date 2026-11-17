@@ -18,8 +18,8 @@ class DirectoryRecordsAddAcronymsForm extends FormBase {
     protected EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
-  public static function create(ContainerInterface $container): self {
-    return new self(
+  public static function create(ContainerInterface $container): static {
+    return new static(
       entityTypeManager: $container->get('entity_type.manager'),
     );
   }

@@ -18,8 +18,8 @@ class BenefitCategorySearchForm extends FormBase {
     protected StateInterface $state,
   ) {}
 
-  public static function create(ContainerInterface $container): self {
-    return new self(
+  public static function create(ContainerInterface $container): static {
+    return new static(
       state: $container->get('state'),
     );
   }

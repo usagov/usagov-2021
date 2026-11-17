@@ -28,9 +28,9 @@
         "drupal/config_split": "^2.0.2",
         "drupal/content_lock": "^3.0",
         "drupal/content_moderation_notifications": "^3.4",
-        "drupal/core-composer-scaffold": "10.6.20",
-        "drupal/core-project-message": "10.6.20",
-        "drupal/core-recommended": "10.6.20",
+        "drupal/core-composer-scaffold": "11.4.12",
+        "drupal/core-project-message": "11.4.12",
+        "drupal/core-recommended": "11.4.12",
         "drupal/ctools": "^4.1",
         "drupal/devel": "^5.3",
         "drupal/diff": "^2.1",
@@ -53,7 +53,7 @@
         "drupal/menu_breadcrumb": "^2.0",
         "drupal/menu_item_fields": "^1.10",
         "drupal/new_relic_rpm": "^2.3.0",
-        "drupal/node_menus": "^3.0@alpha",
+        "drupal/node_menus": "dev-3.x#1a05015a264176644124a8a1a270837bdc76effc",
         "drupal/paragraphs_entity_embed": "^4.0.0",
         "drupal/pathauto": "^1.8",
         "drupal/permission_spreadsheet": "^2.1",
@@ -76,7 +76,7 @@
         "drupal/uswds_ckeditor_integration": "^3.2",
         "drupal/uswds_paragraph_components": "^3.0",
         "drupal/views_data_export": "^1.4",
-        "drupal/views_menu_children_filter": "^3.0@RC",
+        "drupal/views_menu_children_filter": "^4.0",
         "drupal/viewsreference": "^2.0@beta",
         "drush/drush": "^13",
         "masterminds/html5": "^2.0",
@@ -106,7 +106,8 @@
             "drupal/core-project-message": true,
             "wikimedia/composer-merge-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "symfony/runtime": true
         }
     },
     "extra": {
@@ -165,7 +166,8 @@
             },
             "drupal/redis": {
                 "Support TLS for Predis": "https://www.drupal.org/files/issues/2021-11-19/redis-support_tls_on_predis-3004561-37.patch",
-                "Don't rely on presence of redis CONFIG command (disabled in AWS)": "https://www.drupal.org/files/issues/2024-09-25/3173988-28.patch"
+                "Don't rely on presence of redis CONFIG command (disabled in AWS)": "https://www.drupal.org/files/issues/2024-09-25/3173988-28.patch",
+                "Guard deleteMultiple() for D11 container compile (same fix as redis 1.11; drop when upgrading redis)": "./patches/drupal/redis-container-guard-d11.patch"
             },
             "drupal/content_lock": {
                 "Fix preview button and submit button access": "./patches/drupal/content_lock-preview-button-lock-release.patch"
@@ -174,7 +176,7 @@
     },
     "require-dev": {
         "drupal/coder": "^8.3",
-        "drupal/upgrade_status": "5.0.0-alpha3",
+        "mglaman/phpstan-drupal": "^2.0",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpstan/phpstan": "*",

@@ -64,6 +64,7 @@ permissions:
   - 'edit own bears_life_event content'
   - 'edit own bears_life_event_form content'
   - 'edit terms in bears_tags'
+  - 'rebuild node access permissions'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
   - 'revert bears_criteria revisions'
