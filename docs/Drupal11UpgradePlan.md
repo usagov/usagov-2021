@@ -248,6 +248,56 @@ the 3.x markup (deleting the pins, then visual QA) is an optional follow-up.
 Steps 2–5 land on `dev` ahead of the core bump. Step 6 onward is the core bump itself: it touches
 the lockfile and the database, and the snapshot from step 1 is the undo.
 
+## Core bump outcome (USAGOV-2961, 2026-11-17)
+
+Steps 6–12 are done on `USAGOV-2961-drupal-11-core-bump`. Two contrib modules that
+declare `^11` still failed at runtime on 11.4, so neither `composer prohibits` nor
+`upgrade_status` could have flagged them:
+
+- **`redis` 1.9.0**: 11.2+ clears cache bins while compiling the container, and
+  `CacheBase::deleteMultiple()` calls `\Drupal::database()` before one exists, so
+  Drupal can't bootstrap. Fixed with a one-line patch
+  (`redis-container-guard-d11.patch`, the same `\Drupal::hasContainer()` guard as
+  redis 1.11). Upgrading to 1.11 instead needs our TLS-for-Predis patch rebased
+  (production uses `scheme: tls`), so that's a separate follow-up; drop this patch then.
+- **`views_menu_children_filter` 3.0.0-rc4**: its join plugin's `create()` signature
+  is fatal against 11.4's `PluginBase::create()`. Upgraded to 4.0.2 (also supports
+  `^10.5`); `correctMenuChildren_d10.patch` applies unchanged.
+
+Other changes the bump needed:
+
+- **Composer.** `symfony/cache` held at 7.4: drush 13.8's new `consolidation/self-update`
+  allows 8.x, which needs PHP 8.4, and `bin/composer` ignores platform requirements, so
+  every locked package's `php` requirement was checked against 8.3.36 (all pass).
+  `symfony/runtime` (now a core dependency) added to `allow-plugins`, as in Drupal's
+  recommended-project. `upgrade_status` removed; `mglaman/phpstan-drupal` now required
+  directly because `phpstan.neon` loads it and it had only come in through `upgrade_status`.
+- **Code.** Front-page `og:url` got a double slash (`html.html.twig`'s `ends with` no
+  longer matches rendered markup on 11); six forms' `create()` now return `static`
+  (D11's stricter interface docs); the `menu.active_trail` proxy is regenerated
+  (`destruct(): void`).
+- **Config.** Exported after `drush updb` (not `cim` first, which would revert the
+  update hooks): block `depth: null`, views settings defaults, role dependency
+  recalculation plus `rebuild node access permissions` for roles that administer nodes
+  (no permission lost), `system.rss` and `field.settings` removed, `update.settings`
+  created.
+
+**Verification against the D10 baseline** (same 475-path sample, logged-in pages,
+`/user/login`): status codes identical; every HTML difference is a D11 core change —
+asset version strings and jQuery 3.7.1 → 4.0.0, removed `system` component CSS, views
+blocks moving `views-element-container` onto an inner `<div>`, the admin toolbar
+rendering its menu inline, and `aria-required` dropped from `required` inputs. No custom
+CSS, JS or template targets `views-element-container`, and no custom JS uses an API
+jQuery 4 removed. `usapubcsv` is identical (1,628 lines). Cypress regression: 62 pass;
+the 2 `homepage.cy.js` failures are the pre-existing local asset 404s. phpstan: 28
+findings (27 on D10, plus one docblock-precision note from the newer
+`phpstan-drupal`), no deprecations. `upgrade_status` on D11: 0 "Fix now" in custom
+code (remaining items are D12 notes). The pre-existing
+`block_content.field_place_above_header` definition mismatch (left over from
+USAGOV-1685) still shows in the status report. **Not yet done:** a full Tome static
+build diff (the page diff covers the same HTML), and testing on the cloud.gov
+test/DR environments.
+
 ## Anticipated problems
 
 - **Symfony 6.4 → 7.4** under core will surface conflicts in packages that are not
