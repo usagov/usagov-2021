@@ -1,4 +1,4 @@
-# Drupal 10.6.20 → 11.4.11 Upgrade Plan
+# Drupal 10.6.20 → 11.4.12 Upgrade Plan
 
 Ticket: USAGOV-2511
 
@@ -9,15 +9,17 @@ Core has since moved to 10.6.20 (USAGOV-2930).
 
 ## Target version
 
-Core 11.4.11, the latest 11.4 patch release. It satisfies `s3fs`'s banded core
-constraint (`>=11.4.3 <11.5`), the 11.2 hook-ordering floor `node_menus` 3.x-dev
-needs, and includes the SA-CORE-2026-013 fix (11.4.7+). 11.5 is excluded by `s3fs`.
+Core 11.4.12, the latest 11.4 patch release (retargeted from 11.4.11 on 2026-11-17).
+It satisfies `s3fs`'s banded core constraint (`>=11.4.3 <11.5`), the 11.2
+hook-ordering floor `node_menus` 3.x-dev needs, and includes the SA-CORE-2026-013 fix
+(11.4.7+). 11.5 is excluded by `s3fs`.
 
 ## Scope of this document
 
-This is the preparation and planning phase. It records what the upgrade requires,
-what is already known to break, and the order of operations. No core bump, contrib
-bump, or database change has been performed.
+This records what the upgrade requires, what was found to break, and the order of
+operations. **All D10-compatible preparation is complete and merged to `dev`** (see
+"Final D10 verification" below); the remaining work is the core bump itself
+(USAGOV-2961), which carries this document.
 
 ## Preparation already committed
 
@@ -31,12 +33,12 @@ module once the upgrade is complete.
 
 ## Compatibility verdict
 
-| Requirement | Needed for 11.4.7 | Current | Status |
+| Requirement | Needed for 11.4.12 | Current | Status |
 | --- | --- | --- | --- |
-| PHP | `>= 8.3.0` | 8.3.29 | OK |
+| PHP | `>= 8.3.0` | 8.3.36 | OK |
 | PHP extensions | 14 required | all present | OK |
 | MariaDB | `>= 10.6` | 11.4 | OK |
-| Drush | 13 supports D11 | 13.7.6 | OK |
+| Drush | 13 supports D11 | 13.7.7 | OK |
 
 No platform or container work is required. This is purely a dependency and code
 upgrade.
@@ -56,8 +58,8 @@ does not report it), is fixed in USAGOV-2906:
 | ~~`core_version_requirement` capped at `^10`~~ | 22 `.info.yml` files | **Done** — all set to `^10 \|\| ^11` in USAGOV-2903 (#2901). Originally 26; 4 were removed with Benefit Finder (USAGOV-2833). |
 | ~~`DependencySerializationTrait` with `private` properties~~ | 8 files | **Done** in USAGOV-2906 (#2904; file list there). 8 properties changed to `protected`. `BenefitCategorySearchForm` and `ToggleStaticSiteGenerationForm` had a `$log_channel` from `logger.factory->get()` that could not be serialized; they now log through `FormBase`'s `getLogger()` instead. All 8 classes pass a serialize round-trip. |
 | ~~`ConfigFormBase` subclasses call `parent::__construct($config_factory)` without `$typedConfigManager`~~ | 2 — `LoginSettingsForm`, `OrphanedEntitiesSettings` | **Done** in USAGOV-2906 (#2904). Both now inject `config.typed` and pass it to the parent constructor. `OrphanedEntitiesSettings` no longer redeclares the untyped `$typedConfigManager`. The 10.2 deprecation is gone, and both forms save without errors. |
-| ~~Twig `spaceless` filter~~ | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. **In review** (USAGOV-2949, #2949): replaced with `\|render\|trim\|raw` on the city field; output byte-identical. |
-| ~~`wizardstep` library missing extension name~~ | 1 template | **In review** (USAGOV-2949, #2949): now `usagov/wizardstep`. |
+| ~~Twig `spaceless` filter~~ | 1 — `node--state-directory-record--full.html.twig:48` | Deprecated in Twig 3.12, removed in Twig 4. **Done** (USAGOV-2949, #2949): replaced with `\|render\|trim\|raw` on the city field; output byte-identical. |
+| ~~`wizardstep` library missing extension name~~ | 1 template | **Done** (USAGOV-2949, #2949): now `usagov/wizardstep`. |
 | phpstan findings in `usagov_directories/utility/*.php` | ~12 | Standalone CLI scripts, not Drupal runtime. Pre-existing, unrelated to D11. |
 | Duplicate array keys — `StaticImageSyncCommands.php:438,440` | 2 | Real bug, pre-existing, unrelated to D11. |
 
@@ -65,7 +67,7 @@ does not report it), is fixed in USAGOV-2906:
 
 Twelve modules blocked `drupal/core` 11.4.7 at assessment time. All have D11-compatible
 releases available. The four low-risk ones are done (USAGOV-2900, #2896), and `ctools`, `faqfield`,
-`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934). `content_lock` is in review (USAGOV-2950, #2950); `uswds_base` and `node_menus` remain.
+`paragraphs_entity_embed` and `address` are done (USAGOV-2907, #2905), and `log_stdout` is done (USAGOV-2942, #2934). `content_lock` (USAGOV-2950, #2950) and `uswds_base` (USAGOV-2953, #2952) are done; only `node_menus` remains, and it ships with the core bump.
 
 `content_lock`, `uswds_base` and `log_stdout` all allow `^10` at their targets, so
 each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
@@ -74,13 +76,13 @@ each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
 | Module | Current | Target | Core constraint at target | Risk |
 | --- | --- | --- | --- | --- |
 | ~~`address`~~ | ~~1.12.0~~ removed | ~~2.0.4~~ | — | major — **Removed** (unused; USAGOV-2907, #2905) |
-| `content_lock` | 2.4.0 | 3.0.0 | `^10.2 \|\| ^11` | major, plus patch rewrite — **In review** (USAGOV-2950, #2950) |
+| ~~`content_lock`~~ | ~~2.4.0~~ 3.0.0 | 3.0.0 | `^10.2 \|\| ^11` | major, plus patch rewrite — **Done** (USAGOV-2950, #2950) |
 | ~~`ctools`~~ | ~~3.15.0~~ 4.1.1 | 4.1.1 | `^9.5 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`faqfield`~~ | ~~7.1.0~~ 8.0.1 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
-| `uswds_base` | 2.15.0 | 3.12.1 | `^10 \|\| ^11` | major, theme |
+| ~~`uswds_base`~~ | ~~2.15.0~~ 3.12.1 | 3.12.1 | `^10 \|\| ^11` | major, theme — **Done** (USAGOV-2953, #2952); 2.15 markup pinned in `usagov` |
 | ~~`log_stdout`~~ | ~~1.5.0~~ 3.0.0 | 3.0.0 | `^8.8 \|\| ^9 \|\| ^10 \|\| ^11` | major ×2 — **Done** (USAGOV-2942, #2934); config needs `severity_level: 7` |
-| `node_menus` | 3.0.0 | `3.x-dev` | `^11.2 \|\| ^12` | no stable D11 release; ships with the core bump |
+| `node_menus` | 3.0.0 | `dev-3.x#1a05015a` | `^11.2 \|\| ^12` | no stable D11 release; ships with the core bump (USAGOV-2961), pinned to a commit |
 | ~~`field_defaults`~~ | ~~2.0.0~~ 2.1.1 | 2.1.1 | `^10.0 \|\| ^11.0` | low — **Done** (USAGOV-2900, #2896) |
 | ~~`image_style_warmer`~~ | ~~1.2.0~~ 1.3.0 | 1.3.0 | `^9 \|\| ^10 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
 | ~~`new_relic_rpm`~~ | ~~2.1.1~~ 2.3.0 | 2.3.0 | `^10.1 \|\| ^11` | low — **Done** (USAGOV-2900, #2896) |
@@ -92,12 +94,13 @@ Only `3.x-dev` declares `^11`. The project already sets `minimum-stability: dev`
 so this resolves, but it means shipping a dev branch of a module that is
 load-bearing for menu behaviour here — it is tied to the `usagov_menus` custom
 module, including the mlid-ordered active trail that replaces the `correctActiveTrail`
-core patch. **Open decision:** accept the dev
-branch, pin to a specific commit, or fork.
+core patch. **Decided (2026-11-17):** pin to the current `dev-3.x` head,
+`dev-3.x#1a05015a264176644124a8a1a270837bdc76effc`, for reproducible builds; updating
+it later is a deliberate change.
 
 ### `s3fs` has a narrow, gapped constraint
 
-`>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.11
+`>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.12
 falls in the final window, so it resolves. 3.12.0 carries the same constraint. This module has historically lagged core
 point releases, and it will constrain which core patch versions can be taken.
 Already at 3.11.0 (USAGOV-2900); the constraint still applies when choosing the core
@@ -109,9 +112,9 @@ Three of nine referenced patches need work.
 
 | Patch | Package | Status |
 | --- | --- | --- |
-| `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941, #2933, in review); no rebase. |
-| `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. **Dropped** instead of rebased (USAGOV-2951, #2951, in review). |
-| `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Ported to 3.0's `src/Hook/FormAlter.php` (USAGOV-2950, #2950, in review). |
+| `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941, #2933, **done**); no rebase. |
+| `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. **Dropped** instead of rebased (USAGOV-2951, #2951, **done**). |
+| `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Ported to 3.0's `src/Hook/FormAlter.php` (USAGOV-2950, #2950, **done**). |
 | `correctMenuChildren_d10.patch` | views_menu_children_filter | OK — package version unchanged. |
 | `autologout-multitab-timeout-fix.patch` | autologout | OK — version unchanged. |
 | `tomeAggregationFix.patch` | tome | OK — version unchanged. |
@@ -123,7 +126,7 @@ Three of nine referenced patches need work.
 
 The patch makes the active trail pick the original `node_menus` link (lowest `mlid`)
 over "false children", by threading a `$sort_order` argument through
-`MenuLinkManager` and `MenuTreeStorage(Interface)`. Against 11.4.11 it fails on
+`MenuLinkManager` and `MenuTreeStorage(Interface)`. Against 11.4.x it fails on
 context drift: D11 restructured `MenuActiveTrail::getActiveLink()` to add `<front>`
 handling via `pathMatcher->isFrontPage()` and to select the first *enabled* link.
 
@@ -137,12 +140,23 @@ unchanged on 10.6 and 11.4, so it ships and is tested on D10:
   `correctMenuChildren_d10.patch` call keeps working unchanged.
 - The `MenuActiveTrail` subclass uses D11's logic (route links, then `<front>` links
   on the front page, first enabled link wins), with both lookups sorted by `mlid`.
+  Unlike core, if no link is enabled the route's first link by `mlid` still wins, so
+  pages kept out of the menu with a disabled link (error and thank-you pages) keep
+  their trail; a disabled `<front>` link never wins.
+- `menu_breadcrumb`'s builder is swapped for a subclass whose `applies()` (copied from
+  menu_breadcrumb 2.0.1) builds its derived trail with the `usagov_menus` class.
+  `derived_active_trail` stays `true` because `drush usapubcsv` builds breadcrumbs per
+  node. Re-diff it whenever menu_breadcrumb is updated.
+- `menu.active_trail` is a lazy service, so its generated proxy class lives in
+  `usagov_menus/src/ProxyClass`; regenerate it if the class's public methods change.
 
-The core patch and its `composer.json` entry are removed in the same change.
+The core patch and its `composer.json` entry are removed in the same change
+(USAGOV-2941, #2933, **done**). Verified byte-identical on 256 pages and the
+1,628-line `usapubcsv` export.
 
 ### `viewsSuggestions-10_3.patch`
 
-**Dropped** on D10 in USAGOV-2951 (#2951, in review) instead of rebased. Its only
+**Dropped** on D10 in USAGOV-2951 (#2951, **done**) instead of rebased. Its only
 effect was listing per-view/per-display template suggestions in Twig debug output
 (a developer aid); rendered pages are byte-identical without it, and Views still uses
 those templates when they exist. With `correctActiveTrail` also gone (USAGOV-2941),
@@ -167,7 +181,7 @@ submodule. Run `drush updb` before `drush cim`.
 
 `removeDependencies.patch`, `samlauthForceHttps.patch`, and
 `taxonomy_revision_log.patch` exist in `patches/drupal/` but are referenced nowhere
-in `composer.json`. **In review**: deleted in USAGOV-2949 (#2949).
+in `composer.json`. **Done**: deleted in USAGOV-2949 (#2949).
 
 ## The `uswds_base` 2.x → 3.x jump
 
@@ -187,12 +201,21 @@ already shadows. The exposure is the templates `usagov` does *not* override, plu
 any library or region naming changes between 2.x and 3.x. Budget real visual QA
 time; do not assume this is clean.
 
+**Outcome (USAGOV-2953, #2952, done):** regions and the `framework` library are
+unchanged, and `usagov` doesn't use the CDN settings. 3.12.1 changes 14 templates
+`usagov` inherits and a handful of preprocess functions, but on a 475-page sample only
+four changed output, and each is pinned to its 2.15 form in `usagov`:
+`templates/uswds-base-2.15-pins/` (`field`, `block--page-title-block`,
+`region--sidebar_first`) and `preprocess/form_element_label.preprocess.inc` (required
+label class). Rendered output is byte-identical, so no visual QA was needed. Adopting
+the 3.x markup (deleting the pins, then visual QA) is an optional follow-up.
+
 ## Execution sequence
 
 1. **Prep.** Confirm branch, take a database snapshot (`bin/db-export`), verify
    `bin/` tooling.
 2. ~~**Rebase `viewsSuggestions-10_3.patch`**~~ **Dropped** instead (USAGOV-2951,
-   #2951, in review). No core patches remain: `correctActiveTrail` is replaced by
+   #2951, done). No core patches remain: `correctActiveTrail` is replaced by
    `usagov_menus` code (step 5) and the `content_lock` patch is ported with its 3.0
    upgrade (step 5).
 3. ~~**Bump `core_version_requirement`** to include `^11` across all 26 `.info.yml`
@@ -200,14 +223,16 @@ time; do not assume this is clean.
 4. ~~**Change the 8 `private` properties to `protected`** in classes using
    `DependencySerializationTrait`.~~ **Done** in USAGOV-2906 (#2904), together with
    the `ConfigFormBase` constructor fix.
-5. **Finish the D10-compatible work**, each as its own ticket on 10.6.20:
-   - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941, #2933, in review).
-   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch rewritten (USAGOV-2950, #2950, in review).
-   - Cleanup: Twig `spaceless`, `wizardstep` library name, orphaned patches (USAGOV-2949, #2949, in review).
-   - ~~`log_stdout` 1.5.0 → 3.0.0.~~ **Done** (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
-   - `uswds_base` 2.15.0 → 3.12.1, with visual QA.
-6. **Bump `composer.json`**: the three core packages to `11.4.11`, `node_menus` to
-   `3.x-dev`. No core patches to swap.
+5. ~~**Finish the D10-compatible work**, each as its own ticket on 10.6.20.~~ **Done**, all merged to `dev`:
+   - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941, #2933).
+   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch ported (USAGOV-2950, #2950).
+   - Cleanup: Twig `spaceless`, `wizardstep` library name, orphaned patches (USAGOV-2949, #2949).
+   - `log_stdout` 1.5.0 → 3.0.0 (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
+   - `uswds_base` 2.15.0 → 3.12.1 (USAGOV-2953, #2952). 2.15 markup pinned in `usagov`, so output is byte-identical.
+   - Drop `viewsSuggestions-10_3.patch` (USAGOV-2951, #2951). Core now carries no custom patches.
+6. **Bump `composer.json`** (USAGOV-2961): the three core packages to `11.4.12`,
+   `node_menus` to `dev-3.x#1a05015a264176644124a8a1a270837bdc76effc`. No core patches
+   to swap.
 7. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
    6.4 → 7.4 underneath core is a large jump.
 8. **`drush updb`**, then **`drush cr`**.
@@ -238,6 +263,30 @@ the lockfile and the database, and the snapshot from step 1 is the undo.
 - **`content_lock` 3.0** converted to OOP hooks. Any custom code calling its
   procedural API will break.
 
+## Final D10 verification (2026-11-17)
+
+Run on a clean checkout of `dev` @ `beb4e9db3` (all prep PRs merged), with the local
+site synced (`composer install`, `drush updb`, `drush cim`; config in sync):
+
+- **Blockers.** `composer prohibits drupal/core 11.4.12` lists only `node_menus`
+  (ships with the bump). Everything else it lists is core's own Symfony 7.4 and
+  `masterminds/html5` requirements, resolved by the bump.
+- **Core patches.** None; `web/core` is pristine 10.6.20.
+- **`upgrade_status` 5.0.0-alpha3**, all installed projects: **0 "Fix now"**.
+  - Custom code: only the pre-existing duplicate array keys in
+    `StaticImageSyncCommands.php:438,440` (not a D11 issue).
+  - Contrib items marked "removed in 11.0": 13 `loadRevision()`/`deleteRevision()` calls
+    in `entity_reference_revisions` and `paragraphs_library`. They are typed against
+    `EntityStorageInterface`, but the storages they use implement
+    `RevisionableStorageInterface`, which still has both methods in 11.4.12, so they
+    work at runtime. Both modules declare `^11`.
+  - The rest of the "Check manually" items are D11-only attributes (expected on D10),
+    deprecations removed only in D12, advisory messages, and contrib test code
+    (PHPUnit is not installed).
+- **phpstan** (project config, with deprecation rules): **no deprecation findings** in
+  custom code. Its 27 other findings are pre-existing code-quality issues; none affect
+  D11.
+
 ## Rollback
 
 `git checkout dev` plus restoring the database snapshot reverts everything. No
@@ -246,8 +295,8 @@ and the local database.
 
 ## Open decisions
 
-1. Is `node_menus` on `3.x-dev` acceptable, or should it be pinned to a commit or
-   forked?
+1. ~~Is `node_menus` on `3.x-dev` acceptable, or should it be pinned to a commit or
+   forked?~~ **Resolved:** pinned to `dev-3.x#1a05015a264176644124a8a1a270837bdc76effc`.
 2. ~~Should the `['mlid' => 'ASC']` sort also apply to the new `<front>`
    `loadLinksByRoute()` call?~~ **Resolved:** yes, both lookups are sorted
    (USAGOV-2941).
