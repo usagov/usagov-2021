@@ -1,0 +1,150 @@
+# Drupal 11 upgrade: follow-up tracker
+
+Items that the D11 upgrade (USAGOV-2511, core bump USAGOV-2961) deferred, worked around
+or uncovered. Background and verification details are in
+[Drupal11UpgradePlan.md](Drupal11UpgradePlan.md).
+
+**How to use:** when an item is picked up, add its ticket/PR next to the title; when it is
+resolved, check the box and note how. Keep items that turn out to need no action, with the
+reason, rather than deleting them.
+
+Each item lists **what** it is, **why** it was left this way, the **risk** if ignored,
+the **action** (or trigger to revisit), and **refs**.
+
+## Before or at deploy
+
+- [ ] **1. `symfony/cache` is held at 7.4 only by the lock file.**
+  - What: `drush` 13.8's new dependency `consolidation/self-update` accepts
+    `symfony/cache` `^8`, and 8.x requires PHP ≥ 8.4. The bump pinned it to 7.4.23 with a
+    one-off `composer update symfony/cache --with symfony/cache:^7.4`; nothing in
+    `composer.json` keeps it there.
+  - Risk: the next broad `composer update` pulls 8.x again (see item 2), and Drush's
+    self-update code fatals on the PHP 8.3 runtime.
+  - Action: add `"symfony/cache": "^7.4"` to `require` until the runtime is PHP 8.4+, then
+    remove it.
+  - Refs: `composer.json`, `composer.lock`; USAGOV-2961.
+
+- [ ] **2. `bin/composer` ignores all platform requirements.**
+  - What: `bin/composer` runs `composer … --ignore-platform-reqs` in the composer container
+    (PHP 8.5, no `ext-gd`), while the app runs PHP 8.3.36. Composer therefore never checks
+    package PHP requirements against our real runtime. This is how item 1 happened.
+  - Risk: any update can silently select packages that need a newer PHP.
+  - Action: set `config.platform.php` to the runtime version and replace the blanket flag
+    with `--ignore-platform-req=ext-gd` (or add `ext-gd` to the composer container). Until
+    then, after every update check each locked package's `php` requirement against the
+    runtime (see `.claude/d11-verify/` notes in the plan doc).
+  - Refs: `bin/composer`, `docker-compose.yml` (composer service).
+
+- [ ] **3. Verify on cloud.gov (test, then DR) before production.**
+  - What: local verification can't exercise these:
+    - Redis over **TLS** (production sets `scheme: tls`) with patched redis 1.9.0;
+    - s3fs file reads and uploads;
+    - SAML login;
+    - content_lock and autologout;
+    - a Tome static build and `tome-sync`;
+    - cron;
+    - the browser console under jQuery 4.0 (custom JS was scanned; contrib JS was not).
+  - Risk: a production-only failure in caching, files, login, or the static site.
+  - Action: test checklist on the test environment, then DR.
+  - Refs: `web/sites/default/settings.php` (redis block), `scripts/tome-static.sh`,
+    `scripts/tome-sync.sh`.
+
+- [ ] **4. Local Tome static build diff not run.**
+  - What: the D10/D11 comparison used anonymous page renders (475 paths), not a full
+    `tome-static.sh` build.
+  - Risk: low (Tome captures the same HTML), but the build/sync steps themselves weren't
+    exercised on D11.
+  - Action: run a full static build on D10 and D11 and `diff -r` the output.
+
+## Planned follow-ups
+
+- [ ] **5. redis is patched instead of upgraded.**
+  - What: redis 1.9.0 can't bootstrap on 11.2+ (it calls `\Drupal::database()` while the
+    container is being compiled). We added `patches/drupal/redis-container-guard-d11.patch`,
+    the same one-line `\Drupal::hasContainer()` guard redis 1.11 ships.
+  - Why: upgrading to 1.11 or 2.x needs our TLS-for-Predis patch rebased (it isn't upstream).
+    The CONFIG-command patch is only partly upstream in 1.11: `ReportController.php:270`
+    still reads `maxmemory_policy` unguarded.
+  - Action: upgrade redis, rebase the TLS patch, re-check the CONFIG patch, and **drop the
+    guard patch**. Test TLS on cloud.gov.
+  - Refs: `composer.json` → `extra.patches.drupal/redis`.
+
+- [ ] **6. `node_menus` is pinned to a dev commit.**
+  - What: only `dev-3.x` supports D11; pinned to
+    `dev-3.x#1a05015a264176644124a8a1a270837bdc76effc`.
+  - Action: watch for a tagged 3.x release with `^11`; move to it (or a newer pinned
+    commit) deliberately, with the menu/breadcrumb verification from the plan doc.
+
+- [x] **7. `views_menu_children_filter` 4.0.2 was folded into the bump.**
+  - What: 3.0.0-rc4 is fatal on 11.4 (`create()` signature); 4.0.2 also supports `^10.5`,
+    so strictly it was D10 prep work. Changes are minimal and `correctMenuChildren_d10.patch`
+    applies unchanged. No action; recorded for completeness.
+
+- [ ] **8. uswds_base 2.15 markup is pinned in `usagov`.**
+  - What: so the uswds_base 3.12.1 upgrade changed no output, these keep the 2.15 markup:
+    - `web/themes/custom/usagov/templates/uswds-base-2.15-pins/`: `field`,
+      `block--page-title-block` and `region--sidebar_first`;
+    - `web/themes/custom/usagov/preprocess/form_element_label.preprocess.inc`.
+  - Action: to adopt the 3.x markup, delete a pin and do visual QA. Each file says what
+    3.x would change.
+  - Refs: USAGOV-2953 (#2952).
+
+- [ ] **9. content_lock preview-button patch may be unnecessary.**
+  - What: `patches/drupal/content_lock-preview-button-lock-release.patch` (USAGOV-2626) was
+    ported to 3.0. Its original bug didn't reproduce, even on 2.4 without the patch; its
+    "Preview releases the lock" half still has an effect on 3.0.
+  - Action: get the original repro from Jacob Yeager; drop the patch if 3.0 no longer needs
+    it.
+  - Refs: USAGOV-2950 (#2950).
+
+- [ ] **10. Maintenance notes for `usagov_menus`.**
+  - `UsagovMenuBasedBreadcrumbBuilder::applies()` is a copy of menu_breadcrumb 2.0.1's;
+    re-diff it whenever menu_breadcrumb is updated.
+  - `src/ProxyClass/Menu/UsagovMenuActiveTrail.php` is generated; regenerate it
+    (`core/scripts/generate-proxy-class.php`) after core updates or when
+    `UsagovMenuActiveTrail`'s public methods change. It was regenerated for 11.4.
+  - `UsagovMenuActiveTrail` intentionally differs from core: when no link is enabled, the
+    route's first link by mlid still wins (error and thank-you pages need their trail).
+  - Refs: USAGOV-2941 (#2933).
+
+## Existing bugs and clean-up found during the upgrade
+
+- [ ] **11. Header logo `src` has the wrong filename case.** `top_nav.html.twig:6` uses
+  `USAGov_logo_51px.png`; the file is `USAGov_Logo_51px.png` (the `srcset` on line 8 is
+  correct). The fallback `src` 404s on case-sensitive Linux, including cloud.gov, and
+  Cypress `homepage.cy.js` BTE 2 fails on it.
+- [ ] **12. Orphaned field definition.** `block_content.field_place_above_header` was
+  removed from config in USAGOV-1685, but its installed definition remains, so the status
+  report shows "Mismatched entity and/or field definitions". Uninstall the stored definition.
+- [ ] **13. Duplicate array keys** in
+  `usagov_ssg_postprocessing/src/Drush/Commands/StaticImageSyncCommands.php:438,440`.
+- [ ] **14. Redundant `setPublished(FALSE)`** in
+  `usagov_unpub_es/src/Drush/Commands/UnpubCommand.php:87`. Harmless (it is followed by
+  `setUnpublished()`); remove for clarity.
+- [ ] **15. Config schema warnings.** D11's local lenient schema checker
+  (`web/sites/development.services.yml`) reports:
+  - `system.performance:stale_file_threshold` (missing schema);
+  - `views.view.samlauth_map`, `views.view.moderated_content`,
+    `views.view.user_admin_people` (stale or mistyped view options).
+- [ ] **16. phpstan: 28 findings.** These are existing code-quality findings, plus a
+  docblock-precision note in `usagov_wizard/src/MenuChecker.php:152` from
+  phpstan-drupal 2.2. Fix them or add a phpstan baseline so new findings stand out.
+- [ ] **17. `update.settings` exists only partially.** The site never had this config; a D11
+  post-update created it with just `notification.emails: {}`. Decide whether update-status
+  notifications should be configured.
+
+## Housekeeping and process
+
+- [ ] **18. Lock file churn from the composer container.** Its newer Composer adds
+  `published-time` entries and `plugin-api-version` 2.11 to `composer.lock`; these have been
+  stripped by hand on every D11 PR. Align the Composer version used by the team.
+- [ ] **19. Branches and PRs.**
+  - After the bump merges: close #2876 (superseded; the plan doc now travels with the
+    bump), and delete `USAGOV-2511-upgrade-prep`.
+  - Decide what to do with #2906 (the change-set overview).
+  - Delete the local D10 snapshot `d10-pre-bump.sql` once production is stable.
+- [ ] **20. Drupal 12 readiness (notes, no action yet).**
+  - `core_version_requirement` will need `^12`.
+  - Contrib deprecations removed in D12: feeds `FileSystemInterface::EXISTS_*`,
+    field_group `RenderElement`, faqfield's Twig `spaceless`.
+  - The uswds_base pins (item 8), and Twig 4.

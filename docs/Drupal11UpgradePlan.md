@@ -298,6 +298,9 @@ USAGOV-1685) still shows in the status report. **Not yet done:** a full Tome sta
 build diff (the page diff covers the same HTML), and testing on the cloud.gov
 test/DR environments.
 
+Deferred work, workarounds and pre-existing issues found along the way are tracked in
+[Drupal11FollowUps.md](Drupal11FollowUps.md).
+
 ## Anticipated problems
 
 - **Symfony 6.4 → 7.4** under core will surface conflicts in packages that are not
