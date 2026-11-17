@@ -288,35 +288,25 @@ header img {
   padding: 0 20px;
 }
 
-.header-dropdown {
-  flex: 0 0 100%;
-}
-
 .header-links {
   gap: 10px;
   font-size: 1.8rem;
   padding-top: 5px;
 }
 
-/* Tablet - move the dropdown right (770-1024px) */
+/* Tablet - move the links right (770-1024px) */
 @media screen and (min-width: 770px) {
   .header-logo {
     flex-grow: 1;
   }
 }
 
-/* Desktop   - move the links in line */
+/* Desktop - move the links in line */
 @media screen and (min-width: 1024px) {
   .header-right {
     margin-right: 10px;
     gap: 1em;
-    flex-grow: 1;
     padding: 0;
-  }
-
-  .header-dropdown {
-    flex-grow: 1;
-    flex-basis: auto;
   }
 
   .header-links {
@@ -340,40 +330,6 @@ h1 a {
 
 h1:visited {
   color: #112e51;
-}
-
-.agency-selector-wrap label {
-  position: absolute;
-  left: -999em;
-  width: 0;
-  margin: 0;
-}
-
-#agency-selector {
-  max-width: none;
-  font-weight: 600;
-  color: #112e51;
-  display: inline-block;
-  flex-grow: 1;
-}
-
-#agency-selector:focus {
-  box-shadow: none;
-  outline: 2px solid #0186a2;
-}
-
-@media screen and (max-width: 992px) {
-  #agency-selector {
-    font-size: 16px;
-  }
-}
-
-header #agency-selector {
-  background-image: url("../css/img/arrow-down.png");
-  background-image: url("../css/img/arrow-down.svg");
-  color: #fff;
-  background-color: #112e51;
-  border: 1px solid #fff;
 }
 
 /*
@@ -931,45 +887,6 @@ figure figure .bar-chart .bin {
 
 a {
   text-decoration: underline;
-}
-
-.select-agency-form {
-  display: flex;
-  gap: 10px;
-  height: 2.5em;
-  flex-wrap: nowrap;
-
-  label {
-    color: black;
-    width: 200px;
-    margin: auto;
-  }
-}
-
-.select-agency-form-button {
-  margin: 0.2em 0;
-  border: 2px solid #377f9d;
-  background-color: #ccecf2;
-  color: #1b1b1b;
-  font-size: 0.85em;
-
-  /* line-height: 1.5; */
-  border-radius: 0.15rem;
-  text-align: center;
-  /* transition: background-color 200ms; */
-  /* padding: .1rem 1.25rem;
-  height: 2.5rem; */
-}
-
-.select-agency-form-button:hover {
-  background-color: #009ec1;
-  color: #1b1b1b;
-  border: 1px solid #1b1b1b;
-}
-
-.select-agency-form-button:focus {
-  box-shadow: none;
-  outline: 2px solid #0186a2;
 }
 
 #chart_windows {
