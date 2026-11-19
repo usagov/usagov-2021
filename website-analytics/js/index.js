@@ -1182,25 +1182,4 @@
 
   // friendly console message
 
-// Set the dropdown
-// var dropDown = document.getElementById('agency-selector');
-
-// Start on change listener to load new page
-// d3.select(dropDown).on("change", function () {
-//   window.location= d3.select(this).property('value');
-// });
-
-// for (var j = 0; j < dropDown.options.length; j++) {
-//   if (dropDown.options[j].value === window.location.pathname){
-//     dropDown.selectedIndex = j;
-//     break;
-//   }
-// }
-
 })(this);
-
-function goToPage(){
-  var selectElement = document.getElementById("agency-selector");
-  var optionValue = String(selectElement.value).replace(/<\/?[^>]+(>|$)/g, ""); //sanitization to prevent XSS
-  window.location = optionValue;
-}

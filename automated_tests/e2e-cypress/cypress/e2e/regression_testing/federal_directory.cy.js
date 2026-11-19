@@ -1,4 +1,5 @@
-const paths = ["/agency-index", "/es/indice-agencias"];
+// USAGOV-2946: Spanish pages now redirect to English; /es paths removed.
+const paths = ["/agency-index"];
 
 paths.forEach(path => {
   let lang;

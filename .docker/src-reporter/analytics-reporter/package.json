@@ -97,5 +97,12 @@
   "snyk": true,
   "allowScripts": {
     "protobufjs@7.6.5": true
+  },
+  "overrides": {
+    "glob": "^14.0.6",
+    "minimatch": "^11.0.5",
+    "google-gax": {
+      "rimraf": "^6.1.4"
+    }
   }
 }
