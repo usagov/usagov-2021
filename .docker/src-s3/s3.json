@@ -1,0 +1,18 @@
+{
+  "identities": [
+    {
+      "name": "admin",
+      "credentials": [
+        {
+          "accessKey": "s3admin",
+          "secretKey": "s3adminsecret"
+        }
+      ],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write", "ReadAcp", "WriteAcp"]
+    },
+    {
+      "name": "anonymous",
+      "actions": ["Read:local"]
+    }
+  ]
+}
