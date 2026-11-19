@@ -107,12 +107,18 @@ the **action** (or trigger to revisit), and **refs**.
     `allow-plugins.symfony/runtime: false` (or delete `vendor/`) first. Note it in the
     production rollback plan.
 
-- [ ] **25. Core 11.4.13 is available.**
-  - What: 11.4.13 was released on 2026-11-18, after the bump was verified on 11.4.12. It has
-    no matching 10.6 release. When `dev` moved to 10.6.21 (USAGOV-2954), the bump stayed on
-    11.4.12, which is 10.6.21's D11 counterpart (both released 2026-11-06).
-  - Action: after the bump merges, move to the newest 11.4.x (still inside s3fs's
-    `>=11.4.3 <11.5`), with the page, CSV and Cypress checks from the plan doc.
+- [x] **25. Core 11.4.13 is available.** Resolved 2026-11-19: the bump now targets
+  11.4.13.
+  - What: 11.4.13 was released on 2026-11-18 with 10.6.22 as its D10 counterpart (same
+    security release). 10.6.22 reached prod in the USAGOV-2967 omnibus hotpatch, and reaches
+    `dev` through the prod back-merge (#2969). Staying on 11.4.12 would have taken production
+    backwards on that security release.
+  - Verified starting from a 10.6.22 database (`updb` 10.6.22 → 11.4.12 → 11.4.13). 11.4.13
+    has no update hooks and no config changes. The only lock change is `drupal/core*`;
+    `-W` also offered `guzzlehttp/psr7` 2.13.5, which was held at 2.13.4 to match `dev`.
+    Pages (475 anonymous plus 6 logged-in) are byte-identical apart from the `?v=` core
+    version strings, and status codes are unchanged. `usapubcsv` is identical (1,628 lines).
+    Cypress regression: 62 pass, with the 2 known local asset 404s.
 
 - [ ] **26. `dev` is missing the paragraphs_entity_embed 4.0.1 config export.**
   - What: USAGOV-2954 (#2954) updated paragraphs_entity_embed to 4.0.1, whose update hooks

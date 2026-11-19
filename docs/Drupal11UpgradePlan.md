@@ -1,4 +1,4 @@
-# Drupal 10.6.20 → 11.4.12 Upgrade Plan
+# Drupal 10.6.20 → 11.4.13 Upgrade Plan
 
 Ticket: USAGOV-2511
 
@@ -9,7 +9,8 @@ Core has since moved to 10.6.20 (USAGOV-2930).
 
 ## Target version
 
-Core 11.4.12, the latest 11.4 patch release (retargeted from 11.4.11 on 2026-11-17).
+Core 11.4.13, the latest 11.4 patch release (retargeted from 11.4.11 to 11.4.12 on 2026-11-17,
+then to 11.4.13 on 2026-11-19; 11.4.13 is the D11 counterpart of the 10.6.22 security release).
 It satisfies `s3fs`'s banded core constraint (`>=11.4.3 <11.5`), the 11.2
 hook-ordering floor `node_menus` 3.x-dev needs, and includes the SA-CORE-2026-013 fix
 (11.4.7+). 11.5 is excluded by `s3fs`.
@@ -33,7 +34,7 @@ module once the upgrade is complete.
 
 ## Compatibility verdict
 
-| Requirement | Needed for 11.4.12 | Current | Status |
+| Requirement | Needed for 11.4.13 | Current | Status |
 | --- | --- | --- | --- |
 | PHP | `>= 8.3.0` | 8.3.36 | OK |
 | PHP extensions | 14 required | all present | OK |
@@ -100,7 +101,7 @@ it later is a deliberate change.
 
 ### `s3fs` has a narrow, gapped constraint
 
-`>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.12
+`>=8.8 <10.7 || >=11.0 <11.2 || >=11.2.3 <11.4.0 || >=11.4.3 <11.5`. Core 11.4.13
 falls in the final window, so it resolves. 3.12.0 carries the same constraint. This module has historically lagged core
 point releases, and it will constrain which core patch versions can be taken.
 Already at 3.11.0 (USAGOV-2900); the constraint still applies when choosing the core
@@ -230,7 +231,7 @@ the 3.x markup (deleting the pins, then visual QA) is an optional follow-up.
    - `log_stdout` 1.5.0 → 3.0.0 (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
    - `uswds_base` 2.15.0 → 3.12.1 (USAGOV-2953, #2952). 2.15 markup pinned in `usagov`, so output is byte-identical.
    - Drop `viewsSuggestions-10_3.patch` (USAGOV-2951, #2951). Core now carries no custom patches.
-6. **Bump `composer.json`** (USAGOV-2961): the three core packages to `11.4.12`,
+6. **Bump `composer.json`** (USAGOV-2961): the three core packages to `11.4.13`,
    `node_menus` to `dev-3.x#1a05015a264176644124a8a1a270837bdc76effc`. No core patches
    to swap.
 7. **`bin/composer update`.** Expect to iterate on transitive conflicts; Symfony
@@ -297,6 +298,16 @@ code (remaining items are D12 notes). The pre-existing
 USAGOV-1685) still shows in the status report. **Not yet done:** a full Tome static
 build diff (the page diff covers the same HTML), and testing on the cloud.gov
 test/DR environments.
+
+**11.4.13 retarget (2026-11-19).** The verification above was run on 11.4.12. When 10.6.22
+shipped to prod, the bump moved to 11.4.13, its D11 counterpart. The re-check started from a
+10.6.22 database and compared 11.4.13 against an 11.4.12 baseline:
+- no update hooks and no config changes;
+- pages byte-identical apart from the `?v=` core version strings;
+- status codes and `usapubcsv` unchanged;
+- Cypress unchanged.
+
+See follow-up 25 in [Drupal11FollowUps.md](Drupal11FollowUps.md).
 
 Deferred work, workarounds and pre-existing issues found along the way are tracked in
 [Drupal11FollowUps.md](Drupal11FollowUps.md).
