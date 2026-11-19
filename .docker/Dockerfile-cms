@@ -201,7 +201,6 @@ RUN sed -E -i "s/:x:${BUID}:/:x:1919:/g" /etc/passwd \
       php83-session \
       php83-simplexml \
       php83-shmop \
-      php83-soap \
       php83-sockets \
       php83-sodium \
       php83-sqlite3 \

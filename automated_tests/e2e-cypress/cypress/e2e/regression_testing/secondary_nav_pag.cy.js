@@ -1,4 +1,5 @@
-const paths = ["/disaster-financial-help", "/es/ayuda-financiera-desastre"];
+// USAGOV-2946: Spanish pages now redirect to English; /es paths removed.
+const paths = ["/disaster-financial-help"];
 
 paths.forEach(path => {
   let lang;
