@@ -3,6 +3,7 @@ langcode: en
 status: false
 dependencies:
   config:
+    - core.entity_view_mode.node.rss
     - field.storage.node.field_b_name
   module:
     - node
@@ -215,7 +216,7 @@ display:
         type: node_rss
         options:
           relationship: none
-          view_mode: default
+          view_mode: rss
       query:
         type: views_query
         options: {  }

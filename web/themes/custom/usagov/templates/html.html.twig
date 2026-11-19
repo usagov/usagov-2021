@@ -34,10 +34,9 @@
 {% set url = path|render|render %}
 {% if front == "homepage"            %}
 {%   set baseURL = url('<front>')    %}
-{%   set url = baseURL|render|render %}
-{%   if not (url ends with '/')      %}
-{%     set url = url ~ '/'           %}
-{%   endif                           %}
+{#   trim makes this a plain string with exactly one trailing slash. On D11
+     the rendered value is markup, which "ends with" doesn't match. #}
+{%   set url = (baseURL|render|render)|trim('/', 'right') ~ '/' %}
 {% endif                             %}
 
 <!DOCTYPE html>
