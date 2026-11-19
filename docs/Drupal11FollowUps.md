@@ -107,6 +107,22 @@ the **action** (or trigger to revisit), and **refs**.
     `allow-plugins.symfony/runtime: false` (or delete `vendor/`) first. Note it in the
     production rollback plan.
 
+- [ ] **25. Core 11.4.13 is available.**
+  - What: 11.4.13 was released on 2026-11-18, after the bump was verified on 11.4.12. It has
+    no matching 10.6 release. When `dev` moved to 10.6.21 (USAGOV-2954), the bump stayed on
+    11.4.12, which is 10.6.21's D11 counterpart (both released 2026-11-06).
+  - Action: after the bump merges, move to the newest 11.4.x (still inside s3fs's
+    `>=11.4.3 <11.5`), with the page, CSV and Cypress checks from the plan doc.
+
+- [ ] **26. `dev` is missing the paragraphs_entity_embed 4.0.1 config export.**
+  - What: USAGOV-2954 (#2954) updated paragraphs_entity_embed to 4.0.1, whose update hooks
+    add `disable_paragraph_search_filter: false` and `negate: false` to
+    `embed.button.paragraphs` and `embed.button.paragraph_components`. The exported config
+    wasn't committed, so on `dev` `cim` strips the keys again after `updb`. Both default to
+    `false`, so behaviour is unchanged.
+  - Action: the USAGOV-2961 branch carries the export. If the bump is delayed, export it on
+    `dev` separately.
+
 - [ ] **24. Tome breaks when drush is called with `--root`.**
   - What: `drush --root=/var/www/web tome:static` makes Tome launch its workers with
     `'drush.php --root=…'` as a single quoted command, which fails ("not found").

@@ -8,7 +8,9 @@ label: 'Paragraph Components'
 id: paragraph_components
 type_id: paragraphs_entity_embed
 type_settings:
-  enable_paragraph_type_filter: 1
+  disable_paragraph_search_filter: false
+  enable_paragraph_type_filter: true
+  negate: false
   paragraphs_type_filter:
     uswds_accordion: uswds_accordion
     uswds_alert: uswds_alert
