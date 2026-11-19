@@ -72,6 +72,10 @@ describe('Life Events [ENG]', () => {
             .url().should('include', '/death-loved-one')
             .go('back')
     })
+    it('BTE 53b: Share this page is not shown on the life events landing page', () => {
+        cy.get('#sm-share').should('not.exist')
+        cy.contains('SHARE THIS PAGE:').should('not.exist')
+    })
 
 
 })
