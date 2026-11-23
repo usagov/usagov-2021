@@ -115,7 +115,8 @@ the **action** (or trigger to revisit), and **refs**.
     backwards on that security release.
   - Verified starting from a 10.6.22 database (`updb` 10.6.22 → 11.4.12 → 11.4.13). 11.4.13
     has no update hooks and no config changes. The only lock change is `drupal/core*`;
-    `-W` also offered `guzzlehttp/psr7` 2.13.5, which was held at 2.13.4 to match `dev`.
+    `-W` also offered `guzzlehttp/psr7` 2.13.5, which was held at 2.13.4 to match `dev`
+    (`dev` has since moved to 2.13.6 in USAGOV-2975, #2972, which the bump carries).
     Pages (475 anonymous plus 6 logged-in) are byte-identical apart from the `?v=` core
     version strings, and status codes are unchanged. `usapubcsv` is identical (1,628 lines).
     Cypress regression: 62 pass, with the 2 known local asset 404s.
@@ -168,7 +169,8 @@ the **action** (or trigger to revisit), and **refs**.
     3.x would change.
   - Refs: USAGOV-2953 (#2952).
 
-- [ ] **9. content_lock preview-button patch may be unnecessary.**
+- [x] **9. content_lock preview-button patch may be unnecessary.** Resolved 2026-11-23:
+  the patch was removed in USAGOV-2960 (#2967) and merged into the bump with `dev`.
   - What: `patches/drupal/content_lock-preview-button-lock-release.patch` (USAGOV-2626) was
     ported to 3.0. Its original bug didn't reproduce, even on 2.4 without the patch; its
     "Preview releases the lock" half still has an effect on 3.0.
