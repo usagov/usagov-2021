@@ -24,6 +24,10 @@
 - [Redirects](docs/redirects.md)
 - [Local S3 for dev](docs/Local_S3_for_Dev.md): How the local stand-in for the S3 bucket (SeaweedFS) works, loading public files, and moving over from MinIO
 
+## AI coding agents
+- [AGENTS.md](AGENTS.md): Instructions for AI coding agents working in this repo
+- [Cloud.gov instruction files](.github/README-agents.md): Index of the task-specific `*.instructions.md` files in `.github/`
+
 ## Custom modules with useful documentation
 ### USAGov directories
 - [Overview](web/modules/custom/usagov_directories/docs/README.md)

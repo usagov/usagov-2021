@@ -77,7 +77,7 @@ each is upgraded on D10 as its own ticket, ahead of the core bump. `node_menus`
 | Module | Current | Target | Core constraint at target | Risk |
 | --- | --- | --- | --- | --- |
 | ~~`address`~~ | ~~1.12.0~~ removed | ~~2.0.4~~ | — | major — **Removed** (unused; USAGOV-2907, #2905) |
-| ~~`content_lock`~~ | ~~2.4.0~~ 3.0.0 | 3.0.0 | `^10.2 \|\| ^11` | major, plus patch rewrite — **Done** (USAGOV-2950, #2950) |
+| ~~`content_lock`~~ | ~~2.4.0~~ 3.0.0 | 3.0.0 | `^10.2 \|\| ^11` | major — **Done** (USAGOV-2950, #2950); its patch has since been removed (USAGOV-2960, #2967) |
 | ~~`ctools`~~ | ~~3.15.0~~ 4.1.1 | 4.1.1 | `^9.5 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`faqfield`~~ | ~~7.1.0~~ 8.0.1 | 8.0.1 | `^8 \|\| ^9 \|\| ^10 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
 | ~~`paragraphs_entity_embed`~~ | ~~3.0.1~~ 4.0.0 | 4.0.0 | `^10.3 \|\| ^11` | major — **Done** (USAGOV-2907, #2905) |
@@ -115,7 +115,7 @@ Three of nine referenced patches need work.
 | --- | --- | --- |
 | `correctActiveTrail_d10.patch` | core | **Fails** — 2 of 5 hunks. Replaced by `usagov_menus` code on D10 (USAGOV-2941, #2933, **done**); no rebase. |
 | `viewsSuggestions-10_3.patch` | core | **Fails** — 2 hunks. **Dropped** instead of rebased (USAGOV-2951, #2951, **done**). |
-| `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Ported to 3.0's `src/Hook/FormAlter.php` (USAGOV-2950, #2950, **done**). |
+| `content_lock-preview-button-lock-release.patch` | content_lock | **Fails** — both hunks. Ported to 3.0 in USAGOV-2950 (#2950), then **removed** (USAGOV-2960, #2967, **done**): neither hunk is needed on 3.0. |
 | `correctMenuChildren_d10.patch` | views_menu_children_filter | OK — package version unchanged. |
 | `autologout-multitab-timeout-fix.patch` | autologout | OK — version unchanged. |
 | `tomeAggregationFix.patch` | tome | OK — version unchanged. |
@@ -165,14 +165,22 @@ core carries no custom patches, so the core bump has nothing to rebase.
 
 ### `content_lock-preview-button-lock-release.patch`
 
-This is a rewrite, not a rebase. `content_lock.module` went from 491 to 208 lines
-in 3.0, and the form-alter logic moved into `src/Hook/FormAlter.php` using D11 OOP
-hooks. Both changes map cleanly onto the new location: the `['submit', 'publish']`
-loop is at `FormAlter.php:53` and the `unlockButton()` call at `FormAlter.php:68`.
-Same logic, new file and class context. Ported in USAGOV-2950 (#2950). The bug it
-originally fixed (USAGOV-2626) doesn't reproduce with its documented steps even on
-2.4 without the patch, but its Preview-releases-lock change still has an effect on
-3.0, so it was kept.
+**Removed.** USAGOV-2950 (#2950) ported it to 3.0's `src/Hook/FormAlter.php`, but
+neither hunk is wanted there:
+
+- **Preview releases the lock.** Adding `preview` to the release-on-submit buttons
+  let a second user take the lock while the first was previewing, on every node
+  type (`content_lock.settings` locks `node: '*'`). The first user then returned
+  from the preview to a disabled form. Upstream keeps the lock during Preview on
+  purpose: `ContentLockNodeTest` asserts it.
+- **Lock holder's Save/Publish/Preview forced visible.** content_lock 3.0 never hides
+  these buttons, and nothing in custom or contrib code does. The only thing that
+  does is core `NodeForm::actions()`, according to each type's preview mode. No
+  type requires preview, so Save is never hidden. `wizard` and `bears_life_event`
+  have preview disabled, and the hunk made the Preview button show up on them anyway.
+
+The bug the patch originally fixed (USAGOV-2626) didn't reproduce with its
+documented steps even on 2.4 without the patch.
 
 3.0 also folds `content_lock_timeout` into `content_lock`: a post-update moves the
 1440-minute timeout to `content_lock.settings:timeout: 86400` and uninstalls the
@@ -217,7 +225,7 @@ the 3.x markup (deleting the pins, then visual QA) is an optional follow-up.
    `bin/` tooling.
 2. ~~**Rebase `viewsSuggestions-10_3.patch`**~~ **Dropped** instead (USAGOV-2951,
    #2951, done). No core patches remain: `correctActiveTrail` is replaced by
-   `usagov_menus` code (step 5) and the `content_lock` patch is ported with its 3.0
+   `usagov_menus` code (step 5) and the `content_lock` patch is removed after its 3.0
    upgrade (step 5).
 3. ~~**Bump `core_version_requirement`** to include `^11` across all 26 `.info.yml`
    files.~~ **Done** in USAGOV-2903 (#2901): 22 files (4 removed with Benefit Finder).
@@ -226,7 +234,7 @@ the 3.x markup (deleting the pins, then visual QA) is an optional follow-up.
    the `ConfigFormBase` constructor fix.
 5. ~~**Finish the D10-compatible work**, each as its own ticket on 10.6.20.~~ **Done**, all merged to `dev`:
    - Replace `correctActiveTrail_d10.patch` with `usagov_menus` code (USAGOV-2941, #2933).
-   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch ported (USAGOV-2950, #2950).
+   - `content_lock` 2.4.0 → 3.0.0, with the preview-button patch ported (USAGOV-2950, #2950), then removed (USAGOV-2960, #2967).
    - Cleanup: Twig `spaceless`, `wizardstep` library name, orphaned patches (USAGOV-2949, #2949).
    - `log_stdout` 1.5.0 → 3.0.0 (USAGOV-2942, #2934). 3.0 adds a `severity_level` setting with no update hook; without it every level but EMERGENCY is dropped, so config sets `7`.
    - `uswds_base` 2.15.0 → 3.12.1 (USAGOV-2953, #2952). 2.15 markup pinned in `usagov`, so output is byte-identical.

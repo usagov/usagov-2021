@@ -169,9 +169,6 @@
                 "Support TLS for Predis": "https://www.drupal.org/files/issues/2021-11-19/redis-support_tls_on_predis-3004561-37.patch",
                 "Don't rely on presence of redis CONFIG command (disabled in AWS)": "https://www.drupal.org/files/issues/2024-09-25/3173988-28.patch",
                 "Guard deleteMultiple() for D11 container compile (same fix as redis 1.11; drop when upgrading redis)": "./patches/drupal/redis-container-guard-d11.patch"
-            },
-            "drupal/content_lock": {
-                "Fix preview button and submit button access": "./patches/drupal/content_lock-preview-button-lock-release.patch"
             }
         }
     },
