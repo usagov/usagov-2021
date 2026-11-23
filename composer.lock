@@ -118,16 +118,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.404.0",
+            "version": "3.404.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "5b975ca9aca4c1708bc9106c90399460ee04346c"
+                "reference": "3f0279897d3f0f15971498793ca40ffa43ca385c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/5b975ca9aca4c1708bc9106c90399460ee04346c",
-                "reference": "5b975ca9aca4c1708bc9106c90399460ee04346c",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3f0279897d3f0f15971498793ca40ffa43ca385c",
+                "reference": "3f0279897d3f0f15971498793ca40ffa43ca385c",
                 "shasum": ""
             },
             "require": {
@@ -209,9 +209,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.404.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.404.1"
             },
-            "time": "2026-11-16T19:30:56+00:00"
+            "time": "2026-11-17T19:12:26+00:00"
         },
         {
             "name": "caxy/php-htmldiff",
@@ -1779,27 +1779,27 @@
         },
         {
             "name": "drupal/autologout",
-            "version": "2.0.3",
+            "version": "2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/autologout.git",
-                "reference": "2.0.3"
+                "reference": "2.0.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/autologout-2.0.3.zip",
-                "reference": "2.0.3",
-                "shasum": "1efd2020abe4025aee350e56189737ba11ab30cf"
+                "url": "https://ftp.drupal.org/files/projects/autologout-2.0.5.zip",
+                "reference": "2.0.5",
+                "shasum": "94773eb869aa552d5bcf818bc3c9e4e381962def"
             },
             "require": {
-                "drupal/core": "^9.2 || ^10 || ^11",
+                "drupal/core": "^10.3 || ^11 || ^12",
                 "drupal/js_cookie": "*"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "2.0.3",
-                    "datestamp": "1778985845",
+                    "version": "2.0.5",
+                    "datestamp": "1795287253",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -1866,6 +1866,10 @@
             ],
             "description": "Adds automated timed logout.",
             "homepage": "http://drupal.org/project/autologout",
+            "keywords": [
+                "Minimally maintained",
+                "Security"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/autologout",
                 "issues": "https://www.drupal.org/project/issues/autologout"
@@ -2764,6 +2768,9 @@
             ],
             "description": "Provides CSV as a serialization format.",
             "homepage": "https://www.drupal.org/project/csv_serialization",
+            "keywords": [
+                "Minimally maintained"
+            ],
             "support": {
                 "source": "http://cgit.drupalcode.org/csv_serialization",
                 "issues": "https://www.drupal.org/project/issues/csv_serialization"
@@ -2857,6 +2864,10 @@
             ],
             "description": "Provides a number of utility and helper APIs for Drupal developers and site builders.",
             "homepage": "https://www.drupal.org/project/ctools",
+            "keywords": [
+                "Actively maintained",
+                "Administration tools"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/ctools",
                 "issues": "https://www.drupal.org/project/issues/ctools"
@@ -2918,6 +2929,10 @@
             ],
             "description": "Various blocks, pages, and functions for developers.",
             "homepage": "https://www.drupal.org/project/devel",
+            "keywords": [
+                "Actively maintained",
+                "Administration tools"
+            ],
             "support": {
                 "source": "https://gitlab.com/drupalspoons/devel",
                 "issues": "https://gitlab.com/drupalspoons/devel/-/issues",
@@ -3094,6 +3109,10 @@
             ],
             "description": "Provides a framework for different types of embeds in text editors.",
             "homepage": "https://www.drupal.org/project/embed",
+            "keywords": [
+                "Content editing experience",
+                "Minimally maintained"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/embed"
             }
@@ -3217,6 +3236,10 @@
             ],
             "description": "Allows any entity to be embedded within a text area using a WYSIWYG editor.",
             "homepage": "https://www.drupal.org/project/entity_embed",
+            "keywords": [
+                "Actively maintained",
+                "Content editing experience"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/entity_embed"
             }
@@ -3851,6 +3874,10 @@
             ],
             "description": "Provides jQuery UI library.",
             "homepage": "https://www.drupal.org/project/jquery_ui",
+            "keywords": [
+                "Developer tools",
+                "Minimally maintained"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/jquery_ui"
             }
@@ -3904,32 +3931,36 @@
             ],
             "description": "Provides jQuery UI Accordion library.",
             "homepage": "https://www.drupal.org/project/jquery_ui_accordion",
+            "keywords": [
+                "Developer tools",
+                "Seeking new maintainer"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/jquery_ui_accordion"
             }
         },
         {
             "name": "drupal/js_cookie",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/js_cookie.git",
-                "reference": "1.0.2"
+                "reference": "1.0.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/js_cookie-1.0.2.zip",
-                "reference": "1.0.2",
-                "shasum": "effcbee68083efc866aca2a1bfa3fc6e14fe0c2f"
+                "url": "https://ftp.drupal.org/files/projects/js_cookie-1.0.3.zip",
+                "reference": "1.0.3",
+                "shasum": "f3a4fbfdebd0d11074c817eb32c028c5f50c82d5"
             },
             "require": {
-                "drupal/core": "^9 || ^10 || ^11"
+                "drupal/core": "^10 || ^11"
             },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "1.0.2",
-                    "datestamp": "1762168962",
+                    "version": "1.0.3",
+                    "datestamp": "1795113046",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -3960,6 +3991,10 @@
             ],
             "description": "Provides the js-cookie library as a dependency.",
             "homepage": "https://www.drupal.org/project/js_cookie",
+            "keywords": [
+                "Developer tools",
+                "Minimally maintained"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/js_cookie"
             }
@@ -4709,6 +4744,10 @@
             ],
             "description": "Provides features to import/export permission via spreadsheet.",
             "homepage": "https://drupal.org/project/permission_spreadsheet",
+            "keywords": [
+                "Access control",
+                "Actively maintained"
+            ],
             "support": {
                 "source": "https://cgit.drupalcode.org/permission_spreadsheet",
                 "issues": "https://drupal.org/project/issues/permission_spreadsheet"
@@ -4766,6 +4805,10 @@
             ],
             "description": "Allows users to redirect from old URLs to new URLs.",
             "homepage": "https://www.drupal.org/project/redirect",
+            "keywords": [
+                "Administration tools",
+                "Seeking co-maintainer(s)"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/redirect"
             }
@@ -4832,6 +4875,10 @@
             ],
             "description": "Integration of Drupal with the Redis key-value store.",
             "homepage": "https://www.drupal.org/project/redis",
+            "keywords": [
+                "Actively maintained",
+                "Integrations"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/redis"
             }
@@ -5102,6 +5149,10 @@
             ],
             "description": "Automatically publish and unpublish content at specified dates and times.",
             "homepage": "https://drupal.org/project/scheduler",
+            "keywords": [
+                "Actively maintained",
+                "Administration tools"
+            ],
             "support": {
                 "source": "https://git.drupalcode.org/project/scheduler",
                 "issues": "https://www.drupal.org/project/issues/scheduler"
@@ -5488,6 +5539,7 @@
             "description": "Provides a Condition plugin which checks to see if a node references a particular taxonomy term.",
             "homepage": "https://www.drupal.org/project/term_condition",
             "keywords": [
+                "Content editing experience",
                 "Drupal"
             ],
             "support": {
@@ -6626,22 +6678,22 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.16.3",
+            "version": "7.16.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "c88a78082757dd5a0c44191651535259fcb6e605"
+                "reference": "b0605f32e77a13cf98bc5e75b1d71877b6814e17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c88a78082757dd5a0c44191651535259fcb6e605",
-                "reference": "c88a78082757dd5a0c44191651535259fcb6e605",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b0605f32e77a13cf98bc5e75b1d71877b6814e17",
+                "reference": "b0605f32e77a13cf98bc5e75b1d71877b6814e17",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^2.6",
-                "guzzlehttp/psr7": "^2.13.4",
+                "guzzlehttp/promises": "^2.6.1",
+                "guzzlehttp/psr7": "^2.13.5",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
                 "symfony/deprecation-contracts": "^2.5 || ^3.0",
@@ -6734,7 +6786,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.16.3"
+                "source": "https://github.com/guzzle/guzzle/tree/7.16.5"
             },
             "funding": [
                 {
@@ -6750,20 +6802,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-17T16:23:09+00:00"
+            "time": "2026-11-20T22:56:33+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.6.0",
+            "version": "2.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "3d88c829bd5f13d13847b39067dbf09a60af2154"
+                "reference": "72e93ed2b1f3d8c09d1460c950bd5726face7ccd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/3d88c829bd5f13d13847b39067dbf09a60af2154",
-                "reference": "3d88c829bd5f13d13847b39067dbf09a60af2154",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/72e93ed2b1f3d8c09d1460c950bd5726face7ccd",
+                "reference": "72e93ed2b1f3d8c09d1460c950bd5726face7ccd",
                 "shasum": ""
             },
             "require": {
@@ -6818,7 +6870,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.6.0"
+                "source": "https://github.com/guzzle/promises/tree/2.6.2"
             },
             "funding": [
                 {
@@ -6834,20 +6886,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-18T12:46:59+00:00"
+            "time": "2026-11-21T03:45:23+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.13.4",
+            "version": "2.13.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "ad5e3f872690e1151e1171de2963150fc45ea1e3"
+                "reference": "2bd3dccf56e99cdacf74b1ad5e06a08a5a7739f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/ad5e3f872690e1151e1171de2963150fc45ea1e3",
-                "reference": "ad5e3f872690e1151e1171de2963150fc45ea1e3",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/2bd3dccf56e99cdacf74b1ad5e06a08a5a7739f2",
+                "reference": "2bd3dccf56e99cdacf74b1ad5e06a08a5a7739f2",
                 "shasum": ""
             },
             "require": {
@@ -6937,7 +6989,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.13.4"
+                "source": "https://github.com/guzzle/psr7/tree/2.13.6"
             },
             "funding": [
                 {
@@ -6953,7 +7005,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-17T16:15:51+00:00"
+            "time": "2026-11-21T23:48:40+00:00"
         },
         {
             "name": "laminas/laminas-escaper",
@@ -7733,16 +7785,16 @@
         },
         {
             "name": "mtdowling/jmespath.php",
-            "version": "2.9.3",
+            "version": "2.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jmespath/jmespath.php.git",
-                "reference": "05f56ceae00b30b6fe1064769aa5dee39a6f8b9b"
+                "reference": "dce446feeb793b72bacc012703fb30b48dc88d2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jmespath/jmespath.php/zipball/05f56ceae00b30b6fe1064769aa5dee39a6f8b9b",
-                "reference": "05f56ceae00b30b6fe1064769aa5dee39a6f8b9b",
+                "url": "https://api.github.com/repos/jmespath/jmespath.php/zipball/dce446feeb793b72bacc012703fb30b48dc88d2b",
+                "reference": "dce446feeb793b72bacc012703fb30b48dc88d2b",
                 "shasum": ""
             },
             "require": {
@@ -7788,9 +7840,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jmespath/jmespath.php/issues",
-                "source": "https://github.com/jmespath/jmespath.php/tree/2.9.3"
+                "source": "https://github.com/jmespath/jmespath.php/tree/2.9.4"
             },
-            "time": "2026-11-16T22:32:44+00:00"
+            "time": "2026-11-17T01:51:45+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -8392,16 +8444,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "3.10.9",
+            "version": "3.10.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "f362cd42b50120f94dd90f9d25ff0ae5e169e9e8"
+                "reference": "159edd8695a359a2e490087a5a2a6fc4675c0d06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/f362cd42b50120f94dd90f9d25ff0ae5e169e9e8",
-                "reference": "f362cd42b50120f94dd90f9d25ff0ae5e169e9e8",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/159edd8695a359a2e490087a5a2a6fc4675c0d06",
+                "reference": "159edd8695a359a2e490087a5a2a6fc4675c0d06",
                 "shasum": ""
             },
             "require": {
@@ -8492,9 +8544,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.10.9"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.10.10"
             },
-            "time": "2026-11-08T04:45:59+00:00"
+            "time": "2026-11-22T05:29:56+00:00"
         },
         {
             "name": "phpowermove/docblock",
