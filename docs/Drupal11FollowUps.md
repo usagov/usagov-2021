@@ -58,12 +58,12 @@ the **action** (or trigger to revisit), and **refs**.
       - The 475-path sweep, `drush status`, menu services, `og:url` and breadcrumb.
         `config:status` shows only `samlauth.authentication`, which
         `scripts/gsaauth/configset.sh` sets per environment.
+      - SAML sign-in, and the jQuery 4-dependent pages with the browser console: tested
+        manually on DR, and both pass.
     - Partly done: content_lock and autologout settings are correct on DR. Their behaviour
       (lock kept through Preview, second user locked out) was tested locally.
-    - Open:
-      - SAML sign-in and the browser console under jQuery 4 (manual test in progress).
-      - cron: DR runs no Drupal cron (its cron state dates from 2022), so it can't be
-        shown there.
+    - Open: cron. DR runs no Drupal cron (its cron state dates from 2022), so it can't be
+      shown there.
 
 - [x] **4. Local Tome static build diff.** Done 2026-11-17. A full `drush tome:static`
   build ran on D10 and on D11, from the same database, with no errors: 2,617 files on D10,
