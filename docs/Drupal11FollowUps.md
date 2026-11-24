@@ -48,8 +48,22 @@ the **action** (or trigger to revisit), and **refs**.
     - the browser console under jQuery 4.0 (custom JS was scanned; contrib JS was not).
   - Risk: a production-only failure in caching, files, login, or the static site.
   - Action: test checklist on the test environment, then DR.
-  - Refs: `web/sites/default/settings.php` (redis block), `scripts/tome-static.sh`,
-    `scripts/tome-sync.sh`.
+  - 2026-11-24, DR (branch 38918e274, then the same code plus 2G, see item 27):
+    - Done:
+      - Redis over TLS with the patched 1.9: Predis PONG, set/get.
+      - s3fs file reads.
+      - Tome build and `tome-sync` (`tome-run.sh` calls it). Image sync, S3 push, backup and
+        S3 count check all pass; 9,193 files against 9,196 for D10 builds on DR. The "looks
+        suspicious" count warning is pre-existing: D10 builds log it too.
+      - The 475-path sweep, `drush status`, menu services, `og:url` and breadcrumb.
+        `config:status` shows only `samlauth.authentication`, which
+        `scripts/gsaauth/configset.sh` sets per environment.
+    - Partly done: content_lock and autologout settings are correct on DR. Their behaviour
+      (lock kept through Preview, second user locked out) was tested locally.
+    - Open:
+      - SAML sign-in and the browser console under jQuery 4 (manual test in progress).
+      - cron: DR runs no Drupal cron (its cron state dates from 2022), so it can't be
+        shown there.
 
 - [x] **4. Local Tome static build diff.** Done 2026-11-17. A full `drush tome:static`
   build ran on D10 and on D11, from the same database, with no errors: 2,617 files on D10,
@@ -63,6 +77,12 @@ the **action** (or trigger to revisit), and **refs**.
     - 22 redirect-stub pages, all explained by item 22.
   - Tome must be run as production does (`cd web && drush tome:static …`). With
     `drush --root=…`, Tome builds a broken worker command and every worker fails (item 24).
+  - Re-verified 2026-11-24 after the `dev` merge. Both builds came from a fresh `usagov.sql`
+    and ran through `scripts/tome-static.sh`; the results are identical to 11-17:
+    - 2,617 vs 2,602 files, the same core-asset set;
+    - after normalization, 27 files differ: the 3 core assets (jQuery, `drupal.js`,
+      `views.module.css`), the 2 CSVs (item 21) and 22 redirect stubs (item 22);
+    - `published-pages.csv` is identical (1,628 lines).
 
 - [ ] **21. Federal directory CSV export formatting changed on D11.**
   - What: in `/admin/directory_report_federal.csv` (EN and ES, published on the static
@@ -83,6 +103,8 @@ the **action** (or trigger to revisit), and **refs**.
       (`searchbar.js`). They are **byte-identical** on D10 and D11
       (`/sites/default/files/directory_report_federal`, `_es`), and a browser test of
       `/agency-index` ("commerce", "homeland security") passes on D11.
+  - 2026-11-24: re-checked after the `dev` merge with the same result: 608 rows by 25
+    columns, and every cell is equal once whitespace is ignored.
 
 - [ ] **22. 41 paths are both a redirect source and an active alias, so static output is
   order-dependent.**
@@ -98,6 +120,8 @@ the **action** (or trigger to revisit), and **refs**.
   - Action: clean up the data. For each conflict, delete the old alias (keeping the
     redirect) or delete the redirect. Query: redirect sources joined to active `path_alias`
     rows with the same alias and langcode.
+  - 2026-11-24: re-checked after the `dev` merge. There are still 22 differing stubs (14
+    English, 8 Spanish), and all of them are in the conflict set.
 
 - [ ] **23. An in-place D11 → D10 downgrade needs `symfony/runtime` in `allow-plugins`.**
   - What: with D11's vendor installed, `composer install` on `dev` refuses to run because
@@ -106,6 +130,10 @@ the **action** (or trigger to revisit), and **refs**.
   - Action: if a rollback re-uses vendor, temporarily set
     `allow-plugins.symfony/runtime: false` (or delete `vendor/`) first. Note it in the
     production rollback plan.
+  - 2026-11-24: confirmed locally. Switching from the D11 branch to `dev`, `composer install`
+    fails exactly as described. Running
+    `composer config --no-plugins allow-plugins.symfony/runtime false` first, then reverting
+    `composer.json` after the install, works.
 
 - [x] **25. Core 11.4.13 is available.** Resolved 2026-11-19: the bump now targets
   11.4.13.
@@ -129,6 +157,21 @@ the **action** (or trigger to revisit), and **refs**.
     `false`, so behaviour is unchanged.
   - Action: the USAGOV-2961 branch carries the export. If the bump is delayed, export it on
     `dev` separately.
+  - Symptom on `dev`: `config:status` always lists `embed.button.paragraph_components`,
+    because active config has `enable_paragraph_type_filter: true` and sync has `1`. The
+    branch's export writes `true`, which clears this too.
+
+- [x] **27. Tome needs more than 1.5G on D11.** Resolved: cms memory raised to 2G in
+  USAGOV-2976 (#2973), merged into the bump with `dev`. Production gets the 2G with the
+  bump.
+  - What: on DR at 1.5G (cgroup limit 1568M), the first forced Tome build with 4 workers
+    was killed by the OOM killer at 66% and was not published. A later 4-worker build
+    succeeded, but its total memory peaked at about 1498M.
+  - 2G (cgroup limit 2080M), 2026-11-24: 3 builds with 4 workers all finished and synced.
+    Peak total usage was 1439–1760M; there were no OOM kills and no restart. The sampled
+    run took 12m58s for Tome and peaked at 69%.
+  - Risk: D11 builds take 13–15 min on DR, against 9–10 min for D10. Memory doesn't
+    explain this. Watch build times in production.
 
 - [ ] **24. Tome breaks when drush is called with `--root`.**
   - What: `drush --root=/var/www/web tome:static` makes Tome launch its workers with
