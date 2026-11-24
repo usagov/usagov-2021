@@ -11,10 +11,11 @@
 # Scheduler publishing is not handled here; the cron app triggers it every
 # 5 minutes via /scheduler/cron/{key}.
 #
+# Output is inherited from crond, whose stdout/stderr are the app's log stream
+# (`cf logs`). Don't redirect to /proc/1/fd/*: on cloud.gov PID 1 is
+# garden-init, whose output is not captured.
+#
 # NIST 800-53: SI-4 - System Monitoring (output goes to the platform log stream)
-
-# Send all output to the container's stdout/stderr so it shows up in `cf logs`.
-exec >/proc/1/fd/1 2>/proc/1/fd/2
 
 # Only the first instance runs cron (same convention as
 # periodic/1min/generate-static-site). Drupal's cron lock would serialize
