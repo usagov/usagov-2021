@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Run Drupal cron: core and contrib hook_cron() implementations plus
+# cron-enabled queue workers (expired content locks, temporary files,
+# deleted field data, image style warming, media thumbnails, etc.).
+#
+# Alpine's default root crontab runs /etc/periodic/hourly at the top of every
+# hour. busybox run-parts skips file names containing a dot, so this file must
+# not have an extension.
+#
+# Scheduler publishing is not handled here; the cron app triggers it every
+# 5 minutes via /scheduler/cron/{key}.
+#
+# NIST 800-53: SI-4 - System Monitoring (output goes to the platform log stream)
+
+# Send all output to the container's stdout/stderr so it shows up in `cf logs`.
+exec >/proc/1/fd/1 2>/proc/1/fd/2
+
+# Only the first instance runs cron (same convention as
+# periodic/1min/generate-static-site). Drupal's cron lock would serialize
+# concurrent runs anyway; this just avoids redundant attempts.
+if [ "${CF_INSTANCE_INDEX:-}" != "0" ]; then
+  exit 0
+fi
+
+cd /var/www || exit 1
+
+# Skip while in maintenance mode (deploys, snapshot imports), as tome-run.sh does.
+if [ "$(drush state:get system.maintenance_mode 2>/dev/null)" = "1" ]; then
+  echo "drupal-cron: maintenance mode is enabled; skipping cron run"
+  exit 0
+fi
+
+drush core:cron
