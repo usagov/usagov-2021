@@ -1,8 +1,8 @@
 diff --git a/autologout.module b/autologout.module
-index 6ad0142..e2eacb4 100644
+index b258e34..fbc2fb4 100644
 --- a/autologout.module
 +++ b/autologout.module
-@@ -282,6 +282,7 @@ function autologout_page_attachments_alter(array &$attachments) {
+@@ -290,6 +290,7 @@ function autologout_page_attachments_alter(array &$attachments) {
      'cookie_secure' => $settings->get('cookie_secure') ?: FALSE,
      'cookie_httponly' => FALSE,
      'cookie_samesite' => $cookie_samesite,
@@ -34,7 +34,7 @@ index ad40383..88db0ab 100644
  autologout.role.*:
    type: config_object
 diff --git a/js/autologout.js b/js/autologout.js
-index c9ab414..52ab669 100644
+index bc0f8d7..7bf400f 100644
 --- a/js/autologout.js
 +++ b/js/autologout.js
 @@ -80,13 +80,92 @@
@@ -146,12 +146,11 @@ index c9ab414..52ab669 100644
        let paddingTimer;
        function schedulePadding(fn, delay) {
          clearTimeout(paddingTimer);
-@@ -106,8 +193,19 @@
- 
+@@ -109,9 +196,20 @@
+       // are hoisted, so this is safe.
        function init() {
          const noDialog = settings.autologout.no_dialog;
 -        if (settings.activity) {
--          refresh();
 +        // Time left before the configured timeout elapses, measured from the
 +        // most recent activity in this or any other tab/window (shared via
 +        // localStorage). Scheduling the next check against this remaining time,
@@ -163,28 +162,32 @@ index c9ab414..52ab669 100644
 +          // The user has been active recently (possibly in another tab). Keep
 +          // the server session alive, then re-check exactly when the timeout
 +          // would actually elapse rather than starting a brand-new timeout.
+           // eslint-disable-next-line no-use-before-define
+-          refresh();
 +          keepServerAlive();
 +          schedule(init, remaining);
-         }
-         else {
+         } else {
            // The user has not been active, ask them if they want to stay logged
-@@ -116,7 +214,7 @@
+           // in and start the logout timer.
+@@ -120,7 +218,8 @@
            // While the countdown timer is going, lookup the remaining time. If
            // there is more time remaining (i.e. a user is navigating in another
            // tab), then reset the timer for opening the dialog.
--          Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(function (time) {
-+          getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(function (time) {
-             if (time > 0) {
-               clearTimeout(paddingTimer);
-               schedule(init, time);
-@@ -127,12 +225,26 @@
-                 logout();
-                 return;
+-          Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(
++          // eslint-disable-next-line no-use-before-define
++          getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(
+             function (time) {
+               if (time > 0) {
+                 clearTimeout(paddingTimer);
+@@ -134,13 +233,27 @@
+                   return;
+                 }
+                 // eslint-disable-next-line no-use-before-define
+-                theDialog = dialog();
++                warningDialog = dialog();
                }
--              theDialog = dialog();
-+              warningDialog = dialog();
-             }
-           });
+             },
+           );
          }
        }
  
@@ -205,7 +208,7 @@ index c9ab414..52ab669 100644
        function triggerLogoutEvent(logoutMethod, logoutUrl) {
          const logoutEvent = new CustomEvent('autologout', {
            detail: {
-@@ -144,6 +256,8 @@
+@@ -152,6 +265,8 @@
        }
  
        function logout() {
@@ -214,7 +217,7 @@ index c9ab414..52ab669 100644
          if (localSettings.use_alt_logout_method) {
            const logoutUrl = localSettings.alt_logout_url;
            triggerLogoutEvent('alternative', logoutUrl);
-@@ -174,19 +288,6 @@
+@@ -183,18 +298,6 @@
          }
        }
  
@@ -225,8 +228,7 @@ index c9ab414..52ab669 100644
 -      function keepAlive() {
 -        if (!document.hidden) {
 -          Drupal.Ajax['autologout.refresh'].autologoutRefresh(keepAlive);
--        }
--        else {
+-        } else {
 -          schedule(keepAlive, localSettings.timeout);
 -        }
 -      }
@@ -234,18 +236,19 @@ index c9ab414..52ab669 100644
        // A user could have used the reset button on the tab/window they're
        // actively using, so we need to double check before actually logging out.
        function confirmLogout() {
-@@ -196,7 +297,7 @@
+@@ -204,7 +307,8 @@
            currentDialog = null;
          }
  
--        Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(function (time) {
-+        getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(function (time) {
-           if (time > 0) {
-             schedule(init, time);
-           }
-@@ -220,6 +321,11 @@
-               samesite: localSettings.cookie_samesite,
-             });
+-        Drupal.Ajax['autologout.getTimeLeft'].autologoutGetTimeLeft(
++        // eslint-disable-next-line no-use-before-define
++        getDrupalAjaxTimeLeftObject().autologoutGetTimeLeft(
+           function (time) {
+             if (time > 0) {
+               schedule(init, time);
+@@ -233,6 +337,11 @@
+               },
+             );
              clearTimeout(paddingTimer);
 +            // Clear the open-dialog guard first so updateLastActiveState()
 +            // actually records this "stay logged in" action as activity (and
@@ -255,7 +258,7 @@ index c9ab414..52ab669 100644
              stayLoggedIn = true;
              if (currentDialog) {
                currentDialog.close();
-@@ -248,6 +354,10 @@
+@@ -263,6 +372,10 @@
            close(event, ui) {
              $(event.target).remove();
              currentDialog = null;
@@ -266,22 +269,21 @@ index c9ab414..52ab669 100644
              if (!stayLoggedIn && !skipLogoutOnClose) {
                logout();
              }
-@@ -272,11 +382,11 @@
+@@ -287,10 +400,10 @@
        document.body.appendChild(timerMarkup);
  
        if (localSettings.refresh_only) {
 +        updateLastActiveState();
          // On pages where user shouldn't be logged out, don't set the timer.
          schedule(keepAlive, localSettings.timeout);
-       }
-       else {
+       } else {
 -        settings.activity = false;
          if (localSettings.logout_regardless_of_activity) {
            // Ignore users activity and set timeout.
-           const timestamp = Math.round((new Date()).getTime() / 1000);
-@@ -296,6 +406,11 @@
-             document.body.dispatchEvent(new Event('preventAutologout'));
-           }));
+           const timestamp = Math.round(new Date().getTime() / 1000);
+@@ -315,6 +428,11 @@
+             }),
+           );
  
 +          // Bind touchmove events to preventAutoLogout event.
 +          document.body.addEventListener('touchmove', debounce(function () {
@@ -289,9 +291,9 @@ index c9ab414..52ab669 100644
 +          }));
 +
            // Replaces the CKEditor5 check because keyup should always prevent autologout.
-           document.body.addEventListener('keyup', debounce(function () {
-             document.body.dispatchEvent(new Event('preventAutologout'));
-@@ -303,16 +418,7 @@
+           document.body.addEventListener(
+             'keyup',
+@@ -325,16 +443,7 @@
  
            document.body.addEventListener('preventAutologout', function () {
              // When the preventAutologout event fires, we set activity to true.
@@ -309,7 +311,7 @@ index c9ab414..52ab669 100644
            });
  
            // On pages where the user should be logged out, set the timer to popup
-@@ -321,6 +427,10 @@
+@@ -343,6 +452,10 @@
          }
        }
  
@@ -320,7 +322,7 @@ index c9ab414..52ab669 100644
        /**
         * Get the remaining time.
         *
-@@ -333,11 +443,14 @@
+@@ -355,11 +468,14 @@
         */
        Drupal.Ajax.prototype.autologoutGetTimeLeft = function (callback) {
          const ajax = this;
@@ -336,7 +338,7 @@ index c9ab414..52ab669 100644
          };
          ajax.options.success = function (response, status, xmlhttprequest) {
            if (typeof response === 'string') {
-@@ -362,6 +475,13 @@
+@@ -395,6 +511,13 @@
            return originalSuccess.call(ajax, response, status, xmlhttprequest);
          };
  
@@ -349,8 +351,8 @@ index c9ab414..52ab669 100644
 +
          try {
            $.ajax(ajax.options);
-         }
-@@ -370,18 +490,20 @@
+         } catch (e) {
+@@ -402,18 +525,20 @@
          }
        };
  
@@ -383,7 +385,7 @@ index c9ab414..52ab669 100644
  
        /**
         * Handle refresh event.
-@@ -419,6 +541,12 @@
+@@ -454,6 +579,12 @@
            return originalSuccess.call(ajax, response, status, xmlhttprequest);
          };
  
@@ -396,7 +398,7 @@ index c9ab414..52ab669 100644
          try {
            $.ajax(ajax.options);
          } catch (e) {
-@@ -426,15 +554,30 @@
+@@ -461,15 +592,30 @@
          }
        };
  
@@ -437,10 +439,10 @@ index c9ab414..52ab669 100644
        // Check if the page was loaded via a back button click.
        const dirtyBit = document.getElementById('autologout-cache-check-bit');
 diff --git a/src/Controller/AutologoutController.php b/src/Controller/AutologoutController.php
-index e7705c0..fc95d59 100644
+index 5f0f1f3..3146262 100644
 --- a/src/Controller/AutologoutController.php
 +++ b/src/Controller/AutologoutController.php
-@@ -107,7 +107,6 @@ class AutologoutController extends ControllerBase {
+@@ -114,7 +114,6 @@ class AutologoutController extends ControllerBase {
      $response = new AjaxResponse();
      $markup = $this->autoLogoutManager->createTimer();
      $response->addCommand(new ReplaceCommand('#timer', $markup));
@@ -448,7 +450,7 @@ index e7705c0..fc95d59 100644
  
      return $response;
    }
-@@ -124,7 +123,6 @@ class AutologoutController extends ControllerBase {
+@@ -131,7 +130,6 @@ class AutologoutController extends ControllerBase {
        $response->addCommand(new ReplaceCommand('#timer', 0));
        $response->addCommand(new SettingsCommand([
          'time' => 0,
@@ -456,7 +458,7 @@ index e7705c0..fc95d59 100644
        ]));
  
        return $response;
-@@ -138,7 +136,6 @@ class AutologoutController extends ControllerBase {
+@@ -145,7 +143,6 @@ class AutologoutController extends ControllerBase {
      $response->addCommand(new ReplaceCommand('#timer', $markup));
      $response->addCommand(new SettingsCommand([
        'time' => $time_remaining_ms,
@@ -465,7 +467,7 @@ index e7705c0..fc95d59 100644
  
      return $response;
 diff --git a/src/Form/AutologoutSettingsForm.php b/src/Form/AutologoutSettingsForm.php
-index aefb8b6..ca60d44 100644
+index 65b25c5..24c8f53 100644
 --- a/src/Form/AutologoutSettingsForm.php
 +++ b/src/Form/AutologoutSettingsForm.php
 @@ -289,6 +289,13 @@ class AutologoutSettingsForm extends ConfigFormBase {
