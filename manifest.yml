@@ -3,7 +3,7 @@ applications:
 - name: cms
   docker:
     image: gsatts/usagov-2021:cms-latest
-  memory: 1.5G
+  memory: 2G
   disk_quota: 5G
   timeout: 180
   services:
