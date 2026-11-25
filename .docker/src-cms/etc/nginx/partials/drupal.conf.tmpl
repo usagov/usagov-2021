@@ -75,6 +75,15 @@
         deny all;
     }
 
+    # Secure the Drupal installer; the site is already installed.
+    # SA-CORE-2026-017 / SA-CORE-2026-019 exploit install.php.
+    # Exact match takes precedence over the \.php$ handler below.
+    # NIST 800-53: CM-7 - Least Functionality
+    # NIST 800-53: AC-3 - Access Enforcement
+    location = /core/install.php {
+        return 404;
+    }
+
     # Allow "Well-Known URIs" as per RFC 5785
     location ~* ^/.well-known/ {
         allow all;
