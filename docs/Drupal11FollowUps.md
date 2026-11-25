@@ -173,6 +173,29 @@ the **action** (or trigger to revisit), and **refs**.
   - Risk: D11 builds take 13–15 min on DR, against 9–10 min for D10. Memory doesn't
     explain this. Watch build times in production.
 
+- [x] **28. Core 11.4.14 is available.** Resolved 2026-11-25: the bump now targets 11.4.14.
+  - What: 11.4.14 was released on 2026-11-25 with 10.6.23 as its D10 counterpart. Both fix
+    SA-CORE-2026-019 (highly critical, installer takeover, exploited in the wild). 10.6.23 is
+    going to prod as a hotfix (USAGOV-2977, #2975) and reaches `dev` through the prod
+    back-merge. Staying on 11.4.13 would take production backwards on that security release.
+  - Verified from the 10.6 `usagov.sql` dump (`updb` to 11.4.14), against an 11.4.13 baseline
+    on the same database. The only new update hook is
+    `system_post_update_mark_installation_finished`; there are no config changes. 483 pages
+    are byte-identical apart from the `?v=` core version strings, status codes are unchanged,
+    and `usapubcsv` is identical (1,628 lines).
+  - 11.4.14 also fixes the 11.4.13 theme registry regression ("Theme hook field not found").
+
+- [ ] **29. Running a D10 database on D11 code fails until `updb` adds `router.alias`.**
+  - What: `system_update_11201` adds the `alias` column to `{router}`. Before it runs, anything
+    that rebuilds the router (`drush cim`, `drush cr`) fails with
+    `Unknown column 'alias' in 'INSERT INTO'`.
+  - Local: on this branch `bin/db-update` imports a D10 dump and runs `config:import` before
+    any `updb`, so it fails. Workaround: run `bin/drush updb -y`, then `bin/drupal-update`.
+  - Deploy: `scripts/bootstrap.sh` runs `drush cr` before `drush updatedb`. On the first D11
+    deploy, that `cr` is expected to log the same error. The script has no `set -e`, so it
+    continues to `updatedb`, which adds the column, and the later `cim`/`cr` succeed. Expect
+    the error in the first deploy's log. Running `updb` before `cr` would avoid it.
+
 - [ ] **24. Tome breaks when drush is called with `--root`.**
   - What: `drush --root=/var/www/web tome:static` makes Tome launch its workers with
     `'drush.php --root=…'` as a single quoted command, which fails ("not found").
