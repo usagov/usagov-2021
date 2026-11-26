@@ -19,8 +19,8 @@ class OrphanedEntitiesSettings extends ConfigFormBase {
     parent::__construct($config_factory, $typed_config_manager);
   }
 
-  public static function create(ContainerInterface $container): self {
-    return new self(
+  public static function create(ContainerInterface $container): static {
+    return new static(
       $container->get('config.factory'),
       $container->get('entity_type.manager'),
       $container->get('config.typed')

@@ -3,17 +3,16 @@ langcode: en
 status: true
 dependencies:
   config:
-    - config_pages.type.blog_intro
     - media.type.audio
     - media.type.file
     - node.type.agency_synonym
     - node.type.basic_page
-    - node.type.blog_post
     - node.type.bears_agency
     - node.type.bears_benefit
     - node.type.bears_criteria
     - node.type.bears_life_event
     - node.type.bears_life_event_form
+    - node.type.blog_post
     - node.type.directory_record
     - node.type.state_directory_record
     - node.type.wizard
@@ -116,6 +115,7 @@ permissions:
   - 'edit own wizard_step content'
   - 'edit paragraphs entity embed'
   - 'edit terms in wizard'
+  - 'rebuild node access permissions'
   - 'revert bears_agency revisions'
   - 'revert bears_benefit revisions'
   - 'revert bears_criteria revisions'

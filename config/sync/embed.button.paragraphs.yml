@@ -10,7 +10,9 @@ label: 'USWDS Components'
 id: paragraphs
 type_id: paragraphs_entity_embed
 type_settings:
+  disable_paragraph_search_filter: false
   enable_paragraph_type_filter: true
+  negate: false
   paragraphs_type_filter:
     faq: faq
     site_issue_report_form: site_issue_report_form

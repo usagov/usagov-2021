@@ -21,8 +21,6 @@ settings:
   label: 'Wizard Espanol'
   label_display: '0'
   provider: block_content
-  status: true
-  info: ''
   view_mode: full
 visibility:
   'entity_bundle:node':
