@@ -1,7 +1,7 @@
 _core:
   default_config_hash: MUpaAk1hn-0Ph4OFw3DD_6gUF9KbGwxja9Y0qmampzo
 max_links: 2000
-cron_generate: true
+cron_generate: false
 cron_generate_interval: 12
 generate_duration: 10000
 entities_per_queue_item: 50
