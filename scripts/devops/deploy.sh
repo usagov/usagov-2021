@@ -2976,6 +2976,38 @@ switch_env() {
     cf target -s "$env"
 }
 
+# List the tickets carried by the commits in a git range, one per line
+# Arguments:
+#   $1: git revision range (e.g. "stage..prod")
+#
+# Only the FIRST ticket in each commit's subject line counts. The commit-msg
+# hook prepends the branch name ("USAGOV-1234-short-desc: message"), and
+# squash merges take the PR title ("USAGOV-1234: title (#5678)"), so that
+# leading ticket is the one the commit belongs to. Commit bodies and later
+# mentions in the subject are ignored: squash-merge bodies repeat every
+# branch commit, and messages often reference related or past tickets
+# ("follow-up to USAGOV-1200", "removed in USAGOV-1100") that are not part
+# of this release.
+#
+# Accepts "USAGOV-123", "usagov_123", "Usa 123", etc. The repo name
+# (usagov-2021) is skipped. POSIX awk only (no [[:space:]]) so it runs on
+# mawk/BSD awk as well as gawk.
+extract_ccb_tickets() {
+    git log --format='%s' "$1" 2>/dev/null | \
+        awk '{
+            s = tolower($0)
+            while (match(s, /usa(gov)?[-_ \t][0-9]+/)) {
+                t = substr(s, RSTART, RLENGTH)
+                s = substr(s, RSTART + RLENGTH)
+                gsub(/[^0-9]/, "", t)
+                if (t == "2021") continue
+                print "USAGOV-" t
+                break
+            }
+        }' | \
+        sort -u
+}
+
 # Show what tickets/commits are between two refs (branches, commits, tags)
 show_changes() {
     local from="${1:-prod}"
@@ -3043,13 +3075,9 @@ show_changes() {
             return 0
         fi
 
-        # Extract tickets from commit messages
+        # Extract each commit's own ticket (see extract_ccb_tickets)
         local tickets
-        tickets=$(git log "$to..$from" | \
-            grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
-            sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
-            grep -iv usagov-2021 | \
-            sort -u)
+        tickets=$(extract_ccb_tickets "$to..$from")
 
         # Show commit count
         local commit_count
@@ -3138,15 +3166,9 @@ EOF
         return 0
     fi
 
-    # Extract tickets from commit messages
-    # Accept: "Usa 123", "usa_123", "USAGOV-123", etc.
-    # Pattern matches: hyphen, underscore, space, or tab
+    # Extract each commit's own ticket (see extract_ccb_tickets)
     local tickets
-    tickets=$(git log "$to..$from" | \
-        grep -Eio 'usa(gov)?[-_[:space:]]([0-9]+)' | \
-        sed -E 's/usa(gov)?[-_[:space:]]([0-9]+)/USAGOV-\2/ig' | \
-        grep -iv usagov-2021 | \
-        sort -u)
+    tickets=$(extract_ccb_tickets "$to..$from")
 
     # Show commit count
     local commit_count
