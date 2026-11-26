@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Following the convention used in usagov-2021, this script is to be run
+# after cloning this repo.
+
+echo "Set up git hooks"
+if [ ! -f .git/hooks/commit-msg ]; then
+  cp .git.commit-msg .git/hooks/commit-msg
+  chmod +x .git/hooks/commit-msg
+fi
